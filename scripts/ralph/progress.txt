@@ -1,0 +1,9 @@
+# Ralph progress: Automatos Play pilot (PRD-001)
+
+## Patterns
+<!-- Reusable patterns for later sessions. Keep this short and current. -->
+- Nothing runs locally. Pin dependency versions with `npm view <pkg> version` and edit package.json by hand. CI is the gate.
+- The backend is reached only through app/api/* routes; the browser uses lib/client/api.ts.
+- The mascot files in public/auto/ are git-ignored and absent in CI: always degrade to the placeholder.
+
+---

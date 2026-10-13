@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E7E5EE;font-family:'Figtree',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#4BF0B7}a:hover{color:#8FF7D3}*{box-sizing:border-box}</style>
+</helmet>
+
+<section style="padding:56px 64px 24px;max-width:1500px">
+  <div style="display:flex;align-items:baseline;gap:14px">
+    <div style="font:600 40px/1.1 'Fredoka',sans-serif;color:#120F2A">Automatos Play — mocks</div>
+    <div style="font:500 12px 'JetBrains Mono',monospace;color:#5E578F">v1 · dark theme · 9 screens × 1440 / 390</div>
+  </div>
+  <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1300px;font:15px/1.55 'Figtree',sans-serif;color:#3A3560;text-wrap:pretty">
+    <div><b style="color:#120F2A">Direction.</b> Night workshop: deep indigo ground, forge-bronze for the one primary action per screen, mint for Auto's light and "done". Fredoka for headings (rounded, game-launcher energy without going toddler), Figtree for reading, JetBrains Mono for tool lines and code.</div>
+    <div><b style="color:#120F2A">Mascot.</b> Every Auto is a slot: drop <code>auto-hero.png</code> in the project root and it appears everywhere. Until then a placeholder shows the state name. The ring is drawn by the page: mint = calm/happy, bronze = busy, coral = needs help, dusk = asleep/lost.</div>
+    <div><b style="color:#120F2A">Assumptions.</b> Only Chat, Conversations and Deliverables exist in nav (no Missions/settings per brief). Laptop prices and specs are example data. Yellow tags are motion/state notes — toggle them and the mascot off in Tweaks to check the page reads without him.</div>
+  </div>
+</section>
+
+<!-- 01 CHAT -->
+<section data-screen-label="01 Chat" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">01</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Chat with Auto</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>searching</b> — a web search is running. Text equivalents: the running tool line, the status under Auto, and the Send button swapped for Stop.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:radial-gradient(900px 520px at 85% 115%, rgba(240,122,46,.13), transparent 60%), radial-gradient(800px 500px at 0% -10%, rgba(139,124,255,.14), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:248px;flex:none;display:flex;flex-direction:column;gap:20px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.015)">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+        <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset, 0 6px 18px -6px rgba(240,122,46,.6)">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;background:rgba(139,124,255,.18);font:600 15px 'Figtree',sans-serif">Chat</div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Conversations<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">23</span></div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Deliverables<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">14</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:0 12px 6px">Recent</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#F3F0FF;background:rgba(255,255,255,.04)">Laptop for uni</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Revision plan for chemistry</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Instagram captions for the bake sale</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Budget for the trip to Lisbon</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.12);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="height:68px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="font:600 20px 'Fredoka',sans-serif">Laptop for uni</div><div style="font:500 13px 'Figtree',sans-serif;color:#8C86B3">Started 4 min ago</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px">
+          <div style="width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px;padding-bottom:20px">
+            <div style="align-self:flex-end;max-width:520px;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">What should I look for in a laptop for uni? Mostly essays and some light photo editing.</div>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+              <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.14);background:rgba(255,255,255,.03);font:13px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Searched the web · 3 results · 2.1 s</div>
+              <div style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF;text-wrap:pretty">For essays plus light editing, aim for <b style="color:#fff">16 GB of memory</b>, a screen that covers most of sRGB, and at least 10 hours of battery. Under 1.5 kg makes a real difference if you carry it to lectures every day.</div>
+              <div style="width:100%;border:1px solid rgba(180,170,255,.14);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:6px">
+                <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</div>
+                <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px"><span style="color:#4BF0B7">✓</span>Searched the web · 3 results</div>
+                <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px"><span style="color:#4BF0B7">✓</span>Read 3 pages</div>
+              </div>
+            </div>
+            <div style="position:relative;align-self:flex-end;max-width:520px;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">Great. Can you make me a shortlist under £700?
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;left:-150px;top:12px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px;white-space:nowrap">rise 12px · 180ms</span></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+              <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(240,122,46,.45);background:rgba(240,122,46,.08);font:13px 'JetBrains Mono',monospace;color:#F7C9A6"><span style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(240,122,46,.3);border-top-color:#F07A2E"></span>Searching the web: 'best budget laptops for students 2026'</div>
+              <div style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF">On it. I'm checking current prices first, since they move a lot<span style="display:inline-block;width:9px;height:18px;margin-left:3px;vertical-align:-3px;background:#4BF0B7;border-radius:2px"></span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 40px 26px">
+          <div style="max-width:720px;margin:0 auto;position:relative">
+            <div style="display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 18px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)">
+              <div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div>
+              <button style="height:44px;padding:0 18px;display:flex;align-items:center;gap:10px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:#F3F0FF;color:#120F2A;font:600 15px 'Fredoka',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#120F2A"></span>Stop</button>
+            </div>
+            <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:0;top:-26px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px;white-space:nowrap">Send → Stop while answering</span></sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="width:320px;flex:none;border-left:1px solid rgba(180,170,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;position:relative">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="searching" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="text-align:center;display:flex;flex-direction:column;gap:6px;padding:0 28px"><div style="font:600 19px 'Fredoka',sans-serif">Searching the web</div><div style="font:13px/1.5 'JetBrains Mono',monospace;color:#B9B3DA">best budget laptops for students 2026</div></div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:calc(50% + 10px);right:18px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">ring pulses · 2.4s</span></sc-if>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(500px 360px at 80% 105%, rgba(240,122,46,.15), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(180,170,255,.08)">
+        <button style="height:44px;min-width:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">Chats</button>
+        <div style="font:600 17px 'Fredoka',sans-serif">Laptop for uni</div>
+        <button style="height:44px;min-width:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">Shelf</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:0 16px 12px">
+        <div style="font:15px/1.55 'Figtree',sans-serif;color:#E8E4FF">…at least 10 hours of battery. Under 1.5 kg makes a real difference if you carry it every day.</div>
+        <div style="border:1px solid rgba(180,170,255,.14);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:5px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</div>
+          <div style="font:12px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:8px"><span style="color:#4BF0B7">✓</span>Searched the web · 3 results</div>
+          <div style="font:12px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:8px"><span style="color:#4BF0B7">✓</span>Read 3 pages</div>
+        </div>
+        <div style="align-self:flex-end;max-width:290px;background:#2A2360;padding:12px 16px;border-radius:18px 18px 6px 18px;font:15px/1.5 'Figtree',sans-serif">Great. Can you make me a shortlist under £700?</div>
+        <div style="font:600 13px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:10px;border:1px solid rgba(240,122,46,.45);background:rgba(240,122,46,.08);font:12px/1.45 'JetBrains Mono',monospace;color:#F7C9A6"><span style="flex:none;margin-top:2px;width:11px;height:11px;border-radius:50%;border:2px solid rgba(240,122,46,.3);border-top-color:#F07A2E"></span>Searching the web: 'best budget laptops for students 2026'</div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:12px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="searching" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:600 15px 'Fredoka',sans-serif">Searching the web</div><div style="font:12px 'JetBrains Mono',monospace;color:#B9B3DA">3 sites so far</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px">
+        <div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)">
+          <div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div>
+          <button style="height:44px;padding:0 16px;display:flex;align-items:center;gap:8px;border-radius:12px;border:0;background:#F3F0FF;color:#120F2A;font:600 15px 'Fredoka',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#120F2A"></span>Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 DELIVERABLE READY -->
+<section data-screen-label="02 Deliverable ready" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">02</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Chat — a Deliverable is ready</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>celebrate</b> — the turn ended with a Deliverable. Text equivalents: the Deliverable card, the "Done" receipt, and "Your report is ready" under Auto. Celebrate plays once, then settles to idle.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:radial-gradient(900px 520px at 85% 115%, rgba(75,240,183,.10), transparent 60%), radial-gradient(800px 500px at 0% -10%, rgba(139,124,255,.14), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:248px;flex:none;display:flex;flex-direction:column;gap:20px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.015)">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+        <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset, 0 6px 18px -6px rgba(240,122,46,.6)">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;background:rgba(139,124,255,.18);font:600 15px 'Figtree',sans-serif">Chat</div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Conversations<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">23</span></div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Deliverables<span style="display:flex;align-items:center;gap:6px;font:500 12px 'JetBrains Mono',monospace;color:#4BF0B7">+1 · 15</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:0 12px 6px">Recent</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#F3F0FF;background:rgba(255,255,255,.04)">Laptop for uni</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Revision plan for chemistry</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Instagram captions for the bake sale</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Budget for the trip to Lisbon</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.12);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="height:68px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="font:600 20px 'Fredoka',sans-serif">Laptop for uni</div><div style="font:500 13px 'Figtree',sans-serif;color:#8C86B3">Started 6 min ago</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px">
+          <div style="width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px;padding-bottom:20px">
+            <div style="align-self:flex-end;max-width:520px;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">Great. Can you make me a shortlist under £700?</div>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+              <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.14);background:rgba(255,255,255,.03);font:13px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Searched the web · 5 results · 2.8 s</div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.14);background:rgba(255,255,255,.03);font:13px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Read 4 pages · 3.4 s</div>
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.14);background:rgba(255,255,255,.03);font:13px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Made a report: Laptop shortlist · 6.0 s</div>
+              </div>
+              <div style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF;text-wrap:pretty">Done! Three laptops make the cut. The <b style="color:#fff">ASUS Vivobook S 14</b> is my pick: the best battery of the three and the lightest, at £679. The full comparison is in your report.</div>
+              <div style="position:relative;width:440px;display:flex;align-items:center;gap:16px;padding:14px;border-radius:16px;background:linear-gradient(180deg,#241F52,#1E1946);border:1px solid rgba(75,240,183,.45);box-shadow:0 0 0 4px rgba(75,240,183,.08), 0 18px 40px -16px rgba(75,240,183,.35)">
+                <div style="width:72px;height:88px;flex:none;border-radius:8px;background:#F6F1E8;padding:10px 9px;display:flex;flex-direction:column;gap:5px">
+                  <div style="height:6px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:3px;border-radius:2px;background:#C9C2D9"></div><div style="height:3px;width:85%;border-radius:2px;background:#C9C2D9"></div>
+                  <div style="margin-top:auto;display:flex;align-items:flex-end;gap:4px;height:26px"><div style="flex:1;height:70%;background:#F07A2E;border-radius:2px"></div><div style="flex:1;height:50%;background:#8B7CFF;border-radius:2px"></div><div style="flex:1;height:100%;background:#2BBF8C;border-radius:2px"></div></div>
+                </div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                  <div style="font:600 18px 'Fredoka',sans-serif">Laptop shortlist</div>
+                  <div style="display:flex;align-items:center;gap:8px;font:500 13px 'Figtree',sans-serif;color:#B9B3DA"><span style="padding:2px 8px;border-radius:6px;background:rgba(240,122,46,.16);color:#F7B98C;font-weight:600">Report</span>just now</div>
+                </div>
+                <button style="height:44px;padding:0 20px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Open</button>
+                <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:-180px;top:14px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px;white-space:nowrap">lands: drop + bounce 1.06</span></sc-if>
+              </div>
+              <div style="width:100%;border:1px solid rgba(180,170,255,.14);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:6px">
+                <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</div>
+                <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px"><span style="color:#4BF0B7">✓</span>Searched the web · 5 results</div>
+                <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px"><span style="color:#4BF0B7">✓</span>Read 4 pages</div>
+                <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px;align-items:center"><span style="color:#4BF0B7">✓</span>Made a report: Laptop shortlist<span style="padding:1px 7px;border-radius:5px;background:rgba(75,240,183,.14);color:#4BF0B7">Done</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 40px 26px">
+          <div style="max-width:720px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 18px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)">
+            <div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div>
+            <button style="height:44px;padding:0 22px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button>
+          </div>
+        </div>
+      </div>
+      <div style="width:320px;flex:none;border-left:1px solid rgba(180,170,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="celebrate" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="text-align:center;display:flex;flex-direction:column;gap:6px;padding:0 28px"><div style="font:600 19px 'Fredoka',sans-serif">Your report is ready</div><div style="font:13px/1.5 'Figtree',sans-serif;color:#B9B3DA">It's on your shelf too.</div></div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(500px 360px at 80% 105%, rgba(75,240,183,.12), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(180,170,255,.08)">
+        <button style="height:44px;min-width:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">Chats</button>
+        <div style="font:600 17px 'Fredoka',sans-serif">Laptop for uni</div>
+        <button style="height:44px;min-width:44px;padding:0 10px;border:0;background:none;color:#4BF0B7;font:600 15px 'Figtree',sans-serif">Shelf +1</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;padding:0 16px 12px">
+        <div style="font:600 13px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;gap:8px;padding:7px 10px;border-radius:10px;border:1px solid rgba(180,170,255,.14);font:12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Searched the web · 5 results · 2.8 s</div>
+          <div style="display:flex;gap:8px;padding:7px 10px;border-radius:10px;border:1px solid rgba(180,170,255,.14);font:12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Made a report · 6.0 s</div>
+        </div>
+        <div style="font:15px/1.55 'Figtree',sans-serif;color:#E8E4FF">Done! Three laptops make the cut. The <b style="color:#fff">ASUS Vivobook S 14</b> is my pick at £679.</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:#221D4D;border:1px solid rgba(75,240,183,.45);box-shadow:0 0 0 4px rgba(75,240,183,.08)">
+          <div style="width:52px;height:64px;flex:none;border-radius:7px;background:#F6F1E8;padding:7px;display:flex;flex-direction:column;gap:4px"><div style="height:5px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:3px;border-radius:2px;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:3px;height:18px"><div style="flex:1;height:70%;background:#F07A2E"></div><div style="flex:1;height:50%;background:#8B7CFF"></div><div style="flex:1;height:100%;background:#2BBF8C"></div></div></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><div style="font:600 16px 'Fredoka',sans-serif">Laptop shortlist</div><div style="font:500 12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#F7B98C;font-weight:600">Report</span> · just now</div></div>
+          <button style="height:44px;padding:0 16px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Open</button>
+        </div>
+        <div style="border:1px solid rgba(180,170,255,.14);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:5px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</div>
+          <div style="font:12px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:8px"><span style="color:#4BF0B7">✓</span>Searched the web · 5 results</div>
+          <div style="font:12px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:8px;align-items:center"><span style="color:#4BF0B7">✓</span>Made a report: Laptop shortlist<span style="padding:1px 6px;border-radius:5px;background:rgba(75,240,183,.14);color:#4BF0B7">Done</span></div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:12px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="celebrate" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:600 15px 'Fredoka',sans-serif">Your report is ready</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Saved to your shelf</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px">
+        <div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)">
+          <div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div>
+          <button style="height:44px;padding:0 18px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 CONVERSATIONS -->
+<section data-screen-label="03 Conversations" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">03</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Conversations</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>idle</b> on desktop (nothing running; he stays put so the layout doesn't jump between screens). None on the phone list — it's a utility screen and every pixel goes to the list.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:radial-gradient(800px 500px at 0% -10%, rgba(139,124,255,.14), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:400px;flex:none;display:flex;flex-direction:column;gap:18px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.02)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 6px"><div style="display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div><button style="height:40px;padding:0 16px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">New chat</button></div>
+        <div style="display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(255,255,255,.04)">
+          <div style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;border-radius:9px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Chat</div>
+          <div style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:rgba(139,124,255,.22);font:600 14px 'Figtree',sans-serif">Conversations</div>
+          <div style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;border-radius:9px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Deliverables</div>
+        </div>
+        <div style="position:relative">
+          <div style="height:44px;display:flex;align-items:center;padding:0 14px;border-radius:12px;border:2px solid #4BF0B7;box-shadow:0 0 0 4px rgba(75,240,183,.15);background:#1B1740;font:15px 'Figtree',sans-serif;color:#8C86B3">Search conversations</div>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:10px;top:13px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">focus state: 2px mint + 4px halo</span></sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;overflow:hidden">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:6px 12px">Today</div>
+          <div style="padding:12px;border-radius:12px;background:rgba(139,124,255,.14);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Laptop for uni</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">2 min</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Done! Three laptops make the cut. The ASUS…</div></div>
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:14px 12px 6px">This week</div>
+          <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Revision plan for chemistry</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Yesterday</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Week 1 covers bonding and moles. I've left Friday…</div></div>
+          <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Instagram captions for the bake sale</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Mon</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">You: Shorter, and less exclamation marks please</div></div>
+          <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Budget for the trip to Lisbon</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Sun</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: With hostels it comes to about €410 each for…</div></div>
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:14px 12px 6px">Earlier</div>
+          <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Cover letter for the café job</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">9 Oct</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: I tightened the opening line so it gets to the…</div></div>
+          <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:600 15px 'Figtree',sans-serif">Climate debate slides</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">4 Oct</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Slide 4 now has the 2025 emissions figure…</div></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="height:68px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="font:600 20px 'Fredoka',sans-serif">Laptop for uni</div><div style="font:500 13px 'Figtree',sans-serif;color:#8C86B3">8 messages · 1 Deliverable</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px">
+          <div style="width:100%;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding-bottom:20px">
+            <div style="align-self:flex-end;max-width:460px;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">Great. Can you make me a shortlist under £700?</div>
+            <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+            <div style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF;text-wrap:pretty">Done! Three laptops make the cut. The <b style="color:#fff">ASUS Vivobook S 14</b> is my pick: the best battery of the three and the lightest, at £679.</div>
+            <div style="width:400px;display:flex;align-items:center;gap:14px;padding:12px;border-radius:16px;background:#221D4D;border:1px solid rgba(180,170,255,.18)">
+              <div style="width:52px;height:64px;flex:none;border-radius:7px;background:#F6F1E8;padding:7px;display:flex;flex-direction:column;gap:4px"><div style="height:5px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:3px;border-radius:2px;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:3px;height:18px"><div style="flex:1;height:70%;background:#F07A2E"></div><div style="flex:1;height:50%;background:#8B7CFF"></div><div style="flex:1;height:100%;background:#2BBF8C"></div></div></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font:600 16px 'Fredoka',sans-serif">Laptop shortlist</div><div style="font:500 13px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#F7B98C;font-weight:600">Report</span> · 2 min ago</div></div>
+              <button style="height:44px;padding:0 18px;border:1px solid rgba(180,170,255,.3);border-radius:12px;background:transparent;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Open</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 40px 26px"><div style="max-width:640px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 18px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)"><div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div><button style="height:44px;padding:0 22px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button></div></div>
+      </div>
+      <div style="width:280px;flex:none;border-left:1px solid rgba(180,170,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="200" hint-size="180px,200px"></dc-import></sc-if>
+        <div style="font:600 17px 'Fredoka',sans-serif;color:#B9B3DA">Ready when you are</div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:#120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px">
+        <div style="font:600 30px 'Fredoka',sans-serif">Chats</div>
+        <button style="height:44px;padding:0 16px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">New chat</button>
+      </div>
+      <div style="padding:10px 16px"><div style="height:44px;display:flex;align-items:center;padding:0 14px;border-radius:12px;background:#1B1740;border:1px solid rgba(180,170,255,.18);font:15px 'Figtree',sans-serif;color:#8C86B3">Search conversations</div></div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:0 8px">
+        <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:10px 12px 4px">Today</div>
+        <div style="padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="display:flex;justify-content:space-between"><span style="font:600 16px 'Figtree',sans-serif">Laptop for uni</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">2 min</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Done! Three laptops make the cut…</div><div style="display:flex;gap:6px;margin-top:4px"><span style="font:600 11px 'Figtree',sans-serif;padding:2px 7px;border-radius:5px;background:rgba(240,122,46,.16);color:#F7B98C">1 Report</span></div></div>
+        <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:16px 12px 4px">This week</div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="display:flex;justify-content:space-between"><span style="font:600 16px 'Figtree',sans-serif">Revision plan for chemistry</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Yesterday</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Week 1 covers bonding and moles…</div></div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="display:flex;justify-content:space-between;gap:8px"><span style="font:600 16px 'Figtree',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Instagram captions for the bake sale</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Mon</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">You: Shorter, and less exclamation marks…</div></div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="display:flex;justify-content:space-between"><span style="font:600 16px 'Figtree',sans-serif">Budget for the trip to Lisbon</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Sun</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: With hostels it comes to about €410…</div></div>
+        <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:16px 12px 4px">Earlier</div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="display:flex;justify-content:space-between"><span style="font:600 16px 'Figtree',sans-serif">Cover letter for the café job</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">9 Oct</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: I tightened the opening line…</div></div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><span style="font:600 16px 'Figtree',sans-serif">Climate debate slides</span><span style="font:12px 'Figtree',sans-serif;color:#B9B3DA">4 Oct</span></div><div style="font:14px/1.4 'Figtree',sans-serif;color:#B9B3DA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Slide 4 now has the 2025 emissions…</div></div>
+      </div>
+      <div style="flex:none;display:flex;justify-content:space-around;padding:8px 12px 28px;border-top:1px solid rgba(180,170,255,.10);background:rgba(18,15,42,.9)">
+        <div style="min-width:88px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(139,124,255,.18);font:600 14px 'Figtree',sans-serif">Chats</div>
+        <div style="min-width:88px;height:48px;display:flex;align-items:center;justify-content:center;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Shelf</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 SHELF -->
+<section data-screen-label="04 Deliverables shelf" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">04</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Deliverables shelf</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>idle</b>, perched in the header like he's showing off the collection. The newest Deliverable gets the spotlight; the rest sit on glowing shelf ledges, a trophy cabinet rather than a file grid.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:radial-gradient(1000px 500px at 60% -20%, rgba(240,122,46,.12), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:248px;flex:none;display:flex;flex-direction:column;gap:20px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.015)">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+        <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Chat</div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Conversations<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">23</span></div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;background:rgba(139,124,255,.18);font:600 15px 'Figtree',sans-serif">Deliverables<span style="font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA">15</span></div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.12);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;padding:30px 48px;display:flex;flex-direction:column;gap:26px;overflow:hidden">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 40px/1 'Fredoka',sans-serif">Your shelf</div>
+            <div style="font:16px 'Figtree',sans-serif;color:#B9B3DA">15 Deliverables · 4 this week</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:12px">
+            <div style="padding:10px 14px;border-radius:14px 14px 4px 14px;background:#221D4D;border:1px solid rgba(180,170,255,.16);font:500 14px 'Figtree',sans-serif;color:#E8E4FF;margin-bottom:46px">Fifteen! That's a proper collection.</div>
+            <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="130" hint-size="117px,130px"></dc-import></sc-if>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;background:#F3F0FF;color:#120F2A;font:600 14px 'Figtree',sans-serif">All · 15</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Reports · 4</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Documents · 5</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Images · 3</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Spreadsheets · 2</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Slides · 1</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:22px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="position:relative;height:250px;border-radius:16px;background:linear-gradient(180deg,#2A2360,#1E1946);border:1px solid rgba(75,240,183,.4);box-shadow:0 0 40px -10px rgba(75,240,183,.35);display:flex;align-items:flex-end;justify-content:center;overflow:hidden">
+              <span style="position:absolute;top:12px;left:12px;font:600 12px 'Figtree',sans-serif;padding:3px 9px;border-radius:6px;background:#4BF0B7;color:#06281C">Newest</span>
+              <div style="width:150px;height:200px;border-radius:8px 8px 0 0;background:#F6F1E8;padding:16px 14px;display:flex;flex-direction:column;gap:7px;box-shadow:0 -6px 24px rgba(0,0,0,.3)"><div style="height:9px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:4px;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;width:85%;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;width:60%;border-radius:2px;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:6px;height:56px"><div style="flex:1;height:70%;background:#F07A2E;border-radius:2px"></div><div style="flex:1;height:50%;background:#8B7CFF;border-radius:2px"></div><div style="flex:1;height:100%;background:#2BBF8C;border-radius:2px"></div></div></div>
+            </div>
+            <div style="height:6px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(240,122,46,.7),transparent)"></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:600 18px 'Fredoka',sans-serif">Laptop shortlist</div><div style="display:flex;gap:8px;align-items:center;font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(240,122,46,.16);color:#F7B98C">Report</span>Today</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="height:190px;border-radius:16px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><div style="width:116px;height:150px;border-radius:7px 7px 0 0;background:#F6F1E8;padding:14px 12px;display:flex;flex-direction:column;gap:6px"><div style="height:7px;width:60%;border-radius:2px;background:#2A2360"></div><div style="height:4px;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;width:90%;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;width:70%;border-radius:2px;background:#C9C2D9"></div><div style="height:4px;width:80%;border-radius:2px;background:#C9C2D9"></div></div></div>
+            <div style="height:6px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(240,122,46,.5),transparent)"></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:600 17px 'Fredoka',sans-serif">Chemistry revision plan</div><div style="display:flex;gap:8px;align-items:center;font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(139,124,255,.2);color:#C9C1FF">Document</span>Yesterday</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="height:190px;border-radius:16px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:18px"><div style="width:100%;height:100%;border-radius:10px;background:linear-gradient(135deg,#F07A2E 0%,#E8507A 55%,#8B7CFF 100%);display:flex;align-items:center;justify-content:center;font:600 22px 'Fredoka',sans-serif;color:#fff;text-align:center;line-height:1.1">BAKE<br>SALE</div></div>
+            <div style="height:6px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(240,122,46,.5),transparent)"></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:600 17px 'Fredoka',sans-serif">Bake sale poster</div><div style="display:flex;gap:8px;align-items:center;font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(232,80,122,.18);color:#FFA9C0">Image</span>Mon</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="height:190px;border-radius:16px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><div style="width:140px;height:140px;border-radius:7px 7px 0 0;background:#F4FBF7;background-image:linear-gradient(#CFE8DC 1px,transparent 1px),linear-gradient(90deg,#CFE8DC 1px,transparent 1px);background-size:28px 16px;display:flex;flex-direction:column"><div style="height:16px;background:#2BBF8C"></div></div></div>
+            <div style="height:6px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(240,122,46,.5),transparent)"></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:600 17px 'Fredoka',sans-serif">Lisbon trip budget</div><div style="display:flex;gap:8px;align-items:center;font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(75,240,183,.14);color:#7FF5CB">Spreadsheet</span>Sun</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px">
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="height:120px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:center;justify-content:center"><div style="width:120px;height:68px;border-radius:6px;background:#2A2360;border:1px solid rgba(255,255,255,.1);padding:10px;display:flex;flex-direction:column;gap:5px"><div style="height:6px;width:60%;background:#F3F0FF;border-radius:2px"></div><div style="height:3px;width:40%;background:#8C86B3;border-radius:2px"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Climate debate slides</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#FFD08A;font-weight:600">Slides</span> · 4 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="height:120px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center"><div style="width:80px;height:100px;border-radius:6px 6px 0 0;background:#F6F1E8;padding:10px;display:flex;flex-direction:column;gap:5px"><div style="height:5px;width:60%;background:#2A2360;border-radius:2px"></div><div style="height:3px;background:#C9C2D9"></div><div style="height:3px;width:80%;background:#C9C2D9"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Café job cover letter</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#C9C1FF;font-weight:600">Document</span> · 9 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="height:120px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center"><div style="width:80px;height:100px;border-radius:6px 6px 0 0;background:#F6F1E8;padding:10px;display:flex;flex-direction:column;gap:5px"><div style="height:5px;width:70%;background:#2A2360;border-radius:2px"></div><div style="height:3px;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;gap:3px;align-items:flex-end;height:24px"><div style="flex:1;height:60%;background:#8B7CFF"></div><div style="flex:1;height:100%;background:#F07A2E"></div></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Part-time jobs compared</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#F7B98C;font-weight:600">Report</span> · 2 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="height:120px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:center;justify-content:center;padding:14px"><div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(160deg,#4BF0B7,#2A6BD6)"></div></div><div style="font:600 15px 'Fredoka',sans-serif">Band gig flyer</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#FFA9C0;font-weight:600">Image</span> · 28 Sep</div></div>
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="height:120px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center">
+<div style="width:110px;height:84px;border-radius:6px 6px 0 0;background:#F4FBF7;background-image:linear-gradient(#CFE8DC 1px,transparent 1px),linear-gradient(90deg,#CFE8DC 1px,transparent 1px);background-size:22px 12px"><div style="height:12px;background:#2BBF8C"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Gym routine tracker</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#7FF5CB;font-weight:600">Spreadsheet</span> · 21 Sep</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(500px 360px at 50% -10%, rgba(240,122,46,.16), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:4px 16px 0">
+        <div style="display:flex;flex-direction:column;gap:4px;padding-bottom:14px"><div style="font:600 30px/1 'Fredoka',sans-serif">Your shelf</div><div style="font:14px 'Figtree',sans-serif;color:#B9B3DA">15 Deliverables</div></div>
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="84" hint-size="76px,84px"></dc-import></sc-if>
+      </div>
+      <div style="flex:none;display:flex;gap:8px;padding:12px 16px;overflow:hidden">
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:12px;background:#F3F0FF;color:#120F2A;font:600 14px 'Figtree',sans-serif">All</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Reports</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Documents</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Images</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Spreadsheets</div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;padding:4px 16px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:14px;align-items:center;padding:12px;border-radius:18px;background:linear-gradient(180deg,#2A2360,#1E1946);border:1px solid rgba(75,240,183,.4);box-shadow:0 0 30px -10px rgba(75,240,183,.35)">
+          <div style="width:84px;height:104px;flex:none;border-radius:8px;background:#F6F1E8;padding:10px;display:flex;flex-direction:column;gap:5px"><div style="height:6px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:3px;background:#C9C2D9"></div><div style="height:3px;width:80%;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:4px;height:30px"><div style="flex:1;height:70%;background:#F07A2E"></div><div style="flex:1;height:50%;background:#8B7CFF"></div><div style="flex:1;height:100%;background:#2BBF8C"></div></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="align-self:flex-start;font:600 11px 'Figtree',sans-serif;padding:2px 8px;border-radius:5px;background:#4BF0B7;color:#06281C">Newest</span><div style="font:600 18px 'Fredoka',sans-serif">Laptop shortlist</div><div style="font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#F7B98C;font-weight:600">Report</span> · Today</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center;border-bottom:3px solid rgba(240,122,46,.55)"><div style="width:76px;height:100px;border-radius:6px 6px 0 0;background:#F6F1E8;padding:9px;display:flex;flex-direction:column;gap:5px"><div style="height:5px;width:60%;background:#2A2360;border-radius:2px"></div><div style="height:3px;background:#C9C2D9"></div><div style="height:3px;width:80%;background:#C9C2D9"></div><div style="height:3px;background:#C9C2D9"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Chemistry revision plan</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#C9C1FF;font-weight:600">Document</span> · Yesterday</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);padding:12px;border-bottom:3px solid rgba(240,122,46,.55)"><div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(135deg,#F07A2E,#E8507A 55%,#8B7CFF);display:flex;align-items:center;justify-content:center;font:600 17px/1.05 'Fredoka',sans-serif;color:#fff;text-align:center">BAKE<br>SALE</div></div><div style="font:600 15px 'Fredoka',sans-serif">Bake sale poster</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#FFA9C0;font-weight:600">Image</span> · Mon</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:flex-end;justify-content:center;border-bottom:3px solid rgba(240,122,46,.55)"><div style="width:110px;height:96px;border-radius:6px 6px 0 0;background:#F4FBF7;background-image:linear-gradient(#CFE8DC 1px,transparent 1px),linear-gradient(90deg,#CFE8DC 1px,transparent 1px);background-size:22px 12px"><div style="height:12px;background:#2BBF8C"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Lisbon trip budget</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#7FF5CB;font-weight:600">Spreadsheet</span> · Sun</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:14px;background:#1E1946;border:1px solid rgba(180,170,255,.14);display:flex;align-items:center;justify-content:center;border-bottom:3px solid rgba(240,122,46,.55)"><div style="width:120px;height:68px;border-radius:6px;background:#2A2360;border:1px solid rgba(255,255,255,.1);padding:10px;display:flex;flex-direction:column;gap:5px"><div style="height:6px;width:60%;background:#F3F0FF;border-radius:2px"></div><div style="height:3px;width:40%;background:#8C86B3;border-radius:2px"></div></div></div><div style="font:600 15px 'Fredoka',sans-serif">Climate debate slides</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#FFD08A;font-weight:600">Slides</span> · 4 Oct</div></div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;justify-content:space-around;padding:8px 12px 28px;border-top:1px solid rgba(180,170,255,.10);background:rgba(18,15,42,.92)">
+        <div style="min-width:88px;height:48px;display:flex;align-items:center;justify-content:center;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Chats</div>
+        <div style="min-width:88px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(139,124,255,.18);font:600 14px 'Figtree',sans-serif">Shelf</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 DETAIL -->
+<section data-screen-label="05 Deliverable detail" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">05</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Deliverable detail</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>none</b>. The Deliverable is the hero here and a reading page needs quiet. Auto comes back the moment you press "Ask Auto about this".</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:#120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:248px;flex:none;display:flex;flex-direction:column;gap:20px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.015)">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+        <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Chat</div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Conversations<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">23</span></div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;background:rgba(139,124,255,.18);font:600 15px 'Figtree',sans-serif">Deliverables<span style="font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA">15</span></div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.12);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;overflow:hidden;padding:26px 56px 0">
+        <div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+          <div style="font:600 14px 'Figtree',sans-serif;color:#B9B3DA">← Shelf</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="font:600 44px/1.05 'Fredoka',sans-serif">Laptop shortlist</div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:14px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:3px 9px;border-radius:6px;background:rgba(240,122,46,.16);color:#F7B98C">Report</span>Today, 15:42<span>·</span>Made by Auto with the Researcher agent</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;padding:30px 34px;border-radius:18px;background:#1B1740;border:1px solid rgba(180,170,255,.12)">
+            <div style="font:600 22px 'Fredoka',sans-serif">The short answer</div>
+            <div style="font:16px/1.65 'Figtree',sans-serif;color:#E8E4FF;text-wrap:pretty">All three handle essays and light photo editing comfortably. The ASUS Vivobook S 14 is the best all-rounder: the longest battery and the lightest build, still £21 under budget.</div>
+            <div style="border:1px solid rgba(180,170,255,.16);border-radius:12px;overflow:hidden;font:15px 'Figtree',sans-serif">
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:11px 16px;background:rgba(255,255,255,.04);font:600 12px 'Figtree',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#B9B3DA"><span>Laptop</span><span>Price</span><span>Weight</span><span>Battery</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 16px;border-top:1px solid rgba(180,170,255,.1);background:rgba(75,240,183,.06)"><span style="font-weight:600">ASUS Vivobook S 14 <span style="font:600 11px 'Figtree',sans-serif;color:#4BF0B7">PICK</span></span><span>£679</span><span>1.3 kg</span><span>15 h</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 16px;border-top:1px solid rgba(180,170,255,.1)"><span>Acer Swift Go 14</span><span>£649</span><span>1.3 kg</span><span>12 h</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 16px;border-top:1px solid rgba(180,170,255,.1)"><span>Lenovo IdeaPad Slim 5</span><span>£599</span><span>1.5 kg</span><span>10 h</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:12px;background:#F6F1E8;color:#2A2360">
+              <div style="font:600 14px 'Figtree',sans-serif">Battery life, hours (manufacturer figures)</div>
+              <div style="display:flex;flex-direction:column;gap:10px;font:500 13px 'Figtree',sans-serif">
+                <div style="display:grid;grid-template-columns:160px 1fr;align-items:center;gap:12px"><span>ASUS Vivobook S 14</span><div style="height:20px;width:100%;border-radius:4px;background:#2BBF8C;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#06281C;font-weight:700">15</div></div>
+                <div style="display:grid;grid-template-columns:160px 1fr;align-items:center;gap:12px"><span>Acer Swift Go 14</span><div style="height:20px;width:80%;border-radius:4px;background:#F07A2E;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#1A0E05;font-weight:700">12</div></div>
+                <div style="display:grid;grid-template-columns:160px 1fr;align-items:center;gap:12px"><span>Lenovo IdeaPad Slim 5</span><div style="height:20px;width:67%;border-radius:4px;background:#8B7CFF;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#120F2A;font-weight:700">10</div></div>
+              </div>
+            </div>
+            <div style="font:600 22px 'Fredoka',sans-serif">Why the Vivobook wins</div>
+            <div style="font:16px/1.65 'Figtree',sans-serif;color:#E8E4FF">Its OLED screen covers the full sRGB range, which matters for photo edits, and 16 GB of memory comes as standard.</div>
+          </div>
+        </div>
+      </div>
+      <div style="width:300px;flex:none;border-left:1px solid rgba(180,170,255,.08);padding:26px 22px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Ask Auto about this</button>
+          <button style="height:44px;border:1px solid rgba(180,170,255,.3);border-radius:12px;background:transparent;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Download</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;font:14px 'Figtree',sans-serif">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">About this Deliverable</div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B9B3DA">Type</span><span>Report</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B9B3DA">Made</span><span>Today, 15:42</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B9B3DA">Made by</span><span>Researcher agent</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B9B3DA">From chat</span><span style="color:#4BF0B7;text-decoration:underline">Laptop for uni</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">Sources · 4</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2">which.co.uk</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2">notebookcheck.net</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2">rtings.com</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2">asus.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:#120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;padding:0 8px"><button style="height:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">← Shelf</button></div>
+      <div style="flex:1;min-height:0;overflow:hidden;padding:0 16px;display:flex;flex-direction:column;gap:16px">
+        <div style="font:600 32px/1.05 'Fredoka',sans-serif">Laptop shortlist</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:13px 'Figtree',sans-serif;color:#B9B3DA"><span style="font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(240,122,46,.16);color:#F7B98C">Report</span>Today, 15:42 · Researcher agent</div>
+        <div style="font:600 19px 'Fredoka',sans-serif">The short answer</div>
+        <div style="font:15px/1.6 'Figtree',sans-serif;color:#E8E4FF">All three handle essays and light editing. The ASUS Vivobook S 14 is the best all-rounder, still £21 under budget.</div>
+        <div style="border:1px solid rgba(180,170,255,.16);border-radius:12px;overflow:hidden;font:14px 'Figtree',sans-serif">
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:9px 12px;background:rgba(255,255,255,.04);font:600 11px 'Figtree',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#B9B3DA"><span>Laptop</span><span>Price</span><span>Battery</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 12px;border-top:1px solid rgba(180,170,255,.1);background:rgba(75,240,183,.06)"><span style="font-weight:600">Vivobook S 14</span><span>£679</span><span>15 h</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 12px;border-top:1px solid rgba(180,170,255,.1)"><span>Swift Go 14</span><span>£649</span><span>12 h</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 12px;border-top:1px solid rgba(180,170,255,.1)"><span>IdeaPad Slim 5</span><span>£599</span><span>10 h</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;padding:16px;border-radius:12px;background:#F6F1E8;color:#2A2360;font:500 12px 'Figtree',sans-serif">
+          <div style="font:600 13px 'Figtree',sans-serif">Battery life, hours</div>
+          <div style="height:18px;width:100%;border-radius:4px;background:#2BBF8C;display:flex;align-items:center;padding:0 8px;color:#06281C;font-weight:700">Vivobook · 15</div>
+          <div style="height:18px;width:80%;border-radius:4px;background:#F07A2E;display:flex;align-items:center;padding:0 8px;color:#1A0E05;font-weight:700">Swift Go · 12</div>
+          <div style="height:18px;width:67%;border-radius:4px;background:#8B7CFF;display:flex;align-items:center;padding:0 8px;color:#120F2A;font-weight:700">IdeaPad · 10</div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;gap:10px;padding:12px 16px 30px;border-top:1px solid rgba(180,170,255,.1)">
+        <button style="flex:1;height:48px;border:1px solid rgba(180,170,255,.3);border-radius:12px;background:transparent;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Download</button>
+        <button style="flex:1.4;height:48px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Ask Auto about this</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 FIRST OPEN -->
+<section data-screen-label="06 First open" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">06</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">First open</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>hello</b> — the only screen where he's big, because this is the introduction. Text equivalent: "Hi, I'm Auto." The message box is focused so you can type straight away.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;color:#F3F0FF;background:radial-gradient(700px 420px at 50% 62%, rgba(75,240,183,.10), transparent 70%), radial-gradient(1100px 600px at 50% 120%, rgba(240,122,46,.16), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45);position:relative">
+      <div style="position:absolute;top:24px;left:28px;display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+      <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="hello" size="260" hint-size="234px,260px"></dc-import></sc-if>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+        <div style="font:600 56px/1 'Fredoka',sans-serif">Hi, I'm Auto.</div>
+        <div style="font:500 20px 'Figtree',sans-serif;color:#B9B3DA">Your Automatos, the fun way. Ask me anything and I'll get it done.</div>
+      </div>
+      <div style="width:720px;display:flex;flex-direction:column;gap:14px">
+        <div style="position:relative;display:flex;align-items:flex-end;gap:10px;padding:12px 12px 12px 20px;border-radius:18px;background:#1B1740;border:2px solid #4BF0B7;box-shadow:0 0 0 5px rgba(75,240,183,.14), 0 20px 50px -20px rgba(75,240,183,.4)">
+          <div style="flex:1;min-height:48px;display:flex;align-items:center;font:17px 'Figtree',sans-serif;color:#8C86B3"><span style="width:2px;height:22px;background:#4BF0B7;margin-right:4px"></span>Message Auto</div>
+          <button style="height:48px;padding:0 24px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">Send</button>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:0;top:-30px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">autofocus · focus ring</span></sc-if>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <div style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);background:rgba(255,255,255,.03);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Plan my revision week</div>
+          <div style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);background:rgba(255,255,255,.03);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Write captions for our bake sale</div>
+          <div style="height:44px;padding:0 18px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);background:rgba(255,255,255,.03);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Budget a weekend in Lisbon</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(420px 320px at 50% 38%, rgba(75,240,183,.10), transparent 70%), radial-gradient(500px 360px at 50% 110%, rgba(240,122,46,.18), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 20px"><div style="width:20px;height:20px;border-radius:50%;border:2.5px solid #4BF0B7"></div><div style="font:600 18px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:0 24px;text-align:center">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="hello" size="180" hint-size="162px,180px"></dc-import></sc-if>
+        <div style="font:600 38px/1 'Fredoka',sans-serif">Hi, I'm Auto.</div>
+        <div style="font:500 17px/1.45 'Figtree',sans-serif;color:#B9B3DA">Your Automatos, the fun way.</div>
+      </div>
+      <div style="flex:none;display:flex;flex-direction:column;gap:8px;padding:0 12px 12px">
+        <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Plan my revision week</div>
+        <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Write captions for our bake sale</div>
+        <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.24);font:500 15px 'Figtree',sans-serif;color:#E8E4FF">Budget a weekend in Lisbon</div>
+      </div>
+      <div style="flex:none;padding:4px 12px 30px">
+        <div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:2px solid #4BF0B7;box-shadow:0 0 0 4px rgba(75,240,183,.14)">
+          <div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div>
+          <button style="height:44px;padding:0 18px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 NOT RUNNING -->
+<section data-screen-label="07 Not running" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">07</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Automatos isn't running</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>sleeping</b>, ring dimmed to dusk. Text equivalents: the heading and "Not connected" status. Play checks again on its own, so the user only has to run one command.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;color:#F3F0FF;background:radial-gradient(700px 400px at 50% 40%, rgba(94,87,143,.22), transparent 70%), #0E0C22;box-shadow:0 30px 60px -20px rgba(18,15,42,.45);position:relative">
+      <div style="position:absolute;top:24px;left:28px;display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #5E578F"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+      <div style="position:absolute;top:24px;right:28px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.16);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;border:2px solid #8C86B3"></span>Not connected</div>
+      <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="sleeping" size="220" hint-size="198px,220px"></dc-import></sc-if>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;max-width:560px">
+        <div style="font:600 44px/1.05 'Fredoka',sans-serif">Automatos is asleep</div>
+        <div style="font:17px/1.55 'Figtree',sans-serif;color:#B9B3DA;text-wrap:pretty">Play talks to Automatos on your computer, and it isn't running right now. Open a terminal in your <span style="font-family:'JetBrains Mono',monospace;color:#E8E4FF">automatos-ai</span> folder and start it:</div>
+      </div>
+      <div style="position:relative;width:520px;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 20px;border-radius:14px;background:#06050F;border:1px solid rgba(180,170,255,.2)">
+        <span style="font:500 17px 'JetBrains Mono',monospace;color:#8C86B3">$</span>
+        <span style="flex:1;font:500 17px 'JetBrains Mono',monospace;color:#4BF0B7">docker compose up</span>
+        <button style="height:44px;padding:0 18px;border:1px solid rgba(180,170,255,.3);border-radius:10px;background:#1B1740;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Copy</button>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:0;top:-28px;font:500 11px/1.3 'JetBrains Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">Copy → "Copied" 2s</span></sc-if>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button style="height:44px;padding:0 22px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Check again</button>
+        <span style="font:14px 'Figtree',sans-serif;color:#8C86B3">Play also checks every 5 seconds.</span>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(400px 320px at 50% 35%, rgba(94,87,143,.24), transparent 70%), #0E0C22;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 20px"><div style="font:600 18px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div><span style="font:500 11px 'JetBrains Mono',monospace;color:#B9B3DA">Not connected</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:0 24px;text-align:center">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="sleeping" size="160" hint-size="144px,160px"></dc-import></sc-if>
+        <div style="font:600 32px/1.05 'Fredoka',sans-serif">Automatos is asleep</div>
+        <div style="font:16px/1.55 'Figtree',sans-serif;color:#B9B3DA">It isn't running on your computer. Start it from your <span style="font-family:'JetBrains Mono',monospace;color:#E8E4FF">automatos-ai</span> folder:</div>
+        <div style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:14px;background:#06050F;border:1px solid rgba(180,170,255,.2)"><span style="flex:1;text-align:left;font:500 15px 'JetBrains Mono',monospace;color:#4BF0B7">docker compose up</span><button style="height:44px;padding:0 14px;border:1px solid rgba(180,170,255,.3);border-radius:10px;background:#1B1740;color:#F3F0FF;font:600 14px 'Fredoka',sans-serif">Copy</button></div>
+      </div>
+      <div style="flex:none;padding:12px 16px 34px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <button style="width:100%;height:48px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">Check again</button>
+        <span style="font:13px 'Figtree',sans-serif;color:#8C86B3">Play also checks every 5 seconds.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 ERROR -->
+<section data-screen-label="08 Something went wrong" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">08</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Something went wrong</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>oops</b>, coral ring. Text equivalents: the failed tool line (✕ + words, not just red) and the plain-language error card with two ways forward.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;color:#F3F0FF;background:radial-gradient(900px 520px at 85% 115%, rgba(255,107,122,.10), transparent 60%), radial-gradient(800px 500px at 0% -10%, rgba(139,124,255,.14), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="width:248px;flex:none;display:flex;flex-direction:column;gap:20px;padding:22px 16px;border-right:1px solid rgba(180,170,255,.10);background:rgba(255,255,255,.015)">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+        <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="height:44px;display:flex;align-items:center;padding:0 12px;border-radius:10px;background:rgba(139,124,255,.18);font:600 15px 'Figtree',sans-serif">Chat</div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Conversations<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">24</span></div>
+          <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-radius:10px;font:500 15px 'Figtree',sans-serif;color:#B9B3DA">Deliverables<span style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">15</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3;padding:0 12px 6px">Recent</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#F3F0FF;background:rgba(255,255,255,.04)">Lisbon weekend weather</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Laptop for uni</div>
+          <div style="padding:9px 12px;border-radius:10px;font:500 14px 'Figtree',sans-serif;color:#B9B3DA">Revision plan for chemistry</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.12);font:500 12px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="width:8px;height:8px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="height:68px;flex:none;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid rgba(180,170,255,.08)"><div style="font:600 20px 'Fredoka',sans-serif">Lisbon weekend weather</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 40px">
+          <div style="width:100%;max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px;padding-bottom:20px">
+            <div style="align-self:flex-end;max-width:520px;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">What's the weather looking like in Lisbon next weekend? Deciding whether to pack a jacket.</div>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+              <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,107,122,.5);background:rgba(255,107,122,.08);font:13px 'JetBrains Mono',monospace;color:#FFB3BC"><span style="color:#FF6B7A;font-weight:700">✕</span>Web search didn't answer · 10.0 s</div>
+              <div style="width:100%;display:flex;flex-direction:column;gap:14px;padding:18px 20px;border-radius:16px;background:#22193F;border:1px solid rgba(255,107,122,.45)">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="font:600 17px 'Fredoka',sans-serif;color:#FFD3D8">I hit a snag</div>
+                  <div style="font:16px/1.55 'Figtree',sans-serif;color:#E8E4FF">Auto couldn't reach the web search tool. Try again, or ask without searching.</div>
+                </div>
+                <div style="display:flex;gap:10px">
+                  <button style="height:44px;padding:0 20px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Try again</button>
+                  <button style="height:44px;padding:0 20px;border:1px solid rgba(180,170,255,.3);border-radius:12px;background:transparent;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Ask without searching</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 40px 26px"><div style="max-width:720px;margin:0 auto;display:flex;align-items:flex-end;gap:10px;padding:10px 10px 10px 18px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)"><div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div><button style="height:44px;padding:0 22px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button></div></div>
+      </div>
+      <div style="width:320px;flex:none;border-left:1px solid rgba(180,170,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="oops" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="text-align:center;display:flex;flex-direction:column;gap:6px;padding:0 28px"><div style="font:600 19px 'Fredoka',sans-serif">Web search isn't answering</div><div style="font:13px/1.5 'Figtree',sans-serif;color:#B9B3DA">Nothing's broken on your side.</div></div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(500px 360px at 80% 105%, rgba(255,107,122,.12), transparent 60%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(180,170,255,.08)">
+        <button style="height:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">Chats</button>
+        <div style="font:600 17px 'Fredoka',sans-serif">Lisbon weather</div>
+        <button style="height:44px;padding:0 10px;border:0;background:none;color:#B9B3DA;font:600 15px 'Figtree',sans-serif">Shelf</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;padding:0 16px 12px">
+        <div style="align-self:flex-end;max-width:290px;background:#2A2360;padding:12px 16px;border-radius:18px 18px 6px 18px;font:15px/1.5 'Figtree',sans-serif">What's the weather looking like in Lisbon next weekend?</div>
+        <div style="font:600 13px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+        <div style="display:flex;gap:8px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,107,122,.5);background:rgba(255,107,122,.08);font:12px 'JetBrains Mono',monospace;color:#FFB3BC"><span style="color:#FF6B7A;font-weight:700">✕</span>Web search didn't answer · 10.0 s</div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:#22193F;border:1px solid rgba(255,107,122,.45)">
+          <div style="font:600 16px 'Fredoka',sans-serif;color:#FFD3D8">I hit a snag</div>
+          <div style="font:15px/1.5 'Figtree',sans-serif;color:#E8E4FF">Auto couldn't reach the web search tool. Try again, or ask without searching.</div>
+          <button style="height:44px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Try again</button>
+          <button style="height:44px;border:1px solid rgba(180,170,255,.3);border-radius:12px;background:transparent;color:#F3F0FF;font:600 15px 'Fredoka',sans-serif">Ask without searching</button>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:12px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="oops" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:600 15px 'Fredoka',sans-serif">Web search isn't answering</div><div style="font:12px 'Figtree',sans-serif;color:#B9B3DA">Nothing's broken on your side</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px"><div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)"><div style="flex:1;min-height:44px;display:flex;align-items:center;font:16px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 404 -->
+<section data-screen-label="09 404" style="padding:40px 64px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">09</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">404</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Figtree',sans-serif;color:#5E578F;max-width:900px">Mascot: <b>lost</b>, looking around in front of a giant hollow "404". One button, straight back to chat.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="flex:none;width:1440px;height:900px;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;color:#F3F0FF;background:radial-gradient(800px 500px at 50% 45%, rgba(139,124,255,.14), transparent 70%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45);position:relative">
+      <div style="position:absolute;top:24px;left:28px;display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:50%;border:2.5px solid #4BF0B7;box-shadow:0 0 10px rgba(75,240,183,.5)"></div><div style="font:600 20px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div></div>
+      <div style="position:relative;display:flex;align-items:flex-end;justify-content:center;height:300px">
+        <div style="font:600 300px/1 'Fredoka',sans-serif;color:transparent;-webkit-text-stroke:2px rgba(180,170,255,.22);letter-spacing:-.02em">404</div>
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="lost" size="220" hint-size="198px,220px"></dc-import></sc-if></div>
+      </div>
+      <div style="font:600 48px/1 'Fredoka',sans-serif">This page wandered off</div>
+      <div style="font:17px 'Figtree',sans-serif;color:#B9B3DA">Auto looked everywhere. It's not here.</div>
+      <button style="height:48px;padding:0 26px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">Back to chat</button>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;color:#F3F0FF;background:radial-gradient(400px 360px at 50% 40%, rgba(139,124,255,.16), transparent 70%), #120F2A;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;padding:10px 20px;font:600 18px 'Fredoka',sans-serif">Automatos <span style="color:#F07A2E">Play</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 24px;text-align:center">
+        <div style="position:relative;height:190px;display:flex;align-items:flex-end;justify-content:center">
+          <div style="font:600 150px/1 'Fredoka',sans-serif;color:transparent;-webkit-text-stroke:2px rgba(180,170,255,.22)">404</div>
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="lost" size="150" hint-size="135px,150px"></dc-import></sc-if></div>
+        </div>
+        <div style="font:600 32px/1.05 'Fredoka',sans-serif">This page wandered off</div>
+        <div style="font:16px 'Figtree',sans-serif;color:#B9B3DA">Auto looked everywhere. It's not here.</div>
+      </div>
+      <div style="flex:none;padding:12px 16px 34px"><button style="width:100%;height:48px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 16px 'Fredoka',sans-serif">Back to chat</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- STYLE SHEET -->
+<section data-screen-label="10 Style sheet" style="padding:40px 64px 80px;border-top:1px solid rgba(18,15,42,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:22px"><span style="font:600 11px 'JetBrains Mono',monospace;background:#120F2A;color:#fff;padding:3px 8px;border-radius:5px">SS</span><span style="font:600 22px 'Fredoka',sans-serif;color:#120F2A">Style sheet</span></div>
+  <div style="flex:none;width:1440px;border-radius:16px;overflow:hidden;background:#120F2A;color:#F3F0FF;padding:48px;display:flex;flex-direction:column;gap:44px;box-shadow:0 30px 60px -20px rgba(18,15,42,.45)">
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Colour</div>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;font:12px 'JetBrains Mono',monospace;color:#B9B3DA">
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#120F2A;border:1px solid rgba(180,170,255,.2)"></div><b style="color:#F3F0FF;font-family:Figtree">night</b>#120F2A · page</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#1B1740"></div><b style="color:#F3F0FF;font-family:Figtree">surface</b>#1B1740 · inputs, cards</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#2A2360"></div><b style="color:#F3F0FF;font-family:Figtree">raised</b>#2A2360 · your bubble</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#F07A2E;box-shadow:0 8px 24px -8px rgba(240,122,46,.6)"></div><b style="color:#F3F0FF;font-family:Figtree">bronze</b>#F07A2E · primary action · ink #1A0E05</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#4BF0B7;box-shadow:0 8px 24px -8px rgba(75,240,183,.6)"></div><b style="color:#F3F0FF;font-family:Figtree">mint</b>#4BF0B7 · Auto, done, focus</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FF6B7A"></div><b style="color:#F3F0FF;font-family:Figtree">coral</b>#FF6B7A · errors (always with ✕ + words)</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#F3F0FF"></div><b style="color:#F3F0FF;font-family:Figtree">text</b>#F3F0FF · 16.9:1</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#B9B3DA"></div><b style="color:#F3F0FF;font-family:Figtree">text-2</b>#B9B3DA · 9.4:1</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#8C86B3"></div><b style="color:#F3F0FF;font-family:Figtree">text-3</b>#8C86B3 · 5.3:1</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#8B7CFF"></div><b style="color:#F3F0FF;font-family:Figtree">violet</b>#8B7CFF · selected nav, loading</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#5E578F"></div><b style="color:#F3F0FF;font-family:Figtree">dusk</b>#5E578F · sleeping/lost ring</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:44px;border-radius:10px;background:#FFD66B"></div><b style="color:#F3F0FF;font-family:Figtree">note</b>#FFD66B · mock annotations only</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:48px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Type</div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">Display 56/1</span><span style="font:600 56px/1 'Fredoka',sans-serif">Hi, I'm Auto.</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">H1 40/1</span><span style="font:600 40px/1 'Fredoka',sans-serif">Your shelf</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">H2 22</span><span style="font:600 22px 'Fredoka',sans-serif">The short answer</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">Button 15–16</span><span style="font:600 16px 'Fredoka',sans-serif">Try again</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">Body 16/1.6</span><span style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF">Three laptops make the cut under £700.</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">Label 11 caps</span><span style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:120px;font:12px 'JetBrains Mono',monospace;color:#8C86B3">Mono 13</span><span style="font:13px 'JetBrains Mono',monospace;color:#B9B3DA">Searched the web · 3 results · 2.1 s</span></div>
+        <div style="font:13px/1.5 'Figtree',sans-serif;color:#8C86B3">Fredoka 600 (headings, buttons) · Figtree 400–700 (text) · JetBrains Mono (tool lines, code). Vendor all three via next/font/local.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Spacing · 4px base</div>
+          <div style="display:flex;align-items:flex-end;gap:14px;font:11px 'JetBrains Mono',monospace;color:#B9B3DA">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:4px;height:4px;background:#8B7CFF"></div>4</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#8B7CFF"></div>8</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:12px;height:12px;background:#8B7CFF"></div>12</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:16px;height:16px;background:#8B7CFF"></div>16</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:24px;height:24px;background:#8B7CFF"></div>24</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:40px;height:40px;background:#8B7CFF"></div>40</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;background:#8B7CFF"></div>56</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Radii</div>
+          <div style="display:flex;gap:16px;font:11px 'JetBrains Mono',monospace;color:#B9B3DA">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:6px;border:2px solid #F07A2E"></div>6 badge</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:10px;border:2px solid #F07A2E"></div>10 tool line</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:12px;border:2px solid #F07A2E"></div>12 button</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:16px;border:2px solid #F07A2E"></div>16 card</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:18px 18px 6px 18px;border:2px solid #F07A2E"></div>bubble</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font:13px/1.5 'Figtree',sans-serif;color:#B9B3DA">
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Motion</div>
+          <div>Message arrives: rise 12px + fade, 180ms ease-out</div>
+          <div>Ring: scale 1 → 1.06 + glow, 2.4s loop (off with reduced motion)</div>
+          <div>Deliverable card lands: drop 16px, overshoot 1.06, 420ms</div>
+          <div>Celebrate plays once, then settles to idle after 2s</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Components</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">message bubble</div>
+          <div style="align-self:flex-end;background:#2A2360;padding:14px 18px;border-radius:18px 18px 6px 18px;font:16px/1.5 'Figtree',sans-serif">Can you make me a shortlist?</div>
+          <div style="font:600 14px 'Fredoka',sans-serif;color:#4BF0B7">Auto</div>
+          <div style="font:16px/1.6 'Figtree',sans-serif;color:#E8E4FF">Auto's replies have no bubble: they read like a page.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">tool line · running / done / failed</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(240,122,46,.45);background:rgba(240,122,46,.08);font:13px 'JetBrains Mono',monospace;color:#F7C9A6"><span style="width:12px;height:12px;border-radius:50%;border:2px solid rgba(240,122,46,.3);border-top-color:#F07A2E"></span>Reading 4 pages</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(180,170,255,.14);background:rgba(255,255,255,.03);font:13px 'JetBrains Mono',monospace;color:#B9B3DA"><span style="color:#4BF0B7">✓</span>Read 4 pages · 3.4 s</div>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,107,122,.5);background:rgba(255,107,122,.08);font:13px 'JetBrains Mono',monospace;color:#FFB3BC"><span style="color:#FF6B7A;font-weight:700">✕</span>Web search didn't answer</div>
+        </div>
+        <div style="border:1px solid rgba(180,170,255,.14);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:6px">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3;margin-bottom:4px">receipt list</div>
+          <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#8C86B3">What Auto did</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px"><span style="color:#4BF0B7">✓</span>Searched the web · 5 results</div>
+          <div style="font:13px 'JetBrains Mono',monospace;color:#D6D1F2;display:flex;gap:10px;align-items:center"><span style="color:#4BF0B7">✓</span>Made a report: Laptop shortlist<span style="padding:1px 7px;border-radius:5px;background:rgba(75,240,183,.14);color:#4BF0B7">Done</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">Deliverable card</div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;border-radius:16px;background:#221D4D;border:1px solid rgba(75,240,183,.45);box-shadow:0 0 0 4px rgba(75,240,183,.08)">
+            <div style="width:52px;height:64px;flex:none;border-radius:7px;background:#F6F1E8;padding:7px;display:flex;flex-direction:column;gap:4px"><div style="height:5px;width:70%;border-radius:2px;background:#2A2360"></div><div style="height:3px;background:#C9C2D9"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:3px;height:18px"><div style="flex:1;height:70%;background:#F07A2E"></div><div style="flex:1;height:50%;background:#8B7CFF"></div><div style="flex:1;height:100%;background:#2BBF8C"></div></div></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="font:600 16px 'Fredoka',sans-serif">Laptop shortlist</div><div style="font:500 12px 'Figtree',sans-serif;color:#B9B3DA"><span style="color:#F7B98C;font-weight:600">Report</span> · just now</div></div>
+            <button style="height:44px;padding:0 16px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Open</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">filter chip · on / off / focus</div>
+          <div style="display:flex;gap:8px">
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;background:#F3F0FF;color:#120F2A;font:600 14px 'Figtree',sans-serif">All</div>
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:1px solid rgba(180,170,255,.22);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Reports</div>
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:12px;border:2px solid #4BF0B7;box-shadow:0 0 0 3px rgba(75,240,183,.2);font:500 14px 'Figtree',sans-serif;color:#D6D1F2">Images</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:500 12px 'JetBrains Mono',monospace;color:#8C86B3">message box · Send / Stop</div>
+          <div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)"><div style="flex:1;min-height:44px;display:flex;align-items:center;font:15px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:12px;background:#F07A2E;color:#1A0E05;font:600 15px 'Fredoka',sans-serif">Send</button></div>
+          <div style="display:flex;align-items:flex-end;gap:8px;padding:6px 6px 6px 16px;border-radius:16px;background:#1B1740;border:1px solid rgba(180,170,255,.18)"><div style="flex:1;min-height:44px;display:flex;align-items:center;font:15px 'Figtree',sans-serif;color:#8C86B3">Message Auto</div><button style="height:44px;padding:0 16px;display:flex;align-items:center;gap:8px;border-radius:12px;border:0;background:#F3F0FF;color:#120F2A;font:600 15px 'Fredoka',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#120F2A"></span>Stop</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="font:600 11px 'Figtree',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8C86B3">Mascot slot · 12 states · ring colour is the page's job</div>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 16px">
+        <sc-for list="{{ states }}" as="s" hint-placeholder-count="12">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+            <dc-import name="Mascot" state="{{ s.id }}" size="140" hint-size="126px,140px"></dc-import>
+            <div style="font:600 15px 'Fredoka',sans-serif">{{ s.id }}</div>
+            <div style="font:12px/1.4 'Figtree',sans-serif;color:#B9B3DA;text-align:center">{{ s.when }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font:13px/1.5 'Figtree',sans-serif;color:#8C86B3">Sizes: 220 desktop companion · 260 first open · 130 shelf header · 84 phone strip. Video: .webm (VP9 alpha) everywhere, .mp4 (HEVC alpha) for Safari/iOS.</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showMascot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showMascot: this.props.showMascot ?? true,
+      showNotes: this.props.showNotes ?? true,
+      states: [
+        { id: 'hello', when: 'First open' }, { id: 'idle', when: 'Nothing happening' },
+        { id: 'listening', when: 'You are typing' }, { id: 'thinking', when: 'Waiting for a reply' },
+        { id: 'working', when: 'A tool is running' }, { id: 'searching', when: 'Web search' },
+        { id: 'reading', when: 'Reading documents' }, { id: 'celebrate', when: 'Deliverable ready' },
+        { id: 'oops', when: 'Error or needs help' }, { id: 'sleeping', when: 'Automatos not running' },
+        { id: 'lost', when: '404' }, { id: 'loading', when: 'Loading' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
