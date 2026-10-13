@@ -12,4 +12,4 @@ The mascot animations (`public/auto/`) and the pipeline that made them (`mascot/
 
 Play works with the **local edition** of Automatos (`docker compose up` in `automatos-ai`, no accounts). It changes nothing in Automatos itself: Studio stays your main interface.
 
-Code: Apache-2.0 (to be added with the scaffold). The Auto mascot: see the open questions in PRD-001.
+Code: Apache-2.0 (see `LICENSE`). The Auto mascot assets are not covered by the code licence and are not in this repository (see `NOTICE`).

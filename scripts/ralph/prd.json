@@ -20,8 +20,8 @@
         "Typecheck passes (proven by CI at the end of the wave)"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Scaffold: Next 15.5.27, React 19.3, vitest 5 + vite 8 (vite pinned explicitly: vitest 5 needs it as a peer), ESLint 9 flat config via FlatCompat (eslint.config.mjs), CI in .github/workflows/ci.yml. Tests import describe/it/expect from 'vitest' (globals off); tests/setup.ts registers jest-dom and RTL cleanup."
     },
     {
       "id": "US-002",

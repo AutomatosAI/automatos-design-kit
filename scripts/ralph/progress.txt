@@ -5,5 +5,15 @@
 - Nothing runs locally. Pin dependency versions with `npm view <pkg> version` and edit package.json by hand. CI is the gate.
 - The backend is reached only through app/api/* routes; the browser uses lib/client/api.ts.
 - The mascot files in public/auto/ are git-ignored and absent in CI: always degrade to the placeholder.
+- Vitest globals are OFF: import describe/it/expect/vi from "vitest" in every test. tests/setup.ts loads jest-dom matchers and RTL cleanup. Tests live in tests/ (or next to code) as *.test.ts(x); the @/* alias maps to the repo root.
+- vitest 5 needs vite as a peer: vite is pinned in devDependencies. Keep vite, vitest and @vitejs/plugin-react moving together.
+- ESLint is flat config (eslint.config.mjs) with FlatCompat over next/core-web-vitals + next/typescript; `npm run lint` is `eslint .`. docs/, skills/, scripts/, public/ are ignored.
+- next-env.d.ts is committed (classic two references) so `tsc --noEmit` works before any `next build`.
 
 ---
+
+## US-001 2026-10-14
+Scaffolded the Next.js 15 app and CI.
+- Versions from `npm view` (exact): next/eslint-config-next 15.5.27, react/react-dom/@types 19.3.0, typescript 5.9.3, eslint 9.39.5, vitest 5.0.4, vite 8.3.4, @vitejs/plugin-react 6.1.2, jsdom 30.1.2, RTL 16.3.3, jest-dom 7.0.1, user-event 14.6.8, @testing-library/dom 10.4.2, @types/node 22.20.5, @eslint/eslintrc 3.3.7.
+- Files: package.json, tsconfig.json, next-env.d.ts, next.config.ts, vitest.config.ts, eslint.config.mjs, tests/setup.ts, tests/page.test.tsx, app/layout.tsx, app/page.tsx, .github/workflows/ci.yml, LICENSE (copied from automatos-ai), NOTICE, .env.example, .gitignore (coverage, tsbuildinfo), README (licence line).
+- Learnings: jsdom 30 needs Node >=22.22.2; CI uses setup-node `22` (latest 22.x). @vitejs/plugin-react 6 requires vite ^8. The PRD says next/font/local but prd.json US-002 says @fontsource: US-002 follows prd.json (both avoid next/font/google).

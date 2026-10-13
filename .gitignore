@@ -15,3 +15,7 @@ mascot/
 
 # Ralph run logs
 scripts/ralph/logs/
+
+# Build and test output
+coverage/
+*.tsbuildinfo
