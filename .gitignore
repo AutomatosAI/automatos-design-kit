@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+mascot/work/
+mascot/clips/
+mascot/out/
+*.hfkey
+.DS_Store
+
+# Mascot assets and pipeline stay local until the image rights are confirmed (PRD-001, open question 1)
+public/auto/
+mascot/
