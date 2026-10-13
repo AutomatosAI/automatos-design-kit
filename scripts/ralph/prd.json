@@ -36,8 +36,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Tokens in app/theme.css (contrast pairs listed in its header comment for US-014), base styles in app/globals.css, fonts via @fontsource 5.3.0. AppShell (layout, client, usePathname) takes optional title/counts/recent/connection/host props: later stories feed them (US-010 Recent, US-013 connection). Pages add the mascot column with PageColumns + MascotColumn; MascotSlot is the stand-in US-007 replaces. Phone bars per route via phoneChrome() in components/shell/nav.ts."
     },
     {
       "id": "US-003",

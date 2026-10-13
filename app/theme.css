@@ -1,0 +1,145 @@
+/*
+ * Automatos Play theme tokens: the single source of colour, type, spacing,
+ * radius, shadow and motion. Values come from the style sheet in
+ * docs/design/mocks/automatos-play-mocks.dc.html (panels 12-13).
+ * Components use var(--token) only; no literal colours anywhere else.
+ *
+ * Contrast pairs (foreground on background) that must meet WCAG AA:
+ *   --color-text on --color-night
+ *   --color-text on --color-surface
+ *   --color-text on --color-raised
+ *   --color-text-2 on --color-night
+ *   --color-text-2 on --color-surface
+ *   --color-text-3 on --color-night
+ *   --color-text-3 on --color-surface
+ *   --color-reply on --color-night
+ *   --color-mint on --color-night
+ *   --color-coral on --color-night
+ *   --color-bronze-ink on --color-bronze
+ *   --color-night on --color-text
+ */
+
+:root {
+  /* Colour: the twelve named swatches */
+  --color-night: #120f2a; /* page */
+  --color-surface: #1b1740; /* inputs, cards */
+  --color-raised: #2a2360; /* your bubble */
+  --color-bronze: #f07a2e; /* the one primary action per screen */
+  --color-bronze-ink: #1a0e05; /* text on bronze */
+  --color-mint: #4bf0b7; /* Auto, done, focus */
+  --color-coral: #ff6b7a; /* errors, always with a cross and words */
+  --color-text: #f3f0ff;
+  --color-text-2: #b9b3da;
+  --color-text-3: #8c86b3;
+  --color-violet: #8b7cff; /* selected nav, loading */
+  --color-dusk: #5e578f; /* sleeping and lost ring */
+  --color-note: #ffd66b; /* mock annotations only, never in the product */
+
+  /* Colour: supporting shades used across the mocks */
+  --color-reply: #e8e4ff; /* Auto's reply text */
+  --color-receipt: #d6d1f2; /* receipt lines */
+  --color-card: #1e1946; /* Deliverable thumbnail ground */
+  --color-bronze-soft: #f7c9a6; /* running tool line text */
+  --color-white: #ffffff;
+
+  /* Colour: Deliverable type badges */
+  --color-type-report: #f7b98c;
+  --color-type-document: #c9c1ff;
+  --color-type-image: #ffa9c0;
+  --color-type-spreadsheet: #7ff5cb;
+  --color-type-slides: #ffd08a;
+
+  /* Colour: lines and tints */
+  --line-faint: rgba(180, 170, 255, 0.08);
+  --line-soft: rgba(180, 170, 255, 0.1);
+  --line: rgba(180, 170, 255, 0.14);
+  --line-strong: rgba(180, 170, 255, 0.18);
+  --tint-hover: rgba(255, 255, 255, 0.04);
+  --tint-panel: rgba(255, 255, 255, 0.015);
+  --tint-tool: rgba(255, 255, 255, 0.03);
+  --tint-selected: rgba(139, 124, 255, 0.18);
+  --tint-bronze: rgba(240, 122, 46, 0.08);
+  --tint-bronze-badge: rgba(240, 122, 46, 0.16);
+  --tint-bronze-line: rgba(240, 122, 46, 0.45);
+  --tint-mint: rgba(75, 240, 183, 0.14);
+  --tint-coral: rgba(255, 107, 122, 0.08);
+  --tint-coral-line: rgba(255, 107, 122, 0.45);
+  --tint-bar: rgba(18, 15, 42, 0.9);
+
+  /* Mascot rings (mascot.dc.html): mint calm, bronze busy, coral help, dusk asleep, violet loading */
+  --ring-mint-glow: rgba(75, 240, 183, 0.35);
+  --ring-bronze-glow: rgba(240, 122, 46, 0.35);
+  --ring-coral-glow: rgba(255, 107, 122, 0.32);
+  --ring-dusk-glow: rgba(94, 87, 143, 0.25);
+  --ring-violet-glow: rgba(139, 124, 255, 0.35);
+
+  /* Page ground */
+  --page-glow-violet: rgba(139, 124, 255, 0.14);
+  --page-glow-bronze: rgba(240, 122, 46, 0.13);
+  --page-background:
+    radial-gradient(900px 520px at 85% 115%, var(--page-glow-bronze), transparent 60%),
+    radial-gradient(800px 500px at 0% -10%, var(--page-glow-violet), transparent 60%),
+    var(--color-night);
+
+  /* Type: families */
+  --font-display: "Fredoka", system-ui, sans-serif; /* headings, buttons (600) */
+  --font-text: "Figtree", system-ui, sans-serif; /* reading (400-700) */
+  --font-mono: "JetBrains Mono", ui-monospace, monospace; /* tool lines, code */
+
+  /* Type: scale */
+  --text-display: 600 56px/1 var(--font-display);
+  --text-h1: 600 40px/1 var(--font-display);
+  --text-h1-phone: 600 30px/1 var(--font-display);
+  --text-h2: 600 22px/1.2 var(--font-display);
+  --text-title: 600 20px/1.2 var(--font-display);
+  --text-caption: 600 19px/1.2 var(--font-display); /* what Auto is doing, under Auto */
+  --text-bar-title: 600 17px/1.2 var(--font-display); /* phone top bar title */
+  --text-bar-link: 600 15px/1 var(--font-text); /* phone top bar links */
+  --text-button: 600 16px/1 var(--font-display);
+  --text-button-sm: 600 15px/1 var(--font-display);
+  --text-body: 400 16px/1.6 var(--font-text);
+  --text-nav: 500 15px/1.2 var(--font-text);
+  --text-small: 500 14px/1.4 var(--font-text);
+  --text-meta: 500 13px/1.4 var(--font-text);
+  --text-label: 600 11px/1.2 var(--font-text);
+  --text-mono: 400 13px/1.5 var(--font-mono);
+  --text-mono-sm: 500 12px/1.4 var(--font-mono);
+  --label-tracking: 0.08em;
+
+  /* Spacing: 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 56px;
+
+  /* Radii */
+  --radius-badge: 6px;
+  --radius-tool: 10px;
+  --radius-button: 12px;
+  --radius-card: 16px;
+  --radius-bubble: 18px 18px 6px 18px;
+  --radius-round: 999px;
+
+  /* Shadows */
+  --shadow-primary: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 6px 18px -6px rgba(240, 122, 46, 0.6);
+  --shadow-mint-glow: 0 0 10px rgba(75, 240, 183, 0.5);
+  --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
+  --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-message: 180ms; /* message rises 12px and fades in */
+  --duration-card: 420ms; /* Deliverable card lands */
+  --duration-ring: 2.4s; /* ring pulse loop */
+
+  /* Layout */
+  --sidebar-width: 248px;
+  --mascot-column-width: 320px;
+  --header-height: 68px;
+  --phone-bar-height: 56px;
+  --content-max: 720px;
+  --tap-min: 44px;
+}
