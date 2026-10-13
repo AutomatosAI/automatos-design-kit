@@ -12,6 +12,8 @@
 - Colours, type, spacing, radii, shadows: app/theme.css only. tests/theme.test.ts fails on any hex/rgb()/hsl() in another .css under app/ or components/. Add a token instead.
 - Component styles are CSS Modules next to the component (vitest returns a proxy for them; tests query by role, never by class). Breakpoints: phone < 768 px (sidebar and page header hide, phone bars show); mascot column hides < 1024 px.
 - Pages render inside AppShell (from app/layout.tsx). A page with Auto uses PageColumns({mascot: <MascotColumn caption>…</MascotColumn>}) and PageHeader for the 68 px title row. Tests that render AppShell must vi.mock("next/navigation") for usePathname.
+- Proxy routes import from lib/server/backend.ts (getBackendUrl, jsonError, backendUnreachable, rejectCrossSite, workspaceHeader, readJsonObject). Every route calls rejectCrossSite first (no login, so CSRF matters): it 403s a Host outside localhost/127.0.0.1/[::1] + PLAY_ALLOWED_HOSTS (DNS rebinding), Sec-Fetch-Site other than same-origin/none, and 415s a request body not sent as application/json. lib/client/api.ts must send Content-Type: application/json on every request with a body. Route tests start with `// @vitest-environment node` (real undici Request/Response/ReadableStream), stub fetch with vi.stubGlobal and the env with vi.stubEnv, and unstub in afterEach.
+- tests/server/boundary.test.ts fails if anything outside app/api imports lib/server, or if the admin key name appears in code/config. Don't write that key name in code or tests (build it by join if you must).
 
 ---
 
@@ -30,3 +32,11 @@ Theme tokens, fonts and the app shell.
 - app/page.tsx: placeholder chat (header 'New chat', mascot column 'Ready when you are').
 - Tests: tests/shell.test.tsx, tests/nav.test.ts, tests/theme.test.ts, tests/page.test.tsx (updated).
 - Learnings: the mocks have no CSS variables, only inline styles: tokens were extracted from the style sheet swatches plus the most-used inline values. Phone mocks show the top bar only on the chat and the tab bar only on the lists, so phoneChrome() picks per route. Recent links use /?chat=<id> as a placeholder; US-010 owns the real route. The count inside a nav link gets a leading space so the link's name reads 'Conversations 23'. No themeColor in metadata (it would be a literal colour outside theme.css).
+
+## US-003 2026-10-14
+Backend config and the streaming chat proxy.
+- lib/server/backend.ts: DEFAULT_BACKEND_URL, WORKSPACE_HEADER, getBackendUrl() (env, trims trailing slashes, throws on a non-http(s) value), jsonError, backendUnreachable (502 {error: "Automatos isn't running at <url>"}), workspaceHeader (forwards X-Workspace-ID if it matches [A-Za-z0-9_-]{1,64}, else 400), readJsonObject (JSON object bodies only).
+- app/api/chat/route.ts: POST forwards the parsed body + X-Workspace-ID (Content-Type json, Accept text/plain, cache no-store, request.signal so a browser abort cancels the upstream fetch) and returns new Response(upstream.body) with the backend status and content-type plus no-cache/X-Accel-Buffering headers. Never copies incoming headers, so Authorization is never forwarded. Bad config -> 500 JSON; client abort -> 499.
+- Tests: tests/api/chat-route.test.ts (body/header forwarding, env URL, no Authorization, chunk-by-chunk stream via a held ReadableStream controller, status/content-type pass-through, 502, 400s), tests/server/backend.test.ts, tests/server/boundary.test.ts.
+- Security review follow-up: added rejectCrossSite (a cross-site text/plain POST or a DNS-rebound page would otherwise drive Auto as the local super admin; PLAY_ALLOWED_HOSTS added to .env.example, US-015 README should mention it) and getBackendUrl rejects URLs with user:password. The 502 message keeps the URL because the criteria and mock 07 want it shown.
+- Learnings: "ORCHESTRATOR_API_KEY appears nowhere in the repo" is read as code and config: CLAUDE.md, the PRD, the skill and the Ralph kit name it to forbid it, so the guard test skips docs/, skills/, scripts/ and .md files. TS narrows `let x: T | undefined;` assigned only inside a callback to undefined; use a holder object instead.

@@ -53,8 +53,8 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/server/backend.ts: getBackendUrl (throws on a non-http value), jsonError, backendUnreachable (502), rejectCrossSite (CSRF guard: call it first in every route), workspaceHeader (validates X-Workspace-ID), readJsonObject. app/api/chat/route.ts streams the backend body straight through. US-004 should build its shared forwarding helper on these. tests/server/boundary.test.ts enforces the lib/server import rule and the admin-key ban (code/config only; prose in docs/skills/scripts/*.md states the rule)."
     },
     {
       "id": "US-004",
