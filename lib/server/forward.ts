@@ -15,6 +15,13 @@ import {
 const CLIENT_CLOSED = 499;
 const DEFAULT_ACCEPT = "application/json";
 const NO_CACHE = "no-cache, no-transform";
+const FALLBACK_CONTENT_TYPE = "application/octet-stream";
+// Play reads these answers with fetch(). Opened directly in a tab, backend or model
+// content (HTML, SVG) must not run on Play's origin.
+const SAFE_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "default-src 'none'; sandbox",
+} as const;
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
 export type ForwardOptions = {
@@ -89,13 +96,13 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
 
 /** The backend's status, body and content-type, unchanged. */
 function passThrough(upstream: Response): Response {
-  const contentType = upstream.headers.get("content-type");
   return new Response(upstream.body, {
     status: upstream.status,
     headers: {
-      ...(contentType ? { "Content-Type": contentType } : {}),
+      "Content-Type": upstream.headers.get("content-type") ?? FALLBACK_CONTENT_TYPE,
       "Cache-Control": upstream.headers.get("cache-control") ?? NO_CACHE,
       "X-Accel-Buffering": "no",
+      ...SAFE_HEADERS,
     },
   });
 }

@@ -132,6 +132,8 @@ describe("the JSON proxy routes", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("image/png");
     expect(response.headers.get("cache-control")).toBe("private, max-age=300");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("content-security-policy")).toBe("default-src 'none'; sandbox");
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(PNG_BYTES);
   });
 
