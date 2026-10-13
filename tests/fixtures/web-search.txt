@@ -1,0 +1,15 @@
+# SYNTHETIC fixture (web search): a turn that calls platform_web_search and gets receipts
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+d:{"type": "tool-start", "data": {"toolCallId": "call_ws_01", "toolName": "platform_web_search", "input": {"query": "electric bikes 2026"}}}
+d:{"type": "tool-end", "data": {"toolCallId": "call_ws_01", "toolName": "platform_web_search", "success": true, "durationMs": 2140, "summary": "3 results"}}
+0:"I found three good options. "
+0:"The **Volt One** leads on range, "
+0:"and the Cargo Pro on price."
+d:{"type":"usage","data":{"promptTokens": 2410, "completionTokens": 96, "totalTokens": 2506}}
+d:{"type":"tool-data","data":{"receipts": {"receipts": [{"action": "platform_web_search", "kind": "read", "status": "done", "subject": "electric bikes 2026", "effect": "looked up", "link": null, "reason": null}], "model": "test-model"}}}
+d:{"type": "receipts", "data": {"receipts": [{"action": "platform_web_search", "kind": "read", "status": "done", "subject": "electric bikes 2026", "effect": "looked up", "link": null, "reason": null}], "model": "test-model"}}
+d:{"type":"finish","finishReason":"stop"}

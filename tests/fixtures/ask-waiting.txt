@@ -1,0 +1,14 @@
+# SYNTHETIC fixture (ask): a write that waits for the owner's click (tool-end waiting: true)
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+d:{"type": "tool-start", "data": {"toolCallId": "call_ask_01", "toolName": "platform_update_agent", "input": {"agent_id": 7, "name": "Scout"}}}
+d:{"type": "tool-end", "data": {"toolCallId": "call_ask_01", "toolName": "platform_update_agent", "success": false, "durationMs": 38, "summary": "Card raised: change the agent 'Scout'. Nothing changes until the owner clicks.", "waiting": true}}
+0:"I've raised a card to rename Scout. "
+0:"Nothing changes until you click it."
+d:{"type":"usage","data":{"promptTokens": 1530, "completionTokens": 40, "totalTokens": 1570}}
+d:{"type":"tool-data","data":{"receipts": {"receipts": [{"action": "platform_update_agent", "kind": "write", "status": "waiting", "subject": "Scout", "effect": "card raised: change the agent 'Scout'", "link": null, "reason": null}], "model": "test-model"}}}
+d:{"type": "receipts", "data": {"receipts": [{"action": "platform_update_agent", "kind": "write", "status": "waiting", "subject": "Scout", "effect": "card raised: change the agent 'Scout'", "link": null, "reason": null}], "model": "test-model"}}
+d:{"type":"finish","finishReason":"stop"}

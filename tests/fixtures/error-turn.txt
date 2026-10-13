@@ -1,0 +1,8 @@
+# SYNTHETIC fixture (error turn): the model fails and the turn ends on an e: line
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+d:{"type": "reasoning", "data": {"delta": "The user wants a summary."}}
+e:{"message": "Auto's model is not available: the provider returned 503.", "code": "model_unavailable"}

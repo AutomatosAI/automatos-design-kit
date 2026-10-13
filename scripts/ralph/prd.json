@@ -85,8 +85,8 @@
         "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/stream/parse.ts: pure splitter (splitLines/flushLines over bytes, split on the newline byte), parseLine, parseChunk/finishParse, readStreamEvents(body) async generator for US-008; d:/data: decoders in lib/stream/data-events.ts, union in lib/stream/types.ts. US-006/008: replay fixtures with fixtureEvents(name) from tests/stream/helpers.ts; receipts arrive twice (tool-data data.receipts AND the receipts event): use the receipts event only; agent-info really arrives nested under type (parser unwraps)."
     },
     {
       "id": "US-006",

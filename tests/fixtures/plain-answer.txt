@@ -1,0 +1,15 @@
+# SYNTHETIC fixture (plain answer): a greeting answered with no tool calls
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+0:"Hi! I'm Auto, "
+0:"your Automatos. What shall "
+0:"we make today? "
+0:"A report, a caf\u00e9 menu "
+0:"\u2014 anything \ud83c\udf89"
+d:{"type":"usage","data":{"promptTokens": 812, "completionTokens": 21, "totalTokens": 833}}
+d:{"type":"tool-data","data":{"receipts": {"receipts": [], "model": "test-model"}}}
+d:{"type": "receipts", "data": {"receipts": [], "model": "test-model"}}
+d:{"type":"finish","finishReason":"stop"}

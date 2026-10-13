@@ -38,10 +38,14 @@ Studio's parser in `automatos-ai/frontend/lib/chat/hooks.ts:296-560` handles all
 
 Most events put their payload under `data`. **`chat-id`, `finish` and `agent-info` put their fields at the top level.**
 
+**`agent-info` really arrives nested under `type`:** `d:{"type": {"type": "agent-info", "agent": {…}}}`. `consumers/chatbot/service.py` (the "Send agent info" block) passes the whole dict to `format_aisdk_data` as the event type. Unwrap a `type` that is an object, and accept the flat shape too in case the core is fixed. (Studio's `data.type === 'agent-info'` check never matches today.)
+
+The frames are written by Python's `json.dumps`, so the wire is ASCII: non-ASCII text arrives as `\uXXXX` escapes (emoji as surrogate pairs). Still split on the newline byte before decoding, or decode with `{stream: true}`, so a raw UTF-8 character split across chunks can't break.
+
 | `type` | Payload | What it means |
 |---|---|---|
 | `chat-id` | `chatId` (top level) | the conversation id; store it |
-| `agent-info` | `agent: {id, name, type, skills}` (top level) | which agent is answering |
+| `agent-info` | `agent: {id, name, type, skills, is_cto?}` (top level, but see the nesting note above) | which agent is answering |
 | `agent-assigned` | `data: {agentId, agentName, routeMethod}` | the router picked an agent |
 | `reasoning` | `data: {delta}` | the thinking channel. Never show it as the answer |
 | `progress` | `data: {text}` | a progress line from inside a long tool call |
@@ -49,7 +53,7 @@ Most events put their payload under `data`. **`chat-id`, `finish` and `agent-inf
 | `tool-start` | `data: {toolCallId, toolName, input}` | a tool call began |
 | `tool-end` | `data: {toolCallId, toolName, success, error?, durationMs?, summary?, skipped?, waiting?}` | a tool call ended; `waiting: true` means Auto is waiting on the user (an ask) |
 | `tool-data` | `data: {…}` | the tool's result payload |
-| `receipts` | `data: {receipts: [{action, kind, status, subject, effect, link, reason}], model?}` | what Auto actually did this turn; `status` is `done`, `refused`, `skipped` or `waiting` (`consumers/chatbot/receipts.py:64`) |
+| `receipts` | `data: {receipts: [{action, kind, status, subject, effect, link, reason}], model?, above?}` | what Auto actually did this turn; `status` is `done`, `refused`, `skipped` or `waiting` (`consumers/chatbot/receipts.py:64`). `above` is a list of lines the reply shows above its text. Sent once per turn, just before `finish`, even when the list is empty. **The same data also arrives first on a `tool-data` frame as `data.receipts`** (`receipts_frames`), so don't count it twice |
 | `mission-suggestion` | `data: {goal, complexity, agent_id}` | Auto proposes a Mission. Nothing is created until `POST /api/missions` |
 | `workflow-update` | `data: {workflowId, status, currentStep?, progress?}` | a running workflow moved |
 | `memory-injected` | `data: {memories, totalMatched}` | memories were pulled into context |

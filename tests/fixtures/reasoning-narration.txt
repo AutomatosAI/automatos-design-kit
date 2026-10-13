@@ -1,0 +1,22 @@
+# SYNTHETIC fixture (reasoning and narration): thinking deltas, narration before a tool call, a progress line
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+d:{"type": "reasoning", "data": {"delta": "They want the onboarding steps. "}}
+d:{"type": "reasoning", "data": {"delta": "I should check their documents."}}
+0:"Let me look through "
+0:"your documents first."
+d:{"type": "narration", "data": {"text": "Let me look through your documents first."}}
+d:{"type": "tool-start", "data": {"toolCallId": "call_doc_01", "toolName": "platform_search_documents", "input": {"query": "onboarding"}}}
+d:{"type": "progress", "data": {"text": "Searching 12 documents"}}
+d:{"type": "tool-end", "data": {"toolCallId": "call_doc_01", "toolName": "platform_search_documents", "success": true, "durationMs": 860, "summary": "3 documents"}}
+d:{"type": "reasoning", "data": {"delta": "Found the checklist."}}
+0:"Onboarding has three steps:\n\n"
+0:"1. Create the workspace\n2. Add "
+0:"an agent\n3. Start a Mission"
+d:{"type":"usage","data":{"promptTokens": 3120, "completionTokens": 180, "totalTokens": 3300}}
+d:{"type":"tool-data","data":{"receipts": {"receipts": [{"action": "platform_search_documents", "kind": "read", "status": "done", "subject": "onboarding", "effect": "looked up", "link": null, "reason": null}], "model": "test-model"}}}
+d:{"type": "receipts", "data": {"receipts": [{"action": "platform_search_documents", "kind": "read", "status": "done", "subject": "onboarding", "effect": "looked up", "link": null, "reason": null}], "model": "test-model"}}
+d:{"type":"finish","finishReason":"stop"}
