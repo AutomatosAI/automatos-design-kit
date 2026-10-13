@@ -69,8 +69,8 @@
         "Tests pass"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/server/forward.ts forwardToBackend(request,{path, query: allowed keys, jsonBody?, accept?}) backs every route incl. /api/chat; pathId() validates [id] params. lib/client/api.ts: `api` (createApiClient(fetch) for tests) with getWorkspace, streamChat, listChats, chatMessages, cancelChat, listDeliverables (returns success:false, never throws it), getDeliverable (unwraps {deliverable}), deliverableThumbnail (Blob|null: an <img> can't send X-Workspace-ID). Errors are ApiError(status): 502 = Automatos asleep (US-013). US-012: preview_url/content_url are backend paths with no proxy yet (docs/SKILL-GAPS.md)."
     },
     {
       "id": "US-005",

@@ -26,7 +26,7 @@ A conversation is created by the first `POST /api/chat` without an `id`. There i
 | Method | Path | Returns / notes |
 |---|---|---|
 | GET | `/api/deliverables?limit=24&offset=0` | `{success, deliverables: [...], total, limit, offset}` (`services/deliverable_service.py`) |
-| GET | `/api/deliverables/{id}?include_content=true` | one Deliverable, with its content inline when asked |
+| GET | `/api/deliverables/{id}?include_content=true` | `{success: true, deliverable: {…}}`, with `content` inline when asked (null for images and videos, which stream by URL; `content_error` when the file can't be read; `content_truncated` past the inline cap). A missing id is HTTP 404 (`api/deliverables.py:108`) |
 | GET | `/api/deliverables/{id}/thumbnail` | the thumbnail image (`api/deliverable_thumbnails.py:37`) |
 | GET | `/api/deliverables/stats` | counts for the workspace |
 
@@ -37,6 +37,8 @@ Each Deliverable carries at least `id`, `title`, `summary`, `artifact_type`, `so
 **Check `success`.** When the query fails, the list returns HTTP 200 with `success: false`, an `error` string and an empty list. Show an error state, not "no Deliverables yet".
 
 There is no binary download route for Deliverables. Use `include_content=true`, or `preview_url` when it is set.
+
+`preview_url` (and `content_url` on the detail) is a **backend-relative path** such as `/api/workspaces/{ws}/files/raw?path=…` for files in workspace storage (`_workspace_file_url` in `services/deliverable_service.py`). The browser can't open it directly: proxy it like any other route, or treat it as unavailable.
 
 ## Not used by the pilot (for later)
 
