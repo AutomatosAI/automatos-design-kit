@@ -11,7 +11,7 @@ mascot/out/
 
 # Mascot assets and pipeline stay local until the image rights are confirmed (PRD-001, open question 1)
 public/auto/
-mascot/
+/mascot/
 
 # Ralph run logs
 scripts/ralph/logs/

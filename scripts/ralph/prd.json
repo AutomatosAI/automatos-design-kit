@@ -100,8 +100,8 @@
         "Tests pass"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/mascot/reducer.ts mascotReducer + INITIAL_MASCOT + pendingPose; types/events in lib/mascot/types.ts (MascotName, ONE_SHOTS, URGENT, RANK, ClientEvent incl. request-failed and clip-ended{state}); tool lists only in lib/mascot/tools.ts (toolActivity). state.mascot is the TARGET: US-007's player swaps to it at the clip boundary (oops/hello at once), holds loops one clip, and dispatches clip-ended{state} when a one-shot's clip ends (also under reduced motion). US-008 dispatches send then the stream events; app-open only on the first open per browser session."
     },
     {
       "id": "US-007",

@@ -31,13 +31,15 @@ How the clips were made, and how to make more, is in `mascot/README.md` at the r
 
 Text deltas (`0:`) don't change the state. If the state is `thinking` when the first delta arrives, go to `idle`: the words on screen show that Auto is answering.
 
+When a tool ends (`tool-end` with `success: true`, or `skipped`), go back to the state of a tool still running, or to `idle`. A turn that finishes while Auto is still `thinking`, `working`, `searching` or `reading` goes to `idle` (or `celebrate`). A turn that fails ends on its `e:` line: there is no `finish` frame after it.
+
 ### Tool names
 
 Match the exact name first, then the patterns. Keep both lists in one config file, because the backend adds tools.
 
 - **searching**: `platform_web_search`, `platform_web_fetch`, `search_images`, `platform_search_packages`, `platform_browse_marketplace_agents`, `platform_browse_marketplace_plugins`, `platform_browse_marketplace_skills`. Pattern: `/web_|browse_marketplace/`.
 - **reading**: `platform_read_document`, `platform_search_documents`, `platform_grep_documents`, `platform_list_documents`, `search_knowledge`, `semantic_search`, `search_multimodal`, `search_tables`, `search_formulas`, `platform_search_memory`, `platform_browse_memories`, `platform_search_chat_history`, `platform_query_graph`, `platform_codegraph_search`. Pattern: `/document|knowledge|memor|semantic|graph/`.
-- **working**: everything else (for example `generate_document`, `platform_query_data`, `query_database`).
+- **working**: everything else (for example `platform_query_data`, `query_database`). Some writes match a reading pattern, so list them as exact **working** names, checked before the patterns: `generate_document`, `platform_upload_document`, `platform_delete_document`, `platform_reprocess_document`, `platform_store_memory`, `platform_delete_memory`, `platform_codegraph_index`, `platform_codegraph_reindex`, `platform_codegraph_set_auto_reindex`.
 
 These names come from the tool definitions in `automatos-ai/orchestrator/modules/tools/` (13 Oct 2026).
 
