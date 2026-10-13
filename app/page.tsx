@@ -1,12 +1,13 @@
-import { MascotColumn, MascotSlot, PageColumns, PageHeader } from "@/components/shell/PageColumns";
+import { AutoMascot } from "@/components/mascot/AutoMascot";
+import { MascotColumn, PageColumns, PageHeader } from "@/components/shell/PageColumns";
 import styles from "./page.module.css";
 
 export default function Home() {
   return (
     <PageColumns
       mascot={
-        <MascotColumn caption="Ready when you are">
-          <MascotSlot />
+        <MascotColumn>
+          <AutoMascot state="idle" />
         </MascotColumn>
       }
     >

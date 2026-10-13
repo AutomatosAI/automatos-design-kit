@@ -27,26 +27,14 @@ export function PageHeader({ title, meta }: { readonly title: string; readonly m
 }
 
 export interface MascotColumnProps {
-  /** The mascot itself (AutoMascot from US-007). */
+  /** Auto (components/mascot/AutoMascot), which carries his own caption. */
   readonly children: ReactNode;
-  /** What Auto is doing, in words: the mascot's text equivalent. */
-  readonly caption: string;
-  readonly detail?: string;
 }
 
-export function MascotColumn({ children, caption, detail }: MascotColumnProps) {
+export function MascotColumn({ children }: MascotColumnProps) {
   return (
     <aside className={styles.mascotColumn} aria-label="Auto">
       {children}
-      <div className={styles.caption}>
-        <span className={styles.captionTitle}>{caption}</span>
-        {detail && <span className={styles.captionDetail}>{detail}</span>}
-      </div>
     </aside>
   );
-}
-
-/** A stand-in for Auto until the mascot player lands (US-007). */
-export function MascotSlot() {
-  return <div className={styles.mascotSlot} aria-hidden="true" />;
 }

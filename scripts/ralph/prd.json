@@ -118,8 +118,8 @@
         "Tests pass"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/mascot/AutoMascot.tsx (client) takes {state, onClipEnded, caption?, detail?, size?}: pass the reducer's state.mascot and dispatch {type:'clip-ended', state} from onClipEnded; it carries its own caption (captionFor in lib/mascot/media.ts, e.g. captionFor('celebrate','report')). MascotColumn lost its caption prop and MascotSlot is gone: use <MascotColumn><AutoMascot state=... /></MascotColumn>. Pure helpers: lib/mascot/media.ts (videoFormat, clipUrls, ringTone, captionFor), lib/mascot/player.ts (queue); hooks/useMascotPlayer.ts, hooks/useMediaPreferences.ts."
     },
     {
       "id": "US-008",

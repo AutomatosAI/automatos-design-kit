@@ -46,7 +46,7 @@ These names come from the tool definitions in `automatos-ai/orchestrator/modules
 ## Switching rules
 
 1. **Priority, when several events land at once:** oops > celebrate > listening (waiting) > searching = reading > working > thinking > listening (typing) > idle.
-2. **Switch at the clip boundary.** Queue the next state and swap when the current clip ends (`ended`, or `timeupdate` within 80 ms of the end, because looping clips don't fire `ended`). Because every clip starts and ends on the rest pose, the swap is seamless.
+2. **Switch at the clip boundary.** Queue the next state and swap when the current clip ends (`ended`, or `timeupdate` within 80 ms of the end). Browsers fire `timeupdate` as rarely as every 250 ms, so the 80 ms window alone misses most clip ends, and a clip with the `loop` attribute never fires `ended`. Play loop clips without `loop`: at the boundary, swap to the queued clip or set `currentTime = 0` and `play()` again. Because every clip starts and ends on the rest pose, both are seamless.
 3. **Except urgent states:** `oops` and `hello` swap immediately.
 4. **Hold time.** A loop state stays on screen for at least one full clip. Tool calls that finish in 200 ms shouldn't flicker the mascot.
 5. **One-shots return to `idle`** when they end, unless something newer is queued.

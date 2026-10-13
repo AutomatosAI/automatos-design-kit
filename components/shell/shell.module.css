@@ -273,32 +273,6 @@
   border-left: 1px solid var(--line-faint);
 }
 
-.caption {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: 0 var(--space-5);
-  text-align: center;
-}
-
-.captionTitle {
-  font: var(--text-caption);
-}
-
-.captionDetail {
-  font: var(--text-mono);
-  color: var(--color-text-2);
-}
-
-/* Until AutoMascot lands (US-007): the dashed slot from mascot.dc.html */
-.mascotSlot {
-  width: 136px;
-  height: 163px;
-  border-radius: 42% 42% 46% 46%;
-  border: 1.5px dashed var(--tint-bronze-line);
-  background: var(--tint-bronze);
-}
-
 @media (max-width: 1023.98px) {
   .mascotColumn {
     display: none;

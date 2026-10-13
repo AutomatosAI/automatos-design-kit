@@ -73,6 +73,10 @@
   --ring-dusk-glow: rgba(94, 87, 143, 0.25);
   --ring-violet-glow: rgba(139, 124, 255, 0.35);
 
+  /* Mascot placeholder (mascot.dc.html), shown when public/auto/ is missing */
+  --tint-placeholder: rgba(240, 122, 46, 0.22);
+  --tint-visor: rgba(18, 15, 42, 0.55);
+
   /* Page ground */
   --page-glow-violet: rgba(139, 124, 255, 0.14);
   --page-glow-bronze: rgba(240, 122, 46, 0.13);
@@ -138,6 +142,8 @@
   /* Layout */
   --sidebar-width: 248px;
   --mascot-column-width: 320px;
+  --mascot-size: 220px; /* Auto's stage height in the mascot column */
+  --mascot-size-large: 360px; /* first open (mock 06) */
   --header-height: 68px;
   --phone-bar-height: 56px;
   --content-max: 720px;
