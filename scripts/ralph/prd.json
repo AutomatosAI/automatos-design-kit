@@ -47,8 +47,8 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/page/: GridPage (status: loading|failed|empty{message,action,mascot}|ready; filters/search/loadMore/actions props), DetailPage (back, title, chips, actions, children, side+sideLabel), LiveRunPage (back?, state: StateChipProps, actions, progress{value,max,label}, steps, activity, mascot+mascotCaption, side), StateChip (tone + optional label), parts.tsx (FilterChips, SearchBox, BackLink, PageLoading, PageFailed), all wrap PageColumns and share page.module.css. hooks/usePoll.ts returns {state: loading|failed{error}|ready{value,stale,stopped}, refresh()}; pass a memoised fn, call it with a POLL_INTERVALS value (tests/poll/intervals.test.ts fails a usePoll caller that doesn't import the table). Engine in lib/poll/poller.ts."
     },
     {
       "id": "P-003",

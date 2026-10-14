@@ -4,11 +4,12 @@
 import type { Deliverable } from "@/lib/client/types";
 import { DEFAULT_KIND } from "@/lib/chat/deliverables";
 import { groupOf, relativeTime } from "@/lib/conversations/list";
+import { POLL_INTERVALS } from "@/lib/poll/intervals";
 
 /** One page of the shelf (the core's default). */
 export const SHELF_PAGE_SIZE = 24;
-/** How often the open shelf checks for new Deliverables. */
-export const SHELF_REFRESH_MS = 30_000;
+/** How often the open shelf checks for new Deliverables: a list, so POLL_INTERVALS.LIST. */
+export const SHELF_REFRESH_MS = POLL_INTERVALS.LIST;
 
 export type ShelfFilter = {
   readonly label: string;
