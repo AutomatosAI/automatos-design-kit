@@ -58,7 +58,7 @@ function file(name: string, bytes: Uint8Array): File {
 }
 
 function storageWith(draft?: SkinDraft): { readonly storage: Storage; readonly source: StorageSource } {
-  const initial = draft ? { [DRAFT_KEY]: JSON.stringify({ version: DRAFT_STORE_VERSION, draft }) } : {};
+  const initial: Record<string, string> = draft ? { [DRAFT_KEY]: JSON.stringify({ version: DRAFT_STORE_VERSION, draft }) } : {};
   const storage = memoryStorage(initial);
   return { storage, source: () => storage };
 }
