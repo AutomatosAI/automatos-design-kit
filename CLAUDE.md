@@ -6,7 +6,7 @@ A playful second interface on a **local** Automatos install, with Auto as an ani
 
 - Its own repo, outside `automatos-ai`. It must never require a change in the core. If it needs one, write it up as an open question in `docs/prd/`.
 - The spec is `docs/prd/PRD-001-FUN-UI-PILOT.md`, plus `docs/prd/PRD-002-LOOKS-POC.md` for Looks and `docs/prd/PRD-003-MAIN-PAGES.md` for Missions, Agents, Knowledge and the pages after them. The Look format, catalogue and contrast rules are explained in `docs/LOOKS.md` (`tests/looks/docs.test.ts` keeps it in step with `lib/looks/`).
-- The API knowledge is `skills/build-automatos-interface/` and nowhere else. Build from the skill. When the core and the skill disagree, the core wins: fix the skill and log it in `docs/SKILL-GAPS.md`.
+- The API knowledge is `skills/build-automatos-interface/` and nowhere else. The skin knowledge (format, tokens, contrast, fonts, mascot, packaging) is `skills/build-automatos-skin/`; `tests/skins/skill-docs.test.ts` keeps it and the README in step with `lib/skins/format.ts`. Build from the skill. When the core and the skill disagree, the core wins: fix the skill and log it in `docs/SKILL-GAPS.md`.
 - Local edition only: no login, no hosted edition.
 
 ## Stack

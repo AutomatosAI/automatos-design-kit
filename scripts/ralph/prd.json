@@ -161,8 +161,8 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "skills/build-automatos-skin/ (SKILL.md + references tokens/contrast/fonts/mascot/packaging; mascot.md carries the pipeline, since mascot/ is git-ignored), README rewritten, docs/SKILL-GAPS.md 'PRD-259 (the Skin Kit)' (13 rows), tests/skins/skill-docs.test.ts ties the docs to format.ts. K-010 must update with its changes: contrast.md's pair table (rows in CONTRAST_PAIRS order) and the paragraph on S-001's list, README '16 pairs' -> 14 and its example skin.json (must validate), fonts.md/mascot.md if font keys or mascot.light change, the SKILL-GAPS rows that say 'K-010 aligns', and fonts.md's @font-face/FontFace line."
     },
     {
       "id": "K-010",
