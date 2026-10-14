@@ -1,0 +1,384 @@
+/* The live style page (PRD-002 L-007, Ember style sheet ember-12/-13). Every colour is a theme
+   token, so the page redraws with the Look; swatches and rings read inline custom properties
+   (--swatch, --step, --slot-ring) computed from the active Look. */
+
+.page {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.headingText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.heading {
+  margin: 0;
+  font: var(--text-status);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+.lead {
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-text-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.linkButton,
+.copyButton,
+.toggle {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.linkButton,
+.toggle {
+  border: 1px solid var(--line-button);
+  background: transparent;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* The cream secondary button: the page has no accent primary of its own. */
+.copyButton {
+  border: 0;
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.toggle {
+  align-self: flex-start;
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: var(--color-text);
+  background: var(--tint-selected);
+}
+
+.toggle:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* The sheet: one panel holding every section. */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--tint-panel);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--space-7);
+}
+
+.stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.label,
+.caption {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  text-align: left;
+}
+
+.note {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-3);
+}
+
+/* Colour: swatches, then the live contrast table. */
+
+.swatches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-5) var(--space-4);
+}
+
+.swatch {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.swatchChip {
+  display: block;
+  height: 64px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line);
+  background: var(--swatch);
+}
+
+.tokenName {
+  font: var(--text-mono-sm);
+  color: var(--color-text);
+}
+
+.tokenValue {
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.tokenRole {
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+/* "darkened for reading on Paper". */
+.tokenNote {
+  font: var(--text-meta);
+  color: var(--color-accent-text);
+}
+
+.contrast {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.contrast th,
+.contrast td {
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.contrast th[scope="row"] {
+  color: var(--color-text);
+}
+
+.verdict {
+  color: var(--color-text);
+}
+
+.verdict[data-passes="false"] {
+  color: var(--color-error-text);
+}
+
+/* Type: a label column, then the specimen in its own token. */
+
+.specimens {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.specimen {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
+.specimen dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.specimenLabel {
+  font: var(--text-mono-sm);
+  color: var(--color-text-3);
+}
+
+.hero {
+  font: var(--text-hero);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+.status {
+  font: var(--text-status);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+.title {
+  font: var(--text-title);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+.reply {
+  font: var(--text-reply);
+}
+
+.body {
+  font: var(--text-body);
+}
+
+.button {
+  font: var(--text-button-sm);
+}
+
+.caps {
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+.mono {
+  font: var(--text-mono);
+  color: var(--color-text-2);
+}
+
+/* Spacing and radii, drawn in the accent. */
+
+.scale {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-4);
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.scaleItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.step {
+  display: block;
+  width: var(--step);
+  height: var(--step);
+  background: var(--color-accent);
+}
+
+.radius {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--color-accent);
+}
+
+.radius[data-radius="paper"] {
+  border-radius: var(--radius-paper);
+}
+
+.radius[data-radius="tool"] {
+  border-radius: var(--radius-tool);
+}
+
+.radius[data-radius="button"] {
+  border-radius: var(--radius-button);
+}
+
+.radius[data-radius="card"] {
+  border-radius: var(--radius-card);
+}
+
+.radius[data-radius="pill"] {
+  border-radius: var(--radius-pill);
+}
+
+.notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+@media (max-width: 1023.98px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .page {
+    padding: var(--space-4);
+  }
+
+  .sheet {
+    gap: var(--space-6);
+    padding: var(--space-4);
+  }
+
+  .heading {
+    font: var(--text-status-phone);
+  }
+
+  .contrast th,
+  .contrast td {
+    white-space: normal;
+  }
+
+  .specimen {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+
+  .hero {
+    font: var(--text-hero-phone);
+  }
+
+  .status {
+    font: var(--text-status-phone);
+  }
+}

@@ -41,13 +41,28 @@
   color: var(--color-text-2);
 }
 
+.headerSide {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
 /* "Ember", or "Ember · edited". */
 .status {
-  flex: none;
   margin: 0;
-  padding-bottom: var(--space-1);
   font: var(--text-mono-sm);
   color: var(--color-text-2);
+}
+
+/* "See the style sheet": a quiet link to the live style page (L-007). */
+.styleLink {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  font: var(--text-meta);
+  color: var(--color-accent-text);
 }
 
 /* The live preview: Auto on the left, a slice of the chat on the right. */
@@ -307,6 +322,10 @@
 
   .header {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerSide {
     align-items: flex-start;
   }
 

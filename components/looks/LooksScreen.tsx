@@ -3,8 +3,10 @@
 // The Looks page, "Make it yours." (PRD-002 L-004, Ember looks-01): the heading with the active
 // Look's name, a live preview with Auto, the Looks row, the picked Look's actions and Import
 // (L-005), and the editor. Every change goes through LookProvider's setLook, which re-themes
-// the whole app at once, not only the preview.
+// the whole app at once, not only the preview. "See the style sheet" opens the live style
+// page (L-007).
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { asNewLook, baseLook, statusLine, withValues, type LookValues } from "@/lib/looks/editor";
@@ -20,6 +22,7 @@ import { LooksRow } from "./LooksRow";
 import styles from "./looks.module.css";
 
 export const LOOKS_HEADING = "Make it yours.";
+export const STYLE_SHEET_LINK = "See the style sheet";
 
 export function LooksScreen() {
   const { look, saved, setLook, saveLook } = useLook();
@@ -57,9 +60,14 @@ export function LooksScreen() {
             <h1 className={styles.heading}>{LOOKS_HEADING}</h1>
             <p className={styles.lead}>Pick a look, then tweak it. Auto changes with it.</p>
           </div>
-          <p className={styles.status} role="status">
-            {statusLine(look, saved)}
-          </p>
+          <div className={styles.headerSide}>
+            <p className={styles.status} role="status">
+              {statusLine(look, saved)}
+            </p>
+            <Link href="/looks/style" className={styles.styleLink}>
+              {STYLE_SHEET_LINK}
+            </Link>
+          </div>
         </div>
         <LookPreview />
         <LooksRow looks={[...PRESETS, ...saved]} activeId={look.id} onPick={pick} />
