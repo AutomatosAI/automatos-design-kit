@@ -25,7 +25,7 @@ How the clips were made, and how to make more, is in `mascot/README.md` at the r
 | `reading` | loop | `tool-start` for a document, knowledge or memory tool (list below); `memory-injected` |
 | `celebrate` | one-shot | `finish` in a turn whose `receipts` include a `done` receipt, or when a new Deliverable appears |
 | `oops` | loop | an `e:` line; `tool-end` with `success: false` (and not `skipped`); `limit_reached`; `tool-permission-denied`; `attachment_unavailable`; `receipts` with a `refused` receipt; a failed proxy call |
-| `sleeping` | loop | no user input for 3 minutes, or the backend is unreachable |
+| `sleeping` | loop | no user input for 3 minutes (not during a turn), or the backend is unreachable. Any input (a key, the pointer, the wheel, a touch) wakes an idle nap back to `idle`; a backend nap ends only when the backend answers again |
 | `lost` | loop | the 404 page |
 | `loading` | loop | first data fetch and route changes taking longer than 300 ms |
 

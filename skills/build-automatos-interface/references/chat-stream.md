@@ -64,7 +64,7 @@ The frames are written by Python's `json.dumps`, so the wire is ASCII: non-ASCII
 | `withdraw_offer` | `data: {requests}` | retract a pending ask shown earlier |
 | `budget-warning` | `data: {tokensUsed, tokenBudget, percentUsed}` | token budget warning |
 | `usage` | `data: {promptTokens, completionTokens, totalTokens}` | token counts |
-| `finish` | `finishReason` (top level) | the turn is over |
+| `finish` | `finishReason` (top level) | the turn is over. **A failed turn has no `finish`:** it ends on its `e:` line (the `except` branch in `consumers/chatbot/service.py` writes only the error), so end the turn on `e:` too |
 
 Treat any other `type` as unknown and ignore it.
 
@@ -78,4 +78,13 @@ A receipt's `link` is the Studio page of the card or agent a call touched (`/com
 
 ## Test fixtures
 
-Record a real turn once from a local install (save the raw body as a `.txt` file) and keep it in `tests/fixtures/`. Record at least: a plain answer, a turn with a tool call, a turn with an error, and a turn that ends in an ask (`waiting: true`). Record only from a workspace holding test data, and read the recording before committing it: it contains everything Auto said and every tool input. Gold or eval sets are never committed.
+Record a real turn once from a local install (save the raw body as a `.txt` file) and keep it in `tests/fixtures/`. Send the same request your UI sends, straight to the backend, and let curl stream the body unbuffered:
+
+```sh
+WS=$(curl -s http://localhost:8000/api/workspaces/current | python3 -c 'import json, sys; print(json.load(sys.stdin)["id"])')
+curl -sN http://localhost:8000/api/chat -H 'Content-Type: application/json' -H "X-Workspace-ID: $WS" \
+  --data-binary '{"id": "", "message": {"role": "user", "parts": [{"type": "text", "text": "hello"}]}, "selectedVisibilityType": "private"}' \
+  > /tmp/plain-answer.txt
+```
+
+Never edit the stream lines of a recording. A parser that skips lines starting with `#` lets you put a header on top saying when and from what it was recorded. To test chunks split inside a multi-byte character, the recording needs non-ASCII text (`\uXXXX` on the wire): ask for an answer with an accent and an emoji. Record at least: a plain answer, a turn with a tool call, a turn with an error, and a turn that ends in an ask (`waiting: true`). Record only from a workspace holding test data, and read the recording before committing it: it contains everything Auto said and every tool input. Gold or eval sets are never committed.

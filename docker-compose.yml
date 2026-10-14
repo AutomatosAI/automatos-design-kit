@@ -1,0 +1,42 @@
+# Optional: run Play in a container next to a local Automatos.
+#
+# Start Automatos first (`docker compose up` in automatos-ai): its compose file
+# creates the automatos_network network that Play joins here, and its backend
+# answers there as http://backend:8000. Nothing in automatos-ai changes.
+#
+#   docker compose up      then open http://localhost:3100
+#
+# The repo is mounted into the container, so the mascot files in public/auto/
+# are used when you have them. node_modules and .next live in volumes, so the
+# container's Linux build never mixes with a host install.
+
+name: automatos-play
+
+services:
+  play:
+    image: node:22-bookworm-slim
+    container_name: automatos_play
+    working_dir: /app
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- -H 0.0.0.0"
+    environment:
+      AUTOMATOS_BACKEND_URL: http://backend:8000
+      PLAY_ALLOWED_HOSTS: ${PLAY_ALLOWED_HOSTS:-}
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      # Local only, like the Automatos backend: Play has no login.
+      - "127.0.0.1:${PLAY_PORT:-3100}:3100"
+    volumes:
+      - .:/app
+      - play_node_modules:/app/node_modules
+      - play_next:/app/.next
+    networks:
+      - automatos
+
+volumes:
+  play_node_modules:
+  play_next:
+
+networks:
+  automatos:
+    external: true
+    name: automatos_network

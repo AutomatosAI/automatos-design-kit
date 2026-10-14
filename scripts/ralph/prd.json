@@ -250,8 +250,8 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "README (setup, settings, mascot files, Docker, troubleshooting incl. each workspace 400 message), optional docker-compose.yml on the external automatos_network, docs/RUN-CHECKLIST.md (Gerard's browser checks + fixture recording), docs/SKILL-GAPS.md finished (23 skill / 9 mock / 1 PRD rows) with the skill fixed to match; tests/setup-docs.test.ts guards README and compose. All five stream fixtures are still synthetic until Gerard records real ones; the mascot `loading` state is never dispatched by any screen."
     }
   ]
 }

@@ -55,7 +55,7 @@ Each Deliverable carries at least `id`, `title`, `summary`, `artifact_type`, `so
 
 **Check `success`.** When the query fails, the list returns HTTP 200 with `success: false`, an `error` string and an empty list. Show an error state, not "no Deliverables yet". The `error` is the raw exception (`f"list failed: {exc}"`, which can carry SQL): log it, show your own sentence.
 
-There is no binary download route for Deliverables. Use `include_content=true`, or `preview_url` when it is set.
+There is no download route of its own for Deliverables. Text files come inline with `include_content=true`; a binary file's bytes come from its `preview_url` when that is a `/files/raw` path (below).
 
 `preview_url` (and `content_url` on the detail) is a **backend-relative path** such as `/api/workspaces/{ws}/files/raw?path=…` for files in workspace storage (`_workspace_file_url` in `services/deliverable_service.py`). The browser can't open it directly: proxy it like any other route, or treat it as unavailable.
 

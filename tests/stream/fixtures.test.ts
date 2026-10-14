@@ -185,11 +185,15 @@ describe("stream fixtures", () => {
     expect(parseChunks(oneByOne)).toEqual(EXPECTED["plain-answer"]);
   });
 
-  it("keeps the fixtures in the backend's ASCII-only format, each marked synthetic", () => {
+  it("keeps the fixtures in the backend's ASCII-only format, each marked synthetic or recorded", () => {
     for (const name of FIXTURES) {
       const bytes = fixtureBytes(name);
+      const text = new TextDecoder().decode(bytes);
       expect(hasMultiByte(bytes)).toBe(false);
-      expect(new TextDecoder().decode(bytes).startsWith("# SYNTHETIC fixture")).toBe(true);
+      expect({ name, marked: text.startsWith("# SYNTHETIC fixture") || text.startsWith("# RECORDED") }).toEqual({
+        name,
+        marked: true,
+      });
     }
   });
 });

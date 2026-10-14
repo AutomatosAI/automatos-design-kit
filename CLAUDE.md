@@ -9,15 +9,15 @@ A playful second interface on a **local** Automatos install, with Auto as an ani
 - The API knowledge is `skills/build-automatos-interface/` and nowhere else. Build from the skill. When the core and the skill disagree, the core wins: fix the skill and log it in `docs/SKILL-GAPS.md`.
 - Local edition only: no login, no hosted edition.
 
-## Stack (planned, not built yet)
+## Stack
 
-Next.js 15 App Router, TypeScript strict, vitest, ESLint. Plain CSS with tokens in one file. Port 3100. The backend is at `AUTOMATOS_BACKEND_URL` (default `http://localhost:8000`).
+Next.js 15 App Router, TypeScript strict, vitest, ESLint. Plain CSS with tokens in `app/theme.css`. Port 3100. Setup: `README.md`; manual checks against a real install: `docs/RUN-CHECKLIST.md`. The backend is at `AUTOMATOS_BACKEND_URL` (default `http://localhost:8000`).
 
 ## Traps
 
 - The browser never calls the backend directly. Use the proxy routes only (no CORS change in the core, no secrets in the page).
 - Never use `ORCHESTRATOR_API_KEY`. The local edition needs no credentials.
-- Use `next/font/local` with vendored fonts, never `next/font/google` (it broke `next build` in the core).
+- Fonts are self-hosted through the `@fontsource` packages (imported in `app/layout.tsx`). Never `next/font/google` (it broke `next build` in the core).
 - Mascot video: `.mp4` (HEVC alpha) for Safari and iOS, `.webm` (VP9 alpha) everywhere else. The wrong one shows a black box.
 - The Deliverables list returns HTTP 200 with `success: false` on failure. Check `success`.
 - Stream recordings in `tests/fixtures/` contain everything Auto said. Record from test data only, and read them before committing.
