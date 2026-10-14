@@ -45,8 +45,15 @@ function useFollow(messages: readonly ChatMessage[]) {
   return endRef;
 }
 
-export function MessageList({ messages }: { readonly messages: readonly ChatMessage[] }) {
+export interface MessageListProps {
+  readonly messages: readonly ChatMessage[];
+  /** Try again on the newest reply's snag box: sends your last message again. */
+  readonly onRetry?: () => void;
+}
+
+export function MessageList({ messages, onRetry }: MessageListProps) {
   const endRef = useFollow(messages);
+  const newest = messages.at(-1)?.id;
   return (
     <div className={styles.messages}>
       <ol className={styles.messageList} aria-label="Conversation">
@@ -55,7 +62,7 @@ export function MessageList({ messages }: { readonly messages: readonly ChatMess
             {message.role === "user" ? (
               <p className={styles.bubble}>{message.text}</p>
             ) : (
-              <AutoReply message={message} />
+              <AutoReply message={message} onRetry={message.id === newest ? onRetry : undefined} />
             )}
           </li>
         ))}

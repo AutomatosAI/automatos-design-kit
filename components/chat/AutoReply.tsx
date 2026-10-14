@@ -1,12 +1,16 @@
 // One reply from Auto (mocks 01 and 02), top to bottom: the "Auto" label, the lines the
 // platform puts above the answer, narration and progress, the tool lines, the answer as
-// markdown, the Deliverables he made, the receipts, then notices and errors in words.
+// markdown, the Deliverables he made, the receipts, then notices and errors in words:
+// in the snag box (mock 08) once the turn is over, as plain lines while he answers or
+// after you stopped him.
 
+import { snagLines } from "@/lib/chat/snag";
 import type { AutoMessage } from "@/lib/chat/types";
 
 import { DeliverableCard } from "./DeliverableCard";
 import { Markdown } from "./Markdown";
 import { Receipts } from "./Receipts";
+import { SnagBox } from "./SnagBox";
 import { ToolLines } from "./ToolLines";
 import styles from "./chat.module.css";
 
@@ -43,7 +47,14 @@ function Errors({ errors }: { readonly errors: readonly string[] }) {
   ));
 }
 
-export function AutoReply({ message }: { readonly message: AutoMessage }) {
+export interface AutoReplyProps {
+  readonly message: AutoMessage;
+  /** Sends the message before this reply again (the snag box's Try again). */
+  readonly onRetry?: () => void;
+}
+
+export function AutoReply({ message, onRetry }: AutoReplyProps) {
+  const snag = snagLines(message);
   return (
     <article className={styles.reply} aria-label={`${SPEAKER} said`} aria-busy={message.status === "streaming"}>
       <h2 className={styles.speaker}>{SPEAKER}</h2>
@@ -59,7 +70,7 @@ export function AutoReply({ message }: { readonly message: AutoMessage }) {
         <p className={styles.activity}>Auto suggests a Mission: {message.missionSuggestion.goal}</p>
       )}
       <Lines lines={message.notices} className={styles.notice} />
-      <Errors errors={message.errors} />
+      {snag.length > 0 ? <SnagBox lines={snag} onRetry={onRetry} /> : <Errors errors={message.errors} />}
       {message.status === "stopped" && <p className={styles.notice}>You stopped this answer.</p>}
     </article>
   );

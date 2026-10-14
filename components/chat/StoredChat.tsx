@@ -18,12 +18,14 @@ export const OPENING = "Opening this conversation…";
 export interface StoredChatProps {
   readonly client?: ApiClient;
   readonly chatId: string;
+  /** How long without input before Auto naps (tests shorten it). */
+  readonly idleMs?: number;
 }
 
-export function StoredChat({ client = api, chatId }: StoredChatProps) {
+export function StoredChat({ client = api, chatId, idleMs }: StoredChatProps) {
   const conversation = useStoredConversation(client, chatId);
   if (conversation.status === "ready") {
-    return <ChatView client={client} chatId={chatId} initialMessages={conversation.value} />;
+    return <ChatView client={client} chatId={chatId} initialMessages={conversation.value} idleMs={idleMs} />;
   }
   return <Opening conversation={conversation} />;
 }

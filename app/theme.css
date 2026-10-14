@@ -108,6 +108,9 @@
   --text-document-title: 600 44px/1.05 var(--font-display); /* a Deliverable's page (mock 05) */
   --text-document-title-phone: 600 32px/1.05 var(--font-display);
   --text-document-body: 400 16px/1.65 var(--font-text);
+  --text-404: 600 220px/1 var(--font-display); /* the hollow "404" behind Auto (mock 09) */
+  --text-404-phone: 600 140px/1 var(--font-display);
+  --stroke-404: 2px; /* its outline */
   --text-bar-title: 600 17px/1.2 var(--font-display); /* phone top bar title */
   --text-bar-link: 600 15px/1 var(--font-text); /* phone top bar links */
   --text-button: 600 16px/1 var(--font-display);

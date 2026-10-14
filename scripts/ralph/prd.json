@@ -219,8 +219,8 @@
         "Tests pass"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built the edges: empty chat = FirstOpenHero + ExampleChips (components/chat/FirstOpen.tsx; chips remount MessageBox by key with the words + autoFocus), hello via claimFirstOpen (lib/mascot/session.ts, HELLO_KEY); LiveShell asks useBackendStatus (502 -> components/edges/AsleepScreen, full window, re-check every RECHECK_MS 10 s) and feeds the connection pill; SnagBox in AutoReply from snagLines (lib/chat/snag.ts) with Try again on the newest reply; app/not-found.tsx -> components/edges/LostScreen; hooks/useIdleTimeout + new reducer ClientEvent 'wake'. For US-014: tests that need Auto's state after send must set sessionStorage HELLO_KEY first (hello holds a clip); the asleep screen only shows for a 502 at start-up or on a re-check, not for a 502 mid-session (the chat's mascot sleeps instead)."
     },
     {
       "id": "US-014",

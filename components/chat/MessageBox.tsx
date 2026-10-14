@@ -15,9 +15,19 @@ export interface MessageBoxProps {
   readonly onFocus?: () => void;
   readonly onBlur?: () => void;
   readonly initialDraft?: string;
+  /** Focus the box as it appears (the first open, and after an example fills it). */
+  readonly autoFocus?: boolean;
 }
 
-export function MessageBox({ streaming, onSend, onStop, onFocus, onBlur, initialDraft = "" }: MessageBoxProps) {
+export function MessageBox({
+  streaming,
+  onSend,
+  onStop,
+  onFocus,
+  onBlur,
+  initialDraft = "",
+  autoFocus = false,
+}: MessageBoxProps) {
   const [draft, setDraft] = useState(initialDraft);
   const ready = draft.trim().length > 0;
 
@@ -53,6 +63,7 @@ export function MessageBox({ streaming, onSend, onStop, onFocus, onBlur, initial
         onBlur={onBlur}
         placeholder={PLACEHOLDER}
         aria-label={PLACEHOLDER}
+        autoFocus={autoFocus}
         rows={1}
       />
       {streaming ? (

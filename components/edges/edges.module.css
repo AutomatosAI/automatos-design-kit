@@ -1,0 +1,192 @@
+/* The edges of the app: Automatos asleep (mock 07, the whole window) and the 404 (mock 09). */
+
+.screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--page-background);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--text-title);
+  color: var(--color-text);
+}
+
+/* Asleep: the ring is dusk, not mint. */
+.wordmarkRing {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--radius-round);
+  border: 2.5px solid var(--color-dusk);
+}
+
+.wordmarkPlay {
+  color: var(--color-bronze);
+}
+
+.status {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-tool);
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font: var(--text-h1);
+  color: var(--color-white);
+}
+
+.text {
+  max-width: var(--content-max);
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-text-2);
+}
+
+.inline {
+  font: var(--text-mono);
+  color: var(--color-text);
+}
+
+.command {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 100%;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.prompt {
+  font: var(--text-mono);
+  color: var(--color-text-3);
+}
+
+.commandText {
+  font: var(--text-mono);
+  color: var(--color-mint);
+  user-select: all;
+}
+
+.copy,
+.secondary {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.primary {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-bronze);
+  color: var(--color-bronze-ink);
+  font: var(--text-button);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hint {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-3);
+}
+
+/* 404: Auto in front of a giant hollow "404". */
+.lost {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.stage404 {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.big404 {
+  font: var(--text-404);
+  color: transparent;
+  -webkit-text-stroke: var(--stroke-404) var(--line-strong);
+  user-select: none;
+}
+
+.lostAuto {
+  position: absolute;
+}
+
+@media (max-width: 767.98px) {
+  .top {
+    padding: var(--space-4);
+  }
+
+  .body,
+  .lost {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .title {
+    font: var(--text-h1-phone);
+  }
+
+  .big404 {
+    font: var(--text-404-phone);
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -185,6 +185,8 @@ function reduceClient(state: MascotState, event: ClientEvent): MascotState {
       return onSend(state);
     case "idle-timeout":
       return !state.turnActive && pending.rank <= RANK.typing ? settle(state, SLEEPING) : state;
+    case "wake":
+      return pending.mascot === "sleeping" ? settle(state, IDLE) : state;
     case "backend-down":
       return settle(endTurn({ ...state, backendDown: true }), SLEEPING);
     case "backend-up":
@@ -210,6 +212,7 @@ const CLIENT_TYPES: ReadonlySet<MascotEvent["type"]> = new Set<MascotEvent["type
   "input-blur",
   "send",
   "idle-timeout",
+  "wake",
   "backend-down",
   "backend-up",
   "not-found",

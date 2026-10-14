@@ -1,9 +1,10 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChatScreen } from "@/components/chat/ChatScreen";
 import { createApiClient } from "@/lib/client/api";
+import { HELLO_KEY } from "@/lib/mascot/session";
 
 import { callsTo, type ChatAnswer, fixtureAnswer, hangingAnswer, mockChatFetch, type StreamAnswer } from "./helpers";
 
@@ -33,17 +34,28 @@ async function waitForTurnEnd() {
   await screen.findByRole("button", { name: "Send" });
 }
 
+// hello is a one-shot that holds Auto for a clip: these tests start after it (tests/edges has it).
+beforeEach(() => {
+  window.sessionStorage.setItem(HELLO_KEY, "1");
+});
+
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("ChatScreen", () => {
-  it("starts as a new chat with Auto in the mascot column", () => {
-    renderChat([fixtureAnswer("plain-answer")]);
+  it("starts as a new chat: Auto big in the middle, then in the mascot column once you send", async () => {
+    const { user, box } = renderChat([fixtureAnswer("plain-answer")]);
     expect(screen.getByRole("heading", { level: 1, name: "New chat" })).toBeInTheDocument();
-    expect(screen.getByRole("complementary", { name: "Auto" })).toHaveTextContent("Ready when you are");
+    expect(screen.getByRole("region", { name: "Say hello" })).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: "Auto" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Send" })).toBeDisabled();
+    await user.type(box, "hello{Enter}");
+    expect(screen.queryByRole("region", { name: "Say hello" })).not.toBeInTheDocument();
+    expect(await screen.findByText(/What shall we make today\?/)).toBeInTheDocument();
+    await waitForTurnEnd();
+    expect(screen.getByRole("complementary", { name: "Auto" })).toHaveTextContent("Ready when you are");
   });
 
   it("sending shows the user bubble and Auto's answer", async () => {
@@ -125,7 +137,7 @@ describe("ChatScreen", () => {
     await waitForTurnEnd();
   });
 
-  it("puts Auto in a small row above the message box where the mascot column is hidden", () => {
+  it("puts Auto in a small row above the message box where the mascot column is hidden", async () => {
     vi.stubGlobal(
       "matchMedia",
       vi.fn((query: string) => ({
@@ -135,7 +147,11 @@ describe("ChatScreen", () => {
         removeEventListener: vi.fn(),
       })),
     );
-    const { container } = renderChat([fixtureAnswer("plain-answer")]);
+    const { container, user, box } = renderChat([fixtureAnswer("plain-answer")]);
+    // The empty chat has Auto big in the middle instead.
+    expect(container.querySelector('[data-size="large"]')).not.toBeNull();
+    await user.type(box, "hello{Enter}");
+    await waitForTurnEnd();
     const autos = screen.getAllByRole("complementary", { name: "Auto" });
     expect(autos).toHaveLength(1);
     expect(container.querySelector('[data-size="small"]')).not.toBeNull();

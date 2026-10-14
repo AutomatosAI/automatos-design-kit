@@ -15,11 +15,15 @@ function toRecent(chat: ChatSummary): RecentChat {
   return { id: chat.id, title: conversationTitle(chat) };
 }
 
-/** Empty until the first answer, and kept as it was when a reload fails (the console has why). */
-export function useRecentChats(client: ApiClient = api): readonly RecentChat[] {
+/**
+ * Empty until the first answer, and kept as it was when a reload fails (the console has
+ * why). Waits while ready is false (Automatos is still being asked, or is asleep).
+ */
+export function useRecentChats(client: ApiClient = api, ready = true): readonly RecentChat[] {
   const [recent, setRecent] = useState<readonly RecentChat[]>([]);
 
   useEffect(() => {
+    if (!ready) return;
     let live = true;
     const load = async (): Promise<void> => {
       try {
@@ -35,7 +39,7 @@ export function useRecentChats(client: ApiClient = api): readonly RecentChat[] {
       live = false;
       unsubscribe();
     };
-  }, [client]);
+  }, [client, ready]);
 
   return recent;
 }

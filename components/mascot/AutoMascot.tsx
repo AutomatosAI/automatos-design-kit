@@ -29,9 +29,18 @@ export interface AutoMascotProps {
   readonly detail?: string;
   /** large: the first-open introduction (mock 06); small: the row above the message box on phones (mock 01 phone). */
   readonly size?: "small" | "regular" | "large";
+  /** False when the page already says it in words (the first-open headline). */
+  readonly showCaption?: boolean;
 }
 
-export function AutoMascot({ state, onClipEnded, caption, detail, size = "regular" }: AutoMascotProps) {
+export function AutoMascot({
+  state,
+  onClipEnded,
+  caption,
+  detail,
+  size = "regular",
+  showCaption = true,
+}: AutoMascotProps) {
   const reducedMotion = usePrefersReducedMotion();
   const format = useVideoFormat();
   const [assets, setAssets] = useState<AssetStatus>("probing");
@@ -63,10 +72,12 @@ export function AutoMascot({ state, onClipEnded, caption, detail, size = "regula
           )
         )}
       </div>
-      <p className={styles.caption}>
-        <span className={styles.captionTitle}>{caption ?? captionFor(state)}</span>
-        {detail && <span className={styles.captionDetail}>{detail}</span>}
-      </p>
+      {showCaption && (
+        <p className={styles.caption}>
+          <span className={styles.captionTitle}>{caption ?? captionFor(state)}</span>
+          {detail && <span className={styles.captionDetail}>{detail}</span>}
+        </p>
+      )}
     </div>
   );
 }

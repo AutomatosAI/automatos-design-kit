@@ -161,6 +161,13 @@ describe("mascot reducer: client states", () => {
     expect(sequence([{ type: "idle-timeout" }, { type: "input-focus" }])).toEqual(["sleeping", "listening"]);
   });
 
+  it("wakes from the idle nap on any input, but not from the backend being down", () => {
+    expect(sequence([{ type: "idle-timeout" }, { type: "wake" }])).toEqual(["sleeping", "idle"]);
+    expect(mascotReducer(INITIAL_MASCOT, { type: "wake" })).toBe(INITIAL_MASCOT);
+    const down = replay([{ type: "backend-down" }]);
+    expect(mascotReducer(down, { type: "wake" })).toBe(down);
+  });
+
   it("sleeps while the backend is down and ignores everything until it is back", () => {
     const down = replay([SEND, start("1", "x"), { type: "backend-down" }]);
     expect(down).toMatchObject({ mascot: "sleeping", backendDown: true, turnActive: false, openTools: [] });

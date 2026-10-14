@@ -71,6 +71,7 @@ export type MascotState = {
  * Events from the page, not the stream. app-open means the first open in this
  * browser session (the caller checks). clip-ended names the clip that ended, so a
  * stale one can't end a newer one-shot. request-failed is a failed proxy call.
+ * wake is any input after the idle timeout (it ends an idle nap, not the backend's).
  */
 export type ClientEvent =
   | { readonly type: "app-open" }
@@ -78,6 +79,7 @@ export type ClientEvent =
   | { readonly type: "input-blur" }
   | { readonly type: "send" }
   | { readonly type: "idle-timeout" }
+  | { readonly type: "wake" }
   | { readonly type: "backend-down" }
   | { readonly type: "backend-up" }
   | { readonly type: "not-found" }

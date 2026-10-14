@@ -124,6 +124,11 @@ function toolText(tool: ToolLine, said: Phrases): string {
   }
 }
 
+/** "The web search didn't work.": a failed call in a sentence, for the snag box. */
+export function failedToolSentence(tool: ToolLine): string {
+  return `${phrases(toolActivity(tool.toolName), tool.toolName).failed}.`;
+}
+
 export function toolLineLabel(tool: ToolLine): ToolLineLabel {
   const said = phrases(toolActivity(tool.toolName), tool.toolName);
   return { mark: MARKS[tool.status], text: toolText(tool, said), tone: TONES[tool.status] };

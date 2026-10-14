@@ -4,11 +4,11 @@ import Home from "@/app/page";
 import { chatHref, chatParam, draftHref, draftParam, MAX_DRAFT_CHARS } from "@/lib/chat/params";
 
 describe("Home page", () => {
-  it("renders the chat header and the mascot column", async () => {
+  it("renders the chat header and the first-open screen", async () => {
     render(await Home({ searchParams: Promise.resolve({}) }));
     expect(screen.getByRole("heading", { level: 1, name: "New chat" })).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
-    expect(screen.getByRole("complementary", { name: "Auto" })).toHaveTextContent("Ready when you are");
+    expect(screen.getByRole("heading", { level: 2, name: "Hi, I'm Auto." })).toBeInTheDocument();
   });
 });
 

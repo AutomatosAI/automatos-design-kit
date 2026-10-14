@@ -14,9 +14,11 @@ export interface ChatScreenProps {
   readonly chatId?: string;
   /** Words waiting in a new chat's message box ("Ask Auto about this"). */
   readonly draft?: string;
+  /** How long without input before Auto naps (tests shorten it). */
+  readonly idleMs?: number;
 }
 
-export function ChatScreen({ client, chatId, draft }: ChatScreenProps) {
-  if (!chatId) return <ChatView client={client} initialDraft={draft} />;
-  return <StoredChat client={client} chatId={chatId} />;
+export function ChatScreen({ client, chatId, draft, idleMs }: ChatScreenProps) {
+  if (!chatId) return <ChatView client={client} initialDraft={draft} idleMs={idleMs} />;
+  return <StoredChat client={client} chatId={chatId} idleMs={idleMs} />;
 }

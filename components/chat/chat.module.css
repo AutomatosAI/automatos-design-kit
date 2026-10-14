@@ -436,3 +436,40 @@
     padding: 0 var(--space-4);
   }
 }
+
+/* The snag box (mock 08): a coral-edged card with the error in words and Try again. */
+.snag {
+  width: 100%;
+  max-width: var(--deliverable-card-max);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--tint-coral-line);
+  border-radius: var(--radius-card);
+  background: var(--tint-coral);
+}
+
+.snagTitle {
+  margin: 0;
+  font: var(--text-card-title);
+  color: var(--color-text);
+}
+
+.snagActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.snagRetry {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-bronze);
+  color: var(--color-bronze-ink);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
