@@ -48,15 +48,22 @@ export function mixHex(from: string, to: string, amount: number): string {
 }
 
 /**
+ * `colour` itself when it reads at `target` on every one of `grounds`; otherwise `colour` mixed
+ * toward `toward` in MIX_STEP_PERCENT steps until it does (at worst, `toward` itself).
+ */
+export function mixUntilReadable(colour: string, grounds: readonly string[], toward: string, target: number = READABLE_TARGET): string {
+  const reads = (candidate: string) => grounds.every((ground) => contrastRatio(candidate, ground) >= target);
+  for (let percent = 0; percent < 100; percent += MIX_STEP_PERCENT) {
+    const candidate = mixHex(colour, toward, percent / 100);
+    if (reads(candidate)) return candidate;
+  }
+  return mixHex(toward, toward, 0); // normalised #RRGGBB
+}
+
+/**
  * `colour` itself when it reads at READABLE_TARGET on both bg and surface; otherwise `colour`
  * mixed toward the ground's `text` in MIX_STEP_PERCENT steps until it does (at worst, `text`).
  */
 export function readableOn(colour: string, bg: string, surface: string, text: string): string {
-  const reads = (candidate: string) =>
-    contrastRatio(candidate, bg) >= READABLE_TARGET && contrastRatio(candidate, surface) >= READABLE_TARGET;
-  for (let percent = 0; percent < 100; percent += MIX_STEP_PERCENT) {
-    const candidate = mixHex(colour, text, percent / 100);
-    if (reads(candidate)) return candidate;
-  }
-  return mixHex(text, text, 0); // normalised #RRGGBB
+  return mixUntilReadable(colour, [bg, surface], text);
 }

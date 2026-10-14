@@ -61,8 +61,8 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/skins/: base.ts (basePalette(base, tone) cascades the four globals.css blocks copied at core 81a726e0; baseTokens; baseAliases), aliases.ts (S-004a rules: border-2/navy/accent-2 wrapped, paper/bg-1/bg-2/fg/fg-2 <- tokens, fg-3 = muted-foreground / 0.75), css.ts (skinToCss(skin, {id?, fontUrls?}) throws on anything unvalidated; font slots set Studio's --font-geist-sans/--font-newsreader/--font-geist-mono; @font-face only for blob: URLs), model.ts (SkinDraft, setToken pins a pair's other side from the base, draftToSkinJson, DraftHistory edit/undo/redo), suggest.ts (pairChecks, suggestReadable via lib/looks/contrast mixUntilReadable). The CLI still passes no baseTokens: with them Studio Light fails the kit's draft pair muted-foreground/muted (4.21:1) and K-010 (K5) drops base lookups anyway; K-010 also drops @font-face (K2)."
     },
     {
       "id": "K-004",

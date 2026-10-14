@@ -90,6 +90,7 @@ export type TokenName = (typeof ALLOWED_TOKENS)[number];
 
 /** Derived by Studio from the core tokens; a skin never sets them. */
 export const DERIVED_ALIASES = ["paper", "bg-1", "bg-2", "fg", "fg-2", "fg-3"] as const;
+export type DerivedAlias = (typeof DERIVED_ALIASES)[number];
 
 /** WCAG AA: text pairs need 4.5:1, the focus ring 3:1 on the page. */
 export const AA_TEXT_RATIO = 4.5;
