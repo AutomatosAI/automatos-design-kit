@@ -78,15 +78,15 @@ function required(value: Checked<string | undefined>): Checked<string> {
 }
 
 export function checkMeta(input: Fields): MetaChecks {
-  const line = { required: true, multiline: false };
+  const line = { required: true };
   return {
     schema: checkSchema(input.schema),
     slug: checkSlug(input.slug),
     name: required(checkText("$.name", input.name, { ...line, max: NAME_MAX })),
     version: checkVersion(input.version),
     author: required(checkText("$.author", input.author, { ...line, max: AUTHOR_MAX })),
-    description: checkText("$.description", input.description, { required: false, multiline: true, max: DESCRIPTION_MAX }),
-    licence: checkText("$.licence", input.licence, { required: false, multiline: false, max: LICENCE_MAX }),
+    description: checkText("$.description", input.description, { required: false, max: DESCRIPTION_MAX }),
+    licence: checkText("$.licence", input.licence, { required: false, max: LICENCE_MAX }),
     base: checkBase(input.base),
     tones: checkTones(input.tones),
     preview: checkPreview(input.preview),

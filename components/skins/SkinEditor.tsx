@@ -10,6 +10,7 @@ import { useEffect, useId, useRef } from "react";
 
 import { browserStorage, type StorageSource } from "@/lib/looks/storage";
 import { browserAssetStore, type AssetStore } from "@/lib/skins/asset-store";
+import type { FontHost } from "@/lib/skins/font-faces";
 import { FONTS_DIR, FONT_SLOTS } from "@/lib/skins/format";
 import type { SkinDraft } from "@/lib/skins/model";
 
@@ -24,6 +25,7 @@ import { StartOptions } from "./StartOptions";
 import styles from "./editor.module.css";
 import { useSkinAssets, type SkinAssetsApi } from "./useSkinAssets";
 import { useSkinEditor } from "./useSkinEditor";
+import { useSkinFontFaces } from "./useSkinFontFaces";
 import { useStartFromLink } from "./useStartFromLink";
 
 export const EDITOR_HEADING = "Make a skin.";
@@ -35,6 +37,8 @@ export interface SkinEditorProps {
   readonly storage?: StorageSource;
   /** Where font and mascot files are kept; tests pass a memory store. */
   readonly assetStore?: AssetStore;
+  /** Where the draft's font files are registered (FontFace); tests pass a fake. Default: the browser's. */
+  readonly fontHost?: FontHost | null;
 }
 
 /** Font files the draft no longer names (a font replaced before the last reload). */
@@ -54,12 +58,13 @@ function usePruneFonts(draft: SkinDraft, draftLoaded: boolean, assets: SkinAsset
   }, [draft, draftLoaded, assets]);
 }
 
-export function SkinEditor({ storage = browserStorage, assetStore = browserAssetStore }: SkinEditorProps) {
+export function SkinEditor({ storage = browserStorage, assetStore = browserAssetStore, fontHost }: SkinEditorProps) {
   const editor = useSkinEditor(storage);
   const assets = useSkinAssets(assetStore);
   const { draft, edit, endGroup } = editor;
   const previewId = useId();
   usePruneFonts(draft, editor.loaded, assets);
+  useSkinFontFaces(draft.fonts, assets.assets, fontHost);
   useStartFromLink(editor.loaded, (next) => edit(() => next));
 
   return (
@@ -107,7 +112,7 @@ export function SkinEditor({ storage = browserStorage, assetStore = browserAsset
             </button>
           </div>
         </div>
-        <SkinPreviewStrip draft={draft} loaded={editor.loaded} fontUrls={assets.urls} />
+        <SkinPreviewStrip draft={draft} loaded={editor.loaded} />
       </aside>
     </div>
   );

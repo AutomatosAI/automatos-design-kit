@@ -20,7 +20,7 @@ The kit is a separate app and command line you run on your own machine. Design a
 
    Open **http://localhost:3100**. The editor opens.
 2. **Start from something.** Under the editor's start options pick "Start from Studio", "Start from Classic", or one of the four examples (also on the Examples page, `/examples`: "Start from this").
-3. **Change the colours.** Pick a group (Surfaces, Text, Brand, Status, Charts, Studio aliases) and change a colour with the picker, or type a hex or HSL value. Every colour shows a badge for each text pair it is part of; a red "AA fail" offers "Use suggestion", a readable colour. Start with `background`, `foreground`, `primary` and `primary-foreground`: they carry most of the look.
+3. **Change the colours.** Pick a group (Surfaces, Text, Brand, Status, Charts, Studio aliases) and change a colour with the picker, or type a hex or HSL value. Every colour shows a badge for each contrast pair it is part of, with the verdict Studio's validator will give: "AA pass", "AA fail" (with "Use suggestion", a readable colour), "Incomplete pair" (the skin sets one side only: "Set … too") or "Base colours, not checked". Start with `background`, `foreground`, `primary` and `primary-foreground`: they carry most of the look.
 4. **Look at it.** The live preview beside the editor follows every change; `/preview` shows the full gallery, in both bases and tones, and side by side with Studio as it ships.
 5. **Name it.** Under the details give it a name, a slug, your name as author and a version.
 6. **Export .autoskin**, then in Studio: Style → Add a skin… and pick the file. Or press "Load into my Automatos" with your local Automatos running.
@@ -41,7 +41,7 @@ The skill `skills/build-automatos-skin/` teaches an assistant the whole job: the
 Point the assistant at it ("use skills/build-automatos-skin to make a skin that feels like …"). Claude Code picks it up from the folder; for Codex, name the file in your prompt. The references:
 
 - `references/tokens.md`: the 47 allowed tokens, what each colours in Studio and in the kit's preview.
-- `references/contrast.md`: the 16 pairs, the ratios, readable text.
+- `references/contrast.md`: the 14 pairs, the ratios, readable text.
 - `references/fonts.md`: Studio's fonts and your own woff2 files.
 - `references/mascot.md`: off, Auto or your own: the 12 looping clips and how Auto was made.
 - `references/packaging.md`: validate, pack, load, submit.
@@ -90,14 +90,14 @@ More in `scripts/README.md`.
     "light": { "primary": "20.3 71.7% 38.8%", "primary-foreground": "0 0% 100%" },
     "dark": { "primary": "#FF6A1A", "primary-foreground": "20 85.7% 5.5%" }
   },
-  "fonts": { "sans": "Geist", "serif": "Newsreader", "mono": "Geist Mono" },
+  "fonts": { "sans": "geist", "serif": "newsreader", "mono": "geist-mono" },
   "shape": { "radius": 10, "glow": 12 },
-  "mascot": { "mode": "auto", "shell": "bronze", "light": "159.3 84.6% 61.8%" },
+  "mascot": { "mode": "auto", "shell": "bronze", "light": "mint" },
   "preview": "assets/preview.png"
 }
 ```
 
-Colours are HSL triplets or `#rrggbb` for Studio's 47 allowed tokens; every text pair a skin touches must read at 4.5:1 (the focus ring at 3:1). Never CSS, JavaScript, SVG, HTML or URLs. The full rules are in the skill's references and `spec/`.
+Colours are HSL triplets or `#rrggbb` for Studio's 47 allowed tokens, with a set of colours for each tone in `tones` (`{}` keeps the base's). Of the 14 pairs, every one a skin touches must have both sides set and read at 4.5:1 (the focus ring at 3:1), checked on the skin's own colours only. Fonts are Studio's keys (`geist`, `geist-mono`, `newsreader`) or a woff2 in `assets/fonts/`; Auto's `light` is `mint`, `amber`, `ice` or `rose`. Never CSS, JavaScript, SVG, HTML or URLs. The full rules are in the skill's references and `spec/`.
 
 ## How Studio loads a skin
 

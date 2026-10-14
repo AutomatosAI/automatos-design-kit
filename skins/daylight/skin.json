@@ -62,9 +62,9 @@
     }
   },
   "fonts": {
-    "sans": "Geist",
-    "serif": "Newsreader",
-    "mono": "Geist Mono"
+    "sans": "geist",
+    "serif": "newsreader",
+    "mono": "geist-mono"
   },
   "shape": {
     "radius": 14,

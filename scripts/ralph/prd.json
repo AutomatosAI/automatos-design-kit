@@ -179,8 +179,8 @@
         "Tests pass"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Kit = core S-001 as built (feat/prd-259-w1-skins 242c9c0b): 47 tokens/14 pairs in format.ts, K5 PAIR_INCOMPLETE-style errors on own values only (baseTokens gone), tokens.<tone> per declared tone, font keys geist/geist-mono/newsreader, mascot.light keys, one-line words; K2 FontFace from bytes (lib/skins/font-faces.ts, useSkinFontFaces, fontHost prop), no @font-face; K4 lock in preview + editor note; badges checked/incomplete/base. Not ported: the core engine's CSS shape (:not(.dark) light selector, glow as alpha) and error codes: SKILL-GAPS rows."
     }
   ]
 }

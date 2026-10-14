@@ -1,4 +1,4 @@
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -14,6 +14,7 @@ import { blockedStorage, memoryStorage } from "../looks/helpers";
 // PRD-004 K-005: the preview gallery. The base and tone switches set Studio's classes on the
 // frame (and the attributes the skin CSS is scoped to), "Compare with Studio" adds Studio as it
 // ships beside the skin, and the gallery is coloured by the editor's draft.
+// K-010: a one-tone skin locks the Tone switch on its tone (decision K4).
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -124,17 +125,40 @@ describe("the preview gallery", () => {
     expect(skinFrame()).toHaveAttribute("data-skin-preview", "kit-base-classic kit-draft");
   });
 
-  it("starts on the skin's own tone and says when a tone shows the base's colours", async () => {
+  it("locks a dark-only skin's tone on Dark, as Studio does (decision K4), and says so", async () => {
     const user = userEvent.setup();
     render(<PreviewScreen storage={storedDraft(setTones(startDraft("studio"), ["dark"]))} />);
     await galleryCss();
     expect(skinFrame()).toHaveClass("dark");
-    expect(screen.queryByText(/has no/)).not.toBeInTheDocument();
+    const tone = within(screen.getByRole("group", { name: "Tone" }));
+    expect(tone.getByRole("button", { name: "Light" })).toBeDisabled();
+    expect(tone.getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Your skin is Dark only, so Studio locks Dark while it's on.")).toBeInTheDocument();
 
-    await press(user, "Tone", "Light");
-    expect(screen.getByText("Your skin has no Light colours, so Light shows Studio's own.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Compare with Studio" }));
+    expect(screen.getByRole("figure", { name: "Studio as it ships" })).toHaveClass("dark");
     await press(user, "Base", "Classic");
     expect(screen.getByText("Your skin is built on Studio. This shows its colours over Classic.")).toBeInTheDocument();
+  });
+
+  it("locks a light-only skin on Light, even after Dark was chosen for a two-tone draft", async () => {
+    const storage = memoryStorage();
+    const source: StorageSource = () => storage;
+    writeStoredDraft(source, startDraft("studio"));
+    const user = userEvent.setup();
+    render(<PreviewScreen storage={source} />);
+    await galleryCss();
+    await press(user, "Tone", "Dark");
+    expect(skinFrame()).toHaveClass("dark");
+
+    writeStoredDraft(source, setTones(startDraft("studio"), ["light"]));
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: DRAFT_KEY }));
+    });
+    await waitFor(() => expect(skinFrame()).not.toHaveClass("dark"));
+    const tone = within(screen.getByRole("group", { name: "Tone" }));
+    expect(tone.getByRole("button", { name: "Dark" })).toBeDisabled();
+    expect(tone.getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("reads the draft again when the editor changes it in another tab", async () => {

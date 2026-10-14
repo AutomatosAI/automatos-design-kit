@@ -10,13 +10,14 @@ import {
   DERIVED_ALIASES,
   FONT_MAX_BYTES,
   MASCOT_FORMATS,
+  MASCOT_LIGHTS,
   MASCOT_MAX_BYTES,
   MASCOT_SHELLS,
   MASCOT_STATES,
   PACKAGE_MAX_BYTES,
   PREVIEW_PATH,
+  SHIPPED_FONTS,
   SKIN_SCHEMA,
-  STUDIO_FONTS,
 } from "@/lib/skins/format";
 import { DEFAULT_STUDIO_URL, IMPORT_SKIN_ROUTE, NO_SKINS_MESSAGE, SUBMIT_SKIN_ROUTE } from "@/lib/skins/sharing";
 import { validateSkin } from "@/lib/skins/validate";
@@ -83,7 +84,9 @@ describe("the skill's references", () => {
     for (const name of [...ALLOWED_TOKENS, ...DERIVED_ALIASES]) expect({ name, named: doc.includes(code(name)) }).toEqual({ name, named: true });
   });
 
-  it("contrast.md lists exactly the validator's pairs and floors", () => {
+  it("contrast.md lists exactly the validator's pairs and floors: the core's 14 (S-001)", () => {
+    expect(CONTRAST_PAIRS).toHaveLength(14);
+    expect(ALLOWED_TOKENS).toHaveLength(47);
     const doc = reference("contrast.md");
     const rows = Array.from(doc.matchAll(/^\| `([a-z0-9-]+)` \| `([a-z0-9-]+)` \| ([\d.]+):1 \|$/gm), (row) => ({
       text: row[1],
@@ -93,10 +96,11 @@ describe("the skill's references", () => {
     expect(rows).toEqual(CONTRAST_PAIRS.map((pair) => ({ text: pair.text, on: pair.on, min: pair.min })));
   });
 
-  it("fonts.md names Studio's fonts and the size cap", () => {
+  it("fonts.md names Studio's font keys, the FontFace loading and the size cap", () => {
     const doc = reference("fonts.md");
-    for (const font of STUDIO_FONTS) expect(doc).toContain(code(font));
+    for (const font of SHIPPED_FONTS) expect(doc).toContain(code(font));
     expect(doc).toContain(`${FONT_MAX_BYTES / KB} KB`);
+    expect(doc).toContain("FontFace");
   });
 
   it("mascot.md has every state, format, shell and the cap", () => {
@@ -104,6 +108,7 @@ describe("the skill's references", () => {
     for (const state of MASCOT_STATES) expect(doc).toMatch(new RegExp(`^\\| \`${state}\` \\|`, "m"));
     for (const format of MASCOT_FORMATS) expect(doc).toContain(`<state>.${format}`);
     for (const shell of MASCOT_SHELLS) expect(doc).toContain(code(shell));
+    for (const light of MASCOT_LIGHTS) expect(doc).toContain(code(light));
     expect(doc).toContain(`${MASCOT_STATES.length * MASCOT_FORMATS.length} files`);
     expect(doc).toContain(`${MASCOT_MAX_BYTES / MB} MB`);
   });

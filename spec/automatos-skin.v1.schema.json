@@ -7,11 +7,12 @@
   "x-follows": {
     "prd": "PRD-259 Skins in Studio",
     "section": "§3 The skin format",
-    "revision": "decisions of 14 Oct 2026 (docs/prd/core/PRD-259-SKINS-IN-STUDIO.md as seeded in kit commit 378e98f)"
+    "revision": "decisions of 14 Oct 2026 (docs/prd/core/PRD-259-SKINS-IN-STUDIO.md as seeded in kit commit 378e98f), aligned with the core's Wave 1 (S-001 and decisions K1-K5)"
   },
   "x-source": {
     "kind": "prd-draft",
-    "from": "docs/prd/core/PRD-259-SKINS-IN-STUDIO.md §3"
+    "from": "docs/prd/core/PRD-259-SKINS-IN-STUDIO.md §3",
+    "alignedWith": "automatos-ai 242c9c0b frontend/lib/skins/schema.ts (feat/prd-259-w1-skins)"
   },
   "x-limits": {
     "fontMaxBytes": 409600,
@@ -55,7 +56,7 @@
       },
       {
         "text": "muted-foreground",
-        "on": "muted",
+        "on": "card",
         "min": 4.5
       },
       {
@@ -89,22 +90,12 @@
         "min": 4.5
       },
       {
-        "text": "olive",
-        "on": "background",
-        "min": 4.5
-      },
-      {
-        "text": "warn-ink",
-        "on": "background",
-        "min": 4.5
-      },
-      {
         "text": "ring",
         "on": "background",
         "min": 3
       }
     ],
-    "rule": "Checked in each tone the skin declares, for every pair the skin sets at least one side of; the other side comes from the base (Studio or Classic)."
+    "rule": "Checked in each tone the skin declares, on the skin's own values only (decision K5): a pair the skin sets either side of must have both sides set, and must reach its minimum. The base's colours are never used."
   },
   "x-derived-aliases": [
     "paper",
@@ -152,7 +143,7 @@
     },
     "slug": {
       "type": "string",
-      "maxLength": 48,
+      "maxLength": 64,
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
       "description": "kebab-case, unique per author"
     },
@@ -162,7 +153,8 @@
       "maxLength": 40,
       "not": {
         "pattern": "[<>]"
-      }
+      },
+      "description": "One line of plain text: no control characters, and none of < > :// url( javascript: (any case)."
     },
     "version": {
       "type": "string",
@@ -175,22 +167,25 @@
       "maxLength": 80,
       "not": {
         "pattern": "[<>]"
-      }
+      },
+      "description": "One line of plain text: no control characters, and none of < > :// url( javascript: (any case)."
     },
     "description": {
       "type": "string",
       "maxLength": 280,
       "not": {
         "pattern": "[<>]"
-      }
+      },
+      "description": "One line of plain text: no control characters, and none of < > :// url( javascript: (any case)."
     },
     "licence": {
       "type": "string",
       "minLength": 1,
-      "maxLength": 64,
+      "maxLength": 80,
       "not": {
         "pattern": "[<>]"
-      }
+      },
+      "description": "One line of plain text: no control characters, and none of < > :// url( javascript: (any case)."
     },
     "base": {
       "enum": [
@@ -220,7 +215,8 @@
         "dark": {
           "$ref": "#/$defs/toneTokens"
         }
-      }
+      },
+      "description": "tokens.light is required exactly when tones includes light, tokens.dark exactly when it includes dark ({} keeps the base's colours)."
     },
     "fonts": {
       "type": "object",
@@ -278,8 +274,13 @@
           "description": "Auto's shell tint"
         },
         "light": {
-          "$ref": "#/$defs/colour",
-          "description": "Auto's light"
+          "enum": [
+            "mint",
+            "amber",
+            "ice",
+            "rose"
+          ],
+          "description": "Auto's light colour"
         }
       }
     },
@@ -362,14 +363,14 @@
       "anyOf": [
         {
           "enum": [
-            "Geist",
-            "Geist Mono",
-            "Newsreader"
+            "geist",
+            "geist-mono",
+            "newsreader"
           ]
         },
         {
           "type": "string",
-          "pattern": "^assets\\/fonts\\/[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*\\.woff2$"
+          "pattern": "^assets\\/fonts\\/[A-Za-z0-9_-]{1,64}\\.woff2$"
         }
       ]
     }

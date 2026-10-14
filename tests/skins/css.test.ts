@@ -18,8 +18,6 @@ function unvalidated(patch: Json): Skin {
   return { ...validated(validSkin()), ...patch } as unknown as Skin;
 }
 
-const FONT_URL = "blob:http://localhost:3100/0b6a7c1e-2f4d-4c1a-9e3b-5d6f7a8b9c0d";
-
 const GOLDEN = `html[data-skin="warm-paper"] {
   --background: 38 50% 92%;
   --foreground: 30 12% 9%;
@@ -75,17 +73,18 @@ describe("skinToCss", () => {
   });
 
   it("is empty for a skin that changes nothing", () => {
-    expect(skinToCss(validated({ ...validSkin(), tokens: {}, shape: {} }))).toBe("");
+    expect(skinToCss(validated({ ...validSkin(), tokens: { light: {}, dark: {} }, shape: {} }))).toBe("");
   });
 
-  it("points Studio's font variables at shipped fonts and the skin's own files", () => {
-    const fonts = { sans: "Newsreader", serif: "assets/fonts/my-face.woff2" };
+  it("points Studio's font variables at shipped fonts and the skin's own families, with no @font-face or url() (K2)", () => {
+    const fonts = { sans: "newsreader", serif: "assets/fonts/my-face.woff2", mono: "geist-mono" };
     const skin = validated(withField(validSkin(), "fonts", fonts), [asset("assets/fonts/my-face.woff2", "woff2")]);
-    const css = skinToCss(skin, { fontUrls: { "assets/fonts/my-face.woff2": FONT_URL } });
+    const css = skinToCss(skin);
     expect(css).toContain('--font-geist-sans: "Newsreader", Georgia, ui-serif, serif;');
     expect(css).toContain('--font-newsreader: "skin-warm-paper-serif", Georgia, ui-serif, serif;');
-    expect(css.startsWith(`@font-face {\n  font-family: "skin-warm-paper-serif";\n  src: url("${FONT_URL}") format("woff2");\n  font-display: swap;\n}\n`)).toBe(true);
-    expect(skinToCss(skin)).not.toContain("@font-face");
+    expect(css).toContain('--font-geist-mono: "Geist Mono", ui-monospace, monospace;');
+    expect(css).not.toContain("@font-face");
+    expect(css).not.toContain("url(");
   });
 });
 
@@ -117,9 +116,8 @@ describe("skinToCss never lets a hostile value through", () => {
     expectRefused(() => skinToCss(unvalidated({ shape: { radius: "8px;}" } })), "8px;}");
     expectRefused(() => skinToCss(unvalidated({ shape: { glow: 1e9 } })), "1000000000");
     expectRefused(() => skinToCss(unvalidated({ fonts: { sans: 'x"; } body{' } })), "body{");
-    const font = { fonts: { sans: "assets/fonts/a.woff2" } };
-    expectRefused(() => skinToCss(unvalidated(font), { fontUrls: { "assets/fonts/a.woff2": 'blob:http://x/") } body{' } }), "body{");
-    expectRefused(() => skinToCss(unvalidated(font), { fontUrls: { "assets/fonts/a.woff2": "https://evil.example/a.woff2" } }), "evil");
+    expectRefused(() => skinToCss(unvalidated({ fonts: { sans: "assets/fonts/a.woff2) url(https://evil" } })), "evil");
+    expectRefused(() => skinToCss(unvalidated({ fonts: { sans: "Geist" } })), "Geist");
   });
 
   it("writes nothing but declarations of numbers and names it made", () => {

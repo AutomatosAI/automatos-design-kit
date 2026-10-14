@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import EditorPage from "@/app/page";
+import { BASE_PAIR_VERDICT, INCOMPLETE_VERDICT, setTooLabel } from "@/components/skins/ColourRow";
+import { toneLockNote } from "@/components/skins/MetaFields";
 import { KEPT_STATUS, NOT_KEPT_STATUS, SkinEditor } from "@/components/skins/SkinEditor";
 import { SKIN_CSS_TEST_ID } from "@/components/skins/SkinPreviewStrip";
 import type { StorageSource } from "@/lib/looks/storage";
@@ -13,7 +15,8 @@ import { blockedStorage, memoryStorage } from "../looks/helpers";
 
 // PRD-004 K-004: the skin editor. Editing a token updates the preview's CSS, a failing pair
 // shows its badge and the suggestion fixes it, undo restores, dropping a tone hides its column,
-// and the draft survives a reload.
+// and the draft survives a reload. K-010: the badges follow decision K5 (base pairs aren't
+// checked, one-sided pairs are flagged) and a one-tone skin says Studio locks its tone (K4).
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -98,23 +101,55 @@ describe("the skin editor", () => {
     expect(await skinCss()).toBe(before);
   });
 
-  it("shows a failing pair's badge, and its suggestion fixes it", async () => {
+  it("shows a base pair as not checked, and its suggestion makes it the skin's own checked pair (K5)", async () => {
     const user = userEvent.setup();
     renderEditor();
     await skinCss();
     await user.click(screen.getByRole("button", { name: "Start from Classic" }));
     await showGroup(user, "Brand");
     const light = cell("primary", "Light");
-    expect(light.getByText("AA fail")).toBeInTheDocument();
-    expect(light.getByText("✗")).toBeInTheDocument();
+    expect(light.getByText(BASE_PAIR_VERDICT)).toBeInTheDocument();
+    expect(light.getByText("–")).toBeInTheDocument();
+    expect(light.queryByText("AA fail")).toBeNull();
     expect(light.getByText("primary-foreground on primary")).toBeInTheDocument();
     expect(light.getByText(/^\d+\.\d\d:1$/)).toBeInTheDocument();
 
     await user.click(light.getByRole("button", { name: /^Use suggestion for primary-foreground, Light/ }));
-    expect(cell("primary", "Light").queryByText("AA fail")).toBeNull();
+    expect(cell("primary", "Light").queryByText(BASE_PAIR_VERDICT)).toBeNull();
     expect(cell("primary", "Light").getByText("AA pass")).toBeInTheDocument();
     expect(cell("primary", "Light").getByText("✓")).toBeInTheDocument();
+    expect(cell("primary", "Light").getByText("Set by this skin")).toBeInTheDocument();
     expect(cell("primary", "Light").queryByRole("button", { name: /^Use suggestion/ })).toBeNull();
+  });
+
+  it("shows a failing pair the skin sets as AA fail, with a suggestion", async () => {
+    const user = userEvent.setup();
+    renderEditor();
+    await skinCss();
+    await showGroup(user, "Brand");
+    await typeColour(user, textField("primary", "Light"), "0 0% 96%");
+    const light = cell("primary", "Light");
+    expect(light.getByText("AA fail")).toBeInTheDocument();
+    expect(light.getByText("✗")).toBeInTheDocument();
+    expect(light.getByRole("button", { name: /^Use suggestion for primary-foreground, Light/ })).toBeInTheDocument();
+  });
+
+  it("flags a pair the skin sets one side of, and Set … too completes it", async () => {
+    const user = userEvent.setup();
+    renderEditor();
+    await skinCss();
+    await showGroup(user, "Brand");
+    await typeColour(user, textField("primary", "Light"), "200 50% 40%");
+    await showGroup(user, "Text");
+    await user.click(cell("primary-foreground", "Light").getByRole("button", { name: "Use base colour for primary-foreground, Light" }));
+    const text = cell("primary-foreground", "Light");
+    expect(text.getByText(INCOMPLETE_VERDICT)).toBeInTheDocument();
+    expect(text.getByText("!")).toBeInTheDocument();
+
+    await user.click(text.getByRole("button", { name: `${setTooLabel("primary-foreground")}, Light` }));
+    expect(cell("primary-foreground", "Light").queryByText(INCOMPLETE_VERDICT)).toBeNull();
+    expect(cell("primary-foreground", "Light").getByText(/^AA (pass|fail)$/)).toBeInTheDocument();
+    expect(cell("primary-foreground", "Light").getByText("Set by this skin")).toBeInTheDocument();
   });
 
   it("undoes and redoes with the buttons and the keyboard", async () => {
@@ -149,6 +184,8 @@ describe("the skin editor", () => {
     expect(screen.queryByRole("figure", { name: "Light preview" })).toBeNull();
     expect(tones.getByRole("button", { name: "Dark" })).toBeDisabled();
     expect(tones.getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByText(toneLockNote("dark"))).toBeInTheDocument();
+    expect(toneLockNote("dark")).toBe("Dark only: Studio locks Dark while this skin is on.");
   });
 
   it("moves the radius and glow sliders, with their values shown", async () => {

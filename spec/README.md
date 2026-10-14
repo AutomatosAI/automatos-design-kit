@@ -6,11 +6,14 @@ Studio owns the format (core PRD-259 §3). Until Studio publishes `GET /api/skin
 
 The JSON Schema can't express every rule, so the `x-` keys carry the rest: `x-contrast` (the AA pairs and their minimum ratios), `x-limits` (size caps in bytes), `x-mascot-states` and `x-mascot-formats` (a custom mascot's 36 files), `x-files` (which package files are allowed) and `x-derived-aliases` (tokens Studio derives and a skin never sets). `lib/skins/format.ts` holds the same values for the validator; `tests/skins/spec.test.ts` fails when the two disagree.
 
-Choices the draft makes where PRD-259 §3 is open (to confirm when Studio publishes):
+Since K-010 the rules follow the core's Wave 1 as built (story S-001 and decisions K1-K5 of `automatos-ai/scripts/ralph/prd-259w1.json`; `frontend/lib/skins/schema.ts` at `242c9c0b` on `feat/prd-259-w1-skins`, recorded in `x-source.alignedWith`):
 
-- Text pairs: each `-foreground` on its own fill, plus `muted-foreground` on `background` and on `muted`, and `olive` and `warn-ink` on `background`; `ring` on `background` at 3:1.
-- A pair is checked in a tone when the skin sets at least one of its two tokens there; the other side comes from the base. Pairs the skin doesn't touch are the base's (Classic's own palette fails six of them). The validator takes the base palettes as `baseTokens`; K-003 supplies them.
-- `mascot.shell` is one of Auto's shell tints (`bronze`, `gold`, `silver`, `cobalt`); `mascot.light` is a colour.
-- Studio's fonts are `Geist`, `Geist Mono` and `Newsreader`; any slot may use any of them.
-- `shape.radius` and `shape.glow` are whole numbers; `description`, `licence`, `fonts`, `shape`, `mascot` and `preview` are optional.
-- Words (`name`, `author`, `description`, `licence`) may not hold a web address or `<`/`>`.
+- The 47 allowed tokens and the 14 contrast pairs are the core's lists, in its order: each `-foreground` on its own fill, `muted-foreground` on `background` and on `card`, `ring` on `background` at 3:1.
+- Decision K5: a pair is checked in a tone, on the skin's own colours, when the skin sets either side; setting one side without the other is an error. The base's colours are never used (Classic's own palette fails six pairs).
+- `tokens.light` is required exactly when `tones` has `light`, `tokens.dark` exactly when it has `dark`.
+- Fonts are a shipped key (`geist`, `geist-mono`, `newsreader`) or `assets/fonts/<name>.woff2` with the name `[A-Za-z0-9_-]{1,64}`.
+- `mascot.shell` is one of `bronze`, `gold`, `silver`, `cobalt`; `mascot.light` one of `mint`, `amber`, `ice`, `rose`.
+- `slug` is 1 to 64 characters; `licence` at most 80.
+- Words (`name`, `author`, `description`, `licence`) are one line: no control characters, and none of `<`, `>`, `://`, `url(`, `javascript:`.
+
+Where the kit stays stricter than Studio (a skin it passes always passes Studio): `author` is required; words also refuse other link shapes (`www.`, `//host`, `data:`, `mailto:`, `file:`) and invisible format characters; and errors carry a JSON path and a sentence but not Studio's error codes (`SCHEMA`, `PAIR_INCOMPLETE`, …).

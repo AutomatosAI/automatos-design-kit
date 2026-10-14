@@ -14,6 +14,7 @@ import {
   HEX_COLOUR_PATTERN,
   HSL_TRIPLET_PATTERN,
   MASCOT_FORMATS,
+  MASCOT_LIGHTS,
   MASCOT_MODES,
   MASCOT_SHELLS,
   MASCOT_STATES,
@@ -28,8 +29,9 @@ import {
   SEMVER_PATTERN,
   SKIN_FIELDS,
   SKIN_SCHEMA,
+  SHIPPED_FONTS,
+  SLUG_MAX,
   SLUG_PATTERN,
-  STUDIO_FONTS,
   TONES,
 } from "@/lib/skins/format";
 
@@ -71,18 +73,20 @@ describe("the spec/ schema", () => {
 
   it("uses the validator's patterns and ranges", () => {
     expect(PROPS.slug.pattern).toBe(SLUG_PATTERN.source);
+    expect(PROPS.slug.maxLength).toBe(SLUG_MAX);
     expect(PROPS.version.pattern).toBe(SEMVER_PATTERN.source);
     expect(PROPS.name.maxLength).toBe(NAME_MAX);
     expect(PROPS.description.maxLength).toBe(DESCRIPTION_MAX);
     expect(PROPS.shape.properties.radius.maximum).toBe(RADIUS_MAX);
     expect(PROPS.shape.properties.glow.maximum).toBe(GLOW_MAX);
-    expect(DEFS.font.anyOf[0].enum).toEqual([...STUDIO_FONTS]);
+    expect(DEFS.font.anyOf[0].enum).toEqual([...SHIPPED_FONTS]);
     expect(DEFS.font.anyOf[1].pattern).toBe(FONT_FILE_PATTERN.source);
   });
 
   it("has the validator's mascot rules, contrast pairs and size caps", () => {
     expect(PROPS.mascot.properties.mode.enum).toEqual([...MASCOT_MODES]);
     expect(PROPS.mascot.properties.shell.enum).toEqual([...MASCOT_SHELLS]);
+    expect(PROPS.mascot.properties.light.enum).toEqual([...MASCOT_LIGHTS]);
     expect(SCHEMA["x-mascot-states"]).toEqual([...MASCOT_STATES]);
     expect(SCHEMA["x-mascot-formats"]).toEqual([...MASCOT_FORMATS]);
     expect(SCHEMA["x-contrast"].pairs).toEqual(CONTRAST_PAIRS.map((pair) => ({ ...pair })));

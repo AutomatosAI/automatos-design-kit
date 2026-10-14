@@ -121,20 +121,36 @@ function partnersOf(name: TokenName): readonly TokenName[] {
 }
 
 /**
+ * Pins the base's value for every token the skin doesn't set yet that is chained to `name` by
+ * contrast pairs (setting background pins muted-foreground, which pairs with card, which pairs
+ * with card-foreground), so no pair is left with one side (decision K5).
+ */
+function pinPartners(own: TokenValues, base: TokenValues, name: TokenName): TokenValues {
+  const step = (values: TokenValues, queue: readonly TokenName[]): TokenValues => {
+    const [next, ...rest] = queue;
+    if (next === undefined) return values;
+    const added = partnersOf(next).flatMap((partner) => {
+      const value = base[partner];
+      return values[partner] === undefined && value !== undefined ? [[partner, value] as const] : [];
+    });
+    const pinned = added.reduce((acc, [partner, value]) => withToken(acc, partner, value), values);
+    return step(pinned, [...rest, ...added.map(([partner]) => partner)]);
+  };
+  return step(own, [name]);
+}
+
+/**
  * Sets a colour (an HSL triplet or #rrggbb; anything else leaves the draft as it is). The other
  * side of each contrast pair it belongs to is pinned to the base's value when the skin doesn't
- * set it yet, so the pair the editor shows is the pair the skin carries and the validator checks.
+ * set it yet, and so on along the chain, so the pairs the editor shows are the pairs the skin
+ * carries and the validator checks.
  */
 export function setToken(draft: SkinDraft, tone: Tone, name: TokenName, colour: string): SkinDraft {
   const triplet = normaliseColour(colour);
   if (triplet === null) return draft;
-  const own = draft.tokens[tone];
   const base = basePalette(draft.base, tone);
-  const pinned = partnersOf(name).reduce((values, partner) => {
-    const value = base[partner];
-    return values[partner] === undefined && value !== undefined ? withToken(values, partner, value) : values;
-  }, own);
-  const next = withToken(pinned, name, triplet);
+  const own = withToken(draft.tokens[tone], name, triplet);
+  const next = pinPartners(own, base, name);
   return { ...draft, tokens: { ...draft.tokens, [tone]: next } };
 }
 

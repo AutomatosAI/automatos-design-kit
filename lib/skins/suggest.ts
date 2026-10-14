@@ -32,8 +32,16 @@ export function suggestReadable(text: string, on: string, min: number): string {
   return tripletContrast(mixed, on) >= min ? mixed : hexToTriplet(pole);
 }
 
+/**
+ * How the validator treats a pair (decision K5): "checked" when the skin sets both sides,
+ * "incomplete" when it sets one (an error until it sets the other), "base" when it sets neither
+ * (the base's own pair, never checked: Studio's Classic fails several).
+ */
+export type PairStatus = "checked" | "incomplete" | "base";
+
 export interface PairCheck {
   readonly pair: ContrastPair;
+  readonly status: PairStatus;
   /** The two sides as HSL triplets. */
   readonly text: string;
   readonly on: string;
@@ -43,19 +51,38 @@ export interface PairCheck {
   readonly suggestion: string | null;
 }
 
-export function checkPair(pair: ContrastPair, text: string, on: string): PairCheck {
+export function checkPair(pair: ContrastPair, text: string, on: string, status: PairStatus = "checked"): PairCheck {
   const ratio = tripletContrast(text, on);
   const passes = ratio >= pair.min;
-  return { pair, text, on, ratio, passes, suggestion: passes ? null : suggestReadable(text, on, pair.min) };
+  return { pair, status, text, on, ratio, passes, suggestion: passes ? null : suggestReadable(text, on, pair.min) };
 }
 
-/** Every contrast pair whose two sides are in `palette` (a resolved tone: base under the skin's own). */
-export function pairChecks(palette: TokenValues): readonly PairCheck[] {
+function statusOf(pair: ContrastPair, own: TokenValues): PairStatus {
+  const text = own[pair.text] !== undefined;
+  const on = own[pair.on] !== undefined;
+  if (text && on) return "checked";
+  return text || on ? "incomplete" : "base";
+}
+
+/**
+ * Every contrast pair whose two sides are in `palette` (a resolved tone: base under the skin's
+ * own). With `own` (the skin's own colours in that tone) each check carries its K5 status; without
+ * it every pair counts as checked.
+ */
+export function pairChecks(palette: TokenValues, own?: TokenValues): readonly PairCheck[] {
   return CONTRAST_PAIRS.flatMap((pair) => {
     const text = palette[pair.text];
     const on = palette[pair.on];
-    return text === undefined || on === undefined ? [] : [checkPair(pair, text, on)];
+    if (text === undefined || on === undefined) return [];
+    return [checkPair(pair, text, on, own === undefined ? "checked" : statusOf(pair, own))];
   });
+}
+
+/** The side of an incomplete pair the skin doesn't set yet; null for a complete or base pair. */
+export function missingSide(pair: ContrastPair, own: TokenValues): TokenName | null {
+  if (own[pair.text] === undefined && own[pair.on] !== undefined) return pair.text;
+  if (own[pair.on] === undefined && own[pair.text] !== undefined) return pair.on;
+  return null;
 }
 
 /** The pairs a token is one side of: the badges its colour shows. */

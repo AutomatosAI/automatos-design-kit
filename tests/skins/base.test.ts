@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { CORE_SOURCE, STUDIO_BLOCKS, baseAliases, basePalette, baseTokens } from "@/lib/skins/base";
+import { CORE_SOURCE, STUDIO_BLOCKS, baseAliases, basePalette } from "@/lib/skins/base";
 import { parseTriplet } from "@/lib/skins/colour";
-import { ALLOWED_TOKENS, BASES, TONES } from "@/lib/skins/format";
+import { ALLOWED_TOKENS } from "@/lib/skins/format";
 import { pairChecks } from "@/lib/skins/suggest";
 
 // Studio's palettes, copied from the core's frontend/app/globals.css (CORE_SOURCE.commit).
@@ -46,10 +46,6 @@ describe("base palettes", () => {
     expect(basePalette("studio", "light").foreground).toBe("30 12% 9%");
   });
 
-  it("serve as the validator's baseTokens", () => {
-    for (const base of BASES) for (const tone of TONES) expect(baseTokens(base, tone)).toEqual(basePalette(base, tone));
-  });
-
   it("derive paper, bg-1/2 and fg/-2/-3 from the core tokens", () => {
     expect(baseAliases("studio", "light")).toEqual({
       paper: "hsl(0 0% 100%)",
@@ -63,7 +59,7 @@ describe("base palettes", () => {
     expect(baseAliases("classic", "dark")["bg-1"]).toBe("hsl(0 0% 6%)");
   });
 
-  it("show where Studio's own colours miss AA (Classic misses six pairs per tone)", () => {
+  it("show where Studio's own colours miss AA on the core's 14 pairs (Classic misses six per tone, Studio none)", () => {
     const failing = (base: "studio" | "classic", tone: "light" | "dark") =>
       pairChecks(basePalette(base, tone))
         .filter((check) => !check.passes)
@@ -71,7 +67,7 @@ describe("base palettes", () => {
     const classic = ["primary-foreground", "accent-foreground", "destructive-foreground", "success-foreground", "info-foreground", "agent-foreground"];
     expect(failing("classic", "light")).toEqual(classic);
     expect(failing("classic", "dark")).toEqual(classic);
-    expect(failing("studio", "light")).toEqual(["muted-foreground"]); // on muted, 4.21:1 (a kit draft pair)
+    expect(failing("studio", "light")).toEqual([]);
     expect(failing("studio", "dark")).toEqual([]);
   });
 });

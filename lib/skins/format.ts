@@ -1,10 +1,13 @@
-import { SHELL_KEYS } from "../looks/catalogue";
 import { MASCOT_STATES } from "../mascot/types";
 
-// The automatos-skin/v1 format, as core PRD-259 §3 describes it. Studio owns the format; until
-// it publishes GET /api/skins/schema this file and spec/automatos-skin.v1.schema.json are the
-// kit's draft of it, kept equal by tests/skins/spec.test.ts. Relative imports only: the CLI in
-// scripts/ runs these modules under tsx.
+// The automatos-skin/v1 format, as core PRD-259 §3 describes it and the core's Wave 1 built it
+// (automatos-ai frontend/lib/skins/schema.ts, story S-001 of scripts/ralph/prd-259w1.json, and
+// the kit decisions K1-K5). Studio owns the format; until it publishes GET /api/skins/schema
+// this file and spec/automatos-skin.v1.schema.json are the kit's copy of it, kept equal by
+// tests/skins/spec.test.ts. Relative imports only: the CLI in scripts/ runs these modules under tsx.
+
+/** The core commit the lists below were compared with (feat/prd-259-w1-skins). */
+export const CORE_SCHEMA_SOURCE = "automatos-ai 242c9c0b frontend/lib/skins/schema.ts";
 
 export const SKIN_SCHEMA = "automatos-skin/v1";
 export const SKIN_FILE = "skin.json";
@@ -36,7 +39,7 @@ export const TONES = ["light", "dark"] as const;
 export type SkinBase = (typeof BASES)[number];
 export type Tone = (typeof TONES)[number];
 
-/** PRD-259 §3 "Allowed tokens", taken from Studio's app/globals.css. */
+/** PRD-259 §3 "Allowed tokens": the core's S-001 list, 47 names, in its order. */
 export const ALLOWED_TOKENS = [
   "background",
   "foreground",
@@ -106,7 +109,11 @@ function textPair(text: TokenName, on: TokenName): ContrastPair {
   return { text, on, min: AA_TEXT_RATIO };
 }
 
-/** PRD-259 §3: every text pair at 4.5:1 ("and so on" read as each -foreground on its fill). */
+/**
+ * The core's S-001 pairs, 14, in its order: 13 text pairs at 4.5:1 and the ring at 3:1. Decision
+ * K5: a pair is checked on the skin's own values when the skin sets either side, and setting one
+ * side needs the other (the base's values are never used: Classic's own primary pair is 3.31:1).
+ */
 export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   textPair("foreground", "background"),
   textPair("card-foreground", "card"),
@@ -114,35 +121,43 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   textPair("primary-foreground", "primary"),
   textPair("secondary-foreground", "secondary"),
   textPair("muted-foreground", "background"),
-  textPair("muted-foreground", "muted"),
+  textPair("muted-foreground", "card"),
   textPair("accent-foreground", "accent"),
   textPair("destructive-foreground", "destructive"),
   textPair("success-foreground", "success"),
   textPair("warning-foreground", "warning"),
   textPair("info-foreground", "info"),
   textPair("agent-foreground", "agent"),
-  textPair("olive", "background"),
-  textPair("warn-ink", "background"),
   { text: "ring", on: "background", min: AA_RING_RATIO },
 ];
 
 export const FONT_SLOTS = ["sans", "serif", "mono"] as const;
 export type FontSlot = (typeof FONT_SLOTS)[number];
-/** The fonts Studio ships (its app/layout.tsx); any other face is a woff2 file in assets/fonts/. */
-export const STUDIO_FONTS = ["Geist", "Geist Mono", "Newsreader"] as const;
+/** The faces Studio ships (its app/layout.tsx), by the key a skin names; any other face is a woff2 in assets/fonts/. */
+export const SHIPPED_FONTS = ["geist", "geist-mono", "newsreader"] as const;
+export type ShippedFont = (typeof SHIPPED_FONTS)[number];
+/** Each shipped face's family name, as the editor shows it and the kit's own page loads it. */
+export const SHIPPED_FONT_NAMES: Readonly<Record<ShippedFont, string>> = {
+  geist: "Geist",
+  "geist-mono": "Geist Mono",
+  newsreader: "Newsreader",
+};
 
 export const MASCOT_MODES = ["off", "auto", "custom"] as const;
 export type MascotMode = (typeof MASCOT_MODES)[number];
 export { MASCOT_STATES };
 export const MASCOT_FORMATS = ["webm", "mp4", "png"] as const;
-/** Auto's shell tints are the Looks catalogue's (a filter Studio ports with the player). */
-export const MASCOT_SHELLS = SHELL_KEYS;
+/** Auto's shell tints and light colours: catalogue keys (the Looks catalogue's, which Studio ports). */
+export const MASCOT_SHELLS = ["bronze", "gold", "silver", "cobalt"] as const;
+export const MASCOT_LIGHTS = ["mint", "amber", "ice", "rose"] as const;
+export type MascotShell = (typeof MASCOT_SHELLS)[number];
+export type MascotLight = (typeof MASCOT_LIGHTS)[number];
 
 export const NAME_MAX = 40;
 export const DESCRIPTION_MAX = 280;
 export const AUTHOR_MAX = 80;
-export const LICENCE_MAX = 64;
-export const SLUG_MAX = 48;
+export const LICENCE_MAX = 80;
+export const SLUG_MAX = 64;
 export const VERSION_MAX = 32;
 export const RADIUS_MIN = 0;
 export const RADIUS_MAX = 24;
@@ -163,7 +178,7 @@ export const SEMVER_PATTERN =
 export const HSL_TRIPLET_PATTERN =
   /^(?:360(?:\.0{1,2})?|(?:3[0-5]\d|[12]\d{2}|[1-9]?\d)(?:\.\d{1,2})?) (?:100(?:\.0{1,2})?|[1-9]?\d(?:\.\d{1,2})?)% (?:100(?:\.0{1,2})?|[1-9]?\d(?:\.\d{1,2})?)%$/;
 export const HEX_COLOUR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
-export const FONT_FILE_PATTERN = /^assets\/fonts\/[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*\.woff2$/;
+export const FONT_FILE_PATTERN = /^assets\/fonts\/[A-Za-z0-9_-]{1,64}\.woff2$/;
 
 export type SniffedType = "woff2" | "png" | "webm" | "mp4" | "unknown";
 
@@ -191,9 +206,8 @@ export interface SkinShape {
 
 export interface SkinMascot {
   readonly mode: MascotMode;
-  readonly shell?: string;
-  /** An HSL triplet once validated. */
-  readonly light?: string;
+  readonly shell?: MascotShell;
+  readonly light?: MascotLight;
 }
 
 /** A validated skin.json: every colour is an HSL triplet. */
@@ -224,13 +238,9 @@ export type SkinValidation =
   | { readonly ok: true; readonly skin: Skin; readonly errors: readonly [] }
   | { readonly ok: false; readonly errors: readonly SkinError[] };
 
-/** A tone's tokens from the skin's base (Studio's palettes), for pairs the skin sets only one side of. */
-export type BaseTokens = (base: SkinBase, tone: Tone) => TokenValues;
-
 export interface ValidateOptions {
   /** The package's size on disk; defaults to the sum of the asset bytes. */
   readonly packageBytes?: number;
-  readonly baseTokens?: BaseTokens;
 }
 
 export function mascotFiles(): readonly string[] {

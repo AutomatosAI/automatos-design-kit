@@ -6,38 +6,42 @@ import { PreviewScreen } from "@/components/preview/PreviewScreen";
 import { GALLERY_CSS_TEST_ID } from "@/components/preview/content";
 import { SkinEditor } from "@/components/skins/SkinEditor";
 import { SKIN_CSS_TEST_ID } from "@/components/skins/SkinPreviewStrip";
-import { LIGHTS } from "@/lib/looks/catalogue";
 import type { StorageSource } from "@/lib/looks/storage";
 import { captionFor } from "@/lib/mascot/media";
 import { FULL_MESSAGE, memoryAssetStore, type AssetStore } from "@/lib/skins/asset-store";
 import { ownBuffer, type StoredAsset } from "@/lib/skins/assets";
-import { normaliseColour } from "@/lib/skins/colour";
 import { DRAFT_KEY, DRAFT_STORE_VERSION } from "@/lib/skins/draft-store";
+import type { FontHost } from "@/lib/skins/font-faces";
 import { MASCOT_FORMATS, MASCOT_STATES } from "@/lib/skins/format";
 import { startDraft, type SkinDraft } from "@/lib/skins/model";
 
-import { memoryStorage, stubObjectUrls } from "../looks/helpers";
+import { memoryStorage } from "../looks/helpers";
 import { PNG_BYTES, WOFF2_BYTES, bytesFor } from "./helpers";
 
 // PRD-004 K-006: fonts and mascot in the editor. A file that isn't woff2 is refused in words, a
-// woff2 file reaches the preview through @font-face from an object URL, a custom mascot set
-// lists what it is missing, the mode switch updates the draft, and the files survive a reload.
+// woff2 file reaches the preview through the FontFace API (K-010, decision K2: no @font-face), a
+// custom mascot set lists what it is missing, the mode switch updates the draft, and the files
+// survive a reload.
 
-const MINT = normaliseColour(LIGHTS.mint.hex) ?? "";
+interface Registered {
+  readonly family: string;
+  readonly bytes: number;
+  removed: boolean;
+}
 
-let restoreUrls: (() => void) | null = null;
-let made = 0;
-
-/** Object URLs in the shape the browser makes them, so skinToCss accepts them. */
-function fakeObjectUrls(): void {
-  made = 0;
-  restoreUrls = stubObjectUrls(
-    () => {
-      made += 1;
-      return `blob:http://localhost/00000000-0000-4000-8000-${String(made).padStart(12, "0")}`;
+/** A FontFace host that records what the page registers and removes. */
+function fakeFontHost(): { readonly host: FontHost; readonly registered: Registered[] } {
+  const registered: Registered[] = [];
+  const host: FontHost = {
+    register: async (family, bytes) => {
+      const entry: Registered = { family, bytes: bytes.byteLength, removed: false };
+      registered.push(entry);
+      return () => {
+        entry.removed = true;
+      };
     },
-    () => undefined,
-  );
+  };
+  return { host, registered };
 }
 
 beforeEach(() => {
@@ -46,8 +50,6 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  restoreUrls?.();
-  restoreUrls = null;
   vi.restoreAllMocks();
 });
 
@@ -67,9 +69,9 @@ function storedDraft(storage: Storage): SkinDraft {
   return (JSON.parse(raw) as { draft: SkinDraft }).draft;
 }
 
-async function renderEditor(assetStore: AssetStore = memoryAssetStore(), draft?: SkinDraft) {
+async function renderEditor(assetStore: AssetStore = memoryAssetStore(), draft?: SkinDraft, fontHost: FontHost | null = null) {
   const { storage, source } = storageWith(draft);
-  render(<SkinEditor storage={source} assetStore={assetStore} />);
+  render(<SkinEditor storage={source} assetStore={assetStore} fontHost={fontHost} />);
   await screen.findByTestId(SKIN_CSS_TEST_ID);
   return storage;
 }
@@ -99,15 +101,18 @@ describe("fonts in the editor", () => {
     expect(await slot("Mono").findByRole("alert")).toHaveTextContent(/"photo\.png" isn't a woff2 font/);
   });
 
-  it("uses a woff2 file: kept with the draft and loaded by the preview through @font-face from an object URL", async () => {
-    fakeObjectUrls();
+  it("uses a woff2 file: kept with the draft and registered for the preview through the FontFace API", async () => {
     const user = userEvent.setup();
     const assetStore = memoryAssetStore();
-    const storage = await renderEditor(assetStore);
+    const fonts = fakeFontHost();
+    const storage = await renderEditor(assetStore, undefined, fonts.host);
     await user.upload(slot("Sans").getByLabelText("Choose a .woff2 file for Sans"), file("My Face.woff2", WOFF2_BYTES));
 
-    await waitFor(() => expect(css()).toContain('@font-face {\n  font-family: "skin-kit-draft-sans";\n  src: url("blob:http://localhost/'));
+    const live = () => fonts.registered.filter((entry) => !entry.removed);
+    await waitFor(() => expect(live()).toEqual([{ family: "skin-kit-draft-sans", bytes: WOFF2_BYTES.length, removed: false }]));
     expect(css()).toContain('--font-geist-sans: "skin-kit-draft-sans", ui-sans-serif, system-ui, sans-serif;');
+    expect(css()).not.toContain("@font-face");
+    expect(css()).not.toContain("url(");
     expect(slot("Sans").getByRole("combobox", { name: "Sans" })).toHaveValue("assets/fonts/sans-My-Face.woff2");
     expect(slot("Sans").getByText(/Your file: My Face\.woff2 \(1 KB\)/)).toBeInTheDocument();
     expect(storedDraft(storage).fonts).toEqual({ sans: "assets/fonts/sans-My-Face.woff2" });
@@ -120,7 +125,7 @@ describe("fonts in the editor", () => {
     const storage = await renderEditor();
     await user.selectOptions(slot("Serif").getByRole("combobox", { name: "Serif" }), "Newsreader");
     expect(css()).toContain('--font-newsreader: "Newsreader", Georgia, ui-serif, serif;');
-    expect(storedDraft(storage).fonts).toEqual({ serif: "Newsreader" });
+    expect(storedDraft(storage).fonts).toEqual({ serif: "newsreader" });
     await user.selectOptions(slot("Serif").getByRole("combobox", { name: "Serif" }), "Studio's default");
     expect(storedDraft(storage).fonts).toEqual({});
     expect(css()).not.toContain("--font-newsreader");
@@ -158,15 +163,15 @@ describe("the mascot in the editor", () => {
     expect(screen.queryByRole("group", { name: "Mascot state" })).toBeNull();
 
     await user.click(mascotModes().getByRole("button", { name: "Auto" }));
-    expect(storedDraft(storage).mascot).toEqual({ mode: "auto", shell: "bronze", light: MINT });
+    expect(storedDraft(storage).mascot).toEqual({ mode: "auto", shell: "bronze", light: "mint" });
     expect(mascotModes().getByRole("button", { name: "Auto" })).toHaveAttribute("aria-pressed", "true");
 
     await user.click(within(screen.getByRole("group", { name: "Shell tint" })).getByRole("button", { name: "Cobalt" }));
     await user.click(within(screen.getByRole("group", { name: "Light colour" })).getByRole("button", { name: "Rose" }));
-    expect(storedDraft(storage).mascot).toEqual({ mode: "auto", shell: "cobalt", light: normaliseColour(LIGHTS.rose.hex) });
+    expect(storedDraft(storage).mascot).toEqual({ mode: "auto", shell: "cobalt", light: "rose" });
 
     await user.click(mascotModes().getByRole("button", { name: "Custom" }));
-    expect(storedDraft(storage).mascot).toEqual({ mode: "custom", light: normaliseColour(LIGHTS.rose.hex) });
+    expect(storedDraft(storage).mascot).toEqual({ mode: "custom", light: "rose" });
     expect(screen.queryByRole("group", { name: "Shell tint" })).toBeNull();
     expect(screen.getByLabelText("Choose mascot files")).toBeInTheDocument();
 
@@ -220,13 +225,16 @@ describe("the mascot in the editor", () => {
 });
 
 describe("fonts in the preview gallery", () => {
-  it("loads the draft's font files there too", async () => {
-    fakeObjectUrls();
+  it("registers the draft's font files there too, and removes them when the page goes", async () => {
     const face: StoredAsset = { path: "assets/fonts/face.woff2", name: "Face.woff2", bytes: WOFF2_BYTES };
     const { source } = storageWith({ ...startDraft("studio"), fonts: { serif: face.path } });
-    render(<PreviewScreen storage={source} assetStore={memoryAssetStore([face])} />);
-    await waitFor(() =>
-      expect(screen.getByTestId(GALLERY_CSS_TEST_ID).textContent).toContain('font-family: "skin-kit-draft-serif";\n  src: url("blob:'),
-    );
+    const fonts = fakeFontHost();
+    const { unmount } = render(<PreviewScreen storage={source} assetStore={memoryAssetStore([face])} fontHost={fonts.host} />);
+    const live = () => fonts.registered.filter((entry) => !entry.removed).map((entry) => entry.family);
+    await waitFor(() => expect(live()).toEqual(["skin-kit-draft-serif"]));
+    await waitFor(() => expect(screen.getByTestId(GALLERY_CSS_TEST_ID).textContent).toContain('"skin-kit-draft-serif"'));
+    expect(screen.getByTestId(GALLERY_CSS_TEST_ID).textContent).not.toContain("@font-face");
+    unmount();
+    await waitFor(() => expect(fonts.registered.every((entry) => entry.removed)).toBe(true));
   });
 });

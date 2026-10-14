@@ -35,7 +35,7 @@ export function validSkin(): Json {
       },
     },
     shape: { radius: 10, glow: 12 },
-    mascot: { mode: "auto", shell: "bronze", light: "#4BF0B7" },
+    mascot: { mode: "auto", shell: "bronze", light: "mint" },
   };
 }
 

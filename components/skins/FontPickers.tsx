@@ -2,13 +2,14 @@
 
 // Fonts (PRD-004 K-006): for sans, serif and mono, one of the fonts Studio ships or the
 // designer's own .woff2 file. A file is checked by its first bytes and its size before it joins
-// the draft; it is kept with the draft's other files (IndexedDB) and the preview loads it
-// through an @font-face rule from an object URL.
+// the draft; it is kept with the draft's other files (IndexedDB) and the preview registers it
+// through the FontFace API, as Studio does (useSkinFontFaces). A shipped font is stored by its
+// key ("geist", "geist-mono", "newsreader") and shown by its name.
 
 import { useId, useState } from "react";
 
 import { checkFontFile, fontSizeProblem } from "@/lib/skins/assets";
-import { FONT_SLOTS, STUDIO_FONTS, type FontSlot } from "@/lib/skins/format";
+import { FONT_SLOTS, SHIPPED_FONT_NAMES, SHIPPED_FONTS, type FontSlot } from "@/lib/skins/format";
 import { setFont, type SkinDraft } from "@/lib/skins/model";
 import { formatBytes } from "@/lib/skins/validate-files";
 
@@ -28,7 +29,7 @@ export const SLOT_LABELS: Readonly<Record<FontSlot, string>> = { sans: "Sans", s
 const DEFAULT_VALUE = "";
 
 function isShippedFont(value: string): boolean {
-  return (STUDIO_FONTS as readonly string[]).includes(value);
+  return (SHIPPED_FONTS as readonly string[]).includes(value);
 }
 
 interface SlotProps {
@@ -105,9 +106,9 @@ function FontSlotPicker({ slot, value, onEdit, assets }: SlotProps) {
         onChange={(event) => pick(event.target.value)}
       >
         <option value={DEFAULT_VALUE}>{STUDIO_DEFAULT_FONT}</option>
-        {STUDIO_FONTS.map((font) => (
+        {SHIPPED_FONTS.map((font) => (
           <option key={font} value={font}>
-            {font}
+            {SHIPPED_FONT_NAMES[font]}
           </option>
         ))}
         {filePath !== null && <option value={filePath}>{assets.assets.get(filePath)?.name ?? filePath}</option>}

@@ -58,24 +58,27 @@ export function listWords(list: readonly string[]): string {
   return list.map((item) => `"${item}"`).join(", ");
 }
 
-/** A skin is data: no links, no markup, no script schemes in its words. */
-const URL_LIKE = /[a-z][a-z0-9+.-]*:\/\/|(?:^|\s)\/\/\S|\bwww\.|\b(?:javascript|vbscript|data|mailto|file):\S/i;
+/**
+ * A skin is data: no links, no markup, no script schemes in its words. Studio refuses "<", ">",
+ * "://", "url(" and "javascript:" (any case); the kit also refuses the rest of these, so a skin
+ * it passes always passes Studio.
+ */
+const URL_LIKE = /:\/\/|(?:^|\s)\/\/\S|\bwww\.|url\(|javascript:|\b(?:vbscript|data|mailto|file):\S/i;
 const MARKUP = /[<>]/;
 
 interface TextRule {
   readonly max: number;
   readonly required: boolean;
-  readonly multiline: boolean;
 }
 
-function textProblem(text: string, rule: TextRule): string | null {
-  const chars = [...text];
-  if (chars.length === 0) return "can't be empty.";
-  if (chars.length > rule.max) return `must be at most ${rule.max} characters (it has ${chars.length}).`;
-  const control = chars.some((char) => isControl(char) && !(rule.multiline && char === "\n"));
-  if (control) return rule.multiline ? "must be plain text." : "must be one line of plain text.";
-  if (URL_LIKE.test(text)) return "can't hold a link or web address: a skin is data only.";
-  if (MARKUP.test(text)) return "can't hold < or >: a skin never carries HTML or SVG.";
+/** `raw` is the text as written: Studio counts its length and looks for control characters untrimmed. */
+function textProblem(raw: string, rule: TextRule): string | null {
+  const length = [...raw].length;
+  if (raw.trim() === "") return "can't be empty.";
+  if (length > rule.max) return `must be at most ${rule.max} characters (it has ${length}).`;
+  if ([...raw].some(isControl)) return "must be one line of plain text.";
+  if (URL_LIKE.test(raw)) return "can't hold a link or web address: a skin is data only.";
+  if (MARKUP.test(raw)) return "can't hold < or >: a skin never carries HTML or SVG.";
   return null;
 }
 
@@ -83,9 +86,8 @@ export function checkText(path: string, value: unknown, rule: TextRule): Checked
   const field = path.replace(/^\$\./, "");
   if (value === undefined) return rule.required ? fail(path, `"${field}" is required.`) : pass(undefined);
   if (typeof value !== "string") return fail(path, `"${field}" must be text.`);
-  const text = value.trim();
-  const problem = textProblem(text, rule);
-  return problem ? fail(path, `"${field}" ${problem}`) : pass(text);
+  const problem = textProblem(value, rule);
+  return problem ? fail(path, `"${field}" ${problem}`) : pass(value.trim());
 }
 
 /** A typed record from entries (Object.fromEntries widens keys to string). */

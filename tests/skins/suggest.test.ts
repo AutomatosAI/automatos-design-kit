@@ -4,7 +4,7 @@ import { readableOn } from "@/lib/looks/contrast";
 import { basePalette } from "@/lib/skins/base";
 import { formatTriplet, tripletContrast } from "@/lib/skins/colour";
 import { AA_RING_RATIO, AA_TEXT_RATIO, BASES, TONES } from "@/lib/skins/format";
-import { checkPair, farthestPole, pairChecks, pairsOf, suggestReadable } from "@/lib/skins/suggest";
+import { checkPair, farthestPole, missingSide, pairChecks, pairsOf, suggestReadable } from "@/lib/skins/suggest";
 
 // Readable-text suggestions for any colour pair: readableOn() widened beyond the Looks catalogue.
 
@@ -62,6 +62,23 @@ describe("pairChecks", () => {
     expect(checks[0]).toMatchObject({ text: "0 0% 10%", on: "0 0% 98%", passes: true, suggestion: null });
   });
 
+  it("with the skin's own colours, says how the validator treats each pair (decision K5)", () => {
+    const palette = { foreground: "0 0% 10%", background: "0 0% 98%", primary: "16 100% 50%", "primary-foreground": "0 0% 98%", ring: "0 0% 40%" };
+    const own = { foreground: "0 0% 10%", background: "0 0% 98%", primary: "16 100% 50%" };
+    const status = Object.fromEntries(pairChecks(palette, own).map((check) => [`${check.pair.text}/${check.pair.on}`, check.status]));
+    expect(status).toEqual({ "foreground/background": "checked", "primary-foreground/primary": "incomplete", "ring/background": "incomplete" });
+    expect(pairChecks({ foreground: "0 0% 10%", background: "0 0% 98%" }, {})[0]?.status).toBe("base");
+    expect(pairChecks({ foreground: "0 0% 10%", background: "0 0% 98%" })[0]?.status).toBe("checked");
+  });
+
+  it("names the side an incomplete pair still needs", () => {
+    const [primary] = pairsOf("primary");
+    expect(missingSide(primary, { primary: "16 100% 50%" })).toBe("primary-foreground");
+    expect(missingSide(primary, { "primary-foreground": "0 0% 98%" })).toBe("primary");
+    expect(missingSide(primary, {})).toBeNull();
+    expect(missingSide(primary, { primary: "16 100% 50%", "primary-foreground": "0 0% 98%" })).toBeNull();
+  });
+
   it("gives a failing pair its ratio and a suggestion for the text side", () => {
     const [ring] = pairsOf("ring");
     const check = checkPair(ring, "38 50% 85%", "38 50% 92%");
@@ -71,7 +88,9 @@ describe("pairChecks", () => {
   });
 
   it("lists the badges a token shows", () => {
-    expect(pairsOf("background").map((pair) => pair.text)).toEqual(["foreground", "muted-foreground", "olive", "warn-ink", "ring"]);
+    expect(pairsOf("background").map((pair) => pair.text)).toEqual(["foreground", "muted-foreground", "ring"]);
+    expect(pairsOf("card").map((pair) => pair.text)).toEqual(["card-foreground", "muted-foreground"]);
+    expect(pairsOf("olive")).toEqual([]);
     expect(pairsOf("primary").map((pair) => `${pair.text}/${pair.on}`)).toEqual(["primary-foreground/primary"]);
     expect(pairsOf("chart-1")).toEqual([]);
   });

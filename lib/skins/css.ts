@@ -9,9 +9,11 @@ import {
   GLOW_MIN,
   RADIUS_MAX,
   RADIUS_MIN,
+  SHIPPED_FONT_NAMES,
+  SHIPPED_FONTS,
   SLUG_PATTERN,
-  STUDIO_FONTS,
   type FontSlot,
+  type ShippedFont,
   type Skin,
   type SkinFonts,
   type SkinShape,
@@ -24,14 +26,16 @@ import { recordOf } from "./validate-common";
 // skinToCss: the stylesheet Studio generates for a skin (core PRD-259 §4, S-004a):
 //   html[data-skin="<id>"]{ light tokens, --radius, --skin-glow, font variables }
 //   html.dark[data-skin="<id>"]{ dark tokens }
-// plus @font-face rules for the skin's own font files. The light selector (0,1,1) outranks
-// :root and .studio (0,1,0); the dark one (0,2,1) outranks .dark and .studio.dark (0,2,0).
+// The light selector (0,1,1) outranks :root and .studio (0,1,0); the dark one (0,2,1) outranks
+// .dark and .studio.dark (0,2,0). No @font-face and no url() (decision K2): a skin's own woff2 is
+// registered with the FontFace API (lib/skins/font-faces.ts) under the family skinFontFamily()
+// makes, and the CSS only names that family.
 //
 // Nothing from the skin is copied into the output as text. Every colour is parsed to numbers and
 // written back by formatTriplet, shape values must be whole numbers in range, token names come
-// from ALLOWED_TOKENS, font families are names this file makes, and a font's URL must be an
-// object URL. Anything else throws: a skin reaches here only after validateSkin, so a throw means
-// a caller skipped the gate. Pure; relative imports only (the CLI runs lib/skins under tsx).
+// from ALLOWED_TOKENS and font families are names this file makes. Anything else throws: a skin
+// reaches here only after validateSkin, so a throw means a caller skipped the gate. Pure;
+// relative imports only (the CLI runs lib/skins under tsx).
 
 /** Studio's font variables (next/font in its app/layout.tsx); the slot a skin font replaces. */
 export const FONT_VARIABLES: Readonly<Record<FontSlot, string>> = {
@@ -47,22 +51,18 @@ const FALLBACKS: Readonly<Record<FontSlot, string>> = {
   mono: "ui-monospace, monospace",
 };
 
-const SHIPPED_SLOT: Readonly<Record<(typeof STUDIO_FONTS)[number], FontSlot>> = {
-  Geist: "sans",
-  "Geist Mono": "mono",
-  Newsreader: "serif",
+/** The slot whose fallback each shipped face takes. */
+const SHIPPED_SLOT: Readonly<Record<ShippedFont, FontSlot>> = {
+  geist: "sans",
+  "geist-mono": "mono",
+  newsreader: "serif",
 };
-
-/** A blob: URL from URL.createObjectURL: no quotes, brackets, spaces or backslashes can match. */
-export const OBJECT_URL_PATTERN = /^blob:(?:https?:\/\/(?:[A-Za-z0-9.-]+|\[::1\])(?::\d{1,5})?|nodedata:|null)\/?[0-9A-Fa-f-]{36}$/;
 
 const ID_MAX = 64;
 
 export interface SkinCssOptions {
   /** The value of <html data-skin>; defaults to the skin's slug. Kebab-case, up to 64 characters. */
   readonly id?: string;
-  /** Object URLs for the skin's font files, by package path ("assets/fonts/x.woff2"). */
-  readonly fontUrls?: Readonly<Record<string, string>>;
 }
 
 function safeId(id: string): string {
@@ -113,8 +113,8 @@ function shapeDeclarations(skin: Skin): readonly string[] {
   ];
 }
 
-function isShipped(value: string): value is (typeof STUDIO_FONTS)[number] {
-  const shipped: readonly string[] = STUDIO_FONTS;
+function isShipped(value: string): value is ShippedFont {
+  const shipped: readonly string[] = SHIPPED_FONTS;
   return shipped.includes(value);
 }
 
@@ -124,7 +124,7 @@ export function skinFontFamily(id: string, slot: FontSlot): string {
 }
 
 function familyFor(id: string, slot: FontSlot, value: string): string {
-  if (isShipped(value)) return `"${value}", ${FALLBACKS[SHIPPED_SLOT[value]]}`;
+  if (isShipped(value)) return `"${SHIPPED_FONT_NAMES[value]}", ${FALLBACKS[SHIPPED_SLOT[value]]}`;
   if (!FONT_FILE_PATTERN.test(value)) throw new Error(`fonts.${slot} isn't a font Studio ships or a woff2 file; validate the skin first.`);
   return `"${skinFontFamily(id, slot)}", ${FALLBACKS[slot]}`;
 }
@@ -134,17 +134,6 @@ function fontDeclarations(skin: Skin, id: string): readonly string[] {
   return FONT_SLOTS.flatMap((slot) => {
     const value = fonts[slot];
     return value === undefined ? [] : [`${FONT_VARIABLES[slot]}: ${familyFor(id, slot, value)};`];
-  });
-}
-
-function fontFaces(skin: Skin, id: string, urls: Readonly<Record<string, string>>): readonly string[] {
-  const fonts: SkinFonts = skin.fonts ?? {};
-  return FONT_SLOTS.flatMap((slot) => {
-    const value = fonts[slot];
-    if (value === undefined || isShipped(value) || !Object.hasOwn(urls, value)) return [];
-    const url = urls[value];
-    if (!OBJECT_URL_PATTERN.test(url)) throw new Error(`The URL for fonts.${slot} must be an object URL (blob:).`);
-    return [`@font-face {\n  font-family: "${skinFontFamily(id, slot)}";\n  src: url("${url}") format("woff2");\n  font-display: swap;\n}`];
   });
 }
 
@@ -168,6 +157,6 @@ export function skinToCss(skin: Skin, options: SkinCssOptions = {}): string {
     ...fontDeclarations(skin, id),
   ];
   const dark = skin.tokens.dark ? tokenDeclarations(skin.tokens.dark, "dark") : [];
-  const blocks = [...fontFaces(skin, id, options.fontUrls ?? {}), ...rule(selectors.light, light), ...rule(selectors.dark, dark)];
+  const blocks = [...rule(selectors.light, light), ...rule(selectors.dark, dark)];
   return blocks.length === 0 ? "" : `${blocks.join("\n")}\n`;
 }

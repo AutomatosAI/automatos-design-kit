@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState, type CSSProperties } from "react";
 
 import { swatchStyle, type SwatchVars } from "@/components/looks/swatchStyle";
 import { AutoMascot } from "@/components/mascot/AutoMascot";
-import { SHELLS } from "@/lib/looks/catalogue";
+import { LIGHTS, SHELLS } from "@/lib/looks/catalogue";
 import { AUTO_SOURCE, type MascotSource } from "@/lib/mascot/media";
 import { MASCOT_STATES, ONE_SHOTS, type MascotName } from "@/lib/mascot/types";
 import { isMascotPath, mascotClipPath } from "@/lib/skins/assets";
@@ -34,14 +34,14 @@ function customSource(urls: Readonly<Record<string, string>>): MascotSource {
   };
 }
 
-/** The skin's light (an HSL triplet) and Auto's shell tint, as the player's own variables. */
+/** The skin's light and Auto's shell tint (catalogue keys), as the player's own variables. */
 function stageStyle(mascot: SkinMascot): CSSProperties {
   const shell = SHELLS[shellOf(mascot)];
   const vars: SwatchVars = {
     "--filter-shell": mascot.mode === "auto" ? shell.filter : "none",
     "--color-shell": shell.hex,
   };
-  return swatchStyle(mascot.light === undefined ? vars : { ...vars, "--color-light": `hsl(${mascot.light})` });
+  return swatchStyle(mascot.light === undefined ? vars : { ...vars, "--color-light": LIGHTS[mascot.light].hex });
 }
 
 export interface MascotStageProps {

@@ -1,5 +1,5 @@
 import { derivedAliases } from "./aliases";
-import type { BaseTokens, DerivedAlias, SkinBase, Tone, TokenValues } from "./format";
+import type { DerivedAlias, SkinBase, Tone, TokenValues } from "./format";
 
 // Studio's own palettes, the ground every skin builds on. The four token blocks of the core's
 // frontend/app/globals.css (:root, .dark, .studio, .studio.dark), copied as data, allowed token
@@ -226,9 +226,6 @@ function cascade(base: SkinBase, tone: Tone): readonly TokenValues[] {
 export function basePalette(base: SkinBase, tone: Tone): TokenValues {
   return cascade(base, tone).reduce<TokenValues>((palette, block) => ({ ...palette, ...block }), {});
 }
-
-/** The base palettes as the validator's `baseTokens` option. */
-export const baseTokens: BaseTokens = basePalette;
 
 /** The derived aliases of a base palette, computed the way Studio derives them for a skin. */
 export function baseAliases(base: SkinBase, tone: Tone): Readonly<Partial<Record<DerivedAlias, string>>> {

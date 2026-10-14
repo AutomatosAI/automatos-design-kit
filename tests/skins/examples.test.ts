@@ -5,8 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ACCENTS, GROUNDS, LIGHTS } from "@/lib/looks/catalogue";
-import { baseTokens } from "@/lib/skins/base";
+import { ACCENTS, GROUNDS } from "@/lib/looks/catalogue";
 import { hexToTriplet, tripletContrast } from "@/lib/skins/colour";
 import { EXAMPLE_SKINS, examplePreviewUrl, findExample, startFromHref } from "@/lib/skins/examples";
 import { AA_TEXT_RATIO, CONTRAST_PAIRS, MASCOT_DIR, PREVIEW_MAX_BYTES, PREVIEW_PATH, type Skin } from "@/lib/skins/format";
@@ -23,8 +22,6 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SKINS = join(REPO, "skins");
 const SLUGS = ["ember", "daylight", "workshop", "neon"] as const;
 type Json = Record<string, unknown>;
-/** Studio's own text aliases: the core doesn't pair them, so a skin may set the ground alone. */
-const UNPAIRED_IN_CORE = new Set(["olive", "warn-ink"]);
 
 function capture() {
   const log: string[] = [];
@@ -37,9 +34,9 @@ async function skinJson(slug: string): Promise<Json> {
 }
 
 /** The validated skin, as Studio reads it (preview included, with its real size). */
-async function validated(slug: string, options: Parameters<typeof validateSkin>[2] = {}): Promise<Skin> {
+async function validated(slug: string): Promise<Skin> {
   const bytes = new Uint8Array(await readFile(join(SKINS, slug, PREVIEW_PATH)));
-  const result = validateSkin(await skinJson(slug), [{ path: PREVIEW_PATH, bytes: bytes.length, sniffedType: sniffType(bytes) }], options);
+  const result = validateSkin(await skinJson(slug), [{ path: PREVIEW_PATH, bytes: bytes.length, sniffedType: sniffType(bytes) }]);
   if (!result.ok) throw new Error(`${slug}: ${JSON.stringify(result.errors)}`);
   return result.skin;
 }
@@ -98,15 +95,15 @@ describe("npm run validate over skins/*", () => {
 });
 
 describe("each example's colours", () => {
-  it.each(SLUGS)("%s sets both sides of every contrast pair it touches, and each passes", async (slug) => {
-    const skin = await validated(slug, { baseTokens });
+  it.each(SLUGS)("%s sets both sides of every contrast pair it touches, and each passes (decision K5)", async (slug) => {
+    const skin = await validated(slug);
     for (const tone of skin.tones) {
       const tokens = skin.tokens[tone] ?? {};
       for (const pair of CONTRAST_PAIRS) {
         const text = tokens[pair.text];
         const on = tokens[pair.on];
         const where = `${slug} ${tone} ${pair.text} on ${pair.on}`;
-        const both = (text === undefined) === (on === undefined) || (text === undefined && UNPAIRED_IN_CORE.has(pair.text));
+        const both = (text === undefined) === (on === undefined);
         expect({ where, both }).toEqual({ where, both: true });
         if (text && on) expect({ where, passes: tripletContrast(text, on) >= pair.min }).toEqual({ where, passes: true });
       }
@@ -133,7 +130,8 @@ describe("what the PRD asks of each example", () => {
     expect(skin.tokens.dark?.background).toBe(hexToTriplet(GROUNDS.graphite.bg));
     expect(skin.tokens.dark?.card).toBe(hexToTriplet(GROUNDS.graphite.surface));
     expect(skin.tokens.dark?.primary).toBe(hexToTriplet(ACCENTS.molten.hex));
-    expect(skin.mascot).toEqual({ mode: "auto", shell: "bronze", light: hexToTriplet(LIGHTS.mint.hex) });
+    expect(skin.mascot).toEqual({ mode: "auto", shell: "bronze", light: "mint" });
+    expect(skin.fonts).toEqual({ sans: "geist", serif: "newsreader", mono: "geist-mono" });
   });
 
   it("Daylight: paper and molten, light only, molten darkened wherever it is text", async () => {

@@ -14,22 +14,20 @@ WCAG 2.x contrast (relative luminance through sRGB). Text needs **4.5:1** (AA fo
 | `primary-foreground` | `primary` | 4.5:1 |
 | `secondary-foreground` | `secondary` | 4.5:1 |
 | `muted-foreground` | `background` | 4.5:1 |
-| `muted-foreground` | `muted` | 4.5:1 |
+| `muted-foreground` | `card` | 4.5:1 |
 | `accent-foreground` | `accent` | 4.5:1 |
 | `destructive-foreground` | `destructive` | 4.5:1 |
 | `success-foreground` | `success` | 4.5:1 |
 | `warning-foreground` | `warning` | 4.5:1 |
 | `info-foreground` | `info` | 4.5:1 |
 | `agent-foreground` | `agent` | 4.5:1 |
-| `olive` | `background` | 4.5:1 |
-| `warn-ink` | `background` | 4.5:1 |
 | `ring` | `background` | 3:1 |
 
-A pair is checked in a tone when the skin sets either of its two tokens there. A failure reads `✗ $.tokens.<tone>.<text token>  In <tone>, <text> on <fill> is 3.31:1; text needs at least 4.5:1.` (ratios to two decimals, never rounded up).
+These are the 14 pairs of Studio's own validator (core S-001, `CONTRAST_PAIRS` in its `frontend/lib/skins/schema.ts`), in its order; the kit's list is the same constant. `olive`, `warn-ink` and `muted-foreground` on `muted` aren't pairs: set them freely, but keep them readable by eye.
 
-**Set both sides of every pair you touch.** If your skin sets only `primary`, the other side would come from the base, and the base can't be trusted: Studio's Classic palette itself fails `primary` (3.31:1 in light), `accent`, `destructive`, `success`, `info` and `agent` in both tones, and Studio Light's `muted-foreground` on `muted` is 4.21:1. Studio's validator (core S-001, decision K5) refuses a half-set pair outright, so a skin that sets both sides passes in both places.
+A pair is checked in a tone, on the skin's own colours only, when the skin sets either of its two tokens there (decision K5). A failure reads `✗ $.tokens.<tone>.<text token>  In <tone>, <text> on <fill> is 3.31:1; text needs at least 4.5:1.` (ratios to two decimals, never rounded up).
 
-The pair list is the kit's draft of PRD-259 §3's "and so on". Studio's S-001 list differs slightly (it checks `muted-foreground` on `card` instead of on `muted`, and doesn't check `olive` or `warn-ink`); a skin that passes both lists is safe either way: `docs/SKILL-GAPS.md` has the detail.
+**Set both sides of every pair you touch.** Setting one side alone is an error: `✗ $.tokens.light.primary-foreground  In light, setting primary needs primary-foreground too: they are checked as a pair, on the skin's own colours.` The base's colours are never used for the check, because the base can't be trusted: Studio's Classic palette itself fails `primary` (3.31:1 in light), `accent`, `destructive`, `success`, `info` and `agent` in both tones. A pair the skin leaves wholly to its base isn't checked at all, so a Classic skin needn't fix Classic's own pairs. Note that `muted-foreground` sits in two pairs: setting it needs `background` and `card` too.
 
 ## Making text readable
 
@@ -40,7 +38,7 @@ Keep the fill (your brand colour), move the text:
 3. **A bright fill takes dark text.** Neon's arc cyan `primary` (`189.7 100% 62.4%`) carries `primary-foreground` `195 83.3% 4.7%`, not white.
 4. **Status fills** (`success`, `warning`, `info`, `agent`, `destructive`) are the usual failures: mid-tone greens and ambers fail white text. Either darken the fill until white reads, or give it near-black text.
 
-Check by number, not by eye: the editor shows every pair as a badge (glyph, ratio, "AA pass" or "AA fail") beside each colour, and `npm run validate` is the final word.
+Check by number, not by eye: the editor shows every pair as a badge beside each colour, with the validator's verdict in a glyph and in words: `✓ AA pass` or `✗ AA fail` for a pair the skin sets both sides of, `! Incomplete pair` with a "Set … too" button for a pair it sets one side of, and `– Base colours, not checked` for a pair it leaves to the base. Setting a colour in the editor sets the other side of its pairs to the base's value, so a pair is never left half-set by accident. `npm run validate` is the final word.
 
 ## What contrast doesn't cover
 

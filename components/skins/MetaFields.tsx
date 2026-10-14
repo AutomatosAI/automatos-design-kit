@@ -2,17 +2,30 @@
 
 // The skin's details: name, slug, author, version, licence and description, the base it builds
 // on, and the tones it keeps. Typing in one field is one undo step until the field loses focus.
-// The last tone can't be dropped: a skin keeps at least one.
+// The last tone can't be dropped: a skin keeps at least one, and Studio locks that tone while a
+// one-tone skin is on (decision K4), which the note under Tones says. Studio refuses line breaks
+// in any of a skin's words, so the description keeps to one line.
 
 import { useId } from "react";
 
 import { AUTHOR_MAX, BASES, DESCRIPTION_MAX, LICENCE_MAX, NAME_MAX, SLUG_MAX, TONES, VERSION_MAX } from "@/lib/skins/format";
 import { setBase, setMeta, setTones, type SkinDraft, type SkinMeta } from "@/lib/skins/model";
+import { lockedTone } from "@/lib/skins/preview";
 
 import { BASE_LABELS, TONE_LABELS, type EditDraft } from "./ColourRow";
 import styles from "./editor.module.css";
 
 export const DETAILS_HEADING = "Details";
+
+/** The note under Tones for a one-tone skin, e.g. "Dark only: Studio locks Dark while this skin is on." */
+export function toneLockNote(tone: (typeof TONES)[number]): string {
+  return `${TONE_LABELS[tone]} only: Studio locks ${TONE_LABELS[tone]} while this skin is on.`;
+}
+
+/** Line breaks and tabs become spaces: Studio refuses control characters in a skin's words. */
+function oneLine(text: string): string {
+  return text.replace(/[\r\n\t]+/g, " ");
+}
 
 type LineKey = Exclude<keyof SkinMeta, "description">;
 
@@ -37,6 +50,7 @@ export interface MetaFieldsProps {
 }
 
 function BaseAndTones({ draft, onEdit }: Pick<MetaFieldsProps, "draft" | "onEdit">) {
+  const locked = lockedTone(draft.tones);
   const toggleTone = (tone: (typeof TONES)[number]) => {
     const kept = draft.tones.includes(tone) ? draft.tones.filter((entry) => entry !== tone) : [...draft.tones, tone];
     onEdit((current) => setTones(current, kept));
@@ -75,6 +89,7 @@ function BaseAndTones({ draft, onEdit }: Pick<MetaFieldsProps, "draft" | "onEdit
           );
         })}
       </div>
+      {locked !== null && <p className={styles.note}>{toneLockNote(locked)}</p>}
     </div>
   );
 }
@@ -109,7 +124,7 @@ export function MetaFields({ draft, onEdit, onEndGroup }: MetaFieldsProps) {
           className={styles.textarea}
           value={draft.meta.description}
           maxLength={DESCRIPTION_MAX}
-          onChange={(event) => change("description", event.target.value)}
+          onChange={(event) => change("description", oneLine(event.target.value))}
           onBlur={onEndGroup}
         />
       </label>

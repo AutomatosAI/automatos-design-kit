@@ -2,7 +2,8 @@
 
 // The colours, one group at a time (Surfaces, Text, Brand, Status, Charts, Studio aliases): a
 // row per token, a column per tone. The contrast of every pair is worked out once per tone from
-// the resolved palette (the base with the skin's own colours over it).
+// the resolved palette (the base with the skin's own colours over it), with the status the
+// validator gives it: checked, incomplete or left to the base (decision K5).
 
 import { useId, useMemo, useState } from "react";
 
@@ -32,8 +33,11 @@ export function ColourGroups({ draft, onEdit, onEndGroup }: ColourGroupsProps) {
     [draft],
   );
   const checks = useMemo<Readonly<Record<Tone, readonly PairCheck[]>>>(
-    () => ({ light: pairChecks(palettes.light), dark: pairChecks(palettes.dark) }),
-    [palettes],
+    () => ({
+      light: pairChecks(palettes.light, draft.tokens.light),
+      dark: pairChecks(palettes.dark, draft.tokens.dark),
+    }),
+    [palettes, draft.tokens],
   );
 
   return (

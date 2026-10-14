@@ -43,7 +43,7 @@ function buildSkin(meta: MetaChecks, rest: Pick<Skin, "tokens" | "fonts" | "shap
 export function validateSkin(input: unknown, assets: readonly AssetEntry[], options: ValidateOptions = {}): SkinValidation {
   if (!isRecord(input)) return { ok: false, errors: [{ path: "$", message: "skin.json must hold one JSON object." }] };
   const meta = checkMeta(input);
-  const tokens = checkTokens(input.tokens, meta.tones.value, meta.base.value, options);
+  const tokens = checkTokens(input.tokens, meta.tones.value);
   const fonts = checkFonts(input.fonts);
   const shape = checkShape(input.shape);
   const mascot = checkMascot(input.mascot);

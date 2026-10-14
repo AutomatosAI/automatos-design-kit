@@ -15,7 +15,7 @@ import { PNG_BYTES, TEXT_BYTES, WOFF2_BYTES, bytesFor, validSkin, withTokens, ty
 const text = (skin: Json) => `${JSON.stringify(skin, null, 2)}\n`;
 
 function withFiles(): { readonly skin: Json; readonly files: readonly PackFile[] } {
-  const skin = { ...validSkin(), fonts: { sans: "assets/fonts/face.woff2", mono: "Geist Mono" }, preview: "assets/preview.png" };
+  const skin = { ...validSkin(), fonts: { sans: "assets/fonts/face.woff2", mono: "geist-mono" }, preview: "assets/preview.png" };
   return {
     skin,
     files: [
@@ -121,7 +121,7 @@ describe("the editor's draft as a package", () => {
   it("packs the font files the draft names and, for a custom mascot, its 36 clips and stills", () => {
     const font = { path: "assets/fonts/sans-face.woff2", bytes: WOFF2_BYTES };
     const unused = { path: "assets/fonts/old.woff2", bytes: WOFF2_BYTES };
-    const draft: SkinDraft = { ...validDraft(), fonts: { sans: font.path, serif: "Newsreader" }, mascot: { mode: "custom" } };
+    const draft: SkinDraft = { ...validDraft(), fonts: { sans: font.path, serif: "newsreader" }, mascot: { mode: "custom" } };
     const assets = stored([font, unused, ...mascotFiles()]);
 
     expect(draftPackFiles(draft, assets).map((file) => file.path)).toEqual([font.path, ...mascotFiles().map((file) => file.path).sort()]);

@@ -5,12 +5,10 @@ import {
   DERIVED_ALIASES,
   TONES,
   type ContrastPair,
-  type SkinBase,
   type SkinError,
   type Tone,
   type TokenName,
   type TokenValues,
-  type ValidateOptions,
 } from "./format";
 import {
   echo,
@@ -26,7 +24,7 @@ import {
 } from "./validate-common";
 
 // tokens.light and tokens.dark: allowed names, colour formats (hex normalised to HSL triplets),
-// and the AA pairs of PRD-259 §3 for each tone the skin declares.
+// one set per declared tone, and the AA pairs of PRD-259 §3 on the skin's own values (decision K5).
 
 export type SkinTokens = Readonly<Partial<Record<Tone, TokenValues>>>;
 
@@ -62,10 +60,6 @@ function checkTone(path: string, value: unknown): Checked<TokenValues> {
   return pass(recordOf(entries.flatMap((entry) => (entry.ok ? [[entry.name, entry.colour] as const] : []))));
 }
 
-function resolve(name: TokenName, own: TokenValues, fallback: TokenValues): string | null {
-  return own[name] ?? normaliseColour(fallback[name]);
-}
-
 function pairError(tone: Tone, pair: ContrastPair, ratio: number): SkinError {
   const need = pair.text === "ring" ? `the focus ring needs at least ${pair.min}:1` : `text needs at least ${pair.min}:1`;
   return {
@@ -74,48 +68,56 @@ function pairError(tone: Tone, pair: ContrastPair, ratio: number): SkinError {
   };
 }
 
+function incompleteError(tone: Tone, given: TokenName, missing: TokenName): SkinError {
+  return {
+    path: `$.tokens.${tone}.${missing}`,
+    message: `In ${tone}, setting ${given} needs ${missing} too: they are checked as a pair, on the skin's own colours.`,
+  };
+}
+
 /**
- * Every pair the skin sets at least one side of, in this tone. The other side comes from the
- * skin's base when `baseTokens` is given; a pair with a side that can't be resolved is skipped.
+ * Every pair the skin sets a side of, in this tone, on the skin's own values only (decision K5):
+ * one side without the other is an error, and both sides must reach the pair's floor. A pair the
+ * skin leaves to its base isn't checked, since Studio's own palettes fail some (Classic's primary).
  */
-export function contrastErrors(tone: Tone, own: TokenValues, base: SkinBase, options: ValidateOptions): SkinError[] {
-  const fallback = options.baseTokens?.(base, tone) ?? NO_TOKENS;
+export function contrastErrors(tone: Tone, own: TokenValues): SkinError[] {
   return CONTRAST_PAIRS.flatMap((pair) => {
-    if (own[pair.text] === undefined && own[pair.on] === undefined) return [];
-    const text = resolve(pair.text, own, fallback);
-    const on = resolve(pair.on, own, fallback);
-    if (text === null || on === null) return [];
+    const text = own[pair.text];
+    const on = own[pair.on];
+    if (text === undefined && on === undefined) return [];
+    if (text === undefined) return [incompleteError(tone, pair.on, pair.text)];
+    if (on === undefined) return [incompleteError(tone, pair.text, pair.on)];
     const ratio = tripletContrast(text, on);
     return ratio < pair.min ? [pairError(tone, pair, ratio)] : [];
   });
 }
 
-function toneGapErrors(input: Fields, tones: readonly Tone[] | null): SkinError[] {
+/** tokens.<tone> is there exactly when "tones" names the tone. */
+function toneSetErrors(input: Fields, tones: readonly Tone[] | null): SkinError[] {
   if (tones === null) return [];
-  return TONES.filter((tone) => input[tone] !== undefined && !tones.includes(tone)).map((tone) => ({
-    path: `$.tokens.${tone}`,
-    message: `This skin has no ${tone} tone ("tones" leaves it out), so remove tokens.${tone}.`,
-  }));
+  return TONES.flatMap((tone): SkinError[] => {
+    const present = input[tone] !== undefined;
+    if (present === tones.includes(tone)) return [];
+    const message = present
+      ? `This skin has no ${tone} tone ("tones" leaves it out), so remove tokens.${tone}.`
+      : `"tones" includes ${tone}, so tokens.${tone} is required (use {} to keep the base's colours).`;
+    return [{ path: `$.tokens.${tone}`, message }];
+  });
 }
 
-/** `tones` and `base` are null when their own checks failed; contrast then waits for them. */
-export function checkTokens(
-  value: unknown,
-  tones: readonly Tone[] | null,
-  base: SkinBase | null,
-  options: ValidateOptions,
-): Checked<SkinTokens> {
-  if (value === undefined) return fail("$.tokens", `"tokens" is required (use {} to keep the base's colours).`);
+/** `tones` is null when its own check failed; contrast then waits for it. */
+export function checkTokens(value: unknown, tones: readonly Tone[] | null): Checked<SkinTokens> {
+  if (value === undefined) return fail("$.tokens", `"tokens" is required (use {} for a tone to keep the base's colours).`);
   if (!isRecord(value)) return fail("$.tokens", `"tokens" must be an object with "light" and/or "dark".`);
-  const shape = [...unknownFieldErrors(value, TONES, "$.tokens", "tokens (only light and dark)"), ...toneGapErrors(value, tones)];
+  const shape = [...unknownFieldErrors(value, TONES, "$.tokens", "tokens (only light and dark)"), ...toneSetErrors(value, tones)];
   const checked = TONES.filter((tone) => value[tone] !== undefined).map((tone) => ({
     tone,
     result: checkTone(`$.tokens.${tone}`, value[tone]),
   }));
   const formatErrors = checked.flatMap(({ result }) => result.errors);
   const errors = [...shape, ...formatErrors];
-  if (errors.length > 0 || tones === null || base === null) return { value: null, errors };
+  if (errors.length > 0 || tones === null) return { value: null, errors };
   const tokens: SkinTokens = recordOf(checked.map(({ tone, result }) => [tone, result.value ?? NO_TOKENS] as const));
-  const contrast = tones.flatMap((tone) => contrastErrors(tone, tokens[tone] ?? NO_TOKENS, base, options));
+  const contrast = tones.flatMap((tone) => contrastErrors(tone, tokens[tone] ?? NO_TOKENS));
   return contrast.length > 0 ? { value: null, errors: contrast } : pass(tokens);
 }

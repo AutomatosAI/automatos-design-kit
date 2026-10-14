@@ -4,12 +4,12 @@ A skin may bring a companion into Studio's chat (PRD-259 §6): it reacts to what
 
 ```json
 "mascot": { "mode": "off" }
-"mascot": { "mode": "auto", "shell": "bronze", "light": "159.3 84.6% 61.8%" }
-"mascot": { "mode": "custom", "light": "159.3 84.6% 61.8%" }
+"mascot": { "mode": "auto", "shell": "bronze", "light": "mint" }
+"mascot": { "mode": "custom", "light": "mint" }
 ```
 
 - **`off`:** no companion (Neon).
-- **`auto`:** Auto, the built-in mascot. His clips ship with Studio, so the skin carries no files. `shell` tints his body: `bronze`, `gold`, `silver` or `cobalt`. `light` colours his eyes and the ring under him; in the kit it is a colour, and the editor offers mint (`159.3 84.6% 61.8%`, as above), amber, ice and rose. Studio's validator (S-001) will take only those four, by name, so pick one of them.
+- **`auto`:** Auto, the built-in mascot. His clips ship with Studio, so the skin carries no files. `shell` tints his body: `bronze`, `gold`, `silver` or `cobalt`. `light` colours his eyes and the ring under him: one of Auto's four lights, by name: `mint`, `amber`, `ice` or `rose` (`MASCOT_LIGHTS`, the core's S-001 list). A colour value is refused.
 - **`custom`:** your own character: the 36 files below in `assets/mascot/`. `light` colours the ring.
 
 ## The 12 states

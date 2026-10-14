@@ -7,13 +7,16 @@ import {
   FONT_SLOTS,
   MASCOT_MODES,
   MASCOT_SHELLS,
-  STUDIO_FONTS,
+  SHIPPED_FONT_NAMES,
+  SHIPPED_FONTS,
   TONES,
+  type MascotLight,
   type SkinFonts,
   type SkinMascot,
   type Tone,
   type TokenValues,
 } from "./format";
+import { LIGHT_SWATCHES, lightKeyOf } from "./mascot";
 import { DEFAULT_MASCOT, NEW_SKIN_META, setShape, setTones, startDraft, type SkinDraft, type SkinMeta } from "./model";
 import { isRecord, oneOf, recordOf } from "./validate-common";
 
@@ -53,25 +56,35 @@ function storedTokens(value: unknown): TokenValues {
   );
 }
 
-function isFont(value: unknown): value is string {
-  return typeof value === "string" && (oneOf(STUDIO_FONTS, value) || FONT_FILE_PATTERN.test(value));
+/** A shipped font key or a font file; a draft saved before K-010 named a shipped face ("Geist"), mapped to its key. */
+function storedFont(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  if (oneOf(SHIPPED_FONTS, value) || FONT_FILE_PATTERN.test(value)) return value;
+  return SHIPPED_FONTS.find((key) => SHIPPED_FONT_NAMES[key] === value) ?? null;
 }
 
 function storedFonts(value: unknown): SkinFonts {
   if (!isRecord(value)) return {};
   return recordOf(
     FONT_SLOTS.flatMap((slot) => {
-      const font = Object.hasOwn(value, slot) ? value[slot] : undefined;
-      return isFont(font) ? [[slot, font] as const] : [];
+      const font = storedFont(Object.hasOwn(value, slot) ? value[slot] : undefined);
+      return font === null ? [] : [[slot, font] as const];
     }),
   );
+}
+
+/** A light key; a draft saved before K-010 stored the light's colour, so that is mapped back to its key. */
+function storedLight(value: unknown): MascotLight | null {
+  const triplet = normaliseColour(value);
+  const legacy = triplet === null ? undefined : LIGHT_SWATCHES.find((swatch) => normaliseColour(swatch.hex) === triplet)?.key;
+  return lightKeyOf(value) ?? legacy ?? null;
 }
 
 function storedMascot(value: unknown): SkinMascot {
   if (!isRecord(value)) return DEFAULT_MASCOT;
   const { mode, shell } = value;
   if (!oneOf(MASCOT_MODES, mode)) return DEFAULT_MASCOT;
-  const light = normaliseColour(value.light);
+  const light = storedLight(value.light);
   return {
     mode,
     ...(oneOf(MASCOT_SHELLS, shell) ? { shell } : {}),

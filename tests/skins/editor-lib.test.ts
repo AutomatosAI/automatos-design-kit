@@ -73,9 +73,19 @@ describe("the kept draft", () => {
     expect(draft?.base).toBe("studio");
     expect(draft?.tones).toEqual(["dark"]);
     expect(draft?.tokens).toEqual({ light: { background: "0 0% 100%" }, dark: {} });
-    expect(draft?.fonts).toEqual({ mono: "Geist Mono" });
+    expect(draft?.fonts).toEqual({ mono: "geist-mono" });
     expect(draft?.shape).toEqual({ radius: 24, glow: 0 });
-    expect(draft?.mascot).toEqual({ mode: "custom", light: "0 0% 100%" });
+    expect(draft?.mascot).toEqual({ mode: "custom" });
+  });
+
+  it("reads a draft saved before K-010: shipped font names and light colours become their keys", () => {
+    const stored = {
+      version: DRAFT_STORE_VERSION,
+      draft: { fonts: { sans: "Geist", serif: "newsreader" }, mascot: { mode: "auto", shell: "gold", light: "#4BF0B7" } },
+    };
+    const draft = parseStoredDraft(stored);
+    expect(draft?.fonts).toEqual({ sans: "geist", serif: "newsreader" });
+    expect(draft?.mascot).toEqual({ mode: "auto", shell: "gold", light: "mint" });
   });
 
   it("says so when the browser blocks storage, and never throws", () => {

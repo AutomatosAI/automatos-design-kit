@@ -5,8 +5,8 @@ import { mimeType, ownBuffer, type StoredAsset } from "@/lib/skins/assets";
 
 // The draft's font and mascot files: read from the asset store after mount, kept in memory for
 // the page, and written back on every change. Each file gets an object URL (blob:) for the
-// preview's @font-face rules and the mascot player; they are revoked when the files change or
-// the page goes. A failed write still keeps the file for this visit and says so in words.
+// mascot player; they are revoked when the files change or the page goes. Fonts are registered
+// from the bytes (useSkinFontFaces). A failed write still keeps the file for this visit and says so in words.
 
 export interface SkinAssetsApi {
   readonly loaded: boolean;

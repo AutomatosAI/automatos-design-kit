@@ -1,14 +1,14 @@
-import { normaliseColour } from "./colour";
 import {
   FONT_FILE_PATTERN,
   FONT_SLOTS,
   GLOW_MAX,
   GLOW_MIN,
+  MASCOT_LIGHTS,
   MASCOT_MODES,
   MASCOT_SHELLS,
   RADIUS_MAX,
   RADIUS_MIN,
-  STUDIO_FONTS,
+  SHIPPED_FONTS,
   type FontSlot,
   type SkinError,
   type SkinFonts,
@@ -39,12 +39,12 @@ function objectError(path: string, what: string): Checked<never> {
 }
 
 function fontError(path: string, value: unknown): SkinError | null {
-  if (oneOf(STUDIO_FONTS, value)) return null;
+  if (oneOf(SHIPPED_FONTS, value)) return null;
   if (typeof value === "string" && FONT_FILE_PATTERN.test(value)) return null;
   const shown = typeof value === "string" ? echo(value) : "This";
   return {
     path,
-    message: `${shown} isn't a font Studio ships (${listWords(STUDIO_FONTS)}) or a woff2 file in assets/fonts/, such as "assets/fonts/my-face.woff2".`,
+    message: `${shown} isn't a font Studio ships (${listWords(SHIPPED_FONTS)}) or a woff2 file in assets/fonts/ named with letters, digits, - and _, such as "assets/fonts/my-face.woff2".`,
   };
 }
 
@@ -89,8 +89,8 @@ function shellError(value: unknown): SkinError | null {
 }
 
 function lightError(value: unknown): SkinError | null {
-  if (value === undefined || normaliseColour(value) !== null) return null;
-  return { path: "$.mascot.light", message: `"mascot.light" must be a colour: an HSL triplet such as "160 84% 60%" or #rrggbb.` };
+  if (value === undefined || oneOf(MASCOT_LIGHTS, value)) return null;
+  return { path: "$.mascot.light", message: `"mascot.light" must be one of Auto's light colours: ${listWords(MASCOT_LIGHTS)}.` };
 }
 
 export function checkMascot(value: unknown): Checked<SkinMascot | undefined> {
@@ -101,10 +101,9 @@ export function checkMascot(value: unknown): Checked<SkinMascot | undefined> {
     ...[modeError(value.mode), shellError(value.shell), lightError(value.light)].flatMap((error) => (error ? [error] : [])),
   ];
   if (errors.length > 0 || !oneOf(MASCOT_MODES, value.mode)) return { value: null, errors };
-  const light = normaliseColour(value.light);
   return pass({
     mode: value.mode,
-    ...(typeof value.shell === "string" ? { shell: value.shell } : {}),
-    ...(light === null ? {} : { light }),
+    ...(oneOf(MASCOT_SHELLS, value.shell) ? { shell: value.shell } : {}),
+    ...(oneOf(MASCOT_LIGHTS, value.light) ? { light: value.light } : {}),
   });
 }

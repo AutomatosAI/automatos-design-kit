@@ -1,11 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import type { AssetEntry, SkinError, TokenValues, ValidateOptions } from "@/lib/skins/format";
+import { CONTRAST_PAIRS, type AssetEntry, type SkinError } from "@/lib/skins/format";
 import { validateSkin } from "@/lib/skins/validate";
 import { asset, mascotSet, omit, validSkin, withField, withTokens, withoutTokens, type Json } from "./helpers";
 
-function errorsOf(skin: unknown, assets: readonly AssetEntry[] = [], options: ValidateOptions = {}): readonly SkinError[] {
-  const result = validateSkin(skin, assets, options);
+function errorsOf(skin: unknown, assets: readonly AssetEntry[] = []): readonly SkinError[] {
+  const result = validateSkin(skin, assets);
   return result.ok ? [] : result.errors;
 }
 
@@ -25,18 +25,18 @@ describe("validateSkin: a valid skin", () => {
     expect(result.skin.tones).toEqual(["light", "dark"]);
     expect(result.skin.tokens.light?.card).toBe("0 0% 100%");
     expect(result.skin.tokens.light?.background).toBe("38 50% 92%");
-    expect(result.skin.mascot).toEqual({ mode: "auto", shell: "bronze", light: "159.3 84.6% 61.8%" });
+    expect(result.skin.mascot).toEqual({ mode: "auto", shell: "bronze", light: "mint" });
     expect(result.skin.shape).toEqual({ radius: 10, glow: 12 });
   });
 
   it("passes with a font file, a preview and a full custom mascot set", () => {
     const skin = {
       ...validSkin(),
-      fonts: { sans: "Geist", serif: "assets/fonts/display-serif.woff2", mono: "Geist Mono" },
+      fonts: { sans: "geist", serif: "assets/fonts/display_serif-2.woff2", mono: "geist-mono" },
       mascot: { mode: "custom" },
       preview: "assets/preview.png",
     };
-    const assets = [asset("assets/fonts/display-serif.woff2", "woff2"), asset("assets/preview.png", "png"), ...mascotSet()];
+    const assets = [asset("assets/fonts/display_serif-2.woff2", "woff2"), asset("assets/preview.png", "png"), ...mascotSet()];
     expect(errorsOf(skin, assets)).toEqual([]);
   });
 
@@ -61,6 +61,7 @@ describe("validateSkin: the header", () => {
     ["schema", "automatos-skin/v2", "$.schema", `"schema" must be "automatos-skin/v1"`],
     ["slug", "Warm Paper", "$.slug", "lowercase letters and digits joined by single dashes"],
     ["slug", "warm--paper", "$.slug", "single dashes"],
+    ["slug", "a".repeat(65), "$.slug", "at most 64 characters"],
     ["name", "", "$.name", `"name" can't be empty.`],
     ["name", "x".repeat(41), "$.name", "at most 40 characters (it has 41)"],
     ["name", "Two\nlines", "$.name", "one line of plain text"],
@@ -74,6 +75,12 @@ describe("validateSkin: the header", () => {
     ["author", "Zero\u200Bwidth", "$.author", "one line of plain text"],
     ["author", "mailto:me@example.com", "$.author", "can't hold a link"],
     ["description", "Fonts from //cdn.example/x", "$.description", "can't hold a link"],
+    ["description", "Two\nlines", "$.description", "one line of plain text"],
+    ["description", "Paper, with background:url(x)", "$.description", "can't hold a link"],
+    ["description", "Read this ://", "$.description", "can't hold a link"],
+    ["author", "JavaScript:alert", "$.author", "can't hold a link"],
+    ["name", "  Padded name that is exactly forty-one  ", "$.name", "at most 40 characters (it has 41)"],
+    ["licence", "x".repeat(81), "$.licence", "at most 80 characters"],
     ["base", "neon", "$.base", `"base" must be "studio", "classic"`],
     ["tones", [], "$.tones", `"tones" must be`],
     ["tones", ["light", "light"], "$.tones", "names a tone twice"],
@@ -128,6 +135,14 @@ describe("validateSkin: tokens", () => {
   it("requires tokens", () => {
     expect(onlyError(omit(validSkin(), ["tokens"])).path).toBe("$.tokens");
   });
+
+  it("requires the tokens of each tone the skin declares, even an empty set", () => {
+    const skin = { ...validSkin(), tokens: { light: (validSkin().tokens as Record<string, Json>).light } };
+    expect(onlyError(skin)).toEqual({
+      path: "$.tokens.dark",
+      message: `"tones" includes dark, so tokens.dark is required (use {} to keep the base's colours).`,
+    });
+  });
 });
 
 describe("validateSkin: contrast", () => {
@@ -152,23 +167,30 @@ describe("validateSkin: contrast", () => {
     expect(onlyError(skin).path).toBe("$.tokens.dark.foreground");
   });
 
-  it("resolves the side a skin doesn't set from its base when the base palette is given", () => {
-    const base: TokenValues = { "primary-foreground": "0 0% 98%" };
-    const skin = withTokens(withoutTokens(validSkin(), "light", ["primary-foreground"]), "light", { primary: "16 100% 50%" });
-    expect(validateSkin(skin, []).ok).toBe(true);
-    const result = validateSkin(skin, [], { baseTokens: (from, tone) => (from === "studio" && tone === "light" ? base : {}) });
-    expect(result.ok ? [] : result.errors.map((error) => error.message)).toEqual([
-      "In light, primary-foreground on primary is 3.30:1; text needs at least 4.5:1.",
-    ]);
+  it("needs both sides of a pair once the skin sets one (decision K5)", () => {
+    const onlyText = withoutTokens(validSkin(), "light", ["primary"]);
+    expect(onlyError(onlyText)).toEqual({
+      path: "$.tokens.light.primary",
+      message: "In light, setting primary-foreground needs primary too: they are checked as a pair, on the skin's own colours.",
+    });
+    const onlyFill = withTokens(validSkin(), "dark", { primary: "16 100% 50%" });
+    expect(onlyError(onlyFill).path).toBe("$.tokens.dark.primary-foreground");
   });
 
-  it("checks a pair when the skin sets one side, and leaves pairs it doesn't touch to the base", () => {
-    const failingBase: TokenValues = { primary: "16 100% 50%", "primary-foreground": "0 0% 98%" };
-    const options = { baseTokens: () => failingBase };
-    const onlyText = withoutTokens(validSkin(), "light", ["primary"]);
-    expect(errorsOf(onlyText, [], options).map((error) => error.path)).toEqual(["$.tokens.light.primary-foreground"]);
-    const untouched = withoutTokens(validSkin(), "light", ["primary", "primary-foreground"]);
-    expect(errorsOf(untouched, [], options)).toEqual([]);
+  it("muted text must also read on cards, so setting it needs card", () => {
+    const skin = withoutTokens(validSkin(), "light", ["card", "card-foreground"]);
+    expect(onlyError(skin).path).toBe("$.tokens.light.card");
+  });
+
+  it("never checks a pair the skin leaves to its base, so a Classic skin needn't fix Classic's own pairs", () => {
+    const classic = { ...validSkin(), base: "classic", tokens: { light: {}, dark: {} } };
+    expect(errorsOf(classic)).toEqual([]);
+  });
+
+  it("checks exactly the core's 14 pairs: olive, warn-ink and muted on muted are free", () => {
+    expect(CONTRAST_PAIRS).toHaveLength(14);
+    const free = withTokens(validSkin(), "light", { olive: "38 50% 90%", "warn-ink": "38 50% 90%", muted: "36 12% 36%" });
+    expect(errorsOf(free)).toEqual([]);
   });
 });
 
@@ -177,7 +199,9 @@ describe("validateSkin: fonts, shape and mascot", () => {
     [{ sans: "Comic Sans" }, "$.fonts.sans", "isn't a font Studio ships"],
     [{ mono: "assets/fonts/code.ttf" }, "$.fonts.mono", "woff2 file in assets/fonts/"],
     [{ serif: "https://fonts.example/x.woff2" }, "$.fonts.serif", "isn't a font Studio ships"],
-    [{ display: "Geist" }, "$.fonts.display", "isn't part of fonts"],
+    [{ display: "geist" }, "$.fonts.display", "isn't part of fonts"],
+    [{ sans: "Geist" }, "$.fonts.sans", `"geist", "geist-mono", "newsreader"`],
+    [{ sans: "assets/fonts/my.face.woff2" }, "$.fonts.sans", "named with letters, digits, - and _"],
   ])("fonts %j fails", (fonts, path, message) => {
     const error = onlyError(withField(validSkin(), "fonts", fonts));
     expect(error.path).toBe(path);
@@ -198,7 +222,8 @@ describe("validateSkin: fonts, shape and mascot", () => {
   it.each([
     [{ mode: "loud" }, "$.mascot.mode", `"mascot.mode" must be "off", "auto", "custom".`],
     [{ mode: "auto", shell: "plaid" }, "$.mascot.shell", "shell tints"],
-    [{ mode: "auto", light: "glow" }, "$.mascot.light", "must be a colour"],
+    [{ mode: "auto", light: "glow" }, "$.mascot.light", `must be one of Auto's light colours: "mint", "amber", "ice", "rose".`],
+    [{ mode: "auto", light: "#4BF0B7" }, "$.mascot.light", "light colours"],
     [{ mode: "auto", clips: "x" }, "$.mascot.clips", "isn't part of mascot"],
   ])("mascot %j fails", (mascot, path, message) => {
     const error = onlyError(withField(validSkin(), "mascot", mascot));

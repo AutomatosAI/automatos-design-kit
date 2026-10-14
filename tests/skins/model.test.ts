@@ -62,14 +62,18 @@ describe("the skin draft", () => {
     expect(setToken(draft, "light", "primary", "url(x)")).toBe(draft);
   });
 
-  it("pins the other side of each pair from the base, so the validator checks what the editor shows", () => {
+  it("pins the other side of each pair from the base, along the chain, so the validator checks what the editor shows", () => {
+    const classic = basePalette("classic", "light");
     const draft = setToken(named(startDraft("classic")), "light", "background", "0 0% 100%");
     expect(draft.tokens.light).toEqual({
       background: "0 0% 100%",
-      foreground: basePalette("classic", "light").foreground,
-      "muted-foreground": basePalette("classic", "light")["muted-foreground"],
-      ring: basePalette("classic", "light").ring,
+      foreground: classic.foreground,
+      "muted-foreground": classic["muted-foreground"],
+      ring: classic.ring,
+      card: classic.card,
+      "card-foreground": classic["card-foreground"],
     });
+    expect(errorPaths(draft)).toEqual([]);
     const primary = setToken(named(startDraft("classic")), "light", "primary", "16 100% 50%");
     expect(primary.tokens.light["primary-foreground"]).toBe("0 0% 98%");
     expect(errorPaths(primary)).toEqual(["$.tokens.light.primary-foreground"]);
@@ -98,8 +102,8 @@ describe("the skin draft", () => {
     const draft = setShape(startDraft("studio"), { radius: 30.4, glow: -3 });
     expect(draft.shape).toEqual({ radius: 24, glow: 0 });
     expect(setShape(draft, { radius: Number.NaN }).shape.radius).toBe(24);
-    const fonts = setFont(setFont(draft, "serif", "Newsreader"), "mono", "assets/fonts/code.woff2");
-    expect(fonts.fonts).toEqual({ serif: "Newsreader", mono: "assets/fonts/code.woff2" });
+    const fonts = setFont(setFont(draft, "serif", "newsreader"), "mono", "assets/fonts/code.woff2");
+    expect(fonts.fonts).toEqual({ serif: "newsreader", mono: "assets/fonts/code.woff2" });
     expect(setFont(fonts, "serif", null).fonts).toEqual({ mono: "assets/fonts/code.woff2" });
     expect(setBase(draft, "classic").base).toBe("classic");
     expect(setBase(draft, "studio")).toBe(draft);

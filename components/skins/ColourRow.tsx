@@ -3,7 +3,9 @@
 // One token in the editor: a column per tone the skin keeps (a dropped tone has none), each with
 // the colour, where it comes from, and a contrast badge for every pair the token is one side of.
 // A badge says its verdict in a glyph and in words beside the ratio, never in colour alone; a
-// failing pair offers a readable text colour (lib/skins/suggest.ts).
+// failing pair offers a readable text colour (lib/skins/suggest.ts). The verdict follows the
+// validator (decision K5): a pair the skin sets both sides of passes or fails AA; one side only
+// is incomplete and offers to set the other; a pair left to the base isn't checked.
 
 import { useId } from "react";
 
@@ -12,7 +14,7 @@ import type { DraftChange } from "@/lib/skins/editor-state";
 import { formatRatio, tripletToHex } from "@/lib/skins/colour";
 import type { SkinBase, Tone, TokenName, TokenValues } from "@/lib/skins/format";
 import { clearToken, setToken, type SkinDraft } from "@/lib/skins/model";
-import type { PairCheck } from "@/lib/skins/suggest";
+import { missingSide, type PairCheck, type PairStatus } from "@/lib/skins/suggest";
 
 import { ColourField } from "./ColourField";
 import styles from "./colours.module.css";
@@ -21,6 +23,30 @@ export const TONE_LABELS: Readonly<Record<Tone, string>> = { light: "Light", dar
 export const BASE_LABELS: Readonly<Record<SkinBase, string>> = { studio: "Studio", classic: "Classic" };
 export const USE_SUGGESTION = "Use suggestion";
 export const USE_BASE = "Use base colour";
+export const BASE_PAIR_VERDICT = "Base colours, not checked";
+export const INCOMPLETE_VERDICT = "Incomplete pair";
+
+const GLYPHS: Readonly<Record<PairStatus, string>> = { checked: "", incomplete: "!", base: "–" };
+
+function glyphOf(status: PairStatus, passes: boolean): string {
+  return status === "checked" ? (passes ? "✓" : "✗") : GLYPHS[status];
+}
+
+function verdictOf(status: PairStatus, passes: boolean): string {
+  if (status === "base") return BASE_PAIR_VERDICT;
+  if (status === "incomplete") return INCOMPLETE_VERDICT;
+  return passes ? "AA pass" : "AA fail";
+}
+
+function glyphClass(status: PairStatus, failing: boolean): string | undefined {
+  if (status === "base") return styles.unchecked;
+  return failing || status === "incomplete" ? styles.fail : styles.pass;
+}
+
+/** "Set card too": the button that completes a one-sided pair with the colour it shows now. */
+export function setTooLabel(name: TokenName): string {
+  return `Set ${name} too`;
+}
 
 /** Where an unset colour's picker starts: black. */
 const PICKER_FALLBACK = "0 0% 0%";
@@ -30,21 +56,40 @@ export type EditDraft = (change: DraftChange, group?: string) => void;
 interface BadgeProps {
   readonly check: PairCheck;
   readonly tone: Tone;
+  readonly own: TokenValues;
   readonly onEdit: EditDraft;
 }
 
-function ContrastBadge({ check, tone, onEdit }: BadgeProps) {
-  const { pair, ratio, passes, suggestion } = check;
+function SetTooButton({ check, tone, own, onEdit }: BadgeProps) {
+  const missing = missingSide(check.pair, own);
+  if (missing === null) return null;
+  const colour = missing === check.pair.text ? check.text : check.on;
+  return (
+    <button
+      type="button"
+      className={styles.useBase}
+      aria-label={`${setTooLabel(missing)}, ${TONE_LABELS[tone]}`}
+      onClick={() => onEdit((draft) => setToken(draft, tone, missing, colour))}
+    >
+      {setTooLabel(missing)}
+    </button>
+  );
+}
+
+function ContrastBadge({ check, tone, own, onEdit }: BadgeProps) {
+  const { pair, status, ratio, passes, suggestion } = check;
+  const failing = status === "checked" && !passes;
   return (
     <li className={styles.badge}>
-      <span className={passes ? styles.pass : styles.fail} aria-hidden="true">
-        {passes ? "✓" : "✗"}
+      <span className={glyphClass(status, failing)} aria-hidden="true">
+        {glyphOf(status, passes)}
       </span>
       <span className={styles.ratio}>{formatRatio(ratio)}</span>
-      <span className={styles.verdict}>{passes ? "AA pass" : "AA fail"}</span>
+      <span className={styles.verdict}>{verdictOf(status, passes)}</span>
       <span className={styles.pair}>
         {pair.text} on {pair.on}
       </span>
+      <SetTooButton check={check} tone={tone} own={own} onEdit={onEdit} />
       {suggestion !== null && (
         <button
           type="button"
@@ -105,7 +150,13 @@ function ToneCell({ name, tone, draft, palette, checks, onEdit, onEndGroup }: To
       {badges.length > 0 && (
         <ul className={styles.badges} aria-label={`Contrast, ${label}`}>
           {badges.map((check) => (
-            <ContrastBadge key={`${check.pair.text}/${check.pair.on}`} check={check} tone={tone} onEdit={onEdit} />
+            <ContrastBadge
+              key={`${check.pair.text}/${check.pair.on}`}
+              check={check}
+              tone={tone}
+              own={draft.tokens[tone]}
+              onEdit={onEdit}
+            />
           ))}
         </ul>
       )}

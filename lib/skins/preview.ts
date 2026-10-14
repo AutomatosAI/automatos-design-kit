@@ -1,5 +1,5 @@
 import { basePalette } from "./base";
-import { OBJECT_URL_PATTERN, skinSelectors, skinToCss } from "./css";
+import { skinSelectors, skinToCss } from "./css";
 import { SKIN_SCHEMA, TONES, type Skin, type SkinBase, type Tone, type TokenValues } from "./format";
 import type { SkinDraft } from "./model";
 
@@ -93,25 +93,29 @@ function cssOrNothing(make: () => string, what: string): string {
   }
 }
 
-/** Only object URLs reach skinToCss (it throws on anything else, which would drop the whole draft). */
-function objectUrlsOnly(fontUrls: Readonly<Record<string, string>>): Readonly<Record<string, string>> {
-  return Object.fromEntries(Object.entries(fontUrls).filter(([, url]) => OBJECT_URL_PATTERN.test(url)));
-}
-
 /**
  * The preview's stylesheet: a base palette, then the draft over it, both made by skinToCss. The
  * base is the draft's own unless the preview gallery asks to see the skin over the other one.
- * `fontUrls` are object URLs for the draft's font files, by package path: they become
- * @font-face rules (a font file without one falls back to the slot's system font).
+ * The draft's font files aren't in it: useSkinFontFaces registers them through the FontFace API
+ * under the families this CSS names, as Studio does (decision K2).
  */
-export function previewCss(
-  draft: SkinDraft,
-  onBase: SkinBase = draft.base,
-  fontUrls: Readonly<Record<string, string>> = {},
-): string {
+export function previewCss(draft: SkinDraft, onBase: SkinBase = draft.base): string {
   const baseId = baseScopeId(onBase);
   const base = cssOrNothing(() => scopeToFrame(skinToCss(baseAsSkin(onBase)), baseId), `The ${onBase} palette`);
-  const draftCss = () => skinToCss(draftAsSkin(draft), { fontUrls: objectUrlsOnly(fontUrls) });
-  const own = cssOrNothing(() => scopeToFrame(draftCss(), DRAFT_PREVIEW_ID), "The draft");
+  const own = cssOrNothing(() => scopeToFrame(skinToCss(draftAsSkin(draft)), DRAFT_PREVIEW_ID), "The draft");
   return `${base}${own}`;
+}
+
+/**
+ * The tone Studio locks while a one-tone skin is on (PRD-259 §4 and decision K4): Dark for a
+ * dark-only skin, Light for a light-only one; null when the skin keeps both.
+ */
+export function lockedTone(tones: readonly Tone[]): Tone | null {
+  const [only, ...rest] = tones;
+  return only !== undefined && rest.length === 0 ? only : null;
+}
+
+/** The tone a preview shows: the one asked for, unless the skin locks the other. */
+export function shownTone(tones: readonly Tone[], asked: Tone): Tone {
+  return lockedTone(tones) ?? asked;
 }

@@ -13,7 +13,7 @@ You work in the Skin Kit, this repo. Everything a skin needs is here: the format
 
 1. **Never write CSS, JavaScript, SVG, HTML or a URL into a skin.** Not in a token, not in `name` or `description`, not as a file. The validator refuses all of them, and Studio refuses them again on upload. If something can't be said with the allowed tokens, it can't be in a skin: say so instead of working around it.
 2. **Only the allowed token names.** 47 of them, listed with what each colours in `references/tokens.md`. `paper`, `bg-1`, `bg-2`, `fg`, `fg-2` and `fg-3` are derived by Studio and never set.
-3. **Every text pair you touch, you set both sides of.** Set `primary`, set `primary-foreground` too, in every tone the skin has. Each text pair needs 4.5:1, `ring` on `background` 3:1 (`references/contrast.md`). Studio's own palettes fail some pairs, so don't lean on the base for the other side.
+3. **Every text pair you touch, you set both sides of.** Set `primary`, set `primary-foreground` too, in every tone the skin has. Each text pair needs 4.5:1, `ring` on `background` 3:1 (`references/contrast.md`). Setting one side alone is an error, and the check uses the skin's own colours only (Studio's decision K5): Studio's own palettes fail some pairs, so the base is never the other side.
 4. **`npm run validate` is the judge,** not your reading of the colours. Run it until it prints `✓`. Fix what it names; never weaken a colour pair by guessing.
 5. **Nothing runs on the maintainer's machine unless they run it.** If you are in an unattended loop or CI-only session, write the skin and say which commands to run; don't start servers.
 
@@ -23,7 +23,7 @@ You work in the Skin Kit, this repo. Everything a skin needs is here: the format
 2. **Edit `skins/<your-slug>/skin.json`:**
    - `slug` (kebab-case), `name` (≤ 40 characters), `version` (semver), `author`, `description` (≤ 280), `licence`.
    - `base`: `studio` or `classic`. The base keeps its layout and shapes; your tokens replace its colours.
-   - `tones`: `["light", "dark"]` or one alone. Give `tokens.light` and/or `tokens.dark` to match: a tone not in `tones` must have no tokens.
+   - `tones`: `["light", "dark"]` or one alone. Give `tokens.light` and/or `tokens.dark` to match: each tone in `tones` needs its set (`{}` keeps the base's colours), and a tone not in `tones` must have none. Studio locks a one-tone skin's tone while it is on (decision K4).
    - `tokens.<tone>`: colours as HSL triplets (`"16 100% 50%"`, no `hsl()`) or `#rrggbb`.
    - `fonts`, `shape` (`radius` 0–24, `glow` 0–40, whole numbers), `mascot` (`references/fonts.md`, `references/mascot.md`).
    - `preview`: `"assets/preview.png"`, a PNG of at most 1 MB, or leave the field out.

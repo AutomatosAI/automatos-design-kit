@@ -159,6 +159,11 @@
   color: var(--color-error-text);
 }
 
+/* A pair left to the base: shown, not checked (decision K5). */
+.unchecked {
+  color: var(--color-text-2);
+}
+
 .ratio {
   font: var(--text-mono-sm);
   color: var(--color-text);
