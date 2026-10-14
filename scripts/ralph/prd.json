@@ -1,213 +1,153 @@
 {
   "project": "Automatos Play",
-  "branchName": "ralph/play-pages-a",
-  "baseBranch": "ralph/play-looks",
-  "prBase": "ralph/play-looks",
-  "prTitle": "feat: Missions, Agents and Knowledge pages (PRD-003 wave 3)",
+  "branchName": "ralph/play-pages-b",
+  "baseBranch": "ralph/play-pages-a",
+  "prBase": "ralph/play-pages-a",
+  "prTitle": "feat: Board, Playbooks and Analytics pages (PRD-003 wave 4)",
   "prdDoc": "docs/prd/PRD-003-MAIN-PAGES.md",
   "designDocs": [
-    "No new mocks by design (Gerard, 14 Oct): Studio's structure, Play's look. Build from the existing components and the live style page (/looks/style, components/looks/style/)",
-    "docs/design/ember/README.md (tokens, radii, motion) and docs/design/ember/screens/ (the Ember style)",
-    "docs/design/command/Automatos Command Pages.dc.html: C1 Agents, C2 Missions and C5 Knowledge show the information to include (HUD styling NOT to be copied)",
-    "Studio's own pages for structure, read-only, in the core source (its path is in the build prompt): frontend/components/missions/, frontend/components/agents/, frontend/components/documents/"
+    "No new mocks by design (Gerard, 14 Oct): Studio's structure, Play's look, using the components and page patterns from wave 3 (components/page/) and the live style page",
+    "docs/design/ember/README.md and docs/design/ember/screens/ (the Ember style)",
+    "docs/design/command/Automatos Command Pages.dc.html: C2 Missions (board counts, NEEDS YOU cards) and C4 Analytics (KPIs, cost by route, by provider, by lane, by agent) show the information to include (HUD styling NOT to be copied)",
+    "Studio's own pages for structure, read-only, in the core source (its path is in the build prompt): frontend/components/command-center/, frontend/components/assignments/studio/ (Playbooks), frontend/app/analytics/"
   ],
-  "description": "PRD-003 wave 3: grouped navigation, three page patterns, and the Missions, Agents and Knowledge pages, with Auto where he means something. API knowledge from skills/build-automatos-interface/references/{missions,agents-playbooks,knowledge}.md. Zero changes to automatos-ai.",
+  "description": "PRD-003 wave 4: the Command Center board with its live stream and move rules, the Task drawer, Needs you, Playbooks with runs, and Analytics with SVG charts. API knowledge from skills/build-automatos-interface/references/{board-analytics,agents-playbooks}.md. Zero changes to automatos-ai.",
   "userStories": [
     {
-      "id": "P-001",
-      "title": "Grouped navigation and the phone More sheet",
-      "description": "As a user, I want to reach every page from a tidy nav on desktop and phone.",
+      "id": "B-001",
+      "title": "Board, approvals and stream routes",
+      "description": "As a developer, I want the board's calls and its live stream through the safe proxy.",
       "acceptanceCriteria": [
-        "components/shell/nav.ts: groups Talk (Chat, Conversations) · Work (Missions, Board, Playbooks) · Crew (Agents) · Library (Deliverables, Knowledge) · Insights (Analytics) · Look, with the hrefs /missions, /board, /playbooks, /agents, /knowledge, /analytics",
-        "One flag per item (e.g. `ready: boolean`) hides an item whose page isn't built: Board, Playbooks and Analytics are hidden in this wave",
-        "Desktop sidebar shows the group labels (small caps label style from the style page) and keeps the existing counts",
-        "Phone: tabs Chats · Missions · Shelf · More; More opens a sheet (dialog with focus trap, Escape closes, focus returns) listing the remaining ready pages and Look",
-        "phoneChrome() covers the new routes (lists get the tab bar; detail pages bring their own back link)",
-        "Tests: grouping and order, hidden items not rendered, the More sheet opens, lists items, closes on Escape and returns focus",
+        "Proxy routes per references/board-analytics.md: GET/POST /api/tasks → /api/v1/tasks (list allowlist: status, agent_id, priority, search, limit, offset, finished_limit), GET/PATCH/DELETE /api/tasks/[id], PATCH /api/tasks/[id]/status, POST /api/tasks/[id]/{approve,reject,run-now,cancel}, GET /api/approvals → /api/v1/approval-grants (allowlist: status, kind), POST /api/approvals/[id]/{grant,deny,answer}",
+        "PATCH /api/tasks/[id] forwards only the documented editable fields (title, description, priority, assigned_agent_id, tags, note); others are dropped by the proxy",
+        "GET /api/tasks/stream → /api/v1/tasks/stream passed through unbuffered (response body piped, Cache-Control: no-cache, no compression), keeping the proxy safety checks",
+        "lib/board/types.ts and lib/board/moves.ts: the columns in order, side states, and a pure moveRefusal(task, toStatus) mirroring board_drag_rules.py's rules from the reference (review→done use Approve, review→assigned use Reject, in_progress needs an agent, a running Task only cancels, done/review need a result, a Mission's own Task can't be started by hand)",
+        "Tests: allowlists, PATCH field filtering, the stream passes chunks through as they arrive, moveRefusal for every rule",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 1,
-      "passes": true,
-      "notes": "components/shell/nav.ts: NAV_GROUPS (every page, `ready` flag; Board/Playbooks/Analytics false), visibleGroups(), NAV_ITEMS (ready, flat), PHONE_TABS (Chats/Missions/Shelf), MORE_ITEMS (Agents, Knowledge, Look), isMoreActive; phoneChrome gives the tab bar to every nav href except / (wave 4 lists included), detail pages none. Sidebar groups are role=group named by a small caps label; PhoneTabBar's More opens components/shell/MoreSheet.tsx (role=dialog aria-modal, document keydown trap, Escape/Close/backdrop close, focus back on More). To show a wave 4 page, set its `ready: true`."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-002",
-      "title": "Page patterns, usePoll and StateChip",
-      "description": "As a developer, I want three shared page patterns and a gentle polling hook so every page is consistent and kind to the backend.",
+      "id": "B-002",
+      "title": "The live board hook",
+      "description": "As a user, I want the board to update itself the moment something changes.",
       "acceptanceCriteria": [
-        "components/page/GridPage.tsx: title, optional count, filter chips, optional search box, children grid/list, Load more, and the loading, empty (with optional mascot slot) and error (with Try again) states. Built from existing tokens and components",
-        "components/page/DetailPage.tsx: back link, header (title, chips, actions), main column and side panel, collapsing to one column on phones",
-        "components/page/LiveRunPage.tsx: header with StateChip and an actions slot, progress bar, steps slot, activity feed slot, mascot slot (with caption), side panel slot",
-        "components/page/StateChip.tsx: glyph + word for each tone (running ●, needs-you ◆, done ✓, failed ✕, paused ‖, queued ○, idle —); colour from Look variables; never colour alone",
-        "hooks/usePoll.ts: usePoll(fn, intervalMs, { visibleOnly = true, stopWhen?, immediate = true }); pauses while document.visibilityState is hidden, resumes on visible, stops when stopWhen(result) is true, never overlaps calls, cleans up on unmount",
-        "lib/poll/intervals.ts: the only place poll intervals are defined: MISSION_DETAIL 10000, FLEET 10000, LIST 30000, DOCUMENT_PROCESSING 7000, PLAYBOOK_RUN 10000. A test fails if any interval is below the skill's minimum (10 s detail/fleet, 30 s lists, 5 s document processing)",
-        "Tests: usePoll pauses when hidden and resumes, stops on stopWhen, never overlaps; each pattern renders its states; StateChip renders glyph and word",
+        "hooks/useBoardStream.ts: reads /api/tasks/stream with fetch + ReadableStream (not EventSource), parses SSE frames, calls onChange on 'board_changed', reconnects with backoff 1s doubling to 30s, stops on unmount; plus a 60 s safety refetch",
+        "Tests with a mocked stream: a board_changed frame triggers onChange, heartbeat comments don't, a dropped stream reconnects with the next backoff step, unmount aborts",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "components/page/: GridPage (status: loading|failed|empty{message,action,mascot}|ready; filters/search/loadMore/actions props), DetailPage (back, title, chips, actions, children, side+sideLabel), LiveRunPage (back?, state: StateChipProps, actions, progress{value,max,label}, steps, activity, mascot+mascotCaption, side), StateChip (tone + optional label), parts.tsx (FilterChips, SearchBox, BackLink, PageLoading, PageFailed), all wrap PageColumns and share page.module.css. hooks/usePoll.ts returns {state: loading|failed{error}|ready{value,stale,stopped}, refresh()}; pass a memoised fn, call it with a POLL_INTERVALS value (tests/poll/intervals.test.ts fails a usePoll caller that doesn't import the table). Engine in lib/poll/poller.ts."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-003",
-      "title": "Missions routes and client",
-      "description": "As a developer, I want every Missions call available through the safe proxy.",
+      "id": "B-003",
+      "title": "The Board",
+      "description": "As a user, I want to see and move my Tasks on a board.",
       "acceptanceCriteria": [
-        "Proxy routes per skills/.../references/missions.md using the existing forwardToBackend with per-route query allowlists: GET/POST /api/missions (list: state, limit, offset), GET /api/missions/stats (period), GET /api/missions/[id], GET /api/missions/[id]/events (event_type, limit, offset), GET /api/missions/[id]/cost, PATCH /api/missions/[id]/plan, POST /api/missions/[id]/{approve,reject,pause,resume,cancel,replan}, DELETE /api/missions/[id]",
-        "Also GET /api/agents → backend /api/agents/ (allowlist: include_workspace_system, limit, skip, status, search) and lib/agents/names.ts with a pure agentNameMap(agents) — the Mission run page (P-005) needs agent names; P-007 adds the rest of the agent routes",
-        "Every route keeps the existing proxy safety (Host, Sec-Fetch-Site, JSON-only bodies, nosniff/CSP headers, pathId validation)",
-        "lib/client/api.ts gains typed mission methods; lib/missions/types.ts types the Mission, Task, Event, Stats and Cost shapes from the reference",
-        "lib/missions/states.ts: pure helpers: stateTone(state) for StateChip, actionsFor(state) returning the allowed actions from the reference's table, isEnded(state), and taskEnded(taskState) where 'completed' is NOT ended",
-        "A 409 maps to a friendly sentence naming the state (e.g. \"This Mission is already running, so it can't be approved.\")",
-        "Tests: allowlists drop unknown keys, actionsFor for every state, taskEnded('completed') is false, 409 message",
+        "app/board/page.tsx: columns Inbox · Assigned · In progress · Review · Blocked · Done with counts; Failed/Cancelled/Closed in a collapsed 'Other' column; Task cards show #number, title, agent name and icon, priority, tags, and a StateChip for blocked/review reasons",
+        "Drag and drop between columns using native HTML5 drag events (no new dependency); targets that moveRefusal refuses are visibly disabled with the reason as a tooltip/text; a backend refusal shows its message",
+        "Keyboard and phone alternative: each card has a 'Move to…' menu listing allowed columns",
+        "In Review, cards show Approve and Reject buttons (Reject asks for feedback in-page)",
+        "'New Task': title (required), description, agent (from the agents list), priority → POST /api/tasks",
+        "Live via useBoardStream; no other polling",
+        "Phones: one column at a time with a column switcher",
+        "No mascot on the board (PRD-003 rule); set nav flag ready for Board",
+        "Component tests: cards land in the right columns, a refused move is disabled with its reason, Move to… lists only allowed columns, Approve calls the route, New Task posts",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Routes app/api/missions/** (id routes via lib/server/missions.ts forwardMission) + app/api/agents -> /api/agents/. Client: api.listMissions/missionStats/getMission/missionEvents/missionCost/createMission and editMissionPlan/approve/reject/pause/resume/cancel/replan/deleteMission (resolve void: refresh after), api.listAgents (Auto included). Pure helpers in lib/missions/states.ts (stateChip/stateTone/actionsFor/isEnded/taskEnded/missionRefusal); types in lib/missions/types.ts, parsers in lib/missions/parse.ts; agentNameMap in lib/agents/names.ts. Core 400s (not 409) on a wrong state and allows pause from running only: skill fixed, SKILL-GAPS logged."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-004",
-      "title": "The Missions list",
-      "description": "As a user, I want to see my Missions at a glance and start a new one.",
+      "id": "B-004",
+      "title": "The Task drawer",
+      "description": "As a user, I want to open a Task, read its result and act on it.",
       "acceptanceCriteria": [
-        "app/missions/page.tsx on GridPage: filter chips All / Active / Needs you (awaiting_approval, awaiting_human) / Done / Failed mapped to state filters; cards with the goal (2 lines), StateChip, a progress bar from task_progress where present, age and cost when known; Load more by offset",
-        "A small stats strip from /api/missions/stats?period=30d: Missions, success rate, average duration",
-        "'New Mission' opens an in-page composer: goal textarea (1–10000 chars, counter), Start → POST /api/missions, then navigate to /missions/[id]",
-        "Polls the list with usePoll(LIST) while visible",
-        "No mascot on this page (PRD-003 rule)",
-        "Component tests: chips set the state filter, a card shows chip and progress, the composer validates length and navigates after create",
+        "Clicking a card opens a drawer (dialog with focus trap; full screen on phones): title and description (editable), status, agent (re-assign), priority, tags, result (safe Markdown), error_message, blocked_reason, times sent back, cost block from GET /api/tasks/[id], and the notes timeline",
+        "Add a note → PATCH {note}; Run now, Cancel and Delete (in-page confirmation) per the move rules",
+        "A link to its Mission (/missions/[orchestration_run_id]) when present",
+        "Component tests: edit title PATCHes only title, add note, Run now hidden when the rules refuse it, Mission link",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "components/missions/MissionsScreen (GridPage + new `lead` slot: MissionComposer when open, MissionStatsStrip), MissionCard (StateChip, 2-line goal, ProgressBar from Mission.taskProgress, age + tokens), hooks/useMissionList (usePoll(LIST) first pages + Load more by offset; multi-state chips ask once per state and merge), pure helpers in lib/missions/list.ts (MISSION_FILTERS, missionHref, checkGoal, statFigures...). ProgressBar/progressPercent moved to components/page/parts.tsx (LiveRunPage re-exports). Core list rows carry no task_progress (detail only), so list bars show only if the core adds it; cost on cards is tokens_used."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-005",
-      "title": "The Mission run page",
-      "description": "As a user, I want to watch a Mission run, approve its plan and act on it.",
+      "id": "B-005",
+      "title": "Needs you",
+      "description": "As a user, I want one place for everything waiting on me.",
       "acceptanceCriteria": [
-        "app/missions/[id]/page.tsx on LiveRunPage: goal as title, StateChip, only the actions actionsFor(state) allows (Approve plan, Reject…, Pause, Resume, Cancel Mission, Replan, Delete) with in-page confirmation for Cancel, Reject (reason required) and Delete",
-        "awaiting_approval shows the plan review: tasks in sequence with their agent (names joined from GET /api/agents/?include_workspace_system=true), each title and agent editable (PATCH /plan), then Approve or Reject",
-        "Running: steps list with each task's StateChip, agent name, tokens, output_excerpt (as text), failure_detail when failed; progress bar from task_progress",
-        "Activity feed from recent_events (newest first) with 'Show older' paging GET /events by offset",
-        "Side panel: cost (/cost), started/finished times, and the Mission's Deliverables (GET /api/deliverables?source_type=mission&source_id=) as ShelfCards",
-        "awaiting_human explains there is nothing to do here but Cancel (the core removed the review route)",
-        "Mascot per missions.md (planning→thinking, running/verifying→working, awaiting_*→listening, paused→idle, completed→celebrate once, failed→oops, cancelled→idle), driven only by this Mission",
-        "Polls detail with usePoll(MISSION_DETAIL) while visible; stops when isEnded(state)",
-        "Component tests with JSON fixtures for each state group: the right actions show, the plan review edits and approves, a failed task shows its detail, polling stops when completed, the mascot state follows",
+        "A 'Needs you' panel on the board (and a count badge on the Board nav item) from GET /api/approvals?status=pending: approval cards (subject, tool, risk, cost if present) with Allow / Deny; question cards with the question, its options as buttons and a free-text answer → /answer",
+        "Auto shows listening in the panel while anything is pending, idle when empty ('Nothing needs you')",
+        "Refreshes when the board stream says board_changed and after each action",
+        "Component tests: approval grant/deny call the routes, a question answer sends answer_text or option, empty state",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "components/missions/MissionRunScreen (LiveRunPage + new `lead` slot for ConfirmPanel/refusals/awaiting_human note), MissionRunActions, PlanReview, MissionSteps, MissionActivity, MissionSidePanel; hooks useMissionRun (usePoll MISSION_DETAIL, stopWhen isEnded, agents, run(request) -> refresh), useMissionActivity (Show older by offset, merged by id), useMissionSide (cost + Deliverables re-read on state/tokens change, no own timer). Pure: lib/missions/run.ts, plan.ts, mascot.ts. api.listDeliverables takes sourceType/sourceId. Approve sends unsaved plan edits (PATCH /plan) first. Decisions: pending -> thinking; an already-completed Mission celebrates once per page view; failed shows Resume (core retries)."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-006",
-      "title": "From a chat suggestion to a Mission",
-      "description": "As a user, I want to launch a Mission Auto suggests in chat.",
+      "id": "B-006",
+      "title": "Playbooks",
+      "description": "As a user, I want to browse my Playbooks, run one and watch it.",
       "acceptanceCriteria": [
-        "A mission-suggestion frame in chat renders a suggestion card under Auto's answer: the goal, its complexity, and 'Start this Mission' / 'Not now'",
-        "Start → POST /api/missions with {goal, config: {source: 'chat', chat_id, context_messages: the last 5 messages as {role, content}}} then navigate to /missions/[id]; Not now hides the card for that message",
-        "The suggestion parser handles the frame per chat-stream.md (data: {goal, complexity, agent_id})",
-        "Component tests: the card appears from a fixture stream containing mission-suggestion; Start sends the documented body and navigates",
+        "Proxy routes per references/agents-playbooks.md: GET /api/playbooks → /api/workflow-recipes (allowlist skip, limit, search), GET /api/playbooks/[id], POST /api/playbooks/[id]/run → /execute ({input_data?, wait_for_me?}), GET /api/playbooks/[id]/runs → /executions, GET /api/playbooks/[id]/runs/[runId], POST /api/playbooks/[id]/runs/[runId]/cancel. The word 'recipe' never appears in UI copy",
+        "app/playbooks/page.tsx on GridPage (cards: name, description, step count, category); app/playbooks/[id]/page.tsx on DetailPage: steps with their agents, run history, and Run (optional input as text) → shows the run on a LiveRunPage section with steps progress",
+        "Run detail polled with usePoll(PLAYBOOK_RUN) while visible, stopping when the run ends; Cancel run",
+        "400 (a step without an agent, no steps) and 429 (too many running) shown in words",
+        "Mascot only while a run you started is live: working, then celebrate or oops",
+        "Set nav flag ready for Playbooks",
+        "Component tests: no 'recipe' in rendered text, Run posts and starts polling, 429 message, cancel",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "components/chat/MissionSuggestionCard (goal via goalPreview, complexity words, Start this Mission -> onStart() then router.push(missionHref), Not now hides it per reply, errors as role=alert in the card) shown by AutoReply once the reply isn't streaming; ChatView's useStartSuggested builds the body with suggestedMission(messages, replyId, chatId) from lib/chat/suggestion.ts (config {source:'chat', chat_id (omitted if none), context_messages: last 5 messages with text up to that reply}). New fixture tests/fixtures/mission-suggestion.txt (suggestion frame comes before chat-id, as the core sends it). ChatScreen tests that hit a suggestion must vi.mock next/navigation."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-007",
-      "title": "The Agents page",
-      "description": "As a user, I want to see Auto's crew and what each agent is doing.",
+      "id": "B-007",
+      "title": "Analytics",
+      "description": "As a user, I want to see what my Automatos costs and where it goes.",
       "acceptanceCriteria": [
-        "Proxy routes (GET /api/agents already exists from P-003): GET /api/agents/[id], GET /api/agents/[id]/performance, PUT /api/agents/[id] limited to {status: 'active'|'inactive'} (any other field rejected by the proxy), GET /api/fleet → backend /api/v1/fleet",
-        "app/agents/page.tsx: Auto first as a larger lead card (identified by is_system_agent and slug 'auto-<workspace id>', never id 1) with the mascot following his fleet state (working when current is set, idle otherwise) and his current work in words",
-        "Crew grid (GridPage): icon from marketplace_category/agent_type, name, job title, status word, model route (provider · model), runtime chip (API or Session), current work and last activity from the fleet, cost 24h (session agents show tokens with 'on your plan', never dollars)",
-        "Filter chips All / API / Session; search by name",
-        "On/off switch per agent (not Auto) with in-page confirmation → PUT status",
-        "Fleet polled with usePoll(FLEET) while visible",
-        "Component tests: Auto found by slug and shown first, session agent cost wording, the switch sends only {status}, filter chips",
+        "Proxy routes: GET /api/analytics/summary → /api/analytics/llm/summary, GET /api/analytics/usage → /llm/usage, GET /api/analytics/costs → /llm/costs (allowlists: period, group_by, breakdown with the reference's allowed values only)",
+        "app/analytics/page.tsx: period picker (24h, 7d, 30d, 90d); KPI tiles (spend this period, requests, cache share, Mission success rate from /api/missions/stats); a daily cost trend line; tables/bars for cost by route, by provider, by agent; spend by lane from group_by=execution grouped by prefix chat:/mission:/board_task: (other prefixes as 'Other')",
+        "Free routes and plan-billed session rows are listed at $0.00 or 'on your plan', never hidden",
+        "Charts are small SVG components drawing from Look variables, each with an accessible table fallback (a 'Show as table' toggle) and text labels; no chart library",
+        "Loads on open and on a Refresh button; no polling",
+        "No mascot (PRD-003 rule); set nav flag ready for Analytics",
+        "Component tests: lane grouping from execution keys, $0 rows shown, period change refetches, table fallback renders the same numbers",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Built app/agents (AgentsScreen on GridPage: AutoLeadCard + AgentCard + AgentSwitch), proxy routes agents/[id] (GET, PUT {status} only via statusOnly/checkBody), agents/[id]/performance, /api/fleet, lib/agents/{fleet,crew,icons}.ts, hooks/useCrew.ts. P-008: cards already link to agentHref(id) = /agents/<id>; api.getAgent exists, the performance route exists but has no client parser yet; the core's fleet leaves Auto out, so he reads idle (PRD-003 open question 5)."
+      "passes": false,
+      "notes": ""
     },
     {
-      "id": "P-008",
-      "title": "Agent detail",
-      "description": "As a user, I want to see one agent properly and chat with it.",
-      "acceptanceCriteria": [
-        "app/agents/[id]/page.tsx on DetailPage: name, job title, team, description, StateChip from status and fleet, skills as chips, tools, model config (provider, model), runtime; for session agents the live session line (provider, model, live tool, last event) from the fleet",
-        "Performance from /performance showing success rate, tasks and tokens/cost; fields the backend leaves at 0 as placeholders are hidden rather than shown as 0 (document which in a code comment citing agent_endpoints.py)",
-        "'Chat with <name>' opens a new chat that sends agentId with each message (extend the chat request per chat-stream.md); the chat header shows who you're talking to",
-        "Mascot only on Auto's own detail page",
-        "Component tests: session line shown for a session agent, Chat with sends agentId, placeholders hidden",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "app/agents/[id] -> components/agents/AgentDetailScreen (DetailPage, new optional `mascot` slot used only on Auto's page) over hooks/useAgentDetail (agent+workspace once, /performance once, fleet polled); lib/agents/detail.ts (AgentDetail with team/skills/tools, isAutoAgent, sessionLine) and lib/agents/performance.ts (placeholders dropped, cited from agent_endpoints.py). Chat with -> /?agent=<id> (lib/chat/params agentChatHref/agentParam) -> ChatScreen/ChatView agentId -> useChatTurn sends agentId every turn; ChatView shows 'Talking to <name>'. Session agents get no Chat with (the core answers chat to them with an e: error). isAgentId now lives in lib/agents/types.ts (server + page share it)."
-    },
-    {
-      "id": "P-009",
-      "title": "Knowledge routes: safe upload and download",
-      "description": "As a developer, I want the document routes, including the two that aren't plain JSON, done safely.",
-      "acceptanceCriteria": [
-        "JSON routes per references/knowledge.md: GET /api/documents (allowlisted params), GET /api/documents/[id], GET /api/documents/[id]/content, GET /api/documents/[id]/delete-impact, DELETE /api/documents/[id], POST /api/documents/search ({query} required, 422 passed through), GET /api/documents/queue-status → /api/documents/queue/status",
-        "Upload POST /api/documents/upload: refuses without header X-Play-Upload: 1, keeps the Host and Sec-Fetch-Site checks, refuses content-length over 50 MB before reading, streams the raw body to the backend with the original content-type (boundary intact) and duplex:'half', never parses the form, long timeout (5 min)",
-        "Download GET /api/documents/[id]/download: the server asks the backend for mode=url; an absolute https: URL gets a 302 to it; anything else is fetched server-side and streamed with nosniff and the sandbox CSP; the browser never supplies a path",
-        "Never POST /reprocess anywhere (a test greps lib/ and app/ for 'reprocess' and fails if found outside comments)",
-        "Tests: upload refused without the header, refused over 50 MB, body bytes forwarded unchanged with the boundary, download https → 302, download other → streamed with safety headers",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Routes app/api/documents/** (list allowlist skip/limit/status/file_type/search; [id] GET/DELETE, /content, /delete-impact via forwardDocument in lib/server/documents.ts, whole-number ids; search keeps query/limit/min_similarity/document_ids, backend 422 passes through; queue-status -> /queue/status). Upload: lib/server/upload.ts (X-Play-Upload: 1, Host+Sec-Fetch-Site via rejectOtherSites, multipart+boundary, Content-Length required, cap 50 MB + 64 KB framing, raw stream duplex half, 5 min). Download: lib/server/download.ts (https -> 302; http (local MinIO, the local-edition default) or backend path -> server fetch; non-JSON = backend's own bytes; all attachment + nosniff + CSP). P-010: shared constants in lib/documents/rules.ts (MAX_UPLOAD_BYTES, UPLOAD_HEADER/_VALUE, isDocumentId); no client methods yet, so add lib/client/documents.ts. A Play in a container can't reach a presigned http://localhost:9000 URL (P-011 docs)."
-    },
-    {
-      "id": "P-010",
-      "title": "The Knowledge page",
-      "description": "As a user, I want to give Auto documents, find things in them and manage them.",
-      "acceptanceCriteria": [
-        "app/knowledge/page.tsx on GridPage: the document list (name, type badge, size, status chip, date); a search box that calls POST search and shows results (excerpt as text, similarity, source filename) in place of the list until cleared",
-        "Upload: drop zone and file picker; checks type (pdf, docx, txt, md, csv, html, json, xlsx) and 50 MB in the browser with plain-word errors; sends with X-Play-Upload: 1; shows progress then the result (processed, failed with message, duplicate)",
-        "While anything is processing, poll GET /api/documents/[id] with usePoll(DOCUMENT_PROCESSING), stop when processed or failed; 'completed' from the queue counts as processed",
-        "app/knowledge/[id]/page.tsx on DetailPage: content rendered as text (markdown through the existing safe Markdown component), Download, Delete with the delete-impact counts shown in the in-page confirmation",
-        "Mascot: reading while an upload is processing, searching while a search runs, celebrate on processed, oops on failed; on the empty state ('Give me something to read'); not on the list itself",
-        "Component tests: type and size rejection, upload sends the header, processing poll stops on processed, search results replace the list, delete shows impact before confirming",
-        "Typecheck passes",
-        "Tests pass"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "app/knowledge -> components/knowledge/KnowledgeScreen (GridPage; lead = UploadPanel drop zone + Choose a file, KnowledgeActivity = Auto small + the upload line/bar; SearchBox onSubmit mode, results replace the list) and app/knowledge/[id] -> DocumentScreen (DetailPage, Markdown/plain text, Download link, DeleteConfirm with /delete-impact). Client lib/client/documents.ts (upload via lib/client/upload.ts xhrUpload for byte progress; createApiClient(fetch, sendUpload) so tests inject a sender); pure rules in lib/documents/{knowledge,upload,parse}.ts; processing poll hooks/useProcessingPoll (GET /api/documents/<id>, stops when settled or gone). P-011: RUN-CHECKLIST Knowledge lines still to write."
-    },
-    {
-      "id": "P-011",
-      "title": "Docs for wave 3",
+      "id": "B-008",
+      "title": "Docs for wave 4",
       "description": "As Gerard, I want to know how to check the new pages and what the skill got wrong.",
       "acceptanceCriteria": [
-        "docs/RUN-CHECKLIST.md gains sections Missions (start from chat, approve a plan, watch it run, cancel), Agents (Auto first, fleet state, switch an agent off and on), Knowledge (upload each type, a duplicate, a too-big file, search, download, delete)",
-        "docs/SKILL-GAPS.md logs every place the new references were wrong or missing, and the fixes land in skills/build-automatos-interface/ in this story",
-        "README lists the new pages",
+        "docs/RUN-CHECKLIST.md gains Board (live update from Studio in another tab, a refused drag, approve/reject, a note), Needs you (an approval and a question), Playbooks (run, watch, cancel) and Analytics (each period, lanes, $0 rows)",
+        "docs/SKILL-GAPS.md logs every place the references were wrong or missing; fixes land in skills/build-automatos-interface/ in this story",
+        "README lists all pages",
         "Typecheck passes"
       ],
-      "priority": 11,
-      "passes": true,
-      "notes": "RUN-CHECKLIST gains Missions, Agents and Knowledge sections (plus phone width, Looks and setup lines); README lists /missions, /agents, /knowledge and a Docker download troubleshooting entry; skill audit against the core found 11 more gaps (list rows without task_progress, stats success_rate 0-1, UUID ids -> 422, pending pose, performance period ignored, agent_output documents, /content <mark> HTML, empty delete-impact fields, localhost MinIO in a container, search limits, SKILL.md known gaps), all fixed in the skill and logged. tests/pages-docs.test.ts guards it: B-008 must add a README entry and a ### section for each wave 4 page it flips to ready."
+      "priority": 8,
+      "passes": false,
+      "notes": ""
     }
   ]
 }
