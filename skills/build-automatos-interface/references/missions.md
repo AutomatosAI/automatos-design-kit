@@ -23,7 +23,7 @@ All go through your proxy with `X-Workspace-ID`. In the local edition every perm
 | POST | `/api/missions/{id}/replan` | `{notes?}` | only from `failed`, a limited number of times |
 | DELETE | `/api/missions/{id}` | — | 204. Only once it has ended (completed, failed, cancelled) |
 
-A move that isn't allowed from the current state returns **409**. Show it in words ("This Mission is already running, so it can't be approved"), then refresh the Mission.
+A move that isn't allowed from the current state is refused. The route checks the state first and answers **400** naming it (`Mission is in 'running' state, expected 'awaiting_approval'`, `Mission is already in terminal state 'completed'`, `Cannot delete mission in state 'paused'. Cancel it first.`); a move that loses a race with another change answers **409** (`Invalid run transition: running → paused (…)`, or an optimistic-lock conflict that names no state). Treat both the same: show it in words ("This Mission is already running, so it can't be approved"), then refresh the Mission. Other 400s keep their own words (`Mission has been replanned 3 times, maximum is 3`).
 
 ## States
 
@@ -33,7 +33,8 @@ A move that isn't allowed from the current state returns **409**. Show it in wor
 |---|---|---|
 | `pending`, `planning`, `replanning` | Auto is working out a plan | Cancel |
 | `awaiting_approval` | the plan, with its tasks and agents | Edit the plan, Approve, Reject (with a reason), Cancel |
-| `running`, `verifying` | live progress | Pause, Cancel |
+| `running` | live progress | Pause, Cancel |
+| `verifying` | live progress (the last tasks are being checked) | Cancel only: pause is allowed from `running` alone |
 | `paused` | paused | Resume, Cancel |
 | `awaiting_human` | waiting for a person | Cancel only. There is **no** action route for it any more (the review route was removed); say so plainly |
 | `completed` | done, with its Deliverables | Delete |

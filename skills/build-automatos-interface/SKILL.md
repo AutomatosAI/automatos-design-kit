@@ -60,7 +60,7 @@ Never use `ORCHESTRATOR_API_KEY`. It is one admin key for the whole install, and
 
 The local edition has no login, and a request with no credentials is the super admin. Your proxy forwards for anyone who can reach it, so:
 
-- **Refuse other sites.** Check the `Host` header against `localhost`, `127.0.0.1`, `[::1]` and an explicit allowlist (this stops DNS rebinding), refuse a `Sec-Fetch-Site` other than `same-origin` or `none`, and refuse a request body that isn't `application/json` (a cross-site form can send `text/plain` without a preflight).
+- **Refuse other sites.** Check the `Host` header against `localhost`, `127.0.0.1`, `[::1]` and an explicit allowlist (this stops DNS rebinding), refuse a `Sec-Fetch-Site` other than `same-origin` or `none`, and refuse a request body that isn't `application/json` (a cross-site form can send `text/plain` without a preflight). Require that `Content-Type` on every method but GET and HEAD, even with no body: a bodyless cross-site POST (pause or cancel a Mission) needs no preflight either, and older browsers don't send `Sec-Fetch-Site`.
 - **Bind to localhost.** Don't listen on `0.0.0.0` unless you mean to hand your network the admin.
 - **Don't let the backend's answers run on your origin.** Some routes return files (thumbnails, workspace files) with their own content type. Add `X-Content-Type-Options: nosniff` and `Content-Security-Policy: default-src 'none'; sandbox` to every proxied answer, so an HTML or SVG file opened in a tab can't run script as your UI.
 - **Never let the browser name a backend path.** A route that serves a Deliverable's file reads the path from the Deliverable on the server (see `references/endpoints.md`).

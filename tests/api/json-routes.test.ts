@@ -108,7 +108,7 @@ describe("the JSON proxy routes", () => {
     fetchMock.mockResolvedValue(json({ cancelled: true }));
 
     const response = await cancelChat(
-      playRequest(`/api/chat/${CHAT_ID}/cancel`, { method: "POST" }),
+      playRequest(`/api/chat/${CHAT_ID}/cancel`, { method: "POST", headers: { "Content-Type": "application/json" } }),
       params(CHAT_ID),
     );
 

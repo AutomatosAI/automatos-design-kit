@@ -80,21 +80,21 @@ export function isRecord(value: unknown): value is Json {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function text(value: unknown): string | null {
+export function text(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
 
 /** Ids arrive as strings, but older rows can carry numbers. */
-function idOf(value: unknown): string | null {
+export function idOf(value: unknown): string | null {
   if (typeof value === "string" && value) return value;
   return typeof value === "number" && Number.isFinite(value) ? String(value) : null;
 }
 
-function count(value: unknown, fallback: number): number {
+export function count(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-function listOf<T>(value: unknown, parse: (item: unknown) => T | null): readonly T[] {
+export function listOf<T>(value: unknown, parse: (item: unknown) => T | null): readonly T[] {
   if (!Array.isArray(value)) return [];
   return value.map(parse).filter((item): item is T => item !== null);
 }

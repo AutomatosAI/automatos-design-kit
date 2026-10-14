@@ -6,6 +6,7 @@ export const WORKSPACE_HEADER = "X-Workspace-ID";
 
 const WORKSPACE_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const LOCAL_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);
+const READ_ONLY_METHODS: ReadonlySet<string> = new Set(["GET", "HEAD"]);
 
 export function getBackendUrl(): string {
   const raw = process.env.AUTOMATOS_BACKEND_URL?.trim() || DEFAULT_BACKEND_URL;
@@ -42,7 +43,9 @@ function requestHostName(request: Request): string {
  * The local edition has no login, so another site must not be able to drive Auto
  * through these routes. The Host allowlist stops DNS rebinding; browsers send
  * Sec-Fetch-Site on every request; a JSON Content-Type forces a CORS preflight
- * that this app never answers.
+ * that this app never answers. Every request that can change something (any method
+ * but GET or HEAD) must carry it, even with no body: a bodyless cross-site POST
+ * (pause, cancel) needs no preflight otherwise.
  */
 export function rejectCrossSite(request: Request): Response | null {
   const hostName = requestHostName(request);
@@ -55,7 +58,8 @@ export function rejectCrossSite(request: Request): Response | null {
     return jsonError(403, "Requests from other sites are not allowed");
   }
   const type = request.headers.get("content-type") ?? "";
-  if (request.body !== null && !/^application\/json\b/i.test(type)) {
+  const mayChange = !READ_ONLY_METHODS.has(request.method.toUpperCase());
+  if ((mayChange || request.body !== null) && !/^application\/json\b/i.test(type)) {
     return jsonError(415, "Send the request as application/json");
   }
   return null;

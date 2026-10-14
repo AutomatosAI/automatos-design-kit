@@ -66,8 +66,8 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Routes app/api/missions/** (id routes via lib/server/missions.ts forwardMission) + app/api/agents -> /api/agents/. Client: api.listMissions/missionStats/getMission/missionEvents/missionCost/createMission and editMissionPlan/approve/reject/pause/resume/cancel/replan/deleteMission (resolve void: refresh after), api.listAgents (Auto included). Pure helpers in lib/missions/states.ts (stateChip/stateTone/actionsFor/isEnded/taskEnded/missionRefusal); types in lib/missions/types.ts, parsers in lib/missions/parse.ts; agentNameMap in lib/agents/names.ts. Core 400s (not 409) on a wrong state and allows pause from running only: skill fixed, SKILL-GAPS logged."
     },
     {
       "id": "P-004",

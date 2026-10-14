@@ -52,10 +52,16 @@ describe("backendUnreachable", () => {
 describe("rejectCrossSite", () => {
   const json = { "Content-Type": "application/json" };
 
-  it("lets same-origin JSON and bodyless requests through", () => {
+  it("lets same-origin JSON, bodyless JSON and GET requests through", () => {
     expect(rejectCrossSite(post("{}", { ...json, "Sec-Fetch-Site": "same-origin" }))).toBeNull();
     expect(rejectCrossSite(post("{}", json))).toBeNull();
-    expect(rejectCrossSite(new Request("http://localhost:3100/api/x", { method: "POST" }))).toBeNull();
+    expect(rejectCrossSite(new Request("http://localhost:3100/api/x", { method: "POST", headers: json }))).toBeNull();
+    expect(rejectCrossSite(new Request("http://localhost:3100/api/x"))).toBeNull();
+  });
+
+  it("refuses a bodyless change not typed as JSON (a cross-site POST needs no preflight)", () => {
+    expect(rejectCrossSite(new Request("http://localhost:3100/api/x", { method: "POST" }))?.status).toBe(415);
+    expect(rejectCrossSite(new Request("http://localhost:3100/api/x", { method: "DELETE" }))?.status).toBe(415);
   });
 
   it("refuses a request another site started", () => {
