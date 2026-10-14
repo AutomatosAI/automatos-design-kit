@@ -24,6 +24,7 @@ import { StartOptions } from "./StartOptions";
 import styles from "./editor.module.css";
 import { useSkinAssets, type SkinAssetsApi } from "./useSkinAssets";
 import { useSkinEditor } from "./useSkinEditor";
+import { useStartFromLink } from "./useStartFromLink";
 
 export const EDITOR_HEADING = "Make a skin.";
 export const KEPT_STATUS = "Your draft is kept in this browser.";
@@ -59,6 +60,7 @@ export function SkinEditor({ storage = browserStorage, assetStore = browserAsset
   const { draft, edit, endGroup } = editor;
   const previewId = useId();
   usePruneFonts(draft, editor.loaded, assets);
+  useStartFromLink(editor.loaded, (next) => edit(() => next));
 
   return (
     <div className={styles.screen}>

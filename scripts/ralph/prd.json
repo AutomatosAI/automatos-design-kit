@@ -146,8 +146,8 @@
         "Tests pass"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "skins/{ember,daylight,workshop,neon}/ (skin.json + assets/preview.png drawn by scripts/draw-previews.mjs, npm run previews); lib/skins/examples.ts imports each skin.json, validates it (preview dropped) into EXAMPLE_SKINS, plus findExample/startFromHref (/?start=<slug>, read once by components/skins/useStartFromLink)/examplePreviewUrl. /examples = components/examples/ExamplesScreen; pictures served by app/examples/[slug]/preview.png/route.ts (EXAMPLE_SKINS slugs only). Every example sets both sides of each pair it touches (Workshop leaves olive/warn-ink to the base), so K-010's K5 rule already holds; K-010 must keep tests/skins/examples.test.ts green when it changes the pair list."
     },
     {
       "id": "K-009",

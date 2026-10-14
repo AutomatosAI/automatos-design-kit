@@ -1,5 +1,5 @@
-import { PendingPage } from "@/components/shell/PendingPage";
+import { ExamplesScreen } from "@/components/examples/ExamplesScreen";
 
 export default function ExamplesPage() {
-  return <PendingPage page="examples" />;
+  return <ExamplesScreen />;
 }

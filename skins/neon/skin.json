@@ -1,0 +1,77 @@
+{
+  "schema": "automatos-skin/v1",
+  "slug": "neon",
+  "name": "Neon",
+  "version": "1.0.0",
+  "author": "Automatos",
+  "description": "A HUD feel: a near-black void, arc cyan light and sharp corners. Dark only.",
+  "licence": "Apache-2.0",
+  "base": "studio",
+  "tones": [
+    "dark"
+  ],
+  "tokens": {
+    "dark": {
+      "background": "210 40% 2%",
+      "foreground": "196 42.9% 93.1%",
+      "card": "204 33.3% 5.9%",
+      "card-foreground": "196 42.9% 93.1%",
+      "popover": "204 33.3% 5.9%",
+      "popover-foreground": "196 42.9% 93.1%",
+      "primary": "189.7 100% 62.4%",
+      "primary-foreground": "195 83.3% 4.7%",
+      "secondary": "201.4 31.8% 8.6%",
+      "secondary-foreground": "196 42.9% 93.1%",
+      "muted": "201.4 31.8% 8.6%",
+      "muted-foreground": "199.3 14.9% 63.1%",
+      "accent": "189.7 100% 62.4%",
+      "accent-foreground": "195 83.3% 4.7%",
+      "destructive": "0 100% 71%",
+      "destructive-foreground": "0 78.7% 9.2%",
+      "border": "201.4 21.2% 12.9%",
+      "input": "201.4 21.2% 12.9%",
+      "ring": "189.7 100% 62.4%",
+      "success": "142.8 100% 68%",
+      "success-foreground": "142.5 80% 3.9%",
+      "warning": "42.1 100% 64.5%",
+      "warning-foreground": "42.9 100% 5.5%",
+      "info": "189.7 100% 62.4%",
+      "info-foreground": "195 83.3% 4.7%",
+      "agent": "313.3 100% 68%",
+      "agent-foreground": "312.4 87.9% 6.5%",
+      "chart-1": "189.7 100% 62.4%",
+      "chart-2": "142.8 100% 68%",
+      "chart-3": "313.3 100% 68%",
+      "chart-4": "23.8 100% 62%",
+      "chart-5": "42.1 100% 64.5%",
+      "stage-1": "142.8 100% 68%",
+      "stage-2": "189.7 100% 62.4%",
+      "stage-3": "42.1 100% 64.5%",
+      "stage-4": "199.3 14.9% 63.1%",
+      "stage-5": "142.8 100% 68%",
+      "stage-6": "23.8 100% 62%",
+      "stage-7": "189.7 100% 62.4%",
+      "stage-8": "313.3 100% 68%",
+      "stage-9": "142.8 100% 68%",
+      "olive": "142.8 100% 68%",
+      "warn-ink": "42.1 100% 64.5%",
+      "on-strong": "195 83.3% 4.7%",
+      "border-2": "192.2 46.6% 22.7%",
+      "accent-2": "189.7 100% 62.4%",
+      "navy": "189.7 100% 62.4%"
+    }
+  },
+  "fonts": {
+    "sans": "Geist",
+    "serif": "Geist",
+    "mono": "Geist Mono"
+  },
+  "shape": {
+    "radius": 2,
+    "glow": 22
+  },
+  "mascot": {
+    "mode": "off"
+  },
+  "preview": "assets/preview.png"
+}

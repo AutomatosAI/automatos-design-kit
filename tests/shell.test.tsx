@@ -2,9 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import ExamplesPage from "@/app/examples/page";
 import { AppShell } from "@/components/shell/AppShell";
-import { PENDING_PAGES } from "@/components/shell/PendingPage";
 
 vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
 
@@ -64,14 +62,5 @@ describe("AppShell", () => {
       .getAllByRole("link")
       .filter((link) => link.getAttribute("aria-current") === "page");
     expect(current.map((link) => link.textContent)).toEqual(["Editor"]);
-  });
-});
-
-describe("the pages still to come", () => {
-  it("say what Examples will hold, with the way to the editor", () => {
-    render(<ExamplesPage />);
-    expect(screen.getByRole("heading", { level: 1, name: PENDING_PAGES.examples.title })).toBeInTheDocument();
-    expect(screen.getByText(PENDING_PAGES.examples.lead)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open the editor" })).toHaveAttribute("href", "/");
   });
 });
