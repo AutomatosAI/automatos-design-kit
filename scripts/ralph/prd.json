@@ -140,8 +140,8 @@
         "Tests pass"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built app/agents (AgentsScreen on GridPage: AutoLeadCard + AgentCard + AgentSwitch), proxy routes agents/[id] (GET, PUT {status} only via statusOnly/checkBody), agents/[id]/performance, /api/fleet, lib/agents/{fleet,crew,icons}.ts, hooks/useCrew.ts. P-008: cards already link to agentHref(id) = /agents/<id>; api.getAgent exists, the performance route exists but has no client parser yet; the core's fleet leaves Auto out, so he reads idle (PRD-003 open question 5)."
     },
     {
       "id": "P-008",

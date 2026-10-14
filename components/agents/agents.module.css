@@ -1,0 +1,281 @@
+/* The Agents page (PRD-003 P-007): Auto's lead card, the crew grid and the on/off switch,
+   on the grid page pattern. Cards sit on --color-surface, so the text pairs stay the
+   listed ones; every colour is a Look variable through the tokens. */
+
+/* Auto's lead card */
+
+.lead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--tint-accent-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.leadMascot {
+  flex: none;
+}
+
+.leadBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.leadName {
+  margin: 0;
+  font: var(--text-title-lg);
+  letter-spacing: var(--display-letter-spacing);
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.fleetNote {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+/* The crew grid */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--agent-card-min), 100%), 1fr));
+  gap: var(--space-4);
+}
+
+.item {
+  min-width: 0;
+}
+
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* The category's glyph, in the readable accent on a faint tile. */
+.icon {
+  flex: none;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+  color: var(--color-accent-text);
+  font: var(--text-button);
+}
+
+.names {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  margin: 0;
+  font: var(--text-body);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.nameLink {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.nameLink:hover {
+  text-decoration: underline;
+}
+
+.role {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* API or Session: a quiet outlined pill beside the state chip. */
+.runtime {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  color: var(--color-text-2);
+  font: var(--text-mono-sm);
+  text-transform: uppercase;
+}
+
+.meta,
+.note {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.work {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+/* The switch and its confirmation, at the foot of the card */
+
+.switchArea {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.toggle {
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.toggle:disabled {
+  cursor: progress;
+  color: var(--color-text-2);
+}
+
+.track {
+  width: calc(var(--space-6) + var(--space-4));
+  height: var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-button);
+  background: var(--tint-hover);
+}
+
+.track[data-on="true"] {
+  justify-content: flex-end;
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.thumb {
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-round);
+  background: var(--color-text-2);
+}
+
+.track[data-on="true"] .thumb {
+  background: var(--color-accent-ink);
+}
+
+.confirmPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+}
+
+.question {
+  margin: 0;
+  font: var(--text-small);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.alert {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-error-text);
+}
+
+.confirmActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The one accent button while a confirmation is open. */
+.confirm {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.confirm:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: progress;
+}
+
+@media (max-width: 767.98px) {
+  .lead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+}

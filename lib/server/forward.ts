@@ -23,6 +23,15 @@ const SAFE_HEADERS = {
   "Content-Security-Policy": "default-src 'none'; sandbox",
 } as const;
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+const NOT_AN_OBJECT = "The message must be a JSON object";
+
+export type BodyCheck =
+  | { readonly ok: true; readonly value: Readonly<Record<string, unknown>> }
+  | { readonly ok: false; readonly error: string };
+
+type ForwardBody =
+  | { readonly ok: true; readonly value: Readonly<Record<string, unknown>> | null }
+  | { readonly ok: false; readonly error: string };
 
 export type ForwardOptions = {
   /**
@@ -38,6 +47,11 @@ export type ForwardOptions = {
   readonly query?: readonly string[];
   /** Read the request body as a JSON object and forward it. Default: no body is sent. */
   readonly jsonBody?: boolean;
+  /**
+   * With jsonBody: checks the object and says what to forward, or the sentence to refuse
+   * it with (400). Default: the object is forwarded as it came.
+   */
+  readonly checkBody?: (body: Readonly<Record<string, unknown>>) => BodyCheck;
   /** What the route expects back. Default: application/json. */
   readonly accept?: string;
 };
@@ -56,6 +70,14 @@ function forwardedSearch(request: Request, allowed: readonly string[] = []): str
   return kept.length ? `?${new URLSearchParams(kept).toString()}` : "";
 }
 
+/** The body to forward: none, the JSON object as sent, or what checkBody kept. */
+async function forwardBody(request: Request, options: ForwardOptions): Promise<ForwardBody> {
+  if (!options.jsonBody) return { ok: true, value: null };
+  const body = await readJsonObject(request);
+  if (!body.ok) return { ok: false, error: NOT_AN_OBJECT };
+  return options.checkBody ? options.checkBody(body.value) : body;
+}
+
 export async function forwardToBackend(request: Request, options: ForwardOptions): Promise<Response> {
   const refused = rejectCrossSite(request);
   if (refused) return refused;
@@ -63,8 +85,8 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
   const workspace = workspaceHeader(request);
   if (!workspace.ok) return jsonError(400, "The workspace id is not valid");
 
-  const body = options.jsonBody ? await readJsonObject(request) : null;
-  if (body && !body.ok) return jsonError(400, "The message must be a JSON object");
+  const body = await forwardBody(request, options);
+  if (!body.ok) return jsonError(400, body.error);
 
   let backendUrl: string;
   try {
@@ -77,7 +99,7 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
   const target = `${backendUrl}${options.path}${forwardedSearch(request, options.query)}`;
   const headers: Record<string, string> = {
     Accept: options.accept ?? DEFAULT_ACCEPT,
-    ...(body ? { "Content-Type": "application/json" } : {}),
+    ...(body.value ? { "Content-Type": "application/json" } : {}),
     ...workspace.headers,
   };
 
@@ -85,7 +107,7 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
     const upstream = await fetch(target, {
       method: request.method,
       headers,
-      body: body && body.ok ? JSON.stringify(body.value) : undefined,
+      body: body.value ? JSON.stringify(body.value) : undefined,
       cache: "no-store",
       signal: request.signal,
     });

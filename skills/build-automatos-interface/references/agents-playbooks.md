@@ -13,7 +13,10 @@ Source of truth: `automatos-ai/orchestrator/api/agents.py`, `api/agent_endpoints
 | GET | `/api/v1/fleet` | **live status for every agent**; see below |
 | PUT | `/api/agents/{id}` | `{status: "active" \| "inactive"}` switches an agent on or off (there is no dedicated route) |
 
-Each agent has: `id, public_id, name, description, job_title, team, reports_to_id, agent_type, status, configuration (configuration.runtime is "api" or "cli"), skills, tools, plugins, agent_model_config {provider, model, ...}, model_usage_stats {tokens, cost, requests}, is_system_agent, slug, marketplace_category, unavailable`.
+Each agent has: `id, public_id, name, description, job_title, team, reports_to_id, agent_type, status, configuration (configuration.runtime is "api" or "cli"), skills, tools, plugins, agent_model_config {provider, model_id, ...}, model_usage_stats {total_tokens, total_cost, total_requests}, is_system_agent, slug, marketplace_category, unavailable` (`AgentResponse` in `core/models/core.py`).
+
+- **The model route.** An API agent's model is `agent_model_config.model_id` (not `model`). A session (`cli`) agent's CLI and model are in `configuration.provider` and `configuration.model` (Studio's `runtimeBadge`). `status` is `active`, `inactive` or `training`.
+- **Switching on and off.** `PUT /api/agents/{id}` takes the whole `AgentUpdate` (name, configuration, tools…), and only finds agents whose `workspace_id` is yours (a platform system agent 404s). A UI that only switches agents should send `{status}` alone and have its proxy refuse anything else.
 
 - **No avatar field.** Pick an icon from `marketplace_category` or `agent_type`.
 - **Finding Auto:** the agent with `is_system_agent: true` and `slug == "auto-<workspace id>"`. Don't assume id 1.
@@ -21,9 +24,14 @@ Each agent has: `id, public_id, name, description, job_title, team, reports_to_i
 
 ### Live status (the fleet)
 
-`GET /api/v1/fleet` returns `agents[]`, each with:
-- `current` (the work in hand), `queue_depth`, `blocked`, `watches`, `last_activity_at`, `cost_24h` (tokens and USD), `runtime`;
-- for session (CLI) agents, `session: {session_id, provider, model, live_tool, last_event, last_event_at, cwd, recent_tools}`.
+`GET /api/v1/fleet` returns `{version, generated_at, window_hours, cost_available, watches_available, asks_available, agents[]}` (`services/fleet_state.py`), each agent with:
+- `agent_id`, `name`, `runtime` (`"api"` or `"cli"`);
+- `current`: the work in hand, `{kind: "board_task" | "mission_task", id, title, since}` or null;
+- `queue_depth`, `blocked: {count, open_asks}`, `watches: {active, needs_attention}`, `last_activity_at`;
+- `cost_24h: {tokens, usd}`, **left out of every agent when `cost_available` is false**;
+- for session (CLI) agents working a board Task, `session: {session_id, host_id, provider, model, live_tool, last_event, last_event_at, exit_reason, cwd, task_id, recent_tools}`, else null.
+
+**Auto is not in the fleet.** The read-model lists the workspace's own roster minus ephemeral clones and minus the per-workspace system agent (Auto), so he never counts himself when asked how the team is doing. Platform system agents (`workspace_id` null) are left out too. An agent with no fleet entry has no live status: show it as idle.
 
 Studio polls it every **10 s**. Do the same, and only while the page is visible. It is workspace-wide: one call covers every agent.
 
@@ -50,5 +58,5 @@ Poll an open run every 10 s while it is visible, and stop when it ends.
 
 ## Mascot
 
-- **Agents page:** Auto leads the crew as a larger card at the top, with his live state from the fleet (working when `current` is set, idle otherwise). Other agents are plain cards with no mascot.
+- **Agents page:** Auto leads the crew as a larger card at the top, with his live state from the fleet (working when `current` is set, idle otherwise). Other agents are plain cards with no mascot. Because the core leaves Auto out of the fleet (above), he reads as idle until it includes him.
 - **Playbooks:** Auto shows working while a run you started is in progress, celebrate when it completes, and oops when it fails. Nothing on the list.

@@ -1,7 +1,14 @@
-import type { Transport } from "@/lib/client/transport";
-import { parseAgentList, type AgentQuery, type AgentSummary } from "@/lib/agents/types";
+import { parseFleet, type Fleet } from "@/lib/agents/fleet";
+import {
+  parseAgentList,
+  parseAgentSummary,
+  type AgentQuery,
+  type AgentSummary,
+  type AgentSwitchState,
+} from "@/lib/agents/types";
+import { ApiError, type Transport } from "@/lib/client/transport";
 
-// The agent calls (agents-playbooks.md), through Play's /api/agents routes.
+// The agent calls (agents-playbooks.md), through Play's /api/agents and /api/fleet routes.
 
 const DEFAULT_AGENT_LIMIT = 100;
 
@@ -16,11 +23,35 @@ function agentsSearch(query: AgentQuery): string {
   return params.toString();
 }
 
+export function agentPath(id: number, suffix = ""): string {
+  return `/api/agents/${encodeURIComponent(String(id))}${suffix}`;
+}
+
+function readAgent(body: unknown): AgentSummary {
+  const parsed = parseAgentSummary(body);
+  if (!parsed) throw new ApiError(200, "Automatos sent an agent Play can't read");
+  return parsed;
+}
+
 export function agentEndpoints({ callJson }: Transport) {
   return {
     /** The workspace's agents, Auto included by default. */
     async listAgents(query: AgentQuery = {}): Promise<readonly AgentSummary[]> {
       return parseAgentList(await callJson(`/api/agents?${agentsSearch(query)}`));
+    },
+
+    async getAgent(id: number): Promise<AgentSummary> {
+      return readAgent(await callJson(agentPath(id)));
+    },
+
+    /** Live status for every agent, one call. The core leaves Auto out. */
+    async getFleet(): Promise<Fleet> {
+      return parseFleet(await callJson("/api/fleet"));
+    },
+
+    /** Switch an agent on ("active") or off ("inactive"); sends {status} and nothing else. */
+    async setAgentStatus(id: number, status: AgentSwitchState): Promise<AgentSummary> {
+      return readAgent(await callJson(agentPath(id), { method: "PUT", body: JSON.stringify({ status }) }));
     },
   };
 }

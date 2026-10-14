@@ -112,3 +112,4 @@ These are for Gerard to revisit, not deferred decisions:
 2. Studio's unused `useProcessingStatus` hook would POST `/reprocess` every 5 s if anything used it. Delete it in the core?
 3. The Missions routes do blocking database work on the event loop (the AGENTS.md rule). Worth a core fix before more interfaces poll them?
 4. The board links Tasks to Missions and Deliverables by id only. Embed titles in the list response?
+5. The fleet (`GET /api/v1/fleet`) leaves Auto out on purpose, so his lead card on the Agents page always reads idle. Should the fleet (or a small route of its own) say what Auto has in hand, so the mascot can show him working?

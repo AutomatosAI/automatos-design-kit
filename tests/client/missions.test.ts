@@ -71,7 +71,23 @@ describe("mission reads", () => {
     const agents = await createApiClient(fetchMock).listAgents();
 
     expect(lastCall(fetchMock).path).toBe("/api/agents?include_workspace_system=true&limit=100");
-    expect(agents).toEqual([{ id: 1, name: "Auto", slug: null, status: null, isSystemAgent: true }]);
+    expect(agents).toEqual([
+      {
+        id: 1,
+        name: "Auto",
+        slug: null,
+        status: null,
+        isSystemAgent: true,
+        description: null,
+        jobTitle: null,
+        agentType: null,
+        category: null,
+        runtime: "api",
+        provider: null,
+        model: null,
+        unavailable: null,
+      },
+    ]);
   });
 });
 
