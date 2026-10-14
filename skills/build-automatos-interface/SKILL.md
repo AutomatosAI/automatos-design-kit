@@ -1,6 +1,6 @@
 ---
 name: build-automatos-interface
-description: Build a separate web interface on a local (open-source) Automatos install — chat with Auto over the streaming API, show Deliverables, and drive the Auto mascot from real stream events. Use when asked to build, extend or debug a UI that talks to the Automatos API from outside the core repo.
+description: Build a separate web interface on a local (open-source) Automatos install — chat with Auto over the streaming API, Missions, Agents, Playbooks, Knowledge, the Command Center board, Analytics and Deliverables, with the Auto mascot driven by real events. Use when asked to build, extend or debug a UI that talks to the Automatos API from outside the core repo.
 ---
 
 # Build an Automatos interface
@@ -37,7 +37,13 @@ Never use `ORCHESTRATOR_API_KEY`. It is one admin key for the whole install, and
    - `references/chat-stream.md`: the chat request and the line-by-line stream format, with every event type.
    - `references/endpoints.md`: workspace, conversations, Deliverables, cancel.
    - `references/mascot-states.md`: how stream events choose the mascot animation, and the switching rules.
-2. **Proxy routes first:** `/api/chat` (streaming), then plain JSON pass-throughs for the other endpoints you use. Forward the method, the JSON body, `X-Workspace-ID` and only the query keys each route needs (an allowlist: a passed-through `workspace_id` would pick the workspace). Return the backend status code unchanged.
+   - `references/missions.md`: Missions, their states, live progress (polling) and turning a chat suggestion into a Mission.
+   - `references/agents-playbooks.md`: Agents, live agent status from the fleet, and Playbooks with their runs.
+   - `references/knowledge.md`: documents: upload (streamed through, processed in-request), status, search, delete.
+   - `references/board-analytics.md`: the Command Center board (Tasks, move rules, the live stream, Needs you) and Analytics.
+2. **Proxy routes first:** `/api/chat` (streaming), then plain JSON pass-throughs for the other endpoints you use. Forward the method, the JSON body, `X-Workspace-ID` and only the query keys each route needs (an allowlist: a passed-through `workspace_id` would pick the workspace). Return the backend status code unchanged. Two routes need special handling:
+   - **Streams:** the board's server-sent events (`/api/v1/tasks/stream`) pass through unbuffered.
+   - **Uploads:** document uploads pass the raw multipart body and its `content-type` through untouched, with a long timeout.
 3. **Stream parser second**, as a pure function from lines to typed events, with unit tests over recorded fixtures. Studio's parser in `automatos-ai/frontend/lib/chat/hooks.ts:296-560` is the reference. It handles two line formats; see the stream reference.
 4. **Mascot state machine third**, as a pure reducer from events to state. Test it with the same fixtures.
 5. **UI last.** The assets are in `public/auto/` (see the mascot reference for the file names).
@@ -59,6 +65,11 @@ The local edition has no login, and a request with no credentials is the super a
 - **Don't let the backend's answers run on your origin.** Some routes return files (thumbnails, workspace files) with their own content type. Add `X-Content-Type-Options: nosniff` and `Content-Security-Policy: default-src 'none'; sandbox` to every proxied answer, so an HTML or SVG file opened in a tab can't run script as your UI.
 - **Never let the browser name a backend path.** A route that serves a Deliverable's file reads the path from the Deliverable on the server (see `references/endpoints.md`).
 - Never copy incoming headers to the backend wholesale; build the outgoing ones (`Content-Type`, `Accept`, `X-Workspace-ID`).
+- **The one multipart route (document upload)** can't use the JSON-only rule, and another site's form can post `multipart/form-data` without a preflight. So that route also requires a custom request header (for example `X-Play-Upload: 1`). A custom header forces a CORS preflight, which another site can't pass, and your own page sets it on its `fetch`. Keep the Host and `Sec-Fetch-Site` checks as well.
+
+## Poll gently
+
+The backend's Missions routes do blocking database work on its event loop. Poll only what is on screen, only while the tab is visible, and never faster than Studio does: Mission detail and the fleet every 10 s, lists every 30 s, analytics never (load on open). The board has a live stream, so use that instead of polling.
 
 ## Known gaps in the core (don't work around them silently)
 
@@ -69,6 +80,11 @@ These are real limits of the backend today. If your UI needs one, raise it with 
 - No `searching` event: a web search is an ordinary `tool-start`, so the mascot reference matches on tool names.
 - No download route of its own for Deliverables. Text comes inline from `GET /api/deliverables/{id}?include_content=true`; a binary file's bytes come from its `preview_url` (`/api/workspaces/{ws}/files/raw?path=…`), which your server must proxy (see `references/endpoints.md`).
 - A Mission proposed in chat arrives as a `mission-suggestion` event. It isn't created until something calls `POST /api/missions`.
+- A Mission in `awaiting_human` has no action route (the review route was removed): the only option is Cancel.
+- Agent `/execute` is a stub. Have agents work through chat (`agentId`) or a board Task.
+- A Playbook run is not a Mission: it creates a run record and a board Task.
+- Mission tasks carry `assigned_agent_id` but no agent name: join with the agents list.
+- A board Task links to its Mission and Deliverables by raw ids only. Showing their titles costs one extra call per Task, so fetch them on the detail view, not for the whole board.
 
 ## Verify
 

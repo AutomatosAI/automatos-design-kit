@@ -1,0 +1,141 @@
+{
+  "project": "Automatos Play",
+  "branchName": "ralph/play-looks",
+  "baseBranch": "ralph/play-pilot",
+  "prBase": "ralph/play-pilot",
+  "prTitle": "feat: Looks PoC with Ember (PRD-002)",
+  "prdDoc": "docs/prd/PRD-002-LOOKS-POC.md",
+  "designDocs": [
+    "docs/design/ember/README.md",
+    "docs/design/ember/Automatos Play Looks.dc.html",
+    "docs/design/ember/Automatos Play Ember.dc.html",
+    "docs/design/ember/Mascot.dc.html",
+    "docs/design/ember/screens/ (looks-01.png is the Looks page; ember-01..13.png are the 9 screens top to bottom, with the style sheet on the last panels)",
+    "docs/design/command/README.md and docs/design/command/looks.json (for the shared Look format only)"
+  ],
+  "description": "PRD-002: Looks PoC. One Look format (catalogue keys only), Ember as the default Look across every screen, a 'Make it yours' Looks editor, saved/exported/imported Looks, Auto following the Look, and a live style page computed from the active Look. Stacked on the PRD-001 pilot. Zero changes to automatos-ai.",
+  "userStories": [
+    {
+      "id": "L-001",
+      "title": "The Look format and catalogue",
+      "description": "As a designer, I want one precise format for a Look so Looks can be saved, shared and checked.",
+      "acceptanceCriteria": [
+        "All criteria of L-001 in docs/prd/PRD-002-LOOKS-POC.md: catalogue.ts (4 grounds, 6 accents with ink, 4 type styles, 4 shells with filter, 4 lights, values exactly as in the Ember Looks prototype), the fixed error #FF6B6B, types.ts (Look v1), presets.ts (Ember default, Obsidian, Aurora, Workshop, Daylight), and validate.ts (pure, typed result, rejects unknown keys, values outside the catalogue, glow outside 0–40, wrong schema, name/sub over 40 chars)",
+        "lib/looks/contrast.ts with the WCAG luminance/contrast helpers and readableOn() as specified in L-002 of the PRD (built here because the L-001 tests need it)",
+        "Tests: every preset validates; each rejection case; contrast for all 24 ground x accent pairs (text and text2 on bg and surface, ink on accent, readableOn(accent) and readableOn(error) on bg and surface, all >= 4.5:1)",
+        "docs/SKILL-GAPS.md gains a 'Design gaps' entry: raw accent and error colours as text fail AA on Paper (molten 2.49:1, error 2.41:1), fixed by the derived text colours",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Built lib/looks/{catalogue,types,presets,validate,contrast}.ts + tests/looks/*. Next stories: use validateLook() for every Look from storage/import, isKeyOf() for catalogue lookups, readableOn(colour, bg, surface, text) for --accent-text/--error-text (molten on Paper = #AA4C1C, error = #A54B49; PRD's 'about #A84A1B/#A84A49'). TypeStyle uses letterSpacing and sizes {hero, brand, status, card}; Shell uses filter."
+    },
+    {
+      "id": "L-002",
+      "title": "Applying a Look",
+      "description": "As a user, I want the whole app to change when I change the Look.",
+      "acceptanceCriteria": [
+        "All criteria of L-002 in the PRD: lookToCssVars (including --accent-text and --error-text from readableOn), LookProvider (applies vars on the root, exposes look/setLook/saved/saveLook/deleteLook/renameLook, localStorage keys automatos-play.looks and automatos-play.look, every access in try/catch), and the pre-paint inline script in app/layout.tsx",
+        "prefers-reduced-motion is respected by the provider (a --motion variable or class the CSS uses to stop loops)",
+        "Tests: lookToCssVars for Ember; the provider switches variables and persists; corrupt or missing storage falls back to Ember",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Built lib/looks/{css,storage,store,prepaint}.ts, components/looks/{LookProvider,useLookStore} and the <head> script in app/layout.tsx. Vars: --ground-{bg,surface,text,text-2,line,chip,panel}, --accent/-ink/-text/-line/-fill, --error/-text, --display-{family,style,weight,tracking,hero,brand,status,card}, --auto-{light,shell,shell-filter}, --glow, plus --motion and data-motion on <html>. useLook() (Ember + warnings outside a provider). automatos-play.look holds the active Look object (id + values, so an unsaved edit survives reload), not a bare id; deleting the active saved Look switches to Ember."
+    },
+    {
+      "id": "L-003",
+      "title": "Ember as the default, everywhere",
+      "description": "As a user, I want Play to look like Ember out of the box.",
+      "acceptanceCriteria": [
+        "All criteria of L-003 in the PRD: theme.css maps colour and display-type tokens to Look variables, the Ember fonts via @fontsource (no next/font/google), the Ember rules (serif display only and never below 19px, the radii, the glow crossfade, message rise, reduced motion), and every existing screen restyled to Ember",
+        "Text that shows the accent or error colour uses --accent-text / --error-text; fills, rings and icons use --accent / --error",
+        "A test scans app/ and components/ (.css, .tsx, .ts) for hex colour literals and fails on any outside lib/looks/catalogue.ts (test files and lib/looks/ excluded)",
+        "Existing tests from PRD-001 still pass (update selectors only where markup changed, never weaken an assertion)",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "theme.css now maps every colour/display token to Look vars (--color-bg/surface/text/text-2/text-3/accent/accent-ink/accent-text/error/error-text/light/dusk/sheet*, lines and tints via color-mix); Ember fonts via @fontsource; all 9 screens restyled (cream secondary buttons, accent only for the one primary, serif display from --text-hero/status/title/brand). New: --sheet-bg/-text/-accent (Deliverable page), pageGlow() + data-glow on Auto's stage driving body::before/after in globals.css. L-006: ring tones are mapped in mascot.module.css (calm=light, busy=accent, coral=error, dusk=derived) but the shell filter and ring tests are yours."
+    },
+    {
+      "id": "L-004",
+      "title": "The Looks page",
+      "description": "As a user, I want to pick a look and tweak it, and see the result straight away.",
+      "acceptanceCriteria": [
+        "All criteria of L-004 in the PRD: app/looks/page.tsx and a 'Look' nav item laid out as docs/design/ember/screens/looks-01.png (heading with the Look name and '· edited', live preview with Auto, the Looks row, the editor panel with accent, background, type, shell, light and glow), Save as new look, Reset",
+        "Every control re-themes the whole app at once, not only the preview",
+        "Keyboard reachable; swatches announce their names; the glow slider has a label and value text",
+        "Component tests: picking a preset changes --accent on the root; editing shows '· edited'; Save adds 'My look 1'; Reset restores the saved values",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Built app/looks/page.tsx -> components/looks/LooksScreen (heading + role=status 'Ember · edited', LookPreview, LooksRow, LookEditor/LookOptions) and lib/looks/editor.ts (baseLook, isEdited, statusLine, withValues, clampGlow, glowLabel, newLookName, freshLookId 'look-N', asNewLook). 'Look' nav item + phone tab (/looks). L-005: reuse freshLookId/newLookName for duplicate/import; add manage actions to LooksRow cards or the editor. L-007: link 'See the style sheet' from LooksScreen's header."
+    },
+    {
+      "id": "L-005",
+      "title": "Manage, export and import Looks",
+      "description": "As a designer, I want to keep, share and load Looks as files.",
+      "acceptanceCriteria": [
+        "All criteria of L-005 in the PRD: rename, duplicate and delete saved Looks (presets duplicate only); Export downloads <name>.look.json and offers Copy JSON; Import from pasted JSON or a .json file through the validator, with plain-word errors and nothing added on failure; files over 1 MB rejected before parsing",
+        "Imported text is never rendered as HTML",
+        "Tests: export then import round-trips to an equal Look (new id); an invalid file shows errors and adds nothing; the 1 MB limit",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "Built lib/looks/transfer.ts (lookJson, lookFileName, importLook, importLookFile; 1 MB limit checked before FileReader/JSON.parse; fresh id via freshLookId), editor.ts copyName/asDuplicate/isSavedLook, and components/looks/{LookManager ('This look': Rename/Delete for saved Looks, Duplicate (active Look, edits kept) for any, Export, Copy JSON), LookImport (paste + .json file), LookNotice, download.ts} under the Looks row. No mock exists for these: styled with the editor's outlined buttons. L-007/L-008: reuse lookJson for anything that shows a Look's JSON."
+    },
+    {
+      "id": "L-006",
+      "title": "Auto follows the Look",
+      "description": "As a user, I want Auto's shell and light to match my Look.",
+      "acceptanceCriteria": [
+        "All criteria of L-006 in the PRD: the shell filter on the mascot video and PNG; ring colours (light for calm states, accent for busy states, error for oops, a dusk colour derived from the ground for sleeping and lost); Auto's light used only for the ring, eye glow and 'connected'",
+        "The ring-colour choice is a pure tested function of (state, look)",
+        "Tests: ring colour per state group under Ember and under Aurora; the filter for each of the 4 shells",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Built lib/mascot/ring.ts (ringTone: light/accent/error/dusk/quiet; RING_VARS tone -> Look variable; ringColour(state, look) -> hex), --auto-dusk from duskOf(ground) in groundVars (theme --color-dusk reads it), --filter-shell token on .figure/.probing (video + PNG). ringTone moved out of lib/mascot/media.ts; data-ring values renamed (mint/bronze/coral/violet -> light/accent/error/quiet). L-007: draw the 12-state mascot slot with ringColour(state, look)."
+    },
+    {
+      "id": "L-007",
+      "title": "The live style page",
+      "description": "As a designer, I want to see exactly what my Look produces, with the numbers.",
+      "acceptanceCriteria": [
+        "All criteria of L-007 in the PRD: app/looks/style/page.tsx linked from the Looks page; Colour (every token with name, hex, role, plus live contrast ratios with AA pass/fail as glyph plus word, including --accent-text and --error-text with a note when darkened), Type specimens, Spacing and radii drawn, the Components gallery (buttons, chips, tool lines, receipts, Deliverable card, message box, mascot slot in all 12 states with ring colours), Motion notes with a play toggle; Copy tokens as a :root block",
+        "Every value is computed from the active Look and redraws when it changes",
+        "Component tests: under Ember the page shows text/bg 16.36:1, text2/bg 8.54:1 and ink/molten 6.74:1 (each within 0.05); switching to Daylight changes the bg swatch and shows an accent text colour different from #FF6A1F",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Built app/looks/style/page.tsx -> components/looks/style/StyleScreen (Colour swatches for all 21 colour vars + live contrast table with glyph+word AA verdict and 'darkened for reading on Paper' notes, Type, Spacing/Radii, Components gallery drawn with the chat/composer module classes, 12 mascot slots with ringColour, Motion toggle; Copy tokens = rootBlock) over pure lib/looks/style.ts. 'See the style sheet' link in LooksScreen's header. L-008: document /looks/style and the numbers it shows (contrastChecks labels, COLOUR_TOKENS roles)."
+    },
+    {
+      "id": "L-008",
+      "title": "Docs for designers",
+      "description": "As a designer or a future Marketplace reviewer, I want the format explained.",
+      "acceptanceCriteria": [
+        "All criteria of L-008 in the PRD: docs/LOOKS.md (what a Look is, the catalogue, the JSON format with an example, validation rules, the contrast guarantee and derived text colours, why keys and not raw colours, how Command's looks.json maps to v1 as interface 'command', Marketplace notes for the later core PRD)",
+        "docs/RUN-CHECKLIST.md gains a 'Looks' section: switch each preset, edit, save, reload with no flash, export, import, the style page numbers, Daylight readability, Auto's shell tint in Chrome and Safari",
+        "README mentions the Looks page and the style page",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "Wrote docs/LOOKS.md (catalogue tables, v1 format + Ember example, validation and where it runs, storage keys, CSS vars, contrast guarantee with the derived Paper text colours, style page numbers, Command looks.json -> v1 'command' mapping, Marketplace notes), a Looks section in docs/RUN-CHECKLIST.md, README + CLAUDE.md pointers. tests/looks/docs.test.ts keeps LOOKS.md in step with the catalogue (Ember block == lookJson(EMBER), derived hexes from lookToCssVars)."
+    }
+  ]
+}
