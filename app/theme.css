@@ -39,6 +39,7 @@
   --color-reply: #e8e4ff; /* Auto's reply text */
   --color-receipt: #d6d1f2; /* receipt lines */
   --color-card: #1e1946; /* Deliverable thumbnail ground */
+  --color-card-top: #241f52; /* Deliverable card gradient, top */
   --color-bronze-soft: #f7c9a6; /* running tool line text */
   --color-white: #ffffff;
 
@@ -65,6 +66,10 @@
   --tint-coral: rgba(255, 107, 122, 0.08);
   --tint-coral-line: rgba(255, 107, 122, 0.45);
   --tint-bar: rgba(18, 15, 42, 0.9);
+  --tint-bronze-track: rgba(240, 122, 46, 0.3); /* the running tool spinner's track */
+  --tint-mint-line: rgba(75, 240, 183, 0.45); /* the new Deliverable card's border */
+  --tint-mint-faint: rgba(75, 240, 183, 0.08);
+  --line-light: rgba(255, 255, 255, 0.2); /* the Stop button's edge */
 
   /* Mascot rings (mascot.dc.html): mint calm, bronze busy, coral help, dusk asleep, violet loading */
   --ring-mint-glow: rgba(75, 240, 183, 0.35);
@@ -97,6 +102,9 @@
   --text-h2: 600 22px/1.2 var(--font-display);
   --text-title: 600 20px/1.2 var(--font-display);
   --text-caption: 600 19px/1.2 var(--font-display); /* what Auto is doing, under Auto */
+  --text-caption-sm: 600 15px/1.2 var(--font-display); /* the same, beside Auto on phones */
+  --text-speaker: 600 14px/1.2 var(--font-display); /* the "Auto" label over a reply */
+  --text-card-title: 600 18px/1.2 var(--font-display); /* Deliverable card title */
   --text-bar-title: 600 17px/1.2 var(--font-display); /* phone top bar title */
   --text-bar-link: 600 15px/1 var(--font-text); /* phone top bar links */
   --text-button: 600 16px/1 var(--font-display);
@@ -124,6 +132,8 @@
   --radius-tool: 10px;
   --radius-button: 12px;
   --radius-card: 16px;
+  --radius-panel: 14px; /* the receipts box */
+  --radius-cursor: 2px;
   --radius-bubble: 18px 18px 6px 18px;
   --radius-round: 999px;
 
@@ -131,6 +141,7 @@
   --shadow-primary: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 6px 18px -6px rgba(240, 122, 46, 0.6);
   --shadow-mint-glow: 0 0 10px rgba(75, 240, 183, 0.5);
   --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
+  --shadow-deliverable: 0 0 0 4px var(--tint-mint-faint), 0 18px 40px -16px rgba(75, 240, 183, 0.35);
   --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint);
 
   /* Motion */
@@ -144,6 +155,10 @@
   --mascot-column-width: 320px;
   --mascot-size: 220px; /* Auto's stage height in the mascot column */
   --mascot-size-large: 360px; /* first open (mock 06) */
+  --mascot-size-small: 84px; /* beside the caption above the message box on phones */
+  --bubble-max: 520px; /* your messages */
+  --deliverable-card-max: 440px; /* the Deliverable card in a reply */
+  --composer-max-height: 200px; /* the message box grows to this, then scrolls */
   --header-height: 68px;
   --phone-bar-height: 56px;
   --content-max: 720px;

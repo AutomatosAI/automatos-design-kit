@@ -27,8 +27,8 @@ export interface AutoMascotProps {
   readonly caption?: string;
   /** A second caption line, e.g. the search query. */
   readonly detail?: string;
-  /** large: the first-open introduction (mock 06). */
-  readonly size?: "regular" | "large";
+  /** large: the first-open introduction (mock 06); small: the row above the message box on phones (mock 01 phone). */
+  readonly size?: "small" | "regular" | "large";
 }
 
 export function AutoMascot({ state, onClipEnded, caption, detail, size = "regular" }: AutoMascotProps) {

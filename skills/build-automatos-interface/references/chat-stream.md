@@ -52,7 +52,7 @@ The frames are written by Python's `json.dumps`, so the wire is ASCII: non-ASCII
 | `narration` | `data: {text, retracted?}` | the text just streamed was narration, not the answer; `retracted` means it is replaced |
 | `tool-start` | `data: {toolCallId, toolName, input}` | a tool call began |
 | `tool-end` | `data: {toolCallId, toolName, success, error?, durationMs?, summary?, skipped?, waiting?}` | a tool call ended; `waiting: true` means Auto is waiting on the user (an ask) |
-| `tool-data` | `data: {…}` | the tool's result payload |
+| `tool-data` | `data: {…}` | the tool's result payload (`frontend_data` from `modules/tools/formatting/result_formatter.py`). A made document comes as `data.generated_document: {deliverable_id, title, filename, format, download_url, …}`; see "Deliverables in a turn" |
 | `receipts` | `data: {receipts: [{action, kind, status, subject, effect, link, reason}], model?, above?}` | what Auto actually did this turn; `status` is `done`, `refused`, `skipped` or `waiting` (`consumers/chatbot/receipts.py:64`). `above` is a list of lines the reply shows above its text. Sent once per turn, just before `finish`, even when the list is empty. **The same data also arrives first on a `tool-data` frame as `data.receipts`** (`receipts_frames`), so don't count it twice |
 | `mission-suggestion` | `data: {goal, complexity, agent_id}` | Auto proposes a Mission. Nothing is created until `POST /api/missions` |
 | `workflow-update` | `data: {workflowId, status, currentStep?, progress?}` | a running workflow moved |
@@ -67,6 +67,10 @@ The frames are written by Python's `json.dumps`, so the wire is ASCII: non-ASCII
 | `finish` | `finishReason` (top level) | the turn is over |
 
 Treat any other `type` as unknown and ignore it.
+
+## Deliverables in a turn
+
+A receipt's `link` is the Studio page of the card or agent a call touched (`/command-center?tab=board&task_id={id}`, `/agents?agent={id}`: `_link` in `consumers/chatbot/receipts.py`). It never names a Deliverable, and those pages don't exist in an outside UI. To show a Deliverable Auto made this turn, read the `tool-data` frame of the document call: `data.generated_document.deliverable_id` (with `title` and `format`). The core files a non-social generated document with `artifact_type` `document` (`register_as_deliverable` in `modules/documents/generation_service.py`). Check the id before putting it in a link.
 
 ## Cancel
 

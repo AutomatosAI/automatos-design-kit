@@ -1,0 +1,451 @@
+/* The conversation (mocks 01 and 02): bubbles, Auto's replies, tool lines, receipts, the Deliverable card. */
+
+.messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 var(--space-6);
+}
+
+.messageList {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-5) 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.userItem {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.replyItem {
+  display: flex;
+}
+
+/* Messages rise 12px and fade in (mock 01 note). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.bubble {
+  max-width: var(--bubble-max);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-bubble);
+  background: var(--color-raised);
+  color: var(--color-text);
+  font: var(--text-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  animation: rise var(--duration-message) var(--ease-out);
+}
+
+.reply {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  animation: rise var(--duration-message) var(--ease-out);
+}
+
+.speaker {
+  margin: 0;
+  font: var(--text-speaker);
+  color: var(--color-mint);
+}
+
+.above {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.activity {
+  margin: 0;
+  font: var(--text-small);
+  font-style: italic;
+  color: var(--color-text-3);
+}
+
+.notice {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.error {
+  margin: 0;
+  display: flex;
+  gap: var(--space-2);
+  font: var(--text-small);
+  color: var(--color-coral);
+}
+
+/* Marks: mint done, coral failed, bronze waiting, muted skipped or stopped. */
+
+.mark {
+  flex: none;
+  color: var(--color-mint);
+}
+
+[data-tone="failed"] .mark,
+.error .mark {
+  color: var(--color-coral);
+}
+
+[data-tone="waiting"] .mark {
+  color: var(--color-bronze);
+}
+
+[data-tone="muted"] .mark {
+  color: var(--color-text-3);
+}
+
+/* Tool lines */
+
+.toolLines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.toolLine {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-tool);
+  border: 1px solid var(--line);
+  background: var(--tint-tool);
+  font: var(--text-mono);
+  color: var(--color-text-2);
+  overflow-wrap: anywhere;
+}
+
+.toolLine[data-tone="running"],
+.toolLine[data-tone="waiting"] {
+  border-color: var(--tint-bronze-line);
+  background: var(--tint-bronze);
+  color: var(--color-bronze-soft);
+}
+
+.toolLine[data-tone="failed"] {
+  border-color: var(--tint-coral-line);
+  background: var(--tint-coral);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-top: 3px;
+  border-radius: var(--radius-round);
+  border: 2px solid var(--tint-bronze-track);
+  border-top-color: var(--color-bronze);
+  animation: spin 0.8s linear infinite;
+}
+
+/* The answer */
+
+.answer {
+  width: 100%;
+  font: var(--text-body);
+  color: var(--color-reply);
+  overflow-wrap: anywhere;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol {
+  margin: 0 0 var(--space-3);
+}
+
+.markdown strong {
+  color: var(--color-white);
+}
+
+.markdown a {
+  color: var(--color-mint);
+}
+
+.imageAlt {
+  font-style: italic;
+  color: var(--color-text-2);
+}
+
+.markdown code {
+  font: var(--text-mono);
+}
+
+.markdown pre {
+  overflow-x: auto;
+  padding: var(--space-3);
+  border-radius: var(--radius-tool);
+  background: var(--color-surface);
+}
+
+.markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 var(--space-3);
+}
+
+.markdown th,
+.markdown td {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--line);
+  text-align: left;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 9px;
+  height: 18px;
+  margin-left: 3px;
+  vertical-align: -3px;
+  border-radius: var(--radius-cursor);
+  background: var(--color-mint);
+  animation: blink 1s steps(1) infinite;
+}
+
+/* What Auto did */
+
+.receipts {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--line);
+}
+
+.receiptsTitle {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+.receiptList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.receipt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font: var(--text-mono);
+  color: var(--color-receipt);
+  overflow-wrap: anywhere;
+}
+
+.receiptLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.receiptReason {
+  padding-left: var(--space-5);
+  color: var(--color-text-2);
+}
+
+.badge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-badge);
+  background: var(--tint-mint);
+  color: var(--color-mint);
+}
+
+[data-tone="failed"] .badge {
+  background: var(--tint-coral);
+  color: var(--color-coral);
+}
+
+[data-tone="waiting"] .badge {
+  background: var(--tint-bronze-badge);
+  color: var(--color-bronze-soft);
+}
+
+[data-tone="muted"] .badge {
+  background: var(--tint-hover);
+  color: var(--color-text-2);
+}
+
+/* The Deliverable card lands: drop and a small bounce (mock 02 note). */
+
+@keyframes land {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: none;
+  }
+}
+
+.deliverable {
+  width: 100%;
+  max-width: var(--deliverable-card-max);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--tint-mint-line);
+  background: linear-gradient(180deg, var(--color-card-top), var(--color-card));
+  box-shadow: var(--shadow-deliverable);
+  animation: land var(--duration-card) var(--ease-out);
+}
+
+.deliverableTile {
+  --kind: var(--color-type-document);
+  width: 72px;
+  height: 88px;
+  flex: none;
+  border-radius: var(--radius-tool);
+  border: 1px solid var(--line-strong);
+  background: linear-gradient(160deg, var(--kind), var(--color-card));
+}
+
+.deliverableText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.deliverableTitle {
+  margin: 0;
+  font: var(--text-card-title);
+  overflow-wrap: anywhere;
+}
+
+.deliverableMeta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.typeBadge {
+  --kind: var(--color-type-document);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-badge);
+  background: var(--tint-hover);
+  color: var(--kind);
+  font-weight: 600;
+}
+
+.deliverableTile[data-kind="report"],
+.typeBadge[data-kind="report"] {
+  --kind: var(--color-type-report);
+}
+
+.deliverableTile[data-kind="image"],
+.typeBadge[data-kind="image"] {
+  --kind: var(--color-type-image);
+}
+
+.deliverableTile[data-kind="spreadsheet"],
+.typeBadge[data-kind="spreadsheet"] {
+  --kind: var(--color-type-spreadsheet);
+}
+
+.deliverableTile[data-kind="slide"],
+.typeBadge[data-kind="slide"] {
+  --kind: var(--color-type-slides);
+}
+
+.openButton {
+  flex: none;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-button);
+  background: var(--color-bronze);
+  color: var(--color-bronze-ink);
+  font: var(--text-button-sm);
+  text-decoration: none;
+}
+
+@media (max-width: 767.98px) {
+  .messages {
+    padding: 0 var(--space-4);
+  }
+
+  .bubble {
+    max-width: 85%;
+  }
+
+  .deliverable {
+    gap: var(--space-3);
+  }
+
+  .deliverableTile {
+    width: 52px;
+    height: 64px;
+  }
+
+  .openButton {
+    padding: 0 var(--space-4);
+  }
+}

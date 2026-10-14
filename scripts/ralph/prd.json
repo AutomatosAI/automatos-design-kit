@@ -151,8 +151,8 @@
         "Tests pass"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/chat/ChatScreen.tsx (app/page.tsx renders it): MessageList, AutoReply, ToolLines, Receipts, DeliverableCard, Markdown (react-markdown 10.1.0 + remark-gfm 4.0.1, skipHtml, images as alt text), MessageBox (Enter sends, Shift+Enter newline, Send->Stop); Auto in the column >=1024 px, else a small row above the box (useMediaQuery). Receipts never link Deliverables in the core: the card comes from tool-data generated_document.deliverable_id (lib/chat/deliverables.ts, AutoMessage.deliverables) and links to /deliverables/<id>, a 404 until US-012. US-010 can add chatId/initialMessages props to ChatScreen and pass them to useChatTurn; US-012 can pass MessageBox initialDraft; US-013 replaces the plain error lines in AutoReply with the 'Hit a snag' box."
     },
     {
       "id": "US-010",

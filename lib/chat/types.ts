@@ -26,6 +26,14 @@ export type TurnStatus = "streaming" | "done" | "stopped" | "failed";
 
 export type MissionSuggestion = { readonly goal: string; readonly complexity: string | null };
 
+/** A Deliverable Auto made this turn: the chat shows it as a card with an Open button. */
+export type DeliverableRef = {
+  readonly id: string;
+  readonly title: string;
+  /** The Deliverable type as the shelf names it: document, image, video, … */
+  readonly kind: string;
+};
+
 export type UserMessage = { readonly id: string; readonly role: "user"; readonly text: string };
 
 export type AutoMessage = {
@@ -46,6 +54,8 @@ export type AutoMessage = {
   /** Friendly error sentences (the console has the detail). */
   readonly errors: readonly string[];
   readonly missionSuggestion: MissionSuggestion | null;
+  /** From a generate_document tool-data frame, or a receipt whose link names a Deliverable. */
+  readonly deliverables: readonly DeliverableRef[];
   readonly status: TurnStatus;
 };
 

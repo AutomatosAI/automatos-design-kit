@@ -12,6 +12,27 @@
   --size: var(--mascot-size-large);
 }
 
+/* Phones: Auto sits in a row with his caption beside him (mock 01 phone). */
+.auto[data-size="small"] {
+  --size: var(--mascot-size-small);
+  flex-direction: row;
+  gap: var(--space-3);
+}
+
+.auto[data-size="small"] .caption {
+  gap: var(--space-1);
+  padding: 0;
+  text-align: left;
+}
+
+.auto[data-size="small"] .captionTitle {
+  font: var(--text-caption-sm);
+}
+
+.auto[data-size="small"] .captionDetail {
+  font: var(--text-mono-sm);
+}
+
 .stage {
   --ring: var(--color-mint);
   --glow: var(--ring-mint-glow);

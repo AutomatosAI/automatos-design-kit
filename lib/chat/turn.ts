@@ -5,6 +5,7 @@
 import type { ChatTurnRequest } from "@/lib/client/types";
 import type { NarrationEvent, StreamEvent, ToolEndEvent, ToolStartEvent } from "@/lib/stream/types";
 
+import { deliverablesFromReceipts, withDeliverables, withToolData } from "./deliverables";
 import type { ActivityLine, AutoMessage, ChatMessage, ToolLine, ToolStatus, TurnStatus, UserMessage } from "./types";
 
 /** Studio keeps the newest six narration and progress lines per reply. */
@@ -27,6 +28,7 @@ export function autoMessage(id: string): AutoMessage {
     notices: [],
     errors: [],
     missionSuggestion: null,
+    deliverables: [],
     status: "streaming",
   };
 }
@@ -137,8 +139,13 @@ export function applyStreamEvent(message: AutoMessage, event: StreamEvent): Auto
       return onToolStart(message, event);
     case "tool-end":
       return onToolEnd(message, event);
+    case "tool-data":
+      return withToolData(message, event.data);
     case "receipts":
-      return { ...message, receipts: event.receipts, above: event.above };
+      return withDeliverables(
+        { ...message, receipts: event.receipts, above: event.above },
+        deliverablesFromReceipts(event.receipts),
+      );
     case "mission-suggestion":
       return { ...message, missionSuggestion: { goal: event.goal, complexity: event.complexity } };
     case "limit_reached":
