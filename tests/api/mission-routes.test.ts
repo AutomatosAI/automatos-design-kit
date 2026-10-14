@@ -25,7 +25,7 @@ const fetchMock = vi.fn<typeof fetch>();
 
 /** As lib/client sends it: X-Workspace-ID, and a JSON Content-Type on anything but GET. */
 function playRequest(path: string, init: RequestInit = {}): Request {
-  const json = (init.method ?? "GET") === "GET" ? {} : { "Content-Type": "application/json" };
+  const json: Record<string, string> = (init.method ?? "GET") === "GET" ? {} : { "Content-Type": "application/json" };
   return new Request(`http://localhost:3100${path}`, {
     ...init,
     headers: { "X-Workspace-ID": WORKSPACE_ID, ...json, ...(init.headers as Record<string, string>) },

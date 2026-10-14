@@ -54,7 +54,7 @@ export interface Shelf {
 
 const LOADING: ShelfState = { status: "loading" };
 
-export function useShelf(client: ApiClient, artifactType: string | null, refreshMs = SHELF_REFRESH_MS): Shelf {
+export function useShelf(client: ApiClient, artifactType: string | null, refreshMs: number = SHELF_REFRESH_MS): Shelf {
   const [state, setState] = useState<ShelfState>(LOADING);
   const [attempt, setAttempt] = useState(0);
   // Bumped on every new list (filter or retry): answers for an older one are dropped.
