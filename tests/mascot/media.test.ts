@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import { captionFor, clipUrls, pageGlow, posterUrl, ringTone, videoFormat } from "@/lib/mascot/media";
+import { captionFor, clipUrls, pageGlow, posterUrl, videoFormat } from "@/lib/mascot/media";
 import { MASCOT_STATES } from "@/lib/mascot/types";
 
 const UA = {
@@ -56,26 +56,6 @@ describe("clip files", () => {
     expect(clipUrls("searching", "webm")).toEqual({ video: "/auto/searching.webm", poster: "/auto/searching.png" });
     expect(clipUrls("oops", "mp4")).toEqual({ video: "/auto/oops.mp4", poster: "/auto/oops.png" });
     expect(posterUrl("idle")).toBe("/auto/idle.png");
-  });
-});
-
-describe("ringTone", () => {
-  it("colours the ring per state as mascot.dc.html does", () => {
-    const tones = Object.fromEntries(MASCOT_STATES.map((state) => [state, ringTone(state)]));
-    expect(tones).toEqual({
-      hello: "mint",
-      idle: "mint",
-      listening: "mint",
-      celebrate: "mint",
-      thinking: "bronze",
-      working: "bronze",
-      searching: "bronze",
-      reading: "bronze",
-      oops: "coral",
-      sleeping: "dusk",
-      lost: "dusk",
-      loading: "violet",
-    });
   });
 });
 

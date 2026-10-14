@@ -11,7 +11,8 @@ import { type SyntheticEvent, useCallback, useState } from "react";
 
 import { type MascotPlayer, useMascotPlayer } from "@/hooks/useMascotPlayer";
 import { usePrefersReducedMotion, useVideoFormat } from "@/hooks/useMediaPreferences";
-import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, ringTone, type VideoFormat } from "@/lib/mascot/media";
+import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, type VideoFormat } from "@/lib/mascot/media";
+import { ringTone } from "@/lib/mascot/ring";
 import type { MascotName } from "@/lib/mascot/types";
 
 import { MascotPlaceholder } from "./MascotPlaceholder";

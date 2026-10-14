@@ -18,6 +18,7 @@ describe("lookToCssVars", () => {
       "--ground-panel": "rgba(244,238,232,.025)",
       "--sheet-bg": "#F4EEE8",
       "--sheet-text": "#131110",
+      "--auto-dusk": "#5D5753",
       "--error": "#FF6B6B",
       "--error-text": "#FF6B6B",
       "--accent": "#FF6A1F",

@@ -11,7 +11,7 @@ import {
   type ShellKey,
   type TypeStyleKey,
 } from "./catalogue";
-import { readableOn, relativeLuminance } from "./contrast";
+import { mixHex, readableOn, relativeLuminance } from "./contrast";
 import { DEFAULT_LOOK } from "./presets";
 import type { Look } from "./types";
 
@@ -56,7 +56,19 @@ export function sheetOf(key: GroundKey): Sheet {
   return relativeLuminance(bg) < relativeLuminance(text) ? { bg: text, text: bg } : { bg: surface, text };
 }
 
-/** The ground's colours, the Deliverable sheet, and the fixed error with its readable text on this ground. */
+/** How far dusk sits from the ground's secondary text toward its bg (dusk = 45% text2, 55% bg). */
+export const DUSK_TOWARD_BG = 0.55;
+
+/**
+ * Auto's ring while he sleeps or is lost: a dim colour made from the ground, so it suits every
+ * Look and never borrows the light or the accent.
+ */
+export function duskOf(key: GroundKey): string {
+  const { bg, text2 } = GROUNDS[key];
+  return mixHex(text2, bg, DUSK_TOWARD_BG);
+}
+
+/** The ground's colours, the Deliverable sheet, Auto's dusk, and the fixed error with its readable text on this ground. */
 export function groundVars(key: GroundKey): CssVars {
   const ground = GROUNDS[key];
   const sheet = sheetOf(key);
@@ -70,6 +82,7 @@ export function groundVars(key: GroundKey): CssVars {
     "--ground-panel": ground.panel,
     "--sheet-bg": sheet.bg,
     "--sheet-text": sheet.text,
+    "--auto-dusk": duskOf(key),
     "--error": ERROR_COLOUR,
     "--error-text": readableOn(ERROR_COLOUR, ground.bg, ground.surface, ground.text),
   };

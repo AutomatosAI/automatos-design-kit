@@ -105,8 +105,8 @@
         "Tests pass"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built lib/mascot/ring.ts (ringTone: light/accent/error/dusk/quiet; RING_VARS tone -> Look variable; ringColour(state, look) -> hex), --auto-dusk from duskOf(ground) in groundVars (theme --color-dusk reads it), --filter-shell token on .figure/.probing (video + PNG). ringTone moved out of lib/mascot/media.ts; data-ring values renamed (mint/bronze/coral/violet -> light/accent/error/quiet). L-007: draw the 12-state mascot slot with ringColour(state, look)."
     },
     {
       "id": "L-007",

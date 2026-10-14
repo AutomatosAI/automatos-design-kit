@@ -128,14 +128,14 @@ describe("AutoMascot with the files", () => {
     rerender(<AutoMascot state="working" />);
     expect(screen.getByText("Working on it")).toBeInTheDocument();
     expect(videoOf(container).getAttribute("src")).toBe("/auto/idle.webm");
-    expect(ring()).toBe("mint");
+    expect(ring()).toBe("light");
 
     playTo(videoOf(container), 2.5);
     expect(videoOf(container).getAttribute("src")).toBe("/auto/idle.webm");
 
     playTo(videoOf(container), 4.95);
     expect(videoOf(container).getAttribute("src")).toBe("/auto/working.webm");
-    expect(ring()).toBe("bronze");
+    expect(ring()).toBe("accent");
   });
 
   it("swaps on ended when timeupdate missed the boundary", () => {
@@ -151,7 +151,7 @@ describe("AutoMascot with the files", () => {
     fireEvent.load(stillOf(container));
     rerender(<AutoMascot state="oops" />);
     expect(videoOf(container).getAttribute("src")).toBe("/auto/oops.webm");
-    expect(ring()).toBe("coral");
+    expect(ring()).toBe("error");
   });
 
   it("plays a loop again at the boundary when nothing is queued", () => {
@@ -198,7 +198,7 @@ describe("AutoMascot with reduced motion", () => {
     expect(container.querySelector("video")).toBeNull();
     rerender(<AutoMascot state="searching" />);
     expect(stillOf(container).getAttribute("src")).toBe("/auto/searching.png");
-    expect(ring()).toBe("bronze");
+    expect(ring()).toBe("accent");
   });
 });
 

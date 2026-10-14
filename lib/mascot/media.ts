@@ -1,7 +1,7 @@
-// Which clip files Auto plays, the ring colour under him and the caption that says
+// Which clip files Auto plays, the page glow behind him and the caption that says
 // what he is doing. Pure, so it is tested without a browser. Spec: the "Assets"
-// section of skills/build-automatos-interface/references/mascot-states.md; ring
-// colours from docs/design/mocks/mascot.dc.html; captions from the mocks.
+// section of skills/build-automatos-interface/references/mascot-states.md; captions
+// from the mocks. The ring's colour is lib/mascot/ring.ts.
 
 import type { MascotName } from "./types";
 
@@ -35,28 +35,6 @@ export function posterUrl(state: MascotName): string {
 
 export function clipUrls(state: MascotName, format: VideoFormat): ClipUrls {
   return { video: `${MASCOT_DIR}/${state}.${format}`, poster: posterUrl(state) };
-}
-
-/** Ring colours from mascot.dc.html: mint calm, bronze busy, coral help, dusk asleep, violet loading. */
-export type RingTone = "mint" | "bronze" | "coral" | "dusk" | "violet";
-
-const RING_TONES: Readonly<Record<MascotName, RingTone>> = {
-  hello: "mint",
-  idle: "mint",
-  listening: "mint",
-  celebrate: "mint",
-  thinking: "bronze",
-  working: "bronze",
-  searching: "bronze",
-  reading: "bronze",
-  oops: "coral",
-  sleeping: "dusk",
-  lost: "dusk",
-  loading: "violet",
-};
-
-export function ringTone(state: MascotName): RingTone {
-  return RING_TONES[state];
 }
 
 /**

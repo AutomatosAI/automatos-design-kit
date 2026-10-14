@@ -33,8 +33,9 @@
   font: var(--text-mono-sm);
 }
 
-/* The ring's colour by tone (mascot.dc.html): Auto's light when calm, the accent when busy,
-   coral when he needs help, dusk asleep or lost, the ground's secondary text while loading. */
+/* The ring's colour by tone (lib/mascot/ring.ts, PRD-002 L-006): Auto's light when calm, the
+   accent when busy, coral when he needs help, dusk asleep or lost, the ground's secondary text
+   while loading. tests/mascot/ring.test.ts checks these match RING_VARS. */
 .stage {
   --ring: var(--color-light);
   position: relative;
@@ -43,11 +44,11 @@
   height: var(--size);
 }
 
-.stage[data-ring="bronze"] {
+.stage[data-ring="accent"] {
   --ring: var(--color-accent);
 }
 
-.stage[data-ring="coral"] {
+.stage[data-ring="error"] {
   --ring: var(--color-error);
 }
 
@@ -55,7 +56,7 @@
   --ring: var(--color-dusk);
 }
 
-.stage[data-ring="violet"] {
+.stage[data-ring="quiet"] {
   --ring: var(--color-text-2);
 }
 
@@ -94,9 +95,12 @@
   }
 }
 
-/* The clip and the still share one box: square, standing on the ring. */
+/* The clip and the still share one box: square, standing on the ring. The Look's shell
+   tints them with a CSS filter (lib/looks/catalogue.ts SHELLS); the ring and eyes are drawn
+   by the page, so the filter never touches them. */
 .figure,
 .probing {
+  filter: var(--filter-shell);
   position: absolute;
   left: 50%;
   bottom: calc(var(--size) * 0.06);
