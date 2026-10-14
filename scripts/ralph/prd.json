@@ -43,8 +43,8 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built lib/looks/{css,storage,store,prepaint}.ts, components/looks/{LookProvider,useLookStore} and the <head> script in app/layout.tsx. Vars: --ground-{bg,surface,text,text-2,line,chip,panel}, --accent/-ink/-text/-line/-fill, --error/-text, --display-{family,style,weight,tracking,hero,brand,status,card}, --auto-{light,shell,shell-filter}, --glow, plus --motion and data-motion on <html>. useLook() (Ember + warnings outside a provider). automatos-play.look holds the active Look object (id + values, so an unsaved edit survives reload), not a bare id; deleting the active saved Look switches to Ember."
     },
     {
       "id": "L-003",

@@ -45,3 +45,12 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The same stop, set by LookProvider (data-motion on <html>, plus --motion: 0 for calc()). */
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
