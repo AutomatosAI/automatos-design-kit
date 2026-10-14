@@ -1,0 +1,363 @@
+/* The Command Center board (PRD-003 B-003): columns side by side that scroll sideways on
+   wide screens, one column at a time on phones (the switcher picks it). Cards and forms sit
+   on --color-surface, so the text pairs stay the listed ones; every colour is a Look
+   variable through the theme tokens. */
+
+/* Columns */
+
+.board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(var(--board-column-min), 1fr);
+  gap: var(--space-4);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+/* The phone's column switcher; wider screens show every column. */
+.switcher {
+  display: none;
+}
+
+.column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line-faint);
+}
+
+.column[data-drop="allowed"] {
+  border-color: var(--color-accent-text); /* takes the drop: the readable accent, 3:1 on every ground */
+  border-style: dashed;
+}
+
+/* Refused: the cards fade and the sentence (full strength) says why. */
+.column[data-drop="refused"] {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
+.column[data-drop="refused"] .taskList {
+  opacity: 0.45;
+}
+
+.columnTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+.columnCount {
+  font: var(--text-mono-sm);
+  letter-spacing: 0;
+  color: var(--color-text-3);
+}
+
+/* The Other column's heading opens it. */
+.columnToggle {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.dropAllowed,
+.dropRefused,
+.emptyColumn {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.dropAllowed {
+  color: var(--color-accent-text);
+}
+
+.taskList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Task cards */
+
+.task {
+  min-width: 0;
+}
+
+.task[draggable="true"] {
+  cursor: grab;
+}
+
+.task[aria-busy="true"] {
+  opacity: 0.7;
+}
+
+.taskCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.taskTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.taskNumber {
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.priority {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.priority[data-priority="urgent"],
+.priority[data-priority="high"] {
+  border-color: var(--tint-accent-line);
+  color: var(--color-accent-text);
+}
+
+.taskTitle {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font: var(--text-body);
+  font-weight: 600;
+}
+
+.agent {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tag {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.reason {
+  display: flex;
+}
+
+.cardNote {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cardButton,
+.moveOption,
+.approve {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.cardButton:hover,
+.moveOption:hover {
+  background: var(--tint-hover);
+}
+
+/* Approve: the cream button (the accent is the page's New Task). */
+.approve {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.cardButton:disabled,
+.approve:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.moveMenu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.moveList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rejectForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Forms: New Task and Reject's question */
+
+.newTask {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.fieldLabel {
+  font: var(--text-small);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.fieldRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.fieldGroup {
+  flex: 1 1 var(--board-column-min);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field,
+.textArea {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-body);
+}
+
+.textArea {
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+.field:focus-visible,
+.textArea:focus-visible {
+  outline: none;
+  border-color: var(--color-accent-text); /* a focus edge: the readable accent, 3:1 on every ground */
+  box-shadow: var(--focus-field);
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* The screen's one primary while the form is open (New Task hides). */
+.create {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.create:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Messages */
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Phones: one column at a time. */
+@media (max-width: 767.98px) {
+  .switcher {
+    display: block;
+  }
+
+  .board {
+    display: flex;
+    flex-direction: column;
+    overflow-x: visible;
+  }
+
+  .column[data-current="false"] {
+    display: none;
+  }
+}

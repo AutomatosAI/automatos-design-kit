@@ -44,7 +44,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     label: "Work",
     items: [
       { id: "missions", label: "Missions", href: "/missions", ready: true },
-      { id: "board", label: "Board", href: "/board", ready: false },
+      { id: "board", label: "Board", href: "/board", ready: true },
       { id: "playbooks", label: "Playbooks", href: "/playbooks", ready: false },
     ],
   },

@@ -191,6 +191,7 @@
   --shelf-card-min: 200px; /* the narrowest shelf card before the grid drops a column */
   --mission-card-min: 260px; /* the narrowest Mission card: room for two lines of goal */
   --agent-card-min: 260px; /* the narrowest agent card: name, role and the switch */
+  --board-column-min: 232px; /* the narrowest board column: a Task card with its number, title and chips */
   --agent-figure-min: 128px; /* the narrowest performance figure on an agent's page */
   --document-max: 760px; /* a Deliverable's page (mock 05) */
   --detail-panel-width: 300px; /* its side panel: Ask Auto, About, Sources */

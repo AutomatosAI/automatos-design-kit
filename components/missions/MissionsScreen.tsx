@@ -5,9 +5,10 @@
 // for a new one. The list is polled every 30 s while the tab is visible. No Auto here:
 // he follows a Mission on its own page, not the list (PRD-003 design rule 4).
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { type GridStatus, type LoadMore, GridPage } from "@/components/page/GridPage";
+import { useComposerToggle } from "@/hooks/useComposerToggle";
 import { type MissionListView, MORE_FAILED, useMissionList } from "@/hooks/useMissionList";
 import { api, type ApiClient } from "@/lib/client/api";
 import { emptyListMessage, MISSION_FILTERS, missionCount, type MissionFilter } from "@/lib/missions/list";
@@ -68,26 +69,6 @@ export function MissionsScreen({ client = api, now, intervalMs }: MissionsScreen
       )}
     </GridPage>
   );
-}
-
-/** The composer opens in the page; closing it puts focus back on New Mission. */
-function useComposerToggle() {
-  const [open, setOpen] = useState(false);
-  const button = useRef<HTMLButtonElement>(null);
-  const refocus = useRef(false);
-  const show = useCallback(() => setOpen(true), []);
-  const hide = useCallback(() => {
-    refocus.current = true;
-    setOpen(false);
-  }, []);
-
-  useEffect(() => {
-    if (open || !refocus.current) return;
-    refocus.current = false;
-    button.current?.focus();
-  }, [open]);
-
-  return { open, show, hide, button };
 }
 
 function gridStatus(list: MissionListView, filter: MissionFilter): GridStatus {
