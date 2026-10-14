@@ -174,8 +174,8 @@
         "Tests pass"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Routes app/api/documents/** (list allowlist skip/limit/status/file_type/search; [id] GET/DELETE, /content, /delete-impact via forwardDocument in lib/server/documents.ts, whole-number ids; search keeps query/limit/min_similarity/document_ids, backend 422 passes through; queue-status -> /queue/status). Upload: lib/server/upload.ts (X-Play-Upload: 1, Host+Sec-Fetch-Site via rejectOtherSites, multipart+boundary, Content-Length required, cap 50 MB + 64 KB framing, raw stream duplex half, 5 min). Download: lib/server/download.ts (https -> 302; http (local MinIO, the local-edition default) or backend path -> server fetch; non-JSON = backend's own bytes; all attachment + nosniff + CSP). P-010: shared constants in lib/documents/rules.ts (MAX_UPLOAD_BYTES, UPLOAD_HEADER/_VALUE, isDocumentId); no client methods yet, so add lib/client/documents.ts. A Play in a container can't reach a presigned http://localhost:9000 URL (P-011 docs)."
     },
     {
       "id": "P-010",

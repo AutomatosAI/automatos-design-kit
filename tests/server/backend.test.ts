@@ -6,6 +6,7 @@ import {
   getBackendUrl,
   readJsonObject,
   rejectCrossSite,
+  rejectOtherSites,
   workspaceHeader,
 } from "@/lib/server/backend";
 
@@ -82,6 +83,18 @@ describe("rejectCrossSite", () => {
 
   it("refuses a body that is not sent as JSON (a form or text/plain post)", () => {
     expect(rejectCrossSite(post("{}", { "Content-Type": "text/plain" }))?.status).toBe(415);
+  });
+});
+
+describe("rejectOtherSites", () => {
+  it("checks Host and Sec-Fetch-Site but not the body type (the multipart upload uses it)", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const multipart = { "Content-Type": "multipart/form-data; boundary=x" };
+
+    expect(rejectOtherSites(post("--x--", multipart))).toBeNull();
+    expect(rejectOtherSites(post("--x--", { ...multipart, "Sec-Fetch-Site": "cross-site" }))?.status).toBe(403);
+    expect(rejectOtherSites(new Request("http://attacker.example:3100/api/x", { method: "POST" }))?.status).toBe(403);
+    expect(rejectCrossSite(post("--x--", multipart))?.status).toBe(415);
   });
 });
 

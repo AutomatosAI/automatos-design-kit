@@ -9,7 +9,7 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 | GET | `/api/documents` | the list (pagination and filters as query params) |
 | GET | `/api/documents/{id}` | one document, with its `status`. **Use this to check processing**; see below |
 | GET | `/api/documents/{id}/content` | the full text, rebuilt from its chunks on every call. It can be large: fetch it only when the document is opened |
-| GET | `/api/documents/{id}/download?mode=url` | JSON with a download URL (a presigned S3 URL, or a local fallback). Open that URL in the browser; don't stream the bytes through your proxy |
+| GET | `/api/documents/{id}/download?mode=url` | with S3 storage: JSON `{url, filename}`, a presigned URL (`https:`, or `http:` for a local MinIO). With no storage: **the file's bytes themselves** (`application/octet-stream`, `Content-Disposition: attachment`), not JSON. See "Download" below |
 | GET | `/api/documents/{id}/delete-impact` | chunk, embedding and reference counts. Show them before confirming a delete |
 | DELETE | `/api/documents/{id}` | delete |
 | POST | `/api/documents/upload` | multipart; see below |
@@ -24,6 +24,10 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 - **Processing happens inside the upload request.** The response arrives after chunking and embedding finish, with `{document_id, filename, status, message}`, where `status` is `processed`, `failed` or `duplicate`. The same bytes again give `duplicate`; the same name with new bytes replaces the document and keeps its id.
 - **Your page sends a custom header** (e.g. `X-Play-Upload: 1`) with the upload, and your proxy refuses an upload without it. This is the CSRF guard for the one non-JSON route (see "Proxy safety" in SKILL.md).
 - **The proxy must stream the multipart body straight through:** pass the raw body and the `content-type` header (it carries the boundary) unchanged. Never parse and rebuild the form, and allow a long timeout (several minutes) because the backend is processing while it waits. Studio skips its own proxy for uploads for exactly this reason.
+
+## Download
+
+Ask for `mode=url` from your server and check the answer's `content-type`: JSON carries `{url, filename}`, anything else is the file. Never let the browser name a path or a URL. Send an `https:` URL to the browser as a redirect; fetch any other URL (an `http:` MinIO) on your server and stream it back, with `X-Content-Type-Options: nosniff`, the sandbox CSP and `Content-Disposition: attachment`, as you would the bytes the backend sends itself.
 
 ## Processing status
 

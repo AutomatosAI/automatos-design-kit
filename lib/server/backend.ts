@@ -40,14 +40,10 @@ function requestHostName(request: Request): string {
 }
 
 /**
- * The local edition has no login, so another site must not be able to drive Auto
- * through these routes. The Host allowlist stops DNS rebinding; browsers send
- * Sec-Fetch-Site on every request; a JSON Content-Type forces a CORS preflight
- * that this app never answers. Every request that can change something (any method
- * but GET or HEAD) must carry it, even with no body: a bodyless cross-site POST
- * (pause, cancel) needs no preflight otherwise.
+ * The Host and Sec-Fetch-Site half of rejectCrossSite, on its own for the one route
+ * that can't be JSON (the document upload), which brings its own custom-header guard.
  */
-export function rejectCrossSite(request: Request): Response | null {
+export function rejectOtherSites(request: Request): Response | null {
   const hostName = requestHostName(request);
   if (!allowedHosts().has(hostName)) {
     console.error(`[proxy] refused Host "${hostName}" (see PLAY_ALLOWED_HOSTS)`);
@@ -57,6 +53,20 @@ export function rejectCrossSite(request: Request): Response | null {
   if (site && site !== "same-origin" && site !== "none") {
     return jsonError(403, "Requests from other sites are not allowed");
   }
+  return null;
+}
+
+/**
+ * The local edition has no login, so another site must not be able to drive Auto
+ * through these routes. The Host allowlist stops DNS rebinding; browsers send
+ * Sec-Fetch-Site on every request; a JSON Content-Type forces a CORS preflight
+ * that this app never answers. Every request that can change something (any method
+ * but GET or HEAD) must carry it, even with no body: a bodyless cross-site POST
+ * (pause, cancel) needs no preflight otherwise.
+ */
+export function rejectCrossSite(request: Request): Response | null {
+  const otherSite = rejectOtherSites(request);
+  if (otherSite) return otherSite;
   const type = request.headers.get("content-type") ?? "";
   const mayChange = !READ_ONLY_METHODS.has(request.method.toUpperCase());
   if ((mayChange || request.body !== null) && !/^application\/json\b/i.test(type)) {
