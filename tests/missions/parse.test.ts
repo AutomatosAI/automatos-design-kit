@@ -131,6 +131,14 @@ describe("the Mission lists and figures", () => {
     expect(parseMissionList(null)).toEqual({ missions: [], total: 0, limit: 0, offset: 0 });
   });
 
+  it("reads a list row's task progress only when the row carries it", () => {
+    const progress = { total: 3, done: 2, active: 1, verified: 2, failed: 0, skipped: 0, all_terminal: false };
+    const list = parseMissionList({ missions: [MISSION, { ...MISSION, id: "m9", task_progress: progress }] });
+
+    expect(list.missions[0]?.taskProgress).toBeNull();
+    expect(list.missions[1]?.taskProgress).toMatchObject({ total: 3, done: 2, allTerminal: false });
+  });
+
   it("reads a page of events", () => {
     const page = parseMissionEventPage({ events: [EVENT], total: 120, limit: 50, offset: 50 });
 

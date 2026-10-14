@@ -40,6 +40,8 @@ export interface GridPageProps<F extends string> {
   readonly count?: string;
   /** The header's right side: the page's button, or Auto. */
   readonly actions?: ReactNode;
+  /** Under the header, in every state: a stats strip, an open composer. */
+  readonly lead?: ReactNode;
   readonly filters?: FilterChipsProps<F>;
   readonly search?: SearchBoxProps;
   readonly status: GridStatus;
@@ -53,6 +55,7 @@ export function GridPage<F extends string>({
   title,
   count,
   actions,
+  lead,
   filters,
   search,
   status,
@@ -69,6 +72,7 @@ export function GridPage<F extends string>({
           </div>
           {actions && <div className={styles.headerActions}>{actions}</div>}
         </header>
+        {lead}
         {(filters || search) && (
           <div className={styles.tools}>
             {filters && <FilterChips {...filters} />}

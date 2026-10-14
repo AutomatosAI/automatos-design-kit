@@ -52,6 +52,7 @@ export function parseMission(value: unknown): Mission | null {
     startedAt: text(value.started_at),
     completedAt: text(value.completed_at),
     updatedAt: text(value.updated_at),
+    taskProgress: isRecord(value.task_progress) ? parseTaskProgress(value.task_progress, []) : null,
   };
 }
 

@@ -11,6 +11,7 @@ import styles from "./page.module.css";
 
 export const LOADING = "Loading…";
 export const TRY_AGAIN = "Try again";
+export const PROGRESS = "Progress";
 
 export interface FilterOption<F extends string> {
   readonly value: F;
@@ -102,6 +103,45 @@ export function PageFailed({ error, retry }: PageFailedProps) {
       <button type="button" className={styles.primary} onClick={retry}>
         {TRY_AGAIN}
       </button>
+    </div>
+  );
+}
+
+export interface RunProgress {
+  readonly value: number;
+  readonly max: number;
+  /** Says it in words: "3 of 5 steps done". */
+  readonly label: string;
+}
+
+/** 0-100, whole; nothing done when there is nothing to do. */
+export function progressPercent(value: number, max: number): number {
+  if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return 0;
+  return Math.round((Math.min(Math.max(value, 0), max) / max) * 100);
+}
+
+export interface ProgressBarProps extends RunProgress {
+  /** The bar's name ("Progress"); the label says how far. */
+  readonly name?: string;
+}
+
+/** A bar with its words under it: the run page's header, a Mission card. */
+export function ProgressBar({ value, max, label, name = PROGRESS }: ProgressBarProps) {
+  const percent = progressPercent(value, max);
+  return (
+    <div className={styles.progress}>
+      <div
+        className={styles.progressTrack}
+        role="progressbar"
+        aria-label={name}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        aria-valuetext={label}
+      >
+        <div className={styles.progressFill} style={{ width: `${percent}%` }} />
+      </div>
+      <p className={styles.progressLabel}>{label}</p>
     </div>
   );
 }

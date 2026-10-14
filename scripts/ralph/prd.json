@@ -84,8 +84,8 @@
         "Tests pass"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/missions/MissionsScreen (GridPage + new `lead` slot: MissionComposer when open, MissionStatsStrip), MissionCard (StateChip, 2-line goal, ProgressBar from Mission.taskProgress, age + tokens), hooks/useMissionList (usePoll(LIST) first pages + Load more by offset; multi-state chips ask once per state and merge), pure helpers in lib/missions/list.ts (MISSION_FILTERS, missionHref, checkGoal, statFigures...). ProgressBar/progressPercent moved to components/page/parts.tsx (LiveRunPage re-exports). Core list rows carry no task_progress (detail only), so list bars show only if the core adds it; cost on cards is tokens_used."
     },
     {
       "id": "P-005",

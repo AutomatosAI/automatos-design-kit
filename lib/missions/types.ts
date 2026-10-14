@@ -57,6 +57,8 @@ export type Mission = {
   readonly startedAt: string | null;
   readonly completedAt: string | null;
   readonly updatedAt: string | null;
+  /** Counted from the task rows. GET /api/missions/{id} carries it; list rows have none today (null). */
+  readonly taskProgress: TaskProgress | null;
 };
 
 export type MissionTask = {
@@ -111,7 +113,7 @@ export type PermissionDenial = {
   readonly deniedAt: string | null;
 };
 
-export type MissionDetail = Mission & {
+export type MissionDetail = Omit<Mission, "taskProgress"> & {
   readonly tasks: readonly MissionTask[];
   /** The latest 50, newest first. */
   readonly recentEvents: readonly MissionEvent[];
