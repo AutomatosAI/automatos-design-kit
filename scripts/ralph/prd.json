@@ -157,8 +157,8 @@
         "Tests pass"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "app/agents/[id] -> components/agents/AgentDetailScreen (DetailPage, new optional `mascot` slot used only on Auto's page) over hooks/useAgentDetail (agent+workspace once, /performance once, fleet polled); lib/agents/detail.ts (AgentDetail with team/skills/tools, isAutoAgent, sessionLine) and lib/agents/performance.ts (placeholders dropped, cited from agent_endpoints.py). Chat with -> /?agent=<id> (lib/chat/params agentChatHref/agentParam) -> ChatScreen/ChatView agentId -> useChatTurn sends agentId every turn; ChatView shows 'Talking to <name>'. Session agents get no Chat with (the core answers chat to them with an e: error). isAgentId now lives in lib/agents/types.ts (server + page share it)."
     },
     {
       "id": "P-009",

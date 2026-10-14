@@ -1,4 +1,4 @@
-import { AGENT_SWITCH_STATES } from "@/lib/agents/types";
+import { AGENT_SWITCH_STATES, isAgentId } from "@/lib/agents/types";
 import { type BodyCheck, forwardToBackend, invalidId } from "@/lib/server/forward";
 
 // The agent routes under /api/agents/[id] (agents-playbooks.md). Agent ids are integers
@@ -17,12 +17,11 @@ export type AgentForward = {
   readonly checkBody?: (body: Readonly<Record<string, unknown>>) => BodyCheck;
 };
 
-const AGENT_ID = /^[1-9]\d{0,11}$/;
 const STATUS_ONLY = "Play can only switch an agent on or off: send {status: \"active\"} or {status: \"inactive\"}";
 
 /** The id as a backend path segment, or null when it isn't a whole number. */
 export function agentPathId(raw: string): string | null {
-  return AGENT_ID.test(raw) ? raw : null;
+  return isAgentId(raw) ? raw : null;
 }
 
 /** {status: "active" | "inactive"} only; any other field, or any other status, is refused. */

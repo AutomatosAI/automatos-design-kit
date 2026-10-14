@@ -34,11 +34,12 @@ export function autoMessage(id: string): AutoMessage {
 }
 
 /** The request body in chat-stream.md: id "" on the first message, the chat-id after. */
-export function turnRequest(chatId: string, text: string): ChatTurnRequest {
+export function turnRequest(chatId: string, text: string, agentId?: number): ChatTurnRequest {
   return {
     id: chatId,
     message: { role: "user", parts: [{ type: "text", text }] },
     selectedVisibilityType: "private",
+    ...(agentId === undefined ? {} : { agentId }),
   };
 }
 

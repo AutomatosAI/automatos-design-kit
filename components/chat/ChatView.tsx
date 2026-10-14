@@ -5,13 +5,15 @@
 // and as a small row above the message box where that column is hidden (phones, and
 // tablets below 1024 px). An empty chat is the first-open screen (mock 06), a reply that
 // hit a snag offers Try again (mock 08), a Mission Auto suggests can be started from its
-// card (P-006), and Auto naps after 3 minutes without input.
+// card (P-006), and Auto naps after 3 minutes without input. A chat opened from an agent's
+// page (P-008) sends that agent's id with every message and says who you're talking to.
 // ChatScreen picks a new chat or a saved one (StoredChat).
 
 import { useCallback, useEffect, useState } from "react";
 
 import { AutoMascot } from "@/components/mascot/AutoMascot";
 import { MascotColumn, PageColumns, PageHeader } from "@/components/shell/PageColumns";
+import { useAgentName } from "@/hooks/useAgentName";
 import { type ChatTurn, useChatTurn } from "@/hooks/useChatTurn";
 import { useIdleTimeout } from "@/hooks/useIdleTimeout";
 import { useMediaQuery } from "@/hooks/useMediaPreferences";
@@ -44,6 +46,26 @@ export interface ChatViewProps {
   readonly initialDraft?: string;
   /** How long without input before Auto naps (tests shorten it). */
   readonly idleMs?: number;
+  /** Another agent to talk to instead of Auto (a new chat from its page). */
+  readonly agentId?: number;
+}
+
+/** A chat with another agent says so: the line above the conversation, the empty chat's headline, the box's name. */
+export type AgentChatWords = {
+  readonly talkingTo: string;
+  readonly hello: { readonly title: string; readonly line: string };
+  readonly boxLabel: string;
+};
+
+/** Its name, or its number until the name arrives; null for a chat with Auto. */
+export function agentChatWords(agentId: number | undefined, name: string | null): AgentChatWords | null {
+  if (agentId === undefined) return null;
+  const who = name ?? `agent ${agentId}`;
+  return {
+    talkingTo: `Talking to ${who}`,
+    hello: { title: `Chat with ${who}`, line: `Messages here go to ${who}.` },
+    boxLabel: `Message ${who}`,
+  };
 }
 
 /** The conversation's name: its first message (the messages route doesn't carry the backend's title). */
@@ -103,8 +125,10 @@ function useStartSuggested(client: ApiClient, turn: ChatTurn): (replyId: string)
 type Fill = { readonly text: string; readonly serial: number };
 
 /** The chat itself, new (no chatId) or continuing a loaded conversation. */
-export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs }: ChatViewProps) {
-  const turn = useChatTurn({ client, chatId, initialMessages });
+export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs, agentId }: ChatViewProps) {
+  const turn = useChatTurn({ client, chatId, initialMessages, agentId });
+  const agentName = useAgentName(client ?? api, agentId);
+  const agentWords = agentChatWords(agentId, agentName);
   const send = useAnnouncedSend(turn.send);
   const startMission = useStartSuggested(client ?? api, turn);
   const mascotEvents = useChatMascot(turn.dispatchMascot, idleMs);
@@ -122,8 +146,15 @@ export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs
     <PageColumns mascot={compact || empty ? undefined : <MascotColumn>{auto("regular")}</MascotColumn>}>
       <PageHeader title={chatTitle(turn.messages)} />
       <div className={styles.chat} data-empty={empty || undefined}>
+        {agentWords && <p className={styles.talkingTo}>{agentWords.talkingTo}</p>}
         {empty ? (
-          <FirstOpenHero state={turn.mascot.mascot} onClipEnded={mascotEvents.onClipEnded} {...caption} />
+          <FirstOpenHero
+            state={turn.mascot.mascot}
+            onClipEnded={mascotEvents.onClipEnded}
+            {...caption}
+            title={agentWords?.hello.title}
+            line={agentWords?.hello.line}
+          />
         ) : (
           <MessageList messages={turn.messages} onRetry={retryLast(turn, send)} onStartMission={startMission} />
         )}
@@ -143,6 +174,7 @@ export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs
             onBlur={mascotEvents.onBlur}
             initialDraft={fill?.text ?? initialDraft}
             autoFocus={empty || fill !== null}
+            label={agentWords?.boxLabel}
           />
         </div>
       </div>

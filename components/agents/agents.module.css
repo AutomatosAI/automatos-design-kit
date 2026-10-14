@@ -271,6 +271,112 @@
   cursor: progress;
 }
 
+/* One agent's page (P-008): sections in the main column and the side panel. The page
+   sits on --color-bg; figures and skill chips on --color-surface. */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.about {
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.figures {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--agent-figure-min), 100%), 1fr));
+  gap: var(--space-3);
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.figureLabel {
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.figureValue {
+  margin: 0;
+  font: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.skillChips,
+.toolList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.skillChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.skillChip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-small);
+}
+
+.toolList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.toolItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.toolName {
+  font: var(--text-small);
+  font-weight: 600;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+}
+
+.factLabel {
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.factValue {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 767.98px) {
   .lead {
     flex-direction: column;

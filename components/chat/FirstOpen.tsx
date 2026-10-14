@@ -22,9 +22,19 @@ export interface FirstOpenHeroProps {
   readonly onClipEnded: (state: MascotName) => void;
   readonly caption?: string;
   readonly detail?: string;
+  /** The headline and the line under it; Auto's own unless the chat is another agent's. */
+  readonly title?: string;
+  readonly line?: string;
 }
 
-export function FirstOpenHero({ state, onClipEnded, caption, detail }: FirstOpenHeroProps) {
+export function FirstOpenHero({
+  state,
+  onClipEnded,
+  caption,
+  detail,
+  title = HELLO_TITLE,
+  line = HELLO_LINE,
+}: FirstOpenHeroProps) {
   return (
     <section className={styles.hero} aria-label="Say hello">
       <AutoMascot
@@ -35,8 +45,8 @@ export function FirstOpenHero({ state, onClipEnded, caption, detail }: FirstOpen
         size="large"
         showCaption={!SAID_BY_HEADLINE.has(state)}
       />
-      <h2 className={styles.title}>{HELLO_TITLE}</h2>
-      <p className={styles.line}>{HELLO_LINE}</p>
+      <h2 className={styles.title}>{title}</h2>
+      <p className={styles.line}>{line}</p>
     </section>
   );
 }

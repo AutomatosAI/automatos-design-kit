@@ -16,9 +16,11 @@ export interface ChatScreenProps {
   readonly draft?: string;
   /** How long without input before Auto naps (tests shorten it). */
   readonly idleMs?: number;
+  /** A new chat with this agent instead of Auto ("Chat with <name>"); ignored for a saved conversation. */
+  readonly agentId?: number;
 }
 
-export function ChatScreen({ client, chatId, draft, idleMs }: ChatScreenProps) {
-  if (!chatId) return <ChatView client={client} initialDraft={draft} idleMs={idleMs} />;
+export function ChatScreen({ client, chatId, draft, idleMs, agentId }: ChatScreenProps) {
+  if (!chatId) return <ChatView client={client} initialDraft={draft} idleMs={idleMs} agentId={agentId} />;
   return <StoredChat client={client} chatId={chatId} idleMs={idleMs} />;
 }

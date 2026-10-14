@@ -37,6 +37,8 @@ export type ChatTurnOptions = {
   /** An existing conversation; "" (the default) opens a new one on the first send. */
   readonly chatId?: string;
   readonly initialMessages?: readonly ChatMessage[];
+  /** Another agent to talk to: sent as agentId with every message. Left out, Auto answers. */
+  readonly agentId?: number;
 };
 
 export type ChatTurn = {
@@ -132,6 +134,7 @@ function abortActive(active: RefObject<ActiveTurn | null>): void {
 
 export function useChatTurn(options: ChatTurnOptions = {}): ChatTurn {
   const client = options.client ?? api;
+  const { agentId } = options;
   const [messages, setMessages] = useState<readonly ChatMessage[]>(options.initialMessages ?? []);
   const [chatId, setChatId] = useState(options.chatId ?? "");
   const [streaming, setStreaming] = useState(false);
@@ -166,14 +169,14 @@ export function useChatTurn(options: ChatTurnOptions = {}): ChatTurn {
       };
       try {
         await cancelRef.current;
-        await runTurn(client, turnRequest(chatIdRef.current, text), turn.controller.signal, sink);
+        await runTurn(client, turnRequest(chatIdRef.current, text, agentId), turn.controller.signal, sink);
       } finally {
         activeRef.current = null;
         setStreaming(false);
       }
       return true;
     },
-    [client],
+    [client, agentId],
   );
 
   const stop = useCallback(async (): Promise<void> => {

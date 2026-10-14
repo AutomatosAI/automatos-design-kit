@@ -79,7 +79,7 @@ export function crewStatus(agent: AgentSummary, live: FleetAgent | undefined): S
 }
 
 /** "claude_code" -> "Claude code"; "anthropic" -> "Anthropic". */
-function providerWords(provider: string): string {
+export function providerWords(provider: string): string {
   const spaced = provider.replace(/[_-]+/g, " ").trim();
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }

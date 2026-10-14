@@ -20,6 +20,9 @@ export type FleetSession = {
   readonly provider: string | null;
   readonly model: string | null;
   readonly liveTool: string | null;
+  /** The last hook event the host reported ("PreToolUse", "TerminalOpened"), and when. */
+  readonly lastEvent: string | null;
+  readonly lastEventAt: string | null;
 };
 
 export type FleetAgent = {
@@ -53,7 +56,13 @@ function parseCost(value: unknown): FleetCost | null {
 
 function parseSession(value: unknown): FleetSession | null {
   if (!isRecord(value)) return null;
-  return { provider: text(value.provider), model: text(value.model), liveTool: text(value.live_tool) };
+  return {
+    provider: text(value.provider),
+    model: text(value.model),
+    liveTool: text(value.live_tool),
+    lastEvent: text(value.last_event),
+    lastEventAt: text(value.last_event_at),
+  };
 }
 
 export function parseFleetAgent(value: unknown): FleetAgent | null {

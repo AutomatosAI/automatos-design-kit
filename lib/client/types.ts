@@ -76,6 +76,8 @@ export type ChatTurnRequest = {
     readonly parts: readonly { readonly type: "text"; readonly text: string }[];
   };
   readonly selectedVisibilityType: "private";
+  /** The agent who answers (an integer id); left out, Auto answers. */
+  readonly agentId?: number;
   readonly context?: Json;
 };
 

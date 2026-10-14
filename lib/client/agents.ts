@@ -1,4 +1,6 @@
+import { parseAgentDetail, type AgentDetail } from "@/lib/agents/detail";
 import { parseFleet, type Fleet } from "@/lib/agents/fleet";
+import { parsePerformance, type AgentPerformance } from "@/lib/agents/performance";
 import {
   parseAgentList,
   parseAgentSummary,
@@ -42,6 +44,18 @@ export function agentEndpoints({ callJson }: Transport) {
 
     async getAgent(id: number): Promise<AgentSummary> {
       return readAgent(await callJson(agentPath(id)));
+    },
+
+    /** One agent with its team, skills and tools (workspace agents only: others 404). */
+    async getAgentDetail(id: number): Promise<AgentDetail> {
+      const parsed = parseAgentDetail(await callJson(agentPath(id)));
+      if (!parsed) throw new ApiError(200, "Automatos sent an agent Play can't read");
+      return parsed;
+    },
+
+    /** Success rate, tasks, tokens and cost (lib/agents/performance.ts says which are real). */
+    async getAgentPerformance(id: number): Promise<AgentPerformance> {
+      return parsePerformance(await callJson(agentPath(id, "/performance")));
     },
 
     /** Live status for every agent, one call. The core leaves Auto out. */

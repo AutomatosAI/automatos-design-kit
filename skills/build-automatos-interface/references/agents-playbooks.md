@@ -8,7 +8,7 @@ Source of truth: `automatos-ai/orchestrator/api/agents.py`, `api/agent_endpoints
 |---|---|---|
 | GET | `/api/agents/?include_workspace_system=true&limit=100` | the workspace's agents. **Without `include_workspace_system=true`, Auto is left out.** Params also: `skip`, `status`, `agent_type`, `search` |
 | GET | `/api/agents/{id}` | one agent (workspace agents only) |
-| GET | `/api/agents/{id}/performance` | success rate, tasks, tokens and cost (some fields are placeholders that read 0) |
+| GET | `/api/agents/{id}/performance` | success rate, tasks, tokens and cost; several fields are not measured, see below |
 | GET | `/api/agents/org-chart` | nodes, edges and teams: who reports to whom |
 | GET | `/api/v1/fleet` | **live status for every agent**; see below |
 | PUT | `/api/agents/{id}` | `{status: "active" \| "inactive"}` switches an agent on or off (there is no dedicated route) |
@@ -35,9 +35,15 @@ Each agent has: `id, public_id, name, description, job_title, team, reports_to_i
 
 Studio polls it every **10 s**. Do the same, and only while the page is visible. It is workspace-wide: one call covers every agent.
 
+### Performance
+
+`get_agent_performance` in `api/agent_endpoints.py` builds the answer. `success_rate` is already a percentage (0-100). Not measured: `average_memory_usage` and `average_cpu_usage` are always 0, `uptime_percentage` is 99.8 or 0 from the runtime status, and `overall_score` is 85 when the agent has no `performance_metrics`. With no `performance_metrics`, `success_rate`, `completed_tasks`, `failed_tasks` and `average_response_time` are 0 too, so show them only once `total_tasks` is above 0. `total_tokens_used`, `total_cost` and `total_requests` come from `model_usage_stats` and are real. Like `GET /api/agents/{id}`, it 404s an agent outside the workspace.
+
+`GET /api/agents/{id}` adds `team`, `skills[]` (`{id, name, description, skill_type, …}`), `tools[]` (Composio apps, `{name, description, provider, category, …}`, names in capitals) and `session_tool_groups` to the list row.
+
 ### Chatting with an agent
 
-Send `agentId: <integer id>` in the chat request (`chat-stream.md`). To change agent mid-conversation: `POST /api/chat/{chat_id}/switch-agent` with `{newAgentId, reason?}`. `GET /api/chat/agents` lists the agents chat can use.
+Send `agentId: <integer id>` in the chat request (`chat-stream.md`). **Not a session (`cli`) agent:** the chat lane answers a message to one with a single `e:` line (code `session_agent_terminal`, "… runs as a Claude Code session in the Canvas terminal …", `_turn_chunks` in `api/chat.py`), so don't offer chat for them; give them a Task on the board. To change agent mid-conversation: `POST /api/chat/{chat_id}/switch-agent` with `{newAgentId, reason?}`. `GET /api/chat/agents` lists the agents chat can use.
 
 ## Playbooks
 

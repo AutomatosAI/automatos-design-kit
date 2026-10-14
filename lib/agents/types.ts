@@ -41,6 +41,14 @@ export type AgentQuery = {
 
 const CLI_RUNTIME = "cli";
 
+/** The core's path is /api/agents/{agent_id:int}; Play takes whole numbers only. */
+const AGENT_ID = /^[1-9]\d{0,11}$/;
+
+/** A page's or a route's id segment: anything else is no agent at all. */
+export function isAgentId(raw: string): boolean {
+  return AGENT_ID.test(raw);
+}
+
 type Json = Readonly<Record<string, unknown>>;
 const EMPTY: Json = {};
 

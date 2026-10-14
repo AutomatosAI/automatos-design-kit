@@ -1,12 +1,16 @@
+import { isAgentId } from "@/lib/agents/types";
+
 // The chat page's address: /?chat=<id> opens that saved conversation (from
 // Conversations and the sidebar's Recent list); anything else is a new chat.
 // /?draft=<text> starts a new chat with those words in the message box (a Deliverable's
-// "Ask Auto about this").
+// "Ask Auto about this"). /?agent=<id> starts a new chat with that agent instead of Auto
+// (an agent page's "Chat with <name>").
 
 /** The same shape the proxy routes accept for an id (lib/server/forward.ts pathId). */
 const CHAT_ID = /^[A-Za-z0-9_-]{1,128}$/;
 const CHAT_PARAM = "chat";
 const DRAFT_PARAM = "draft";
+const AGENT_PARAM = "agent";
 /** Longer drafts are cut: the address is not the place for a whole message. */
 export const MAX_DRAFT_CHARS = 500;
 
@@ -42,4 +46,16 @@ export function draftParam(params: SearchParams): string | undefined {
   const value = params[DRAFT_PARAM];
   if (typeof value !== "string" || !value.trim() || chatParam(params)) return undefined;
   return cutDraft(value);
+}
+
+/** A new chat with this agent: every message carries its id (chat-stream.md, agentId). */
+export function agentChatHref(agentId: number): string {
+  return `/?${AGENT_PARAM}=${encodeURIComponent(String(agentId))}`;
+}
+
+/** The agent a new chat talks to, or undefined for Auto (also when a conversation is being opened). */
+export function agentParam(params: SearchParams): number | undefined {
+  const value = params[AGENT_PARAM];
+  if (typeof value !== "string" || !isAgentId(value) || chatParam(params)) return undefined;
+  return Number(value);
 }
