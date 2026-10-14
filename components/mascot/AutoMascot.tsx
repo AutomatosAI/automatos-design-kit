@@ -7,11 +7,11 @@
 // Screen readers skip the picture (aria-hidden) and hear the caption, a polite live
 // region, whenever what he is doing changes.
 
-import { type SyntheticEvent, useCallback, useState } from "react";
+import { type SyntheticEvent, useCallback, useEffect, useState } from "react";
 
 import { type MascotPlayer, useMascotPlayer } from "@/hooks/useMascotPlayer";
 import { usePrefersReducedMotion, useVideoFormat } from "@/hooks/useMediaPreferences";
-import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, type VideoFormat } from "@/lib/mascot/media";
+import { AUTO_SOURCE, captionFor, MASCOT_DIR, pageGlow, type MascotSource, type VideoFormat } from "@/lib/mascot/media";
 import { ringTone } from "@/lib/mascot/ring";
 import type { MascotName } from "@/lib/mascot/types";
 
@@ -34,6 +34,8 @@ export interface AutoMascotProps {
   readonly size?: "small" | "regular" | "large";
   /** False when the page already says it in words (the first-open headline). */
   readonly showCaption?: boolean;
+  /** Where the clips come from: Auto's own (public/auto/) unless a skin brings its own set. */
+  readonly source?: MascotSource;
 }
 
 export function AutoMascot({
@@ -43,20 +45,27 @@ export function AutoMascot({
   detail,
   size = "regular",
   showCaption = true,
+  source = AUTO_SOURCE,
 }: AutoMascotProps) {
   const reducedMotion = usePrefersReducedMotion();
   const format = useVideoFormat();
   const [assets, setAssets] = useState<AssetStatus>("probing");
   // One clip that won't play means the set is broken: stills from then on, not a stuck clip.
   const [videoFailed, setVideoFailed] = useState(false);
-  const video = !reducedMotion && !videoFailed && assets === "ready" ? format : null;
-  const player = useMascotPlayer({ target: state, still: video === null, onClipEnded });
+  const [player, video] = usePlayerFor(state, source, { reducedMotion, videoFailed, assets, format, onClipEnded });
+  const poster = source.poster(player.showing);
+  const ready = assets === "ready" && poster !== null;
 
   const onStillLoad = useCallback(() => setAssets("ready"), []);
+  const ownClips = source === AUTO_SOURCE;
   const onStillError = useCallback(() => {
-    console.warn(`Auto's mascot files aren't in public${MASCOT_DIR}/, so he is a placeholder.`);
+    console.warn(
+      ownClips
+        ? `Auto's mascot files aren't in public${MASCOT_DIR}/, so he is a placeholder.`
+        : "This mascot set's still didn't load, so the placeholder shows.",
+    );
     setAssets("missing");
-  }, []);
+  }, [ownClips]);
   const onVideoError = useCallback((event: SyntheticEvent<HTMLVideoElement>) => {
     console.warn(`Auto's clip ${event.currentTarget.src} didn't play, so he is a still.`);
     setVideoFailed(true);
@@ -73,12 +82,13 @@ export function AutoMascot({
         aria-hidden="true"
       >
         <div className={styles.ring} />
-        {assets !== "ready" && <MascotPlaceholder state={player.showing} />}
-        {video !== null ? (
-          <MascotVideo state={player.showing} format={video} player={player} onError={onVideoError} />
+        {!ready && <MascotPlaceholder state={player.showing} />}
+        {video !== null && poster !== null ? (
+          <MascotVideo state={player.showing} src={video} poster={poster} player={player} onError={onVideoError} />
         ) : (
-          assets !== "missing" && (
-            <MascotStill state={player.showing} loaded={assets === "ready"} onLoad={onStillLoad} onError={onStillError} />
+          assets !== "missing" &&
+          poster !== null && (
+            <MascotStill src={poster} loaded={assets === "ready"} onLoad={onStillLoad} onError={onStillError} />
           )
         )}
       </div>
@@ -92,22 +102,50 @@ export function AutoMascot({
   );
 }
 
+interface PlayerInputs {
+  readonly reducedMotion: boolean;
+  readonly videoFailed: boolean;
+  readonly assets: AssetStatus;
+  readonly format: VideoFormat | null;
+  readonly onClipEnded?: (state: MascotName) => void;
+}
+
+/**
+ * The player, and the clip URL to play (null: a still). The clip is chosen for the state the
+ * player is showing, so a set without a clip for the next state falls back to stills only
+ * once the player gets there.
+ */
+function usePlayerFor(
+  state: MascotName,
+  source: MascotSource,
+  { reducedMotion, videoFailed, assets, format, onClipEnded }: PlayerInputs,
+): readonly [MascotPlayer, string | null] {
+  const [clipMissing, setClipMissing] = useState(false);
+  const canPlay = !reducedMotion && !videoFailed && !clipMissing && assets === "ready" && format !== null;
+  const player = useMascotPlayer({ target: state, still: !canPlay, onClipEnded });
+  const clip = canPlay && format !== null ? source.video(player.showing, format) : null;
+  useEffect(() => {
+    if (canPlay && clip === null) setClipMissing(true);
+  }, [canPlay, clip]);
+  return [player, clip];
+}
+
 interface MascotVideoProps {
   readonly state: MascotName;
-  readonly format: VideoFormat;
+  readonly src: string;
+  readonly poster: string;
   readonly player: MascotPlayer;
   readonly onError: (event: SyntheticEvent<HTMLVideoElement>) => void;
 }
 
 /** No `loop`: the player restarts loops itself, at the boundary (see lib/mascot/player.ts). */
-function MascotVideo({ state, format, player, onError }: MascotVideoProps) {
-  const urls = clipUrls(state, format);
+function MascotVideo({ state, src, poster, player, onError }: MascotVideoProps) {
   return (
     <video
       key={state}
       className={styles.figure}
-      src={urls.video}
-      poster={urls.poster}
+      src={src}
+      poster={poster}
       autoPlay
       muted
       playsInline
@@ -120,7 +158,7 @@ function MascotVideo({ state, format, player, onError }: MascotVideoProps) {
 }
 
 interface MascotStillProps {
-  readonly state: MascotName;
+  readonly src: string;
   /** False while probing: the image loads unseen behind the placeholder. */
   readonly loaded: boolean;
   readonly onLoad: () => void;
@@ -128,7 +166,7 @@ interface MascotStillProps {
 }
 
 /** The state's PNG: the poster, the reduced-motion view, and the probe for the files. */
-function MascotStill({ state, loaded, onLoad, onError }: MascotStillProps) {
+function MascotStill({ src, loaded, onLoad, onError }: MascotStillProps) {
   // An image that finished before hydration fires no load event: check it on mount.
   const checkLoaded = useCallback(
     (image: HTMLImageElement | null) => {
@@ -142,7 +180,7 @@ function MascotStill({ state, loaded, onLoad, onError }: MascotStillProps) {
     <img
       ref={checkLoaded}
       className={loaded ? styles.figure : styles.probing}
-      src={posterUrl(state)}
+      src={src}
       alt=""
       onLoad={onLoad}
       onError={onError}

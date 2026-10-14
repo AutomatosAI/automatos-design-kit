@@ -10,6 +10,9 @@ import "@fontsource/geist/600.css";
 import "@fontsource/geist/700.css";
 import "@fontsource/geist-mono/400.css";
 import "@fontsource/geist-mono/500.css";
+// Newsreader is Studio's serif: a skin can pick it, and the previews show it.
+import "@fontsource/newsreader/400.css";
+import "@fontsource/newsreader/500.css";
 import "@fontsource/bricolage-grotesque/700.css";
 import "@fontsource/fredoka/600.css";
 import "./theme.css";

@@ -1,0 +1,126 @@
+/* Fonts and mascot in the skin editor (PRD-004 K-006): font slots, drop zones, Auto's tint and
+   light swatches, and the mascot stage with its state picker. */
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--space-4);
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.selectField {
+  font: var(--text-meta);
+  color: var(--color-text);
+}
+
+.select {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-body);
+}
+
+/* A drop zone: a dashed edge, lit in the accent while files are dragged over it. */
+.drop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px dashed var(--line-button);
+  border-radius: var(--radius-card);
+}
+
+.drop[data-over] {
+  border-color: var(--color-accent);
+  border-style: solid;
+}
+
+.dropHint {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.dropInputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.fileField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  font: var(--text-meta);
+  color: var(--color-text);
+}
+
+.fileInput {
+  min-height: var(--tap-min);
+  max-width: 100%;
+  font: var(--text-small);
+  color: var(--color-text-2);
+  cursor: pointer;
+}
+
+.problem,
+.problems {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-error-text);
+}
+
+.problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-left: var(--space-5);
+}
+
+.summary {
+  margin: 0;
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.custom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+/* A colour dot inside a tint or light button; its colour arrives as --swatch. */
+.swatch {
+  display: inline-block;
+  width: var(--space-3);
+  height: var(--space-3);
+  margin-right: var(--space-2);
+  border-radius: var(--radius-round);
+  background: var(--swatch);
+  vertical-align: middle;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.player {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}

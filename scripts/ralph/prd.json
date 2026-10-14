@@ -112,8 +112,8 @@
         "Tests pass"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/skins/assets.ts (checkFontFile/fontSizeProblem, fontAssetPath -> assets/fonts/<slot>-<name>.woff2, checkMascotDrop/missingMascotFiles/mascotSetSummary, ownBuffer for Blob/File parts), asset-store.ts (AssetStore: indexedDbAssetStore/memoryAssetStore/browserAssetStore, results never throw, FULL_MESSAGE on quota), mascot.ts (withMascotMode/withShell/withLight, LIGHT_SWATCHES as triplets). components/skins: FontPickers, MascotPicker, MascotStage (AutoMascot + state picker), FileDrop, useSkinAssets (object URLs by package path); SkinEditor/PreviewScreen take assetStore. AutoMascot takes source: MascotSource (lib/mascot/media.ts AUTO_SOURCE). K-007 packs draft fonts/mascot from useSkinAssets().assets (path -> bytes); K-010 swaps @font-face for FontFace in previewCss's fontUrls path."
     },
     {
       "id": "K-007",

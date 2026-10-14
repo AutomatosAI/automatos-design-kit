@@ -1,9 +1,10 @@
 "use client";
 
 // The Preview (PRD-004 K-005): the editor's draft on a gallery of Studio-shaped components,
-// coloured by the same CSS Studio will generate (lib/skins/preview.ts over skinToCss). The
-// switches pick the base and tone the gallery shows, and "Compare with Studio" puts Studio as it
-// ships beside the skin. They start from the draft's own base and first tone.
+// with its font files (K-006) loaded through @font-face from object URLs, coloured by the same
+// CSS Studio will generate (lib/skins/preview.ts over skinToCss). The switches pick the base
+// and tone the gallery shows, and "Compare with Studio" puts Studio as it ships beside the skin.
+// They start from the draft's own base and first tone.
 //
 // The stylesheet is rendered only once the draft is read from storage, so the server never
 // renders it.
@@ -11,7 +12,9 @@
 import { useMemo, useState } from "react";
 
 import { BASE_LABELS, TONE_LABELS } from "@/components/skins/ColourRow";
+import { useSkinAssets } from "@/components/skins/useSkinAssets";
 import { browserStorage, type StorageSource } from "@/lib/looks/storage";
+import { browserAssetStore, type AssetStore } from "@/lib/skins/asset-store";
 import type { SkinBase, Tone } from "@/lib/skins/format";
 import type { SkinDraft } from "@/lib/skins/model";
 import { baseScopeId, frameSkins, previewCss } from "@/lib/skins/preview";
@@ -46,14 +49,17 @@ export function galleryNotes(draft: SkinDraft, base: SkinBase, tone: Tone): read
 export interface PreviewScreenProps {
   /** Tests pass their own (or one that throws, for blocked storage). */
   readonly storage?: StorageSource;
+  /** Where the editor keeps font files; tests pass a memory store. */
+  readonly assetStore?: AssetStore;
 }
 
-export function PreviewScreen({ storage = browserStorage }: PreviewScreenProps) {
+export function PreviewScreen({ storage = browserStorage, assetStore = browserAssetStore }: PreviewScreenProps) {
   const { draft, loaded } = useStoredDraft(storage);
+  const { urls } = useSkinAssets(assetStore);
   const [chosen, setChosen] = useState<GalleryOptions | null>(null);
   const options = chosen ?? initialOptions(draft);
   const { base, tone, compare } = options;
-  const css = useMemo(() => previewCss(draft, base), [draft, base]);
+  const css = useMemo(() => previewCss(draft, base, urls), [draft, base, urls]);
   const notes = galleryNotes(draft, base, tone);
 
   return (

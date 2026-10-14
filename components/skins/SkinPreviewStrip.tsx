@@ -62,10 +62,14 @@ export interface SkinPreviewStripProps {
   readonly draft: SkinDraft;
   /** False until storage has been read: no stylesheet before then. */
   readonly loaded: boolean;
+  /** Object URLs for the draft's font files, by package path (@font-face rules). */
+  readonly fontUrls?: Readonly<Record<string, string>>;
 }
 
-export function SkinPreviewStrip({ draft, loaded }: SkinPreviewStripProps) {
-  const css = useMemo(() => previewCss(draft), [draft]);
+const NO_URLS: Readonly<Record<string, string>> = {};
+
+export function SkinPreviewStrip({ draft, loaded, fontUrls = NO_URLS }: SkinPreviewStripProps) {
+  const css = useMemo(() => previewCss(draft, draft.base, fontUrls), [draft, fontUrls]);
   return (
     <div className={styles.strip}>
       {loaded && <style data-testid={SKIN_CSS_TEST_ID}>{css}</style>}

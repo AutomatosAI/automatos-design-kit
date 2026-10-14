@@ -38,6 +38,20 @@ export function clipUrls(state: MascotName, format: VideoFormat): ClipUrls {
 }
 
 /**
+ * Where a mascot's files come from: Auto's own in public/auto/, or a skin's custom set (object
+ * URLs in the Skin Kit's editor). null: this set has no such file, so the placeholder shows.
+ */
+export interface MascotSource {
+  poster(state: MascotName): string | null;
+  video(state: MascotName, format: VideoFormat): string | null;
+}
+
+export const AUTO_SOURCE: MascotSource = {
+  poster: posterUrl,
+  video: (state, format) => clipUrls(state, format).video,
+};
+
+/**
  * How bright the page glow behind everything is (Ember style sheet, motion): the accent at
  * rest, brighter while he works, brightest for hello and a finished Deliverable, coral for a
  * snag, and out while he sleeps. app/globals.css crossfades between them over 600 ms.
