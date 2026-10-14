@@ -20,19 +20,20 @@ The canonical name of a card is a **Task**, shown with its number (e.g. #1636). 
 | POST | `/api/v1/tasks/{id}/cancel` | cancel |
 | DELETE | `/api/v1/tasks/{id}` | delete |
 
-Each Task carries `id, number, title, description, status, priority, assigned_agent_id, agent {id, name, agent_icon}, tags, result, error_message, blocked_reason, review_reason, times_sent_back, parent_task_id, source_type, orchestration_run_id (its Mission, if any), started_at, completed_at, created_at, updated_at`. `tags` are the labels. There is no due-date field.
+Each Task carries `id, number, title, description, status, priority, assigned_agent_id, agent {id, name, agent_icon}, tags, result, error_message, blocked_reason, blocked_code, review_reason, times_sent_back, parent_task_id, source_type, source_id, orchestration_run_id (its Mission, if any), lease_until, started_at, completed_at, created_at, updated_at` (and the rest of `BoardTask.to_dict`, via `board_dict` in `services/board_task_view.py`). `tags` are the labels. There is no due-date field. `blocked_code` says what a blocked Task waits for (`question`, `approval`, …) and `review_reason` why a Task waits in Review (`mission_plan` on a Mission's own card whose plan waits), both from `core/services/ticket_reasons.py`.
 
 **Columns, in order:** `inbox → assigned → in_progress → review → blocked → done`. Side states: `failed`, `cancelled`, `closed`.
 
 ### Move rules (the backend enforces them, so mirror them in the UI)
 
-`board_drag_rules.py` refuses these moves, with a message. Disable the drop target, and show the backend's message if it refuses anyway:
+`board_drag_rules.py` (`drag_refusal`, `move_refusal`) and the start path in `api/board_tasks.py` (`_move_by_hand`, `_start_now`) refuse these moves, with a message (409). Disable the drop target, and show the backend's message if it refuses anyway. In the core's order:
 - `review → done`: use **Approve**. `review → assigned`: use **Reject**.
-- `→ in_progress` with no agent: "Assign an agent first". (A move to `in_progress` is the same as Run now.)
-- A running Task (`in_progress`) can only be **cancelled**.
+- **A Mission's Task** (`source_type` `orchestration`, `orchestration_task` or `mission`): `→ done` or `→ review` with an empty `result` is refused; `→ assigned` or `→ in_progress` is refused (its Mission runs it), except a Mission's own card whose plan waits (`source_type` `orchestration`, `review_reason` `mission_plan`): a move to `in_progress` approves the plan (F291). No other rule below applies to it.
+- `→ in_progress` with no agent: "Assign an agent first", except a Playbook run's own card (`source_type` `recipe` with a bare `source_id`, not `recipe:…`), which has no agent by design and runs its Playbook again. (A move to `in_progress` is the same as Run now.)
+- A **running** Task can only be **cancelled** (or left in `in_progress`). Running means `in_progress` with a live dispatch lease (`lease_until` in the future); a stuck `in_progress` Task with no live lease can be moved.
 - `→ done` or `→ review` with an empty `result`: there is nothing to approve.
-- A Mission's own Task can't be started by hand: its Mission runs it.
-- A `blocked` Task waiting on a question: answer the question first.
+- A `blocked` Task waiting on a question (`blocked_code` `question`): answer the question first; starting it is refused.
+- The backend also refuses Done when the Task's promised file is missing (`done_refusal`); only the backend knows, so show its message.
 
 In the local edition, assigning, dragging to `in_progress` and Run now count as the owner's approval, and the backend records it. That covers approvals only: an open question never gets answered by a drag.
 

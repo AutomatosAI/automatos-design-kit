@@ -27,8 +27,8 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Routes in app/api/tasks/** and app/api/approvals/** over lib/server/board.ts (forwardTask/forwardApproval, isTaskId whole-number ids, keepFields body filters; PATCH keeps the 6 editable fields, POST the 5 create fields, /status {status, blocked_reason}). The stream is forwardToBackend({stream: true}): Accept-Encoding identity upstream, Cache-Control no-cache, no-transform down. Rules: moveRefusal(task, to, now?) / columnMoves / allowedColumns / isRunning (live lease_until) in lib/board/moves.ts; BoardTask (camelCase, incl. sourceId, leaseUntil, blockedCode, reviewReason) in lib/board/types.ts has no parser yet: B-002/B-003 add it in lib/client."
     },
     {
       "id": "B-002",

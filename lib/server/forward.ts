@@ -56,6 +56,12 @@ export type ForwardOptions = {
   readonly accept?: string;
   /** Backend answer headers to hand on as well (lower case), e.g. content-disposition. Default: none. */
   readonly keepHeaders?: readonly string[];
+  /**
+   * A live event stream (the board's): asks the backend for it uncompressed and answers
+   * with Cache-Control no-cache, no-transform, which also keeps Next's own compression
+   * off it, so each event reaches the browser as it arrives. Default: false.
+   */
+  readonly stream?: boolean;
 };
 
 export type BackendBase = { readonly ok: true; readonly url: string } | { readonly ok: false; readonly response: Response };
@@ -110,6 +116,7 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
   const headers: Record<string, string> = {
     Accept: options.accept ?? DEFAULT_ACCEPT,
     ...(body.value ? { "Content-Type": "application/json" } : {}),
+    ...(options.stream ? { "Accept-Encoding": "identity" } : {}),
     ...workspace.headers,
   };
 
@@ -121,7 +128,7 @@ export async function forwardToBackend(request: Request, options: ForwardOptions
       cache: "no-store",
       signal: request.signal,
     });
-    return passThrough(upstream, options.keepHeaders);
+    return passThrough(upstream, options.keepHeaders, options.stream ? NO_CACHE : undefined);
   } catch (error) {
     if (request.signal.aborted) return new Response(null, { status: CLIENT_CLOSED });
     console.error(`[proxy] ${request.method} ${target} failed:`, error);
@@ -138,14 +145,17 @@ function keptHeaders(upstream: Response, names: readonly string[]): Record<strin
   );
 }
 
-/** The backend's status, body and content-type (plus any `keep` headers), unchanged. */
-export function passThrough(upstream: Response, keep: readonly string[] = []): Response {
+/**
+ * The backend's status, body and content-type (plus any `keep` headers), unchanged.
+ * `cacheControl` replaces the backend's Cache-Control (a stream's must say no-transform).
+ */
+export function passThrough(upstream: Response, keep: readonly string[] = [], cacheControl?: string): Response {
   return new Response(upstream.body, {
     status: upstream.status,
     headers: {
       ...keptHeaders(upstream, keep),
       "Content-Type": upstream.headers.get("content-type") ?? FALLBACK_CONTENT_TYPE,
-      "Cache-Control": upstream.headers.get("cache-control") ?? NO_CACHE,
+      "Cache-Control": cacheControl ?? upstream.headers.get("cache-control") ?? NO_CACHE,
       "X-Accel-Buffering": "no",
       ...SAFE_HEADERS,
     },
