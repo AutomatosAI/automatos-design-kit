@@ -73,6 +73,11 @@ describe("finding Auto", () => {
     expect(crewOf([decoy, auto, elsewhere, impostor], auto, WORKSPACE_ID).map((one) => one.id)).toEqual([1, 3]);
     expect(crewOf([elsewhere], null, WORKSPACE_ID)).toEqual([]);
   });
+
+  it("keeps the platform's own system agents such as auto-cto", () => {
+    const cto = agent(5, "Auto CTO", { isSystemAgent: true, slug: "auto-cto" });
+    expect(crewOf([cto, auto], auto, WORKSPACE_ID).map((one) => one.id)).toEqual([5]);
+  });
 });
 
 describe("filters and search", () => {

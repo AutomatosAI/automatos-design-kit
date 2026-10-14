@@ -29,13 +29,17 @@ export function findAuto(agents: readonly AgentSummary[], workspaceId: string): 
   return agents.find((agent) => agent.isSystemAgent && agent.slug === slug) ?? null;
 }
 
+/** auto-<workspace uuid>. The platform's own system agents (e.g. auto-cto) don't match. */
+const PER_WORKSPACE_AUTO = /^auto-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Another workspace's Auto. The local operator is super admin, so the agents list can carry every
  * workspace's per-workspace Auto (system agent, slug auto-<that workspace's id>). They aren't this
  * workspace's crew.
  */
 export function isOtherWorkspacesAuto(agent: AgentSummary, workspaceId: string): boolean {
-  return agent.isSystemAgent && (agent.slug ?? "").startsWith("auto-") && agent.slug !== autoSlug(workspaceId);
+  const slug = agent.slug ?? "";
+  return agent.isSystemAgent && PER_WORKSPACE_AUTO.test(slug) && slug !== autoSlug(workspaceId);
 }
 
 /** Everyone but Auto and other workspaces' Autos, in the backend's order. */
