@@ -5,7 +5,7 @@
 // conversations list, in the Look's colours.
 
 import Link from "next/link";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 
 import styles from "./page.module.css";
 
@@ -44,16 +44,23 @@ export function FilterChips<F extends string>({ label, options, selected, onSele
   );
 }
 
+export const SEARCH = "Search";
+
 export interface SearchBoxProps {
   /** The box's name and its placeholder ("Search Missions"). */
   readonly label: string;
   readonly value: string;
   readonly onChange: (value: string) => void;
+  /**
+   * Search on Enter or the Search button instead of on every key (a search that costs a
+   * backend call, like Knowledge's). Left out, the box filters as it is typed in.
+   */
+  readonly onSubmit?: () => void;
 }
 
-export function SearchBox({ label, value, onChange }: SearchBoxProps) {
+export function SearchBox({ label, value, onChange, onSubmit }: SearchBoxProps) {
   const onInput = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value);
-  return (
+  const box = (
     <input
       type="search"
       className={styles.search}
@@ -62,6 +69,19 @@ export function SearchBox({ label, value, onChange }: SearchBoxProps) {
       value={value}
       onChange={onInput}
     />
+  );
+  if (!onSubmit) return box;
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit();
+  };
+  return (
+    <form role="search" className={styles.searchForm} aria-label={label} onSubmit={submit}>
+      {box}
+      <button type="submit" className={styles.secondary}>
+        {SEARCH}
+      </button>
+    </form>
   );
 }
 

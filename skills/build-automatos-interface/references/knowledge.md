@@ -6,11 +6,11 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/api/documents` | the list (pagination and filters as query params) |
+| GET | `/api/documents` | the list, newest first: `skip`, `limit` (≤ 1000, default 100), `status`, `file_type`, `search`. A plain array with **no total**: page with Load more |
 | GET | `/api/documents/{id}` | one document, with its `status`. **Use this to check processing**; see below |
-| GET | `/api/documents/{id}/content` | the full text, rebuilt from its chunks on every call. It can be large: fetch it only when the document is opened |
+| GET | `/api/documents/{id}/content` | `{document_id, filename, file_type, content, chunk_count}`: the full text, rebuilt from its chunks on every call. It can be large: fetch it only when the document is opened |
 | GET | `/api/documents/{id}/download?mode=url` | with S3 storage: JSON `{url, filename}`, a presigned URL (`https:`, or `http:` for a local MinIO). With no storage: **the file's bytes themselves** (`application/octet-stream`, `Content-Disposition: attachment`), not JSON. See "Download" below |
-| GET | `/api/documents/{id}/delete-impact` | chunk, embedding and reference counts. Show them before confirming a delete |
+| GET | `/api/documents/{id}/delete-impact` | `{vector_chunks, embeddings, references, storage_freed: "1.20 MB"}`. Show them before confirming a delete |
 | DELETE | `/api/documents/{id}` | delete |
 | POST | `/api/documents/upload` | multipart; see below |
 | POST | `/api/documents/search` | the search box; see below |
@@ -19,9 +19,9 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 ## Upload
 
 - `multipart/form-data`: `file` (required), `description`, `tags` (comma-separated) and `team_access` (comma-separated), all optional.
-- Types: pdf, docx, txt, md, csv, html, json and xlsx. The extension must match the detected type, or the backend returns 400.
+- Types: pdf, docx, txt, md, csv, html, json and xlsx. The extension must match the detected type, or the backend returns 400. An HTML file is stored with `file_type` `unknown` (`UPLOAD_FILE_TYPES` has no `.html`): name its type from the file's extension.
 - **50 MB maximum** (a fixed constant in the backend, not a setting). Check the size in the browser before sending.
-- **Processing happens inside the upload request.** The response arrives after chunking and embedding finish, with `{document_id, filename, status, message}`, where `status` is `processed`, `failed` or `duplicate`. The same bytes again give `duplicate`; the same name with new bytes replaces the document and keeps its id.
+- **Processing happens inside the upload request.** The response arrives after chunking and embedding finish, with `{document_id, filename, status, message}`, where `status` is `processed`, `failed` or `duplicate`. The same bytes again give `duplicate`; the same name with new bytes replaces the document and keeps its id, and the answer then carries **that document's own status**, which can still be `processing`: follow it with the `GET /api/documents/{id}` poll below. A `failed` answer's `message` says why ("Uploaded, but processing failed: …").
 - **Your page sends a custom header** (e.g. `X-Play-Upload: 1`) with the upload, and your proxy refuses an upload without it. This is the CSRF guard for the one non-JSON route (see "Proxy safety" in SKILL.md).
 - **The proxy must stream the multipart body straight through:** pass the raw body and the `content-type` header (it carries the boundary) unchanged. Never parse and rebuild the form, and allow a long timeout (several minutes) because the backend is processing while it waits. Studio skips its own proxy for uploads for exactly this reason.
 

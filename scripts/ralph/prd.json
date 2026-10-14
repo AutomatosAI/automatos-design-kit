@@ -192,8 +192,8 @@
         "Tests pass"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "app/knowledge -> components/knowledge/KnowledgeScreen (GridPage; lead = UploadPanel drop zone + Choose a file, KnowledgeActivity = Auto small + the upload line/bar; SearchBox onSubmit mode, results replace the list) and app/knowledge/[id] -> DocumentScreen (DetailPage, Markdown/plain text, Download link, DeleteConfirm with /delete-impact). Client lib/client/documents.ts (upload via lib/client/upload.ts xhrUpload for byte progress; createApiClient(fetch, sendUpload) so tests inject a sender); pure rules in lib/documents/{knowledge,upload,parse}.ts; processing poll hooks/useProcessingPoll (GET /api/documents/<id>, stops when settled or gone). P-011: RUN-CHECKLIST Knowledge lines still to write."
     },
     {
       "id": "P-011",

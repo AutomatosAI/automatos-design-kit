@@ -1,4 +1,5 @@
 import { agentEndpoints } from "@/lib/client/agents";
+import { documentEndpoints } from "@/lib/client/documents";
 import { missionEndpoints } from "@/lib/client/missions";
 import { ApiError, createTransport, failure, type Fetch, type Transport } from "@/lib/client/transport";
 import {
@@ -14,11 +15,13 @@ import {
   type DeliverableQuery,
   type StoredMessage,
 } from "@/lib/client/types";
+import { type UploadSender, xhrUpload } from "@/lib/client/upload";
 
 // The browser's one client for Play's own /api/* routes (never the backend). The
 // transport (workspace header, errors) is lib/client/transport.ts.
 
 export { ApiError, type Fetch };
+export { documentDownloadHref } from "@/lib/client/documents";
 
 const DEFAULT_HISTORY_LIMIT = 20;
 const DEFAULT_EXCLUDED_SOURCES = "heartbeat";
@@ -103,7 +106,11 @@ function deliverableEndpoints({ call, callJson }: Transport) {
   };
 }
 
-export function createApiClient(fetchImpl: Fetch = (input, init) => fetch(input, init)) {
+/** sendUpload: how a document's bytes go (XMLHttpRequest, for its progress); tests pass their own. */
+export function createApiClient(
+  fetchImpl: Fetch = (input, init) => fetch(input, init),
+  sendUpload: UploadSender = xhrUpload,
+) {
   const transport = createTransport(fetchImpl);
   return {
     getWorkspace: transport.getWorkspace,
@@ -111,6 +118,7 @@ export function createApiClient(fetchImpl: Fetch = (input, init) => fetch(input,
     ...deliverableEndpoints(transport),
     ...missionEndpoints(transport),
     ...agentEndpoints(transport),
+    ...documentEndpoints(transport, sendUpload),
   };
 }
 

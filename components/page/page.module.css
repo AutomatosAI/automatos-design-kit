@@ -61,6 +61,17 @@
   font: var(--text-body);
 }
 
+/* A search that runs on Enter or its button (Knowledge): the box takes the room left. */
+.searchForm {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.searchForm .search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .search::placeholder {
   color: var(--color-text-3);
 }

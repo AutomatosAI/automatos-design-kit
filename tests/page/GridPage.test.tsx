@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { GridPage, type GridPageProps, type GridStatus, LOAD_MORE, LOADING_MORE } from "@/components/page/GridPage";
-import { LOADING, TRY_AGAIN } from "@/components/page/parts";
+import { LOADING, SEARCH, TRY_AGAIN } from "@/components/page/parts";
 
 // The grid page pattern: header, chips, search, and each state the page can be in.
 
@@ -48,6 +48,16 @@ describe("GridPage", () => {
     grid({ kind: "ready" }, { search: { label: "Search Missions", value: "", onChange } });
     await userEvent.setup().type(screen.getByRole("searchbox", { name: "Search Missions" }), "l");
     expect(onChange).toHaveBeenCalledWith("l");
+  });
+
+  it("searches on Enter or the Search button when the page asks for a submit", async () => {
+    const onSubmit = vi.fn();
+    grid({ kind: "ready" }, { search: { label: "Search your documents", value: "tea", onChange: vi.fn(), onSubmit } });
+    expect(screen.getByRole("search", { name: "Search your documents" })).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.type(screen.getByRole("searchbox", { name: "Search your documents" }), "{Enter}");
+    await user.click(screen.getByRole("button", { name: SEARCH }));
+    expect(onSubmit).toHaveBeenCalledTimes(2);
   });
 
   it("says it is loading, in its own words or the default", () => {

@@ -4,7 +4,7 @@ import { isRecord, parseWorkspace, type Workspace } from "@/lib/client/types";
 // workspace once, keeps it in memory, and sends its id as X-Workspace-ID on every
 // other request. The endpoint groups (lib/client/api.ts, lib/client/missions.ts) sit on it.
 
-const WORKSPACE_HEADER = "X-Workspace-ID";
+export const WORKSPACE_HEADER = "X-Workspace-ID";
 const UNREACHABLE = 0;
 
 /** A request that failed. status 502 means Automatos isn't running; 0 means Play's own server didn't answer. */
@@ -22,7 +22,7 @@ export class ApiError extends Error {
 export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 /** Our proxy says {error}; FastAPI says {detail}, a string or a validation list. */
-function errorMessage(body: unknown, status: number): string {
+export function errorMessage(body: unknown, status: number): string {
   if (isRecord(body)) {
     if (typeof body.error === "string") return body.error;
     if (typeof body.detail === "string") return body.detail;
