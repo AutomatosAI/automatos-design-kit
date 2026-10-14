@@ -6,9 +6,9 @@ The repo is still called `automatos-play`. The kit is being built in one wave (P
 
 ## The pages
 
-- **Editor** (`/`): for now the Look editor the kit grew from (PRD-002): background, accent, display type, Auto's shell and light, and the glow, with five presets, your own saved Looks, and export or import as `.look.json`. It re-themes the kit itself live. The skin editor replaces it (K-004).
+- **Editor** (`/`): the skin editor. Start from Studio, Classic or an example skin; set the details (name, slug, author, version, licence, description, base and tones); change any of Studio's colour tokens, grouped as Surfaces, Text, Brand, Status, Charts and Studio aliases, with light and dark side by side (a tone the skin drops has no column). Every colour shows a contrast badge for each text pair it is part of (a glyph, the ratio and "AA pass" or "AA fail"), and a failing pair offers "Use suggestion", a readable colour. Radius (0–24 px) and glow (0–40 px) are sliders. Undo and Redo are buttons and keys (Ctrl or Cmd + Z, add Shift to redo). The draft is kept in this browser and survives a reload. A live preview beside it shows a few Studio-shaped components with the skin applied, made by the same CSS generator Studio uses. Fonts and the mascot come with K-006.
 - **Preview** (`/preview`): Studio's components with your skin applied, in both bases and both tones. Not built yet (K-005).
-- **Style sheet** (`/style`, "See the style sheet" in the editor): the active Look's colours with their contrast ratios, its type, spacing, radii, components and Auto's 12 ring colours, and a copy of its CSS variables.
+- **Style sheet** (`/style`): the active Look's colours with their contrast ratios, its type, spacing, radii, components and Auto's 12 ring colours, and a copy of its CSS variables.
 - **Examples** (`/examples`): Ember, Daylight, Workshop and Neon to start from. Not built yet (K-008).
 
 The kit needs no running Automatos. Only Load into my Automatos and Submit (K-007) talk to one, through the kit's own server.

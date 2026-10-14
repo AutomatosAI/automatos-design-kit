@@ -7,6 +7,8 @@ import NotFound from "@/app/not-found";
 import StyleSheetPage from "@/app/style/page";
 import { LookProvider } from "@/components/looks/LookProvider";
 import { AppShell } from "@/components/shell/AppShell";
+import { EDITOR_HEADING } from "@/components/skins/SkinEditor";
+import { SKIN_CSS_TEST_ID } from "@/components/skins/SkinPreviewStrip";
 import { LOST_LINK } from "@/components/shell/LostScreen";
 import { HELLO_KEY } from "@/lib/mascot/session";
 
@@ -60,7 +62,7 @@ afterEach(() => {
 });
 
 describe("keyboard reach", () => {
-  it("reaches the shell and every control in the editor", async () => {
+  it("reaches the shell and every control in the skin editor", async () => {
     const user = userEvent.setup();
     render(
       <LookProvider>
@@ -69,7 +71,8 @@ describe("keyboard reach", () => {
         </AppShell>
       </LookProvider>,
     );
-    await screen.findByRole("link", { name: "See the style sheet" });
+    await screen.findByRole("heading", { level: 1, name: EDITOR_HEADING });
+    await screen.findByTestId(SKIN_CSS_TEST_ID);
     await expectAllReachable(user);
   });
 

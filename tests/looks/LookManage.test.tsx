@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import LooksPage from "@/app/page";
+import { LooksScreen as LooksPage } from "@/components/looks/LooksScreen";
 import { LookProvider } from "@/components/looks/LookProvider";
 import { lookToCssVars } from "@/lib/looks/css";
 import { EMBER, PRESETS } from "@/lib/looks/presets";

@@ -1,6 +1,6 @@
 # Looks: the format, for designers
 
-A **Look** is how the kit (formerly Automatos Play) looks: the background, the accent, the display type, Auto's shell and light, and how strongly the page glows. You pick and edit one in the kit's editor (`/`, "Make it yours."), and the whole app changes at once. The live style sheet (`/style`, "See the style sheet") shows exactly what the active Look produces, with the numbers.
+A **Look** is how the kit (formerly Automatos Play) looks: the background, the accent, the display type, Auto's shell and light, and how strongly the page glows. The Look editor ("Make it yours.", `components/looks/LooksScreen.tsx`) picks and edits one, and the whole app changes at once; since PRD-004 K-004 the kit's `/` is the skin editor instead, so the Look editor is no longer on a page and the kit keeps the Look stored in the browser (Ember by default). The live style sheet (`/style`) shows exactly what the active Look produces, with the numbers.
 
 This file is the reference for the format (`automatos-interface-look/v1`). The code is the source of truth, and every value below comes from it:
 

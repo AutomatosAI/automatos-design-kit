@@ -1,0 +1,221 @@
+/* The skin editor (PRD-004 K-004): the editing column, and the live preview beside it. */
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6) var(--space-7);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.heading {
+  margin: 0;
+  font: var(--text-hero);
+  letter-spacing: var(--display-letter-spacing);
+}
+
+.lead {
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-text-2);
+}
+
+.status {
+  margin: 0;
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+.note {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+/* Start from, Base and Tones: toggle-like buttons, the chosen one edged in the accent. */
+.choices,
+.choiceGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-6);
+}
+
+.choiceLabel {
+  min-width: var(--space-7);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.choice,
+.historyButton {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.choice[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.choice:disabled,
+.historyButton:disabled {
+  cursor: not-allowed;
+  color: var(--color-text-3);
+  border-color: var(--line);
+}
+
+/* Details: labelled fields in a grid that drops to one column on a phone. */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.input,
+.textarea {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-body);
+}
+
+.textarea {
+  min-height: calc(var(--tap-min) * 2);
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+/* Shape: a label and its value over each slider. */
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: var(--content-max);
+}
+
+.sliderHead {
+  display: flex;
+  justify-content: space-between;
+  font: var(--text-meta);
+  color: var(--color-text);
+}
+
+.sliderValue {
+  font: var(--text-mono-sm);
+  color: var(--color-text-2);
+}
+
+.range {
+  min-height: var(--tap-min);
+  width: 100%;
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* The side column: Undo and Redo over the live preview. */
+.side {
+  width: var(--skin-preview-width);
+  flex: none;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-left: 1px solid var(--line);
+}
+
+.sideHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.history {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@media (max-width: 1023.98px) {
+  .screen {
+    flex-direction: column;
+  }
+
+  .side {
+    width: auto;
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .main {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+  }
+
+  .heading {
+    font: var(--text-hero-phone);
+  }
+
+  .side {
+    padding: var(--space-4);
+  }
+}

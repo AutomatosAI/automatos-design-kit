@@ -9,7 +9,8 @@ import { cssRules, declarations } from "./a11y/css";
 
 // Path, not URL, arithmetic: in jsdom tests vitest rewrites a URL resolved against import.meta.url to self.location (http:).
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const LITERAL_COLOUR = /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
+// hsl(var(--card)) reads a token (Studio's way, in the skin previews); hsl(16 100% 50%) is a literal.
+const LITERAL_COLOUR = /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\((?!\s*var\(--)/i;
 const VAR = /var\((--[\w-]+)\)/g;
 
 function cssFilesUnder(dir: string): string[] {
@@ -63,6 +64,14 @@ describe("theme tokens", () => {
     for (const name of ["--space-1", "--space-7", "--radius-card", "--duration-message", "--duration-glow"]) {
       expect(tokens.get(name)).toMatch(/^\d+(\.\d+)?(px|ms|s)$/);
     }
+  });
+
+  it("tells a token read from a literal colour", () => {
+    expect(LITERAL_COLOUR.test("background: hsl(var(--card));")).toBe(false);
+    expect(LITERAL_COLOUR.test("box-shadow: 0 0 8px hsl(var(--primary) / 0.6);")).toBe(false);
+    expect(LITERAL_COLOUR.test("color: hsl(16 100% 50%);")).toBe(true);
+    expect(LITERAL_COLOUR.test("color: hsla(16, 100%, 50%, 0.5);")).toBe(true);
+    expect(LITERAL_COLOUR.test("color: rgb(0 0 0);")).toBe(true);
   });
 
   it("keeps literal colours out of every stylesheet, app/theme.css included", () => {

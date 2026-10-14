@@ -1,6 +1,6 @@
-import { LooksScreen } from "@/components/looks/LooksScreen";
+import { SkinEditor } from "@/components/skins/SkinEditor";
 
-// The Editor. Until the skin editor lands (PRD-004 K-004) it is the Look editor the kit grew from.
+// The Editor (PRD-004 K-004). The Look editor the kit grew from is components/looks/LooksScreen.
 export default function EditorPage() {
-  return <LooksScreen />;
+  return <SkinEditor />;
 }

@@ -79,8 +79,8 @@
         "Tests pass"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/skins/: SkinEditor (app/page.tsx) = StartOptions + MetaFields (details, Base and Tones toggles) + ColourGroups (one group shown at a time, ColourRow/ColourField per token and tone, badges from pairChecks) + ShapeSliders, aside with Undo/Redo + SkinPreviewStrip (<style data-testid=skin-css> from lib/skins/preview.ts previewCss: base palette + draft, both skinToCss, selectors moved onto [data-skin-preview~=id] / [data-skin-tone=dark] frames, rendered only after storage is read). State: lib/skins/editor-state.ts (grouped edits = one undo step), draft-store.ts (localStorage, validated read-back), useSkinEditor (Ctrl/Cmd+Z, Shift or Ctrl+Y redo). K-005 can reuse previewCss/frameSkins and the --radius-studio-* trick in preview.module.css; K-006 adds fonts/mascot sections to SkinEditor; K-008 fills lib/skins/examples.ts EXAMPLE_SKINS (Start from buttons appear). The Look editor (LooksScreen) is no longer routed."
     },
     {
       "id": "K-005",

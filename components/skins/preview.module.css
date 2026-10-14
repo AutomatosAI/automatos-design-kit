@@ -1,0 +1,203 @@
+/*
+ * The editor's side preview: Studio-shaped components drawn with Studio's own token names, read
+ * the way Studio reads them (hsl(var(--card)); --border-2, --accent-2 and --navy are whole
+ * colours). The variables are set on each frame by the draft's stylesheet (lib/skins/preview.ts:
+ * the base palette, then the skin, both from skinToCss), never by the kit's own Look. Spacing
+ * and type still come from app/theme.css. Studio's corner is the skin's --radius: .frame names
+ * it, and the corners derived from it, as --radius-studio-* for the rules below.
+ */
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.frame {
+  --radius-studio: var(--radius);
+  --radius-studio-frame: calc(var(--radius) + var(--space-1));
+  --radius-studio-inner: calc(var(--radius) - var(--space-1) / 2);
+  --radius-studio-bar: calc(var(--radius) / 2);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-studio-frame);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: var(--text-small);
+  font-family: var(--font-geist-sans, var(--font-text));
+}
+
+.caption {
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.nav {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-studio);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+
+.navItem,
+.navActive {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-studio-inner);
+  color: hsl(var(--muted-foreground));
+}
+
+.navActive {
+  background: var(--accent-2);
+  color: hsl(var(--foreground));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-studio);
+  border: 1px solid var(--border-2, hsl(var(--border)));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 0 var(--skin-glow, 0) hsl(var(--primary) / 0.35);
+}
+
+.cardTitle {
+  font: var(--text-button);
+  font-family: var(--font-newsreader, var(--font-text));
+}
+
+.cardText {
+  color: hsl(var(--muted-foreground));
+}
+
+.badges,
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.success,
+.warning,
+.info,
+.agent {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font: var(--text-meta);
+}
+
+.success {
+  background: hsl(var(--success));
+  color: hsl(var(--success-foreground));
+}
+
+.warning {
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+}
+
+.info {
+  background: hsl(var(--info));
+  color: hsl(var(--info-foreground));
+}
+
+.agent {
+  background: hsl(var(--agent));
+  color: hsl(var(--agent-foreground));
+}
+
+.primary,
+.secondary,
+.outline,
+.destructive {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio);
+  border: 1px solid transparent;
+  font: var(--text-button-sm);
+}
+
+.primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 0 var(--skin-glow, 0) hsl(var(--primary) / 0.6);
+}
+
+.secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.outline {
+  border-color: hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.destructive {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+/* A field with the focus ring drawn, so the ring colour shows. */
+.field {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--popover));
+  color: hsl(var(--muted-foreground));
+  box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+.chart {
+  height: var(--space-7);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--radius-studio);
+  background: hsl(var(--muted));
+}
+
+.bar1,
+.bar2,
+.bar3,
+.bar4,
+.bar5 {
+  flex: 1;
+  border-radius: var(--radius-studio-bar) var(--radius-studio-bar) 0 0;
+}
+
+.bar1 {
+  height: 45%;
+  background: hsl(var(--chart-1));
+}
+
+.bar2 {
+  height: 80%;
+  background: hsl(var(--chart-2));
+}
+
+.bar3 {
+  height: 60%;
+  background: hsl(var(--chart-3));
+}
+
+.bar4 {
+  height: 100%;
+  background: hsl(var(--chart-4));
+}
+
+.bar5 {
+  height: 30%;
+  background: hsl(var(--chart-5));
+}
