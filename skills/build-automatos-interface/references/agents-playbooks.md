@@ -8,7 +8,7 @@ Source of truth: `automatos-ai/orchestrator/api/agents.py`, `api/agent_endpoints
 |---|---|---|
 | GET | `/api/agents/?include_workspace_system=true&limit=100` | the workspace's agents. **Without `include_workspace_system=true`, Auto is left out.** Params also: `skip`, `status`, `agent_type`, `search` |
 | GET | `/api/agents/{id}` | one agent (workspace agents only) |
-| GET | `/api/agents/{id}/performance` | success rate, tasks, tokens and cost; several fields are not measured, see below |
+| GET | `/api/agents/{id}/performance` | success rate, tasks, tokens and cost; several fields are not measured, see below. It takes `period` (`all`, `7d`, `30d`, `24h`) but ignores it: every answer is all-time |
 | GET | `/api/agents/org-chart` | nodes, edges and teams: who reports to whom |
 | GET | `/api/v1/fleet` | **live status for every agent**; see below |
 | PUT | `/api/agents/{id}` | `{status: "active" \| "inactive"}` switches an agent on or off (there is no dedicated route) |

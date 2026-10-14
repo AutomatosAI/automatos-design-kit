@@ -7,6 +7,10 @@ Play is a pilot. Studio stays your main interface. Play works with the **local e
 - Chat with Auto, watch tool calls and receipts as they happen, and stop an answer.
 - Reopen your conversations.
 - Browse the Deliverables shelf and open a Deliverable.
+- Run **Missions** (`/missions`): start one from a goal or from Auto's suggestion in a chat, review and approve its plan, watch it run step by step with Auto following along, pause, resume, cancel or replan it, and open its Deliverables.
+- Meet your crew on the **Agents** page (`/agents`): Auto leads, every agent shows its live state, runtime and model, and you can switch an agent off and on. An agent's page (`/agents/<id>`) has its skills, tools and performance, and Chat with opens a chat with that agent.
+- Give Auto documents on the **Knowledge** page (`/knowledge`): upload PDF, Word, text, Markdown, CSV, HTML, JSON or Excel files up to 50 MB, search them, and open, download or delete one (`/knowledge/<id>`).
+- The sidebar groups the pages (Talk, Work, Crew, Library, Look); on a phone the tab bar has Chats, Missions, Shelf and More.
 - Make it yours: the **Looks page** (`/looks`, Look in the sidebar) re-themes the whole app live: background, accent, type, Auto's shell and light, and the glow. Start from five presets (Ember is the default), save your own, and export or import them as `.look.json` files. Looks are kept in your browser only.
 - See the numbers: the **style page** (`/looks/style`, "See the style sheet" on the Looks page) shows the active Look's colours with their contrast ratios, its type, spacing, radii, components and Auto's 12 ring colours, and copies its CSS variables.
 
@@ -93,9 +97,11 @@ Open **http://localhost:3100**. The first start runs `npm install` inside the co
 
 **Auto is a placeholder.** The mascot files aren't in `public/auto/` (see [The mascot files](#the-mascot-files)).
 
+**A document won't download in Docker** ("Automatos couldn't hand over that file"). The local edition stores documents in MinIO and hands Play a link to `http://localhost:9000`. Play's server fetches that link for you, which works when Play runs on your machine. Inside a container, `localhost` is the container, and the link is signed for that exact address, so Play can't swap it for `minio:9000`. Run Play with `npm run dev` to download documents; everything else works in Docker.
+
 ## For contributors
 
-- The specs are `docs/prd/PRD-001-FUN-UI-PILOT.md` (the pilot) and `docs/prd/PRD-002-LOOKS-POC.md` (Looks). The Look format, its catalogue and the contrast rules: `docs/LOOKS.md`. The API knowledge is `skills/build-automatos-interface/`; `docs/SKILL-GAPS.md` lists where it was wrong during the build.
+- The specs are `docs/prd/PRD-001-FUN-UI-PILOT.md` (the pilot), `docs/prd/PRD-002-LOOKS-POC.md` (Looks) and `docs/prd/PRD-003-MAIN-PAGES.md` (Missions, Agents, Knowledge, and the pages still to come). The Look format, its catalogue and the contrast rules: `docs/LOOKS.md`. The API knowledge is `skills/build-automatos-interface/`; `docs/SKILL-GAPS.md` lists where it was wrong during the build.
 - Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` (CI runs all four).
 - The manual checks against a real install, and how to record stream fixtures: `docs/RUN-CHECKLIST.md`.
 

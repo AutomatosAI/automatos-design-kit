@@ -84,6 +84,8 @@ These are real limits of the backend today. If your UI needs one, raise it with 
 - Agent `/execute` is a stub. Have agents work through chat (`agentId`) or a board Task.
 - A Playbook run is not a Mission: it creates a run record and a board Task.
 - Mission tasks carry `assigned_agent_id` but no agent name: join with the agents list.
+- The fleet (`GET /api/v1/fleet`) leaves Auto out on purpose, so nothing says what Auto has in hand: a mascot on his crew card reads idle (`references/agents-playbooks.md`).
+- A document download in the local edition is a presigned `http://localhost:9000` MinIO URL, which a UI server running in a container can't reach (`references/knowledge.md`, "Download").
 - A board Task links to its Mission and Deliverables by raw ids only. Showing their titles costs one extra call per Task, so fetch them on the detail view, not for the whole board.
 
 ## Verify

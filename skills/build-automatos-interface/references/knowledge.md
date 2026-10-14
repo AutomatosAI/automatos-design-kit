@@ -6,11 +6,11 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/api/documents` | the list, newest first: `skip`, `limit` (≤ 1000, default 100), `status`, `file_type`, `search`. A plain array with **no total**: page with Load more |
+| GET | `/api/documents` | the list, newest first: `skip`, `limit` (≤ 1000, default 100), `status`, `file_type`, `search`. A plain array with **no total**: page with Load more. It also lists what agents filed themselves (`source_type` `agent_output`), as Studio's Documents page does; `exclude_source_type=agent_output` leaves those out (Studio's Analytics page uses it). `team`, `source_type` and `content_hash` filter too |
 | GET | `/api/documents/{id}` | one document, with its `status`. **Use this to check processing**; see below |
-| GET | `/api/documents/{id}/content` | `{document_id, filename, file_type, content, chunk_count}`: the full text, rebuilt from its chunks on every call. It can be large: fetch it only when the document is opened |
+| GET | `/api/documents/{id}/content` | `{document_id, filename, file_type, content, chunk_count, chunks}`: the full text, rebuilt from its chunks (joined with blank lines, so not the original file) on every call. It can be large: fetch it only when the document is opened. **Never send `highlight_chunk_ids`:** it wraps those chunks in raw `<mark data-chunk-id=…>` HTML inside `content` (and fills `chunks`, otherwise null). Without it `content` is plain text; render it as text anyway |
 | GET | `/api/documents/{id}/download?mode=url` | with S3 storage: JSON `{url, filename}`, a presigned URL (`https:`, or `http:` for a local MinIO). With no storage: **the file's bytes themselves** (`application/octet-stream`, `Content-Disposition: attachment`), not JSON. See "Download" below |
-| GET | `/api/documents/{id}/delete-impact` | `{vector_chunks, embeddings, references, storage_freed: "1.20 MB"}`. Show them before confirming a delete |
+| GET | `/api/documents/{id}/delete-impact` | `{vector_chunks, embeddings, references, storage_freed: "1.20 MB", workflows_affected, dependencies}`. Show the first four before confirming a delete. `workflows_affected` and `dependencies` are always `[]` (not built yet in the core): don't show them as "nothing affected" |
 | DELETE | `/api/documents/{id}` | delete |
 | POST | `/api/documents/upload` | multipart; see below |
 | POST | `/api/documents/search` | the search box; see below |
@@ -29,6 +29,8 @@ Documents the owner adds so Auto and the agents can use them. Source of truth: `
 
 Ask for `mode=url` from your server and check the answer's `content-type`: JSON carries `{url, filename}`, anything else is the file. Never let the browser name a path or a URL. Send an `https:` URL to the browser as a redirect; fetch any other URL (an `http:` MinIO) on your server and stream it back, with `X-Content-Type-Options: nosniff`, the sandbox CSP and `Content-Disposition: attachment`, as you would the bytes the backend sends itself.
 
+The local edition's MinIO presigns for `S3_PUBLIC_ENDPOINT_URL`, `http://localhost:9000` (`envs/api.defaults`). Your server reaches it when it runs on the host. In a container, `localhost` is the container, and the signature covers the host, so the URL can't be rewritten to `http://minio:9000`: the download fails there. Say so in words; a fix needs the core (a backend route that streams the file).
+
 ## Processing status
 
 Poll `GET /api/documents/{id}` (or `GET /api/documents/queue/status` for the whole queue) every 5–10 s while something is processing. **Never** poll `POST /api/documents/{id}/reprocess`: that starts processing again. (Studio's unused `useProcessingStatus` hook does exactly this. Don't copy it.)
@@ -37,7 +39,7 @@ Status values: `uploaded`, `processing`, `processed`, `failed`, `duplicate`. The
 
 ## Search
 
-`POST /api/documents/search` with `{"query": "..."}` (`query` is required; the backend returns 422 without it). It returns:
+`POST /api/documents/search` with `{"query": "..."}` (`query` is required; the backend returns 422 without it). `limit` (default 10, at most 50: a bigger body value is cut to 50, a bigger query value is a 422), `min_similarity` (0–1) and `document_ids` are optional, in the body or the query string; the body wins. It returns:
 
 ```
 { query, total_results, execution_time_ms,

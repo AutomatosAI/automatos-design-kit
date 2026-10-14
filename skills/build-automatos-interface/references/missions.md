@@ -4,13 +4,13 @@ A **Mission** is a goal Automatos plans and carries out with several agents. Sou
 
 ## Endpoints
 
-All go through your proxy with `X-Workspace-ID`. In the local edition every permission check passes.
+All go through your proxy with `X-Workspace-ID`. In the local edition every permission check passes. Mission ids are UUIDs: a path id that isn't one answers **422** (FastAPI's validation), not 404, so check the id's form before asking.
 
 | Method | Path | Body / params | Returns |
 |---|---|---|---|
 | POST | `/api/missions` | `{goal (1–10000 chars, required), config?, template_id?, plan_only?, staffing?}` | the Mission (`state` starts at `pending`, then `planning`) |
-| GET | `/api/missions` | `state?`, `limit` 1–100 (default 20), `offset` | `{missions: [...], total, limit, offset}` |
-| GET | `/api/missions/stats` | `period` = `7d`, `30d`, `90d` or `all` | `{total_missions, success_rate, avg_duration_minutes, avg_tokens_used, avg_tasks_per_mission, top_agents, common_failure_reasons, period}` |
+| GET | `/api/missions` | `state?` (an unknown state is a 400), `limit` 1–100 (default 20), `offset` | `{missions: [...], total, limit, offset}`, newest first. A row is the Mission alone: **no `tasks` and no `task_progress`** (only the detail counts them), and its `tokens_used` is the run's own counter, which the detail can correct upward from the usage ledger |
+| GET | `/api/missions/stats` | `period` = `7d`, `30d`, `90d` or `all` | `{total_missions, success_rate, avg_duration_minutes, avg_tokens_used, avg_tasks_per_mission, top_agents, common_failure_reasons, period}`. `success_rate` is a **ratio from 0 to 1** (completed over ended Missions, 0 when none has ended), not a percentage: an agent's performance `success_rate` is 0–100 |
 | GET | `/api/missions/{id}` | — | the Mission plus `tasks`, `recent_events` (the latest 50, newest first), `task_progress {total, done, active, verified, failed, skipped, all_terminal}`, `permission_denials` |
 | GET | `/api/missions/{id}/events` | `event_type?`, `limit` 1–200 (default 50), `offset` | `{events, total, limit, offset}`, newest first. No cursor: page with offset |
 | GET | `/api/missions/{id}/cost` | — | `{total_tokens, estimated_cost, cost_per_1k_tokens, tasks: [{task_id, title, tokens_used}]}` |
@@ -73,4 +73,4 @@ Then it opens the new Mission. Do the same.
 
 ## Mascot
 
-On a Mission page, Auto follows the Mission, not the chat: `planning` and `replanning` → thinking; `running` and `verifying` → working; `awaiting_approval` and `awaiting_human` → listening; `paused` → idle; `completed` → celebrate (once, then idle); `failed` → oops; `cancelled` → idle. Only the Mission open on screen drives him.
+On a Mission page, Auto follows the Mission, not the chat: `pending`, `planning` and `replanning` → thinking; `running` and `verifying` → working; `awaiting_approval` and `awaiting_human` → listening; `paused` → idle; `completed` → celebrate (once, then idle); `failed` → oops; `cancelled` → idle. Only the Mission open on screen drives him.

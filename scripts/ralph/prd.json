@@ -206,8 +206,8 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "RUN-CHECKLIST gains Missions, Agents and Knowledge sections (plus phone width, Looks and setup lines); README lists /missions, /agents, /knowledge and a Docker download troubleshooting entry; skill audit against the core found 11 more gaps (list rows without task_progress, stats success_rate 0-1, UUID ids -> 422, pending pose, performance period ignored, agent_output documents, /content <mark> HTML, empty delete-impact fields, localhost MinIO in a container, search limits, SKILL.md known gaps), all fixed in the skill and logged. tests/pages-docs.test.ts guards it: B-008 must add a README entry and a ### section for each wave 4 page it flips to ready."
     }
   ]
 }
