@@ -134,8 +134,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Wrote docs/LOOKS.md (catalogue tables, v1 format + Ember example, validation and where it runs, storage keys, CSS vars, contrast guarantee with the derived Paper text colours, style page numbers, Command looks.json -> v1 'command' mapping, Marketplace notes), a Looks section in docs/RUN-CHECKLIST.md, README + CLAUDE.md pointers. tests/looks/docs.test.ts keeps LOOKS.md in step with the catalogue (Ember block == lookJson(EMBER), derived hexes from lookToCssVars)."
     }
   ]
 }

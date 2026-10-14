@@ -15,7 +15,7 @@ Time the fresh run from step 3 (PRD success metric: under 10 minutes following o
 
 ### Auto has no black box (Chrome and Safari)
 
-- [ ] **Chrome, dark ground.** On the first open, Auto plays hello with no square behind it: the night background shows through around its outline. Chrome loads `.webm` (DevTools > Network, filter `auto/`).
+- [ ] **Chrome, dark ground.** On the first open, Auto plays hello with no square behind it: the dark page shows through around its outline. Chrome loads `.webm` (DevTools > Network, filter `auto/`).
 - [ ] **Chrome, light ground.** In the DevTools console run `document.querySelectorAll("video").forEach((v) => { v.parentElement.style.background = "white"; })`. Still no square, no dark fringe.
 - [ ] **Safari, dark ground.** Same as Chrome; Safari loads `.mp4` (Web Inspector > Network).
 - [ ] **Safari, light ground.** Same console line in the Web Inspector.
@@ -31,7 +31,7 @@ Time the fresh run from step 3 (PRD success metric: under 10 minutes following o
 
 ### A web search shows searching
 
-- [ ] Ask `Search the web for the latest news about electric bikes`. A tool line says Auto is searching the web (with the query), and Auto plays searching (bronze ring, caption "Searching the web").
+- [ ] Ask `Search the web for the latest news about electric bikes`. A tool line says Auto is searching the web (with the query), and Auto plays searching (the ring in the accent, molten in Ember; caption "Searching the web").
 - [ ] The tool line turns done with its time; Auto goes back to idle, then celebrates on finish if a receipt says done.
 - [ ] "What Auto did" lists the receipts once (not twice).
 
@@ -65,11 +65,28 @@ Time the fresh run from step 3 (PRD success metric: under 10 minutes following o
 - [ ] A Deliverable: the actions sit in a bar at the bottom.
 - [ ] Optional, a real phone: run `npm run dev -- -H 0.0.0.0`, add your Mac's LAN name to `PLAY_ALLOWED_HOSTS` in `.env.local`, restart, and open `http://<that name>:3100` on the phone. Note this exposes Play, and through it Auto as the local super admin, to your network: stop it afterwards.
 
+### Looks
+
+The format and the numbers are in `docs/LOOKS.md`. Start from a clean slate: in the DevTools console run `localStorage.removeItem("automatos-play.looks"); localStorage.removeItem("automatos-play.look")`, then reload. Play opens in Ember (graphite page, molten accent, serif headings).
+
+- [ ] **Switch each preset.** On the Looks page (Look in the sidebar, or the phone tab bar), pick Ember, Obsidian, Aurora, Workshop and Daylight in turn. Each time the preview *and* the sidebar, the page behind it and Auto's caption change at once, with no reload. The heading says the Look's name.
+- [ ] **Edit.** Change the accent, the background, the type, Auto's shell, Auto's light and the glow (drag it to 0: "Off"). Each one changes the whole app at once; the heading says "· edited". Reset brings back the picked Look's values.
+- [ ] **Save.** Edit a preset, press Save as new look: "My look 1" appears at the end of the Looks row and is picked. Rename it, Duplicate it ("… copy"), Delete the copy. Presets offer Duplicate but not Rename or Delete.
+- [ ] **Reload, no flash.** With a saved Look picked (try Daylight-based, the biggest change from Ember), reload with the cache off (DevTools > Network > Disable cache) and on a throttled connection (Slow 4G). The page paints straight in the Look: never a frame of Ember's dark page first. Repeat with an unsaved edit: it survives the reload too.
+- [ ] **Open other pages.** Chat, Conversations, the shelf, a Deliverable, the asleep screen and the 404 all follow the Look (no stray Ember colours).
+- [ ] **Export.** Export downloads `<name>.look.json`. Open it: eleven fields, catalogue keys only, no colours. Copy JSON puts the same text on the clipboard.
+- [ ] **Import.** Delete that saved Look, then import the file with "Or choose a .json file": it comes back under a new id and is picked. Paste the JSON into the box and Import pasted JSON: a second copy appears. Now edit the pasted text to `"accent": "#ff0000"` and import: the error names the six accents, and nothing is added. Paste `<b>hi</b>` as the name: the error or the name shows as plain text, never bold.
+- [ ] **The style page numbers.** See the style sheet. Under Ember the contrast table reads text / bg 16.36:1, text-2 / bg 8.54:1 and ink / molten 6.74:1, each "✓ AA pass". Go back, pick Daylight, and open the style sheet again: the bg swatch is `#F4EEE8`, accent text is `#AA4C1C` with "darkened for reading on Paper", and error text is `#A54B49`. Copy tokens pastes a `:root { … }` block.
+- [ ] **Daylight readability.** In Daylight, read a whole chat with a tool call and an error ("Hit a snag"), the shelf and a Deliverable. Every word is easy to read: links, serif highlights and error words are in the darker text colours, never raw orange or coral on the cream page. The focus ring is visible.
+- [ ] **Auto's shell tint, Chrome.** With the mascot files in place, pick each shell (Bronze, Gold, Silver, Cobalt) on the Looks page. Auto's body takes the tint in the preview and in the mascot column, in the video and in the still (turn on reduced motion to see the still). His eyes and ring keep the light's colour.
+- [ ] **Auto's shell tint, Safari.** The same in Safari, which plays the `.mp4`: the tint applies to the HEVC video with no black box and no flicker when the shell changes.
+- [ ] **No storage.** In a private window with storage blocked (Safari: Settings > Privacy > Block all cookies), Play opens in Ember and the Looks page still re-themes the app; nothing is kept after a reload.
+
 ### Also worth a look
 
 - [ ] `/nope` shows the 404 with Auto lost, and Back to chat works.
 - [ ] Leave the chat alone for 3 minutes: Auto naps ("Having a little nap"); moving the mouse wakes it.
-- [ ] Press Tab through the chat, the shelf and the asleep screen: every stop has a visible mint ring, and nothing is skipped.
+- [ ] Press Tab through the chat, the shelf and the asleep screen: every stop has a visible ring in the accent text colour (molten in Ember), and nothing is skipped.
 - [ ] VoiceOver (Cmd+F5) reads Auto's caption when it changes, and doesn't read the video.
 
 ## Recording real stream fixtures

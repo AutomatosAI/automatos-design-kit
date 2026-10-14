@@ -7,6 +7,8 @@ Play is a pilot. Studio stays your main interface. Play works with the **local e
 - Chat with Auto, watch tool calls and receipts as they happen, and stop an answer.
 - Reopen your conversations.
 - Browse the Deliverables shelf and open a Deliverable.
+- Make it yours: the **Looks page** (`/looks`, Look in the sidebar) re-themes the whole app live: background, accent, type, Auto's shell and light, and the glow. Start from five presets (Ember is the default), save your own, and export or import them as `.look.json` files. Looks are kept in your browser only.
+- See the numbers: the **style page** (`/looks/style`, "See the style sheet" on the Looks page) shows the active Look's colours with their contrast ratios, its type, spacing, radii, components and Auto's 12 ring colours, and copies its CSS variables.
 
 ## Prerequisites
 
@@ -93,7 +95,7 @@ Open **http://localhost:3100**. The first start runs `npm install` inside the co
 
 ## For contributors
 
-- The spec is `docs/prd/PRD-001-FUN-UI-PILOT.md`. The API knowledge is `skills/build-automatos-interface/`; `docs/SKILL-GAPS.md` lists where it was wrong during the build.
+- The specs are `docs/prd/PRD-001-FUN-UI-PILOT.md` (the pilot) and `docs/prd/PRD-002-LOOKS-POC.md` (Looks). The Look format, its catalogue and the contrast rules: `docs/LOOKS.md`. The API knowledge is `skills/build-automatos-interface/`; `docs/SKILL-GAPS.md` lists where it was wrong during the build.
 - Checks: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` (CI runs all four).
 - The manual checks against a real install, and how to record stream fixtures: `docs/RUN-CHECKLIST.md`.
 
