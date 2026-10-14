@@ -64,8 +64,14 @@ describe("finding Auto", () => {
   });
 
   it("leaves him out of the crew, and everyone else in", () => {
-    expect(crewOf([decoy, auto, impostor], auto).map((one) => one.id)).toEqual([1, 3]);
-    expect(crewOf([decoy], null).map((one) => one.id)).toEqual([1]);
+    expect(crewOf([decoy, auto, impostor], auto, WORKSPACE_ID).map((one) => one.id)).toEqual([1, 3]);
+    expect(crewOf([decoy], null, WORKSPACE_ID).map((one) => one.id)).toEqual([1]);
+  });
+
+  it("leaves other workspaces' Autos out too (the super admin's list carries them)", () => {
+    const elsewhere = agent(77, "Auto", { isSystemAgent: true, slug: "auto-9e6123dd-4a93-4b10-adcd-260bdcac7c04" });
+    expect(crewOf([decoy, auto, elsewhere, impostor], auto, WORKSPACE_ID).map((one) => one.id)).toEqual([1, 3]);
+    expect(crewOf([elsewhere], null, WORKSPACE_ID)).toEqual([]);
   });
 });
 

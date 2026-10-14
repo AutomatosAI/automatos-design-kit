@@ -29,9 +29,22 @@ export function findAuto(agents: readonly AgentSummary[], workspaceId: string): 
   return agents.find((agent) => agent.isSystemAgent && agent.slug === slug) ?? null;
 }
 
-/** Everyone but Auto, in the backend's order. */
-export function crewOf(agents: readonly AgentSummary[], auto: AgentSummary | null): readonly AgentSummary[] {
-  return auto ? agents.filter((agent) => agent.id !== auto.id) : agents;
+/**
+ * Another workspace's Auto. The local operator is super admin, so the agents list can carry every
+ * workspace's per-workspace Auto (system agent, slug auto-<that workspace's id>). They aren't this
+ * workspace's crew.
+ */
+export function isOtherWorkspacesAuto(agent: AgentSummary, workspaceId: string): boolean {
+  return agent.isSystemAgent && (agent.slug ?? "").startsWith("auto-") && agent.slug !== autoSlug(workspaceId);
+}
+
+/** Everyone but Auto and other workspaces' Autos, in the backend's order. */
+export function crewOf(
+  agents: readonly AgentSummary[],
+  auto: AgentSummary | null,
+  workspaceId: string,
+): readonly AgentSummary[] {
+  return agents.filter((agent) => agent.id !== auto?.id && !isOtherWorkspacesAuto(agent, workspaceId));
 }
 
 /** The chip, then the search by name (case and spaces ignored). */

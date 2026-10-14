@@ -43,7 +43,7 @@ export function AgentsScreen({ client = api, now, fleetIntervalMs }: AgentsScree
   const live = useMemo(() => fleetById(fleet.status === "ready" ? fleet.value : null), [fleet]);
   const data = crew.status === "ready" ? crew.value : null;
   const auto = data ? findAuto(data.agents, data.workspaceId) : null;
-  const team = data ? crewOf(data.agents, auto) : [];
+  const team = data ? crewOf(data.agents, auto, data.workspaceId) : [];
   const shown = filterCrew(team, filter, search);
   const today = now ?? new Date();
   const note = fleetNote(fleet);
