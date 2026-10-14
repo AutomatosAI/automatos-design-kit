@@ -1,8 +1,9 @@
 "use client";
 
 // The Looks page, "Make it yours." (PRD-002 L-004, Ember looks-01): the heading with the active
-// Look's name, a live preview with Auto, the Looks row and the editor. Every change goes
-// through LookProvider's setLook, which re-themes the whole app at once, not only the preview.
+// Look's name, a live preview with Auto, the Looks row, the picked Look's actions and Import
+// (L-005), and the editor. Every change goes through LookProvider's setLook, which re-themes
+// the whole app at once, not only the preview.
 
 import { useState } from "react";
 
@@ -11,6 +12,8 @@ import { PRESETS } from "@/lib/looks/presets";
 import type { Look } from "@/lib/looks/types";
 
 import { LookEditor } from "./LookEditor";
+import { LookImport } from "./LookImport";
+import { LookManager } from "./LookManager";
 import { useLook } from "./LookProvider";
 import { LookPreview } from "./LookPreview";
 import { LooksRow } from "./LooksRow";
@@ -60,6 +63,8 @@ export function LooksScreen() {
         </div>
         <LookPreview />
         <LooksRow looks={[...PRESETS, ...saved]} activeId={look.id} onPick={pick} />
+        <LookManager />
+        <LookImport />
       </main>
       <LookEditor
         look={look}

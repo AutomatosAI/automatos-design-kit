@@ -1,0 +1,121 @@
+/* "This look" and "Import a look" on the Looks page (PRD-002 L-005): quiet outlined actions,
+   small forms, and what the last action did. No design mock: drawn with the editor's parts. */
+
+.manage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.label {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+.toolbar,
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Outlined, like Reset: the screen's one primary stays Save as new look. */
+.action,
+.danger {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+/* Delete look: the error colour as an edge and as readable text. */
+.danger {
+  border-color: var(--tint-error-line);
+  color: var(--color-error-text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.fieldLabel {
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.field,
+.paste,
+.file {
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.field {
+  font: var(--text-body);
+}
+
+/* JSON is code: monospaced, never wrapped by spell-checking. */
+.paste {
+  resize: vertical;
+  font: var(--text-mono);
+}
+
+.file {
+  font: var(--text-meta);
+  cursor: pointer;
+}
+
+.confirmText {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.done {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-tool);
+  border: 1px solid var(--tint-error-line);
+  background: var(--color-surface);
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.errorTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-error-text);
+}
+
+.errorList {
+  margin: 0;
+  padding-left: var(--space-4);
+}

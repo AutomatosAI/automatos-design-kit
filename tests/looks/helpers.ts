@@ -41,3 +41,13 @@ export function clearRoot(): void {
   document.documentElement.removeAttribute("style");
   document.documentElement.removeAttribute("data-motion");
 }
+
+/** A Blob's text through FileReader (jsdom's Blob may have no text()). */
+export function blobText(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+}

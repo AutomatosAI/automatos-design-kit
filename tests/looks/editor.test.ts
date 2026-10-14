@@ -2,19 +2,22 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  asDuplicate,
   asNewLook,
   baseLook,
   clampGlow,
+  copyName,
   freshLookId,
   glowLabel,
   isEdited,
+  isSavedLook,
   newLookName,
   SAVED_SUB,
   statusLine,
   withValues,
 } from "@/lib/looks/editor";
 import { AURORA, EMBER, WORKSHOP } from "@/lib/looks/presets";
-import { LOOK_ID_PATTERN } from "@/lib/looks/types";
+import { LOOK_ID_PATTERN, LOOK_TEXT_MAX } from "@/lib/looks/types";
 import { validateLook } from "@/lib/looks/validate";
 
 import { myLook } from "./helpers";
@@ -102,5 +105,38 @@ describe("Save as new look", () => {
     expect(fresh).toEqual({ ...edited, id: "look-1", name: "My look 2", sub: SAVED_SUB });
     expect(validateLook(fresh)).toEqual({ ok: true, look: fresh });
     expect(edited.id).toBe("ember");
+  });
+});
+
+describe("Duplicate, rename and delete (L-005)", () => {
+  it("counts only the user's own saved Looks as renameable and deletable, never a preset", () => {
+    expect(isSavedLook(myLook(), [myLook()])).toBe(true);
+    expect(isSavedLook(myLook(), [])).toBe(false);
+    expect(isSavedLook(EMBER, [])).toBe(false);
+    expect(isSavedLook(EMBER, [{ ...EMBER }])).toBe(false);
+  });
+
+  it("names a copy '<name> copy', then 'copy 2', skipping names already taken", () => {
+    expect(copyName("Ember", [])).toBe("Ember copy");
+    expect(copyName("Ember", [myLook({ id: "a", name: "Ember copy" })])).toBe("Ember copy 2");
+    expect(
+      copyName("Ember", [myLook({ id: "a", name: "Ember copy" }), myLook({ id: "b", name: "Ember copy 2" })]),
+    ).toBe("Ember copy 3");
+  });
+
+  it("keeps a copy's name within the 40-character limit", () => {
+    const long = "A".repeat(LOOK_TEXT_MAX);
+    const name = copyName(long, []);
+    expect([...name].length).toBeLessThanOrEqual(LOOK_TEXT_MAX);
+    expect(name.endsWith(" copy")).toBe(true);
+    const taken = Array.from({ length: 12 }, (_, i) => myLook({ id: `c${i}`, name: i === 0 ? name : `${name} ${i + 1}` }));
+    expect([...copyName(long, taken)].length).toBeLessThanOrEqual(LOOK_TEXT_MAX);
+  });
+
+  it("duplicates a preset or a saved Look under a fresh id, keeping its values, and validates", () => {
+    const copy = asDuplicate(AURORA, [myLook()]);
+    expect(copy).toEqual({ ...AURORA, id: "look-1", name: "Aurora copy" });
+    expect(validateLook(copy)).toEqual({ ok: true, look: copy });
+    expect(asDuplicate(myLook(), [myLook()])).toEqual({ ...myLook(), id: "look-1", name: "My look 1 copy" });
   });
 });

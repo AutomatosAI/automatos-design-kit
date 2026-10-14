@@ -1,5 +1,5 @@
-import { findPreset, PRESETS } from "./presets";
-import { GLOW_MAX, GLOW_MIN, type Look } from "./types";
+import { findPreset, isPresetId, PRESETS } from "./presets";
+import { GLOW_MAX, GLOW_MIN, LOOK_TEXT_MAX, type Look } from "./types";
 
 // The Looks page's rules, pure: which Look the active one started from, whether it has been
 // edited since, and what "Save as new look" makes. No React, no storage.
@@ -69,4 +69,27 @@ export function freshLookId(saved: readonly Look[]): string {
 /** The active Look's values under a new id and name, ready for saveLook. */
 export function asNewLook(look: Look, saved: readonly Look[]): Look {
   return { ...look, id: freshLookId(saved), name: newLookName(saved), sub: SAVED_SUB };
+}
+
+/** True when the user can rename or delete it: one of their saved Looks, never a preset. */
+export function isSavedLook(look: Look, saved: readonly Look[]): boolean {
+  return !isPresetId(look.id) && saved.some((entry) => entry.id === look.id);
+}
+
+const COPY_WORD = "copy";
+// Room for " copy 99" after the clipped name, so the copy's name stays within LOOK_TEXT_MAX.
+const COPY_ROOM = 8;
+
+/** "Ember copy", then "Ember copy 2"... the first no preset or saved Look is called. */
+export function copyName(name: string, saved: readonly Look[]): string {
+  const taken = new Set([...PRESETS, ...saved].map((entry) => entry.name));
+  const base = [...name].slice(0, LOOK_TEXT_MAX - COPY_ROOM).join("").trim();
+  let candidate = `${base} ${COPY_WORD}`;
+  for (let n = 2; taken.has(candidate); n += 1) candidate = `${base} ${COPY_WORD} ${n}`;
+  return candidate;
+}
+
+/** A copy of the Look as it was picked, under a fresh id and "<name> copy". */
+export function asDuplicate(look: Look, saved: readonly Look[]): Look {
+  return { ...look, id: freshLookId(saved), name: copyName(look.name, saved) };
 }
