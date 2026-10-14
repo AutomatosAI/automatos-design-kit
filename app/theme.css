@@ -190,4 +190,7 @@
   --document-max: 760px; /* a Deliverable's page (mock 05) */
   --detail-panel-width: 300px; /* its side panel: Ask Auto, About, Sources */
   --tap-min: 44px; /* the smallest tap target (tests/a11y/css.test.ts) */
+  --look-editor-width: 360px; /* the Looks page's editor panel (Ember looks-01) */
+  --look-card-width: 136px; /* a Look's mini swatch card in the Looks row */
+  --look-card-top: 84px; /* its swatch: the Look's ground, type, light and accent */
 }

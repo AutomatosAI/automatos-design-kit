@@ -1,0 +1,253 @@
+/* The Looks editor panel (Ember looks-01): the option groups, the glow slider and the actions. */
+
+.editor {
+  width: var(--look-editor-width);
+  flex: none;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border-left: 1px solid var(--line);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.label {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+/* Shared by every option: a quiet edge, the accent edge when chosen. */
+.option,
+.typeOption,
+.chip {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-meta);
+  cursor: pointer;
+}
+
+.option[aria-pressed="true"],
+.typeOption[aria-pressed="true"],
+.chip[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+/* Accent: round swatches, the chosen one ringed in the text colour. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.swatch {
+  width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0;
+  border-radius: var(--radius-round);
+  border: 2px solid var(--color-bg);
+  background: var(--swatch);
+  cursor: pointer;
+}
+
+.swatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--color-text);
+}
+
+/* Background: two columns, each with a square of the ground. */
+.grounds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.option {
+  min-height: 48px;
+}
+
+.groundSwatch {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--radius-paper);
+  border: 1px solid var(--line-button);
+  background: var(--swatch);
+}
+
+/* Type: each style set in its own font, at its card size. */
+.types {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.typeOption {
+  min-height: 46px;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+}
+
+.typeSample {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--option-family);
+  font-style: var(--option-style);
+  font-weight: var(--option-weight);
+  font-size: var(--option-size);
+  letter-spacing: var(--option-tracking);
+}
+
+.typeName {
+  flex: none;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+/* Auto's shell and light: four chips in a row, each with a dot of its colour. */
+.chips {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.chip {
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  padding: 0 var(--space-2);
+}
+
+.dot,
+.lightDot {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: var(--radius-round);
+  background: var(--swatch);
+}
+
+.lightDot {
+  box-shadow: 0 0 8px var(--swatch);
+}
+
+/* Glow: the label and its value above the slider. */
+.glowHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.slider {
+  width: 100%;
+  min-height: var(--tap-min);
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.errors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-tool);
+  border: 1px solid var(--tint-error-line);
+  background: var(--color-surface);
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.errorTitle {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-error-text);
+}
+
+.errorList {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Save as new look is the screen's one primary; Reset is outlined. */
+.save,
+.reset {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.save {
+  flex: 1;
+  border: 0;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+}
+
+.reset {
+  border: 1px solid var(--line-button);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.reset:disabled {
+  color: var(--color-text-2);
+  cursor: default;
+}
+
+@media (max-width: 1023.98px) {
+  .editor {
+    width: auto;
+    position: static;
+    height: auto;
+    overflow-y: visible;
+    padding: var(--space-5) var(--space-6) var(--space-6);
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .editor {
+    padding: var(--space-4);
+  }
+
+  .chips {
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    flex: 1 1 40%;
+  }
+}

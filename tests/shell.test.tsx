@@ -14,12 +14,21 @@ describe("AppShell", () => {
     vi.mocked(usePathname).mockReturnValue("/");
   });
 
-  it("renders the three nav items by role and name", () => {
+  it("renders the four nav items by role and name", () => {
     render(<AppShell>page</AppShell>);
     const nav = mainNav();
     expect(nav.getByRole("link", { name: "Chat" })).toHaveAttribute("href", "/");
     expect(nav.getByRole("link", { name: "Conversations" })).toHaveAttribute("href", "/conversations");
     expect(nav.getByRole("link", { name: "Deliverables" })).toHaveAttribute("href", "/deliverables");
+    expect(nav.getByRole("link", { name: "Look" })).toHaveAttribute("href", "/looks");
+  });
+
+  it("marks Look as the current page on the Looks page and gives phones its tab", () => {
+    vi.mocked(usePathname).mockReturnValue("/looks");
+    render(<AppShell>page</AppShell>);
+    expect(mainNav().getByRole("link", { name: "Look" })).toHaveAttribute("aria-current", "page");
+    const tabs = within(screen.getByRole("navigation", { name: "Tabs" }));
+    expect(tabs.getByRole("link", { name: "Look" })).toHaveAttribute("aria-current", "page");
   });
 
   it("marks the current page and renders the children", () => {
