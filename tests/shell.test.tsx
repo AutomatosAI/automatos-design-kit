@@ -14,21 +14,52 @@ describe("AppShell", () => {
     vi.mocked(usePathname).mockReturnValue("/");
   });
 
-  it("renders the four nav items by role and name", () => {
+  it("renders the ready nav items by role and name", () => {
     render(<AppShell>page</AppShell>);
     const nav = mainNav();
     expect(nav.getByRole("link", { name: "Chat" })).toHaveAttribute("href", "/");
     expect(nav.getByRole("link", { name: "Conversations" })).toHaveAttribute("href", "/conversations");
+    expect(nav.getByRole("link", { name: "Missions" })).toHaveAttribute("href", "/missions");
+    expect(nav.getByRole("link", { name: "Agents" })).toHaveAttribute("href", "/agents");
     expect(nav.getByRole("link", { name: "Deliverables" })).toHaveAttribute("href", "/deliverables");
+    expect(nav.getByRole("link", { name: "Knowledge" })).toHaveAttribute("href", "/knowledge");
     expect(nav.getByRole("link", { name: "Look" })).toHaveAttribute("href", "/looks");
   });
 
-  it("marks Look as the current page on the Looks page and gives phones its tab", () => {
+  it("labels the groups and keeps their order, with Look last on its own", () => {
+    render(<AppShell>page</AppShell>);
+    const groups = [
+      ["Talk", ["Chat", "Conversations"]],
+      ["Work", ["Missions"]],
+      ["Crew", ["Agents"]],
+      ["Library", ["Deliverables", "Knowledge"]],
+    ] as const;
+    expect(mainNav().getAllByRole("group")).toHaveLength(groups.length);
+    for (const [label, items] of groups) {
+      const group = mainNav().getByRole("group", { name: label });
+      expect(within(group).getAllByRole("link").map((link) => link.textContent)).toEqual(items);
+    }
+    const links = mainNav().getAllByRole("link").map((link) => link.textContent);
+    expect(links).toEqual(["Chat", "Conversations", "Missions", "Agents", "Deliverables", "Knowledge", "Look"]);
+  });
+
+  it("renders no hidden item and no empty group (Board, Playbooks, Analytics, Insights)", () => {
+    vi.mocked(usePathname).mockReturnValue("/missions");
+    render(<AppShell>page</AppShell>);
+    for (const name of ["Board", "Playbooks", "Analytics"]) {
+      expect(screen.queryByRole("link", { name })).not.toBeInTheDocument();
+    }
+    expect(mainNav().queryByRole("group", { name: "Insights" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Insights")).not.toBeInTheDocument();
+  });
+
+  it("marks Look as the current page on the Looks page, and More on phones", () => {
     vi.mocked(usePathname).mockReturnValue("/looks");
     render(<AppShell>page</AppShell>);
     expect(mainNav().getByRole("link", { name: "Look" })).toHaveAttribute("aria-current", "page");
     const tabs = within(screen.getByRole("navigation", { name: "Tabs" }));
-    expect(tabs.getByRole("link", { name: "Look" })).toHaveAttribute("aria-current", "page");
+    expect(tabs.queryByRole("link", { name: "Look" })).not.toBeInTheDocument();
+    expect(tabs.getByRole("button", { name: "More" })).toHaveAttribute("data-current", "true");
   });
 
   it("marks the current page and renders the children", () => {
@@ -73,12 +104,14 @@ describe("AppShell", () => {
     expect(screen.queryByRole("navigation", { name: "Tabs" })).not.toBeInTheDocument();
   });
 
-  it("gives the lists the phone tab bar (Chats / Shelf)", () => {
+  it("gives the lists the phone tab bar (Chats · Missions · Shelf · More)", () => {
     vi.mocked(usePathname).mockReturnValue("/deliverables");
     render(<AppShell>page</AppShell>);
     const tabs = within(screen.getByRole("navigation", { name: "Tabs" }));
     expect(tabs.getByRole("link", { name: "Shelf" })).toHaveAttribute("aria-current", "page");
     expect(tabs.getByRole("link", { name: "Chats" })).not.toHaveAttribute("aria-current");
+    expect(tabs.getByRole("link", { name: "Missions" })).toHaveAttribute("href", "/missions");
+    expect(tabs.getByRole("button", { name: "More" })).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("banner")).not.toBeInTheDocument();
   });
 });

@@ -78,6 +78,7 @@
   --tint-error-line: color-mix(in srgb, var(--error) 45%, transparent);
   --tint-placeholder: color-mix(in srgb, var(--auto-shell) 30%, transparent); /* Auto's stand-in */
   --tint-visor: color-mix(in srgb, var(--ground-bg) 60%, transparent);
+  --tint-scrim: color-mix(in srgb, var(--ground-bg) 72%, transparent); /* the page behind the phone More sheet */
 
   /* Page ground and its glow (app/globals.css). --glow is the Look's accent at its glow level. */
   --page-background: var(--color-bg);

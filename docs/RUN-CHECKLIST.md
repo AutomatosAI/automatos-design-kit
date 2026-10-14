@@ -61,7 +61,7 @@ Time the fresh run from step 3 (PRD success metric: under 10 minutes following o
 
 - [ ] DevTools device toolbar at 390 px wide (iPhone 14): no sideways scrolling on the chat, Conversations, the shelf, a Deliverable, the asleep screen and the 404.
 - [ ] Chat: the top bar shows, the sidebar doesn't, Auto is a small row above the message box.
-- [ ] Conversations and the shelf: the tab bar at the bottom works.
+- [ ] Conversations, Missions and the shelf: the tab bar at the bottom works (Chats · Missions · Shelf · More). More opens a sheet with Agents, Knowledge and Look; Escape or Close shuts it and focus lands back on More.
 - [ ] A Deliverable: the actions sit in a bar at the bottom.
 - [ ] Optional, a real phone: run `npm run dev -- -H 0.0.0.0`, add your Mac's LAN name to `PLAY_ALLOWED_HOSTS` in `.env.local`, restart, and open `http://<that name>:3100` on the phone. Note this exposes Play, and through it Auto as the local super admin, to your network: stop it afterwards.
 
@@ -69,7 +69,7 @@ Time the fresh run from step 3 (PRD success metric: under 10 minutes following o
 
 The format and the numbers are in `docs/LOOKS.md`. Start from a clean slate: in the DevTools console run `localStorage.removeItem("automatos-play.looks"); localStorage.removeItem("automatos-play.look")`, then reload. Play opens in Ember (graphite page, molten accent, serif headings).
 
-- [ ] **Switch each preset.** On the Looks page (Look in the sidebar, or the phone tab bar), pick Ember, Obsidian, Aurora, Workshop and Daylight in turn. Each time the preview *and* the sidebar, the page behind it and Auto's caption change at once, with no reload. The heading says the Look's name.
+- [ ] **Switch each preset.** On the Looks page (Look in the sidebar, or More in the phone tab bar), pick Ember, Obsidian, Aurora, Workshop and Daylight in turn. Each time the preview *and* the sidebar, the page behind it and Auto's caption change at once, with no reload. The heading says the Look's name.
 - [ ] **Edit.** Change the accent, the background, the type, Auto's shell, Auto's light and the glow (drag it to 0: "Off"). Each one changes the whole app at once; the heading says "· edited". Reset brings back the picked Look's values.
 - [ ] **Save.** Edit a preset, press Save as new look: "My look 1" appears at the end of the Looks row and is picked. Rename it, Duplicate it ("… copy"), Delete the copy. Presets offer Duplicate but not Rename or Delete.
 - [ ] **Reload, no flash.** With a saved Look picked (try Daylight-based, the biggest change from Ember), reload with the cache off (DevTools > Network > Disable cache) and on a throttled connection (Slow 4G). The page paints straight in the Look: never a frame of Ember's dark page first. Repeat with an unsaved edit: it survives the reload too.

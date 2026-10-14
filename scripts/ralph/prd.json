@@ -28,8 +28,8 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/shell/nav.ts: NAV_GROUPS (every page, `ready` flag; Board/Playbooks/Analytics false), visibleGroups(), NAV_ITEMS (ready, flat), PHONE_TABS (Chats/Missions/Shelf), MORE_ITEMS (Agents, Knowledge, Look), isMoreActive; phoneChrome gives the tab bar to every nav href except / (wave 4 lists included), detail pages none. Sidebar groups are role=group named by a small caps label; PhoneTabBar's More opens components/shell/MoreSheet.tsx (role=dialog aria-modal, document keydown trap, Escape/Close/backdrop close, focus back on More). To show a wave 4 page, set its `ready: true`."
     },
     {
       "id": "P-002",
