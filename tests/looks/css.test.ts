@@ -1,9 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import { LOOK_VAR_NAMES, lookToCssVars, rgbList, rgba } from "@/lib/looks/css";
-import { contrastRatio, READABLE_TARGET } from "@/lib/looks/contrast";
-import { GROUNDS } from "@/lib/looks/catalogue";
+import { LOOK_VAR_NAMES, lookToCssVars, rgbList, rgba, sheetOf } from "@/lib/looks/css";
+import { AA_TEXT, contrastRatio, READABLE_TARGET } from "@/lib/looks/contrast";
+import { ACCENT_KEYS, GROUNDS, GROUND_KEYS } from "@/lib/looks/catalogue";
 import { DAYLIGHT, EMBER, PRESETS } from "@/lib/looks/presets";
 
 describe("lookToCssVars", () => {
@@ -16,6 +16,8 @@ describe("lookToCssVars", () => {
       "--ground-line": "rgba(244,238,232,.12)",
       "--ground-chip": "rgba(244,238,232,.06)",
       "--ground-panel": "rgba(244,238,232,.025)",
+      "--sheet-bg": "#F4EEE8",
+      "--sheet-text": "#131110",
       "--error": "#FF6B6B",
       "--error-text": "#FF6B6B",
       "--accent": "#FF6A1F",
@@ -23,6 +25,7 @@ describe("lookToCssVars", () => {
       "--accent-line": "rgba(255,106,31,0.45)",
       "--accent-fill": "rgba(255,106,31,0.12)",
       "--accent-text": "#FF6A1F",
+      "--sheet-accent": "#AA4A1A",
       "--display-family": "'Instrument Serif',serif",
       "--display-style": "italic",
       "--display-weight": "400",
@@ -48,6 +51,26 @@ describe("lookToCssVars", () => {
       const colour = vars[name] ?? "";
       expect(contrastRatio(colour, GROUNDS.paper.bg)).toBeGreaterThanOrEqual(READABLE_TARGET);
       expect(contrastRatio(colour, GROUNDS.paper.surface)).toBeGreaterThanOrEqual(READABLE_TARGET);
+    }
+  });
+
+  it("prints Deliverables on a cream sheet on dark grounds and on the surface on Paper", () => {
+    expect(sheetOf("graphite")).toEqual({ bg: GROUNDS.graphite.text, text: GROUNDS.graphite.bg });
+    expect(sheetOf("indigo")).toEqual({ bg: GROUNDS.indigo.text, text: GROUNDS.indigo.bg });
+    expect(sheetOf("paper")).toEqual({ bg: GROUNDS.paper.surface, text: GROUNDS.paper.text });
+  });
+
+  it("keeps the sheet's text and accent text readable for all 24 ground x accent pairs", () => {
+    for (const ground of GROUND_KEYS) {
+      for (const accent of ACCENT_KEYS) {
+        const vars = lookToCssVars({ ...EMBER, ground, accent });
+        const sheet = vars["--sheet-bg"] ?? "";
+        for (const name of ["--sheet-text", "--sheet-accent"] as const) {
+          const ratio = contrastRatio(vars[name] ?? "", sheet);
+          const pair = `${ground} x ${accent}: ${name} on --sheet-bg (${ratio.toFixed(2)}:1)`;
+          expect({ pair, passes: ratio >= AA_TEXT }).toEqual({ pair, passes: true });
+        }
+      }
     }
   });
 

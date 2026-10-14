@@ -104,7 +104,7 @@ export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs
   return (
     <PageColumns mascot={compact || empty ? undefined : <MascotColumn>{auto("regular")}</MascotColumn>}>
       <PageHeader title={chatTitle(turn.messages)} />
-      <div className={styles.chat}>
+      <div className={styles.chat} data-empty={empty || undefined}>
         {empty ? (
           <FirstOpenHero state={turn.mascot.mascot} onClipEnded={mascotEvents.onClipEnded} {...caption} />
         ) : (

@@ -76,7 +76,7 @@ export function AsleepScreen({ detail, onCheck, recheckSeconds }: AsleepScreenPr
           </p>
         )}
         <div className={styles.actions}>
-          <button type="button" className={styles.primary} onClick={onCheck}>
+          <button type="button" className={styles.checkAgain} onClick={onCheck}>
             Check again
           </button>
           <span className={styles.hint}>Play also checks every {recheckSeconds} seconds.</span>

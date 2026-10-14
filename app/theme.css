@@ -1,149 +1,137 @@
 /*
- * Automatos Play theme tokens: the single source of colour, type, spacing,
- * radius, shadow and motion. Values come from the style sheet in
- * docs/design/mocks/automatos-play-mocks.dc.html (panels 12-13).
- * Components use var(--token) only; no literal colours anywhere else.
+ * Automatos Play theme tokens (Ember, PRD-002 L-003): the single source of colour, type,
+ * spacing, radius, shadow and motion. Components use var(--token) only.
  *
- * Contrast pairs (foreground on background) that must meet WCAG AA (4.5:1).
- * tests/a11y/contrast.test.ts reads this list: add a pair whenever a text colour
- * lands on a new ground.
- *   --color-text on --color-night
+ * Every colour and every display-type value here is a Look variable (lib/looks/css.ts), set
+ * on <html> by LookProvider and, before first paint, by the inline script in app/layout.tsx.
+ * No literal colour lives in this file: the catalogue (lib/looks/catalogue.ts) is the only
+ * place for those (tests/looks/no-literal-colours.test.ts). Spacing, radii and motion stay
+ * static. Values from docs/design/ember/README.md and the Ember style sheet.
+ *
+ * Contrast pairs (foreground on background) that must meet WCAG AA (4.5:1) in every Look.
+ * tests/a11y/contrast.test.ts resolves each pair for all 24 ground x accent pairs: add a pair
+ * whenever a text colour lands on a new ground.
+ *   --color-text on --color-bg
  *   --color-text on --color-surface
- *   --color-text on --color-raised
- *   --color-text on --color-card
- *   --color-text-2 on --color-night
+ *   --color-text-2 on --color-bg
  *   --color-text-2 on --color-surface
- *   --color-text-2 on --color-raised
- *   --color-text-2 on --color-card
- *   --color-text-3 on --color-night
+ *   --color-text-3 on --color-bg
  *   --color-text-3 on --color-surface
- *   --color-text-3 on --color-card
- *   --color-reply on --color-night
- *   --color-reply on --color-surface
- *   --color-receipt on --color-night
- *   --color-receipt on --color-surface
- *   --color-mint on --color-night
- *   --color-mint on --color-surface
- *   --color-coral on --color-night
- *   --color-coral on --color-surface
- *   --color-violet on --color-night
- *   --color-bronze on --color-night
- *   --color-bronze-soft on --color-night
- *   --color-bronze-soft on --color-surface
- *   --color-white on --color-night
- *   --color-type-report on --color-surface
- *   --color-type-document on --color-surface
- *   --color-type-image on --color-surface
- *   --color-type-spreadsheet on --color-surface
- *   --color-type-slides on --color-surface
- *   --color-bronze-ink on --color-bronze
- *   --color-night on --color-text
+ *   --color-accent-text on --color-bg
+ *   --color-accent-text on --color-surface
+ *   --color-error-text on --color-bg
+ *   --color-error-text on --color-surface
+ *   --color-accent-ink on --color-accent
+ *   --color-bg on --color-text
+ *   --color-sheet-text on --color-sheet
+ *   --color-sheet-accent on --color-sheet
  */
 
 :root {
-  /* Colour: the twelve named swatches */
-  --color-night: #120f2a; /* page */
-  --color-surface: #1b1740; /* inputs, cards */
-  --color-raised: #2a2360; /* your bubble */
-  --color-bronze: #f07a2e; /* the one primary action per screen */
-  --color-bronze-ink: #1a0e05; /* text on bronze */
-  --color-mint: #4bf0b7; /* Auto, done, focus */
-  --color-coral: #ff6b7a; /* errors, always with a cross and words */
-  --color-text: #f3f0ff;
-  --color-text-2: #b9b3da;
-  --color-text-3: #8c86b3;
-  --color-violet: #8b7cff; /* selected nav, loading */
-  --color-dusk: #5e578f; /* sleeping and lost ring */
-  --color-note: #ffd66b; /* mock annotations only, never in the product */
+  /* Colour: the ground */
+  --color-bg: var(--ground-bg); /* page */
+  --color-surface: var(--ground-surface); /* inputs, cards */
+  --color-text: var(--ground-text); /* text; the secondary (cream) button's fill */
+  --color-text-2: var(--ground-text-2); /* secondary text */
+  --color-text-3: var(--ground-text-2); /* tertiary text: the catalogue's text2, so it reads on every ground */
 
-  /* Colour: supporting shades used across the mocks */
-  --color-reply: #e8e4ff; /* Auto's reply text */
-  --color-receipt: #d6d1f2; /* receipt lines */
-  --color-card: #1e1946; /* Deliverable thumbnail ground */
-  --color-card-top: #241f52; /* Deliverable card gradient, top */
-  --color-bronze-soft: #f7c9a6; /* running tool line text */
-  --color-white: #ffffff;
+  /* Colour: the accent, the one primary action per screen and "fresh" things */
+  --color-accent: var(--accent); /* fills, rings, icons */
+  --color-accent-ink: var(--accent-ink); /* text on an accent fill */
+  --color-accent-text: var(--accent-text); /* the accent as text: links, serif highlights, "new", "done" */
 
-  /* Colour: Deliverable type badges */
-  --color-type-report: #f7b98c;
-  --color-type-document: #c9c1ff;
-  --color-type-image: #ffa9c0;
-  --color-type-spreadsheet: #7ff5cb;
-  --color-type-slides: #ffd08a;
+  /* Colour: errors stay coral in every Look, always with a cross and words */
+  --color-error: var(--error); /* fills, rings, icons */
+  --color-error-text: var(--error-text); /* the error as text */
 
-  /* Colour: lines and tints */
-  --line-faint: rgba(180, 170, 255, 0.08);
-  --line-soft: rgba(180, 170, 255, 0.1);
-  --line: rgba(180, 170, 255, 0.14);
-  --line-strong: rgba(180, 170, 255, 0.18);
-  --tint-hover: rgba(255, 255, 255, 0.04);
-  --tint-panel: rgba(255, 255, 255, 0.015);
-  --tint-tool: rgba(255, 255, 255, 0.03);
-  --tint-selected: rgba(139, 124, 255, 0.18);
-  --tint-bronze: rgba(240, 122, 46, 0.08);
-  --tint-bronze-badge: rgba(240, 122, 46, 0.16);
-  --tint-bronze-line: rgba(240, 122, 46, 0.45);
-  --tint-mint: rgba(75, 240, 183, 0.14);
-  --tint-coral: rgba(255, 107, 122, 0.08);
-  --tint-coral-line: rgba(255, 107, 122, 0.45);
-  --tint-bar: rgba(18, 15, 42, 0.9);
-  --tint-bronze-track: rgba(240, 122, 46, 0.3); /* the running tool spinner's track */
-  --tint-mint-line: rgba(75, 240, 183, 0.45); /* the new Deliverable card's border */
-  --tint-mint-faint: rgba(75, 240, 183, 0.08);
-  --line-light: rgba(255, 255, 255, 0.2); /* the Stop button's edge */
+  /* Colour: Auto (L-006 owns how he follows the Look) */
+  --color-light: var(--auto-light); /* his eyes, ring and "connected" only */
+  --color-shell: var(--auto-shell); /* his stand-in's outline while the clips are missing */
+  --color-dusk: color-mix(in srgb, var(--ground-text-2) 45%, var(--ground-bg)); /* asleep and lost */
 
-  /* Mascot rings (mascot.dc.html): mint calm, bronze busy, coral help, dusk asleep, violet loading */
-  --ring-mint-glow: rgba(75, 240, 183, 0.35);
-  --ring-bronze-glow: rgba(240, 122, 46, 0.35);
-  --ring-coral-glow: rgba(255, 107, 122, 0.32);
-  --ring-dusk-glow: rgba(94, 87, 143, 0.25);
-  --ring-violet-glow: rgba(139, 124, 255, 0.35);
+  /* Colour: a Deliverable's page, printed on a sheet (Ember mock 05) */
+  --color-sheet: var(--sheet-bg);
+  --color-sheet-text: var(--sheet-text);
+  --color-sheet-accent: var(--sheet-accent);
+  --tint-sheet-line: color-mix(in srgb, var(--sheet-text) 18%, var(--sheet-bg));
 
-  /* Mascot placeholder (mascot.dc.html), shown when public/auto/ is missing */
-  --tint-placeholder: rgba(240, 122, 46, 0.22);
-  --tint-visor: rgba(18, 15, 42, 0.55);
+  /* Colour: lines, from the ground's text so they suit dark and light grounds */
+  --line-faint: color-mix(in srgb, var(--ground-text) 8%, transparent);
+  --line: var(--ground-line);
+  --line-strong: color-mix(in srgb, var(--ground-text) 16%, transparent); /* your message, chips */
+  --line-button: color-mix(in srgb, var(--ground-text) 24%, transparent); /* outlined buttons */
 
-  /* Page ground */
-  --page-glow-violet: rgba(139, 124, 255, 0.14);
-  --page-glow-bronze: rgba(240, 122, 46, 0.13);
-  --page-background:
-    radial-gradient(900px 520px at 85% 115%, var(--page-glow-bronze), transparent 60%),
-    radial-gradient(800px 500px at 0% -10%, var(--page-glow-violet), transparent 60%),
-    var(--color-night);
+  /* Colour: tints */
+  --tint-hover: var(--ground-chip);
+  --tint-panel: var(--ground-panel);
+  --tint-tool: var(--ground-chip); /* a finished tool line */
+  --tint-selected: var(--ground-chip);
+  --tint-bar: color-mix(in srgb, var(--ground-bg) 90%, transparent); /* phone bars */
+  --tint-accent: var(--accent-fill); /* a running tool line */
+  --tint-accent-line: var(--accent-line); /* its edge, the new Deliverable's edge */
+  --tint-accent-track: color-mix(in srgb, var(--accent) 30%, transparent); /* the spinner's track */
+  --tint-accent-halo: color-mix(in srgb, var(--accent) 18%, transparent); /* the focus halo */
+  --tint-accent-strong: color-mix(in srgb, var(--accent) 28%, transparent); /* the newest shelf card */
+  --tint-accent-faint: color-mix(in srgb, var(--accent) 4%, transparent);
+  --tint-error: color-mix(in srgb, var(--error) 10%, transparent);
+  --tint-error-line: color-mix(in srgb, var(--error) 45%, transparent);
+  --tint-placeholder: color-mix(in srgb, var(--auto-shell) 30%, transparent); /* Auto's stand-in */
+  --tint-visor: color-mix(in srgb, var(--ground-bg) 60%, transparent);
 
-  /* Type: families */
-  --font-display: "Fredoka", system-ui, sans-serif; /* headings, buttons (600) */
-  --font-text: "Figtree", system-ui, sans-serif; /* reading (400-700) */
-  --font-mono: "JetBrains Mono", ui-monospace, monospace; /* tool lines, code */
+  /* Page ground and its glow (app/globals.css). --glow is the Look's accent at its glow level. */
+  --page-background: var(--color-bg);
+  --page-glow: radial-gradient(760px 520px at 82% 62%, var(--glow), transparent 65%);
+  --page-glow-snag: radial-gradient(
+    760px 520px at 82% 62%,
+    color-mix(in srgb, var(--error) 15%, transparent),
+    transparent 65%
+  );
 
-  /* Type: scale */
-  --text-display: 600 56px/1 var(--font-display);
-  --text-h1: 600 40px/1 var(--font-display);
-  --text-h1-phone: 600 30px/1 var(--font-display);
-  --text-h2: 600 22px/1.2 var(--font-display);
-  --text-title: 600 20px/1.2 var(--font-display);
-  --text-caption: 600 19px/1.2 var(--font-display); /* what Auto is doing, under Auto */
-  --text-caption-sm: 600 15px/1.2 var(--font-display); /* the same, beside Auto on phones */
-  --text-speaker: 600 14px/1.2 var(--font-display); /* the "Auto" label over a reply */
-  --text-card-title: 600 18px/1.2 var(--font-display); /* Deliverable card title */
-  --text-document-title: 600 44px/1.05 var(--font-display); /* a Deliverable's page (mock 05) */
-  --text-document-title-phone: 600 32px/1.05 var(--font-display);
-  --text-document-body: 400 16px/1.65 var(--font-text);
-  --text-404: 600 220px/1 var(--font-display); /* the hollow "404" behind Auto (mock 09) */
-  --text-404-phone: 600 140px/1 var(--font-display);
-  --stroke-404: 2px; /* its outline */
-  --text-bar-title: 600 17px/1.2 var(--font-display); /* phone top bar title */
-  --text-bar-link: 600 15px/1 var(--font-text); /* phone top bar links */
-  --text-button: 600 16px/1 var(--font-display);
-  --text-button-sm: 600 15px/1 var(--font-display);
+  /* Type: families. Display comes from the Look (Instrument Serif italic in Ember). */
+  --font-display: var(--display-family);
+  --font-text: "Geist", system-ui, sans-serif; /* reading (400-700) */
+  --font-mono: "Geist Mono", ui-monospace, monospace; /* tool lines, code */
+  --font-display-style: var(--display-style);
+  --font-display-weight: var(--display-weight);
+  --display-letter-spacing: var(--display-tracking);
+
+  /* Type: display, from the Look's sizes. Serif display is never below 19px
+     (tests/looks/ember.test.ts checks every display font at the Editorial sizes). */
+  --text-hero: var(--display-style) var(--display-weight) var(--display-hero) / 0.92 var(--display-family);
+  --text-hero-phone: var(--display-style) var(--display-weight) calc(var(--display-hero) * 0.7) / 0.92
+    var(--display-family);
+  --text-status: var(--display-style) var(--display-weight) var(--display-status) / 1 var(--display-family);
+  --text-status-phone: var(--display-style) var(--display-weight) calc(var(--display-status) * 0.65) / 1
+    var(--display-family);
+  --text-title-lg: var(--display-style) var(--display-weight) calc(var(--display-card) * 1.35) / 1.05
+    var(--display-family); /* the Deliverable card in a reply, the snag box */
+  --text-title: var(--display-style) var(--display-weight) var(--display-card) / 1.1 var(--display-family);
+  --text-brand: var(--display-style) var(--display-weight) var(--display-brand) / 1 var(--display-family);
+  --text-document-title: var(--display-style) var(--display-weight) calc(var(--display-hero) * 0.9) / 0.95
+    var(--display-family);
+  --text-document-title-phone: var(--display-style) var(--display-weight) calc(var(--display-hero) * 0.6) / 0.95
+    var(--display-family);
+  --text-404: var(--display-style) var(--display-weight) calc(var(--display-hero) * 4.5) / 0.8 var(--display-family);
+  --text-404-phone: var(--display-style) var(--display-weight) calc(var(--display-hero) * 2.6) / 0.8
+    var(--display-family);
+  --text-highlight-size: max(19px, 1.17em); /* a serif highlight inside reading text */
+
+  /* Type: text (Geist) */
+  --text-lead: 400 19px/1.5 var(--font-text); /* the line under a big headline */
+  --text-reply: 400 18px/1.6 var(--font-text); /* Auto's answer */
   --text-body: 400 16px/1.6 var(--font-text);
-  --text-nav: 500 15px/1.2 var(--font-text);
-  --text-small: 500 14px/1.4 var(--font-text);
+  --text-document-body: 400 17px/1.6 var(--font-text);
+  --text-button: 600 15px/1 var(--font-text);
+  --text-button-sm: 600 14px/1 var(--font-text);
+  --text-nav: 500 14px/1.2 var(--font-text);
+  --text-bar-link: 500 15px/1 var(--font-text);
+  --text-small: 400 14px/1.45 var(--font-text);
   --text-meta: 500 13px/1.4 var(--font-text);
-  --text-label: 600 11px/1.2 var(--font-text);
+  --text-label: 500 11px/1.2 var(--font-text);
   --text-mono: 400 13px/1.5 var(--font-mono);
-  --text-mono-sm: 500 12px/1.4 var(--font-mono);
-  --label-tracking: 0.08em;
+  --text-mono-sm: 400 12px/1.4 var(--font-mono);
+  --label-tracking: 0.14em;
+  --stroke-404: 2px; /* the hollow "404" outline */
 
   /* Spacing: 4px base */
   --space-1: 4px;
@@ -154,48 +142,49 @@
   --space-6: 40px;
   --space-7: 56px;
 
-  /* Radii */
-  --radius-badge: 6px;
-  --radius-tool: 10px;
-  --radius-button: 12px;
-  --radius-card: 16px;
-  --radius-panel: 14px; /* the receipts box */
-  --radius-cursor: 2px;
-  --radius-bubble: 18px 18px 6px 18px;
-  --radius-round: 999px;
+  /* Radii (Ember): 6 paper, 8 tool line, 10 button, 14 card, pill chips */
+  --radius-paper: 6px;
+  --radius-tool: 8px;
+  --radius-button: 10px;
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --radius-round: 50%; /* dots, the ring, eyes */
+  --radius-icon: 2px; /* the Stop square and the cursor */
 
-  /* Shadows */
-  --shadow-primary: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 6px 18px -6px rgba(240, 122, 46, 0.6);
-  --shadow-mint-glow: 0 0 10px rgba(75, 240, 183, 0.5);
-  --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
-  --shadow-deliverable: 0 0 0 4px var(--tint-mint-faint), 0 18px 40px -16px rgba(75, 240, 183, 0.35);
-  --shadow-ledge: 0 10px 14px -10px var(--tint-bronze-line); /* the glowing shelf ledge under a card (mock 04) */
-  --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint); /* a field's box (the message box) */
-  --focus-field: 0 0 0 1px var(--color-mint), 0 0 0 5px var(--tint-mint); /* a search box: 2px mint edge and the halo (mock 03) */
+  /* Shadows: light, never black, so they suit every ground */
+  --shadow-primary: 0 10px 30px -12px var(--tint-accent-line);
+  --shadow-light-glow: 0 0 8px var(--color-light);
+  --shadow-deliverable: 0 18px 40px -18px var(--tint-accent-line);
+  --shadow-sheet: 0 -10px 60px var(--tint-accent); /* the printed sheet on the desk */
+  --shadow-ledge: 0 10px 14px -10px var(--tint-accent-line); /* the newest shelf card's ledge */
+  --focus-ring: 0 0 0 1px var(--color-accent-text), 0 0 0 4px var(--tint-accent-halo); /* the message box */
+  --focus-field: 0 0 0 1px var(--color-accent-text), 0 0 0 4px var(--tint-accent-halo); /* the search box */
 
   /* Focus: every interactive element (app/globals.css). An outline, so a button's own
-     box-shadow can't hide it. */
-  --focus-outline: 2px solid var(--color-mint);
+     box-shadow can't hide it; the accent as text, so it reads on every ground. */
+  --focus-outline: 2px solid var(--color-accent-text);
   --focus-offset: 2px;
 
-  /* Motion */
+  /* Motion (Ember README) */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --duration-message: 180ms; /* message rises 12px and fades in */
-  --duration-card: 420ms; /* Deliverable card lands */
-  --duration-ring: 2.4s; /* ring pulse loop */
+  --duration-message: 180ms; /* a message rises 12px and fades in */
+  --rise-distance: 12px;
+  --duration-card: 420ms; /* a Deliverable card lands with a 1.04 overshoot */
+  --duration-ring: 2.4s; /* the ring pulses */
+  --duration-glow: 600ms; /* the page glow crossfades with Auto's state */
 
   /* Layout */
-  --sidebar-width: 248px;
-  --mascot-column-width: 320px;
+  --sidebar-width: 232px;
+  --mascot-column-width: 340px;
   --mascot-size: 220px; /* Auto's stage height in the mascot column */
-  --mascot-size-large: 360px; /* first open (mock 06) */
+  --mascot-size-large: 380px; /* first open (mock 06) */
   --mascot-size-small: 84px; /* beside the caption above the message box on phones */
-  --bubble-max: 520px; /* your messages */
-  --deliverable-card-max: 440px; /* the Deliverable card in a reply */
+  --bubble-max: 480px; /* your messages */
+  --deliverable-card-max: 520px; /* the Deliverable card in a reply */
   --composer-max-height: 200px; /* the message box grows to this, then scrolls */
-  --header-height: 68px;
+  --header-height: 80px;
   --phone-bar-height: 56px;
-  --content-max: 720px;
+  --content-max: 700px;
   --shelf-max: 1120px; /* the Deliverables shelf (mock 04) */
   --shelf-card-min: 200px; /* the narrowest shelf card before the grid drops a column */
   --document-max: 760px; /* a Deliverable's page (mock 05) */

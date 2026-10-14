@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import { captionFor, clipUrls, posterUrl, ringTone, videoFormat } from "@/lib/mascot/media";
+import { captionFor, clipUrls, pageGlow, posterUrl, ringTone, videoFormat } from "@/lib/mascot/media";
 import { MASCOT_STATES } from "@/lib/mascot/types";
 
 const UA = {
@@ -75,6 +75,26 @@ describe("ringTone", () => {
       sleeping: "dusk",
       lost: "dusk",
       loading: "violet",
+    });
+  });
+});
+
+describe("pageGlow", () => {
+  it("follows Auto's state: bright for hello and celebrate, busy while he works, coral for a snag, out asleep", () => {
+    const glows = Object.fromEntries(MASCOT_STATES.map((state) => [state, pageGlow(state)]));
+    expect(glows).toEqual({
+      hello: "bright",
+      idle: "calm",
+      listening: "calm",
+      thinking: "busy",
+      working: "busy",
+      searching: "busy",
+      reading: "busy",
+      celebrate: "bright",
+      oops: "snag",
+      sleeping: "off",
+      lost: "calm",
+      loading: "calm",
     });
   });
 });

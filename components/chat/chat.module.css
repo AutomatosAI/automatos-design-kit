@@ -1,11 +1,12 @@
-/* The conversation (mocks 01 and 02): bubbles, Auto's replies, tool lines, receipts, the Deliverable card. */
+/* The conversation (Ember mocks 01, 02 and 08): your messages outlined, Auto's unboxed, tool
+   lines, receipts, the Deliverable card and the snag box. */
 
 .messages {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-7);
 }
 
 .messageList {
@@ -28,11 +29,11 @@
   display: flex;
 }
 
-/* Messages rise 12px and fade in (mock 01 note). */
+/* A message rises 12px and fades in over 180 ms (Ember motion). */
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(var(--rise-distance));
   }
 
   to {
@@ -45,8 +46,8 @@
   max-width: var(--bubble-max);
   margin: 0;
   padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-bubble);
-  background: var(--color-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-card);
   color: var(--color-text);
   font: var(--text-body);
   white-space: pre-wrap;
@@ -65,8 +66,10 @@
 
 .speaker {
   margin: 0;
-  font: var(--text-speaker);
-  color: var(--color-mint);
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-3);
 }
 
 .above {
@@ -93,30 +96,30 @@
   display: flex;
   gap: var(--space-2);
   font: var(--text-small);
-  color: var(--color-coral);
+  color: var(--color-error-text);
 }
 
-/* Marks: mint done, coral failed, bronze waiting, muted skipped or stopped. */
+/* Marks: a done tick in the line's own colour, a coral cross, an accent wait, muted skipped or stopped. */
 
 .mark {
   flex: none;
-  color: var(--color-mint);
+  color: inherit;
 }
 
 [data-tone="failed"] .mark,
 .error .mark {
-  color: var(--color-coral);
+  color: var(--color-error-text);
 }
 
 [data-tone="waiting"] .mark {
-  color: var(--color-bronze);
+  color: var(--color-accent-text);
 }
 
 [data-tone="muted"] .mark {
   color: var(--color-text-3);
 }
 
-/* Tool lines */
+/* Tool lines (Ember style sheet: running / done / failed) */
 
 .toolLines {
   margin: 0;
@@ -124,6 +127,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-2);
 }
 
@@ -131,25 +135,26 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
+  padding: 6px var(--space-3);
   border-radius: var(--radius-tool);
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   background: var(--tint-tool);
-  font: var(--text-mono);
+  font: var(--text-mono-sm);
   color: var(--color-text-2);
   overflow-wrap: anywhere;
 }
 
 .toolLine[data-tone="running"],
 .toolLine[data-tone="waiting"] {
-  border-color: var(--tint-bronze-line);
-  background: var(--tint-bronze);
-  color: var(--color-bronze-soft);
+  border-color: var(--tint-accent-line);
+  background: var(--tint-accent);
+  color: var(--color-text);
 }
 
 .toolLine[data-tone="failed"] {
-  border-color: var(--tint-coral-line);
-  background: var(--tint-coral);
+  border-color: var(--tint-error-line);
+  background: var(--tint-error);
+  color: var(--color-text);
 }
 
 @keyframes spin {
@@ -160,21 +165,21 @@
 
 .spinner {
   flex: none;
-  width: 12px;
-  height: 12px;
-  margin-top: 3px;
+  width: 11px;
+  height: 11px;
+  margin-top: 2px;
   border-radius: var(--radius-round);
-  border: 2px solid var(--tint-bronze-track);
-  border-top-color: var(--color-bronze);
+  border: 2px solid var(--tint-accent-track);
+  border-top-color: var(--color-accent);
   animation: spin 0.8s linear infinite;
 }
 
-/* The answer */
+/* The answer: Geist for reading, with bold set as a serif highlight in the accent. */
 
 .answer {
   width: 100%;
-  font: var(--text-body);
-  color: var(--color-reply);
+  font: var(--text-reply);
+  color: var(--color-text);
   overflow-wrap: anywhere;
 }
 
@@ -193,16 +198,22 @@
 }
 
 .markdown strong {
-  color: var(--color-white);
+  font-family: var(--font-display);
+  font-style: var(--font-display-style);
+  font-weight: var(--font-display-weight);
+  font-size: var(--text-highlight-size);
+  letter-spacing: var(--display-letter-spacing);
+  color: var(--color-accent-text);
 }
 
 .markdown a {
-  color: var(--color-mint);
+  color: var(--color-accent-text);
 }
 
+/* Italic in the text's own colour, so it reads on the Deliverable sheet too. */
 .imageAlt {
   font-style: italic;
-  color: var(--color-text-2);
+  color: inherit;
 }
 
 .markdown code {
@@ -239,25 +250,22 @@
 
 .cursor {
   display: inline-block;
-  width: 9px;
-  height: 18px;
+  width: 2px;
+  height: 20px;
   margin-left: 3px;
-  vertical-align: -3px;
-  border-radius: var(--radius-cursor);
-  background: var(--color-mint);
+  vertical-align: -4px;
+  border-radius: var(--radius-icon);
+  background: var(--color-accent);
   animation: blink 1s steps(1) infinite;
 }
 
-/* What Auto did */
+/* What Auto did: a quiet list, the finished Deliverable's "Done" in the accent. */
 
 .receipts {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-panel);
-  border: 1px solid var(--line);
 }
 
 .receiptsTitle {
@@ -274,7 +282,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
 .receipt {
@@ -282,7 +290,7 @@
   flex-direction: column;
   gap: var(--space-1);
   font: var(--text-mono);
-  color: var(--color-receipt);
+  color: var(--color-text-2);
   overflow-wrap: anywhere;
 }
 
@@ -299,38 +307,32 @@
 }
 
 .badge {
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-badge);
-  background: var(--tint-mint);
-  color: var(--color-mint);
+  color: var(--color-accent-text);
 }
 
 [data-tone="failed"] .badge {
-  background: var(--tint-coral);
-  color: var(--color-coral);
+  color: var(--color-error-text);
 }
 
 [data-tone="waiting"] .badge {
-  background: var(--tint-bronze-badge);
-  color: var(--color-bronze-soft);
+  color: var(--color-text);
 }
 
 [data-tone="muted"] .badge {
-  background: var(--tint-hover);
-  color: var(--color-text-2);
+  color: var(--color-text-3);
 }
 
-/* The Deliverable card lands: drop and a small bounce (mock 02 note). */
+/* The Deliverable card lands: drops 16px and overshoots to 1.04 over 420 ms (Ember motion). */
 
 @keyframes land {
   0% {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+    transform: translateY(-16px) scale(0.96);
   }
 
   70% {
     opacity: 1;
-    transform: scale(1.06);
+    transform: scale(1.04);
   }
 
   100% {
@@ -346,20 +348,23 @@
   gap: var(--space-4);
   padding: var(--space-3);
   border-radius: var(--radius-card);
-  border: 1px solid var(--tint-mint-line);
-  background: linear-gradient(180deg, var(--color-card-top), var(--color-card));
+  border: 1px solid var(--tint-accent-line);
+  background: linear-gradient(135deg, var(--tint-accent-halo), var(--tint-accent-faint));
   box-shadow: var(--shadow-deliverable);
   animation: land var(--duration-card) var(--ease-out);
 }
 
+/* A printed sheet: two lines of text and an accent bar. */
 .deliverableTile {
-  --kind: var(--color-type-document);
   width: 72px;
-  height: 88px;
+  height: 90px;
   flex: none;
-  border-radius: var(--radius-tool);
-  border: 1px solid var(--line-strong);
-  background: linear-gradient(160deg, var(--kind), var(--color-card));
+  border-radius: var(--radius-paper);
+  background:
+    linear-gradient(var(--tint-sheet-line), var(--tint-sheet-line)) 10px 14px / 60% 3px no-repeat,
+    linear-gradient(var(--tint-sheet-line), var(--tint-sheet-line)) 10px 24px / 45% 3px no-repeat,
+    linear-gradient(var(--color-accent), var(--color-accent)) right 10px bottom 10px / 12px 30px no-repeat,
+    var(--color-sheet);
 }
 
 .deliverableText {
@@ -372,33 +377,21 @@
 
 .deliverableTitle {
   margin: 0;
-  font: var(--text-card-title);
+  font: var(--text-title-lg);
+  letter-spacing: var(--display-letter-spacing);
   overflow-wrap: anywhere;
 }
 
+/* "Report · just now": a fresh thing, so in the accent. */
 .deliverableMeta {
   margin: 0;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font: var(--text-meta);
-  color: var(--color-text-2);
-}
-
-.deliverableTile[data-kind="report"] {
-  --kind: var(--color-type-report);
-}
-
-.deliverableTile[data-kind="image"] {
-  --kind: var(--color-type-image);
-}
-
-.deliverableTile[data-kind="spreadsheet"] {
-  --kind: var(--color-type-spreadsheet);
-}
-
-.deliverableTile[data-kind="slide"] {
-  --kind: var(--color-type-slides);
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent-text);
 }
 
 .openButton {
@@ -408,10 +401,11 @@
   align-items: center;
   padding: 0 var(--space-5);
   border-radius: var(--radius-button);
-  background: var(--color-bronze);
-  color: var(--color-bronze-ink);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
   font: var(--text-button-sm);
   text-decoration: none;
+  box-shadow: var(--shadow-primary);
 }
 
 @media (max-width: 767.98px) {
@@ -421,6 +415,10 @@
 
   .bubble {
     max-width: 85%;
+  }
+
+  .answer {
+    font: var(--text-body);
   }
 
   .deliverable {
@@ -437,23 +435,24 @@
   }
 }
 
-/* The snag box (mock 08): a coral-edged card with the error in words and Try again. */
+/* The snag box (Ember mock 08): a coral-edged card with the error in words and Try again. */
 .snag {
   width: 100%;
   max-width: var(--deliverable-card-max);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  border: 1px solid var(--tint-coral-line);
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--tint-error-line);
   border-radius: var(--radius-card);
-  background: var(--tint-coral);
+  background: var(--color-surface);
 }
 
 .snagTitle {
   margin: 0;
-  font: var(--text-card-title);
-  color: var(--color-text);
+  font: var(--text-title-lg);
+  letter-spacing: var(--display-letter-spacing);
+  color: var(--color-error-text);
 }
 
 .snagActions {
@@ -468,8 +467,8 @@
   padding: 0 var(--space-5);
   border: 0;
   border-radius: var(--radius-button);
-  background: var(--color-bronze);
-  color: var(--color-bronze-ink);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
   font: var(--text-button-sm);
   cursor: pointer;
 }

@@ -2,6 +2,11 @@
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { ACCENT_KEYS, GROUND_KEYS } from "@/lib/looks/catalogue";
+import { contrastRatio } from "@/lib/looks/contrast";
+import { lookToCssVars } from "@/lib/looks/css";
+import { EMBER } from "@/lib/looks/presets";
+
 import {
   cssRules,
   declarations,
@@ -18,6 +23,8 @@ import {
 // are checked in the stylesheets themselves.
 
 const PHONE_WIDTH = 390;
+/** WCAG 1.4.11: a focus indicator against what is next to it. */
+const NON_TEXT_CONTRAST = 3;
 const TAP_MIN = 44;
 
 /** Rules that only apply to wide screens can be as wide as they like. */
@@ -45,8 +52,25 @@ describe("the focus ring", () => {
     const values = new Map(declarations(ring?.body ?? "").map((decl): [string, string] => [decl.property, decl.value]));
     expect(values.get("outline")).toBe("var(--focus-outline)");
     expect(values.get("outline-offset")).toBe("var(--focus-offset)");
-    expect(resolveTokens("var(--focus-outline)", tokens)).toMatch(/^\d+px solid #[0-9a-f]{6}$/i);
     expect(pxLengths("var(--focus-outline)", tokens)[0]).toBeGreaterThanOrEqual(2);
+  });
+
+  it("is a solid colour from the Look that stands out (3:1) on the page and on cards, in every Look", () => {
+    for (const ground of GROUND_KEYS) {
+      for (const accent of ACCENT_KEYS) {
+        const vars = lookToCssVars({ ...EMBER, ground, accent });
+        const looks = new Map([...themeTokens(), ...Object.entries(vars)]);
+        const outline = resolveTokens("var(--focus-outline)", looks);
+        const where = `${ground} x ${accent}: ${outline}`;
+        const colour = /^\d+px solid (#[0-9a-f]{6})$/i.exec(outline)?.[1];
+        expect({ where, solid: colour !== undefined }).toEqual({ where, solid: true });
+        const ratio = Math.min(
+          contrastRatio(colour ?? "", vars["--ground-bg"] ?? ""),
+          contrastRatio(colour ?? "", vars["--ground-surface"] ?? ""),
+        );
+        expect({ where, visible: ratio >= NON_TEXT_CONTRAST }).toEqual({ where, visible: true });
+      }
+    }
   });
 
   it("is only removed by a rule that draws its own from a --focus- token", () => {

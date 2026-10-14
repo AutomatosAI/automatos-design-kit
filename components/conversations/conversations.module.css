@@ -1,4 +1,4 @@
-/* Conversations (mock 03): the title row, the search box and the grouped list. */
+/* Conversations (Ember mock 03): the title row, the search box and the grouped list. */
 
 .page {
   width: 100%;
@@ -19,9 +19,11 @@
 
 .title {
   margin: 0;
-  font: var(--text-h2);
+  font: var(--text-status);
+  letter-spacing: var(--display-letter-spacing);
 }
 
+/* New chat is the secondary (cream) button; Try again is the failed state's one primary. */
 .newChat,
 .retry {
   min-height: var(--tap-min);
@@ -30,21 +32,26 @@
   padding: 0 var(--space-4);
   border: 0;
   border-radius: var(--radius-button);
-  background: var(--color-bronze);
-  color: var(--color-bronze-ink);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
   font: var(--text-button-sm);
   text-decoration: none;
   cursor: pointer;
+}
+
+.newChat {
+  background: var(--color-text);
+  color: var(--color-bg);
 }
 
 .search {
   min-height: var(--tap-min);
   padding: 0 var(--space-3);
   border-radius: var(--radius-button);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   background: var(--color-surface);
   color: var(--color-text);
-  font: var(--text-nav);
+  font: var(--text-body);
 }
 
 .search::placeholder {
@@ -53,7 +60,7 @@
 
 .search:focus-visible {
   outline: none;
-  border-color: var(--color-mint);
+  border-color: var(--color-accent-text); /* a focus edge: the readable accent, 3:1 on every ground */
   box-shadow: var(--focus-field);
 }
 
@@ -78,7 +85,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0;
 }
 
 .row {
@@ -86,18 +93,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  padding: var(--space-3);
-  border-radius: var(--radius-button);
+  padding: var(--space-3) var(--space-2);
+  border-bottom: 1px solid var(--line-faint);
   color: var(--color-text);
   text-decoration: none;
 }
 
 .row:hover {
+  border-radius: var(--radius-button);
   background: var(--tint-hover);
 }
 
 .rowTop {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
 }
@@ -107,13 +116,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--text-nav);
-  font-weight: 600;
+  font: var(--text-title);
+  letter-spacing: var(--display-letter-spacing);
 }
 
 .time {
   flex: none;
-  font: var(--text-meta);
+  font: var(--text-mono-sm);
   color: var(--color-text-2);
 }
 
@@ -144,7 +153,7 @@
 .error {
   margin: 0;
   font: var(--text-small);
-  color: var(--color-coral);
+  color: var(--color-error-text);
 }
 
 @media (max-width: 767.98px) {
@@ -153,11 +162,6 @@
   }
 
   .title {
-    font: var(--text-h1-phone);
-  }
-
-  .row {
-    border-bottom: 1px solid var(--line-faint);
-    border-radius: 0;
+    font: var(--text-hero-phone);
   }
 }

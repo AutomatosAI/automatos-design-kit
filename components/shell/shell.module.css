@@ -1,4 +1,4 @@
-/* App shell (mock 01): sidebar | main column | mascot column; phone bars below 768 px. */
+/* App shell (Ember mock 01): sidebar | main column | mascot column; phone bars below 768 px. */
 
 .shell {
   display: flex;
@@ -24,8 +24,7 @@
   flex-direction: column;
   gap: var(--space-5);
   padding: var(--space-5) var(--space-4);
-  border-right: 1px solid var(--line-soft);
-  background: var(--tint-panel);
+  border-right: 1px solid var(--line-faint);
   overflow-y: auto;
 }
 
@@ -33,26 +32,18 @@
   min-height: var(--tap-min);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: 0 var(--space-2);
-  font: var(--text-title);
+  padding: 0 var(--space-1);
+  font: var(--text-brand);
+  letter-spacing: var(--display-letter-spacing);
   color: var(--color-text);
   text-decoration: none;
 }
 
-.wordmarkRing {
-  width: 22px;
-  height: 22px;
-  flex: none;
-  border-radius: var(--radius-round);
-  border: 2.5px solid var(--color-mint);
-  box-shadow: var(--shadow-mint-glow);
-}
-
 .wordmarkAccent {
-  color: var(--color-bronze);
+  color: var(--color-accent-text);
 }
 
+/* New chat is the secondary (cream) button: the accent is kept for each screen's one primary. */
 .primaryButton {
   min-height: var(--tap-min);
   display: flex;
@@ -61,11 +52,10 @@
   padding: 0 var(--space-4);
   border: 0;
   border-radius: var(--radius-button);
-  background: var(--color-bronze);
-  color: var(--color-bronze-ink);
-  font: var(--text-button);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font: var(--text-button-sm);
   text-decoration: none;
-  box-shadow: var(--shadow-primary);
 }
 
 .list {
@@ -77,12 +67,13 @@
   gap: var(--space-1);
 }
 
+/* The current page gets an accent dot; the others line up after it. */
 .navLink {
   min-height: var(--tap-min);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-2) 0 var(--space-5);
   border-radius: var(--radius-tool);
   color: var(--color-text-2);
   font: var(--text-nav);
@@ -94,9 +85,19 @@
 }
 
 .navLink[aria-current="page"] {
-  background: var(--tint-selected);
+  position: relative;
   color: var(--color-text);
   font-weight: 600;
+}
+
+.navLink[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: var(--space-2);
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-round);
+  background: var(--color-accent);
 }
 
 .count {
@@ -106,7 +107,7 @@
 
 .sectionLabel {
   margin: 0;
-  padding: 0 var(--space-3) var(--space-2);
+  padding: 0 var(--space-2) var(--space-2);
   font: var(--text-label);
   letter-spacing: var(--label-tracking);
   text-transform: uppercase;
@@ -117,7 +118,7 @@
   min-height: var(--tap-min);
   display: flex;
   align-items: center;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   border-radius: var(--radius-tool);
   color: var(--color-text-2);
   font: var(--text-small);
@@ -135,27 +136,28 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3);
-  border-radius: var(--radius-tool);
-  border: 1px solid var(--line);
+  padding: var(--space-2);
   font: var(--text-mono-sm);
-  color: var(--color-text-2);
+  color: var(--color-text-3);
 }
 
+/* Auto's light is for "connected" only; a dead connection is a hollow dot plus words. */
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   flex: none;
   border-radius: var(--radius-round);
-  background: var(--color-text-3);
+  border: 1.5px solid var(--color-text-3);
 }
 
 .dot[data-status="connected"] {
-  background: var(--color-mint);
+  border-color: var(--color-light);
+  background: var(--color-light);
 }
 
 .dot[data-status="down"] {
-  background: var(--color-coral);
+  border-color: var(--color-error);
+  background: var(--color-error);
 }
 
 /* Phone bars */
@@ -183,7 +185,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: var(--text-bar-title);
+  font: var(--text-title);
+  letter-spacing: var(--display-letter-spacing);
 }
 
 .barLink {
@@ -204,26 +207,34 @@
   z-index: 1;
   justify-content: space-around;
   padding: var(--space-2) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line-soft);
+  border-top: 1px solid var(--line-faint);
   background: var(--tint-bar);
 }
 
 .tabLink {
-  min-width: 88px;
+  min-width: 96px;
   min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
   border-radius: var(--radius-button);
   color: var(--color-text-2);
-  font: var(--text-small);
+  font: var(--text-nav);
   text-decoration: none;
 }
 
 .tabLink[aria-current="page"] {
-  background: var(--tint-selected);
   color: var(--color-text);
   font-weight: 600;
+}
+
+.tabLink[aria-current="page"]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-round);
+  background: var(--color-accent);
 }
 
 /* Page columns: main column plus the mascot column */
@@ -245,20 +256,25 @@
   height: var(--header-height);
   flex: none;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: 0 var(--space-6);
-  border-bottom: 1px solid var(--line-faint);
+  padding: 0 var(--space-7) var(--space-2);
 }
 
 .pageTitle {
   margin: 0;
-  font: var(--text-title);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: var(--text-status);
+  letter-spacing: var(--display-letter-spacing);
 }
 
 .pageMeta {
-  font: var(--text-meta);
+  flex: none;
+  font: var(--text-mono-sm);
   color: var(--color-text-3);
 }
 
@@ -273,7 +289,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-5);
-  border-left: 1px solid var(--line-faint);
+  padding: 0 var(--space-5);
 }
 
 @media (max-width: 1023.98px) {

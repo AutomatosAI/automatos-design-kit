@@ -24,7 +24,6 @@ export function Sidebar({ pathname, counts, recent, connection, host }: SidebarP
   return (
     <aside className={styles.sidebar} aria-label="Sidebar">
       <Link href="/" className={styles.wordmark}>
-        <span className={styles.wordmarkRing} aria-hidden="true" />
         <span>
           Automatos <span className={styles.wordmarkAccent}>Play</span>
         </span>

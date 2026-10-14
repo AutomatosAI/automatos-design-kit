@@ -11,7 +11,7 @@ import { type SyntheticEvent, useCallback, useState } from "react";
 
 import { type MascotPlayer, useMascotPlayer } from "@/hooks/useMascotPlayer";
 import { usePrefersReducedMotion, useVideoFormat } from "@/hooks/useMediaPreferences";
-import { captionFor, clipUrls, MASCOT_DIR, posterUrl, ringTone, type VideoFormat } from "@/lib/mascot/media";
+import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, ringTone, type VideoFormat } from "@/lib/mascot/media";
 import type { MascotName } from "@/lib/mascot/types";
 
 import { MascotPlaceholder } from "./MascotPlaceholder";
@@ -63,7 +63,14 @@ export function AutoMascot({
 
   return (
     <div className={styles.auto} data-size={size}>
-      <div className={styles.stage} data-testid="auto-stage" data-ring={ringTone(player.showing)} aria-hidden="true">
+      {/* data-glow: app/globals.css lights the page behind everything from it (body:has). */}
+      <div
+        className={styles.stage}
+        data-testid="auto-stage"
+        data-ring={ringTone(player.showing)}
+        data-glow={pageGlow(player.showing)}
+        aria-hidden="true"
+      >
         <div className={styles.ring} />
         {assets !== "ready" && <MascotPlaceholder state={player.showing} />}
         {video !== null ? (

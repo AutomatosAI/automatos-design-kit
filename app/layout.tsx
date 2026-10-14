@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "@fontsource/fredoka/500.css";
+// Ember type, self-hosted through @fontsource (never a Google Fonts loader). Instrument Serif
+// italic is the Editorial display; Bricolage Grotesque and Fredoka the Characterful and Playful.
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
+import "@fontsource/geist/400.css";
+import "@fontsource/geist/500.css";
+import "@fontsource/geist/600.css";
+import "@fontsource/geist/700.css";
+import "@fontsource/geist-mono/400.css";
+import "@fontsource/geist-mono/500.css";
+import "@fontsource/bricolage-grotesque/700.css";
 import "@fontsource/fredoka/600.css";
-import "@fontsource/figtree/400.css";
-import "@fontsource/figtree/500.css";
-import "@fontsource/figtree/600.css";
-import "@fontsource/figtree/700.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
 import "./theme.css";
 import "./globals.css";
 import { LookProvider } from "@/components/looks/LookProvider";

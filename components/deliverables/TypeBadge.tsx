@@ -1,4 +1,4 @@
-// A Deliverable's type as a small coloured badge ("Report", "Slides"), used on the
+// A Deliverable's type in words ("Report", "Slides"), set in its card's label, used on the
 // chat's Deliverable card and on the shelf.
 
 import { typeLabel } from "@/lib/deliverables/shelf";

@@ -44,6 +44,7 @@ function playTo(video: HTMLVideoElement, seconds: number): void {
 }
 
 const ring = () => screen.getByTestId("auto-stage").getAttribute("data-ring");
+const glow = () => screen.getByTestId("auto-stage").getAttribute("data-glow");
 
 const silenceWarnings = () => vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
@@ -62,6 +63,14 @@ describe("AutoMascot without the files", () => {
     expect(screen.getByText("Searching the web")).toBeInTheDocument();
     expect(stillOf(container).getAttribute("src")).toBe("/auto/searching.png");
     expect(container.querySelector("video")).toBeNull();
+  });
+
+  it("tells the page glow what he is showing (app/globals.css reads data-glow)", () => {
+    for (const [state, expected] of [["searching", "busy"], ["celebrate", "bright"], ["oops", "snag"], ["sleeping", "off"], ["idle", "calm"]] as const) {
+      const { unmount } = render(<AutoMascot state={state} />);
+      expect({ state, glow: glow() }).toEqual({ state, glow: expected });
+      unmount();
+    }
   });
 
   it("falls back to the placeholder when the PNG is missing, without errors", () => {

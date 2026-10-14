@@ -11,7 +11,7 @@ import {
   type ShellKey,
   type TypeStyleKey,
 } from "./catalogue";
-import { readableOn } from "./contrast";
+import { readableOn, relativeLuminance } from "./contrast";
 import { DEFAULT_LOOK } from "./presets";
 import type { Look } from "./types";
 
@@ -41,9 +41,25 @@ export function rgba(hex: string, alpha: number): string {
   return `rgba(${rgbList(hex)},${alpha})`;
 }
 
-/** The ground's colours, plus the fixed error and its readable text on this ground. */
+export interface Sheet {
+  readonly bg: string;
+  readonly text: string;
+}
+
+/**
+ * A Deliverable's page is a printed sheet on the desk (Ember mock 05): the ground's text colour
+ * with its bg as ink on a dark ground (the cream sheet), the ground's surface on a light one.
+ * Either way the pair is one the catalogue tests already hold to AA.
+ */
+export function sheetOf(key: GroundKey): Sheet {
+  const { bg, surface, text } = GROUNDS[key];
+  return relativeLuminance(bg) < relativeLuminance(text) ? { bg: text, text: bg } : { bg: surface, text };
+}
+
+/** The ground's colours, the Deliverable sheet, and the fixed error with its readable text on this ground. */
 export function groundVars(key: GroundKey): CssVars {
   const ground = GROUNDS[key];
+  const sheet = sheetOf(key);
   return {
     "--ground-bg": ground.bg,
     "--ground-surface": ground.surface,
@@ -52,6 +68,8 @@ export function groundVars(key: GroundKey): CssVars {
     "--ground-line": ground.line,
     "--ground-chip": ground.chip,
     "--ground-panel": ground.panel,
+    "--sheet-bg": sheet.bg,
+    "--sheet-text": sheet.text,
     "--error": ERROR_COLOUR,
     "--error-text": readableOn(ERROR_COLOUR, ground.bg, ground.surface, ground.text),
   };
@@ -67,10 +85,17 @@ export function accentVars(key: AccentKey): CssVars {
   };
 }
 
-/** The accent as text: darkened toward the ground's text where the raw accent doesn't read. */
+/**
+ * The accent as text: darkened toward the ground's text where the raw accent doesn't read, and
+ * the same for text in the accent on the Deliverable sheet.
+ */
 export function accentTextVars(ground: GroundKey, accent: AccentKey): CssVars {
   const { bg, surface, text } = GROUNDS[ground];
-  return { "--accent-text": readableOn(ACCENTS[accent].hex, bg, surface, text) };
+  const sheet = sheetOf(ground);
+  return {
+    "--accent-text": readableOn(ACCENTS[accent].hex, bg, surface, text),
+    "--sheet-accent": readableOn(ACCENTS[accent].hex, sheet.bg, sheet.bg, sheet.text),
+  };
 }
 
 /** The display type style (headings, Auto's caption, card titles). Body text stays Geist. */

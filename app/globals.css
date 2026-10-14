@@ -15,14 +15,53 @@ body {
 body {
   min-height: 100dvh;
   background: var(--page-background);
-  background-attachment: fixed;
   color: var(--color-text);
   font: var(--text-body);
   -webkit-font-smoothing: antialiased;
 }
 
+/* The page glow (Ember): the accent's light behind everything, following Auto's state
+   (data-glow on his stage, lib/mascot/media.ts pageGlow) with a 600 ms crossfade. Two fixed
+   layers, because gradients can't be transitioned: the accent one and the coral snag one. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity var(--duration-glow) var(--ease-out);
+}
+
+body::before {
+  background: var(--page-glow);
+  opacity: 0.45;
+}
+
+body::after {
+  background: var(--page-glow-snag);
+  opacity: 0;
+}
+
+body:has([data-glow="busy"])::before {
+  opacity: 0.7;
+}
+
+body:has([data-glow="bright"])::before {
+  opacity: 1;
+}
+
+body:has([data-glow="snag"])::before,
+body:has([data-glow="off"])::before {
+  opacity: 0;
+}
+
+body:has([data-glow="snag"])::after {
+  opacity: 1;
+}
+
 a {
-  color: var(--color-mint);
+  color: var(--color-accent-text);
 }
 
 button {

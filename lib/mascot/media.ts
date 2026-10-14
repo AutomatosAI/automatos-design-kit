@@ -59,6 +59,32 @@ export function ringTone(state: MascotName): RingTone {
   return RING_TONES[state];
 }
 
+/**
+ * How bright the page glow behind everything is (Ember style sheet, motion): the accent at
+ * rest, brighter while he works, brightest for hello and a finished Deliverable, coral for a
+ * snag, and out while he sleeps. app/globals.css crossfades between them over 600 ms.
+ */
+export type PageGlow = "calm" | "busy" | "bright" | "snag" | "off";
+
+const PAGE_GLOWS: Readonly<Record<MascotName, PageGlow>> = {
+  hello: "bright",
+  idle: "calm",
+  listening: "calm",
+  celebrate: "bright",
+  thinking: "busy",
+  working: "busy",
+  searching: "busy",
+  reading: "busy",
+  oops: "snag",
+  sleeping: "off",
+  lost: "calm",
+  loading: "calm",
+};
+
+export function pageGlow(state: MascotName): PageGlow {
+  return PAGE_GLOWS[state];
+}
+
 /** What Auto is doing, in words: the mascot's text equivalent. */
 const CAPTIONS: Readonly<Record<MascotName, string>> = {
   hello: "Hi, I'm Auto.",

@@ -1,4 +1,4 @@
-/* The chat's frame and the message box (mocks 01 and 02); Auto's row above it on phones. */
+/* The chat's frame and the message box (Ember mocks 01, 02 and 06); Auto's row above it on phones. */
 
 .chat {
   flex: 1;
@@ -13,8 +13,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-6) var(--space-5);
-  background: linear-gradient(to bottom, transparent, var(--color-night) var(--space-5));
+  padding: var(--space-2) var(--space-7) var(--space-6);
+  background: linear-gradient(to bottom, transparent, var(--color-bg) var(--space-5));
 }
 
 .mascotRow {
@@ -32,9 +32,9 @@
   display: flex;
   align-items: flex-end;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
   border-radius: var(--radius-card);
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--line);
   background: var(--color-surface);
 }
 
@@ -79,10 +79,18 @@
   cursor: pointer;
 }
 
+/* Send and Stop are the secondary (cream) button in a conversation; on the empty chat
+   (first open) Send is the screen's one primary, in the accent. */
 .send {
   border: 0;
-  background: var(--color-bronze);
-  color: var(--color-bronze-ink);
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.chat[data-empty] .send {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
 }
 
 .send:disabled {
@@ -91,16 +99,16 @@
 }
 
 .stop {
-  border: 1px solid var(--line-light);
+  border: 0;
   background: var(--color-text);
-  color: var(--color-night);
+  color: var(--color-bg);
 }
 
 .stopIcon {
   width: 10px;
   height: 10px;
-  border-radius: var(--radius-cursor);
-  background: var(--color-night);
+  border-radius: var(--radius-icon);
+  background: var(--color-bg);
 }
 
 @media (max-width: 767.98px) {

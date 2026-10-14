@@ -1,4 +1,4 @@
-// The Deliverable Auto just made, inline in his reply (mock 02): a type-coloured tile,
+// The Deliverable Auto just made, inline in his reply (mock 02): a printed-sheet tile,
 // the title, the type badge, and Open, which goes to the Deliverable's page.
 
 import Link from "next/link";

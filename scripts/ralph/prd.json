@@ -59,8 +59,8 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "theme.css now maps every colour/display token to Look vars (--color-bg/surface/text/text-2/text-3/accent/accent-ink/accent-text/error/error-text/light/dusk/sheet*, lines and tints via color-mix); Ember fonts via @fontsource; all 9 screens restyled (cream secondary buttons, accent only for the one primary, serif display from --text-hero/status/title/brand). New: --sheet-bg/-text/-accent (Deliverable page), pageGlow() + data-glow on Auto's stage driving body::before/after in globals.css. L-006: ring tones are mapped in mascot.module.css (calm=light, busy=accent, coral=error, dusk=derived) but the shell filter and ring tests are yours."
     },
     {
       "id": "L-004",

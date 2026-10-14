@@ -77,7 +77,7 @@ describe("ShelfScreen", () => {
     expect(params?.has("artifact_type")).toBe(false);
   });
 
-  it("shows the type colour when a Deliverable has no thumbnail, and the picture when it has one", async () => {
+  it("shows a printed sheet when a Deliverable has no thumbnail, and the picture when it has one", async () => {
     const createObjectURL = vi.fn(() => "blob:play/thumb-laptop");
     const revokeObjectURL = vi.fn();
     restoreUrl = stubObjectUrls(createObjectURL, revokeObjectURL);

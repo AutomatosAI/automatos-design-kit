@@ -1,6 +1,6 @@
 "use client";
 
-// One Deliverable on the shelf (mock 04): the thumbnail (or a type-coloured ground when
+// One Deliverable on the shelf (mock 04): the thumbnail (or a printed sheet when
 // it has none), the title, the type badge and the date. The whole card opens it.
 
 import Link from "next/link";
@@ -31,7 +31,7 @@ export function ShelfCard({ deliverable, client, now, newest }: ShelfCardProps) 
   const title = deliverable.title.trim() || UNTITLED;
   const date = shelfDate(deliverable.createdAt, now);
   const onThumbnailError = () => {
-    console.warn(`[shelf] the thumbnail for Deliverable ${deliverable.id} didn't load, showing its type colour`);
+    console.warn(`[shelf] the thumbnail for Deliverable ${deliverable.id} didn't load, showing a sheet instead`);
     setBroken(true);
   };
 
