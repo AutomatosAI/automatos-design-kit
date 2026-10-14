@@ -71,11 +71,12 @@ describe("skinToCss", () => {
   });
 
   it("puts only shape in the light block of a dark-only skin", () => {
-    // card and its ink: a complete pair on its own (background would bring ring and muted-foreground, K5).
-    const skin = validated({ ...validSkin(), tones: ["dark"], tokens: { dark: { card: "#000000", "card-foreground": "#FFFFFF" } } });
+    // primary and its ink share no token with another pair, so they are complete on their own
+    // (card would bring muted-foreground, which brings background, ring and the rest: K5).
+    const skin = validated({ ...validSkin(), tones: ["dark"], tokens: { dark: { primary: "#000000", "primary-foreground": "#FFFFFF" } } });
     expect(skinToCss(skin)).toBe(
       'html[data-skin="warm-paper"] {\n  --radius: 10px;\n  --skin-glow: 12px;\n}\n' +
-        'html.dark[data-skin="warm-paper"] {\n  --card: 0 0% 0%;\n  --card-foreground: 0 0% 100%;\n  --paper: hsl(0 0% 0%);\n}\n',
+        'html.dark[data-skin="warm-paper"] {\n  --primary: 0 0% 0%;\n  --primary-foreground: 0 0% 100%;\n}\n',
     );
   });
 
