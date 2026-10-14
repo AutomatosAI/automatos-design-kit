@@ -64,7 +64,7 @@ export function LooksScreen() {
             <p className={styles.status} role="status">
               {statusLine(look, saved)}
             </p>
-            <Link href="/looks/style" className={styles.styleLink}>
+            <Link href="/style" className={styles.styleLink}>
               {STYLE_SHEET_LINK}
             </Link>
           </div>

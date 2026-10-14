@@ -30,15 +30,11 @@ const TAP_MIN = 44;
 /** Rules that only apply to wide screens can be as wide as they like. */
 const WIDE_ONLY = /@media[^{]*\(\s*min-width/;
 
-/** Rules that drop the outline without drawing a --focus- ring in the same rule, and why. */
-const OWN_FOCUS = new Map([
-  [`${join("components", "chat", "composer.module.css")} .input:focus-visible`, "the box around it rings (.box:focus-within)"],
-]);
+/** Rules that drop the outline without drawing a --focus- ring in the same rule, and why (none today). */
+const OWN_FOCUS = new Map<string, string>();
 
-/** Interactive elements with no class of their own, and why they may be small. */
-const UNSIZED = new Map([
-  [join("components", "chat", "Markdown.tsx"), "links inside running text (WCAG 2.5.8's inline exception)"],
-]);
+/** Interactive elements with no class of their own, and why they may be small (none today). */
+const UNSIZED = new Map<string, string>();
 
 function allRules() {
   return stylesheets().flatMap((file) => cssRules(readSource(file)).map((rule) => ({ file, ...rule })));
@@ -82,12 +78,6 @@ describe("the focus ring", () => {
       const ownRing = /box-shadow:\s*var\(--focus-/.test(rule.body);
       expect({ key, ownRing: ownRing || OWN_FOCUS.has(key) }).toEqual({ key, ownRing: true });
     }
-  });
-
-  it("rings the message box when its text area has focus", () => {
-    const composer = cssRules(readSource("components/chat/composer.module.css"));
-    const box = composer.find((rule) => rule.selector === ".box:focus-within");
-    expect(box?.body).toMatch(/box-shadow:\s*var\(--focus-ring\)/);
   });
 });
 
@@ -169,13 +159,6 @@ describe("phone widths", () => {
         const where = `${rule.file} ${rule.selector} { ${decl.property}: ${decl.value} }`;
         expect({ where, fits: widest <= PHONE_WIDTH }).toEqual({ where, fits: true });
       }
-    }
-  });
-
-  it("lets wide markdown scroll inside its own box instead of the page", () => {
-    const chat = cssRules(readSource("components/chat/chat.module.css"));
-    for (const selector of [".markdown pre", ".markdown table"]) {
-      expect(chat.find((rule) => rule.selector === selector)?.body).toMatch(/overflow-x:\s*auto/);
     }
   });
 });

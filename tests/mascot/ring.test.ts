@@ -94,14 +94,10 @@ describe("the ring in mascot.module.css", () => {
 describe("Auto's light (the Ember rule)", () => {
   const tokens = themeTokens();
   const LIGHT = "var(--auto-light)";
-  /** Where the light may appear: the ring's calm colour, his eyes and their glow, and "connected". */
-  const ALLOWED = [
-    "components/mascot/mascot.module.css .stage",
-    "components/mascot/mascot.module.css .eye",
-    'components/shell/shell.module.css .dot[data-status="connected"]',
-  ];
+  /** Where the light may appear: the ring's calm colour, his eyes and their glow. */
+  const ALLOWED = ["components/mascot/mascot.module.css .stage", "components/mascot/mascot.module.css .eye"];
 
-  it("is used only for the ring, the eyes' glow and the connected dot", () => {
+  it("is used only for the ring and the eyes' glow", () => {
     const uses = stylesheets().flatMap((file) =>
       cssRules(readSource(file))
         .filter((rule) => !(file === "app/theme.css" && rule.selector === ":root"))

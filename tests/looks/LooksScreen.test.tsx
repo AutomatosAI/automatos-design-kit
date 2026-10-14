@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import LooksPage from "@/app/looks/page";
+import LooksPage from "@/app/page";
 import { LookProvider } from "@/components/looks/LookProvider";
 import { ACCENTS, GROUNDS, LIGHTS, SHELLS, TYPE_STYLES } from "@/lib/looks/catalogue";
 import { lookToCssVars } from "@/lib/looks/css";

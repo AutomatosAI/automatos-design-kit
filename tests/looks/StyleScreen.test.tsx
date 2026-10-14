@@ -2,8 +2,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import LooksPage from "@/app/looks/page";
-import LookStylePage from "@/app/looks/style/page";
+import LooksPage from "@/app/page";
+import LookStylePage from "@/app/style/page";
 import { LookProvider, useLook } from "@/components/looks/LookProvider";
 import { ACCENTS, GROUNDS, LIGHTS } from "@/lib/looks/catalogue";
 import { lookToCssVars } from "@/lib/looks/css";
@@ -230,7 +230,7 @@ describe("the Looks page", () => {
       </LookProvider>,
     );
     await ready();
-    expect(screen.getByRole("link", { name: "See the style sheet" })).toHaveAttribute("href", "/looks/style");
+    expect(screen.getByRole("link", { name: "See the style sheet" })).toHaveAttribute("href", "/style");
     expect(screen.getAllByRole("status")).toHaveLength(1);
   });
 });

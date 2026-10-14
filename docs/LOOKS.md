@@ -1,6 +1,6 @@
 # Looks: the format, for designers
 
-A **Look** is how Automatos Play looks: the background, the accent, the display type, Auto's shell and light, and how strongly the page glows. You pick and edit one on the Looks page (`/looks`, "Make it yours."), and the whole app changes at once. The live style page (`/looks/style`, "See the style sheet") shows exactly what the active Look produces, with the numbers.
+A **Look** is how the kit (formerly Automatos Play) looks: the background, the accent, the display type, Auto's shell and light, and how strongly the page glows. You pick and edit one in the kit's editor (`/`, "Make it yours."), and the whole app changes at once. The live style sheet (`/style`, "See the style sheet") shows exactly what the active Look produces, with the numbers.
 
 This file is the reference for the format (`automatos-interface-look/v1`). The code is the source of truth, and every value below comes from it:
 
@@ -251,7 +251,7 @@ The focus outline uses `--accent-text` too, so it shows on every ground. The sty
 
 ## The style page
 
-`/looks/style` computes everything from the **active** Look and redraws when it changes (`lib/looks/style.ts`):
+`/style` computes everything from the **active** Look and redraws when it changes (`lib/looks/style.ts`):
 
 - **Colour:** a swatch for every colour variable, with its hex and role, and the live contrast table: `text / bg`, `text-2 / bg`, `text / surface`, `text-2 / surface`, `ink / <accent>`, `accent text / bg` and `error text / bg`, each with a "✓ AA pass" or "✕ AA fail" badge. Under Ember: 16.36:1, 8.54:1, 15.16:1, 7.91:1, 6.74:1, 6.57:1 and 6.78:1.
 - **Type:** the display specimens at the Look's own sizes, then reply, body, button, label and mono.

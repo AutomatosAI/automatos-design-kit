@@ -1,12 +1,27 @@
 import { render, screen, within } from "@testing-library/react";
 import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import ExamplesPage from "@/app/examples/page";
+import PreviewPage from "@/app/preview/page";
 import { AppShell } from "@/components/shell/AppShell";
+import { PENDING_PAGES } from "@/components/shell/PendingPage";
 
 vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
 
+const PAGES = [
+  ["Editor", "/"],
+  ["Preview", "/preview"],
+  ["Style sheet", "/style"],
+  ["Examples", "/examples"],
+] as const;
+
 function mainNav() {
   return within(screen.getByRole("navigation", { name: "Main" }));
+}
+
+function tabs() {
+  return within(screen.getByRole("navigation", { name: "Tabs" }));
 }
 
 describe("AppShell", () => {
@@ -14,104 +29,56 @@ describe("AppShell", () => {
     vi.mocked(usePathname).mockReturnValue("/");
   });
 
-  it("renders the ready nav items by role and name", () => {
+  it("names the kit and links its four pages, in order", () => {
     render(<AppShell>page</AppShell>);
-    const nav = mainNav();
-    expect(nav.getByRole("link", { name: "Chat" })).toHaveAttribute("href", "/");
-    expect(nav.getByRole("link", { name: "Conversations" })).toHaveAttribute("href", "/conversations");
-    expect(nav.getByRole("link", { name: "Missions" })).toHaveAttribute("href", "/missions");
-    expect(nav.getByRole("link", { name: "Agents" })).toHaveAttribute("href", "/agents");
-    expect(nav.getByRole("link", { name: "Deliverables" })).toHaveAttribute("href", "/deliverables");
-    expect(nav.getByRole("link", { name: "Knowledge" })).toHaveAttribute("href", "/knowledge");
-    expect(nav.getByRole("link", { name: "Look" })).toHaveAttribute("href", "/looks");
+    expect(screen.getByRole("link", { name: "Automatos Skin Kit" })).toHaveAttribute("href", "/");
+    const links = mainNav().getAllByRole("link");
+    expect(links.map((link) => [link.textContent, link.getAttribute("href")])).toEqual(PAGES.map((page) => [...page]));
   });
 
-  it("labels the groups and keeps their order, with Look last on its own", () => {
+  it("carries none of the retired pages", () => {
     render(<AppShell>page</AppShell>);
-    const groups = [
-      ["Talk", ["Chat", "Conversations"]],
-      ["Work", ["Missions"]],
-      ["Crew", ["Agents"]],
-      ["Library", ["Deliverables", "Knowledge"]],
-    ] as const;
-    expect(mainNav().getAllByRole("group")).toHaveLength(groups.length);
-    for (const [label, items] of groups) {
-      const group = mainNav().getByRole("group", { name: label });
-      expect(within(group).getAllByRole("link").map((link) => link.textContent)).toEqual(items);
-    }
-    const links = mainNav().getAllByRole("link").map((link) => link.textContent);
-    expect(links).toEqual(["Chat", "Conversations", "Missions", "Agents", "Deliverables", "Knowledge", "Look"]);
-  });
-
-  it("renders no hidden item and no empty group (Board, Playbooks, Analytics, Insights)", () => {
-    vi.mocked(usePathname).mockReturnValue("/missions");
-    render(<AppShell>page</AppShell>);
-    for (const name of ["Board", "Playbooks", "Analytics"]) {
+    for (const name of ["Chat", "Conversations", "Missions", "Agents", "Deliverables", "Knowledge", "New chat"]) {
       expect(screen.queryByRole("link", { name })).not.toBeInTheDocument();
     }
-    expect(mainNav().queryByRole("group", { name: "Insights" })).not.toBeInTheDocument();
-    expect(screen.queryByText("Insights")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
-  it("marks Look as the current page on the Looks page, and More on phones", () => {
-    vi.mocked(usePathname).mockReturnValue("/looks");
+  it("gives phones a tab bar with the same four pages", () => {
     render(<AppShell>page</AppShell>);
-    expect(mainNav().getByRole("link", { name: "Look" })).toHaveAttribute("aria-current", "page");
-    const tabs = within(screen.getByRole("navigation", { name: "Tabs" }));
-    expect(tabs.queryByRole("link", { name: "Look" })).not.toBeInTheDocument();
-    expect(tabs.getByRole("button", { name: "More" })).toHaveAttribute("data-current", "true");
+    expect(tabs().getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual(PAGES.map(([, href]) => href));
+    expect(tabs().getByRole("link", { name: "Style" })).toHaveAttribute("href", "/style");
   });
 
-  it("marks the current page and renders the children", () => {
-    vi.mocked(usePathname).mockReturnValue("/deliverables/abc");
+  it("marks the current page in the sidebar and the tab bar, and renders the children", () => {
+    vi.mocked(usePathname).mockReturnValue("/style");
     render(<AppShell>page body</AppShell>);
-    const nav = mainNav();
-    expect(nav.getByRole("link", { name: "Deliverables" })).toHaveAttribute("aria-current", "page");
-    expect(nav.getByRole("link", { name: "Chat" })).not.toHaveAttribute("aria-current");
+    expect(mainNav().getByRole("link", { name: "Style sheet" })).toHaveAttribute("aria-current", "page");
+    expect(mainNav().getByRole("link", { name: "Editor" })).not.toHaveAttribute("aria-current");
+    expect(tabs().getByRole("link", { name: "Style" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByText("page body")).toBeInTheDocument();
   });
 
-  it("shows the wordmark, New chat, counts, the Recent list and the connection pill", () => {
-    render(
-      <AppShell
-        counts={{ conversations: 23, deliverables: 14 }}
-        recent={[{ id: "c1", title: "Laptop for uni" }]}
-        connection="connected"
-        host="localhost"
-      >
-        page
-      </AppShell>,
-    );
-    expect(screen.getByRole("link", { name: "New chat" })).toHaveAttribute("href", "/");
-    expect(mainNav().getByRole("link", { name: /^Conversations\s+23$/ })).toBeInTheDocument();
-    const recent = within(screen.getByRole("region", { name: "Recent" }));
-    expect(recent.getByRole("link", { name: "Laptop for uni" })).toHaveAttribute("href", "/?chat=c1");
-    expect(screen.getByRole("status")).toHaveTextContent("Connected · localhost");
-  });
-
-  it("hides the Recent list when there are no chats", () => {
+  it("marks only the editor on the root", () => {
     render(<AppShell>page</AppShell>);
-    expect(screen.queryByRole("region", { name: "Recent" })).not.toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent("Checking…");
+    const current = mainNav()
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("aria-current") === "page");
+    expect(current.map((link) => link.textContent)).toEqual(["Editor"]);
   });
+});
 
-  it("gives the chat the phone top bar (Chats · title · Shelf)", () => {
-    render(<AppShell title="Laptop for uni">page</AppShell>);
-    const bar = within(screen.getByRole("banner"));
-    expect(bar.getByRole("link", { name: "Chats" })).toHaveAttribute("href", "/conversations");
-    expect(bar.getByText("Laptop for uni")).toBeInTheDocument();
-    expect(bar.getByRole("link", { name: "Shelf" })).toHaveAttribute("href", "/deliverables");
-    expect(screen.queryByRole("navigation", { name: "Tabs" })).not.toBeInTheDocument();
-  });
-
-  it("gives the lists the phone tab bar (Chats · Missions · Shelf · More)", () => {
-    vi.mocked(usePathname).mockReturnValue("/deliverables");
-    render(<AppShell>page</AppShell>);
-    const tabs = within(screen.getByRole("navigation", { name: "Tabs" }));
-    expect(tabs.getByRole("link", { name: "Shelf" })).toHaveAttribute("aria-current", "page");
-    expect(tabs.getByRole("link", { name: "Chats" })).not.toHaveAttribute("aria-current");
-    expect(tabs.getByRole("link", { name: "Missions" })).toHaveAttribute("href", "/missions");
-    expect(tabs.getByRole("button", { name: "More" })).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
+describe("the pages still to come", () => {
+  it("say what Preview and Examples will hold, with the way to the editor", () => {
+    for (const [Page, id] of [
+      [PreviewPage, "preview"],
+      [ExamplesPage, "examples"],
+    ] as const) {
+      const { unmount } = render(<Page />);
+      expect(screen.getByRole("heading", { level: 1, name: PENDING_PAGES[id].title })).toBeInTheDocument();
+      expect(screen.getByText(PENDING_PAGES[id].lead)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Open the editor" })).toHaveAttribute("href", "/");
+      unmount();
+    }
   });
 });

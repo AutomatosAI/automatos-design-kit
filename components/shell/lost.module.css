@@ -1,0 +1,76 @@
+/* The 404 (mock 09): Auto in front of a giant hollow "404", a title, a line and one way back. */
+
+.lost {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.stage404 {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.big404 {
+  font: var(--text-404);
+  letter-spacing: var(--display-letter-spacing);
+  color: transparent;
+  -webkit-text-stroke: var(--stroke-404) var(--line-strong);
+  user-select: none;
+}
+
+.lostAuto {
+  position: absolute;
+  bottom: 0;
+}
+
+.title {
+  margin: 0;
+  font: var(--text-hero);
+  letter-spacing: var(--display-letter-spacing);
+  color: var(--color-text);
+}
+
+.text {
+  max-width: var(--content-max);
+  margin: 0;
+  font: var(--text-lead);
+  color: var(--color-text-2);
+}
+
+.primary {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+  font: var(--text-button);
+  text-decoration: none;
+}
+
+@media (max-width: 767.98px) {
+  .lost {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .title {
+    font: var(--text-hero-phone);
+  }
+
+  .text {
+    font: var(--text-body);
+  }
+
+  .big404 {
+    font: var(--text-404-phone);
+  }
+}

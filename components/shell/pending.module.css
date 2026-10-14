@@ -1,0 +1,47 @@
+/* A kit page not built yet: a title, one paragraph and the way to the editor. */
+
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-7);
+}
+
+.title {
+  margin: 0;
+  font: var(--text-status);
+  letter-spacing: var(--display-letter-spacing);
+  color: var(--color-text);
+}
+
+.lead {
+  max-width: var(--content-max);
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-text-2);
+}
+
+/* The secondary (cream) button: nothing on a page that isn't built is lit. */
+.link {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-button);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font: var(--text-button-sm);
+  text-decoration: none;
+}
+
+@media (max-width: 767.98px) {
+  .page {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .title {
+    font: var(--text-status-phone);
+  }
+}

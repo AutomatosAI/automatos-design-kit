@@ -27,8 +27,8 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Shell is Editor / (the Look editor, LooksScreen, until K-004) · Preview /preview and Examples /examples (PendingPage placeholders: replace the page file) · Style sheet /style. All rebuilt pages, lib/client, hooks and every app/api route removed (git 378e98f); lib/server keeps backend.ts + forward.ts; for K-007's raw-body route see git show 378e98f:lib/server/upload.ts. spec/, skins/, scripts/ exist with READMEs; dist/ ignored."
     },
     {
       "id": "K-002",

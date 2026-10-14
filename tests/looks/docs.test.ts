@@ -67,9 +67,9 @@ describe("docs/LOOKS.md", () => {
 });
 
 describe("the Looks docs are linked", () => {
-  it("README mentions the Looks page, the style page and docs/LOOKS.md", () => {
+  it("README mentions the editor, the style sheet and docs/LOOKS.md", () => {
     const readme = read("README.md");
-    for (const text of ["/looks", "/looks/style", "docs/LOOKS.md"]) expect(readme).toContain(text);
+    for (const text of ["**Editor** (`/`)", "**Style sheet** (`/style`", "docs/LOOKS.md"]) expect(readme).toContain(text);
   });
 
   it("the run checklist has the Looks checks", () => {

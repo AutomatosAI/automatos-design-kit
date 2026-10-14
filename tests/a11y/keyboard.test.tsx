@@ -2,16 +2,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import EditorPage from "@/app/page";
 import NotFound from "@/app/not-found";
-import { ChatScreen } from "@/components/chat/ChatScreen";
-import { ShelfScreen } from "@/components/deliverables/ShelfScreen";
-import { AsleepScreen } from "@/components/edges/AsleepScreen";
+import StyleSheetPage from "@/app/style/page";
+import { LookProvider } from "@/components/looks/LookProvider";
 import { AppShell } from "@/components/shell/AppShell";
-import { createApiClient } from "@/lib/client/api";
+import { LOST_LINK } from "@/components/shell/LostScreen";
 import { HELLO_KEY } from "@/lib/mascot/session";
 
-import { fixtureAnswer, mockChatFetch } from "../chat/helpers";
-import { listBody, mockShelfFetch, row } from "../deliverables/helpers";
 import { filesUnder, readSource } from "./css";
 
 // US-014: Tab reaches every button, link and field, in each screen. (The ring it shows
@@ -20,7 +18,7 @@ import { filesUnder, readSource } from "./css";
 vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
 
 const FOCUSABLE = "a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select, [tabindex]";
-const MAX_STOPS = 80;
+const MAX_STOPS = 150;
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -62,40 +60,37 @@ afterEach(() => {
 });
 
 describe("keyboard reach", () => {
-  it("reaches the shell, the examples and the message box on the chat", async () => {
+  it("reaches the shell and every control in the editor", async () => {
     const user = userEvent.setup();
-    const client = createApiClient(mockChatFetch([fixtureAnswer("plain-answer")]));
     render(
-      <AppShell recent={[{ id: "c1", title: "Laptop for uni" }]} connection="connected" host="localhost">
-        <ChatScreen client={client} />
-      </AppShell>,
+      <LookProvider>
+        <AppShell>
+          <EditorPage />
+        </AppShell>
+      </LookProvider>,
     );
-    await user.type(screen.getByRole("textbox", { name: "Message Auto" }), "Hello");
+    await screen.findByRole("link", { name: "See the style sheet" });
     await expectAllReachable(user);
-    expect(screen.getByRole("button", { name: "Send" })).toBeEnabled();
   });
 
-  it("reaches the filters, every card and Load more on the shelf", async () => {
+  it("reaches the shell and Copy tokens on the style sheet", async () => {
     const user = userEvent.setup();
-    const rows = [row("d-1", { title: "Laptop shortlist" }), row("d-2", { title: "Revision plan" })];
-    const client = createApiClient(mockShelfFetch(() => Response.json(listBody(rows, 30))));
-    render(<ShelfScreen client={client} now={new Date(2026, 9, 14, 15, 30)} />);
-    await screen.findByRole("button", { name: "Load more" });
+    render(
+      <LookProvider>
+        <AppShell>
+          <StyleSheetPage />
+        </AppShell>
+      </LookProvider>,
+    );
+    await screen.findByRole("button", { name: "Copy tokens" });
     await expectAllReachable(user);
   });
 
-  it("reaches Copy and Check again when Automatos is asleep", async () => {
-    const user = userEvent.setup();
-    render(<AsleepScreen detail="Automatos isn't running at http://localhost:8000" onCheck={vi.fn()} recheckSeconds={10} />);
-    await expectAllReachable(user);
-    expect(screen.getByRole("button", { name: "Check again" })).toBeInTheDocument();
-  });
-
-  it("reaches Back to chat on the 404", async () => {
+  it("reaches the way back to the editor on the 404", async () => {
     const user = userEvent.setup();
     render(<NotFound />);
     const stops = await tabStops(user);
-    expect(stops).toEqual([screen.getByRole("link", { name: "Back to chat" })]);
+    expect(stops).toEqual([screen.getByRole("link", { name: LOST_LINK })]);
   });
 
   it("never takes an element out of the tab order or reorders it", () => {

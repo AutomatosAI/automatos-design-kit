@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { DEFAULT_BACKEND_URL } from "@/lib/server/backend";
 
-// The README and the compose file are how an open-source user starts Play: keep them
+// The README and the compose file are how an open-source user starts the kit: keep them
 // in step with the code they describe.
 
 const ROOT = new URL("../", import.meta.url);
@@ -51,8 +51,8 @@ describe("README", () => {
     for (const state of MASCOT_STATES) expect(readme).toContain(`\`${state}\``);
   });
 
-  it("has the three troubleshooting cases", () => {
-    for (const heading of ["**\"Automatos is asleep\" (the backend is down).**", "**Wrong port.**", "**Workspace 400.**"]) {
+  it("has the troubleshooting cases for loading a skin", () => {
+    for (const heading of ["**\"Automatos isn't running.\"**", "**Wrong port.**"]) {
       expect(readme).toContain(heading);
     }
   });

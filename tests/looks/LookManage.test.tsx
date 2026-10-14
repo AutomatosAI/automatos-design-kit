@@ -2,15 +2,14 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import LooksPage from "@/app/looks/page";
+import LooksPage from "@/app/page";
 import { LookProvider } from "@/components/looks/LookProvider";
 import { lookToCssVars } from "@/lib/looks/css";
 import { EMBER, PRESETS } from "@/lib/looks/presets";
 import { ACTIVE_LOOK_KEY, SAVED_LOOKS_KEY } from "@/lib/looks/storage";
 import { LOOK_FILE_MAX_BYTES, NOT_JSON, TOO_BIG, lookJson } from "@/lib/looks/transfer";
 
-import { stubObjectUrls } from "../deliverables/helpers";
-import { blobText, clearRoot, myLook, rootVars } from "./helpers";
+import { blobText, clearRoot, myLook, rootVars, stubObjectUrls } from "./helpers";
 
 // PRD-002 L-005: rename, duplicate and delete saved Looks (presets duplicate only), Export and
 // Copy JSON, and Import from pasted JSON or a file through the validator.

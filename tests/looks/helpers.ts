@@ -51,3 +51,18 @@ export function blobText(blob: Blob): Promise<string> {
     reader.readAsText(blob);
   });
 }
+
+/** jsdom has no URL.createObjectURL: stub both URL statics, and return a function that puts them back. */
+export function stubObjectUrls(create: (blob: Blob) => string, revoke: (url: string) => void): () => void {
+  const saved = (["createObjectURL", "revokeObjectURL"] as const).map(
+    (name) => [name, Object.getOwnPropertyDescriptor(URL, name)] as const,
+  );
+  Object.defineProperty(URL, "createObjectURL", { value: create, configurable: true, writable: true });
+  Object.defineProperty(URL, "revokeObjectURL", { value: revoke, configurable: true, writable: true });
+  return () => {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(URL, name, descriptor);
+      else Reflect.deleteProperty(URL, name);
+    }
+  };
+}

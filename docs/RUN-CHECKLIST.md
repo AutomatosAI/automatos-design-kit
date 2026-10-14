@@ -1,5 +1,7 @@
 # Run checklist: Play against a real local Automatos
 
+> **PRD-004 (Skin Kit):** the chat, Conversations, Deliverables, Missions, Agents and Knowledge pages were retired in K-001 (they stay in git history at `378e98f`). Their sections below describe that code and no longer apply to the kit. The Looks checks still apply: the Looks page is now the Editor at `/`, and the style page is `/style`.
+
 CI proves the parser, the reducer and the screens against synthetic data. It can't see a browser, a video's alpha channel or a real backend. These checks are Gerard's local run (PRD-001, "Testing plan"). Tick them in a copy of this file or in the PR; anything that fails goes in the PR as a finding.
 
 ## Before you start

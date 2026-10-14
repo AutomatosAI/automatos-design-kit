@@ -18,4 +18,5 @@ scripts/ralph/logs/
 
 # Build and test output
 coverage/
+dist/
 *.tsbuildinfo

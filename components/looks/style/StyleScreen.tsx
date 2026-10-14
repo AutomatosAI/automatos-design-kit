@@ -61,8 +61,8 @@ export function StyleScreen() {
           </p>
         </div>
         <div className={styles.actions}>
-          <Link href="/looks" className={styles.linkButton}>
-            Back to Looks
+          <Link href="/" className={styles.linkButton}>
+            Back to the editor
           </Link>
           <button type="button" className={styles.copyButton} onClick={() => void copy()}>
             {COPY_TOKENS}

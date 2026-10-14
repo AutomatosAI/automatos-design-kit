@@ -1,4 +1,4 @@
-/* App shell (Ember mock 01): sidebar | main column | mascot column; phone bars below 768 px. */
+/* The kit's shell (PRD-004, Ember mock 01's frame): sidebar | page; a tab bar below 768 px. */
 
 .shell {
   display: flex;
@@ -43,37 +43,6 @@
   color: var(--color-accent-text);
 }
 
-/* New chat is the secondary (cream) button: the accent is kept for each screen's one primary. */
-.primaryButton {
-  min-height: var(--tap-min);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-4);
-  border: 0;
-  border-radius: var(--radius-button);
-  background: var(--color-text);
-  color: var(--color-bg);
-  font: var(--text-button-sm);
-  text-decoration: none;
-}
-
-/* The grouped nav (PRD-003): Talk, Work, Crew, Library, Insights, then Look on its own. */
-.navGroups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.groupLabel {
-  display: block;
-  padding: 0 var(--space-2) var(--space-1) var(--space-5);
-  font: var(--text-label);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
-  color: var(--color-text-3);
-}
-
 .list {
   list-style: none;
   margin: 0;
@@ -88,7 +57,6 @@
   min-height: var(--tap-min);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 var(--space-2) 0 var(--space-5);
   border-radius: var(--radius-tool);
   color: var(--color-text-2);
@@ -116,119 +84,28 @@
   background: var(--color-accent);
 }
 
-.count {
-  font: var(--text-mono-sm);
-  color: var(--color-text-3);
-}
-
-.sectionLabel {
-  margin: 0;
-  padding: 0 var(--space-2) var(--space-2);
-  font: var(--text-label);
-  letter-spacing: var(--label-tracking);
-  text-transform: uppercase;
-  color: var(--color-text-3);
-}
-
-.recentLink {
-  min-height: var(--tap-min);
-  display: flex;
-  align-items: center;
-  padding: var(--space-2);
-  border-radius: var(--radius-tool);
-  color: var(--color-text-2);
-  font: var(--text-small);
-  text-decoration: none;
-}
-
-.recentLink:hover,
-.recentLink[aria-current="page"] {
-  background: var(--tint-hover);
-  color: var(--color-text);
-}
-
-.connection {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+.footnote {
+  margin: auto 0 0;
   padding: var(--space-2);
   font: var(--text-mono-sm);
   color: var(--color-text-3);
 }
 
-/* Auto's light is for "connected" only; a dead connection is a hollow dot plus words. */
-.dot {
-  width: 7px;
-  height: 7px;
-  flex: none;
-  border-radius: var(--radius-round);
-  border: 1.5px solid var(--color-text-3);
-}
+/* Phone tab bar */
 
-.dot[data-status="connected"] {
-  border-color: var(--color-light);
-  background: var(--color-light);
-}
-
-.dot[data-status="down"] {
-  border-color: var(--color-error);
-  background: var(--color-error);
-}
-
-/* Phone bars */
-
-.topBar,
 .tabBar {
   display: none;
-}
-
-.topBar {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  height: var(--phone-bar-height);
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: 0 var(--space-2);
-  border-bottom: 1px solid var(--line-faint);
-  background: var(--tint-bar);
-}
-
-.topBarTitle {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font: var(--text-title);
-  letter-spacing: var(--display-letter-spacing);
-}
-
-.barLink {
-  min-height: var(--tap-min);
-  min-width: var(--tap-min);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-3);
-  color: var(--color-text-2);
-  font: var(--text-bar-link);
-  text-decoration: none;
-}
-
-.tabBar {
   position: sticky;
   bottom: 0;
   z-index: 1;
+  margin-top: auto;
   justify-content: space-around;
   padding: var(--space-2) var(--space-3) calc(var(--space-2) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line-faint);
   background: var(--tint-bar);
 }
 
-.tabLink,
-.moreTab {
+.tabLink {
   min-width: 72px;
   min-height: 48px;
   display: flex;
@@ -241,22 +118,12 @@
   text-decoration: none;
 }
 
-/* More is a button: reset what a button brings, so it matches the tab links. */
-.moreTab {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.tabLink[aria-current="page"],
-.moreTab[data-current="true"] {
+.tabLink[aria-current="page"] {
   color: var(--color-text);
   font-weight: 600;
 }
 
-.tabLink[aria-current="page"]::before,
-.moreTab[data-current="true"]::before {
+.tabLink[aria-current="page"]::before {
   content: "";
   width: 6px;
   height: 6px;
@@ -264,150 +131,11 @@
   background: var(--color-accent);
 }
 
-/* The More sheet: rises from the bottom over a dimmed page. */
-
-.sheetLayer {
-  position: fixed;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: flex-end;
-}
-
-.scrim {
-  position: absolute;
-  inset: 0;
-  background: var(--tint-scrim);
-}
-
-.sheet {
-  position: relative;
-  width: 100%;
-  max-height: 80dvh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line);
-  border-radius: var(--radius-card) var(--radius-card) 0 0;
-  background: var(--color-surface);
-  color: var(--color-text);
-}
-
-.sheetHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-left: var(--space-2);
-}
-
-.sheetTitle {
-  margin: 0;
-  font: var(--text-title);
-  letter-spacing: var(--display-letter-spacing);
-}
-
-.sheetClose {
-  min-height: var(--tap-min);
-  padding: 0 var(--space-4);
-  border: 1px solid var(--line-button);
-  border-radius: var(--radius-button);
-  background: none;
-  color: var(--color-text);
-  font: var(--text-button-sm);
-  cursor: pointer;
-}
-
-.sheetLink {
-  min-height: var(--tap-min);
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-tool);
-  color: var(--color-text);
-  font: var(--text-bar-link);
-  text-decoration: none;
-}
-
-.sheetLink:hover {
-  background: var(--tint-hover);
-}
-
-.sheetLink[aria-current="page"] {
-  font-weight: 600;
-  color: var(--color-accent-text);
-}
-
-/* Page columns: main column plus the mascot column */
-
-.columns {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-}
-
-.main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.pageHeader {
-  height: var(--header-height);
-  flex: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: 0 var(--space-7) var(--space-2);
-}
-
-.pageTitle {
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font: var(--text-status);
-  letter-spacing: var(--display-letter-spacing);
-}
-
-.pageMeta {
-  flex: none;
-  font: var(--text-mono-sm);
-  color: var(--color-text-3);
-}
-
-.mascotColumn {
-  width: var(--mascot-column-width);
-  flex: none;
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-5);
-  padding: 0 var(--space-5);
-}
-
-@media (max-width: 1023.98px) {
-  .mascotColumn {
-    display: none;
-  }
-}
-
 @media (max-width: 767.98px) {
-  .sidebar,
-  .pageHeader {
+  .sidebar {
     display: none;
   }
 
-  .topBar,
   .tabBar {
     display: flex;
   }

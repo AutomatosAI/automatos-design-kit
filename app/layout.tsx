@@ -15,12 +15,12 @@ import "@fontsource/fredoka/600.css";
 import "./theme.css";
 import "./globals.css";
 import { LookProvider } from "@/components/looks/LookProvider";
-import { LiveShell } from "@/components/shell/LiveShell";
+import { AppShell } from "@/components/shell/AppShell";
 import { LOOK_PREPAINT_SCRIPT } from "@/lib/looks/prepaint";
 
 export const metadata: Metadata = {
-  title: "Automatos Play",
-  description: "Your Automatos, the fun way.",
+  title: "Automatos Skin Kit",
+  description: "Make, preview and pack skins for Automatos Studio.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -28,13 +28,13 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     // The pre-paint script sets the Look's variables on <html> before React hydrates it.
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* A constant built from lib/looks/catalogue.ts: the one inline script in Play. It reads only
+        {/* A constant built from lib/looks/catalogue.ts: the one inline script in the kit. It reads only
             the stored Look, checked against the catalogue's keys. Never put user text into it. */}
         <script dangerouslySetInnerHTML={{ __html: LOOK_PREPAINT_SCRIPT }} />
       </head>
       <body>
         <LookProvider>
-          <LiveShell>{children}</LiveShell>
+          <AppShell>{children}</AppShell>
         </LookProvider>
       </body>
     </html>

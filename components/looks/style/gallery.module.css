@@ -36,7 +36,7 @@
   gap: var(--space-2);
 }
 
-/* Drawn like the shelf's filter chips (components/deliverables/shelf.module.css). */
+/* Drawn like Ember's filter chips. */
 .chip {
   min-height: var(--tap-min);
   display: inline-flex;

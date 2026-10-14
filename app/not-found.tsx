@@ -1,6 +1,6 @@
-import { LostScreen } from "@/components/edges/LostScreen";
+import { LostScreen } from "@/components/shell/LostScreen";
 
-// Any address Play doesn't have, and every notFound() (a malformed Deliverable id).
+// Any address the kit doesn't have.
 export default function NotFound() {
   return <LostScreen />;
 }

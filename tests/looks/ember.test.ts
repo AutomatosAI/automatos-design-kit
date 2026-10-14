@@ -195,33 +195,29 @@ describe("Ember radii", () => {
       declarations(cssRules(readSource(file)).find((rule) => rule.selector === selector)?.body ?? "").find(
         (decl) => decl.property === "border-radius",
       )?.value;
-    expect(radius("components/chat/chat.module.css", ".toolLine")).toBe("var(--radius-tool)");
-    expect(radius("components/chat/composer.module.css", ".send,\n.stop")).toBe("var(--radius-button)");
-    expect(radius("components/chat/chat.module.css", ".deliverable")).toBe("var(--radius-card)");
-    expect(radius("components/deliverables/shelf.module.css", ".chip")).toBe("var(--radius-pill)");
-    expect(radius("components/chat/first-open.module.css", ".chip")).toBe("var(--radius-pill)");
-    expect(radius("components/deliverables/detail.module.css", ".document")).toBe("var(--radius-paper)");
+    expect(radius("components/looks/style/drawn.module.css", ".toolLine")).toBe("var(--radius-tool)");
+    expect(radius("components/looks/style/drawn.module.css", ".send,\n.stop")).toBe("var(--radius-button)");
+    expect(radius("components/looks/style/drawn.module.css", ".deliverable")).toBe("var(--radius-card)");
+    expect(radius("components/looks/style/drawn.module.css", ".deliverableTile")).toBe("var(--radius-paper)");
+    expect(radius("components/looks/style/gallery.module.css", ".chip")).toBe("var(--radius-pill)");
   });
 });
 
 describe("Ember motion", () => {
   const tokens = themeTokens();
 
-  it("raises a message 12px over 180 ms", () => {
+  it("raises a message 12px (the style sheet's motion demo; the chat that used it is retired)", () => {
     expect(tokens.get("--rise-distance")).toBe("12px");
     expect(tokens.get("--duration-message")).toBe("180ms");
-    const chat = readSource("components/chat/chat.module.css");
-    expect(chat).toMatch(/@keyframes rise \{\s*from \{\s*opacity: 0;\s*transform: translateY\(var\(--rise-distance\)\);/);
-    for (const selector of [".bubble", ".reply"]) {
-      const body = cssRules(chat).find((rule) => rule.selector === selector)?.body ?? "";
-      expect({ selector, body }).toEqual({ selector, body: expect.stringContaining("animation: rise var(--duration-message)") });
-    }
+    expect(readSource("components/looks/style/gallery.module.css")).toMatch(
+      /@keyframes demo-rise \{\s*0% \{\s*opacity: 0;\s*transform: translateY\(var\(--rise-distance\)\);/,
+    );
   });
 
   it("lands a Deliverable card with a 1.04 overshoot over 420 ms and pulses the ring every 2.4 s", () => {
     expect(tokens.get("--duration-card")).toBe("420ms");
     expect(tokens.get("--duration-ring")).toBe("2.4s");
-    expect(readSource("components/chat/chat.module.css")).toMatch(/@keyframes land \{[\s\S]*?scale\(1\.04\)/);
+    expect(readSource("components/looks/style/drawn.module.css")).toMatch(/@keyframes land \{[\s\S]*?scale\(1\.04\)/);
     expect(readSource("components/mascot/mascot.module.css")).toMatch(/@keyframes ring-pulse \{[\s\S]*?scale\(1\.06\)/);
   });
 
