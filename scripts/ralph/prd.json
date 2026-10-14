@@ -28,8 +28,8 @@
         "Tests pass"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built lib/looks/{catalogue,types,presets,validate,contrast}.ts + tests/looks/*. Next stories: use validateLook() for every Look from storage/import, isKeyOf() for catalogue lookups, readableOn(colour, bg, surface, text) for --accent-text/--error-text (molten on Paper = #AA4C1C, error = #A54B49; PRD's 'about #A84A1B/#A84A49'). TypeStyle uses letterSpacing and sizes {hero, brand, status, card}; Shell uses filter."
     },
     {
       "id": "L-002",

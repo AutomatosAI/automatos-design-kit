@@ -31,6 +31,7 @@
 - Timers for the mascot live in hooks, never the reducer: `useIdleTimeout(onIdle, onActive, ms)` (window input events) drives idle-timeout / wake. Components that own such a timer take an `idleMs`/`recheckMs`/`refreshMs` prop so tests run on real timers in milliseconds.
 - Accessibility guards (tests/a11y/): the focus ring is `outline: var(--focus-outline)` + `outline-offset: var(--focus-offset)` in globals :focus-visible; a rule that sets `outline: none` must draw `box-shadow: var(--focus-…)` itself (or be in OWN_FOCUS with a reason). Every `<button|Link|a|input|textarea>` in components/ needs `className={styles.x}` whose rule sets `min-height: var(--tap-min)` (inline text links are allowlisted in UNSIZED). No width/min-width/flex/grid-columns/custom-property px value over 390 outside `@media (min-width…)`. A text colour on a new ground: add `--color-fg on --color-bg` to theme.css's header list (contrast.test.ts checks 4.5:1). Never use tabIndex. tests/a11y/css.ts has the small CSS reader (cssRules, declarations, themeTokens, resolveTokens, pxLengths).
 - Stream fixtures start with a `# SYNTHETIC fixture` or `# RECORDED` header (tests/stream/fixtures.test.ts checks it); how to record real ones is docs/RUN-CHECKLIST.md. Setup docs are guarded by tests/setup-docs.test.ts: change README, .env.example and docker-compose.yml together.
+- Looks (PRD-002): lib/looks/ is the only source of Look data. `catalogue.ts` (GROUNDS, ACCENTS, TYPE_STYLES, SHELLS, LIGHTS, ERROR_COLOUR, *_KEYS, `isKeyOf(section, key)` own-keys only) is the only TS file allowed literal colours. `Look` type and limits in types.ts; PRESETS / DEFAULT_LOOK (Ember) / findPreset in presets.ts. Anything from outside the code (localStorage, import, paste) goes through `validateLook(unknown)` -> `{ok, look} | {ok:false, errors}` (plain sentences, safe to show as text). WCAG maths: `contrastRatio`, `readableOn` in lib/looks/contrast.ts (tests/a11y/contrast.test.ts uses it too).
 
 ---
 
@@ -185,3 +186,11 @@ First CI run of the wave: Typecheck and Lint passed, Test failed (29 failures in
 
 ---
 # Wave 2: PRD-002 Looks PoC (Ember), from 2026-10-14
+
+## L-001 2026-10-14
+The Look format and catalogue (PRD-002 wave starts here).
+- lib/looks/catalogue.ts: Ember catalogue copied from the Looks prototype's G/A/F/S/L (4 grounds, 6 accents with ink, 4 type styles with family/style/weight/letterSpacing/sizes{hero,brand,status,card}, 4 shells with filter, 4 lights), ERROR_COLOUR #FF6B6B, *_KEYS lists, isKeyOf().
+- lib/looks/types.ts (Look v1, LOOK_SCHEMA, LOOK_FIELDS, GLOW_MIN/MAX, LOOK_TEXT_MAX 40, LOOK_ID_PATTERN), presets.ts (Ember, Obsidian, Aurora, Workshop, Daylight), validate.ts (validateLook: unknown fields, schema, interface "play", id pattern, name/sub trimmed one-line text <= 40 code points with name non-empty, catalogue keys, integer glow 0-40; reports all errors at once, echoes at most 40 chars of an unknown key), contrast.ts (relativeLuminance, contrastRatio, mixHex, readableOn with 4.8 target and 2% steps; AA_TEXT).
+- Tests: tests/looks/{catalogue,validate,contrast}.test.ts (24 ground x accent pairs, PRD ratios within 0.05). tests/a11y/contrast.test.ts now imports the lib helpers instead of its own copy.
+- docs/SKILL-GAPS.md: new "Design gaps" section (raw accent/error as text on Paper).
+- Learnings: computed readableOn gives molten on Paper #AA4C1C and error #A54B49 (PRD says "about #A84A1B / #A84A49"; the test allows 4 per channel). On the three dark grounds readableOn returns every accent and the error unchanged; on Paper every accent is darkened (cream needs 32 steps). The id pattern is ours (the PRD names no rule): letters/digits/-/_, 1-64, so an id is safe as a key; L-005 gives imports a fresh id after validation, but validation still requires a well-formed id.

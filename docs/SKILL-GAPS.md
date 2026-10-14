@@ -2,7 +2,7 @@
 
 Where `skills/build-automatos-interface/` or the mocks were wrong, missing or unclear during the pilot build (US-001 to US-015), and what was done. The core wins: the skill is fixed to match it. The mocks are Gerard's design file and are not edited here: where Play differs from them, the row says how, and it is his call.
 
-**Count:** 23 skill gaps (all fixed in the skill), 9 mock gaps, 1 PRD/repo note. Three core changes are written up as open questions in the PRD (9 and 10) or flagged (the `agent-info` nesting); none was made.
+**Count:** 23 skill gaps (all fixed in the skill), 9 mock gaps, 1 PRD/repo note, and (PRD-002, Looks) 1 design gap. Three core changes are written up as open questions in the PRD (9 and 10) or flagged (the `agent-info` nesting); none was made.
 
 ## The skill
 
@@ -51,3 +51,11 @@ Where `skills/build-automatos-interface/` or the mocks were wrong, missing or un
 | Story | Gap | What was done |
 |---|---|---|
 | US-001 | The PRD and `CLAUDE.md` say fonts load with `next/font/local` and vendored files; `prd.json` (US-002) says `@fontsource`. Both avoid `next/font/google`, the real trap. | Built with `@fontsource` packages imported in `app/layout.tsx` (self-hosted at build, no Google call). `CLAUDE.md` now says what was built. |
+
+## Design gaps
+
+Where the Ember designs (`docs/design/ember/`) can't be built as drawn without breaking a rule, found while building PRD-002 (Looks).
+
+| Story | Gap | What was done |
+|---|---|---|
+| L-001 | The Ember mocks set accent-coloured serif text on the page (highlights, links) and coral error words. Every text and button-ink pair in the catalogue passes AA (lowest: text2 on Paper, 5.12:1), but the **raw accent and error colours as text fail on Paper**: molten 2.49:1 and error coral `#FF6B6B` 2.41:1 on `#F4EEE8` (cream 1.07:1, mint 1.26:1). On Daylight that text is unreadable. | `lib/looks/contrast.ts` `readableOn(colour, bg, surface, text)` derives a text colour: the colour itself when it reads at 4.8:1 on both bg and surface, otherwise mixed toward the ground's text in 2% steps (molten on Paper becomes `#AA4C1C`, error `#A54B49`). L-002 exposes them as `--accent-text` and `--error-text` for anything that shows the accent or error as text; fills, rings and icons keep the raw colour. `tests/looks/contrast.test.ts` checks all 24 ground × accent pairs. The mocks are unchanged. |
