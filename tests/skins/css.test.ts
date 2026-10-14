@@ -38,9 +38,15 @@ const GOLDEN = `html[data-skin="warm-paper"] {
 html.dark[data-skin="warm-paper"] {
   --background: 30 12% 9%;
   --foreground: 38 40% 90%;
+  --card: 30 10% 12%;
+  --card-foreground: 38 40% 90%;
+  --muted-foreground: 38 18% 62%;
   --ring: 82 35% 52%;
+  --paper: hsl(30 10% 12%);
   --bg-1: hsl(30 12% 9%);
   --fg: hsl(38 40% 90%);
+  --fg-2: hsl(38 18% 62%);
+  --fg-3: hsl(38 18% 62% / 0.75);
 }
 `;
 
@@ -65,10 +71,11 @@ describe("skinToCss", () => {
   });
 
   it("puts only shape in the light block of a dark-only skin", () => {
-    const skin = validated({ ...validSkin(), tones: ["dark"], tokens: { dark: { background: "#000000", foreground: "#FFFFFF" } } });
+    // card and its ink: a complete pair on its own (background would bring ring and muted-foreground, K5).
+    const skin = validated({ ...validSkin(), tones: ["dark"], tokens: { dark: { card: "#000000", "card-foreground": "#FFFFFF" } } });
     expect(skinToCss(skin)).toBe(
       'html[data-skin="warm-paper"] {\n  --radius: 10px;\n  --skin-glow: 12px;\n}\n' +
-        'html.dark[data-skin="warm-paper"] {\n  --background: 0 0% 0%;\n  --foreground: 0 0% 100%;\n  --bg-1: hsl(0 0% 0%);\n  --fg: hsl(0 0% 100%);\n}\n',
+        'html.dark[data-skin="warm-paper"] {\n  --card: 0 0% 0%;\n  --card-foreground: 0 0% 100%;\n  --paper: hsl(0 0% 0%);\n}\n',
     );
   });
 

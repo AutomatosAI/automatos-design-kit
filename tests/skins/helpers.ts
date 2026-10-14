@@ -5,7 +5,11 @@ import { MASCOT_FORMATS, MASCOT_STATES, type AssetEntry, type SniffedType } from
 
 export type Json = Record<string, unknown>;
 
-/** A Studio-based skin whose declared pairs all pass AA (the light background is given as hex). */
+/**
+ * A Studio-based skin whose pairs all pass AA (the light card is given as hex). Each tone sets
+ * both sides of every pair it touches (decision K5): background brings foreground, ring and
+ * muted-foreground, and muted-foreground brings card and card-foreground.
+ */
 export function validSkin(): Json {
   return {
     schema: "automatos-skin/v1",
@@ -31,6 +35,9 @@ export function validSkin(): Json {
       dark: {
         background: "30 12% 9%",
         foreground: "38 40% 90%",
+        card: "30 10% 12%",
+        "card-foreground": "38 40% 90%",
+        "muted-foreground": "38 18% 62%",
         ring: "82 35% 52%",
       },
     },
