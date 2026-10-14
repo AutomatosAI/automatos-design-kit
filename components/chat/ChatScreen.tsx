@@ -12,9 +12,11 @@ export interface ChatScreenProps {
   readonly client?: ApiClient;
   /** A saved conversation to open and continue; none starts a new one. Remount (key) to switch. */
   readonly chatId?: string;
+  /** Words waiting in a new chat's message box ("Ask Auto about this"). */
+  readonly draft?: string;
 }
 
-export function ChatScreen({ client, chatId }: ChatScreenProps) {
-  if (!chatId) return <ChatView client={client} />;
+export function ChatScreen({ client, chatId, draft }: ChatScreenProps) {
+  if (!chatId) return <ChatView client={client} initialDraft={draft} />;
   return <StoredChat client={client} chatId={chatId} />;
 }

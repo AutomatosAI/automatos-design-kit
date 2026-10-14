@@ -6,7 +6,7 @@ import { FILTER_GROUP_LABEL, ShelfScreen } from "@/components/deliverables/Shelf
 import { createApiClient } from "@/lib/client/api";
 import { SHELF_PAGE_SIZE } from "@/lib/deliverables/shelf";
 
-import { listBody, listCalls, mockShelfFetch, row, type Row } from "./helpers";
+import { listBody, listCalls, mockShelfFetch, row, type Row, stubObjectUrls } from "./helpers";
 
 // The shelf (mock 04) over a mocked GET /api/deliverables. "Now" is pinned to a local
 // date, so the card dates pass in any time zone.
@@ -34,21 +34,6 @@ const answer = (body: unknown) => () => Response.json(body);
 
 function cards() {
   return within(screen.getByRole("list", { name: "Deliverables" })).getAllByRole("link");
-}
-
-/** jsdom has no object URLs: put stand-ins on URL and hand back the undo. */
-function stubObjectUrls(create: (blob: Blob) => string, revoke: (url: string) => void): () => void {
-  const saved = (["createObjectURL", "revokeObjectURL"] as const).map(
-    (name) => [name, Object.getOwnPropertyDescriptor(URL, name)] as const,
-  );
-  Object.defineProperty(URL, "createObjectURL", { value: create, configurable: true, writable: true });
-  Object.defineProperty(URL, "revokeObjectURL", { value: revoke, configurable: true, writable: true });
-  return () => {
-    for (const [name, descriptor] of saved) {
-      if (descriptor) Object.defineProperty(URL, name, descriptor);
-      else Reflect.deleteProperty(URL, name);
-    }
-  };
 }
 
 let restoreUrl: (() => void) | null = null;

@@ -34,6 +34,11 @@ export type Deliverable = {
   readonly sourceType: string | null;
   readonly agentName: string | null;
   readonly previewUrl: string | null;
+  readonly fileName: string | null;
+  /** The file's extension without the dot ("md", "pdf"), as the core records it. */
+  readonly fileType: string | null;
+  /** What it was made from (extra.sources), as short labels: a URL's host name or a title. */
+  readonly sources: readonly string[];
   readonly createdAt: string | null;
   /** Only with include_content=true; null for images and videos, or when the file can't be read. */
   readonly content: string | null;
@@ -134,6 +139,20 @@ export function parseStoredMessage(value: unknown): StoredMessage | null {
   };
 }
 
+/** A source as a short label: a URL's host name, else its title, else the text itself. */
+function parseSource(value: unknown): string | null {
+  const raw = isRecord(value) ? (text(value.url) ?? text(value.title)) : text(value);
+  const trimmed = raw?.trim();
+  if (!trimmed) return null;
+  if (!/^https?:\/\//i.test(trimmed)) return trimmed;
+  try {
+    return new URL(trimmed).hostname.replace(/^www\./, "");
+  } catch {
+    // Not a URL after all: the text is still a readable label.
+    return trimmed;
+  }
+}
+
 export function parseDeliverable(value: unknown): Deliverable | null {
   if (!isRecord(value)) return null;
   const id = idOf(value.id);
@@ -146,6 +165,9 @@ export function parseDeliverable(value: unknown): Deliverable | null {
     sourceType: text(value.source_type),
     agentName: text(value.agent_name),
     previewUrl: text(value.preview_url),
+    fileName: text(value.file_name),
+    fileType: text(value.file_type),
+    sources: isRecord(value.extra) ? listOf(value.extra.sources, parseSource) : [],
     createdAt: text(value.created_at),
     content: text(value.content),
     contentTruncated: value.content_truncated === true,

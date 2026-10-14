@@ -1,0 +1,298 @@
+/* A Deliverable's page (mock 05): back link, title row, the content on a card, the side panel. */
+
+.page {
+  width: 100%;
+  max-width: calc(var(--document-max) + var(--detail-panel-width) + var(--space-7) * 2);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-7) var(--space-6);
+}
+
+.back {
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-2);
+  font: var(--text-small);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-text);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--detail-panel-width);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.article {
+  width: 100%;
+  max-width: var(--document-max);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font: var(--text-document-title);
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.document {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.prose {
+  font: var(--text-document-body);
+  color: var(--color-reply);
+  overflow-wrap: anywhere;
+}
+
+/* .document first: the chat's .markdown rules have the same weight otherwise. */
+.document .prose h1,
+.document .prose h2,
+.document .prose h3,
+.document .prose h4 {
+  margin: var(--space-5) 0 var(--space-3);
+  font: var(--text-h2);
+  color: var(--color-text);
+}
+
+.document .prose h3,
+.document .prose h4 {
+  font: var(--text-title);
+}
+
+.document .prose th,
+.document .prose td {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line-soft);
+}
+
+.document .prose th {
+  background: var(--tint-hover);
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-card);
+}
+
+.unavailable,
+.failed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.unavailable {
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.note {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.error {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-coral);
+}
+
+.primary,
+.secondary {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  font: var(--text-button-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--color-bronze);
+  color: var(--color-bronze-ink);
+  box-shadow: var(--shadow-primary);
+}
+
+.secondary {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.secondary:hover {
+  background: var(--tint-hover);
+}
+
+/* Side panel */
+
+.panel {
+  position: sticky;
+  top: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--line-faint);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panelSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panelLabel {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+.facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font: var(--text-small);
+}
+
+.fact {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.fact dt {
+  color: var(--color-text-2);
+}
+
+.fact dd {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.sources {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font: var(--text-mono);
+  color: var(--color-receipt);
+  overflow-wrap: anywhere;
+}
+
+/* Below 1024 px the panel follows the content. */
+@media (max-width: 1023.98px) {
+  .page {
+    padding: var(--space-4) var(--space-5) var(--space-6);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    position: static;
+    padding: var(--space-5) 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--line-faint);
+  }
+}
+
+/* Phones: the two actions become a bar at the bottom of the screen (Download, then Ask Auto). */
+@media (max-width: 767.98px) {
+  .page {
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4) calc(var(--tap-min) + var(--space-6) + var(--space-5));
+  }
+
+  .title {
+    font: var(--text-document-title-phone);
+  }
+
+  .document {
+    padding: var(--space-4);
+  }
+
+  .actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    flex-direction: row;
+    padding: var(--space-3) var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line-soft);
+    background: var(--tint-bar);
+  }
+
+  .actions .primary {
+    flex: 1.4;
+  }
+
+  .actions .secondary {
+    order: -1;
+    flex: 1;
+  }
+}

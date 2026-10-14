@@ -201,8 +201,8 @@
         "Tests pass"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built app/deliverables/[id] -> components/deliverables/DeliverableScreen (load via useLoad; 404 -> 'isn't on your shelf'; failure + Try again) -> DeliverableView (title, TypeBadge, date, Made by) + DeliverableContent (lib/deliverables/detail.ts contentView: markdown/text via chat Markdown, other text files in a code block, images via the new /api/deliverables/[id]/file route as an object URL, else download link or 'can't preview') + DetailPanel (Ask Auto -> /?draft=..., Download, About, Sources from extra.sources). For US-013/014: the chat page reads ?draft= (lib/chat/params draftHref/draftParam) into MessageBox initialDraft; an invalid id calls notFound() (US-013's 404 page will catch it); phone actions are a fixed bottom bar in detail.module.css."
     },
     {
       "id": "US-013",

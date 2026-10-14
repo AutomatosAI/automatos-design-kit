@@ -51,13 +51,17 @@ Tool calls are not saved. `source` is an object or null: a failed turn is saved 
 
 List filters (all optional): `artifact_type` (report, image, document, code, slide, spreadsheet, archive, audio, video), `source_type` (chat, task, mission, heartbeat, playbook, trigger, upload), `source_type_exclude` (comma list; `heartbeat` is a sensible default to hide), `source_id`, `agent_id`, `date_from`, `date_to`, `search`, `tag`. `limit` is 1–100.
 
-Each Deliverable carries at least `id`, `title`, `summary`, `artifact_type`, `source_type`, `source_id`, `agent_id`, `file_path`, `preview_url` and `created_at`.
+Each Deliverable carries at least `id`, `title`, `summary`, `artifact_type`, `source_type`, `source_id`, `agent_id`, `agent_name` (the row's, else the agent's name), `file_path`, `file_name`, `file_type` (the extension without the dot), `preview_url`, `extra` (an object) and `created_at` (`_row_to_dict` in `services/deliverable_service.py`). No caller stores sources in `extra` today.
 
 **Check `success`.** When the query fails, the list returns HTTP 200 with `success: false`, an `error` string and an empty list. Show an error state, not "no Deliverables yet". The `error` is the raw exception (`f"list failed: {exc}"`, which can carry SQL): log it, show your own sentence.
 
 There is no binary download route for Deliverables. Use `include_content=true`, or `preview_url` when it is set.
 
 `preview_url` (and `content_url` on the detail) is a **backend-relative path** such as `/api/workspaces/{ws}/files/raw?path=…` for files in workspace storage (`_workspace_file_url` in `services/deliverable_service.py`). The browser can't open it directly: proxy it like any other route, or treat it as unavailable.
+
+`preview_url` points at `/files/raw` (the bytes, with their content-type) only for binary extensions (images, PDF, DOCX, XLSX, PPTX, archives, audio, video); for text files it is `/files/content`, which answers JSON for a code viewer. To serve a file, take the Deliverable's own `preview_url` on the server and forward it only when it is a `/files/raw` path: never let the browser name the path.
+
+**`content` for binary files is noise.** Only images and videos come back with `content: null`. Any other file is read through the worker's `/files/content`, which decodes the bytes as UTF-8 with `errors="replace"` (`services/workspace-worker/worker_routes_files.py`), so a PDF or XLSX arrives as a string of replacement characters. Decide by `file_type` (or `artifact_type`), not by whether `content` is set.
 
 ## Not used by the pilot (for later)
 

@@ -26,9 +26,15 @@ function ImageAsText({ alt }: ComponentPropsWithoutRef<"img"> & ExtraProps) {
 
 const COMPONENTS: Components = { a: ExternalLink, img: ImageAsText };
 
-export function Markdown({ text }: { readonly text: string }) {
+export interface MarkdownProps {
+  readonly text: string;
+  /** Extra styles on top of the chat's (a Deliverable reads as a document). */
+  readonly className?: string;
+}
+
+export function Markdown({ text, className }: MarkdownProps) {
   return (
-    <div className={styles.markdown}>
+    <div className={className ? `${styles.markdown} ${className}` : styles.markdown}>
       <ReactMarkdown remarkPlugins={REMARK_PLUGINS} skipHtml components={COMPONENTS}>
         {text}
       </ReactMarkdown>

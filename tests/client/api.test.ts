@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, createApiClient, type Fetch } from "@/lib/client/api";
+import { ApiError, createApiClient, deliverableFileHref, type Fetch } from "@/lib/client/api";
 
 const WORKSPACE_ID = "3f1c2a9e-5b7d-4e2f-9a1b-0c8d6e4f2a10";
 const WORKSPACE = { id: WORKSPACE_ID, name: "Home", slug: "home" };
@@ -143,6 +143,42 @@ describe("lib/client/api", () => {
     if (!blob) throw new Error("no thumbnail");
     expect(new Uint8Array(await blob.arrayBuffer())).toEqual(png);
     expect(await client.deliverableThumbnail("d2")).toBeNull();
+  });
+
+  it("gets a Deliverable's file as bytes with the workspace header, and throws when it has none", async () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const fetchMock = mockFetch({
+      "/api/workspace": workspaceOk,
+      "/api/deliverables/d1/file": () => new Response(png, { headers: { "content-type": "image/png" } }),
+      "/api/deliverables/d2/file": () => Response.json({ error: "No file" }, { status: 404 }),
+    });
+    const client = createApiClient(fetchMock);
+
+    const blob = await client.deliverableFile("d1");
+    expect(new Uint8Array(await blob.arrayBuffer())).toEqual(png);
+    expect(headerOf(firstCallTo(fetchMock, "/api/deliverables/d1/file")[1], "X-Workspace-ID")).toBe(WORKSPACE_ID);
+    await expect(client.deliverableFile("d2")).rejects.toMatchObject({ status: 404 });
+    expect(deliverableFileHref("a b")).toBe("/api/deliverables/a%20b/file");
+  });
+
+  it("reads a Deliverable's file name, type and sources", async () => {
+    const fetchMock = mockFetch({
+      "/api/workspace": workspaceOk,
+      "/api/deliverables/d1": () =>
+        Response.json({
+          success: true,
+          deliverable: {
+            id: "d1",
+            file_name: "plan.md",
+            file_type: "md",
+            extra: { sources: ["https://www.bbc.co.uk/news", { url: "notaurl" }, { title: "Notes" }, 7, "", null] },
+          },
+        }),
+    });
+
+    const shown = await createApiClient(fetchMock).getDeliverable("d1");
+
+    expect(shown).toMatchObject({ fileName: "plan.md", fileType: "md", sources: ["bbc.co.uk", "notaurl", "Notes"] });
   });
 
   it("posts the chat turn as JSON and cancels with a bodyless POST", async () => {

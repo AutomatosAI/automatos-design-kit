@@ -105,6 +105,9 @@
   --text-caption-sm: 600 15px/1.2 var(--font-display); /* the same, beside Auto on phones */
   --text-speaker: 600 14px/1.2 var(--font-display); /* the "Auto" label over a reply */
   --text-card-title: 600 18px/1.2 var(--font-display); /* Deliverable card title */
+  --text-document-title: 600 44px/1.05 var(--font-display); /* a Deliverable's page (mock 05) */
+  --text-document-title-phone: 600 32px/1.05 var(--font-display);
+  --text-document-body: 400 16px/1.65 var(--font-text);
   --text-bar-title: 600 17px/1.2 var(--font-display); /* phone top bar title */
   --text-bar-link: 600 15px/1 var(--font-text); /* phone top bar links */
   --text-button: 600 16px/1 var(--font-display);
@@ -166,5 +169,7 @@
   --content-max: 720px;
   --shelf-max: 1120px; /* the Deliverables shelf (mock 04) */
   --shelf-card-min: 200px; /* the narrowest shelf card before the grid drops a column */
+  --document-max: 760px; /* a Deliverable's page (mock 05) */
+  --detail-panel-width: 300px; /* its side panel: Ask Auto, About, Sources */
   --tap-min: 44px;
 }

@@ -146,6 +146,15 @@ function chatEndpoints({ call, callJson }: Transport) {
   };
 }
 
+/**
+ * Play's route for a Deliverable's bytes. A plain link to it (a download) carries no
+ * X-Workspace-ID, so the backend picks the workspace the same way it does for
+ * /api/workspace, which this client also asks without one.
+ */
+export function deliverableFileHref(id: string): string {
+  return `/api/deliverables/${encodeURIComponent(id)}/file`;
+}
+
 function deliverableEndpoints({ call, callJson }: Transport) {
   return {
     /** success: false is returned, not thrown: the shelf shows its error state. */
@@ -159,6 +168,14 @@ function deliverableEndpoints({ call, callJson }: Transport) {
       const parsed = parseDeliverable(isRecord(body) ? body.deliverable : null);
       if (!parsed) throw new ApiError(200, "Automatos sent a Deliverable Play can't read");
       return parsed;
+    },
+
+    /** The Deliverable's file (an image to show). 404: it has none Play can open. */
+    async deliverableFile(id: string): Promise<Blob> {
+      const path = deliverableFileHref(id);
+      const response = await call(path);
+      if (!response.ok) throw await failure(response, path);
+      return response.blob();
     },
 
     /** The thumbnail bytes, or null when the Deliverable has none (show the type-coloured fallback). */

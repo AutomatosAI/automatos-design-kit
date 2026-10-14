@@ -32,6 +32,8 @@ export interface ChatViewProps {
   /** The conversation to continue; none starts a new one on the first send. */
   readonly chatId?: string;
   readonly initialMessages?: readonly ChatMessage[];
+  /** Words already in the message box when the chat opens. */
+  readonly initialDraft?: string;
 }
 
 /** The conversation's name: its first message (the messages route doesn't carry the backend's title). */
@@ -42,7 +44,7 @@ export function chatTitle(messages: readonly ChatMessage[]): string {
 }
 
 /** The chat itself, new (no chatId) or continuing a loaded conversation. */
-export function ChatView({ client, chatId, initialMessages }: ChatViewProps) {
+export function ChatView({ client, chatId, initialMessages, initialDraft }: ChatViewProps) {
   const turn = useChatTurn({ client, chatId, initialMessages });
   const { dispatchMascot, send: sendTurn } = turn;
   const compact = useMediaQuery(MASCOT_COLUMN_HIDDEN, false);
@@ -88,6 +90,7 @@ export function ChatView({ client, chatId, initialMessages }: ChatViewProps) {
             onStop={turn.stop}
             onFocus={onFocus}
             onBlur={onBlur}
+            initialDraft={initialDraft}
           />
         </div>
       </div>

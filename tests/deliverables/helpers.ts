@@ -54,3 +54,42 @@ export function listCalls(fetchMock: ReturnType<typeof mockShelfFetch>): readonl
     .filter((url) => url.pathname === "/api/deliverables")
     .map((url) => url.searchParams);
 }
+
+const DETAIL = /^\/api\/deliverables\/([^/]+)$/;
+const FILE = /^\/api\/deliverables\/([^/]+)\/file$/;
+
+/** The detail answer's wrapper, {success, deliverable}, as GET /api/deliverables/{id} sends it. */
+export function detailBody(fields: Row) {
+  return { success: true, deliverable: fields };
+}
+
+/** A mocked fetch for a Deliverable's page: the row (with its content) and its file. */
+export function mockDetailFetch(
+  detail: (id: string) => Response,
+  file: (id: string) => Response = () => Response.json({ error: "No file" }, { status: 404 }),
+) {
+  return vi.fn<Fetch>(async (input) => {
+    const url = new URL(input, BASE);
+    if (url.pathname === "/api/workspace") return Response.json(WORKSPACE);
+    const fileMatch = FILE.exec(url.pathname);
+    if (fileMatch) return file(decodeURIComponent(fileMatch[1] ?? ""));
+    const detailMatch = DETAIL.exec(url.pathname);
+    if (detailMatch) return detail(decodeURIComponent(detailMatch[1] ?? ""));
+    throw new Error(`unexpected call to ${input}`);
+  });
+}
+
+/** jsdom has no object URLs: put stand-ins on URL and hand back the undo. */
+export function stubObjectUrls(create: (blob: Blob) => string, revoke: (url: string) => void): () => void {
+  const saved = (["createObjectURL", "revokeObjectURL"] as const).map(
+    (name) => [name, Object.getOwnPropertyDescriptor(URL, name)] as const,
+  );
+  Object.defineProperty(URL, "createObjectURL", { value: create, configurable: true, writable: true });
+  Object.defineProperty(URL, "revokeObjectURL", { value: revoke, configurable: true, writable: true });
+  return () => {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(URL, name, descriptor);
+      else Reflect.deleteProperty(URL, name);
+    }
+  };
+}

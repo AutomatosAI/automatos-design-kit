@@ -202,6 +202,7 @@ The pilot leaves out the items below. Each is a choice for Gerard to revisit, no
 7. **Name.** Automatos Play, or something else?
 8. **Marketplace.** List Play later as the first item in an "Interfaces" category?
 9. **Who wrote the preview.** `GET /api/chat/history` sends `lastMessagePreview` without the message's role, so Play's Conversations list can't tell "Auto: …" from "You: …" (mock 03) and always says "Auto:". A `lastMessageRole` field next to the preview in `api/chat.py` `get_chat_history` would fix it. Core change, Gerard's call (US-010).
+10. **Sources on a Deliverable.** Mock 05 lists a Deliverable's sources, but the core doesn't store any: the document tool's `sources` stay in its tool result and never reach `deliverables.extra`. Play shows `extra.sources` when present (US-012). Storing them at registration would be a core change, Gerard's call.
 
 ## 10. Testing plan
 

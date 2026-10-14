@@ -25,7 +25,10 @@ const SAFE_HEADERS = {
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 
 export type ForwardOptions = {
-  /** Backend path without the query string, e.g. "/api/chat/history". Build ids in with pathId. */
+  /**
+   * Backend path, e.g. "/api/chat/history". Build ids in with pathId. It carries a query
+   * string only when the route built it itself (then leave `query` out).
+   */
   readonly path: string;
   /**
    * The query parameters this route forwards, in the order the browser sent them.

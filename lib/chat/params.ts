@@ -1,9 +1,14 @@
 // The chat page's address: /?chat=<id> opens that saved conversation (from
 // Conversations and the sidebar's Recent list); anything else is a new chat.
+// /?draft=<text> starts a new chat with those words in the message box (a Deliverable's
+// "Ask Auto about this").
 
 /** The same shape the proxy routes accept for an id (lib/server/forward.ts pathId). */
 const CHAT_ID = /^[A-Za-z0-9_-]{1,128}$/;
 const CHAT_PARAM = "chat";
+const DRAFT_PARAM = "draft";
+/** Longer drafts are cut: the address is not the place for a whole message. */
+export const MAX_DRAFT_CHARS = 500;
 
 export type SearchParams = Readonly<Record<string, string | string[] | undefined>>;
 
@@ -15,4 +20,26 @@ export function chatHref(chatId: string): string {
 export function chatParam(params: SearchParams): string | undefined {
   const value = params[CHAT_PARAM];
   return typeof value === "string" && CHAT_ID.test(value) ? value : undefined;
+}
+
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
+/**
+ * The first MAX_DRAFT_CHARS characters, never half an emoji: encodeURIComponent throws
+ * on a lone surrogate (and a Deliverable's title is backend text, so it may hold one).
+ */
+function cutDraft(text: string): string {
+  return Array.from(text.replace(LONE_SURROGATE, "\uFFFD")).slice(0, MAX_DRAFT_CHARS).join("");
+}
+
+/** A new chat with these words waiting in the message box. */
+export function draftHref(text: string): string {
+  return `/?${DRAFT_PARAM}=${encodeURIComponent(cutDraft(text))}`;
+}
+
+/** The words to start a new chat with, or undefined (also when a conversation is being opened). */
+export function draftParam(params: SearchParams): string | undefined {
+  const value = params[DRAFT_PARAM];
+  if (typeof value !== "string" || !value.trim() || chatParam(params)) return undefined;
+  return cutDraft(value);
 }
