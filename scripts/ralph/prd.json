@@ -134,8 +134,8 @@
         "Tests pass"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "hooks/useChatTurn.ts: useChatTurn({client?, chatId?, initialMessages?}) -> {chatId, messages, streaming, mascot, dispatchMascot, send(text): Promise<boolean>, stop()}; it owns the mascot reducer (pass mascot.mascot to AutoMascot, dispatch input-focus/clip-ended via dispatchMascot). Message model (ChatMessage = UserMessage | AutoMessage, role 'assistant') in lib/chat/types.ts, pure updates in lib/chat/turn.ts; tests/chat/helpers.ts has mockChatFetch/fixtureAnswer/hangingAnswer/lastReply for US-009's component tests. To open another conversation, remount with a key (US-010 converts StoredMessage to ChatMessage)."
     },
     {
       "id": "US-009",
