@@ -105,8 +105,8 @@
         "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/missions/MissionRunScreen (LiveRunPage + new `lead` slot for ConfirmPanel/refusals/awaiting_human note), MissionRunActions, PlanReview, MissionSteps, MissionActivity, MissionSidePanel; hooks useMissionRun (usePoll MISSION_DETAIL, stopWhen isEnded, agents, run(request) -> refresh), useMissionActivity (Show older by offset, merged by id), useMissionSide (cost + Deliverables re-read on state/tokens change, no own timer). Pure: lib/missions/run.ts, plan.ts, mascot.ts. api.listDeliverables takes sourceType/sourceId. Approve sends unsaved plan edits (PATCH /plan) first. Decisions: pending -> thinking; an already-completed Mission celebrates once per page view; failed shows Resume (core retries)."
     },
     {
       "id": "P-006",

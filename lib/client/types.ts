@@ -63,6 +63,9 @@ export type DeliverableQuery = {
   readonly offset?: number;
   /** Comma list. Defaults to "heartbeat" in the client. */
   readonly sourceTypeExclude?: string;
+  /** What made it ("mission") and which one: a Mission's own Deliverables. */
+  readonly sourceType?: string;
+  readonly sourceId?: string;
 };
 
 export type ChatTurnRequest = {

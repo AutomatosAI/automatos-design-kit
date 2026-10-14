@@ -111,6 +111,21 @@ describe("LiveRunPage", () => {
     expect(within(screen.getByRole("complementary", { name: "About this Mission" })).getByText("Budget")).toBeInTheDocument();
   });
 
+  it("puts the lead (a confirmation, a refusal) between the header and the progress", () => {
+    render(
+      <LiveRunPage
+        title="Launch plan"
+        state={{ tone: "running" }}
+        lead={<p>Cancel this Mission?</p>}
+        progress={{ value: 1, max: 2, label: "1 of 2 steps done" }}
+      />,
+    );
+    const lead = screen.getByText("Cancel this Mission?");
+    const header = screen.getByRole("heading", { level: 1 }).closest("header");
+    expect(header?.compareDocumentPosition(lead)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(lead.compareDocumentPosition(screen.getByRole("progressbar"))).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it("leaves out the slots it isn't given", () => {
     render(<LiveRunPage title="Quiet run" state={{ tone: "queued" }} />);
     expect(screen.getByText("Queued")).toBeInTheDocument();

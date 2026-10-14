@@ -1,0 +1,257 @@
+/* The Mission run page (PRD-003 P-005) on the live run pattern: the in-page confirmations,
+   the plan review, the steps, the activity feed and the side panel. Boxes sit on
+   --color-surface or the page's ground, so the text pairs stay the listed ones; every
+   colour is a Look variable through the theme tokens. */
+
+/* Under the header: a confirmation, a refusal, a note */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.question {
+  margin: 0;
+  font: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.note {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.alert {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-error-text);
+}
+
+.panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* The one accent button while a confirmation is open (the header's buttons are cream then). */
+.confirm {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.confirm:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  cursor: progress;
+}
+
+/* A header button: cream outline, or the screen's one accent (Approve plan). */
+.action {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  cursor: pointer;
+}
+
+.action:hover {
+  background: var(--tint-hover);
+}
+
+.action[data-primary="true"] {
+  border-color: transparent;
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-primary);
+}
+
+.action:disabled {
+  cursor: progress;
+  opacity: 0.55;
+}
+
+.fieldLabel {
+  font: var(--text-small);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.field,
+.select {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-body);
+}
+
+.reason {
+  min-height: var(--tap-min);
+  resize: vertical;
+  padding: var(--space-3);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-body);
+}
+
+.field:focus-visible,
+.select:focus-visible,
+.reason:focus-visible {
+  outline: none;
+  border-color: var(--color-accent-text); /* a focus edge: the readable accent, 3:1 on every ground */
+  box-shadow: var(--focus-field);
+}
+
+/* Steps and the plan review */
+
+.steps,
+.feed,
+.deliverables {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line);
+  background: var(--color-surface);
+}
+
+.stepHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.stepTitle {
+  margin: 0;
+  font: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.stepMeta {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+/* Output is the model's text, shown as text: line breaks kept, nothing rendered. */
+.excerpt {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.failure {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-tool);
+  border: 1px solid var(--tint-error-line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: var(--text-small);
+  color: var(--color-error-text);
+}
+
+.planFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.planActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Activity */
+
+.event {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.eventLine {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+}
+
+.eventDetail {
+  margin: 0;
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+/* Side panel */
+
+.sideSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+}
+
+.factLabel {
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.factValue {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}

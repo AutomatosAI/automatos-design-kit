@@ -102,6 +102,21 @@ describe("lib/client/api", () => {
     expect(query.get("offset")).toBe("48");
   });
 
+  it("asks for one Mission's Deliverables by source type and id", async () => {
+    const fetchMock = mockFetch({
+      "/api/workspace": workspaceOk,
+      "/api/deliverables": () => Response.json({ success: true, deliverables: [], total: 0 }),
+    });
+
+    await createApiClient(fetchMock).listDeliverables({ sourceType: "mission", sourceId: "m-1" });
+
+    const [input] = firstCallTo(fetchMock, "/api/deliverables");
+    const query = new URLSearchParams(input.split("?")[1]);
+    expect(query.get("source_type")).toBe("mission");
+    expect(query.get("source_id")).toBe("m-1");
+    expect(query.get("source_type_exclude")).toBe("heartbeat");
+  });
+
   it("returns success: false from the Deliverables list instead of an empty list", async () => {
     const fetchMock = mockFetch({
       "/api/workspace": workspaceOk,

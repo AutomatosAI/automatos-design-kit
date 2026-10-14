@@ -28,6 +28,8 @@ function deliverablesSearch(query: DeliverableQuery): string {
     source_type_exclude: query.sourceTypeExclude ?? DEFAULT_EXCLUDED_SOURCES,
   });
   if (query.artifactType) params.set("artifact_type", query.artifactType);
+  if (query.sourceType) params.set("source_type", query.sourceType);
+  if (query.sourceId) params.set("source_id", query.sourceId);
   if (query.search) params.set("search", query.search);
   if (query.limit !== undefined) params.set("limit", String(query.limit));
   if (query.offset !== undefined) params.set("offset", String(query.offset));

@@ -23,6 +23,8 @@ export interface LiveRunPageProps {
   readonly state: StateChipProps;
   /** Only the actions valid in this state ("Approve plan", "Cancel Mission"). */
   readonly actions?: ReactNode;
+  /** Under the header: an in-page confirmation, a refusal, a note about the state. */
+  readonly lead?: ReactNode;
   readonly progress?: RunProgress;
   readonly steps?: ReactNode;
   readonly activity?: ReactNode;
@@ -35,7 +37,7 @@ export interface LiveRunPageProps {
 }
 
 export function LiveRunPage(props: LiveRunPageProps) {
-  const { back, title, state, actions, progress } = props;
+  const { back, title, state, actions, lead, progress } = props;
   return (
     <PageColumns>
       <div className={styles.runPage}>
@@ -49,6 +51,7 @@ export function LiveRunPage(props: LiveRunPageProps) {
           </div>
           {actions && <div className={styles.headerActions}>{actions}</div>}
         </header>
+        {lead}
         {progress && <ProgressBar {...progress} />}
         <RunLayout {...props} />
       </div>
