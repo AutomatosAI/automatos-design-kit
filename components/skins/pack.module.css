@@ -1,0 +1,47 @@
+/* Export and share (K-007): plain buttons, a file field for Import and a link to the
+   Marketplace. What the last action did is a LookNotice (components/looks/manage.module.css). */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.action,
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-button);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: var(--text-button-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action:disabled {
+  cursor: not-allowed;
+  color: var(--color-text-3);
+  border-color: var(--line);
+}
+
+.fileField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  font: var(--text-meta);
+  color: var(--color-text);
+}
+
+.fileInput {
+  min-height: var(--tap-min);
+  max-width: 100%;
+  font: var(--text-small);
+  color: var(--color-text-2);
+  cursor: pointer;
+}

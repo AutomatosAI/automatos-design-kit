@@ -1,10 +1,10 @@
 "use client";
 
-// The Editor (PRD-004 K-004, K-006): design a skin with live feedback. Where to start, the
-// details, the colours (light and dark side by side, with live contrast), the shape, the fonts
-// and the mascot; beside them, Undo and Redo and a live preview with the skin applied through
-// skinToCss. The draft is kept in this browser (localStorage) and its font and mascot files
-// beside it (IndexedDB), so both survive a reload.
+// The Editor (PRD-004 K-004, K-006, K-007): design a skin with live feedback. Where to start, the
+// details, the colours (light and dark side by side, with live contrast), the shape, the fonts,
+// the mascot, then export, import or send it to your Automatos; beside them, Undo and Redo and
+// a live preview with the skin applied through skinToCss. The draft is kept in this browser
+// (localStorage) and its font and mascot files beside it (IndexedDB), so both survive a reload.
 
 import { useEffect, useId, useRef } from "react";
 
@@ -17,6 +17,7 @@ import { ColourGroups } from "./ColourGroups";
 import { FontPickers } from "./FontPickers";
 import { MascotPicker } from "./MascotPicker";
 import { MetaFields } from "./MetaFields";
+import { PackPanel } from "./PackPanel";
 import { PREVIEW_HEADING, SkinPreviewStrip } from "./SkinPreviewStrip";
 import { ShapeSliders } from "./ShapeSliders";
 import { StartOptions } from "./StartOptions";
@@ -76,6 +77,7 @@ export function SkinEditor({ storage = browserStorage, assetStore = browserAsset
         <ShapeSliders draft={draft} onEdit={edit} onEndGroup={endGroup} />
         <FontPickers draft={draft} onEdit={edit} assets={assets} />
         <MascotPicker draft={draft} onEdit={edit} assets={assets} />
+        <PackPanel draft={draft} assets={assets} onImport={(next) => edit(() => next)} />
       </main>
       <aside className={styles.side} aria-labelledby={previewId}>
         <div className={styles.sideHead}>

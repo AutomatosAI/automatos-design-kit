@@ -21,6 +21,8 @@ services:
     environment:
       AUTOMATOS_BACKEND_URL: http://backend:8000
       PLAY_ALLOWED_HOSTS: ${PLAY_ALLOWED_HOSTS:-}
+      # A link address for your browser (Studio on the host), not a container name.
+      NEXT_PUBLIC_AUTOMATOS_STUDIO_URL: ${NEXT_PUBLIC_AUTOMATOS_STUDIO_URL:-http://localhost:3000}
       NEXT_TELEMETRY_DISABLED: "1"
     ports:
       # Local only, like the Automatos backend: Play has no login.

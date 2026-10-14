@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_BACKEND_URL } from "@/lib/server/backend";
+import { DEFAULT_STUDIO_URL } from "@/lib/skins/sharing";
 
 // The README and the compose file are how an open-source user starts the kit: keep them
 // in step with the code they describe.
@@ -41,9 +42,11 @@ describe("README", () => {
 
   it("names every setting in .env.example and the default backend URL", () => {
     const settings = Array.from(read(".env.example").matchAll(/^#?\s*([A-Z_]+)=/gm), (match) => match[1]);
-    expect(settings).toEqual(["AUTOMATOS_BACKEND_URL", "PLAY_ALLOWED_HOSTS"]);
+    expect(settings).toEqual(["AUTOMATOS_BACKEND_URL", "PLAY_ALLOWED_HOSTS", "NEXT_PUBLIC_AUTOMATOS_STUDIO_URL"]);
     for (const setting of settings) expect(readme).toContain(setting);
     expect(readme).toContain(DEFAULT_BACKEND_URL);
+    expect(readme).toContain(DEFAULT_STUDIO_URL);
+    expect(read(".env.example")).toContain(`NEXT_PUBLIC_AUTOMATOS_STUDIO_URL=${DEFAULT_STUDIO_URL}`);
   });
 
   it("says where the mascot files go, for every state", () => {
@@ -52,7 +55,11 @@ describe("README", () => {
   });
 
   it("has the troubleshooting cases for loading a skin", () => {
-    for (const heading of ["**\"Automatos isn't running.\"**", "**Wrong port.**"]) {
+    for (const heading of [
+      "**\"Automatos isn't running.\"**",
+      "**Wrong port.**",
+      "**\"Your Automatos doesn't support skins yet (it needs PRD-259).\"**",
+    ]) {
       expect(readme).toContain(heading);
     }
   });
@@ -67,6 +74,7 @@ describe("docker-compose.yml", () => {
 
   it("points Play at the backend service and serves it on localhost only", () => {
     expect(compose).toContain("AUTOMATOS_BACKEND_URL: http://backend:8000");
+    expect(compose).toContain(`NEXT_PUBLIC_AUTOMATOS_STUDIO_URL: \${NEXT_PUBLIC_AUTOMATOS_STUDIO_URL:-${DEFAULT_STUDIO_URL}}`);
     expect(compose).toContain('"127.0.0.1:${PLAY_PORT:-3100}:3100"');
   });
 });

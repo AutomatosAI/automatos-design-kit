@@ -130,8 +130,8 @@
         "Tests pass"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/skins/pack.ts (packSkin(skinText, files) / unpackSkin(bytes), both through validateSkin; parseSkinJson, packageFileName, AUTOSKIN_EXTENSION), draft-pack.ts (packDraft/importDraft for the editor), sharing.ts (X-Skin-Kit header, routes, NO_SKINS_MESSAGE, studioMarketplaceUrl); scripts/lib/pack-cli.ts + npm run pack; routes /api/studio/import-skin and /submit-skin over lib/server/skin-forward.ts (multipart field `file`, as core S-003/S-005); lib/client/skins.ts sendSkin; components/skins/PackPanel + usePackActions. New setting NEXT_PUBLIC_AUTOMATOS_STUDIO_URL (Marketplace link). K-008 can check examples with packSkin; K-010 should pass the same validator options in pack.ts and pack-cli.ts as in validate-cli."
     },
     {
       "id": "K-008",

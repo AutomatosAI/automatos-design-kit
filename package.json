@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "validate": "tsx scripts/validate.ts",
+    "pack": "tsx scripts/pack.ts",
     "sync-schema": "tsx scripts/sync-schema.ts"
   },
   "dependencies": {

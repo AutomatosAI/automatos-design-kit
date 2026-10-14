@@ -6,12 +6,12 @@ The repo is still called `automatos-play`. The kit is being built in one wave (P
 
 ## The pages
 
-- **Editor** (`/`): the skin editor. Start from Studio, Classic or an example skin; set the details (name, slug, author, version, licence, description, base and tones); change any of Studio's colour tokens, grouped as Surfaces, Text, Brand, Status, Charts and Studio aliases, with light and dark side by side (a tone the skin drops has no column). Every colour shows a contrast badge for each text pair it is part of (a glyph, the ratio and "AA pass" or "AA fail"), and a failing pair offers "Use suggestion", a readable colour. Radius (0–24 px) and glow (0–40 px) are sliders. Undo and Redo are buttons and keys (Ctrl or Cmd + Z, add Shift to redo). The draft is kept in this browser and survives a reload. A live preview beside it shows a few Studio-shaped components with the skin applied, made by the same CSS generator Studio uses. **Fonts:** for sans, serif and mono, pick Geist, Geist Mono or Newsreader (the fonts Studio ships) or drop a `.woff2` file of at most 400 KB (checked by its first bytes, not its name); the previews load it through `@font-face`. **Mascot:** Off, Auto (pick his shell tint and light colour; his clips play when they are in `public/auto/`, else his stand-in) or Custom (drop files or a folder with the 12 states as `.webm`, `.mp4` and `.png`, at most 8 MB together; the editor lists what the set is still missing). A state picker plays each state. Font and mascot files are kept in this browser's IndexedDB beside the draft, so a reload keeps them.
+- **Editor** (`/`): the skin editor. Start from Studio, Classic or an example skin; set the details (name, slug, author, version, licence, description, base and tones); change any of Studio's colour tokens, grouped as Surfaces, Text, Brand, Status, Charts and Studio aliases, with light and dark side by side (a tone the skin drops has no column). Every colour shows a contrast badge for each text pair it is part of (a glyph, the ratio and "AA pass" or "AA fail"), and a failing pair offers "Use suggestion", a readable colour. Radius (0–24 px) and glow (0–40 px) are sliders. Undo and Redo are buttons and keys (Ctrl or Cmd + Z, add Shift to redo). The draft is kept in this browser and survives a reload. A live preview beside it shows a few Studio-shaped components with the skin applied, made by the same CSS generator Studio uses. **Fonts:** for sans, serif and mono, pick Geist, Geist Mono or Newsreader (the fonts Studio ships) or drop a `.woff2` file of at most 400 KB (checked by its first bytes, not its name); the previews load it through `@font-face`. **Mascot:** Off, Auto (pick his shell tint and light colour; his clips play when they are in `public/auto/`, else his stand-in) or Custom (drop files or a folder with the 12 states as `.webm`, `.mp4` and `.png`, at most 8 MB together; the editor lists what the set is still missing). A state picker plays each state. Font and mascot files are kept in this browser's IndexedDB beside the draft, so a reload keeps them. **Export and share:** Export .autoskin downloads `<slug>-<version>.autoskin`, the same file `npm run pack` writes; Import a .autoskin loads one back (validated first; its font and mascot files replace yours; a preview picture isn't kept). Load into my Automatos sends the file to your local Automatos (`POST /api/skins/import`, installed in your workspace at once: pick it in Studio under Style, Skins); Submit to the Marketplace sends it for review (`POST /api/marketplace/skins`). Both go through the kit's own server and need an Automatos with skins (core PRD-259); an older one answers "Your Automatos doesn't support skins yet (it needs PRD-259)". Every way out validates the skin first, and the problems are listed in words. Open my Automatos Marketplace opens Studio's Marketplace page.
 - **Preview** (`/preview`): the editor's draft on a gallery of Studio-shaped components: the sidebar, a page header with the stats bar and filter tabs, the chat ledger (your message, Auto's tool lines and answer, the receipts, a Deliverable card, the composer), cards, a table with status badges, the five button kinds, fields, a modal, toasts and two small charts. They are drawn only with Studio's token names, coloured by the same CSS Studio will generate. Switch the base (Studio or Classic) and the tone (Light or Dark), or turn on "Compare with Studio" to see Studio as it ships beside your skin. Corners follow the skin's radius and the glow shows on focused fields and live states. The page follows the editor as you change the draft in another tab, and loads the draft's own font files.
 - **Style sheet** (`/style`): the active Look's colours with their contrast ratios, its type, spacing, radii, components and Auto's 12 ring colours, and a copy of its CSS variables.
 - **Examples** (`/examples`): Ember, Daylight, Workshop and Neon to start from. Not built yet (K-008).
 
-The kit needs no running Automatos. Only Load into my Automatos and Submit (K-007) talk to one, through the kit's own server.
+The kit needs no running Automatos. Only Load into my Automatos and Submit to the Marketplace talk to one, through the kit's own server.
 
 ## What was retired
 
@@ -42,14 +42,24 @@ npm run dev
 
 Open **http://localhost:3100**. The editor opens.
 
-`.env.local` holds two settings, both read on the kit's server only (the browser never calls the backend; the kit's own `/api/*` routes forward every request):
+`.env.local` holds three settings. The first two are read on the kit's server only (the browser never calls the backend; the kit's own `/api/*` routes forward every request); the third is only a link address, built into the page:
 
 | Setting | Default | When to change it |
 |---|---|---|
 | `AUTOMATOS_BACKEND_URL` | `http://localhost:8000` | Your backend is on another port (`API_PORT` in `automatos-ai`) or host. In a container on the Automatos network it is `http://backend:8000`. |
 | `PLAY_ALLOWED_HOSTS` | (empty) | You open the kit on a host name other than `localhost`, `127.0.0.1` or `[::1]`. Comma separated. The kit has no login, so it refuses other host names (a guard against DNS rebinding). |
+| `NEXT_PUBLIC_AUTOMATOS_STUDIO_URL` | `http://localhost:3000` | Studio (the Automatos web app) runs somewhere else. Only the editor's "Open my Automatos Marketplace" link uses it (`<url>/marketplace`); restart `npm run dev` after changing it. |
 
 For a production build: `npm run build`, then `npm start` (also on port 3100).
+
+## Pack from the command line
+
+```sh
+npm run validate skins/<folder>     # the same rules as Studio, each problem with its JSON path
+npm run pack skins/<folder>         # validates, then writes dist/<slug>-<version>.autoskin
+```
+
+`pack` takes a skin source folder (`skin.json` plus `assets/`) and writes nothing when the skin is invalid.
 
 ## The mascot files
 
@@ -92,6 +102,8 @@ Open **http://localhost:3100**. The first start runs `npm install` inside the co
 - Your backend isn't on 8000 (you set `API_PORT` in `automatos-ai`): set `AUTOMATOS_BACKEND_URL=http://localhost:<API_PORT>` in `.env.local` and restart `npm run dev`.
 - A request fails with "Open Play at http://localhost:3100" (HTTP 403): you opened the kit on another host name. Use `localhost`, or add the name to `PLAY_ALLOWED_HOSTS`.
 - Don't point `AUTOMATOS_BACKEND_URL` at Studio (port 3000): Studio is a web page, not the API.
+
+**"Your Automatos doesn't support skins yet (it needs PRD-259)."** Load into my Automatos and Submit reached your Automatos, but it has no skin routes (HTTP 404). Update `automatos-ai` to a version with PRD-259, or use Export .autoskin and keep the file until then.
 
 **Auto is a black box.** Your browser got the wrong video file (Safari needs `.mp4`, everything else `.webm`). Check both files exist for that state. Please report it with your browser and version.
 

@@ -1,6 +1,7 @@
 import { lstat, open, readFile, readdir } from "node:fs/promises";
 import { join, posix } from "node:path";
 import { readSkinArchive } from "../../lib/skins/archive";
+import { AUTOSKIN_EXTENSION } from "../../lib/skins/pack";
 import { PACKAGE_MAX_BYTES, SKIN_FILE, type AssetEntry, type SkinError } from "../../lib/skins/format";
 import { SNIFF_BYTES, sniffType } from "../../lib/skins/sniff";
 import { formatBytes } from "../../lib/skins/validate-files";
@@ -8,7 +9,7 @@ import { formatBytes } from "../../lib/skins/validate-files";
 // Node side of the CLI: turns a skin source folder or a .autoskin file into skin.json's text
 // plus the asset manifest lib/skins/validate.ts checks. Never follows a symbolic link.
 
-export const ARCHIVE_EXTENSION = ".autoskin";
+export const ARCHIVE_EXTENSION = AUTOSKIN_EXTENSION;
 /** Files the operating system leaves in folders; never part of a skin, so never packed. */
 const OS_JUNK: ReadonlySet<string> = new Set([".DS_Store", "Thumbs.db", "desktop.ini"]);
 
@@ -93,12 +94,5 @@ export async function readSkinSource(target: string): Promise<SkinSource> {
   return stats.isDirectory() ? readSkinFolder(target) : readSkinFile(target);
 }
 
-/** JSON.parse with a plain-word error; a leading byte-order mark is allowed. */
-export function parseSkinJson(text: string): { readonly ok: true; readonly value: unknown } | { readonly ok: false; readonly error: SkinError } {
-  try {
-    return { ok: true, value: JSON.parse(text.replace(/^\uFEFF/, "")) as unknown };
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    return { ok: false, error: { path: "$", message: `${SKIN_FILE} isn't valid JSON: ${detail}` } };
-  }
-}
+/** skin.json's text to a value, with a plain-word error (shared with pack). */
+export { parseSkinJson } from "../../lib/skins/pack";
