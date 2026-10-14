@@ -4,17 +4,38 @@
  * docs/design/mocks/automatos-play-mocks.dc.html (panels 12-13).
  * Components use var(--token) only; no literal colours anywhere else.
  *
- * Contrast pairs (foreground on background) that must meet WCAG AA:
+ * Contrast pairs (foreground on background) that must meet WCAG AA (4.5:1).
+ * tests/a11y/contrast.test.ts reads this list: add a pair whenever a text colour
+ * lands on a new ground.
  *   --color-text on --color-night
  *   --color-text on --color-surface
  *   --color-text on --color-raised
+ *   --color-text on --color-card
  *   --color-text-2 on --color-night
  *   --color-text-2 on --color-surface
+ *   --color-text-2 on --color-raised
+ *   --color-text-2 on --color-card
  *   --color-text-3 on --color-night
  *   --color-text-3 on --color-surface
+ *   --color-text-3 on --color-card
  *   --color-reply on --color-night
+ *   --color-reply on --color-surface
+ *   --color-receipt on --color-night
+ *   --color-receipt on --color-surface
  *   --color-mint on --color-night
+ *   --color-mint on --color-surface
  *   --color-coral on --color-night
+ *   --color-coral on --color-surface
+ *   --color-violet on --color-night
+ *   --color-bronze on --color-night
+ *   --color-bronze-soft on --color-night
+ *   --color-bronze-soft on --color-surface
+ *   --color-white on --color-night
+ *   --color-type-report on --color-surface
+ *   --color-type-document on --color-surface
+ *   --color-type-image on --color-surface
+ *   --color-type-spreadsheet on --color-surface
+ *   --color-type-slides on --color-surface
  *   --color-bronze-ink on --color-bronze
  *   --color-night on --color-text
  */
@@ -149,8 +170,13 @@
   --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
   --shadow-deliverable: 0 0 0 4px var(--tint-mint-faint), 0 18px 40px -16px rgba(75, 240, 183, 0.35);
   --shadow-ledge: 0 10px 14px -10px var(--tint-bronze-line); /* the glowing shelf ledge under a card (mock 04) */
-  --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint);
+  --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint); /* a field's box (the message box) */
   --focus-field: 0 0 0 1px var(--color-mint), 0 0 0 5px var(--tint-mint); /* a search box: 2px mint edge and the halo (mock 03) */
+
+  /* Focus: every interactive element (app/globals.css). An outline, so a button's own
+     box-shadow can't hide it. */
+  --focus-outline: 2px solid var(--color-mint);
+  --focus-offset: 2px;
 
   /* Motion */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -174,5 +200,5 @@
   --shelf-card-min: 200px; /* the narrowest shelf card before the grid drops a column */
   --document-max: 760px; /* a Deliverable's page (mock 05) */
   --detail-panel-width: 300px; /* its side panel: Ask Auto, About, Sources */
-  --tap-min: 44px;
+  --tap-min: 44px; /* the smallest tap target (tests/a11y/css.test.ts) */
 }

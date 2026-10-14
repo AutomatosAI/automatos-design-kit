@@ -29,9 +29,11 @@ button {
   font: inherit;
 }
 
+/* The keyboard focus ring on every interactive element. A rule that removes it must
+   draw its own from a --focus- token (tests/a11y/css.test.ts). */
 :focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {

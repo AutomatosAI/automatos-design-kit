@@ -52,6 +52,7 @@
 }
 
 .search:focus-visible {
+  outline: none;
   border-color: var(--color-mint);
   box-shadow: var(--focus-field);
 }
@@ -81,6 +82,7 @@
 }
 
 .row {
+  min-height: var(--tap-min);
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

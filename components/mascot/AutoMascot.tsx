@@ -4,6 +4,8 @@
 // says what he is doing. Spec: skills/build-automatos-interface/references/mascot-states.md
 // and docs/design/mocks/mascot.dc.html. The files in public/auto/ are git-ignored and
 // may be missing: then he is the dashed placeholder, and the caption still reads.
+// Screen readers skip the picture (aria-hidden) and hear the caption, a polite live
+// region, whenever what he is doing changes.
 
 import { type SyntheticEvent, useCallback, useState } from "react";
 
@@ -73,7 +75,7 @@ export function AutoMascot({
         )}
       </div>
       {showCaption && (
-        <p className={styles.caption}>
+        <p className={styles.caption} aria-live="polite" aria-atomic="true">
           <span className={styles.captionTitle}>{caption ?? captionFor(state)}</span>
           {detail && <span className={styles.captionDetail}>{detail}</span>}
         </p>

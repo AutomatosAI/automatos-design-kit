@@ -235,8 +235,8 @@
         "Tests pass"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Focus ring is now an outline (--focus-outline/--focus-offset in globals :focus-visible) so a button's own box-shadow can't hide it; mascot caption is aria-live=polite + aria-atomic; tap/conversation rows, shelf cards, sidebar wordmark and Recent links got min-height --tap-min. Guards in tests/a11y/: css.test.ts (focus ring, every button/link/field >= 44 px, no width > 390 px outside min-width media), contrast.test.ts (reads the pair list in app/theme.css), keyboard.test.tsx (Tab reaches every focusable per screen, no tabIndex), mascot.test.tsx. For US-015: a new interactive element needs a className whose rule sets min-height var(--tap-min)."
     },
     {
       "id": "US-015",
