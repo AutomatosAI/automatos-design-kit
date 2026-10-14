@@ -17,6 +17,7 @@ const MINIMUMS: Readonly<Record<PollIntervalName, { readonly ms: number; readonl
   LIST: { ms: 30_000, file: "missions.md", quote: "Poll the list every **30 s or slower**" },
   DOCUMENT_PROCESSING: { ms: 5_000, file: "knowledge.md", quote: "every 5–10 s while something is processing" },
   PLAYBOOK_RUN: { ms: 10_000, file: "agents-playbooks.md", quote: "Poll an open run every 10 s" },
+  BOARD_SAFETY: { ms: 60_000, file: "board-analytics.md", quote: "keep a 60 s list refetch as a safety net" },
 };
 
 /** Code that might poll: everything Play ships, minus the hook and the table themselves. */
@@ -36,6 +37,7 @@ describe("poll intervals", () => {
       LIST: 30_000,
       DOCUMENT_PROCESSING: 7_000,
       PLAYBOOK_RUN: 10_000,
+      BOARD_SAFETY: 60_000,
     });
   });
 

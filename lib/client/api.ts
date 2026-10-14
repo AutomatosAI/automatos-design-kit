@@ -1,4 +1,5 @@
 import { agentEndpoints } from "@/lib/client/agents";
+import { boardEndpoints } from "@/lib/client/board";
 import { documentEndpoints } from "@/lib/client/documents";
 import { missionEndpoints } from "@/lib/client/missions";
 import { ApiError, createTransport, failure, type Fetch, type Transport } from "@/lib/client/transport";
@@ -119,6 +120,7 @@ export function createApiClient(
     ...missionEndpoints(transport),
     ...agentEndpoints(transport),
     ...documentEndpoints(transport, sendUpload),
+    ...boardEndpoints(transport),
   };
 }
 

@@ -41,8 +41,8 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "useBoardStream(onChange, {client?, enabled?, safetyMs?}) in hooks/ over lib/board/live.ts connectBoardStream (fetch reader, backoff reset by any bytes) and the pure SSE parser lib/board/stream.ts (parseSseChunk, isBoardChange, reconnectDelay); api.openBoardStream(signal) in lib/client/board.ts (B-003 adds the list/moves there). Safety refetch = POLL_INTERVALS.BOARD_SAFETY (60 s, skipped while hidden). The backend sends board_changed on connect, so mounting refetches at once. Tests mock the stream with tests/board/stream-helpers.ts mockStreamFetch."
     },
     {
       "id": "B-003",
