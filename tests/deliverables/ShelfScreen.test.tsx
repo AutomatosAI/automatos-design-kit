@@ -146,7 +146,7 @@ describe("ShelfScreen", () => {
     expect(alert).not.toHaveTextContent("v_workspace_outputs");
     expect(screen.queryByText(/Nothing on your shelf yet/)).toBeNull();
     expect(screen.queryByRole("link", { name: "Start a chat" })).toBeNull();
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(await screen.findByText("Something went wrong")).toBeInTheDocument();
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("[shelf]"), expect.stringContaining("v_workspace_outputs"));
 
     failing = false;
@@ -163,7 +163,7 @@ describe("ShelfScreen", () => {
     );
     renderShelf(fetchMock);
     expect(await screen.findByRole("alert")).toHaveTextContent("Automatos isn't running at http://localhost:8000");
-    expect(screen.getByText("Automatos isn't running", { selector: "span" })).toBeInTheDocument();
+    expect(await screen.findByText("Automatos isn't running", { selector: "span" })).toBeInTheDocument();
   });
 
   it("shows a friendly empty state when there are no Deliverables", async () => {

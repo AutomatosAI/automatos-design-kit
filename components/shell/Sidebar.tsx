@@ -44,7 +44,13 @@ export function Sidebar({ pathname, counts, recent, connection, host }: SidebarP
                   aria-current={isActive(item.href, pathname) ? "page" : undefined}
                 >
                   {item.label}
-                  {count !== undefined && <span className={styles.count}> {count}</span>}
+                  {/* The space sits outside the span: a span's own text is trimmed in the accessible name. */}
+                  {count !== undefined && (
+                    <>
+                      {" "}
+                      <span className={styles.count}>{count}</span>
+                    </>
+                  )}
                 </Link>
               </li>
             );

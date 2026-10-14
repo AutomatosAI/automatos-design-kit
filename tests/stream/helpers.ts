@@ -2,6 +2,7 @@
 // fixture, chunk it, and parse it the way the browser will.
 
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { finishParse, INITIAL_SPLITTER, parseChunk } from "@/lib/stream/parse";
@@ -17,10 +18,11 @@ export const FIXTURES = [
 
 export type FixtureName = (typeof FIXTURES)[number];
 
-const FIXTURE_DIR = new URL("../fixtures/", import.meta.url);
+// Path, not URL, arithmetic: in jsdom tests vitest rewrites a URL resolved against import.meta.url to self.location (http:).
+const FIXTURE_DIR = join(dirname(fileURLToPath(import.meta.url)), "../fixtures");
 
 export function fixtureBytes(name: FixtureName): Uint8Array {
-  return new Uint8Array(readFileSync(fileURLToPath(new URL(`${name}.txt`, FIXTURE_DIR))));
+  return new Uint8Array(readFileSync(join(FIXTURE_DIR, `${name}.txt`)));
 }
 
 /** Parse the chunks in order, as one response body. */

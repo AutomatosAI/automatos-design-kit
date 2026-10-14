@@ -54,7 +54,7 @@ describe("Automatos isn't running", () => {
   it("fills the window with Auto asleep, the command and Check again", async () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { fetchMock } = sleepingBackend();
-    renderShell(fetchMock);
+    renderShell(fetchMock, RECHECK_MS);
     expect(await screen.findByRole("heading", { level: 1, name: ASLEEP_TITLE })).toBeInTheDocument();
     expect(screen.queryByText("the chat")).not.toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Main" })).not.toBeInTheDocument();

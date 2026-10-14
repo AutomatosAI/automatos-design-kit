@@ -2,10 +2,11 @@
 // plain (no nesting but @media), so a brace walk is enough.
 
 import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const ROOT = fileURLToPath(new URL("../..", import.meta.url));
+// Path, not URL, arithmetic: in jsdom tests vitest rewrites a URL resolved against import.meta.url to self.location (http:).
+export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 export interface CssRule {
   readonly selector: string;
