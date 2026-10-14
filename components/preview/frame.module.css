@@ -1,0 +1,93 @@
+/*
+ * A preview frame (PRD-004 K-005): Studio's <html> in miniature. Colours are only Studio's own
+ * token names, read the way Studio reads them (hsl(var(--card)); --border-2, --accent-2 and
+ * --navy are whole colours). The skin CSS from lib/skins/preview.ts sets them on the frame.
+ * Spacing and type sizes come from app/theme.css.
+ *
+ * The frame names the skin's shape for every gallery stylesheet below it:
+ *  - --radius-studio is the skin's --radius. Studio defines no --radius of its own until
+ *    PRD-259 S-009, so a frame without a skin (Studio as it ships) falls back to 8 px, the
+ *    radius S-009 settles on, through --radius-tool;
+ *  - the -lg / -sm corners follow shadcn (lg = radius, md = radius - 2, sm = radius - 4);
+ *  - --glow-studio is the skin's --skin-glow, used where Studio shows focus or a live state;
+ *  - --studio-sans/-serif/-mono are Studio's font variables (a skin may set them).
+ * Children set their size with a font token and then `font-family: inherit` (or a Studio font
+ * variable), so the skin's fonts reach them.
+ */
+
+.frame {
+  --radius-studio: var(--radius, var(--radius-tool));
+  --radius-studio-lg: calc(var(--radius-studio) + var(--space-1));
+  --radius-studio-sm: max(0px, calc(var(--radius-studio) - var(--space-1)));
+  --radius-studio-bar: calc(var(--radius-studio) / 2);
+  --glow-studio: var(--skin-glow, 0px);
+  --studio-sans: var(--font-geist-sans, var(--font-text));
+  --studio-serif: var(--font-newsreader, serif);
+  --studio-mono: var(--font-geist-mono, var(--font-mono));
+  container-type: inline-size;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: var(--text-small);
+  font-family: var(--studio-sans);
+}
+
+.caption {
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* The app: Studio's sidebar beside the page, stacked when the frame is narrow. */
+.app {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sectionLabel {
+  margin: 0;
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.overlays {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@container (min-width: 720px) {
+  .app {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .overlays {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}

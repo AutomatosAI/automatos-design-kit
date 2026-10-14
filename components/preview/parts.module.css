@@ -1,0 +1,288 @@
+/*
+ * The gallery's cards, table, badges, buttons and fields, after Studio's shadcn components
+ * (components/ui). Colours: Studio's token names only. Corners: the frame's --radius-studio-*
+ * (lg on cards, md on buttons and fields, as shadcn's rounded-lg / rounded-md). The focused
+ * field shows the ring and the skin's glow.
+ */
+
+/* Cards ---------------------------------------------------------------------------------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+.cardTitle {
+  font: var(--text-button);
+  font-family: inherit;
+}
+
+:global(.studio) .cardTitle {
+  font-family: var(--studio-serif);
+  font-weight: 500;
+}
+
+.cardText {
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+.cardFoot {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.progress {
+  align-self: stretch;
+  height: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: hsl(var(--muted));
+}
+
+.progressFill {
+  display: block;
+  width: 75%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: hsl(var(--primary));
+}
+
+/* Badges: Studio's status tokens, each fill with its own -foreground. -------------------- */
+
+.success,
+.warning,
+.info,
+.destructive,
+.agent {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+.success {
+  background: hsl(var(--success));
+  color: hsl(var(--success-foreground));
+}
+
+.warning {
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
+}
+
+.info {
+  background: hsl(var(--info));
+  color: hsl(var(--info-foreground));
+}
+
+.agent {
+  background: hsl(var(--agent));
+  color: hsl(var(--agent-foreground));
+}
+
+/* .destructive is both a badge and a button: the button rule below adds its padding. */
+.destructive {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+/* Table ---------------------------------------------------------------------------------- */
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: hsl(var(--card-foreground));
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+.th,
+.td,
+.tdMuted {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.th {
+  font: var(--text-label);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+:global(.studio) .th {
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+.tdMuted {
+  color: hsl(var(--muted-foreground));
+}
+
+.row:last-child .td,
+.row:last-child .tdMuted {
+  border-bottom: 0;
+}
+
+/* The second row is drawn hovered, as shadcn's hover:bg-muted/50. */
+.rowHover {
+  background: hsl(var(--muted) / 0.5);
+}
+
+/* Buttons -------------------------------------------------------------------------------- */
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.primary,
+.secondary,
+.outline,
+.buttons .destructive,
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-studio-sm);
+  border: 1px solid transparent;
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+.primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.outline {
+  border-color: hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.ghost {
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+
+.cardFoot .ghost {
+  padding: var(--space-1) var(--space-3);
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* Fields --------------------------------------------------------------------------------- */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: var(--space-3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--foreground));
+}
+
+.input,
+.inputFocused,
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio-sm);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: var(--text-small);
+  font-family: inherit;
+}
+
+.inputFocused {
+  box-shadow:
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--ring)),
+    0 0 var(--glow-studio) hsl(var(--ring) / 0.6);
+}
+
+.chevron {
+  color: hsl(var(--muted-foreground));
+}
+
+.checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--foreground));
+}
+
+.checkbox,
+.checkboxOn {
+  width: var(--space-4);
+  height: var(--space-4);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-studio-bar);
+  border: 1px solid hsl(var(--primary));
+  font: var(--text-mono-sm);
+}
+
+.checkboxOn {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}

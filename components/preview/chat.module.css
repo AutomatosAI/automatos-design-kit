@@ -1,0 +1,241 @@
+/*
+ * The gallery's chat ledger, after Studio's chat (components/chatbot: activity-trail,
+ * receipts-block, the Deliverable card, multimodal-input). Colours: Studio's token names only.
+ * The running tool line glows with the skin's --skin-glow (a live state); the composer field is
+ * drawn focused, with the ring and the glow.
+ */
+
+.ledger {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.userMessage {
+  align-self: flex-end;
+  max-width: 85%;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  font: var(--text-small);
+  font-family: inherit;
+}
+
+.autoTurn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.speaker {
+  margin: 0;
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.answer {
+  margin: 0;
+  font: var(--text-small);
+  font-family: inherit;
+  color: hsl(var(--foreground));
+}
+
+/* Tool lines ----------------------------------------------------------------------------- */
+
+.trail,
+.receiptList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toolLine,
+.receipt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-studio-sm);
+  font: var(--text-mono-sm);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+.toolGlyph,
+.receiptGlyph {
+  width: var(--space-4);
+  height: var(--space-4);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-round);
+  font: var(--text-mono-sm);
+}
+
+.toolLine[data-state="done"] .toolGlyph,
+.receipt[data-ok="yes"] .receiptGlyph {
+  color: hsl(var(--success));
+}
+
+.toolLine[data-state="failed"] .toolGlyph,
+.receipt[data-ok="no"] .receiptGlyph {
+  color: hsl(var(--destructive));
+}
+
+.toolLine[data-state="running"] {
+  color: hsl(var(--foreground));
+}
+
+.toolLine[data-state="running"] .toolGlyph {
+  color: hsl(var(--info));
+  box-shadow: 0 0 var(--glow-studio) hsl(var(--info) / 0.8);
+}
+
+.toolText {
+  min-width: 0;
+}
+
+.toolDetail {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: hsl(var(--muted-foreground) / 0.8);
+}
+
+.toolLine[data-state="failed"] .toolDetail,
+.receipt[data-ok="no"] {
+  color: hsl(var(--destructive));
+}
+
+/* Receipts box -------------------------------------------------------------------------- */
+
+.receipts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio);
+  border: 1px solid var(--border-2, hsl(var(--border)));
+  background: hsl(var(--muted) / 0.5);
+}
+
+.receiptsTitle {
+  margin: 0;
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Deliverable card ---------------------------------------------------------------------- */
+
+.deliverable {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+.deliverableTile {
+  width: var(--space-6);
+  height: var(--space-6);
+  flex: none;
+  border-radius: var(--radius-studio-sm);
+  background: var(--accent-2, hsl(var(--accent) / 0.12));
+  border: 1px solid hsl(var(--accent) / 0.4);
+}
+
+.deliverableText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deliverableTitle {
+  font: var(--text-button-sm);
+  font-family: inherit;
+}
+
+:global(.studio) .deliverableTitle {
+  font-family: var(--studio-serif);
+}
+
+.deliverableMeta {
+  font: var(--text-mono-sm);
+  font-family: var(--studio-mono);
+  color: hsl(var(--muted-foreground));
+}
+
+.deliverableAction {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-studio-sm);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+/* Composer: drawn focused, so the ring and the glow show. ------------------------------- */
+
+.composer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--input));
+  background: hsl(var(--popover));
+  box-shadow:
+    0 0 0 2px hsl(var(--ring)),
+    0 0 var(--glow-studio) hsl(var(--ring) / 0.6);
+}
+
+.composerField {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  color: hsl(var(--muted-foreground));
+  font: var(--text-small);
+  font-family: inherit;
+}
+
+.send {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font: var(--text-meta);
+  font-family: inherit;
+}

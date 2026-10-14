@@ -1,5 +1,5 @@
-import { PendingPage } from "@/components/shell/PendingPage";
+import { PreviewScreen } from "@/components/preview/PreviewScreen";
 
 export default function PreviewPage() {
-  return <PendingPage page="preview" />;
+  return <PreviewScreen />;
 }

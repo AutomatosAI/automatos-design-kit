@@ -96,8 +96,8 @@
         "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/preview/: PreviewScreen (app/preview/page.tsx) reads the editor's draft read-only via useStoredDraft (re-reads on the storage event), PreviewSwitches (Base / Tone aria-pressed groups + 'Compare with Studio'), GalleryFrame (figure 'Your skin' / '<Base> as it ships', carrying Studio's classes studio/dark from studioClasses() plus the data-skin-* attributes) over GalleryShell/Chat/Parts/Overlays/Chart, copy in content.ts. previewCss(draft, onBase) now takes the base to show. K-006 can add font/mascot parts to GalleryFrame; K-010 (K4) must lock the Tone switch for one-tone skins (today it shows the base's own colours with a note)."
     },
     {
       "id": "K-006",

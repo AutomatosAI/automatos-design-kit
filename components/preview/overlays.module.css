@@ -1,0 +1,128 @@
+/*
+ * The gallery's modal and toasts, drawn in the page. Colours: Studio's token names only (the
+ * scrim is the foreground at low alpha, as no token names one).
+ */
+
+.scrim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  background: hsl(var(--foreground) / 0.35);
+}
+
+.modal {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 var(--space-2) var(--space-5) hsl(var(--foreground) / 0.2);
+}
+
+.modalTitle {
+  font: var(--text-button);
+  font-family: inherit;
+}
+
+:global(.studio) .modalTitle {
+  font-family: var(--studio-serif);
+  font-weight: 500;
+}
+
+.modalText {
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+.modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.cancel,
+.confirm {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio-sm);
+  border: 1px solid transparent;
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+.cancel {
+  border-color: hsl(var(--input));
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.confirm {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+.toasts {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  box-shadow: 0 var(--space-1) var(--space-3) hsl(var(--foreground) / 0.12);
+}
+
+.toastMark {
+  width: var(--space-5);
+  height: var(--space-5);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-round);
+  font: var(--text-meta);
+}
+
+.toast[data-tone="success"] .toastMark {
+  background: hsl(var(--success));
+  color: hsl(var(--success-foreground));
+}
+
+.toast[data-tone="destructive"] .toastMark {
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+
+.toastText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toastTitle {
+  font: var(--text-button-sm);
+  font-family: inherit;
+}
+
+.toastBody {
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}

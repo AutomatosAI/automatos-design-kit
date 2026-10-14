@@ -1,0 +1,414 @@
+/*
+ * The gallery's sidebar, page header, stats bar and filter tabs. The plain rules are Classic's
+ * shapes; the `:global(.studio)` rules are Studio's, read from the core's globals.css
+ * (.sh-side, .cc-headrow, .cc-stats, .cc-tabs). Colours: Studio's token names only. Corners:
+ * the frame's --radius-studio-* (frame.module.css).
+ */
+
+/* Sidebar ------------------------------------------------------------------------------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-studio);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+
+:global(.studio) .sidebar {
+  background: hsl(var(--secondary));
+}
+
+.brand,
+.workspace {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1);
+}
+
+.glyph {
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-round);
+  background: hsl(var(--primary));
+}
+
+:global(.studio) .glyph {
+  background: hsl(var(--accent));
+}
+
+.brandName {
+  font: var(--text-button-sm);
+  font-family: inherit;
+}
+
+:global(.studio) .brandName {
+  font-family: var(--studio-serif);
+}
+
+.workspace {
+  border-radius: var(--radius-studio);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+}
+
+.mark {
+  width: var(--space-5);
+  height: var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-studio-sm);
+  background: hsl(var(--success));
+  color: hsl(var(--on-strong));
+  font: var(--text-meta);
+  font-family: var(--studio-serif);
+}
+
+.workspaceName {
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--foreground));
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.groupName {
+  margin: 0;
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font: var(--text-label);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+:global(.studio) .groupName {
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+.navItem,
+.navActive {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-studio-sm);
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+.navActive {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--foreground));
+  box-shadow: inset 2px 0 0 hsl(var(--primary));
+}
+
+:global(.studio) .navActive {
+  background: hsl(var(--card));
+  box-shadow: 0 1px 0 hsl(var(--border));
+}
+
+.navIcon {
+  width: var(--space-3);
+  height: var(--space-3);
+  flex: none;
+  border-radius: var(--radius-icon);
+  border: 1.5px solid currentColor;
+}
+
+:global(.studio) .navActive .navIcon {
+  color: hsl(var(--accent));
+}
+
+.navLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count,
+.countAlert {
+  margin-left: auto;
+  font: var(--text-mono-sm);
+  font-family: var(--studio-mono);
+  color: hsl(var(--muted-foreground));
+}
+
+.countAlert {
+  color: hsl(var(--accent));
+}
+
+/* Page header ---------------------------------------------------------------------------- */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.headRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.head {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.eyebrow {
+  margin: 0;
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Classic: a bold sans title, the accent word in the primary colour (Classic's gradient-text). */
+.pageTitle {
+  margin: 0;
+  font: var(--text-studio-title);
+  font-family: inherit;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.titleAccent {
+  color: hsl(var(--primary));
+}
+
+/* Studio: the editorial serif head in plain ink (Studio neutralises the gradient). */
+:global(.studio) .pageTitle {
+  font-family: var(--studio-serif);
+  font-weight: 500;
+}
+
+:global(.studio) .titleAccent {
+  color: inherit;
+}
+
+.sub {
+  margin: 0;
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+:global(.studio) .sub {
+  color: hsl(var(--foreground) / 0.78);
+}
+
+.headAction {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-studio-sm);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font: var(--text-meta);
+  font-family: inherit;
+}
+
+/* Stats bar: Classic draws a card per stat; Studio one strip of cells. --------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 120px), 1fr));
+  gap: var(--space-3);
+}
+
+.stat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+:global(.studio) .stats {
+  gap: 0;
+  overflow: hidden;
+  border-radius: var(--radius-studio-lg);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+
+:global(.studio) .stat {
+  border: 0;
+  border-right: 1px solid hsl(var(--border));
+  border-radius: 0;
+  background: transparent;
+}
+
+.statLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+:global(.studio) .statLabel {
+  font: var(--text-label);
+  font-family: var(--studio-mono);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+}
+
+/* Classic's coloured icon (text-primary, success, info, agent); Studio has none. */
+.statDot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-round);
+  background: hsl(var(--primary));
+}
+
+.stat[data-tone="ok"] .statDot {
+  background: hsl(var(--success));
+}
+
+.stat[data-tone="info"] .statDot {
+  background: hsl(var(--info));
+  box-shadow: 0 0 var(--glow-studio) hsl(var(--info));
+}
+
+.stat[data-tone="warn"] .statDot {
+  background: hsl(var(--warning));
+}
+
+.stat[data-tone="err"] .statDot {
+  background: hsl(var(--destructive));
+}
+
+:global(.studio) .statDot {
+  display: none;
+}
+
+.statValue {
+  font: var(--text-studio-title);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+:global(.studio) .statValue {
+  font: var(--text-lead);
+  font-family: var(--studio-mono);
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+/* Studio's statTone colours on the value. */
+:global(.studio) .stat[data-tone="ok"] .statValue {
+  color: hsl(var(--olive));
+}
+
+:global(.studio) .stat[data-tone="err"] .statValue {
+  color: hsl(var(--accent));
+}
+
+:global(.studio) .stat[data-tone="warn"] .statValue {
+  color: hsl(var(--warn-ink));
+}
+
+:global(.studio) .stat[data-tone="info"] .statValue {
+  color: hsl(var(--info));
+}
+
+.statDelta {
+  font: var(--text-mono-sm);
+  font-family: var(--studio-mono);
+  color: hsl(var(--muted-foreground));
+}
+
+/* Filter tabs: Classic's tab list on secondary; Studio's underlined strip. ---------------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-studio);
+  background: hsl(var(--secondary) / 0.5);
+}
+
+.tab,
+.tabActive {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-studio-sm);
+  font: var(--text-meta);
+  font-family: inherit;
+  color: hsl(var(--muted-foreground));
+}
+
+.tabActive {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.08);
+}
+
+.tabCount {
+  font: var(--text-mono-sm);
+  font-family: var(--studio-mono);
+  opacity: 0.6;
+}
+
+:global(.studio) .tabs {
+  align-self: stretch;
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+:global(.studio) .tab,
+:global(.studio) .tabActive {
+  padding: var(--space-2) var(--space-3);
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+:global(.studio) .tabActive {
+  font-weight: 600;
+  border-bottom-color: hsl(var(--accent));
+}
+
+:global(.studio) .tabCount {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-studio-sm);
+  background: hsl(var(--secondary));
+  color: hsl(var(--muted-foreground));
+  opacity: 1;
+}
+
+:global(.studio) .tabActive .tabCount {
+  background: hsl(var(--accent) / 0.12);
+  color: hsl(var(--accent));
+}

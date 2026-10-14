@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import styles from "./pending.module.css";
 
-export type PendingPageId = "preview" | "examples";
+export type PendingPageId = "examples";
 
 interface PendingCopy {
   readonly title: string;
@@ -13,10 +13,6 @@ interface PendingCopy {
 }
 
 export const PENDING_PAGES: Readonly<Record<PendingPageId, PendingCopy>> = {
-  preview: {
-    title: "Preview",
-    lead: "Studio's own components with your skin on them, in both bases and both tones. This gallery isn't built yet: the editor shows your changes live meanwhile.",
-  },
   examples: {
     title: "Examples",
     lead: "Ember, Daylight, Workshop and Neon, ready to start a skin from. They aren't in the kit yet: start from a look in the editor meanwhile.",

@@ -3,7 +3,6 @@ import { usePathname } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ExamplesPage from "@/app/examples/page";
-import PreviewPage from "@/app/preview/page";
 import { AppShell } from "@/components/shell/AppShell";
 import { PENDING_PAGES } from "@/components/shell/PendingPage";
 
@@ -69,16 +68,10 @@ describe("AppShell", () => {
 });
 
 describe("the pages still to come", () => {
-  it("say what Preview and Examples will hold, with the way to the editor", () => {
-    for (const [Page, id] of [
-      [PreviewPage, "preview"],
-      [ExamplesPage, "examples"],
-    ] as const) {
-      const { unmount } = render(<Page />);
-      expect(screen.getByRole("heading", { level: 1, name: PENDING_PAGES[id].title })).toBeInTheDocument();
-      expect(screen.getByText(PENDING_PAGES[id].lead)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Open the editor" })).toHaveAttribute("href", "/");
-      unmount();
-    }
+  it("say what Examples will hold, with the way to the editor", () => {
+    render(<ExamplesPage />);
+    expect(screen.getByRole("heading", { level: 1, name: PENDING_PAGES.examples.title })).toBeInTheDocument();
+    expect(screen.getByText(PENDING_PAGES.examples.lead)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open the editor" })).toHaveAttribute("href", "/");
   });
 });

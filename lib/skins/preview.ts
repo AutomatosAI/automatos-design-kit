@@ -23,6 +23,16 @@ export function baseScopeId(base: SkinBase): string {
   return `kit-base-${base}`;
 }
 
+/** Studio's own classes on <html> (PRD-259 §4): `studio` for the Studio base (none for Classic). */
+export const STUDIO_CLASS = "studio";
+/** next-themes' class for the Dark tone. */
+export const DARK_CLASS = "dark";
+
+/** The classes Studio would put on <html> for a base and a tone; the preview frames carry them too. */
+export function studioClasses(base: SkinBase, tone: Tone): readonly string[] {
+  return [...(base === "studio" ? [STUDIO_CLASS] : []), ...(tone === "dark" ? [DARK_CLASS] : [])];
+}
+
 /** The value of a frame's data-skin-preview: its base palette, then the draft over it. */
 export function frameSkins(base: SkinBase): string {
   return `${baseScopeId(base)} ${DRAFT_PREVIEW_ID}`;
@@ -83,10 +93,13 @@ function cssOrNothing(make: () => string, what: string): string {
   }
 }
 
-/** The preview's stylesheet: the base palette, then the draft over it, both made by skinToCss. */
-export function previewCss(draft: SkinDraft): string {
-  const baseId = baseScopeId(draft.base);
-  const base = cssOrNothing(() => scopeToFrame(skinToCss(baseAsSkin(draft.base)), baseId), `The ${draft.base} palette`);
+/**
+ * The preview's stylesheet: a base palette, then the draft over it, both made by skinToCss. The
+ * base is the draft's own unless the preview gallery asks to see the skin over the other one.
+ */
+export function previewCss(draft: SkinDraft, onBase: SkinBase = draft.base): string {
+  const baseId = baseScopeId(onBase);
+  const base = cssOrNothing(() => scopeToFrame(skinToCss(baseAsSkin(onBase)), baseId), `The ${onBase} palette`);
   const own = cssOrNothing(() => scopeToFrame(skinToCss(draftAsSkin(draft)), DRAFT_PREVIEW_ID), "The draft");
   return `${base}${own}`;
 }
