@@ -184,8 +184,8 @@
         "Tests pass"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Built app/deliverables -> components/deliverables/ShelfScreen (Auto in the header, chips, ShelfBody grid/states/Load more, ShelfCard with useThumbnail object URLs and a type-coloured fallback), hooks/useShelf (paging, generation guard, 30 s first-page refresh), hooks/useCelebrateNew + lib/deliverables/seen.ts (localStorage; new = unseen id newer than the newest seen; first visit only remembers). For US-012: reuse components/deliverables/TypeBadge (now also on the chat card), kindOf/typeLabel/shelfDate in lib/deliverables/shelf.ts, and UNTITLED/deliverableHref from lib/chat/deliverables.ts."
     },
     {
       "id": "US-012",

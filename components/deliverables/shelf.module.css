@@ -1,0 +1,224 @@
+/* The Deliverables shelf (mock 04): header with Auto, filter chips, the card grid. */
+
+.page {
+  width: 100%;
+  max-width: var(--shelf-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font: var(--text-h1);
+}
+
+.count {
+  margin: 0;
+  font: var(--text-nav);
+  color: var(--color-text-2);
+}
+
+.auto {
+  flex: none;
+}
+
+.chips {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.chip {
+  flex: none;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--color-text);
+  font: var(--text-small);
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--tint-hover);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  color: var(--color-night);
+  font-weight: 600;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--shelf-card-min), 1fr));
+  gap: var(--space-5);
+}
+
+/* The newest takes two columns where there is room. */
+.item[data-newest="true"] {
+  grid-column: span 2;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-ledge);
+}
+
+.item[data-newest="true"] .thumb {
+  border-color: var(--tint-mint-line);
+  box-shadow: var(--shadow-deliverable);
+}
+
+.card:hover .thumb {
+  border-color: var(--line-light);
+}
+
+.thumbImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-card);
+}
+
+.newest {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-badge);
+  background: var(--color-mint);
+  color: var(--color-night);
+  font: var(--text-meta);
+  font-weight: 600;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cardTitle {
+  margin: 0;
+  font: var(--text-card-title);
+  overflow-wrap: anywhere;
+}
+
+.cardMeta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--text-meta);
+  color: var(--color-text-2);
+}
+
+.status {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+}
+
+.empty,
+.failed,
+.more {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.more {
+  align-items: center;
+}
+
+.error {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-coral);
+}
+
+.button,
+.moreButton {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-button);
+  font: var(--text-button-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button {
+  border: 0;
+  background: var(--color-bronze);
+  color: var(--color-bronze-ink);
+}
+
+.moreButton {
+  border: 1px solid var(--line-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.moreButton:disabled {
+  cursor: progress;
+  color: var(--color-text-2);
+}
+
+@media (max-width: 767.98px) {
+  .page {
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-4) var(--space-5);
+  }
+
+  .title {
+    font: var(--text-h1-phone);
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+}

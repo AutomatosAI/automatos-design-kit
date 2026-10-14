@@ -1,0 +1,40 @@
+/* Deliverable type colours (style sheet: type badges). --kind is the type's colour. */
+
+.typeBadge,
+.kindTile {
+  --kind: var(--color-type-document);
+}
+
+.typeBadge[data-kind="report"],
+.kindTile[data-kind="report"] {
+  --kind: var(--color-type-report);
+}
+
+.typeBadge[data-kind="image"],
+.kindTile[data-kind="image"] {
+  --kind: var(--color-type-image);
+}
+
+.typeBadge[data-kind="spreadsheet"],
+.kindTile[data-kind="spreadsheet"] {
+  --kind: var(--color-type-spreadsheet);
+}
+
+.typeBadge[data-kind="slide"],
+.kindTile[data-kind="slide"] {
+  --kind: var(--color-type-slides);
+}
+
+.typeBadge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-badge);
+  background: var(--tint-hover);
+  color: var(--kind);
+  font: var(--text-meta);
+  font-weight: 600;
+}
+
+/* A type-coloured ground: the shelf card's thumbnail fallback. */
+.kindTile {
+  background: linear-gradient(160deg, var(--kind), var(--color-card));
+}

@@ -385,32 +385,19 @@
   color: var(--color-text-2);
 }
 
-.typeBadge {
-  --kind: var(--color-type-document);
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-badge);
-  background: var(--tint-hover);
-  color: var(--kind);
-  font-weight: 600;
-}
-
-.deliverableTile[data-kind="report"],
-.typeBadge[data-kind="report"] {
+.deliverableTile[data-kind="report"] {
   --kind: var(--color-type-report);
 }
 
-.deliverableTile[data-kind="image"],
-.typeBadge[data-kind="image"] {
+.deliverableTile[data-kind="image"] {
   --kind: var(--color-type-image);
 }
 
-.deliverableTile[data-kind="spreadsheet"],
-.typeBadge[data-kind="spreadsheet"] {
+.deliverableTile[data-kind="spreadsheet"] {
   --kind: var(--color-type-spreadsheet);
 }
 
-.deliverableTile[data-kind="slide"],
-.typeBadge[data-kind="slide"] {
+.deliverableTile[data-kind="slide"] {
   --kind: var(--color-type-slides);
 }
 

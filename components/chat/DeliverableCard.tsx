@@ -3,14 +3,11 @@
 
 import Link from "next/link";
 
+import { TypeBadge } from "@/components/deliverables/TypeBadge";
 import { deliverableHref } from "@/lib/chat/deliverables";
 import type { DeliverableRef } from "@/lib/chat/types";
 
 import styles from "./chat.module.css";
-
-function typeLabel(kind: string): string {
-  return kind.charAt(0).toUpperCase() + kind.slice(1);
-}
 
 export function DeliverableCard({ deliverable }: { readonly deliverable: DeliverableRef }) {
   return (
@@ -19,9 +16,7 @@ export function DeliverableCard({ deliverable }: { readonly deliverable: Deliver
       <div className={styles.deliverableText}>
         <h3 className={styles.deliverableTitle}>{deliverable.title}</h3>
         <p className={styles.deliverableMeta}>
-          <span className={styles.typeBadge} data-kind={deliverable.kind}>
-            {typeLabel(deliverable.kind)}
-          </span>
+          <TypeBadge kind={deliverable.kind} />
           just now
         </p>
       </div>

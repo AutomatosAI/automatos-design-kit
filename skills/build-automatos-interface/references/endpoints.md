@@ -44,16 +44,16 @@ Tool calls are not saved. `source` is an object or null: a failed turn is saved 
 
 | Method | Path | Returns / notes |
 |---|---|---|
-| GET | `/api/deliverables?limit=24&offset=0` | `{success, deliverables: [...], total, limit, offset}` (`services/deliverable_service.py`) |
+| GET | `/api/deliverables?limit=24&offset=0` | `{success, deliverables: [...], total, limit, offset}`, newest first (`ORDER BY o.created_at DESC`, `services/deliverable_service.py`) |
 | GET | `/api/deliverables/{id}?include_content=true` | `{success: true, deliverable: {…}}`, with `content` inline when asked (null for images and videos, which stream by URL; `content_error` when the file can't be read; `content_truncated` past the inline cap). A missing id is HTTP 404 (`api/deliverables.py:108`) |
-| GET | `/api/deliverables/{id}/thumbnail` | the thumbnail image (`api/deliverable_thumbnails.py:37`) |
+| GET | `/api/deliverables/{id}/thumbnail` | a PNG of the first page (`api/deliverable_thumbnails.py:37`). **404 when the Deliverable has none** (most images, spreadsheets and anything not yet rendered): show a fallback, it isn't an error. Needs `X-Workspace-ID` like every route, so fetch the bytes and use an object URL, not a plain `<img src>` |
 | GET | `/api/deliverables/stats` | counts for the workspace |
 
 List filters (all optional): `artifact_type` (report, image, document, code, slide, spreadsheet, archive, audio, video), `source_type` (chat, task, mission, heartbeat, playbook, trigger, upload), `source_type_exclude` (comma list; `heartbeat` is a sensible default to hide), `source_id`, `agent_id`, `date_from`, `date_to`, `search`, `tag`. `limit` is 1–100.
 
 Each Deliverable carries at least `id`, `title`, `summary`, `artifact_type`, `source_type`, `source_id`, `agent_id`, `file_path`, `preview_url` and `created_at`.
 
-**Check `success`.** When the query fails, the list returns HTTP 200 with `success: false`, an `error` string and an empty list. Show an error state, not "no Deliverables yet".
+**Check `success`.** When the query fails, the list returns HTTP 200 with `success: false`, an `error` string and an empty list. Show an error state, not "no Deliverables yet". The `error` is the raw exception (`f"list failed: {exc}"`, which can carry SQL): log it, show your own sentence.
 
 There is no binary download route for Deliverables. Use `include_content=true`, or `preview_url` when it is set.
 

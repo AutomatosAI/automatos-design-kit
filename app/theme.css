@@ -142,6 +142,7 @@
   --shadow-mint-glow: 0 0 10px rgba(75, 240, 183, 0.5);
   --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
   --shadow-deliverable: 0 0 0 4px var(--tint-mint-faint), 0 18px 40px -16px rgba(75, 240, 183, 0.35);
+  --shadow-ledge: 0 10px 14px -10px var(--tint-bronze-line); /* the glowing shelf ledge under a card (mock 04) */
   --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint);
   --focus-field: 0 0 0 1px var(--color-mint), 0 0 0 5px var(--tint-mint); /* a search box: 2px mint edge and the halo (mock 03) */
 
@@ -163,5 +164,7 @@
   --header-height: 68px;
   --phone-bar-height: 56px;
   --content-max: 720px;
+  --shelf-max: 1120px; /* the Deliverables shelf (mock 04) */
+  --shelf-card-min: 200px; /* the narrowest shelf card before the grid drops a column */
   --tap-min: 44px;
 }
