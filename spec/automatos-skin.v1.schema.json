@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:automatos:skin:v1",
+  "title": "automatos-skin/v1",
+  "description": "skin.json of an Automatos skin (.autoskin: a zip of skin.json plus an optional assets/ folder). Data only: never CSS, JavaScript, SVG, HTML, URLs or any field not listed here.",
+  "x-status": "draft-until-studio-publishes",
+  "x-follows": {
+    "prd": "PRD-259 Skins in Studio",
+    "section": "§3 The skin format",
+    "revision": "decisions of 14 Oct 2026 (docs/prd/core/PRD-259-SKINS-IN-STUDIO.md as seeded in kit commit 378e98f)"
+  },
+  "x-source": {
+    "kind": "prd-draft",
+    "from": "docs/prd/core/PRD-259-SKINS-IN-STUDIO.md §3"
+  },
+  "x-limits": {
+    "fontMaxBytes": 409600,
+    "mascotMaxBytes": 8388608,
+    "previewMaxBytes": 1048576,
+    "packageMaxBytes": 15728640
+  },
+  "x-contrast": {
+    "textMin": 4.5,
+    "ringMin": 3,
+    "pairs": [
+      {
+        "text": "foreground",
+        "on": "background",
+        "min": 4.5
+      },
+      {
+        "text": "card-foreground",
+        "on": "card",
+        "min": 4.5
+      },
+      {
+        "text": "popover-foreground",
+        "on": "popover",
+        "min": 4.5
+      },
+      {
+        "text": "primary-foreground",
+        "on": "primary",
+        "min": 4.5
+      },
+      {
+        "text": "secondary-foreground",
+        "on": "secondary",
+        "min": 4.5
+      },
+      {
+        "text": "muted-foreground",
+        "on": "background",
+        "min": 4.5
+      },
+      {
+        "text": "muted-foreground",
+        "on": "muted",
+        "min": 4.5
+      },
+      {
+        "text": "accent-foreground",
+        "on": "accent",
+        "min": 4.5
+      },
+      {
+        "text": "destructive-foreground",
+        "on": "destructive",
+        "min": 4.5
+      },
+      {
+        "text": "success-foreground",
+        "on": "success",
+        "min": 4.5
+      },
+      {
+        "text": "warning-foreground",
+        "on": "warning",
+        "min": 4.5
+      },
+      {
+        "text": "info-foreground",
+        "on": "info",
+        "min": 4.5
+      },
+      {
+        "text": "agent-foreground",
+        "on": "agent",
+        "min": 4.5
+      },
+      {
+        "text": "olive",
+        "on": "background",
+        "min": 4.5
+      },
+      {
+        "text": "warn-ink",
+        "on": "background",
+        "min": 4.5
+      },
+      {
+        "text": "ring",
+        "on": "background",
+        "min": 3
+      }
+    ],
+    "rule": "Checked in each tone the skin declares, for every pair the skin sets at least one side of; the other side comes from the base (Studio or Classic)."
+  },
+  "x-derived-aliases": [
+    "paper",
+    "bg-1",
+    "bg-2",
+    "fg",
+    "fg-2",
+    "fg-3"
+  ],
+  "x-mascot-states": [
+    "hello",
+    "idle",
+    "listening",
+    "thinking",
+    "working",
+    "searching",
+    "reading",
+    "celebrate",
+    "oops",
+    "sleeping",
+    "lost",
+    "loading"
+  ],
+  "x-mascot-formats": [
+    "webm",
+    "mp4",
+    "png"
+  ],
+  "x-files": "Only assets/preview.png, the woff2 files fonts names, and (mascot.mode custom) assets/mascot/<state>.<webm|mp4|png> for all 12 states. No other files, no path outside assets/, no symbolic links; types are checked by their first bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "slug",
+    "name",
+    "version",
+    "author",
+    "base",
+    "tones",
+    "tokens"
+  ],
+  "properties": {
+    "schema": {
+      "const": "automatos-skin/v1"
+    },
+    "slug": {
+      "type": "string",
+      "maxLength": 48,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "kebab-case, unique per author"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "not": {
+        "pattern": "[<>]"
+      }
+    },
+    "version": {
+      "type": "string",
+      "maxLength": 32,
+      "pattern": "^(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)\\.(?:0|[1-9]\\d*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "not": {
+        "pattern": "[<>]"
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 280,
+      "not": {
+        "pattern": "[<>]"
+      }
+    },
+    "licence": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "not": {
+        "pattern": "[<>]"
+      }
+    },
+    "base": {
+      "enum": [
+        "studio",
+        "classic"
+      ]
+    },
+    "tones": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "light",
+          "dark"
+        ]
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "light": {
+          "$ref": "#/$defs/toneTokens"
+        },
+        "dark": {
+          "$ref": "#/$defs/toneTokens"
+        }
+      }
+    },
+    "fonts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sans": {
+          "$ref": "#/$defs/font"
+        },
+        "serif": {
+          "$ref": "#/$defs/font"
+        },
+        "mono": {
+          "$ref": "#/$defs/font"
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "radius": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "description": "px"
+        },
+        "glow": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 40
+        }
+      }
+    },
+    "mascot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "off",
+            "auto",
+            "custom"
+          ]
+        },
+        "shell": {
+          "enum": [
+            "bronze",
+            "gold",
+            "silver",
+            "cobalt"
+          ],
+          "description": "Auto's shell tint"
+        },
+        "light": {
+          "$ref": "#/$defs/colour",
+          "description": "Auto's light"
+        }
+      }
+    },
+    "preview": {
+      "const": "assets/preview.png"
+    }
+  },
+  "$defs": {
+    "colour": {
+      "description": "An HSL triplet (\"16 100% 50%\", as Studio stores it) or #rrggbb, which is normalised to a triplet.",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^(?:360(?:\\.0{1,2})?|(?:3[0-5]\\d|[12]\\d{2}|[1-9]?\\d)(?:\\.\\d{1,2})?) (?:100(?:\\.0{1,2})?|[1-9]?\\d(?:\\.\\d{1,2})?)% (?:100(?:\\.0{1,2})?|[1-9]?\\d(?:\\.\\d{1,2})?)%$"
+        },
+        {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        }
+      ]
+    },
+    "toneTokens": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "background",
+          "foreground",
+          "card",
+          "card-foreground",
+          "popover",
+          "popover-foreground",
+          "primary",
+          "primary-foreground",
+          "secondary",
+          "secondary-foreground",
+          "muted",
+          "muted-foreground",
+          "accent",
+          "accent-foreground",
+          "destructive",
+          "destructive-foreground",
+          "border",
+          "input",
+          "ring",
+          "success",
+          "success-foreground",
+          "warning",
+          "warning-foreground",
+          "info",
+          "info-foreground",
+          "agent",
+          "agent-foreground",
+          "chart-1",
+          "chart-2",
+          "chart-3",
+          "chart-4",
+          "chart-5",
+          "stage-1",
+          "stage-2",
+          "stage-3",
+          "stage-4",
+          "stage-5",
+          "stage-6",
+          "stage-7",
+          "stage-8",
+          "stage-9",
+          "olive",
+          "warn-ink",
+          "on-strong",
+          "border-2",
+          "accent-2",
+          "navy"
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/colour"
+      }
+    },
+    "font": {
+      "anyOf": [
+        {
+          "enum": [
+            "Geist",
+            "Geist Mono",
+            "Newsreader"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^assets\\/fonts\\/[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*\\.woff2$"
+        }
+      ]
+    }
+  }
+}

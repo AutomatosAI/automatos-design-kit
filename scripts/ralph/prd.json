@@ -44,8 +44,8 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "lib/skins/: format.ts (constants, types, Skin), colour.ts (triplet/hex, tripletContrast, formatRatio), sniff.ts, validate*.ts (validateSkin(json, manifest, {packageBytes, baseTokens}) -> {ok, skin (colours as triplets)} | {ok:false, errors[{path,message}]}), archive.ts (readSkinArchive via fflate 0.8.3 + central-directory symlink scan). CLI in scripts/lib/ (validate-cli, sync-schema-cli, skin-source) run by tsx 4.23.15. Contrast checks only pairs the skin sets a side of; the other side needs baseTokens, which K-003 must pass in the CLI (Classic's own palette fails 6 pairs per tone). K-010 must also align these with the core's S-001 (automatos-ai/scripts/ralph/prd-259w1.json), listed in progress.txt K-002: pairs (core: muted-foreground/card, no muted/olive/warn-ink), slug 1-64, font keys geist/geist-mono/newsreader and path [A-Za-z0-9_-]{1,64}, mascot.light a LIGHTS key, tokens.<tone> required per tone, error codes."
     },
     {
       "id": "K-003",
@@ -161,6 +161,24 @@
         "Typecheck passes"
       ],
       "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "K-010",
+      "title": "Align the kit's validator and engine with the core's PRD-259 Wave 1 decisions",
+      "description": "As a designer, I want the kit to accept exactly what Studio will accept, so a skin that validates here loads there.",
+      "acceptanceCriteria": [
+        "Read (read-only) the core kit at /Users/gkavanagh/Development/Automatos-AI-Platform/automatos-ai/scripts/ralph/prd-259w1.json: story S-001 (the 47 allowed tokens and the 14 contrast pairs) and the decisions K1–K5",
+        "K5: contrast is checked on the skin's own values only; setting one side of a text pair requires setting the other (a skin that sets primary must set primary-foreground). Studio's Classic palette itself fails AA on several pairs (primary 3.31:1), so base values are never used for the check. Update lib/skins/validate.ts, its tests and the editor's badges to match",
+        "The allowed token list and the contrast pairs equal the core's S-001 lists exactly (one shared constant; a test lists both counts: 47 tokens, 14 pairs)",
+        "K2: Studio loads skin fonts with the FontFace API from object URLs (not @font-face rules); skinToCss keeps no @font-face and the preview loads fonts the same way",
+        "K4: a light-only skin locks Light, a dark-only skin locks Dark; the editor and preview mirror it",
+        "Note in docs/SKILL-GAPS.md ('Design gaps') that Studio's Classic palette fails AA on primary, accent, destructive, success, info and agent pairs, as found by the core kit",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 10,
       "passes": false,
       "notes": ""
     }
