@@ -143,6 +143,7 @@
   --shadow-card: 0 30px 60px -20px rgba(18, 15, 42, 0.45);
   --shadow-deliverable: 0 0 0 4px var(--tint-mint-faint), 0 18px 40px -16px rgba(75, 240, 183, 0.35);
   --focus-ring: 0 0 0 2px var(--color-night), 0 0 0 4px var(--color-mint);
+  --focus-field: 0 0 0 1px var(--color-mint), 0 0 0 5px var(--tint-mint); /* a search box: 2px mint edge and the halo (mock 03) */
 
   /* Motion */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);

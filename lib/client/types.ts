@@ -21,7 +21,8 @@ export type StoredMessage = {
   readonly id: string;
   readonly role: string;
   readonly parts: readonly MessagePart[];
-  readonly source: string | null;
+  /** Who wrote it when it wasn't the turn itself, e.g. {origin: "turn_error"}; null for most messages. */
+  readonly source: Json | null;
   readonly createdAt: string | null;
 };
 
@@ -128,7 +129,7 @@ export function parseStoredMessage(value: unknown): StoredMessage | null {
     id,
     role,
     parts: listOf(value.parts, parsePart),
-    source: text(value.source),
+    source: isRecord(value.source) ? value.source : null,
     createdAt: text(value.createdAt),
   };
 }

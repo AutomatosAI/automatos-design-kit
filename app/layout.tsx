@@ -10,7 +10,7 @@ import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "./theme.css";
 import "./globals.css";
-import { AppShell } from "@/components/shell/AppShell";
+import { LiveShell } from "@/components/shell/LiveShell";
 
 export const metadata: Metadata = {
   title: "Automatos Play",
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en">
       <body>
-        <AppShell>{children}</AppShell>
+        <LiveShell>{children}</LiveShell>
       </body>
     </html>
   );

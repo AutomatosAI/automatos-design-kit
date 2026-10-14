@@ -201,6 +201,7 @@ The pilot leaves out the items below. Each is a choice for Gerard to revisit, no
 6. **Weak clips.** listening, working and oops barely move. Re-render them (about $1.70)?
 7. **Name.** Automatos Play, or something else?
 8. **Marketplace.** List Play later as the first item in an "Interfaces" category?
+9. **Who wrote the preview.** `GET /api/chat/history` sends `lastMessagePreview` without the message's role, so Play's Conversations list can't tell "Auto: …" from "You: …" (mock 03) and always says "Auto:". A `lastMessageRole` field next to the preview in `api/chat.py` `get_chat_history` would fix it. Core change, Gerard's call (US-010).
 
 ## 10. Testing plan
 

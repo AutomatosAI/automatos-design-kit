@@ -167,8 +167,8 @@
         "Tests pass"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "app/conversations/page.tsx -> components/conversations/ (ConversationsScreen, ConversationList; pure grouping/time/preview/search in lib/conversations/list.ts). Opening one links to /?chat=<id> (lib/chat/params.ts chatHref/chatParam); app/page.tsx is async, reads searchParams and keys ChatScreen by the id; ChatScreen -> StoredChat (loads /messages via hooks/useStoredConversation, lib/chat/stored.ts maps saved parts) -> ChatView (the old ChatScreen body) with chatId + initialMessages. Sidebar Recent = latest 4 via components/shell/LiveShell (layout) + hooks/useRecentChats, reloaded by announceChatsChanged() after each sent turn. hooks/useLoad.ts is a reusable loading/ready/failed+retry hook (US-011/012 can use it). For Gerard: the history preview has no role, so every preview says 'Auto:' (never 'You:'): SKILL-GAPS + PRD open question 9. Desktop is a list page beside idle Auto, not mock 03's list-beside-open-chat split view; phone title says 'Conversations', not 'Chats'."
     },
     {
       "id": "US-011",

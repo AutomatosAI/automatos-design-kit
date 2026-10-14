@@ -92,13 +92,18 @@ function chatResponse(answer: ChatAnswer, signal?: AbortSignal | null): Response
 
 const CANCEL_PATH = /^\/api\/chat\/[^/]+\/cancel$/;
 
-/** Turn n of the conversation gets answers[n] (the last one repeats). */
-export function mockChatFetch(answers: readonly ChatAnswer[]) {
+/** Answers for other routes, by path without the query, e.g. "/api/chat/history". */
+export type Routes = Readonly<Record<string, () => Response>>;
+
+/** Turn n of the conversation gets answers[n] (the last one repeats); routes answer the rest. */
+export function mockChatFetch(answers: readonly ChatAnswer[], routes: Routes = {}) {
   let turn = 0;
   return vi.fn<Fetch>(async (input, init) => {
     const path = input.split("?")[0] ?? input;
     if (path === "/api/workspace") return Response.json(WORKSPACE);
     if (CANCEL_PATH.test(path)) return Response.json({ cancelled: true });
+    const route = routes[path];
+    if (route) return route();
     const answer = answers[Math.min(turn, answers.length - 1)];
     if (path !== "/api/chat" || !answer) throw new Error(`unexpected call to ${input}`);
     turn += 1;

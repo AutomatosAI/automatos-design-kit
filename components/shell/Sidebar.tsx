@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useId } from "react";
+import { chatHref } from "@/lib/chat/params";
 import { ConnectionPill, type ConnectionStatus } from "./ConnectionPill";
 import { NAV_ITEMS, isActive, type NavId } from "./nav";
 import styles from "./shell.module.css";
@@ -67,7 +68,7 @@ function RecentList({ recent }: { readonly recent: readonly RecentChat[] }) {
       <ul className={styles.list}>
         {recent.map((chat) => (
           <li key={chat.id}>
-            <Link href={`/?chat=${encodeURIComponent(chat.id)}`} className={styles.recentLink}>
+            <Link href={chatHref(chat.id)} className={styles.recentLink}>
               {chat.title}
             </Link>
           </li>

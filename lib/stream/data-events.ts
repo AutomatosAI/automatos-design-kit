@@ -18,7 +18,8 @@ export const FALLBACK_ERROR = "The reply failed. Try again.";
 
 const RECEIPT_STATUSES: readonly ReceiptStatus[] = ["done", "refused", "skipped", "waiting"];
 
-function receipt(value: unknown): Receipt | null {
+/** One receipt from a stream frame or a saved message's receipts part. */
+export function parseReceipt(value: unknown): Receipt | null {
   const o = asObject(value);
   const action = o ? text(o, "action") : null;
   const status = o ? str(o, "status") : null;
@@ -109,7 +110,7 @@ const UNDER_DATA: Readonly<Record<string, (d: JsonObject) => StreamEvent | null>
   receipts: (d) => ({
     type: "receipts",
     receipts: list(d, "receipts")
-      .map(receipt)
+      .map(parseReceipt)
       .filter((r): r is Receipt => r !== null),
     model: text(d, "model"),
     above: strings(d, "above"),

@@ -14,12 +14,31 @@ Everything goes through your own proxy routes and carries `X-Workspace-ID`. Path
 |---|---|---|
 | POST | `/api/chat` | the streaming turn; see `chat-stream.md` |
 | POST | `/api/chat/{chat_id}/cancel` | stops the running turn |
-| GET | `/api/chat/history?limit=20` | `[{id, title, createdAt, updatedAt, visibility, lastMessagePreview, kind, …}]` (`api/chat.py:458`) |
-| GET | `/api/chat/{chat_id}/messages` | `[{id, role, parts, attachments, source, createdAt, …}]`. `parts` has the same shape you send |
+| GET | `/api/chat/history?limit=20` | `[{id, title, createdAt, updatedAt, visibility, lastMessagePreview, kind, …}]` (`api/chat.py:458`), newest `updatedAt` first (bumped by every saved message). See "Reading the history" below |
+| GET | `/api/chat/{chat_id}/messages` | `[{id, role, parts, attachments, source, createdAt, …}]`, oldest first. A user message's `parts` has the shape you send; an assistant message's is below. 404 for an unknown id |
 | PATCH | `/api/chat/{chat_id}` | rename: `{title}` |
 | DELETE | `/api/chat/{chat_id}` | delete the conversation |
 
-A conversation is created by the first `POST /api/chat` without an `id`. There is no separate create call.
+A conversation is created by the first `POST /api/chat` without an `id`. There is no separate create call. To continue one, send its `id` on the next `POST /api/chat`.
+
+### Reading the history
+
+- `lastMessagePreview` is the latest message's `text` parts joined, cut to 80 characters with `…` (`_last_message_previews` in `api/chat.py`), or null for a conversation with no messages. **It doesn't say who wrote it.** A finished turn and a failed one both end with an assistant message, so it is Auto's unless the last turn was stopped before Auto saved anything.
+- `title` can be `"New Chat"` until the backend names the conversation.
+- `limit` has no upper bound in the route; there is no search parameter, so a title search filters what you loaded.
+
+### A saved assistant message
+
+`parts` is written by `reply_parts` in `consumers/chatbot/narration.py`, in this order, each optional except the answer:
+
+| Part | Fields | Show it as |
+|---|---|---|
+| `receipts` | `receipts: [...]` (same items as the stream's `receipts` frame) | the receipts list |
+| `reasoning` | `reasoning: string` | the thinking channel, never the answer |
+| `narration` | `narration: string` | the muted line above the answer |
+| `text` | `text: string` | the answer (markdown) |
+
+Tool calls are not saved. `source` is an object or null: a failed turn is saved as an assistant message whose `source` is `{origin: "turn_error", label: "Error", code}` and whose one `text` part starts with `⚠️ ` (`_persist_turn_error` in `consumers/chatbot/service.py`). Show it as an error, not as Auto's answer.
 
 ## Deliverables
 
