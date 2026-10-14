@@ -401,3 +401,6 @@ Typecheck (tsc --noEmit) failed; lint/tests never ran.
 - components/deliverables/ShelfScreen.tsx(51): `useShelf(client, type, refreshMs)` refused `number | undefined`. Root cause in hooks/useShelf.ts: `refreshMs = SHELF_REFRESH_MS` was unannotated, and since P-002 SHELF_REFRESH_MS = POLL_INTERVALS.LIST, which is `as const`, so the parameter was inferred as the literal 30000. Fixed by annotating `refreshMs: number = SHELF_REFRESH_MS`, as every other poll hook does.
 - tests/api/{agent,document,mission}-routes.test.ts playRequest: `json` was inferred as `{ "Content-Type"?: undefined } | { "Content-Type": string }`, and the spread headers object wasn't assignable to HeadersInit. Typed `json: Record<string, string>`; behaviour unchanged.
 - Swept: every other default param from POLL_INTERVALS is already `: number`; no other `? {} : {...}` header union goes into a Request. Pattern added under Patterns. Nothing ran locally: CI is the check.
+
+---
+# Skin Kit wave: PRD-004 (with the PRD-259 format draft), from 2026-10-14
