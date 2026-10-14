@@ -4,6 +4,7 @@
 import { useEffect, useRef } from "react";
 
 import type { ChatMessage } from "@/lib/chat/types";
+import type { Mission } from "@/lib/missions/types";
 
 import { AutoReply } from "./AutoReply";
 import styles from "./chat.module.css";
@@ -49,9 +50,11 @@ export interface MessageListProps {
   readonly messages: readonly ChatMessage[];
   /** Try again on the newest reply's snag box: sends your last message again. */
   readonly onRetry?: () => void;
+  /** Starts the Mission the reply with this id suggests. */
+  readonly onStartMission?: (replyId: string) => Promise<Mission>;
 }
 
-export function MessageList({ messages, onRetry }: MessageListProps) {
+export function MessageList({ messages, onRetry, onStartMission }: MessageListProps) {
   const endRef = useFollow(messages);
   const newest = messages.at(-1)?.id;
   return (
@@ -62,7 +65,11 @@ export function MessageList({ messages, onRetry }: MessageListProps) {
             {message.role === "user" ? (
               <p className={styles.bubble}>{message.text}</p>
             ) : (
-              <AutoReply message={message} onRetry={message.id === newest ? onRetry : undefined} />
+              <AutoReply
+                message={message}
+                onRetry={message.id === newest ? onRetry : undefined}
+                onStartMission={onStartMission && (() => onStartMission(message.id))}
+              />
             )}
           </li>
         ))}

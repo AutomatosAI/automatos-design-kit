@@ -472,3 +472,62 @@
   font: var(--text-button-sm);
   cursor: pointer;
 }
+
+/* A Mission Auto suggests (P-006): a surface card with an accent edge, under his answer. */
+.suggestion {
+  width: 100%;
+  max-width: var(--deliverable-card-max);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--tint-accent-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  animation: land var(--duration-card) var(--ease-out);
+}
+
+.suggestionTitle {
+  margin: 0;
+  font: var(--text-title-lg);
+  letter-spacing: var(--display-letter-spacing);
+  color: var(--color-text);
+}
+
+.suggestionMeta {
+  margin: 0;
+  font: var(--text-label);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  color: var(--color-accent-text);
+}
+
+.suggestionGoal {
+  margin: 0;
+  font: var(--text-small);
+  color: var(--color-text-2);
+  overflow-wrap: anywhere;
+}
+
+.suggestionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.suggestionStart {
+  min-height: var(--tap-min);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  font: var(--text-button-sm);
+  box-shadow: var(--shadow-primary);
+  cursor: pointer;
+}
+
+.suggestionStart:disabled {
+  cursor: progress;
+}

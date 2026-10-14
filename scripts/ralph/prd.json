@@ -121,8 +121,8 @@
         "Tests pass"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "components/chat/MissionSuggestionCard (goal via goalPreview, complexity words, Start this Mission -> onStart() then router.push(missionHref), Not now hides it per reply, errors as role=alert in the card) shown by AutoReply once the reply isn't streaming; ChatView's useStartSuggested builds the body with suggestedMission(messages, replyId, chatId) from lib/chat/suggestion.ts (config {source:'chat', chat_id (omitted if none), context_messages: last 5 messages with text up to that reply}). New fixture tests/fixtures/mission-suggestion.txt (suggestion frame comes before chat-id, as the core sends it). ChatScreen tests that hit a suggestion must vi.mock next/navigation."
     },
     {
       "id": "P-007",

@@ -1,0 +1,15 @@
+# SYNTHETIC fixture (mission suggestion): a multi-step ask; Auto suggests a Mission, then answers
+# Written by hand to match, byte for byte, the formatters in
+# automatos-ai/orchestrator/consumers/chatbot/streaming.py. The suggestion comes first,
+# before the chat-id frame (_turn_chunks in api/chat.py). Not a real recording:
+# replace it with a recorded turn from a test workspace (docs/RUN-CHECKLIST.md).
+d:{"type": "mission-suggestion", "data": {"goal": "Research three electric bike makers and write a comparison report", "complexity": "organ", "agent_id": 1}}
+d:{"type":"chat-id","chatId":"6f1c2a9e-3b7d-4c8a-9e21-5d0f4b8a7c13"}
+d:{"type": {"type": "agent-info", "agent": {"id": 1, "name": "Auto", "type": "assistant", "skills": ["research", "writing"]}}}
+0:"That's a few steps of work. "
+0:"I can start it as a Mission, "
+0:"so the crew researches and I check the report."
+d:{"type":"usage","data":{"promptTokens": 1204, "completionTokens": 34, "totalTokens": 1238}}
+d:{"type":"tool-data","data":{"receipts": {"receipts": [], "model": "test-model"}}}
+d:{"type": "receipts", "data": {"receipts": [], "model": "test-model"}}
+d:{"type":"finish","finishReason":"stop"}

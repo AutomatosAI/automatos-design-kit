@@ -14,6 +14,7 @@ export const FIXTURES = [
   "error-turn",
   "ask-waiting",
   "reasoning-narration",
+  "mission-suggestion",
 ] as const;
 
 export type FixtureName = (typeof FIXTURES)[number];

@@ -58,7 +58,7 @@ There is **no** push channel for Missions: poll.
 
 ## From a chat suggestion to a Mission
 
-A chat turn can carry a `mission-suggestion` frame: `data: {goal, complexity, agent_id}`. Nothing is created until the user agrees. Studio's "Launch" calls:
+A chat turn can carry a `mission-suggestion` frame: `data: {goal, complexity, agent_id}`. Nothing is created until the user agrees. The frame is the turn's **first**, before `chat-id` (`_turn_chunks` in `orchestrator/api/chat.py`); `goal` is the user's own message, and `complexity` is AutoBrain's `Complexity` value (`atom` to `organism`, `consumers/chatbot/auto.py`); Studio names only `organ` ("Multi-step") and `organism` ("Complex multi-agent") and shows any other value as sent. Read the chat id when the user clicks, not when the frame arrives. Studio's "Launch" calls:
 
 ```json
 POST /api/missions

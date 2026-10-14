@@ -4,7 +4,8 @@
 // out the conversation, the message box and Auto: in the mascot column on wide screens,
 // and as a small row above the message box where that column is hidden (phones, and
 // tablets below 1024 px). An empty chat is the first-open screen (mock 06), a reply that
-// hit a snag offers Try again (mock 08), and Auto naps after 3 minutes without input.
+// hit a snag offers Try again (mock 08), a Mission Auto suggests can be started from its
+// card (P-006), and Auto naps after 3 minutes without input.
 // ChatScreen picks a new chat or a saved one (StoredChat).
 
 import { useCallback, useEffect, useState } from "react";
@@ -15,11 +16,13 @@ import { type ChatTurn, useChatTurn } from "@/hooks/useChatTurn";
 import { useIdleTimeout } from "@/hooks/useIdleTimeout";
 import { useMediaQuery } from "@/hooks/useMediaPreferences";
 import { chatCaption, latestReply } from "@/lib/chat/caption";
+import { suggestedMission } from "@/lib/chat/suggestion";
 import type { ChatMessage } from "@/lib/chat/types";
-import type { ApiClient } from "@/lib/client/api";
+import { api, type ApiClient } from "@/lib/client/api";
 import { announceChatsChanged } from "@/lib/client/chat-events";
 import { claimFirstOpen } from "@/lib/mascot/session";
 import type { MascotName } from "@/lib/mascot/types";
+import type { Mission } from "@/lib/missions/types";
 
 import { ExampleChips, FirstOpenHero } from "./FirstOpen";
 import { MessageBox } from "./MessageBox";
@@ -83,6 +86,19 @@ function retryLast(turn: ChatTurn, send: ChatTurn["send"]): (() => void) | undef
   return lastAsked && !turn.streaming ? () => void send(lastAsked) : undefined;
 }
 
+/** Start this Mission on a suggestion card: POST /api/missions with the goal, this chat and its last messages. */
+function useStartSuggested(client: ApiClient, turn: ChatTurn): (replyId: string) => Promise<Mission> {
+  const { chatId, messages } = turn;
+  return useCallback(
+    async (replyId: string) => {
+      const request = suggestedMission(messages, replyId, chatId);
+      if (!request) throw new Error(`reply ${replyId} suggests no Mission`);
+      return client.createMission(request);
+    },
+    [client, chatId, messages],
+  );
+}
+
 /** An example chip's words, put in a fresh message box (a new key) so it focuses with them. */
 type Fill = { readonly text: string; readonly serial: number };
 
@@ -90,6 +106,7 @@ type Fill = { readonly text: string; readonly serial: number };
 export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs }: ChatViewProps) {
   const turn = useChatTurn({ client, chatId, initialMessages });
   const send = useAnnouncedSend(turn.send);
+  const startMission = useStartSuggested(client ?? api, turn);
   const mascotEvents = useChatMascot(turn.dispatchMascot, idleMs);
   const compact = useMediaQuery(MASCOT_COLUMN_HIDDEN, false);
   const [fill, setFill] = useState<Fill | null>(null);
@@ -108,7 +125,7 @@ export function ChatView({ client, chatId, initialMessages, initialDraft, idleMs
         {empty ? (
           <FirstOpenHero state={turn.mascot.mascot} onClipEnded={mascotEvents.onClipEnded} {...caption} />
         ) : (
-          <MessageList messages={turn.messages} onRetry={retryLast(turn, send)} />
+          <MessageList messages={turn.messages} onRetry={retryLast(turn, send)} onStartMission={startMission} />
         )}
         <div className={styles.footer}>
           {compact && !empty && (

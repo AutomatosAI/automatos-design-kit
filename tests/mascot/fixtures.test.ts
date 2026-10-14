@@ -21,6 +21,7 @@ const EXPECTED: Readonly<Record<FixtureName, readonly MascotName[]>> = {
   "error-turn": ["thinking", "oops"],
   "ask-waiting": ["thinking", "working", "listening"],
   "reasoning-narration": ["thinking", "idle", "reading", "idle", "thinking", "idle", "celebrate", "idle"],
+  "mission-suggestion": ["thinking", "idle"],
 };
 
 describe("mascot reducer on the recorded turns", () => {

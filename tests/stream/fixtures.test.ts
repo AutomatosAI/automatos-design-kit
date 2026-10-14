@@ -140,6 +140,22 @@ const EXPECTED: Readonly<Record<FixtureName, readonly StreamEvent[]>> = {
     ...receiptFrames([DOCS]),
     FINISH,
   ],
+  "mission-suggestion": [
+    {
+      type: "mission-suggestion",
+      goal: "Research three electric bike makers and write a comparison report",
+      complexity: "organ",
+      agentId: 1,
+    },
+    CHAT_ID,
+    AGENT,
+    say("That's a few steps of work. "),
+    say("I can start it as a Mission, "),
+    say("so the crew researches and I check the report."),
+    usage(1204, 34, 1238),
+    ...receiptFrames([]),
+    FINISH,
+  ],
 };
 
 const RUNS = 150;

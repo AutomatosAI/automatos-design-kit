@@ -1,14 +1,17 @@
 // One reply from Auto (mocks 01 and 02), top to bottom: the "Auto" label, the lines the
 // platform puts above the answer, narration and progress, the tool lines, the answer as
-// markdown, the Deliverables he made, the receipts, then notices and errors in words:
+// markdown, the Deliverables he made, the receipts, a Mission he suggests (once the
+// turn is over, so its context holds his whole answer), then notices and errors in words:
 // in the snag box (mock 08) once the turn is over, as plain lines while he answers or
 // after you stopped him.
 
 import { snagLines } from "@/lib/chat/snag";
 import type { AutoMessage } from "@/lib/chat/types";
+import type { Mission } from "@/lib/missions/types";
 
 import { DeliverableCard } from "./DeliverableCard";
 import { Markdown } from "./Markdown";
+import { MissionSuggestionCard } from "./MissionSuggestionCard";
 import { Receipts } from "./Receipts";
 import { SnagBox } from "./SnagBox";
 import { ToolLines } from "./ToolLines";
@@ -51,10 +54,13 @@ export interface AutoReplyProps {
   readonly message: AutoMessage;
   /** Sends the message before this reply again (the snag box's Try again). */
   readonly onRetry?: () => void;
+  /** Starts the Mission this reply suggests (its card's Start this Mission). */
+  readonly onStartMission?: () => Promise<Mission>;
 }
 
-export function AutoReply({ message, onRetry }: AutoReplyProps) {
+export function AutoReply({ message, onRetry, onStartMission }: AutoReplyProps) {
   const snag = snagLines(message);
+  const suggestion = message.status === "streaming" ? null : message.missionSuggestion;
   return (
     <article className={styles.reply} aria-label={`${SPEAKER} said`} aria-busy={message.status === "streaming"}>
       <h2 className={styles.speaker}>{SPEAKER}</h2>
@@ -66,9 +72,7 @@ export function AutoReply({ message, onRetry }: AutoReplyProps) {
         <DeliverableCard key={deliverable.id} deliverable={deliverable} />
       ))}
       <Receipts receipts={message.receipts} />
-      {message.missionSuggestion && (
-        <p className={styles.activity}>Auto suggests a Mission: {message.missionSuggestion.goal}</p>
-      )}
+      {suggestion && onStartMission && <MissionSuggestionCard suggestion={suggestion} onStart={onStartMission} />}
       <Lines lines={message.notices} className={styles.notice} />
       {snag.length > 0 ? <SnagBox lines={snag} onRetry={onRetry} /> : <Errors errors={message.errors} />}
       {message.status === "stopped" && <p className={styles.notice}>You stopped this answer.</p>}
