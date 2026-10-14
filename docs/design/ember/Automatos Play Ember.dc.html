@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#E9E7E4;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}a{color:#FF8A3D}a:hover{color:#FFB070}</style>
+</helmet>
+
+<section style="padding:56px 64px 28px;max-width:1500px">
+  <div style="display:flex;align-items:baseline;gap:16px"><div style="font:italic 52px/1 'Instrument Serif',serif;color:#131110">Automatos Play — Ember</div><div style="font:500 12px 'Geist Mono',monospace;color:#6B635C">v2 · 9 screens × 1440 / 390 · from <a href="Automatos Play Directions.dc.html#2b" style="color:#B5480F">2b</a></div></div>
+  <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:1300px;font:15px/1.55 'Geist',sans-serif;color:#4A433D;text-wrap:pretty">
+    <div><b style="color:#131110">Forge, done editorially.</b> Warm graphite ground, one molten-orange light source. Orange is reserved for the single primary action and for "fresh" things (newest, done); everything else is cream and grey.</div>
+    <div><b style="color:#131110">Type does the fun.</b> Instrument Serif italic for the big moments (titles, Auto's status, empty states), Geist for reading, Geist Mono for tool lines and code. No rounded type, no candy colours.</div>
+    <div><b style="color:#131110">Auto keeps his colours.</b> Mint eyes and the page-drawn ring (mint calm, bronze busy, coral help, dusk asleep) are the only cool tones in the UI, so he always reads as alive. Yellow tags = motion notes; toggle in Tweaks.</div>
+  </div>
+</section>
+
+<!-- 01 -->
+<section data-screen-label="01 Chat" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">01</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Chat with Auto</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>searching</b>. Text equivalents: the live tool line, "Searching." with the query beside Auto, and Send turned into Stop.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:radial-gradient(700px 500px at 90% 60%, rgba(255,106,31,.16), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:232px;flex:none;display:flex;flex-direction:column;gap:24px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="font:italic 28px/1 'Instrument Serif',serif;padding:0 6px">Automatos <span style="color:#FF8A3D">Play</span></div>
+        <button style="height:44px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:2px;font:500 14px 'Geist',sans-serif">
+          <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Chat</div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Conversations<span style="font:12px 'Geist Mono',monospace;color:#8A8077">23</span></div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Deliverables<span style="font:12px 'Geist Mono',monospace;color:#8A8077">14</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;font:14px 'Geist',sans-serif;color:#B7ADA4">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:0 8px 8px">Recent</div>
+          <div style="padding:7px 8px;color:#F4EEE8">Laptop for uni</div><div style="padding:7px 8px">Revision plan for chemistry</div><div style="padding:7px 8px">Captions for the bake sale</div><div style="padding:7px 8px">Budget for the trip to Lisbon</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="width:6px;height:6px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:30px 56px 10px;display:flex;align-items:baseline;justify-content:space-between"><div style="font:italic 40px/1 'Instrument Serif',serif">Laptop for uni</div><div style="font:12px 'Geist Mono',monospace;color:#8A8077">TUE 14 OCT · 15:38</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 56px">
+          <div style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:22px;padding-bottom:24px">
+            <div style="align-self:flex-end;max-width:480px;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">What should I look for in a laptop for uni? Mostly essays and some light photo editing.</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:8px"><span style="padding:6px 10px;border-radius:8px;background:rgba(244,238,232,.06);font:12px 'Geist Mono',monospace;color:#B7ADA4">✓ Searched the web · 3 results · 2.1 s</span></div>
+              <div style="font:18px/1.6 'Geist',sans-serif;color:#EDE5DD;text-wrap:pretty">Aim for <span style="font:italic 21px 'Instrument Serif',serif;color:#FFB070">16 GB of memory</span>, a screen that covers most of sRGB, and 10+ hours of battery. Under 1.5 kg matters if you carry it every day.</div>
+              <div style="display:flex;gap:18px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="color:#B7ADA4">What Auto did</span><span>✓ Searched the web · 3 results</span><span>✓ Read 3 pages</span></div>
+            </div>
+            <div style="position:relative;align-self:flex-end;max-width:480px;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">Great. Can you make me a shortlist under £700?
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;left:-150px;top:14px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px;white-space:nowrap">rise 12px · 180ms</span></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex"><span style="display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:8px;background:rgba(255,106,31,.12);border:1px solid rgba(255,138,61,.4);font:12px 'Geist Mono',monospace;color:#FFC7A0"><span style="width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,138,61,.3);border-top-color:#FF8A3D"></span>Searching the web: 'best budget laptops for students 2026'</span></div>
+              <div style="font:18px/1.6 'Geist',sans-serif;color:#EDE5DD">On it. Checking current prices first, since they move a lot<span style="display:inline-block;width:2px;height:20px;margin-left:3px;vertical-align:-4px;background:#FF8A3D"></span></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 56px 30px"><div style="position:relative;max-width:700px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 20px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 18px;display:flex;align-items:center;gap:10px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#131110"></span>Stop</button>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:0;top:-26px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">Send → Stop while Auto answers</span></sc-if></div></div>
+      </div>
+      <div style="position:relative;width:340px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:0 36px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="searching" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="font:italic 46px/1 'Instrument Serif',serif">Searching.</div>
+        <div style="font:13px/1.5 'Geist Mono',monospace;color:#B7ADA4">"best budget laptops for students 2026"</div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:22%;right:24px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">ring pulses · 2.4s</span></sc-if>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(360px 260px at 30% 92%, rgba(255,106,31,.2), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(244,238,232,.08)">
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">Chats</button>
+        <div style="font:italic 22px 'Instrument Serif',serif">Laptop for uni</div>
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">Shelf</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:0 16px 12px">
+        <div style="font:16px/1.6 'Geist',sans-serif;color:#EDE5DD">…and 10+ hours of battery. Under 1.5 kg matters if you carry it every day.</div>
+        <div style="font:12px 'Geist Mono',monospace;color:#8A8077">✓ Searched the web · ✓ Read 3 pages</div>
+        <div style="align-self:flex-end;max-width:290px;padding:12px 16px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:15px/1.5 'Geist',sans-serif">Great. Can you make me a shortlist under £700?</div>
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(255,106,31,.12);border:1px solid rgba(255,138,61,.4);font:12px/1.45 'Geist Mono',monospace;color:#FFC7A0"><span style="flex:none;margin-top:2px;width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,138,61,.3);border-top-color:#FF8A3D"></span>Searching the web: 'best budget laptops for students 2026'</div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:14px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="searching" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:italic 26px/1 'Instrument Serif',serif">Searching.</div><div style="font:12px 'Geist Mono',monospace;color:#B7ADA4">3 sites so far</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px"><div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 16px;display:flex;align-items:center;gap:8px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#131110"></span>Stop</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section data-screen-label="02 Deliverable ready" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">02</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">A Deliverable is ready</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>celebrate</b>, once, then back to idle. Text equivalents: the Deliverable card, the "Done" receipt and "Ta-da." The glow brightens for this moment only.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:radial-gradient(700px 500px at 88% 70%, rgba(255,106,31,.24), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:232px;flex:none;display:flex;flex-direction:column;gap:24px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="font:italic 28px/1 'Instrument Serif',serif;padding:0 6px">Automatos <span style="color:#FF8A3D">Play</span></div>
+        <button style="height:44px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:2px;font:500 14px 'Geist',sans-serif">
+          <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Chat</div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Conversations<span style="font:12px 'Geist Mono',monospace;color:#8A8077">23</span></div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Deliverables<span style="font:12px 'Geist Mono',monospace;color:#FF8A3D">+1 · 15</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;font:14px 'Geist',sans-serif;color:#B7ADA4">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:0 8px 8px">Recent</div>
+          <div style="padding:7px 8px;color:#F4EEE8">Laptop for uni</div><div style="padding:7px 8px">Revision plan for chemistry</div><div style="padding:7px 8px">Captions for the bake sale</div><div style="padding:7px 8px">Budget for the trip to Lisbon</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="width:6px;height:6px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:30px 56px 10px;display:flex;align-items:baseline;justify-content:space-between"><div style="font:italic 40px/1 'Instrument Serif',serif">Laptop for uni</div><div style="font:12px 'Geist Mono',monospace;color:#8A8077">TUE 14 OCT · 15:42</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 56px">
+          <div style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:22px;padding-bottom:24px">
+            <div style="align-self:flex-end;max-width:480px;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">Great. Can you make me a shortlist under £700?</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span style="padding:6px 10px;border-radius:8px;background:rgba(244,238,232,.06);font:12px 'Geist Mono',monospace;color:#B7ADA4">✓ Searched the web · 5 results · 2.8 s</span>
+                <span style="padding:6px 10px;border-radius:8px;background:rgba(244,238,232,.06);font:12px 'Geist Mono',monospace;color:#B7ADA4">✓ Read 4 pages · 3.4 s</span>
+                <span style="padding:6px 10px;border-radius:8px;background:rgba(244,238,232,.06);font:12px 'Geist Mono',monospace;color:#B7ADA4">✓ Made a report · 6.0 s</span>
+              </div>
+              <div style="font:18px/1.6 'Geist',sans-serif;color:#EDE5DD;text-wrap:pretty">Three laptops make the cut. The <span style="font:italic 21px 'Instrument Serif',serif;color:#FFB070">ASUS Vivobook S 14</span> is my pick: best battery of the three, lightest, and still £21 under budget.</div>
+              <div style="position:relative;width:520px;display:flex;gap:18px;padding:14px;border-radius:14px;background:linear-gradient(135deg, rgba(255,106,31,.16), rgba(255,106,31,.03));border:1px solid rgba(255,138,61,.4)">
+                <div style="width:96px;height:120px;flex:none;border-radius:6px;background:#F4EEE8;padding:12px 10px;display:flex;flex-direction:column;gap:6px"><div style="font:italic 13px/1 'Instrument Serif',serif;color:#131110">Laptop shortlist</div><div style="height:3px;background:#CFC5BB"></div><div style="height:3px;width:80%;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:3px;height:34px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+                  <div style="display:flex;flex-direction:column;gap:6px"><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#FF8A3D">Report · just now</div><div style="font:italic 30px/1 'Instrument Serif',serif">Laptop shortlist</div><div style="font:13px 'Geist',sans-serif;color:#B7ADA4">3 laptops · 1 chart · 4 sources</div></div>
+                  <button style="align-self:flex-start;height:44px;padding:0 22px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Open</button>
+                </div>
+                <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:-176px;top:14px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px;white-space:nowrap">lands: drop + bounce 1.04</span></sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;font:13px 'Geist Mono',monospace;color:#B7ADA4">
+                <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077">What Auto did</div>
+                <div>✓ Searched the web · 5 results</div><div>✓ Read 4 pages</div><div style="color:#F4EEE8">✓ Made a report: Laptop shortlist — <span style="color:#FF8A3D">Done</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 56px 30px"><div style="max-width:700px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 20px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+      </div>
+      <div style="width:340px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:0 36px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="celebrate" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="font:italic 46px/1 'Instrument Serif',serif">Ta-da.</div>
+        <div style="font:14px/1.5 'Geist',sans-serif;color:#B7ADA4">Your report is ready, and it's on your shelf.</div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(360px 260px at 30% 92%, rgba(255,106,31,.24), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(244,238,232,.08)">
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">Chats</button>
+        <div style="font:italic 22px 'Instrument Serif',serif">Laptop for uni</div>
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#FF8A3D;font:500 15px 'Geist',sans-serif">Shelf +1</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:0 16px 12px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap"><span style="padding:5px 8px;border-radius:8px;background:rgba(244,238,232,.06);font:11px 'Geist Mono',monospace;color:#B7ADA4">✓ Searched · 5 results</span><span style="padding:5px 8px;border-radius:8px;background:rgba(244,238,232,.06);font:11px 'Geist Mono',monospace;color:#B7ADA4">✓ Read 4 pages</span><span style="padding:5px 8px;border-radius:8px;background:rgba(244,238,232,.06);font:11px 'Geist Mono',monospace;color:#B7ADA4">✓ Made a report</span></div>
+        <div style="font:16px/1.6 'Geist',sans-serif;color:#EDE5DD">Three laptops make the cut. The <span style="font:italic 19px 'Instrument Serif',serif;color:#FFB070">ASUS Vivobook S 14</span> is my pick at £679.</div>
+        <div style="display:flex;gap:14px;padding:12px;border-radius:14px;background:linear-gradient(135deg, rgba(255,106,31,.16), rgba(255,106,31,.03));border:1px solid rgba(255,138,61,.4)">
+          <div style="width:64px;height:80px;flex:none;border-radius:5px;background:#F4EEE8;padding:8px;display:flex;flex-direction:column;gap:4px"><div style="font:italic 9px/1 'Instrument Serif',serif;color:#131110">Laptop shortlist</div><div style="height:2px;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:2px;height:22px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:3px"><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#FF8A3D">Report · just now</div><div style="font:italic 24px/1 'Instrument Serif',serif">Laptop shortlist</div></div><button style="align-self:flex-start;height:44px;padding:0 18px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Open</button></div>
+        </div>
+        <div style="font:12px/1.7 'Geist Mono',monospace;color:#B7ADA4"><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077">What Auto did</div>✓ Searched the web · 5 results<br><span style="color:#F4EEE8">✓ Made a report: Laptop shortlist — <span style="color:#FF8A3D">Done</span></span></div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:14px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="celebrate" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:italic 26px/1 'Instrument Serif',serif">Ta-da.</div><div style="font:12px 'Geist',sans-serif;color:#B7ADA4">Saved to your shelf</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px"><div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section data-screen-label="03 Conversations" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">03</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Conversations</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>idle</b> on desktop, same spot and size as in chat so nothing jumps. None on the phone list: it's a utility screen.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:radial-gradient(600px 420px at 92% 62%, rgba(255,106,31,.10), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:420px;flex:none;display:flex;flex-direction:column;gap:20px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 6px"><div style="font:italic 28px/1 'Instrument Serif',serif">Automatos <span style="color:#FF8A3D">Play</span></div><button style="height:40px;padding:0 16px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button></div>
+        <div style="display:flex;gap:22px;padding:0 6px;font:500 14px 'Geist',sans-serif;color:#B7ADA4;border-bottom:1px solid rgba(244,238,232,.08)">
+          <div style="padding:10px 0">Chat</div><div style="padding:10px 0;color:#F4EEE8;box-shadow:inset 0 -2px 0 #FF8A3D">Conversations</div><div style="padding:10px 0">Deliverables</div>
+        </div>
+        <div style="position:relative">
+          <div style="height:44px;display:flex;align-items:center;padding:0 14px;border-radius:10px;background:#1D1917;border:1px solid #FF8A3D;box-shadow:0 0 0 3px rgba(255,106,31,.18);font:15px 'Geist',sans-serif;color:#8A8077">Search conversations</div>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:10px;top:13px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">focus: 1px molten + 3px halo</span></sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;overflow:hidden">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:6px 10px">Today</div>
+          <div style="padding:14px 10px;border-radius:10px;background:rgba(244,238,232,.06);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Laptop for uni</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">2 min</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Three laptops make the cut. The ASUS…</div></div>
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:16px 10px 6px">This week</div>
+          <div style="padding:14px 10px;border-bottom:1px solid rgba(244,238,232,.06);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Revision plan for chemistry</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">Mon</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Week 1 covers bonding and moles. I've left Friday…</div></div>
+          <div style="padding:14px 10px;border-bottom:1px solid rgba(244,238,232,.06);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Instagram captions for the bake sale</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">Mon</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">You: Shorter, and fewer exclamation marks please</div></div>
+          <div style="padding:14px 10px;border-bottom:1px solid rgba(244,238,232,.06);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Budget for the trip to Lisbon</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">Sun</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: With hostels it comes to about €410 each for…</div></div>
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:16px 10px 6px">Earlier</div>
+          <div style="padding:14px 10px;border-bottom:1px solid rgba(244,238,232,.06);display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Cover letter for the café job</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">9 Oct</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: I tightened the opening line so it gets to the…</div></div>
+          <div style="padding:14px 10px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;gap:10px"><span style="font:italic 22px/1.1 'Instrument Serif',serif">Climate debate slides</span><span style="font:12px 'Geist Mono',monospace;color:#B7ADA4">4 Oct</span></div><div style="font:14px/1.4 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Slide 4 now has the 2025 emissions figure…</div></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:30px 48px 10px;display:flex;align-items:baseline;justify-content:space-between"><div style="font:italic 40px/1 'Instrument Serif',serif">Laptop for uni</div><div style="font:12px 'Geist Mono',monospace;color:#8A8077">8 messages · 1 Deliverable</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 48px">
+          <div style="width:100%;max-width:620px;display:flex;flex-direction:column;gap:18px;padding-bottom:24px">
+            <div style="align-self:flex-end;max-width:420px;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">Great. Can you make me a shortlist under £700?</div>
+            <div style="font:18px/1.6 'Geist',sans-serif;color:#EDE5DD;text-wrap:pretty">Three laptops make the cut. The <span style="font:italic 21px 'Instrument Serif',serif;color:#FFB070">ASUS Vivobook S 14</span> is my pick.</div>
+            <div style="width:420px;display:flex;align-items:center;gap:14px;padding:12px;border-radius:14px;border:1px solid rgba(244,238,232,.14);background:#1D1917">
+              <div style="width:52px;height:64px;flex:none;border-radius:5px;background:#F4EEE8;padding:7px;display:flex;flex-direction:column;gap:4px"><div style="height:4px;width:70%;background:#131110"></div><div style="height:2px;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:2px;height:18px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font:italic 22px/1 'Instrument Serif',serif">Laptop shortlist</div><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Report · 2 min ago</div></div>
+              <button style="height:44px;padding:0 18px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:transparent;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Open</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 48px 30px"><div style="max-width:620px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 20px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+      </div>
+      <div style="width:280px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 30px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="200" hint-size="180px,200px"></dc-import></sc-if>
+        <div style="font:italic 36px/1 'Instrument Serif',serif;color:#B7ADA4">Ready when you are.</div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:8px 18px 4px"><div style="font:italic 44px/1 'Instrument Serif',serif">Chats</div><button style="height:44px;padding:0 16px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button></div>
+      <div style="padding:14px 16px 6px"><div style="height:44px;display:flex;align-items:center;padding:0 14px;border-radius:10px;background:#1D1917;border:1px solid rgba(244,238,232,.14);font:15px 'Geist',sans-serif;color:#8A8077">Search conversations</div></div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:0 8px">
+        <div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:12px 10px 2px">Today</div>
+        <div style="padding:12px 10px;border-bottom:1px solid rgba(244,238,232,.07);display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:italic 22px 'Instrument Serif',serif">Laptop for uni</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">2 min</span></div><div style="font:14px 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Three laptops make the cut…</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FF8A3D;margin-top:3px">1 Report</div></div>
+        <div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:16px 10px 2px">This week</div>
+        <div style="padding:12px 10px;border-bottom:1px solid rgba(244,238,232,.07);display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:italic 22px 'Instrument Serif',serif">Revision plan for chemistry</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">Mon</span></div><div style="font:14px 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: Week 1 covers bonding and moles…</div></div>
+        <div style="padding:12px 10px;border-bottom:1px solid rgba(244,238,232,.07);display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font:italic 22px 'Instrument Serif',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Captions for the bake sale</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">Mon</span></div><div style="font:14px 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">You: Shorter, and fewer exclamation marks…</div></div>
+        <div style="padding:12px 10px;border-bottom:1px solid rgba(244,238,232,.07);display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:italic 22px 'Instrument Serif',serif">Budget for the trip to Lisbon</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">Sun</span></div><div style="font:14px 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: With hostels it comes to about €410…</div></div>
+        <div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:16px 10px 2px">Earlier</div>
+        <div style="padding:12px 10px;display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:italic 22px 'Instrument Serif',serif">Cover letter for the café job</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">9 Oct</span></div><div style="font:14px 'Geist',sans-serif;color:#B7ADA4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Auto: I tightened the opening line…</div></div>
+      </div>
+      <div style="flex:none;display:flex;justify-content:space-around;padding:8px 12px 28px;border-top:1px solid rgba(244,238,232,.08)">
+        <div style="min-width:96px;height:48px;display:flex;align-items:center;justify-content:center;gap:8px;font:600 14px 'Geist',sans-serif"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Chats</div>
+        <div style="min-width:96px;height:48px;display:flex;align-items:center;justify-content:center;font:500 14px 'Geist',sans-serif;color:#B7ADA4">Shelf</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section data-screen-label="04 Deliverables shelf" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">04</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Deliverables shelf</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>idle</b>, next to the count like he's proud of it. A gallery wall more than a file grid: the newest piece is lit, the rest hang in a quiet monochrome with one orange accent each. Type is spelled out on every card, never colour alone.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:radial-gradient(640px 420px at 30% 40%, rgba(255,106,31,.14), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:232px;flex:none;display:flex;flex-direction:column;gap:24px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="font:italic 28px/1 'Instrument Serif',serif;padding:0 6px">Automatos <span style="color:#FF8A3D">Play</span></div>
+        <button style="height:44px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:2px;font:500 14px 'Geist',sans-serif">
+          <div style="height:40px;display:flex;align-items:center;padding:0 8px 0 24px;color:#B7ADA4">Chat</div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Conversations<span style="font:12px 'Geist Mono',monospace;color:#8A8077">23</span></div>
+          <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Deliverables</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="width:6px;height:6px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;padding:30px 48px;display:flex;flex-direction:column;gap:24px;overflow:hidden">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between">
+          <div style="display:flex;align-items:flex-end;gap:18px">
+            <div style="font:italic 72px/.9 'Instrument Serif',serif">Your shelf</div>
+            <div style="font:12px/1.5 'Geist Mono',monospace;color:#B7ADA4;padding-bottom:6px">15 DELIVERABLES<br>4 THIS WEEK</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:10px"><div style="font:italic 22px/1.1 'Instrument Serif',serif;color:#FFB070;text-align:right;padding-bottom:40px">Fifteen.<br>Not bad at all.</div><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="130" hint-size="117px,130px"></dc-import></sc-if></div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">All 15</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Reports 4</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Documents 5</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Images 3</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Spreadsheets 2</div>
+          <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Slides 1</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:24px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="height:300px;border-radius:14px;background:linear-gradient(160deg, rgba(255,106,31,.28), rgba(255,106,31,.04) 70%);border:1px solid rgba(255,138,61,.45);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative">
+              <span style="position:absolute;top:14px;left:14px;font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1A0A02;background:#FF8A3D;padding:4px 8px;border-radius:5px">Newest</span>
+              <div style="width:180px;height:240px;border-radius:6px 6px 0 0;background:#F4EEE8;padding:18px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 -10px 40px rgba(0,0,0,.35)"><div style="font:italic 22px/1 'Instrument Serif',serif;color:#131110">Laptop shortlist</div><div style="height:3px;background:#CFC5BB"></div><div style="height:3px;width:85%;background:#CFC5BB"></div><div style="height:3px;width:60%;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:6px;height:70px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:italic 28px/1 'Instrument Serif',serif">Laptop shortlist</div><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FF8A3D">Report · Today</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="height:220px;border-radius:14px;background:#1D1917;border:1px solid rgba(244,238,232,.1);display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><div style="width:130px;height:180px;border-radius:5px 5px 0 0;background:#F4EEE8;padding:14px 12px;display:flex;flex-direction:column;gap:7px"><div style="font:italic 15px/1 'Instrument Serif',serif;color:#131110">Chemistry, week by week</div><div style="height:3px;background:#CFC5BB"></div><div style="height:3px;width:90%;background:#CFC5BB"></div><div style="height:3px;background:#CFC5BB"></div><div style="height:3px;width:40%;background:#FF6A1F"></div><div style="height:3px;width:80%;background:#CFC5BB"></div></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:italic 22px/1 'Instrument Serif',serif">Chemistry revision plan</div><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Document · Mon</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="height:220px;border-radius:14px;background:#1D1917;border:1px solid rgba(244,238,232,.1);display:flex;align-items:center;justify-content:center;padding:20px"><div style="width:100%;height:100%;border-radius:4px;background:#FF6A1F;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;color:#1A0A02"><div style="font:italic 40px/.85 'Instrument Serif',serif">Bake<br>sale.</div><div style="font:600 10px 'Geist',sans-serif;letter-spacing:.14em;margin-top:8px">FRI 17 OCT · HALL B</div></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:italic 22px/1 'Instrument Serif',serif">Bake sale poster</div><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Image · Mon</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="height:220px;border-radius:14px;background:#1D1917;border:1px solid rgba(244,238,232,.1);display:flex;align-items:flex-end;justify-content:center;overflow:hidden"><div style="width:150px;height:170px;border-radius:5px 5px 0 0;background:#F4EEE8;background-image:linear-gradient(#DDD4CA 1px,transparent 1px),linear-gradient(90deg,#DDD4CA 1px,transparent 1px);background-size:30px 17px"><div style="height:17px;background:#131110"></div><div style="margin:34px 0 0 60px;width:30px;height:17px;background:#FF6A1F"></div></div></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><div style="font:italic 22px/1 'Instrument Serif',serif">Lisbon trip budget</div><div style="font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Spreadsheet · Sun</div></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:24px;padding-top:6px;border-top:1px solid rgba(244,238,232,.08)">
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:14px"><div style="font:italic 19px/1.1 'Instrument Serif',serif">Climate debate slides</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Slides · 4 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:14px"><div style="font:italic 19px/1.1 'Instrument Serif',serif">Café job cover letter</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Document · 9 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:14px"><div style="font:italic 19px/1.1 'Instrument Serif',serif">Part-time jobs compared</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Report · 2 Oct</div></div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:14px"><div style="font:italic 19px/1.1 'Instrument Serif',serif">Band gig flyer</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Image · 28 Sep</div></div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:14px"><div style="font:italic 19px/1.1 'Instrument Serif',serif">Gym routine tracker</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Spreadsheet · 21 Sep</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(360px 300px at 50% 40%, rgba(255,106,31,.16), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:4px 18px 0">
+        <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:12px"><div style="font:italic 48px/.9 'Instrument Serif',serif">Your shelf</div><div style="font:11px 'Geist Mono',monospace;color:#B7ADA4">15 DELIVERABLES</div></div>
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="idle" size="84" hint-size="76px,84px"></dc-import></sc-if>
+      </div>
+      <div style="flex:none;display:flex;gap:6px;padding:12px 16px;overflow:hidden">
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:999px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">All</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Reports</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Documents</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Images</div>
+        <div style="flex:none;height:40px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Slides</div>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;padding:4px 16px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:200px;border-radius:14px;background:linear-gradient(160deg, rgba(255,106,31,.28), rgba(255,106,31,.04) 70%);border:1px solid rgba(255,138,61,.45);display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden"><span style="position:absolute;top:12px;left:12px;font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#1A0A02;background:#FF8A3D;padding:4px 7px;border-radius:5px">Newest</span><div style="width:124px;height:164px;border-radius:5px 5px 0 0;background:#F4EEE8;padding:12px;display:flex;flex-direction:column;gap:6px"><div style="font:italic 16px/1 'Instrument Serif',serif;color:#131110">Laptop shortlist</div><div style="height:2px;background:#CFC5BB"></div><div style="height:2px;width:80%;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:4px;height:44px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:italic 24px/1 'Instrument Serif',serif">Laptop shortlist</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#FF8A3D">Report · Today</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.1);display:flex;align-items:flex-end;justify-content:center"><div style="width:80px;height:108px;border-radius:4px 4px 0 0;background:#F4EEE8;padding:9px;display:flex;flex-direction:column;gap:5px"><div style="font:italic 11px/1 'Instrument Serif',serif;color:#131110">Chemistry</div><div style="height:2px;background:#CFC5BB"></div><div style="height:2px;width:40%;background:#FF6A1F"></div><div style="height:2px;background:#CFC5BB"></div></div></div><div style="font:italic 19px/1 'Instrument Serif',serif">Chemistry revision plan</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Document · Mon</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="height:130px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.1);padding:14px"><div style="width:100%;height:100%;border-radius:3px;background:#FF6A1F;display:flex;align-items:flex-end;padding:9px;font:italic 24px/.85 'Instrument Serif',serif;color:#1A0A02">Bake<br>sale.</div></div><div style="font:italic 19px/1 'Instrument Serif',serif">Bake sale poster</div><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#B7ADA4">Image · Mon</div></div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;justify-content:space-around;padding:8px 12px 28px;border-top:1px solid rgba(244,238,232,.08)">
+        <div style="min-width:96px;height:48px;display:flex;align-items:center;justify-content:center;font:500 14px 'Geist',sans-serif;color:#B7ADA4">Chats</div>
+        <div style="min-width:96px;height:48px;display:flex;align-items:center;justify-content:center;gap:8px;font:600 14px 'Geist',sans-serif"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Shelf</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 05 -->
+<section data-screen-label="05 Deliverable detail" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">05</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Deliverable detail</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>none</b>, so the reading page stays quiet. The report is shown as a cream sheet on the dark desk, like a printed piece. "Ask Auto about this" brings him back.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:#131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:232px;flex:none;display:flex;flex-direction:column;gap:24px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="font:italic 28px/1 'Instrument Serif',serif;padding:0 6px">Automatos <span style="color:#FF8A3D">Play</span></div>
+        <button style="height:44px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:2px;font:500 14px 'Geist',sans-serif">
+          <div style="height:40px;display:flex;align-items:center;padding:0 8px 0 24px;color:#B7ADA4">Chat</div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Conversations<span style="font:12px 'Geist Mono',monospace;color:#8A8077">23</span></div>
+          <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Deliverables</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="width:6px;height:6px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;overflow:hidden;padding:28px 56px 0;display:flex;flex-direction:column;gap:22px">
+        <div style="font:500 14px 'Geist',sans-serif;color:#B7ADA4">← Shelf</div>
+        <div style="flex:1;min-height:0;border-radius:6px 6px 0 0;background:#F4EEE8;color:#1F1A17;padding:52px 64px;display:flex;flex-direction:column;gap:20px;box-shadow:0 -10px 60px rgba(255,106,31,.12)">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#B5480F">Report · Tue 14 Oct · Researcher agent</div>
+          <div style="font:italic 64px/.95 'Instrument Serif',serif;color:#131110">Laptop shortlist</div>
+          <div style="font:19px/1.6 'Geist',sans-serif;color:#3A332E;max-width:640px;text-wrap:pretty">All three handle essays and light photo editing comfortably. The ASUS Vivobook S 14 is the best all-rounder: the longest battery, the lightest build, and still £21 under budget.</div>
+          <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:36px;margin-top:6px">
+            <div style="font:15px 'Geist',sans-serif;border-top:2px solid #131110">
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:10px 0;font:500 11px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6B635C;border-bottom:1px solid #D9D0C7"><span>Laptop</span><span>Price</span><span>Weight</span><span>Battery</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 0;border-bottom:1px solid #D9D0C7;font-weight:600"><span>ASUS Vivobook S 14 <span style="font:italic 400 16px 'Instrument Serif',serif;color:#B5480F">pick</span></span><span>£679</span><span>1.3 kg</span><span>15 h</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 0;border-bottom:1px solid #D9D0C7"><span>Acer Swift Go 14</span><span>£649</span><span>1.3 kg</span><span>12 h</span></div>
+              <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:12px 0;border-bottom:1px solid #D9D0C7"><span>Lenovo IdeaPad Slim 5</span><span>£599</span><span>1.5 kg</span><span>10 h</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="font:italic 22px 'Instrument Serif',serif;color:#131110">Battery life, hours</div>
+              <div style="display:flex;align-items:flex-end;gap:18px;height:170px;border-bottom:1px solid #131110;padding:0 8px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font:600 14px 'Geist',sans-serif">15</span><div style="width:100%;height:140px;background:#FF6A1F"></div></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font:600 14px 'Geist',sans-serif">12</span><div style="width:100%;height:112px;background:#B7ADA4"></div></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font:600 14px 'Geist',sans-serif">10</span><div style="width:100%;height:94px;background:#B7ADA4"></div></div>
+              </div>
+              <div style="display:flex;gap:18px;padding:0 8px;font:12px 'Geist',sans-serif;color:#6B635C"><span style="flex:1;text-align:center">Vivobook</span><span style="flex:1;text-align:center">Swift Go</span><span style="flex:1;text-align:center">IdeaPad</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="width:300px;flex:none;border-left:1px solid rgba(244,238,232,.08);padding:28px 24px;display:flex;flex-direction:column;gap:26px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button style="height:44px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Ask Auto about this</button>
+          <button style="height:44px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:transparent;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Download</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;font:14px 'Geist',sans-serif">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077">About</div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B7ADA4">Type</span><span>Report</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B7ADA4">Made</span><span>Today, 15:42</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B7ADA4">Made by</span><span>Researcher agent</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:#B7ADA4">From chat</span><span style="color:#FF8A3D;text-decoration:underline">Laptop for uni</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font:13px 'Geist Mono',monospace;color:#D9D0C7">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077">Sources · 4</div>
+          <div>which.co.uk</div><div>notebookcheck.net</div><div>rtings.com</div><div>asus.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:#131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:52px;flex:none;display:flex;align-items:center;padding:0 8px"><button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">← Shelf</button></div>
+      <div style="flex:1;min-height:0;overflow:hidden;margin:0 10px;border-radius:6px 6px 0 0;background:#F4EEE8;color:#1F1A17;padding:28px 22px;display:flex;flex-direction:column;gap:14px">
+        <div style="font:500 10px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#B5480F">Report · Today · Researcher</div>
+        <div style="font:italic 44px/.95 'Instrument Serif',serif;color:#131110">Laptop shortlist</div>
+        <div style="font:16px/1.55 'Geist',sans-serif;color:#3A332E">All three handle essays and light editing. The Vivobook S 14 is the best all-rounder, £21 under budget.</div>
+        <div style="font:14px 'Geist',sans-serif;border-top:2px solid #131110">
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:8px 0;font:500 10px 'Geist',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6B635C;border-bottom:1px solid #D9D0C7"><span>Laptop</span><span>Price</span><span>Battery</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #D9D0C7;font-weight:600"><span>Vivobook S 14</span><span>£679</span><span>15 h</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #D9D0C7"><span>Swift Go 14</span><span>£649</span><span>12 h</span></div>
+          <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #D9D0C7"><span>IdeaPad Slim 5</span><span>£599</span><span>10 h</span></div>
+        </div>
+        <div style="font:italic 19px 'Instrument Serif',serif;color:#131110">Battery life, hours</div>
+        <div style="display:flex;align-items:flex-end;gap:14px;height:96px;border-bottom:1px solid #131110;padding:0 6px">
+          <div style="flex:1;height:90px;background:#FF6A1F"></div><div style="flex:1;height:72px;background:#B7ADA4"></div><div style="flex:1;height:60px;background:#B7ADA4"></div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;gap:10px;padding:12px 16px 30px;border-top:1px solid rgba(244,238,232,.08)">
+        <button style="flex:1;height:48px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:transparent;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Download</button>
+        <button style="flex:1.4;height:48px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Ask Auto about this</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section data-screen-label="06 First open" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">06</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">First open</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>hello</b>, the biggest he ever gets, because this is the introduction. Text equivalent: "I'm Auto." The message box is focused so typing starts straight away.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;position:relative;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1.15fr 1fr;align-items:center;padding:0 120px;gap:40px;background:radial-gradient(620px 520px at 74% 52%, rgba(255,106,31,.26), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="position:absolute;top:28px;left:40px;font:italic 28px/1 'Instrument Serif',serif">Automatos <span style="color:#FF8A3D">Play</span></div>
+      <div style="display:flex;flex-direction:column;gap:30px">
+        <div style="font:italic 112px/.88 'Instrument Serif',serif;letter-spacing:-.01em">Your Automatos,<br><span style="color:#FFB070">the fun way.</span></div>
+        <div style="font:19px/1.5 'Geist',sans-serif;color:#B7ADA4;max-width:520px">I'm Auto. Tell me what you need: I'll search, read, write, and hand you something real.</div>
+        <div style="position:relative;max-width:600px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 22px;border-radius:12px;background:#1D1917;border:1px solid #FF8A3D;box-shadow:0 0 0 4px rgba(255,106,31,.16)">
+          <div style="flex:1;display:flex;align-items:center;font:17px 'Geist',sans-serif;color:#8A8077"><span style="width:2px;height:22px;background:#FF8A3D;margin-right:6px"></span>Message Auto</div>
+          <button style="height:48px;padding:0 24px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 15px 'Geist',sans-serif">Send</button>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:0;top:-28px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">autofocus · molten focus ring</span></sc-if>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:15px 'Geist',sans-serif">Plan my revision week</div>
+          <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:15px 'Geist',sans-serif">Write captions for our bake sale</div>
+          <div style="height:44px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:15px 'Geist',sans-serif">Budget a weekend in Lisbon</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="hello" size="380" hint-size="342px,380px"></dc-import></sc-if></div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(360px 300px at 70% 34%, rgba(255,106,31,.26), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;padding:10px 24px;font:italic 22px 'Instrument Serif',serif">Automatos <span style="color:#FF8A3D">Play</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;padding:0 24px">
+        <div style="align-self:flex-end"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="hello" size="170" hint-size="153px,170px"></dc-import></sc-if></div>
+        <div style="font:italic 58px/.92 'Instrument Serif',serif">Your Automatos,<br><span style="color:#FFB070">the fun way.</span></div>
+        <div style="font:15px/1.5 'Geist',sans-serif;color:#B7ADA4">I'm Auto. Tell me what you need and I'll get it done.</div>
+      </div>
+      <div style="flex:none;display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap">
+        <div style="height:44px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:14px 'Geist',sans-serif">Plan my revision week</div>
+        <div style="height:44px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:14px 'Geist',sans-serif">Bake sale captions</div>
+        <div style="height:44px;padding:0 14px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:14px 'Geist',sans-serif">Budget a weekend in Lisbon</div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px"><div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid #FF8A3D;box-shadow:0 0 0 3px rgba(255,106,31,.16)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section data-screen-label="07 Not running" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">07</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Automatos isn't running</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>sleeping</b>. The forge glow is out (no orange light on this screen), so it reads as "off" before a word is read. Text equivalents: the heading and "Not connected".</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;position:relative;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;background:radial-gradient(600px 400px at 50% 36%, rgba(94,87,143,.16), transparent 70%), #0F0D0C;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="position:absolute;top:28px;left:40px;font:italic 28px/1 'Instrument Serif',serif;color:#B7ADA4">Automatos Play</div>
+      <div style="position:absolute;top:30px;right:40px;display:flex;align-items:center;gap:8px;font:12px 'Geist Mono',monospace;color:#B7ADA4"><span style="width:7px;height:7px;border-radius:50%;border:1.5px solid #8A8077"></span>Not connected</div>
+      <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="sleeping" size="220" hint-size="198px,220px"></dc-import></sc-if>
+      <div style="font:italic 84px/.9 'Instrument Serif',serif">Automatos is asleep.</div>
+      <div style="font:18px/1.55 'Geist',sans-serif;color:#B7ADA4;max-width:560px;text-align:center;text-wrap:pretty">Play talks to Automatos on your computer, and it isn't running right now. Open a terminal in your <span style="font-family:'Geist Mono',monospace;color:#F4EEE8">automatos-ai</span> folder and start it:</div>
+      <div style="position:relative;width:520px;display:flex;align-items:center;gap:14px;padding:10px 10px 10px 22px;border-radius:12px;background:#080706;border:1px solid rgba(244,238,232,.16)">
+        <span style="font:500 17px 'Geist Mono',monospace;color:#8A8077">$</span><span style="flex:1;font:500 17px 'Geist Mono',monospace;color:#F4EEE8">docker compose up</span>
+        <button style="height:44px;padding:0 18px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:#1D1917;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Copy</button>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;right:-150px;top:18px;font:500 11px/1.3 'Geist Mono',monospace;color:#3B2A00;background:#FFD66B;padding:3px 7px;border-radius:6px">Copy → "Copied" 2s</span></sc-if>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px"><button style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Check again</button><span style="font:14px 'Geist',sans-serif;color:#8A8077">Play also checks every 5 seconds.</span></div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(320px 260px at 50% 30%, rgba(94,87,143,.18), transparent 70%), #0F0D0C;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 22px"><span style="font:italic 22px 'Instrument Serif',serif;color:#B7ADA4">Automatos Play</span><span style="font:11px 'Geist Mono',monospace;color:#B7ADA4">Not connected</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:0 22px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="sleeping" size="150" hint-size="135px,150px"></dc-import></sc-if>
+        <div style="font:italic 52px/.92 'Instrument Serif',serif">Automatos<br>is asleep.</div>
+        <div style="font:16px/1.55 'Geist',sans-serif;color:#B7ADA4">It isn't running on your computer. Start it from your <span style="font-family:'Geist Mono',monospace;color:#F4EEE8">automatos-ai</span> folder:</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:12px;background:#080706;border:1px solid rgba(244,238,232,.16)"><span style="flex:1;font:500 15px 'Geist Mono',monospace">docker compose up</span><button style="height:44px;padding:0 14px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:#1D1917;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Copy</button></div>
+      </div>
+      <div style="flex:none;padding:12px 16px 34px;display:flex;flex-direction:column;gap:10px;align-items:center"><button style="width:100%;height:48px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 15px 'Geist',sans-serif">Check again</button><span style="font:13px 'Geist',sans-serif;color:#8A8077">Play also checks every 5 seconds.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 -->
+<section data-screen-label="08 Something went wrong" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">08</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Something went wrong</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>oops</b>, coral ring, and the glow turns coral too. Text equivalents: the failed tool line (✕ and words, not colour alone) and a plain-language error card with two ways forward.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;background:radial-gradient(640px 460px at 90% 60%, rgba(255,90,95,.14), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="width:232px;flex:none;display:flex;flex-direction:column;gap:24px;padding:26px 18px;border-right:1px solid rgba(244,238,232,.08)">
+        <div style="font:italic 28px/1 'Instrument Serif',serif;padding:0 6px">Automatos <span style="color:#FF8A3D">Play</span></div>
+        <button style="height:44px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">New chat</button>
+        <div style="display:flex;flex-direction:column;gap:2px;font:500 14px 'Geist',sans-serif">
+          <div style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px"><span style="width:6px;height:6px;border-radius:50%;background:#FF8A3D"></span>Chat</div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Conversations<span style="font:12px 'Geist Mono',monospace;color:#8A8077">24</span></div>
+          <div style="height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 24px;color:#B7ADA4">Deliverables<span style="font:12px 'Geist Mono',monospace;color:#8A8077">15</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;font:14px 'Geist',sans-serif;color:#B7ADA4">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077;padding:0 8px 8px">Recent</div>
+          <div style="padding:7px 8px;color:#F4EEE8">Lisbon weekend weather</div><div style="padding:7px 8px">Laptop for uni</div><div style="padding:7px 8px">Revision plan for chemistry</div>
+        </div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;padding:0 8px;font:12px 'Geist Mono',monospace;color:#8A8077"><span style="width:6px;height:6px;border-radius:50%;background:#4BF0B7"></span>Connected · localhost</div>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:30px 56px 10px"><div style="font:italic 40px/1 'Instrument Serif',serif">Lisbon weekend weather</div></div>
+        <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 56px">
+          <div style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:20px;padding-bottom:24px">
+            <div style="align-self:flex-end;max-width:480px;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">What's the weather looking like in Lisbon next weekend? Deciding whether to pack a jacket.</div>
+            <div style="display:flex"><span style="display:flex;gap:10px;padding:6px 12px;border-radius:8px;background:rgba(255,90,95,.1);border:1px solid rgba(255,107,107,.45);font:12px 'Geist Mono',monospace;color:#FFB4B0"><b style="color:#FF6B6B">✕</b>Web search didn't answer · 10.0 s</span></div>
+            <div style="display:flex;flex-direction:column;gap:16px;padding:22px 24px;border-radius:14px;background:#1D1715;border:1px solid rgba(255,107,107,.4)">
+              <div style="font:italic 32px/1 'Instrument Serif',serif;color:#FFD0CC">I hit a snag.</div>
+              <div style="font:17px/1.55 'Geist',sans-serif;color:#EDE5DD">Auto couldn't reach the web search tool. Try again, or ask without searching.</div>
+              <div style="display:flex;gap:10px"><button style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Try again</button><button style="height:44px;padding:0 20px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:transparent;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Ask without searching</button></div>
+            </div>
+          </div>
+        </div>
+        <div style="flex:none;padding:0 56px 30px"><div style="max-width:700px;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 20px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+      </div>
+      <div style="width:340px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:0 36px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="oops" size="220" hint-size="198px,220px"></dc-import></sc-if>
+        <div style="font:italic 46px/1 'Instrument Serif',serif">Hm.</div>
+        <div style="font:14px/1.5 'Geist',sans-serif;color:#B7ADA4">Web search isn't answering. Nothing's broken on your side.</div>
+      </div>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(340px 260px at 30% 90%, rgba(255,90,95,.16), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border-bottom:1px solid rgba(244,238,232,.08)">
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">Chats</button>
+        <div style="font:italic 22px 'Instrument Serif',serif">Lisbon weather</div>
+        <button style="height:44px;padding:0 12px;border:0;background:none;color:#B7ADA4;font:500 15px 'Geist',sans-serif">Shelf</button>
+      </div>
+      <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;padding:0 16px 12px">
+        <div style="align-self:flex-end;max-width:290px;padding:12px 16px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:15px/1.5 'Geist',sans-serif">What's the weather looking like in Lisbon next weekend?</div>
+        <div style="display:flex"><span style="display:flex;gap:8px;padding:6px 10px;border-radius:8px;background:rgba(255,90,95,.1);border:1px solid rgba(255,107,107,.45);font:11px 'Geist Mono',monospace;color:#FFB4B0"><b style="color:#FF6B6B">✕</b>Web search didn't answer · 10.0 s</span></div>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:14px;background:#1D1715;border:1px solid rgba(255,107,107,.4)">
+          <div style="font:italic 28px/1 'Instrument Serif',serif;color:#FFD0CC">I hit a snag.</div>
+          <div style="font:15px/1.5 'Geist',sans-serif;color:#EDE5DD">Auto couldn't reach the web search tool. Try again, or ask without searching.</div>
+          <button style="height:44px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Try again</button>
+          <button style="height:44px;border:1px solid rgba(244,238,232,.24);border-radius:10px;background:transparent;color:#F4EEE8;font:600 14px 'Geist',sans-serif">Ask without searching</button>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;gap:14px;padding:4px 16px 6px">
+        <sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="oops" size="84" hint-size="76px,84px"></dc-import></sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="font:italic 26px/1 'Instrument Serif',serif">Hm.</div><div style="font:12px 'Geist',sans-serif;color:#B7ADA4">Web search isn't answering</div></div>
+      </div>
+      <div style="flex:none;padding:6px 12px 30px"><div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:16px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section data-screen-label="09 404" style="padding:40px 64px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">09</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">404</span></div>
+  <p style="margin:0 0 22px;font:14px/1.5 'Geist',sans-serif;color:#6B635C;max-width:900px">Mascot: <b>lost</b>, standing in front of a huge serif "404". One way out.</p>
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div style="flex:none;position:relative;width:1440px;height:900px;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(640px 420px at 50% 44%, rgba(255,106,31,.14), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="position:absolute;top:28px;left:40px;font:italic 28px/1 'Instrument Serif',serif">Automatos <span style="color:#FF8A3D">Play</span></div>
+      <div style="position:relative;height:340px;display:flex;align-items:flex-end;justify-content:center">
+        <div style="font:italic 380px/.8 'Instrument Serif',serif;color:#2A2420">404</div>
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="lost" size="220" hint-size="198px,220px"></dc-import></sc-if></div>
+      </div>
+      <div style="font:italic 64px/1 'Instrument Serif',serif">This page wandered off.</div>
+      <div style="font:17px 'Geist',sans-serif;color:#B7ADA4">Auto looked everywhere. It's not here.</div>
+      <button style="height:48px;padding:0 26px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 15px 'Geist',sans-serif">Back to chat</button>
+    </div>
+
+    <div style="flex:none;width:390px;height:844px;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;background:radial-gradient(320px 300px at 50% 40%, rgba(255,106,31,.16), transparent 65%), #131110;color:#F4EEE8;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+      <div style="height:44px;flex:none"></div>
+      <div style="flex:none;padding:10px 24px;font:italic 22px 'Instrument Serif',serif">Automatos <span style="color:#FF8A3D">Play</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 24px;text-align:center">
+        <div style="position:relative;height:200px;display:flex;align-items:flex-end;justify-content:center">
+          <div style="font:italic 200px/.8 'Instrument Serif',serif;color:#2A2420">404</div>
+          <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><sc-if value="{{ showMascot }}" hint-placeholder-val="{{ true }}"><dc-import name="Mascot" state="lost" size="140" hint-size="126px,140px"></dc-import></sc-if></div>
+        </div>
+        <div style="font:italic 44px/.95 'Instrument Serif',serif">This page wandered off.</div>
+        <div style="font:16px 'Geist',sans-serif;color:#B7ADA4">Auto looked everywhere. It's not here.</div>
+      </div>
+      <div style="flex:none;padding:12px 16px 34px"><button style="width:100%;height:48px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 15px 'Geist',sans-serif">Back to chat</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- STYLE SHEET -->
+<section data-screen-label="10 Style sheet" style="padding:40px 64px 80px;border-top:1px solid rgba(19,17,16,.1)">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:22px"><span style="font:500 11px 'Geist Mono',monospace;background:#131110;color:#fff;padding:3px 8px;border-radius:5px">SS</span><span style="font:italic 30px 'Instrument Serif',serif;color:#131110">Style sheet</span></div>
+  <div style="flex:none;width:1440px;border-radius:14px;overflow:hidden;background:#131110;color:#F4EEE8;padding:56px;display:flex;flex-direction:column;gap:52px;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Colour</div>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:18px;font:12px/1.5 'Geist Mono',monospace;color:#B7ADA4">
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:#131110;border:1px solid rgba(244,238,232,.2)"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Graphite</span>#131110 · page</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:#1D1917"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Hearth</span>#1D1917 · inputs, cards</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:#F4EEE8"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Cream</span>#F4EEE8 · text, secondary button, paper</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:#FF6A1F;box-shadow:0 10px 30px -10px rgba(255,106,31,.7)"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Molten</span>#FF6A1F · one primary per screen · ink #1A0A02</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:linear-gradient(90deg,#FF8A3D 50%,#FFB070 50%)"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Ember / Gold</span>#FF8A3D small accents · #FFB070 serif highlights</div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:80px;border-radius:10px;background:linear-gradient(90deg,#4BF0B7 50%,#FF6B6B 50%)"></div><span style="font:italic 20px 'Instrument Serif',serif;color:#F4EEE8">Auto / Snag</span>#4BF0B7 Auto + connected only · #FF6B6B errors</div>
+      </div>
+      <div style="display:flex;gap:28px;font:12px 'Geist Mono',monospace;color:#B7ADA4"><span><span style="color:#F4EEE8">■</span> text #F4EEE8 · 16.4:1</span><span><span style="color:#B7ADA4">■</span> text-2 #B7ADA4 · 8.6:1</span><span><span style="color:#8A8077">■</span> text-3 #8A8077 · 4.9:1</span><span><span style="color:#FF8A3D">■</span> ember on graphite · 7.1:1</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:56px">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Type</div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Hero 112 / .88</span><span style="font:italic 88px/.9 'Instrument Serif',serif">The fun way.</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Status 46</span><span style="font:italic 46px/1 'Instrument Serif',serif">Searching.</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Title 40 / 28 / 22</span><span style="font:italic 28px 'Instrument Serif',serif">Laptop shortlist</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Body 16–18 / 1.6</span><span style="font:18px/1.6 'Geist',sans-serif;color:#EDE5DD">Three laptops make the cut under £700.</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Button 14 / 600</span><span style="font:600 14px 'Geist',sans-serif">Try again</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Label 11 caps</span><span style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B7ADA4">What Auto did</span></div>
+        <div style="display:flex;align-items:baseline;gap:20px"><span style="width:130px;flex:none;font:12px 'Geist Mono',monospace;color:#8A8077">Mono 12–13</span><span style="font:13px 'Geist Mono',monospace;color:#B7ADA4">✓ Searched the web · 3 results · 2.1 s</span></div>
+        <div style="font:13px/1.5 'Geist',sans-serif;color:#8A8077">Instrument Serif italic (display only, never below 19px) · Geist 400–700 · Geist Mono. Vendor all three via next/font/local.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:26px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Spacing · 4px base</div>
+          <div style="display:flex;align-items:flex-end;gap:14px;font:11px 'Geist Mono',monospace;color:#B7ADA4">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:4px;height:4px;background:#FF8A3D"></div>4</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:8px;height:8px;background:#FF8A3D"></div>8</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:14px;height:14px;background:#FF8A3D"></div>14</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:22px;height:22px;background:#FF8A3D"></div>22</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:32px;height:32px;background:#FF8A3D"></div>32</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;background:#FF8A3D"></div>56</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Radii</div>
+          <div style="display:flex;gap:16px;font:11px 'Geist Mono',monospace;color:#B7ADA4">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:6px;border:1.5px solid #FF8A3D"></div>6 paper</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:8px;border:1.5px solid #FF8A3D"></div>8 tool</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:10px;border:1.5px solid #FF8A3D"></div>10 button</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:14px;border:1.5px solid #FF8A3D"></div>14 card</div><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:56px;height:56px;border-radius:999px;border:1.5px solid #FF8A3D"></div>pill chip</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;font:13px/1.5 'Geist',sans-serif;color:#B7ADA4">
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Motion</div>
+          <div>Message arrives: rise 12px + fade, 180ms ease-out</div><div>Ring: scale 1 → 1.06 + glow, 2.4s loop</div><div>Page glow follows state: molten busy/done, coral snag, off when asleep (600ms crossfade)</div><div>Deliverable lands: drop 16px, overshoot 1.04, 420ms</div><div>All loops stop with prefers-reduced-motion</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Components</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077">message · yours outlined, Auto's unboxed</div>
+          <div style="align-self:flex-end;padding:12px 18px;border-radius:14px;border:1px solid rgba(244,238,232,.16);font:16px/1.5 'Geist',sans-serif">Make me a shortlist?</div>
+          <div style="font:17px/1.6 'Geist',sans-serif;color:#EDE5DD">Three make the cut. My pick is the <span style="font:italic 20px 'Instrument Serif',serif;color:#FFB070">Vivobook</span>.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077">tool line · running / done / failed</div>
+          <span style="display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:8px;background:rgba(255,106,31,.12);border:1px solid rgba(255,138,61,.4);font:12px 'Geist Mono',monospace;color:#FFC7A0"><span style="width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,138,61,.3);border-top-color:#FF8A3D"></span>Reading 4 pages</span>
+          <span style="padding:6px 12px;border-radius:8px;background:rgba(244,238,232,.06);font:12px 'Geist Mono',monospace;color:#B7ADA4">✓ Read 4 pages · 3.4 s</span>
+          <span style="display:flex;gap:10px;padding:6px 12px;border-radius:8px;background:rgba(255,90,95,.1);border:1px solid rgba(255,107,107,.45);font:12px 'Geist Mono',monospace;color:#FFB4B0"><b style="color:#FF6B6B">✕</b>Web search didn't answer</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font:13px 'Geist Mono',monospace;color:#B7ADA4">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077;margin-bottom:6px">receipt list</div>
+          <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#8A8077">What Auto did</div>
+          <div>✓ Searched the web · 5 results</div><div style="color:#F4EEE8">✓ Made a report: Laptop shortlist — <span style="color:#FF8A3D">Done</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077">Deliverable card</div>
+          <div style="display:flex;gap:16px;padding:12px;border-radius:14px;background:linear-gradient(135deg, rgba(255,106,31,.16), rgba(255,106,31,.03));border:1px solid rgba(255,138,61,.4)">
+            <div style="width:64px;height:80px;flex:none;border-radius:5px;background:#F4EEE8;padding:8px;display:flex;flex-direction:column;gap:4px"><div style="font:italic 9px/1 'Instrument Serif',serif;color:#131110">Laptop shortlist</div><div style="height:2px;background:#CFC5BB"></div><div style="margin-top:auto;display:flex;align-items:flex-end;gap:2px;height:22px"><div style="flex:1;height:60%;background:#B7ADA4"></div><div style="flex:1;height:45%;background:#B7ADA4"></div><div style="flex:1;height:100%;background:#FF6A1F"></div></div></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:3px"><div style="font:500 10px 'Geist',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#FF8A3D">Report · just now</div><div style="font:italic 24px/1 'Instrument Serif',serif">Laptop shortlist</div></div><button style="align-self:flex-start;height:44px;padding:0 18px;border:0;border-radius:10px;background:#FF6A1F;color:#1A0A02;font:600 14px 'Geist',sans-serif">Open</button></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077">filter chip · on / off / focus</div>
+          <div style="display:flex;gap:8px">
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">All</div>
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid rgba(244,238,232,.2);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Reports</div>
+            <div style="height:40px;padding:0 16px;display:flex;align-items:center;border-radius:999px;border:1px solid #FF8A3D;box-shadow:0 0 0 3px rgba(255,106,31,.18);font:500 14px 'Geist',sans-serif;color:#D9D0C7">Images</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:12px 'Geist Mono',monospace;color:#8A8077">message box · Send / Stop</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:15px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif">Send</button></div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 18px;border-radius:12px;background:#1D1917;border:1px solid rgba(244,238,232,.14)"><div style="flex:1;font:15px 'Geist',sans-serif;color:#8A8077">Message Auto</div><button style="height:44px;padding:0 16px;display:flex;align-items:center;gap:8px;border:0;border-radius:10px;background:#F4EEE8;color:#131110;font:600 14px 'Geist',sans-serif"><span style="width:10px;height:10px;border-radius:2px;background:#131110"></span>Stop</button></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="font:500 11px 'Geist',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#8A8077">Mascot slot · 12 states · ring drawn by the page</div>
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:28px 16px">
+        <sc-for list="{{ states }}" as="s" hint-placeholder-count="12">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            <dc-import name="Mascot" state="{{ s.id }}" size="140" hint-size="126px,140px"></dc-import>
+            <div style="font:italic 22px 'Instrument Serif',serif">{{ s.id }}</div>
+            <div style="font:12px/1.4 'Geist',sans-serif;color:#B7ADA4;text-align:center">{{ s.when }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font:13px/1.5 'Geist',sans-serif;color:#8A8077">Sizes: 220 desktop companion · 380 first open · 130 shelf header · 84 phone strip. Video: .webm (VP9 alpha) everywhere, .mp4 (HEVC alpha) for Safari/iOS.</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showMascot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      showMascot: this.props.showMascot ?? true,
+      showNotes: this.props.showNotes ?? true,
+      states: [
+        { id: 'hello', when: 'First open' }, { id: 'idle', when: 'Nothing happening' },
+        { id: 'listening', when: 'You are typing' }, { id: 'thinking', when: 'Waiting for a reply' },
+        { id: 'working', when: 'A tool is running' }, { id: 'searching', when: 'Web search' },
+        { id: 'reading', when: 'Reading documents' }, { id: 'celebrate', when: 'Deliverable ready' },
+        { id: 'oops', when: 'Error or needs help' }, { id: 'sleeping', when: 'Automatos not running' },
+        { id: 'lost', when: '404' }, { id: 'loading', when: 'Loading' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

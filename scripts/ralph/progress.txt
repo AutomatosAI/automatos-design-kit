@@ -182,3 +182,6 @@ First CI run of the wave: Typecheck and Lint passed, Test failed (29 failures in
 - ShelfScreen.test.tsx (502 test): read Auto's "Automatos isn't running" caption with getByText right after findByRole("alert"). The mascot goes to sleeping in a passive effect (useShelfMascot) one render after the alert, so the synchronous query raced it. The behaviour is right; the test now uses findByText. The success:false test's "Something went wrong" caption had the same race (passed by luck): also findByText. No other test reads an effect-driven mascot state synchronously.
 - Asleep.test.tsx: asserted "Play also checks every 10 seconds." but rendered LiveShell with renderShell's default recheckMs of 60_000, so the screen said 60. The component is right (it shows the interval it uses). The test was wrong: this test now renders with RECHECK_MS, which is what the sentence and its `RECHECK_MS === 10_000` check are about.
 - Not done: nothing ran locally. These suites never ran in CI before (they failed at load or at the first fixture read), so a further failure behind these is possible; the next CI run is the check.
+
+---
+# Wave 2: PRD-002 Looks PoC (Ember), from 2026-10-14

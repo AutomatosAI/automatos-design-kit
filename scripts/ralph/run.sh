@@ -15,9 +15,12 @@ REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 PLATFORM="$(dirname "$REPO")"
 CORE="$PLATFORM/automatos-ai"
 KIT="$REPO/scripts/ralph"
-BR=$(jq -r .branchName "$KIT/prd.json")
-BASE=$(jq -r .baseBranch "$KIT/prd.json")
-PR_BASE=$(jq -r .prBase "$KIT/prd.json")
+PRD_SRC="${RALPH_PRD:-$KIT/prd.json}"   # a later wave passes its own prd.json (the worktree copy)
+BR=$(jq -r .branchName "$PRD_SRC")
+BASE=$(jq -r .baseBranch "$PRD_SRC")
+PR_BASE=$(jq -r .prBase "$PRD_SRC")
+PR_TITLE=$(jq -r '.prTitle // "feat: Automatos Play pilot (PRD-001)"' "$PRD_SRC")
+PRD_DOC=$(jq -r '.prdDoc // "docs/prd/PRD-001-FUN-UI-PILOT.md"' "$PRD_SRC")
 WT="$PLATFORM/.worktrees/automatos-play/$(echo "$BR" | tr '/' '+')"
 RALPH_MODEL="${RALPH_MODEL:-claude-opus-5-5}"
 MAX_ITERS="${RALPH_MAX_ITERS:-22}"
@@ -28,7 +31,7 @@ TIMEOUT_BIN=$(command -v timeout || command -v gtimeout)
 LOGDIR="$KIT/logs"
 mkdir -p "$LOGDIR"
 STAMP=$(date +%F-%H%M)
-BUILD_LOG="$LOGDIR/build-$STAMP.log"
+BUILD_LOG="$LOGDIR/build-$(echo "$BR" | tr '/' '+')-$STAMP.log"
 
 say() { echo "[ralph-play $(date +%H:%M:%S)] $*" | tee -a "$BUILD_LOG"; }
 notify() { osascript -e "display notification \"$1\" with title \"Ralph · Automatos Play\"" >/dev/null 2>&1 || true; }
@@ -101,8 +104,8 @@ push_and_pr() {
   git -C "$WT" push -u origin "$BR" >>"$BUILD_LOG" 2>&1 || die "push failed"
   if [ "$(gh pr list -R AutomatosAI/automatos-play --head "$BR" --state open --json number --jq 'length' 2>/dev/null)" = "0" ]; then
     gh pr create -R AutomatosAI/automatos-play --base "$PR_BASE" --head "$BR" \
-      --title "feat: Automatos Play pilot (PRD-001)" \
-      --body "Built by the Ralph loop from scripts/ralph/prd.json (PRD-001). Story notes: scripts/ralph/prd.json. Learnings: scripts/ralph/progress.txt. Skill gaps: docs/SKILL-GAPS.md. Manual checks for the local run: docs/RUN-CHECKLIST.md." \
+      --title "$PR_TITLE" \
+      --body "Built by the Ralph loop from scripts/ralph/prd.json ($PRD_DOC). Story notes: scripts/ralph/prd.json. Learnings: scripts/ralph/progress.txt. Skill gaps: docs/SKILL-GAPS.md. Manual checks for the local run: docs/RUN-CHECKLIST.md." \
       >>"$BUILD_LOG" 2>&1 || die "PR create failed"
   fi
   say "pushed $(git -C "$WT" rev-parse --short HEAD); PR: $(gh pr list -R AutomatosAI/automatos-play --head "$BR" --json url --jq '.[0].url')"

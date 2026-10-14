@@ -12,7 +12,9 @@ set -uo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO"
 mkdir -p scripts/ralph/logs
-LOG="scripts/ralph/logs/launch-$(date +%F-%H%M).log"
+PRD_SRC="${RALPH_PRD:-scripts/ralph/prd.json}"
+export RALPH_PRD="$(cd "$(dirname "$PRD_SRC")" && pwd)/$(basename "$PRD_SRC")"
+LOG="scripts/ralph/logs/launch-$(jq -r .branchName "$RALPH_PRD" | tr '/' '+')-$(date +%F-%H%M).log"
 export RALPH_MODEL="${RALPH_MODEL:-claude-opus-5-5}"
 say() { echo "[launch-play] $*"; }
 die() { echo "[launch-play] ABORT: $*" >&2; exit 1; }
@@ -26,11 +28,11 @@ if command -v pmset >/dev/null 2>&1 && ! pmset -g batt 2>/dev/null | head -1 | g
   say "⚠️  on battery (RALPH_ALLOW_BATTERY=1)."
 fi
 
-BASE=$(jq -r .baseBranch scripts/ralph/prd.json)
+BASE=$(jq -r .baseBranch "$RALPH_PRD")
 git rev-parse --verify --quiet "$BASE" >/dev/null || die "base branch $BASE not found"
 [ -z "$(git status --porcelain -- scripts/ralph/prd.json scripts/ralph/PROMPT_build.md scripts/ralph/PROMPT_cifix.md scripts/ralph/run.sh)" ] \
   || die "kit files have uncommitted changes — commit them on $BASE first (the worktree is cut from it)"
-pgrep -f "automatos-play/scripts/ralph/run.sh" >/dev/null && die "the loop is already running"
+pgrep -f "^bash .*automatos-play/scripts/ralph/run.sh" >/dev/null && die "the loop is already running"
 [ -d public/auto ] || say "⚠️  public/auto/ is missing — the app will show the mascot placeholder."
 
 say "model $RALPH_MODEL · base $BASE · log $LOG"

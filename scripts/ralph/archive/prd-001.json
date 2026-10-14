@@ -1,0 +1,257 @@
+{
+  "project": "Automatos Play",
+  "branchName": "ralph/play-pilot",
+  "baseBranch": "docs/prd-001-pilot",
+  "prBase": "main",
+  "description": "PRD-001: Automatos Play, a fun second interface on a local Automatos install, with the Auto mascot driven by real stream events. Built only from skills/build-automatos-interface/ and the mocks in docs/design/mocks/. Zero changes to automatos-ai.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Scaffold the Next.js app and CI",
+      "description": "As a contributor, I want a small standard project whose checks run in CI, so every later story has a gate.",
+      "acceptanceCriteria": [
+        "package.json with EXACT pinned versions (no ^ or ~), looked up with `npm view <pkg> version` (registry query only; never `npm install`): next 15.x, react and react-dom 19.x, typescript 5.x, eslint with eslint-config-next, vitest, @vitejs/plugin-react, jsdom, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event",
+        "Scripts: dev (next dev -p 3100), build, start (-p 3100), typecheck (tsc --noEmit), lint, test (vitest run)",
+        "tsconfig.json with strict: true and the @/* path alias; vitest.config.ts with the jsdom environment and the same alias; a setup file importing @testing-library/jest-dom",
+        "app/layout.tsx and a placeholder app/page.tsx render; one smoke test renders the page",
+        ".github/workflows/ci.yml runs on pull_request and on push to main: Node 22, `npm install --no-audit --no-fund` (there is no lockfile yet, by design), then typecheck, lint, test and build as separate steps",
+        "LICENSE is Apache-2.0 (copy the text from automatos-ai/LICENSE); NOTICE states that the Auto mascot assets in public/auto/ are not covered by the code licence and are not in this repository",
+        ".env.example lists AUTOMATOS_BACKEND_URL=http://localhost:8000",
+        "Typecheck passes (proven by CI at the end of the wave)"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Scaffold: Next 15.5.27, React 19.3, vitest 5 + vite 8 (vite pinned explicitly: vitest 5 needs it as a peer), ESLint 9 flat config via FlatCompat (eslint.config.mjs), CI in .github/workflows/ci.yml. Tests import describe/it/expect from 'vitest' (globals off); tests/setup.ts registers jest-dom and RTL cleanup."
+    },
+    {
+      "id": "US-002",
+      "title": "Theme tokens, fonts and the app shell",
+      "description": "As a user, I want Play to look like the mocks from the first screen.",
+      "acceptanceCriteria": [
+        "app/theme.css holds every colour, type, spacing, radius and shadow token from the style sheet in docs/design/mocks/automatos-play-mocks.dc.html (panels 12-13). Components use var(--token), never literal colours",
+        "Fonts from @fontsource packages (Fredoka for display, Figtree for text, JetBrains Mono for tool lines and code), imported in app/layout.tsx. No next/font/google and no Google Fonts link",
+        "The app shell matches mock 01 at 1440 px: a left sidebar (the Automatos Play wordmark, a New chat button, nav items Chat / Conversations / Deliverables with counts, a Recent list, a connection pill at the bottom), the main column, and a right mascot column",
+        "Below 768 px: no sidebar; a top bar (Chats · title · Shelf) and a bottom tab bar (Chats / Shelf) as in the phone mocks",
+        "A component test renders the shell and finds the three nav items by role and name",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Tokens in app/theme.css (contrast pairs listed in its header comment for US-014), base styles in app/globals.css, fonts via @fontsource 5.3.0. AppShell (layout, client, usePathname) takes optional title/counts/recent/connection/host props: later stories feed them (US-010 Recent, US-013 connection). Pages add the mascot column with PageColumns + MascotColumn; MascotSlot is the stand-in US-007 replaces. Phone bars per route via phoneChrome() in components/shell/nav.ts."
+    },
+    {
+      "id": "US-003",
+      "title": "Backend config and the streaming chat proxy",
+      "description": "As a user, I want Play to reach my local Automatos with no CORS change and no secrets in the page.",
+      "acceptanceCriteria": [
+        "lib/server/backend.ts reads AUTOMATOS_BACKEND_URL (default http://localhost:8000) on the server only; nothing under app/(components) or components/ imports it",
+        "app/api/chat/route.ts forwards POST to {backend}/api/chat with the JSON body and the X-Workspace-ID header, and returns the backend body as a stream (passed straight through, not buffered) with the backend status and content-type",
+        "No Authorization header is sent and the string ORCHESTRATOR_API_KEY appears nowhere in the repo",
+        "When the backend can't be reached, the route returns 502 with {error: \"Automatos isn't running at <url>\"}",
+        "Unit tests with a mocked global fetch: the body and X-Workspace-ID are forwarded; a ReadableStream body arrives chunk by chunk; the 502 path",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "lib/server/backend.ts: getBackendUrl (throws on a non-http value), jsonError, backendUnreachable (502), rejectCrossSite (CSRF guard: call it first in every route), workspaceHeader (validates X-Workspace-ID), readJsonObject. app/api/chat/route.ts streams the backend body straight through. US-004 should build its shared forwarding helper on these. tests/server/boundary.test.ts enforces the lib/server import rule and the admin-key ban (code/config only; prose in docs/skills/scripts/*.md states the rule)."
+    },
+    {
+      "id": "US-004",
+      "title": "The JSON proxy routes",
+      "description": "As a user, I want Play to read my workspace, conversations and Deliverables through the same proxy.",
+      "acceptanceCriteria": [
+        "One shared forwarding helper used by every route (method, query string, JSON body, X-Workspace-ID; backend status returned unchanged; 502 as in US-003)",
+        "Routes: GET /api/workspace (to /api/workspaces/current), GET /api/chat/history, GET /api/chat/[id]/messages, POST /api/chat/[id]/cancel, GET /api/deliverables, GET /api/deliverables/[id], GET /api/deliverables/[id]/thumbnail (binary pass-through with its content-type)",
+        "lib/client/api.ts is the only place the browser calls these routes; it fetches the workspace id once, caches it in memory, and sends it as X-Workspace-ID",
+        "Unit tests: query string forwarding, the thumbnail's binary pass-through, the workspace id is fetched once and reused",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "lib/server/forward.ts forwardToBackend(request,{path, query: allowed keys, jsonBody?, accept?}) backs every route incl. /api/chat; pathId() validates [id] params. lib/client/api.ts: `api` (createApiClient(fetch) for tests) with getWorkspace, streamChat, listChats, chatMessages, cancelChat, listDeliverables (returns success:false, never throws it), getDeliverable (unwraps {deliverable}), deliverableThumbnail (Blob|null: an <img> can't send X-Workspace-ID). Errors are ApiError(status): 502 = Automatos asleep (US-013). US-012: preview_url/content_url are backend paths with no proxy yet (docs/SKILL-GAPS.md)."
+    },
+    {
+      "id": "US-005",
+      "title": "The chat stream parser",
+      "description": "As a developer, I want the stream turned into typed events that the chat and the mascot both read.",
+      "acceptanceCriteria": [
+        "lib/stream/parse.ts: a pure, stateful line splitter plus a parser for 0:, d:, e: and data: lines, exactly as skills/build-automatos-interface/references/chat-stream.md specifies, including the top-level fields of chat-id, finish and agent-info",
+        "Typed union of events in lib/stream/types.ts; unknown d: types become {type:'unknown'}; malformed lines are skipped without throwing",
+        "Synthetic fixtures in tests/fixtures/*.txt, written byte-for-byte in the format the formatters in automatos-ai/orchestrator/consumers/chatbot/streaming.py produce (read that file): plain answer; a turn with platform_web_search (tool-start, tool-end, receipts); an error turn (e:); an ask (tool-end with waiting: true); a turn with reasoning and narration. A header comment in each says it is synthetic and must be replaced by a real recording",
+        "Tests feed each fixture in random chunk sizes (including splits inside a line and inside a multi-byte character) and get the same events",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "lib/stream/parse.ts: pure splitter (splitLines/flushLines over bytes, split on the newline byte), parseLine, parseChunk/finishParse, readStreamEvents(body) async generator for US-008; d:/data: decoders in lib/stream/data-events.ts, union in lib/stream/types.ts. US-006/008: replay fixtures with fixtureEvents(name) from tests/stream/helpers.ts; receipts arrive twice (tool-data data.receipts AND the receipts event): use the receipts event only; agent-info really arrives nested under type (parser unwraps)."
+    },
+    {
+      "id": "US-006",
+      "title": "The mascot state reducer",
+      "description": "As a user, I want the mascot to match what Auto is doing.",
+      "acceptanceCriteria": [
+        "lib/mascot/reducer.ts: a pure (state, event) => state implementing the state table, the priority order and the one-shot rules in skills/build-automatos-interface/references/mascot-states.md. Client events too: app-open, input-focus, input-blur, send, idle-timeout, backend-down, backend-up, not-found, loading-start, loading-end, deliverable-added, clip-ended",
+        "lib/mascot/tools.ts holds the searching and reading tool-name lists and patterns from the reference, and nothing else does",
+        "Tests replay the US-005 fixtures and assert the state sequences: plain answer thinking -> idle; web search thinking -> searching -> idle -> celebrate -> idle (after clip-ended); error thinking -> oops; ask -> listening",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "lib/mascot/reducer.ts mascotReducer + INITIAL_MASCOT + pendingPose; types/events in lib/mascot/types.ts (MascotName, ONE_SHOTS, URGENT, RANK, ClientEvent incl. request-failed and clip-ended{state}); tool lists only in lib/mascot/tools.ts (toolActivity). state.mascot is the TARGET: US-007's player swaps to it at the clip boundary (oops/hello at once), holds loops one clip, and dispatches clip-ended{state} when a one-shot's clip ends (also under reduced motion). US-008 dispatches send then the stream events; app-open only on the first open per browser session."
+    },
+    {
+      "id": "US-007",
+      "title": "The mascot player",
+      "description": "As a user, I want Auto to move smoothly between states, never jumping or flickering.",
+      "acceptanceCriteria": [
+        "components/mascot/AutoMascot.tsx plays /auto/<state>.mp4 in Safari and iOS browsers and /auto/<state>.webm elsewhere, with /auto/<state>.png as poster; the browser choice is a pure tested helper",
+        "Queues a new state and swaps it at the clip boundary (timeupdate within 80 ms of the end); oops and hello swap at once; a loop state holds for at least one full clip. The queue logic is a pure tested helper",
+        "The light ring is CSS under Auto, coloured per state using the ring colours in docs/design/mocks/mascot.dc.html",
+        "prefers-reduced-motion: renders the PNG only, no video",
+        "A caption under Auto names what he is doing (the text equivalent), as in the mocks ('Searching the web', 'Your report is ready')",
+        "When /auto/<state>.png fails to load (assets are not in the repo), it falls back to the dashed placeholder from mascot.dc.html, without errors",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "components/mascot/AutoMascot.tsx (client) takes {state, onClipEnded, caption?, detail?, size?}: pass the reducer's state.mascot and dispatch {type:'clip-ended', state} from onClipEnded; it carries its own caption (captionFor in lib/mascot/media.ts, e.g. captionFor('celebrate','report')). MascotColumn lost its caption prop and MascotSlot is gone: use <MascotColumn><AutoMascot state=... /></MascotColumn>. Pure helpers: lib/mascot/media.ts (videoFormat, clipUrls, ringTone, captionFor), lib/mascot/player.ts (queue); hooks/useMascotPlayer.ts, hooks/useMediaPreferences.ts."
+    },
+    {
+      "id": "US-008",
+      "title": "The chat turn hook",
+      "description": "As a developer, I want one hook that sends a message, streams the answer and feeds the mascot.",
+      "acceptanceCriteria": [
+        "hooks/useChatTurn.ts sends the request body in chat-stream.md through lib/client/api.ts, stores the chat-id, and builds a message model: text, tool lines (start/end, success, durationMs, summary), receipts, narration and progress lines, errors",
+        "Every parsed event is also dispatched to the mascot reducer",
+        "stop() calls POST /api/chat/{id}/cancel and aborts the fetch; one turn at a time",
+        "Unit tests drive the hook with the fixtures through a mocked fetch: the message model after each fixture, and stop()",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "hooks/useChatTurn.ts: useChatTurn({client?, chatId?, initialMessages?}) -> {chatId, messages, streaming, mascot, dispatchMascot, send(text): Promise<boolean>, stop()}; it owns the mascot reducer (pass mascot.mascot to AutoMascot, dispatch input-focus/clip-ended via dispatchMascot). Message model (ChatMessage = UserMessage | AutoMessage, role 'assistant') in lib/chat/types.ts, pure updates in lib/chat/turn.ts; tests/chat/helpers.ts has mockChatFetch/fixtureAnswer/hangingAnswer/lastReply for US-009's component tests. To open another conversation, remount with a key (US-010 converts StoredMessage to ChatMessage)."
+    },
+    {
+      "id": "US-009",
+      "title": "The chat screen",
+      "description": "As a user, I want to talk to Auto in a fun, clear chat.",
+      "acceptanceCriteria": [
+        "app/page.tsx (Chat) matches mocks 01 and 02: user bubbles, the 'Auto' label, Auto's text, tool lines in mono ('Searching the web: ...' while running, '✓ Searched the web · 3 results · 2.1 s' when done), the 'What Auto did' receipts box, and an inline Deliverable card with an Open button when a receipt links to a Deliverable",
+        "Model output renders as markdown through react-markdown with remark-gfm; raw HTML is never rendered",
+        "The message box: Send becomes Stop while Auto answers; Enter sends, Shift+Enter adds a line",
+        "The mascot column shows AutoMascot with its caption; on phones Auto sits above the message box as a small row (mock 01 phone)",
+        "Component tests: sending shows the user bubble; a fixture stream shows a tool line and the receipts; Stop is shown while streaming; a <script> in model output is not rendered as HTML",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "components/chat/ChatScreen.tsx (app/page.tsx renders it): MessageList, AutoReply, ToolLines, Receipts, DeliverableCard, Markdown (react-markdown 10.1.0 + remark-gfm 4.0.1, skipHtml, images as alt text), MessageBox (Enter sends, Shift+Enter newline, Send->Stop); Auto in the column >=1024 px, else a small row above the box (useMediaQuery). Receipts never link Deliverables in the core: the card comes from tool-data generated_document.deliverable_id (lib/chat/deliverables.ts, AutoMessage.deliverables) and links to /deliverables/<id>, a 404 until US-012. US-010 can add chatId/initialMessages props to ChatScreen and pass them to useChatTurn; US-012 can pass MessageBox initialDraft; US-013 replaces the plain error lines in AutoReply with the 'Hit a snag' box."
+    },
+    {
+      "id": "US-010",
+      "title": "Conversations",
+      "description": "As a user, I want to go back to earlier chats.",
+      "acceptanceCriteria": [
+        "app/conversations/page.tsx matches mock 03: grouped Today / This week / Earlier, title, a preview starting 'Auto:' or 'You:', relative time, a search box filtering by title, and a New chat button",
+        "Opening one loads GET /api/chat/{id}/messages into the chat and continues that conversation (sends with its id)",
+        "The sidebar's Recent list shows the latest 4",
+        "Component tests: grouping by date, the search filter, and that opening a conversation sends its id on the next message",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "app/conversations/page.tsx -> components/conversations/ (ConversationsScreen, ConversationList; pure grouping/time/preview/search in lib/conversations/list.ts). Opening one links to /?chat=<id> (lib/chat/params.ts chatHref/chatParam); app/page.tsx is async, reads searchParams and keys ChatScreen by the id; ChatScreen -> StoredChat (loads /messages via hooks/useStoredConversation, lib/chat/stored.ts maps saved parts) -> ChatView (the old ChatScreen body) with chatId + initialMessages. Sidebar Recent = latest 4 via components/shell/LiveShell (layout) + hooks/useRecentChats, reloaded by announceChatsChanged() after each sent turn. hooks/useLoad.ts is a reusable loading/ready/failed+retry hook (US-011/012 can use it). For Gerard: the history preview has no role, so every preview says 'Auto:' (never 'You:'): SKILL-GAPS + PRD open question 9. Desktop is a list page beside idle Auto, not mock 03's list-beside-open-chat split view; phone title says 'Conversations', not 'Chats'."
+    },
+    {
+      "id": "US-011",
+      "title": "The Deliverables shelf",
+      "description": "As a user, I want to see what Auto has made for me.",
+      "acceptanceCriteria": [
+        "app/deliverables/page.tsx matches mock 04: a card grid with thumbnail (from /api/deliverables/{id}/thumbnail, with a type-coloured fallback), title, type badge and date; filter chips All / Reports / Documents / Images / Spreadsheets / Slides mapped to artifact_type; Load more pages with offset",
+        "Heartbeat Deliverables are hidden (source_type_exclude=heartbeat)",
+        "success: false shows an error state with Try again, never 'nothing here yet'; an empty list shows a friendly empty state",
+        "A Deliverable not seen before (by id) plays celebrate once",
+        "Component tests: filter chips set artifact_type, success:false shows the error state, Load more sends the next offset",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Built app/deliverables -> components/deliverables/ShelfScreen (Auto in the header, chips, ShelfBody grid/states/Load more, ShelfCard with useThumbnail object URLs and a type-coloured fallback), hooks/useShelf (paging, generation guard, 30 s first-page refresh), hooks/useCelebrateNew + lib/deliverables/seen.ts (localStorage; new = unseen id newer than the newest seen; first visit only remembers). For US-012: reuse components/deliverables/TypeBadge (now also on the chat card), kindOf/typeLabel/shelfDate in lib/deliverables/shelf.ts, and UNTITLED/deliverableHref from lib/chat/deliverables.ts."
+    },
+    {
+      "id": "US-012",
+      "title": "Deliverable detail",
+      "description": "As a user, I want to open a Deliverable and read it.",
+      "acceptanceCriteria": [
+        "app/deliverables/[id]/page.tsx matches mock 05: back link to the shelf, title, type badge, date, 'Made by', the content, and a side panel (Ask Auto about this, About this Deliverable, Sources when present)",
+        "Content from include_content=true: markdown and text render through react-markdown (no raw HTML); images show full width; other types link to preview_url when it is set, else say the type can't be previewed here",
+        "Ask Auto about this opens a new chat with the message box prefilled: 'About my Deliverable \"<title>\": '",
+        "No mascot on this page (mock 05 note)",
+        "Component tests: markdown renders a table, a <script> in content is not rendered, an image Deliverable renders an <img>",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "Built app/deliverables/[id] -> components/deliverables/DeliverableScreen (load via useLoad; 404 -> 'isn't on your shelf'; failure + Try again) -> DeliverableView (title, TypeBadge, date, Made by) + DeliverableContent (lib/deliverables/detail.ts contentView: markdown/text via chat Markdown, other text files in a code block, images via the new /api/deliverables/[id]/file route as an object URL, else download link or 'can't preview') + DetailPanel (Ask Auto -> /?draft=..., Download, About, Sources from extra.sources). For US-013/014: the chat page reads ?draft= (lib/chat/params draftHref/draftParam) into MessageBox initialDraft; an invalid id calls notFound() (US-013's 404 page will catch it); phone actions are a fixed bottom bar in detail.module.css."
+    },
+    {
+      "id": "US-013",
+      "title": "First open, not running, and the 404",
+      "description": "As a user, I want the edges of the app to have Auto's personality too.",
+      "acceptanceCriteria": [
+        "First open (mock 06): when the chat is empty, 'Hi, I'm Auto.', the line 'Your Automatos, the fun way', the message box focused, three example chips that fill the box; hello plays on the first open in a browser session (sessionStorage, wrapped in try/catch)",
+        "Not running (mock 07): when /api/workspace returns 502, a full-screen 'Automatos is asleep' with sleeping, the copyable command `docker compose up` (run it in your automatos-ai folder), a Check again button, and an automatic re-check every 10 s",
+        "Error turn (mock 08): an e: line or failed tool shows the 'Hit a snag' box in the chat with the error in words and Try again, and the mascot shows oops",
+        "404 (app/not-found.tsx, mock 09): 'This page wandered off', lost, and Back to chat",
+        "idle-timeout after 3 minutes without input sends the mascot to sleeping; any input wakes him",
+        "Component tests for each of the five",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "Built the edges: empty chat = FirstOpenHero + ExampleChips (components/chat/FirstOpen.tsx; chips remount MessageBox by key with the words + autoFocus), hello via claimFirstOpen (lib/mascot/session.ts, HELLO_KEY); LiveShell asks useBackendStatus (502 -> components/edges/AsleepScreen, full window, re-check every RECHECK_MS 10 s) and feeds the connection pill; SnagBox in AutoReply from snagLines (lib/chat/snag.ts) with Try again on the newest reply; app/not-found.tsx -> components/edges/LostScreen; hooks/useIdleTimeout + new reducer ClientEvent 'wake'. For US-014: tests that need Auto's state after send must set sessionStorage HELLO_KEY first (hello holds a clip); the asleep screen only shows for a 502 at start-up or on a re-check, not for a 502 mid-session (the chat's mascot sleeps instead)."
+    },
+    {
+      "id": "US-014",
+      "title": "Accessibility and phone pass",
+      "description": "As any user, I want Play to work with a keyboard, a screen reader and a phone.",
+      "acceptanceCriteria": [
+        "Every interactive element is reachable by keyboard with a visible focus ring from the theme tokens",
+        "The mascot is aria-hidden; its caption is in an aria-live=polite region",
+        "Tap targets are at least 44 px on phones; no horizontal scroll at 390 px (no fixed widths wider than the viewport in the CSS)",
+        "Text colour tokens meet WCAG AA against their surfaces: a unit test computes the contrast ratios of the token pairs listed in app/theme.css",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "Focus ring is now an outline (--focus-outline/--focus-offset in globals :focus-visible) so a button's own box-shadow can't hide it; mascot caption is aria-live=polite + aria-atomic; tap/conversation rows, shelf cards, sidebar wordmark and Recent links got min-height --tap-min. Guards in tests/a11y/: css.test.ts (focus ring, every button/link/field >= 44 px, no width > 390 px outside min-width media), contrast.test.ts (reads the pair list in app/theme.css), keyboard.test.tsx (Tab reaches every focusable per screen, no tabIndex), mascot.test.tsx. For US-015: a new interactive element needs a className whose rule sets min-height var(--tap-min)."
+    },
+    {
+      "id": "US-015",
+      "title": "Setup docs, compose file and the skill-gaps log",
+      "description": "As an open-source user, I want to run Play next to my Automatos in minutes; as the maintainer, I want to know where the skill misled the build.",
+      "acceptanceCriteria": [
+        "README: prerequisites (a running local Automatos), npm install, copy .env.example, npm run dev on http://localhost:3100, where to put the mascot files (public/auto/), and troubleshooting (backend down, wrong port, workspace 400)",
+        "docker-compose.yml (optional) runs Play on the external network automatos_network with AUTOMATOS_BACKEND_URL=http://backend:8000, without editing automatos-ai",
+        "docs/SKILL-GAPS.md lists every place the skill or the mocks were wrong, missing or unclear during this build, each with what was done; the matching fixes are made in skills/build-automatos-interface/ in this story",
+        "docs/RUN-CHECKLIST.md: the manual checks for Gerard's local run (Chrome and Safari show Auto with a transparent background on light and dark; 'hello' streams; a web search shows searching; Stop works; the shelf and detail load; the not-running screen appears when the backend is stopped; phone width), plus how to record real stream fixtures to replace the synthetic ones",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "README (setup, settings, mascot files, Docker, troubleshooting incl. each workspace 400 message), optional docker-compose.yml on the external automatos_network, docs/RUN-CHECKLIST.md (Gerard's browser checks + fixture recording), docs/SKILL-GAPS.md finished (23 skill / 9 mock / 1 PRD rows) with the skill fixed to match; tests/setup-docs.test.ts guards README and compose. All five stream fixtures are still synthetic until Gerard records real ones; the mascot `loading` state is never dispatched by any screen."
+    }
+  ]
+}

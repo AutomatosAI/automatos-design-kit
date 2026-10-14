@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="position:relative;width:{{ w }}px;height:{{ h }}px;flex:none" role="img" aria-label="Auto, {{ state }}">
+  <div style="position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:{{ ringW }}px;height:{{ ringH }}px;border-radius:50%;border:2px solid {{ ring }};box-shadow:0 0 22px {{ glow }}, inset 0 0 14px {{ glow }};background:radial-gradient(closest-side, {{ glow }}, transparent)"></div>
+  <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:50%;bottom:{{ bodyB }}px;transform:translateX(-50%);width:{{ bodyW }}px;height:{{ bodyH }}px;border-radius:42% 42% 46% 46%;border:1.5px dashed rgba(240,122,46,.6);background:radial-gradient(80% 70% at 50% 35%, rgba(240,122,46,.32), rgba(240,122,46,.08));opacity:{{ dim }};filter:{{ tint }}"></div>
+    <div style="position:absolute;left:50%;bottom:{{ bodyB }}px;transform:translateX(-50%);width:{{ bodyW }}px;height:{{ bodyH }}px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:{{ dim }}">
+      <div style="width:56%;height:22%;border-radius:999px;background:rgba(18,15,20,.6);display:flex;align-items:center;justify-content:center;gap:18%">
+        <div style="width:12%;aspect-ratio:1;border-radius:50%;background:{{ eye }};box-shadow:0 0 8px {{ eye }}"></div>
+        <div style="width:12%;aspect-ratio:1;border-radius:50%;background:{{ eye }};box-shadow:0 0 8px {{ eye }}"></div>
+      </div>
+      <div style="font:500 {{ labelSize }}px/1 'JetBrains Mono','Geist Mono',monospace;color:#F7B98C;letter-spacing:.02em">{{ state }}</div>
+    </div>
+  </sc-if>
+  <div style="position:absolute;left:50%;bottom:{{ bodyB }}px;width:{{ bodyW }}px;height:{{ bodyH }}px;background:url(auto-hero.png) center bottom / contain no-repeat;transform:{{ pose }};filter:{{ filt }}"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:220},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hello&quot;,&quot;idle&quot;,&quot;listening&quot;,&quot;thinking&quot;,&quot;working&quot;,&quot;searching&quot;,&quot;reading&quot;,&quot;celebrate&quot;,&quot;oops&quot;,&quot;sleeping&quot;,&quot;lost&quot;,&quot;loading&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:180,&quot;min&quot;:48,&quot;max&quot;:400,&quot;tsType&quot;:&quot;number&quot;},&quot;light&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#4BF0B7&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;busy&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#F07A2E&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tint&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { hasImg: false };
+  componentDidMount() {
+    const i = new Image();
+    i.onload = () => this.setState({ hasImg: true });
+    i.src = 'auto-hero.png';
+  }
+  rgba(hex, a) {
+    const h = hex.replace('#', '');
+    const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  }
+  renderVals() {
+    const st = this.props.state ?? 'idle';
+    const s = Number(this.props.size ?? 180);
+    const light = this.props.light || '#4BF0B7';
+    const busy = this.props.busy || '#F07A2E';
+    const map = { hello: light, idle: light, listening: light, celebrate: light, thinking: busy, working: busy, searching: busy, reading: busy, oops: '#FF6B7A', sleeping: '#5E578F', lost: '#5E578F', loading: '#8B7CFF' };
+    const poses = { hello: 'translateX(-50%) rotate(-5deg)', listening: 'translateX(-46%) rotate(5deg)', thinking: 'translateX(-50%) translateY(-4px)', celebrate: 'translateX(-50%) translateY(-10px) rotate(8deg)', oops: 'translateX(-50%) rotate(-11deg)', lost: 'translateX(-50%) scaleX(-1) rotate(6deg)', searching: 'translateX(-50%) rotate(-3deg)' };
+    const ring = map[st] || light;
+    const tint = this.props.tint || 'none';
+    const sleepF = 'brightness(.55) saturate(.6)';
+    return {
+      state: st, w: Math.round(s * 0.9), h: s, ring, glow: this.rgba(ring, 0.35), eye: light,
+      ringW: Math.round(s * 0.8), ringH: Math.round(s * 0.18),
+      bodyW: Math.round(s * 0.62), bodyH: Math.round(s * 0.74), bodyB: Math.round(s * 0.13),
+      labelSize: Math.max(9, Math.round(s / 15)),
+      pose: poses[st] || 'translateX(-50%)',
+      tint,
+      filt: st === 'sleeping' ? (tint === 'none' ? sleepF : tint + ' ' + sleepF) : tint,
+      dim: st === 'sleeping' ? 0.55 : 1,
+      noImg: !this.state.hasImg
+    };
+  }
+}
+</script>
+</body>
+</html>
