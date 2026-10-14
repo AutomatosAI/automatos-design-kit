@@ -50,8 +50,8 @@ export function prepaintTable() {
 function scriptSafeJson(value: unknown): string {
   return JSON.stringify(value)
     .replace(/</g, "\\u003c")
-    .replace(/ /g, "\\u2028")
-    .replace(/ /g, "\\u2029");
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
 
 // A blocked or corrupt store falls back to the default Look on purpose: LookProvider reads the

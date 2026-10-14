@@ -267,3 +267,9 @@ Docs for designers.
 - README: Looks page and style page bullets, PRD-002 + LOOKS.md under contributors. CLAUDE.md: pointer to PRD-002 and LOOKS.md.
 - tests/looks/docs.test.ts (node): guards LOOKS.md, README and the checklist.
 - Ratios and derived hexes computed in Python with the same algorithm and JS-style rounding (they match #AA4C1C / #A54B49 from L-001). Nothing ran locally: CI is the check.
+
+## CI fix 2026-10-14
+- Failed: Typecheck. `tsc --noEmit` -> lib/looks/prepaint.ts(53,14) and (55,14) TS1161 "Unterminated regular expression literal".
+- Why: scriptSafeJson() matched U+2028 / U+2029 with the raw characters typed inside regex literals (`/<U+2028>/g`). Both are line terminators in JavaScript, and a regex literal may not contain one, so the parser saw the literal end mid-line.
+- Changed: wrote them as escapes, `/ /g` and `/ /g`. Same characters matched, same output, so the pre-paint script and tests/looks/prepaint.test.ts are unaffected. Swept every tracked file for raw U+2028/U+2029: prepaint.ts was the only one.
+- Pattern: never type U+2028/U+2029 (or other invisible separators) raw in source; use `\u` escapes.
