@@ -6,8 +6,8 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
+import { bundleProblems } from '../src/output-check.ts'
 import {
-  bundleProblems,
   isInsideSource,
   moduleProblem,
   referenceProblem,

@@ -33,11 +33,23 @@ export default defineConfig({ plugins: [automatosTheme()] })
 
 CSS modules are named `<htmlClass>-[local]-[hash]`, which keeps their keyframes inside the theme's names.
 
-Only the theme's own `src/` goes into the build (`src/source-guard.ts`). The build fails on a module from anywhere
-else (a relative import that climbs out of `src/`, an absolute path, an `import.meta.glob` match outside it, a
-package from `node_modules`), on a `new URL('…', import.meta.url)` or a CSS `url()`, `@import`, `image-set()` or
-`composes … from` that is absolute or leaves `src/`, and on a run-time import that is not one of the host's shared
-modules. The entry must sit under `src/`. The Marketplace review rebuilds a package's `source/` with this guard, so
+Only the theme's own `src/` goes into the build. The checks read what the build actually read and wrote, so how a
+reference is spelled (a CSS escape, a comment, a string built at run time) does not matter:
+
+- `load` refuses a module from anywhere else: a relative import that climbs out of `src/`, an absolute path, an
+  `import.meta.glob` match outside it, a package from `node_modules` (`src/source-guard.ts`).
+- The stylesheet's PostCSS run refuses CSS taken in from a file outside `src/`, however the `@import` was written
+  (`src/css-origin.ts`). The preset gives Vite its PostCSS plugins, so a `postcss.config.*` beside `src/` is not read.
+- The output is refused when a chunk lists a module from outside `src/` or imports at run time anything but the
+  host's shared modules, when an emitted asset was made from a file outside `src/`, or when it inlines a `data:` URL
+  that is not the content of a file under `src/` (`src/output-check.ts`). Vite inlines every `url()` and
+  `new URL('…', import.meta.url)` asset in library mode, whatever `build.assetsInlineLimit` says, so the check reads
+  the inlined bytes.
+
+Before those, a scan of `new URL('…', import.meta.url)` and CSS `url()`, `@import`, `image-set()` and
+`composes … from` references gives an early error naming the file and the reference. It is only a friendly early
+error, except for `composes … from`, where it is the only check. A Sass, Less or Stylus file's own imports are not
+checked. The entry must sit under `src/`. The Marketplace review rebuilds a package's `source/` with these checks, so
 a theme that builds for its author builds in the review.
 
 Then pack the theme with `automatos-theme pack` (`packages/theme-cli`).

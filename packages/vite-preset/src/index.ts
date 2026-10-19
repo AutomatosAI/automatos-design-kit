@@ -5,7 +5,8 @@
  * The build is an ES library: `dist/entry.js` (plus `dist/chunks/*.js` for lazy imports) with the
  * import map's modules left as imports, and one stylesheet, `dist/theme.css`, wrapped under the
  * theme's class and checked as the server checks it. `htmlClass` comes from the theme's
- * `theme.json` unless given. Only files under the theme's `src/` go into the build (source-guard.ts).
+ * `theme.json` unless given. Only files under the theme's `src/` go into the build (source-guard.ts,
+ * css-origin.ts and output-check.ts).
  * Then `automatos-theme pack` (packages/theme-cli) zips the package.
  */
 import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -13,11 +14,14 @@ import { join, resolve } from 'node:path'
 import type { Plugin, UserConfig } from 'vite'
 import { cssScopeErrors, STYLE_PATH, type ThemeError } from './css-scope.ts'
 import { importRefusal, isSharedModule } from './imports.ts'
-import { sourceGuard } from './source-guard.ts'
+import { cssOriginGuard } from './css-origin.ts'
+import { sourceGuard, sourceTree } from './source-guard.ts'
 import { checkedOptions, transformThemeCss, type WrapForm } from './theme-css.ts'
 
 export { cssScopeErrors, CSS_ERROR_CODES, STYLE_PATH, type ThemeError } from './css-scope.ts'
 export { importRefusal, isSharedModule, SHARED_MODULES } from './imports.ts'
+export { cssOriginGuard } from './css-origin.ts'
+export { bundleProblems } from './output-check.ts'
 export { isInsideSource, moduleProblem, referenceProblem, sourceGuard, sourceTree, SOURCE_DIR, type SourceTree } from './source-guard.ts'
 export { themeCssPlugin, transformThemeCss, wrapSelector, type ThemeCssOptions, type WrapForm } from './theme-css.ts'
 
@@ -72,7 +76,12 @@ export function presetConfig(options: ThemePresetOptions, root: string, htmlClas
     publicDir: false,
     define: { 'process.env.NODE_ENV': JSON.stringify('production') },
     oxc: { jsx: { runtime: 'automatic', importSource: 'react', development: false } },
-    css: { transformer: 'postcss', modules: { generateScopedName: `${htmlClass}-[local]-[hash:base64:5]` } },
+    css: {
+      transformer: 'postcss',
+      // Given here, so Vite reads no postcss.config.* from beside src/ (the review rebuilds without one).
+      postcss: { plugins: [cssOriginGuard(sourceTree(root))] },
+      modules: { generateScopedName: `${htmlClass}-[local]-[hash:base64:5]` },
+    },
     build: {
       outDir: OUT_DIR,
       emptyOutDir: true,

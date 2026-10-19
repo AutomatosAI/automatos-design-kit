@@ -3,27 +3,33 @@
  *
  * The Marketplace review rebuilds a package's source/ (written out as src/) and compares the dist/
  * byte for byte (PRD-261 §9). That proves the dist/ came from source/ only if nothing else can get
- * into the bundle, so the guard fails the build on:
- *   - a module the build loads that is not a `\0` virtual id and not a file under src/ (every
- *     import, import.meta.glob match and `?raw`/`?url` asset passes through `load`);
- *   - a chunk listing such a module, or importing at run time anything but the host's shared
- *     modules or its own chunks (a backstop on the output);
- *   - `new URL('<path>', import.meta.url)` and CSS `url()`, `@import`, `composes … from` and
- *     `image-set()` references that are absolute or resolve outside src/: Vite reads those files
- *     straight from disk and inlines them, without a `load`. CSS imports are followed, since their
- *     own references are read the same way.
+ * into the bundle. The guarantee comes from what the build actually read and wrote, not from how a
+ * reference is spelled:
+ *   - `load` refuses a module that is not a `\0` virtual id and not a file under src/ (every import,
+ *     import.meta.glob match and `?raw`/`?url` asset passes through it);
+ *   - css-origin.ts refuses a stylesheet that took in CSS from a file outside src/ (an `@import`
+ *     however written: postcss-import reads it from disk without a `load`);
+ *   - output-check.ts refuses an output that lists a module from outside src/, imports at run time
+ *     anything but the host's shared modules or its own chunks, emits an asset made from a file
+ *     outside src/, or inlines a data: URL that is not the content of a file under src/ (Vite inlines
+ *     every url() and `new URL('…', import.meta.url)` asset in library mode, read straight from disk).
+ * The scan below of `new URL('<path>', import.meta.url)` and CSS `url()`, `@import`, `composes … from`
+ * and `image-set()` references is only an early, friendly error with the file and the reference in
+ * it. It reads the text with patterns, so a reference spelled another way (a CSS escape, a comment, a
+ * string built at run time) can pass it; the checks above still refuse what such a reference pulls in.
+ * Two gaps remain: the scan is the only check on `composes … from` (postcss-modules prepends the
+ * composed file's CSS with no source file on it), and nothing here reads a Sass, Less or Stylus
+ * file's own imports (the preprocessor merges them before PostCSS sees the result).
  * Author builds run the same guard, so a theme that builds for its author builds in the review.
  */
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import type { Plugin } from 'vite'
-import { isSharedModule } from './imports.ts'
+import { bundleProblems } from './output-check.ts'
+import { isInsideSource, moduleProblem, QUERY_OR_HASH, shown, sourceTree, SOURCE_DIR, VIRTUAL_PREFIX, type SourceTree } from './source-tree.ts'
 
-/** The theme's source tree, relative to the theme root (a package's source/ is written out as it). */
-export const SOURCE_DIR = 'src'
+export { isInsideSource, moduleProblem, sourceTree, SOURCE_DIR, type SourceTree } from './source-tree.ts'
 
-const VIRTUAL_PREFIX = '\0'
-const QUERY_OR_HASH = /[?#].*$/s
 const STYLE_ID = /\.(?:css|pcss|postcss|sss)$/
 const SCRIPT_ID = /\.(?:[cm]?[jt]sx?)$/
 /** Vite's own pattern for `new URL(..., import.meta.url)` (vite:asset-import-meta-url). */
@@ -36,49 +42,6 @@ const QUOTED = /'([^']*)'|"([^"]*)"/g
 /** A reference the build leaves as text: data:, a scheme:// URL other than file:, //host, #fragment. */
 const NOT_A_FILE = /^(?:data:|(?!file:)[a-z][a-z0-9+.-]*:\/\/|\/\/|#)/i
 const ABSOLUTE = /^(?:\/|file:|[a-z]:[\\/])/i
-
-export interface SourceTree {
-  /** The theme root, for messages. */
-  readonly root: string
-  /** The source tree as given and as resolved through symlinks. */
-  readonly dirs: readonly string[]
-}
-
-function realOr(path: string): string {
-  try {
-    return realpathSync(path)
-  } catch {
-    return path
-  }
-}
-
-/** The source tree of the theme at `root`. */
-export function sourceTree(root: string): SourceTree {
-  const dir = resolve(root, SOURCE_DIR)
-  return { root, dirs: Array.from(new Set([dir, realOr(dir)])) }
-}
-
-/** True when `file` (resolved through symlinks when it exists) sits under the source tree. */
-export function isInsideSource(file: string, tree: SourceTree): boolean {
-  const path = realOr(resolve(file))
-  return tree.dirs.some((dir) => {
-    const rel = relative(dir, path)
-    return rel !== '' && !isAbsolute(rel) && rel.split(sep)[0] !== '..'
-  })
-}
-
-function shown(file: string, tree: SourceTree): string {
-  return relative(tree.root, file).split(sep).join('/') || file
-}
-
-/** Why the build may not bundle the module `id`, or null when it may. */
-export function moduleProblem(id: string, tree: SourceTree): string | null {
-  if (id.startsWith(VIRTUAL_PREFIX) || isSharedModule(id)) return null
-  const file = id.replace(QUERY_OR_HASH, '')
-  if (!isAbsolute(file)) return `The build would bundle "${id}", which is not a file under the theme's ${SOURCE_DIR}/.`
-  if (isInsideSource(file, tree)) return null
-  return `The build would bundle ${shown(file, tree)}, which is outside the theme's ${SOURCE_DIR}/: a theme builds from its own source only.`
-}
 
 /** Why a file reference in `from` may not be read by the build, or null when it may. */
 export function referenceProblem(reference: string, from: string, tree: SourceTree): string | null {
@@ -135,26 +98,6 @@ export function transformProblems(code: string, id: string, tree: SourceTree): s
   return scriptReferences(code).flatMap((ref) => referenceProblem(ref, file, tree) ?? [])
 }
 
-interface ChunkLike {
-  readonly type: 'chunk'
-  readonly moduleIds: readonly string[]
-  readonly imports: readonly string[]
-  readonly dynamicImports: readonly string[]
-}
-
-/** Every problem in the output: modules from outside src/, run-time imports the host can't serve. */
-export function bundleProblems(bundle: Readonly<Record<string, { readonly type: string }>>, tree: SourceTree): string[] {
-  const chunks = Object.values(bundle).filter((item): item is ChunkLike => item.type === 'chunk')
-  return chunks.flatMap((chunk) => [
-    ...chunk.moduleIds.flatMap((id) => moduleProblem(id, tree) ?? []),
-    ...[...chunk.imports, ...chunk.dynamicImports].flatMap((target) => (
-      target in bundle || isSharedModule(target)
-        ? []
-        : [`The build imports "${target}" at run time, which is not one of the host's shared modules.`]
-    )),
-  ])
-}
-
 function report(problems: readonly string[]): string {
   return Array.from(new Set(problems)).join('\n')
 }
@@ -182,9 +125,13 @@ export function sourceGuard(): Plugin {
       if (problems.length > 0) this.error(report(problems))
       return null
     },
-    generateBundle(_options, bundle) {
-      const problems = bundleProblems(bundle, current())
-      if (problems.length > 0) this.error(report(problems))
+    // After Vite's own generateBundle hooks, so the library's stylesheet is in the bundle too.
+    generateBundle: {
+      order: 'post',
+      handler(_options, bundle) {
+        const problems = bundleProblems(bundle, current())
+        if (problems.length > 0) this.error(report(problems))
+      },
     },
   }
 }
