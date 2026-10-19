@@ -37,18 +37,10 @@ jobs:
       - name: Pin npm
         run: npm install -g npm@11.21.1
 
-      # No lockfile yet: every dependency is pinned exactly in package.json. This run
-      # uploads the lockfile npm resolved; the next change commits it and switches
-      # this step to npm ci.
-      - name: Install (exact pins, no lockfile yet)
-        run: npm install --no-audit --no-fund
-
-      - name: Upload the resolved lockfile
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: kit-lockfile
-          path: package-lock.json
-          if-no-files-found: error
+      # Install exactly what package-lock.json records (committed in A-15b from the lockfile the
+      # first kit CI run resolved with these exact pins).
+      - name: Install (from the lockfile)
+        run: npm ci --no-audit --no-fund
 
       # Each root script runs the same script in every workspace that defines it,
       # packages/* first, then themes/*.
