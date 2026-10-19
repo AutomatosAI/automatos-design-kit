@@ -1,8 +1,8 @@
 /**
  * A real Vite build of a small theme through the preset, written to its dist/ in the system temp
  * folder: the JS keeps the import map's modules as imports, the CSS (global and CSS modules) comes
- * out as one wrapped dist/theme.css that passes the server's check, and a theme importing sonner or
- * shipping !important does not build.
+ * out as one wrapped dist/theme.css that passes the server's check, and a theme importing sonner,
+ * shipping !important or reaching outside its src/ (however the reference is spelled) does not build.
  */
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -148,5 +148,77 @@ describe('a theme built with the preset', () => {
 
   it('refuses a theme with no htmlClass anywhere', async () => {
     await expect(buildTheme({ ...HELLO, 'theme.json': '{}' })).rejects.toThrow(/htmlClass/)
+  })
+})
+
+describe('a theme reaching outside its src/', () => {
+  const LOGO = '<svg xmlns="http://www.w3.org/2000/svg"/>'
+  const withEntry = (head: string): string => `${head}\n${ENTRY}`
+
+  it.each<[string, Files]>([
+    ['a relative import', { 'outside.js': 'export const secret = 1\n', 'src/entry.js': withEntry("import { secret } from '../outside.js'\nexport { secret }") }],
+    ['an import.meta.glob match', { 'looks/a.json': '{"a":1}', 'src/entry.js': withEntry("export const looks = import.meta.glob('../looks/*.json', { eager: true })") }],
+    ['a new URL(..., import.meta.url) asset', { 'logo.svg': LOGO, 'src/entry.js': withEntry("export const logo = new URL('../logo.svg', import.meta.url)") }],
+    ['a CSS url()', { 'logo.svg': LOGO, 'src/theme.css': `${GLOBAL_CSS}.hello-bar { background: url('../logo.svg'); }\n` }],
+    ['a CSS url() in an imported stylesheet', {
+      'logo.svg': LOGO,
+      'src/parts/more.css': ".hello-more { background: url('../../logo.svg'); }\n",
+      'src/theme.css': `@import './parts/more.css';\n${GLOBAL_CSS}`,
+    }],
+  ])('does not build with %s', async (_name, extra) => {
+    await expect(buildTheme({ ...HELLO, ...extra })).rejects.toThrow(/outside the theme's src\//)
+  })
+
+  it('does not build with an absolute import', async () => {
+    const elsewhere = themeFolder({ 'secret.js': 'export const secret = 1\n' })
+    const entry = withEntry(`import { secret } from ${JSON.stringify(join(elsewhere, 'secret.js'))}\nexport { secret }`)
+    await expect(buildTheme({ ...HELLO, 'src/entry.js': entry })).rejects.toThrow(/outside the theme's src\//)
+  })
+
+  // The early scan reads references with patterns; these spell one so the scan misses it, and a
+  // check on what the build read or wrote refuses it instead.
+  const OUTSIDE_BYTES = 'a file outside src/'
+  const NOT_FROM_SRC = /not the content of a file under the theme's src\//
+
+  it('does not build with an escaped url(): the server check on dist/theme.css refuses it', async () => {
+    const css = `${GLOBAL_CSS}.hello-bar { background: u\\72l(../../outside.png); }\n`
+    await expect(buildTheme({ ...HELLO, 'outside.png': OUTSIDE_BYTES, 'src/theme.css': css })).rejects.toThrow(/CSS_SYNTAX/)
+  })
+
+  it('does not build with a url() Vite unescapes to a file outside src/: the output check refuses it', async () => {
+    const css = `${GLOBAL_CSS}.hello-bar { background: url(./\\.\\./outside.png); }\n`
+    await expect(buildTheme({ ...HELLO, 'outside.png': OUTSIDE_BYTES, 'src/theme.css': css })).rejects.toThrow(NOT_FROM_SRC)
+  })
+
+  it('does not build with an @import hidden from the scan by a comment: the CSS origin check refuses it', async () => {
+    const css = `@import/**/'../outside.css';\n${GLOBAL_CSS}`
+    const extra = { 'outside.css': '.hello-leak { color: red; }\n', 'src/theme.css': css }
+    await expect(buildTheme({ ...HELLO, ...extra })).rejects.toThrow(/outside\.css, which is outside the theme's src\//)
+  })
+
+  it("reads nothing for new URL('../' + name, import.meta.url): it stays a run-time expression", async () => {
+    const entry = withEntry("export const asset = (name) => new URL('../' + name, import.meta.url)")
+    const built = await buildTheme({ ...HELLO, 'outside.png': OUTSIDE_BYTES, 'src/entry.js': entry })
+    expect(built.entry).toContain('import.meta.url')
+    expect(built.entry).not.toContain('data:')
+  })
+
+  it('builds with a url() and a data: URL under src/, inlining the file', async () => {
+    const dot = 'a small file under src/'
+    const css = `${GLOBAL_CSS}.hello-bar { background: url('./dot.png'); mask: url("data:image/png;base64,iVBORw0KGgo="); }\n`
+    const built = await buildTheme({ ...HELLO, 'src/dot.png': dot, 'src/theme.css': css })
+    expect(built.files).toEqual(['entry.js', 'theme.css'])
+    expect(built.css).toContain(`data:image/png;base64,${Buffer.from(dot).toString('base64')}`)
+    expect(built.css).toContain('data:image/png;base64,iVBORw0KGgo=')
+  })
+
+  it('builds when globs and assets stay under src/, inlining the asset', async () => {
+    const entry = withEntry([
+      "export const looks = import.meta.glob('./looks/*.json', { eager: true })",
+      "export const logo = new URL('./logo.svg', import.meta.url)",
+    ].join('\n'))
+    const built = await buildTheme({ ...HELLO, 'src/entry.js': entry, 'src/looks/a.json': '{"a":1}', 'src/logo.svg': LOGO })
+    expect(built.files).toEqual(['entry.js', 'theme.css'])
+    expect(built.entry).toContain('data:image/svg+xml')
   })
 })
