@@ -12,3 +12,10 @@ mascot/out/
 # Mascot assets and pipeline stay local until the image rights are confirmed (PRD-001, open question 1)
 public/auto/
 mascot/
+
+# Kit build output (built in CI, never committed)
+packages/*/dist/
+themes/*/dist/
+*.autotheme
+*.tsbuildinfo
+coverage/

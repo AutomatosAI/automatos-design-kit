@@ -1,0 +1,72 @@
+name: Kit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kit-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  kit:
+    name: Build, lint, typecheck, test, pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Actions are pinned to full commit SHAs. checkout and upload-artifact reuse the
+      # pins core already uses; core has no SHA-pinned setup-node, so this pin was
+      # resolved here from the v7.1.0 tag (gh api repos/actions/setup-node/git/ref/tags/v7.1.0).
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      # No lockfile yet: every dependency is pinned exactly in package.json. This run
+      # uploads the lockfile npm resolved; the next change commits it and switches
+      # this step to npm ci.
+      - name: Install (exact pins, no lockfile yet)
+        run: npm install --no-audit --no-fund
+
+      - name: Upload the resolved lockfile
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-lockfile
+          path: package-lock.json
+          if-no-files-found: error
+
+      # Each root script runs the same script in every workspace that defines it,
+      # packages/* first, then themes/*.
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Pack
+        run: npm run pack
+
+      - name: Upload theme packages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-themes
+          path: |
+            **/*.autotheme*
+            !**/node_modules/**
+          if-no-files-found: warn
