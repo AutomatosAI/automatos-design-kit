@@ -25,7 +25,9 @@ permissions: {}
 
 env:
   # The container the submission is handled in. Node 22.18+ runs the kit's TypeScript directly.
-  REVIEW_IMAGE: node:22.18.0-bookworm-slim
+  # Pinned by digest (the multi-arch index of the tag, read from the Docker Hub registry, 19 Oct
+  # 2026), so a re-pushed tag can't change what runs the review. Bump tag and digest together.
+  REVIEW_IMAGE: node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e
 
 jobs:
   review:

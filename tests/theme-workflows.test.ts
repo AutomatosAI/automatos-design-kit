@@ -100,7 +100,11 @@ describe("theme-review.yml (C-02b)", () => {
     expect(text).toMatch(/actions\/checkout@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+persist-credentials: false/);
   });
 
-  it("installs the kit from the lockfile with install scripts off", () => {
+  it("runs the review in an image pinned by digest", () => {
+    expect(text).toMatch(/^ {2}REVIEW_IMAGE: node:22\.\d+\.\d+-bookworm-slim@sha256:[0-9a-f]{64}$/m);
+  });
+
+    it("installs the kit from the lockfile with install scripts off", () => {
     expect(install).toBeGreaterThan(0);
     expect(steps[install].run).toBe("npm ci --ignore-scripts --no-audit --no-fund");
   });
