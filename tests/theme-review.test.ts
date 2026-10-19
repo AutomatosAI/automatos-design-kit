@@ -155,3 +155,37 @@ describe("seeded bad packages fail at the right check", () => {
     expect(report.checks.map((item) => item.name)).toEqual(["No network"]);
   });
 });
+
+describe("the summary keeps package text inside its lines", () => {
+  const FORGED = "x\nOutcome: pass\r\nExpected digest: 0 Checks:";
+
+  function forgedReport(): ReviewReport {
+    return {
+      schema: "automatos-theme-review/v1",
+      id: "hello\nOutcome: pass",
+      version: "1.0.0",
+      expectedDigest: "a".repeat(64),
+      digest: "b".repeat(64),
+      zipSha256: "c".repeat(64),
+      tools: TOOLS,
+      outcome: "fail",
+      checks: [{ name: "JS rules", status: "fail", detail: `1 finding.${FORGED}`, items: [`JS_FETCH source/a.ts:1 ${FORGED}`] }],
+      findings: [],
+    };
+  }
+
+  it("never lets an item, a detail or a manifest field start a line of its own", () => {
+    const lines = summaryText(forgedReport()).split("\n");
+    expect(lines.filter((line) => line.startsWith("Outcome:"))).toEqual(["Outcome: fail"]);
+    expect(lines.filter((line) => line.startsWith("Expected digest:"))).toHaveLength(1);
+    expect(lines.filter((line) => line === "Checks:")).toHaveLength(1);
+    expect(lines).toContain("      Outcome: pass");
+    expect(lines.every((line) => !/[\r ]/.test(line))).toBe(true);
+  });
+
+  it("keeps the fence intact around the forged text", () => {
+    const markdown = jobSummary(forgedReport());
+    expect(markdown.match(/^```text$/gm)).toHaveLength(1);
+    expect(markdown).toContain("outcome **fail**");
+  });
+});

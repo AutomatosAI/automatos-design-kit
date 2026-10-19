@@ -11,13 +11,22 @@ export const SUMMARY_MAX_CHARS = 12_000
 const ITEMS_PER_CHECK = 25
 const LINE_MAX = 240
 
+/** Every line break a reader or renderer may honour: \r\n, \n, \r, \v, \f, NEL, LS and PS. */
+const LINE_BREAK = /\r\n|[\n\r\v\f\x85\u2028\u2029]/
+
+/** One line of plain text: control characters made spaces, cut to LINE_MAX. */
 function plainLine(text: string): string {
-  const plain = text.replace(/[\x00-\x08\x0b-\x1f\x7f]/g, ' ')
+  const plain = text.replace(/[\x00-\x1f\x7f\x85\u2028\u2029]/g, ' ')
   return plain.length > LINE_MAX ? `${plain.slice(0, LINE_MAX - 1)}…` : plain
 }
 
+/** Text from the package (an item, a detail, a manifest field) as plain lines, never a line of the frame. */
+function textLines(text: string): string[] {
+  return text.split(LINE_BREAK).map(plainLine)
+}
+
 function header(report: ReviewReport): string[] {
-  const theme = report.id === null ? '(unread package)' : `${report.id} ${report.version ?? ''}`.trim()
+  const theme = report.id === null ? '(unread package)' : plainLine(`${report.id} ${report.version ?? ''}`.trim())
   const { kitCommit, node, vite, preset } = report.tools
   return [
     `Automatos theme review (${report.schema}): ${theme}`,
@@ -32,9 +41,15 @@ function header(report: ReviewReport): string[] {
 
 function checkLines(report: ReviewReport): string[] {
   return report.checks.flatMap((item) => {
-    const shown = item.items.slice(0, ITEMS_PER_CHECK).map((line) => `    - ${line}`)
+    // An item or detail split over lines keeps every line indented under its check, so text from
+    // the package can't start a line of its own (a fake `Outcome: pass`).
+    const shown = item.items.slice(0, ITEMS_PER_CHECK).flatMap((text) => (
+      textLines(text).map((line, index) => `${index === 0 ? '    - ' : '      '}${line}`)
+    ))
     const more = item.items.length > ITEMS_PER_CHECK ? [`    - … and ${item.items.length - ITEMS_PER_CHECK} more`] : []
-    return [`  ${item.status.toUpperCase().padEnd(7)} ${item.name}: ${item.detail}`, ...shown, ...more]
+    const [first, ...rest] = textLines(item.detail)
+    const head = `  ${item.status.toUpperCase().padEnd(7)} ${item.name}: ${first}`
+    return [head, ...rest.map((line) => `      ${line}`), ...shown, ...more]
   })
 }
 
