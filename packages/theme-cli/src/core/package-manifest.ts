@@ -36,7 +36,7 @@ export const REQUIRED_SLOTS: readonly string[] = ['lookEditor@1', 'styleSheet@1'
 export const THEME_BASES: readonly string[] = ['studio', 'classic']
 export const THEME_TONES: readonly string[] = ['from-look', 'user', 'light', 'dark']
 const PAGE_MODES: readonly string[] = ['own', 'clone']
-/** Gerard's Q3 list (ii), as the app routes it: knowledge is /documents, missions /assignments and /missions/[id]. */
+/** The pages a theme may own or clone, as the app routes them: knowledge is /documents, missions /assignments and /missions/[id]. */
 export const PAGE_SCOPE: readonly string[] = [
   '/chat', '/deliverables', '/assignments', '/missions/[id]', '/agents', '/documents', '/playbooks', '/command-center', '/',
 ]

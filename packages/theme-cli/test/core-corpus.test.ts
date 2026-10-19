@@ -2,8 +2,8 @@
  * pack refuses what core refuses: core's shared corpus (orchestrator/tests/fixtures/themes/cases.json,
  * vendored in test/fixtures/core) run against the kit's checks.
  *
- * `manifests`, `lookSchemas`, `looks` and `prepaint` run against the vendored TypeScript validators
- * (src/core), proving the copy intact. `packages` runs against checkPackage, the port of the
+ * `manifests`, `lookSchemas`, `looks`, `cssValues` and `prepaint` run against the vendored TypeScript
+ * validators (src/core), proving the copy intact. `packages` runs against checkPackage, the port of the
  * server's reader: each case changes the hello package (manifestSet/manifestUnset on theme.json,
  * replace sets a file's text or, with null, drops it), exactly as core's pytest builds it. A case's
  * code is null when core accepts the input; otherwise every error carries that code.
@@ -13,7 +13,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { checkPackage } from '../src/check-package.ts'
-import { prepaintErrors, type ThemeError } from '../src/core/css-value.ts'
+import { cssValueProblem, prepaintErrors, type ThemeError } from '../src/core/css-value.ts'
 import { validateLook, validateLookSchema, type LookSchema } from '../src/core/look-schema.ts'
 import { validateManifest } from '../src/core/package-manifest.ts'
 import type { PackageEntry } from '../src/members.ts'
@@ -42,6 +42,7 @@ interface Corpus {
   readonly lookSchemas: CorpusSection
   readonly looks: CorpusSection
   readonly prepaint: CorpusSection
+  readonly cssValues: { readonly valid: readonly string[]; readonly invalid: readonly string[] }
   readonly packages: CorpusSection
 }
 
@@ -119,6 +120,17 @@ describe('the vendored validators give the corpus verdicts', () => {
   it.each([...CORPUS.looks.cases])('look: $name', (testCase) => {
     const look = 'document' in testCase ? testCase.document : patched(CORPUS.looks.base, testCase.set, testCase.unset)
     expectVerdict(validateLook(helloLookSchema(), look), testCase.code)
+  })
+
+  it.each([...CORPUS.cssValues.valid])('CSS value %j passes', (value) => {
+    expect(cssValueProblem(value)).toBeNull()
+  })
+
+  it.each([...CORPUS.cssValues.invalid])('CSS value %j is refused with a reason', (value) => {
+    const problem = cssValueProblem(value)
+    expect(typeof problem).toBe('string')
+    expect(problem).not.toBe('')
+    expect(problem).not.toContain('\n')
   })
 
   it.each([...CORPUS.prepaint.cases])('prepaint: $name', (testCase) => {
