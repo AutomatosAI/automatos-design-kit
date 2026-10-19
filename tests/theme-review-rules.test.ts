@@ -1,7 +1,7 @@
 // PRD-261 §9: the JS rules the isolated review runs on a submission's source/. Each refused
 // pattern is found with its code and line; honest code that only looks close is not.
 import { describe, expect, it } from "vitest";
-import { excerptOf, fileFindings, jsRuleFindings, specifierProblem } from "../scripts/review/js-rules.ts";
+import { excerptOf, fileFindings, jsRuleFindings, pathProblem, specifierProblem } from "../scripts/review/js-rules.ts";
 
 const PATH = "source/entry.ts";
 
@@ -42,6 +42,13 @@ describe("each refused pattern is found", () => {
     ["JS_BUNDLED_REACT", "const internals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE"],
     ["JS_BUNDLED_REACT", "const REACT_ELEMENT_TYPE = Symbol.for('react.element')"],
     ["JS_OBFUSCATED", "var _0x3f2a = ['x']"],
+    ["JS_PATH_IMPORT", "import { secret } from '../outside.js'"],
+    ["JS_PATH_IMPORT", "import config from '/kit/package.json'"],
+    ["JS_PATH_IMPORT", "const raw = require('./parts/../../../etc/hosts')"],
+    ["JS_PATH_IMPORT", "const load = (name) => import(`../${name}.ts`)"],
+    ["JS_PATH_IMPORT", "const all = import.meta.glob(['./looks/*.ts', '../../**/*.ts'])"],
+    ["JS_PATH_IMPORT", "const logo = new URL('../logo.svg', import.meta.url)"],
+    ["JS_PATH_IMPORT", "const keys = new URL('file:///etc/passwd', import.meta.url)"],
   ])("%s: %s", (code, text) => {
     expect(codes(text)).toContain(code);
   });
@@ -71,6 +78,9 @@ describe("honest code that looks close is not refused", () => {
     "const evaluation = score.evaluate()",
     "dialog.open = true",
     "const value = Array.from('abc')",
+    "const looks = import.meta.glob('./looks/*.json', { eager: true })",
+    "const logo = new URL('./logo.svg', import.meta.url)",
+    "const load = (name) => import(`./looks/${name}.ts`)",
   ].join("\n");
 
   it("has no findings", () => {
@@ -83,6 +93,22 @@ describe("honest code that looks close is not refused", () => {
     expect(specifierProblem("./local.ts")).toBeNull();
     expect(specifierProblem("@/lib/utils")?.code).toBe("JS_ALIAS_IMPORT");
     expect(specifierProblem("next")?.code).toBe("JS_NEXT_IMPORT");
+  });
+});
+
+describe("paths stay inside source/", () => {
+  it("allows relative paths that stay in source/, from any depth", () => {
+    expect(pathProblem("../b.ts", "source/parts/a.ts")).toBeNull();
+    expect(pathProblem("./index.ts?raw", "source/entry.ts")).toBeNull();
+    expect(pathProblem(".", "source/entry.ts")).toBeNull();
+    expect(pathProblem("react", "source/entry.ts")).toBeNull();
+    expect(pathProblem("https://example.com/a.js", "source/entry.ts")).toBeNull();
+  });
+
+  it("refuses absolute paths and paths that leave source/", () => {
+    expect(pathProblem("../../b.ts", "source/parts/a.ts")?.message).toMatch(/leaves source\//);
+    expect(pathProblem("!../secret/*.ts", "source/entry.ts")?.message).toMatch(/leaves source\//);
+    expect(pathProblem("C:\\kit\\x.ts", "source/entry.ts")?.message).toMatch(/absolute path/);
   });
 });
 

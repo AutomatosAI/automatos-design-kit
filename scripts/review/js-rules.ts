@@ -5,13 +5,16 @@
  * new Function, import() of URLs (or of a computed specifier), postMessage, created <script> or
  * <iframe>, navigator.serviceWorker, window.open, writes to location, computed globalThis/window
  * property access, `@/` and `next/*` imports, imports the host can't serve (sonner, a second
- * React; the vite-preset's own refusals), bundled React, and obfuscated or minified-only source.
+ * React; the vite-preset's own refusals), absolute paths and relative paths that leave source/ (in
+ * imports, import(), import.meta.glob and `new URL(..., import.meta.url)`; the vite-preset's source
+ * guard refuses the same in the build), bundled React, and obfuscated or minified-only source.
  *
  * This is a lint for honest authors, by design: it reads the text, comments and strings included,
  * and can be bypassed (`globalThis['fe' + 'tch']` is caught, other spellings may not be). The
  * person who reviews every version is the control. A finding in a comment is still reported;
  * the reviewer reads the line.
  */
+import { posix } from 'node:path'
 import { importRefusal, isSharedModule } from '@automatos/vite-preset'
 
 export interface JsFinding {
@@ -66,6 +69,14 @@ const STATIC_SPECIFIER = /\b(?:from|import|require)\s*\(?\s*(['"])([^'"\n]+)\1/g
 /** Every `import(`; group 2 is the specifier when it is a literal. */
 const DYNAMIC_IMPORT = /\bimport\s*\(\s*(?:(['"\x60])([^'"\x60\n]*)\1)?/g
 const URL_LIKE = /^(?:[A-Za-z][A-Za-z0-9+.-]*:|\/\/)/
+/** `new URL('<path>', import.meta.url)`: the path is group 2. */
+const ASSET_URL = /\bnew\s+URL\s*\(\s*(['"\x60])([^'"\x60\n]+)\1\s*,\s*import\.meta\.url\b/g
+/** `import.meta.glob(<pattern or [patterns]>`: group 1 is the pattern argument. */
+const GLOB_CALL = /\bimport\.meta\.glob\s*(?:<[^>()]*>)?\s*\(\s*(\[[^\]]*\]|(['"\x60])[^'"\x60\n]*\2)/g
+const QUOTED = /(['"\x60])([^'"\x60\n]*)\1/g
+const ABSOLUTE_PATH = /^(?:\/|file:|[A-Za-z]:[\\/])/i
+const RELATIVE_PATH = /^\.\.?(?:\/|$)/
+const SOURCE_ROOT = SOURCE_PREFIX.slice(0, -1)
 const OBFUSCATED_NAME = /\b_0x[0-9a-fA-F]{4,}\b/
 const ESCAPE = /\\x[0-9a-fA-F]{2}|\\u[0-9a-fA-F]{4}/g
 
@@ -128,6 +139,49 @@ function importFindings(source: SourceText): JsFinding[] {
   })
 }
 
+/** Why the file at `from` may not refer to `specifier` by path, or null: absolute, or leaving source/. */
+export function pathProblem(specifier: string, from: string): { code: string; message: string } | null {
+  const path = specifier.replace(/^!/, '').replace(/[?#].*$/s, '')
+  if (ABSOLUTE_PATH.test(path)) {
+    return { code: 'JS_PATH_IMPORT', message: `refers to "${excerptOf(path)}", an absolute path: refer to files under source/ by a relative path.` }
+  }
+  if (!RELATIVE_PATH.test(path)) return null
+  const target = posix.normalize(posix.join(posix.dirname(from), path))
+  if (target === SOURCE_ROOT || target.startsWith(SOURCE_PREFIX)) return null
+  return { code: 'JS_PATH_IMPORT', message: `refers to "${excerptOf(path)}", which leaves source/: a theme builds from its own source only.` }
+}
+
+interface Reference {
+  readonly offset: number
+  readonly specifier: string
+}
+
+function references(text: string, pattern: RegExp, group: number, keep: (match: RegExpMatchArray) => boolean = () => true): Reference[] {
+  return Array.from(text.matchAll(pattern)).flatMap((match) => (
+    match[group] !== undefined && keep(match) ? [{ offset: match.index ?? 0, specifier: match[group] }] : []
+  ))
+}
+
+/** Every path a script refers to: imports, require(), template import(), import.meta.glob, new URL. */
+function pathReferences(text: string): Reference[] {
+  const globs = Array.from(text.matchAll(GLOB_CALL)).flatMap((match) => (
+    references(match[1], QUOTED, 2).map((item) => ({ offset: match.index ?? 0, specifier: item.specifier }))
+  ))
+  return [
+    ...references(text, STATIC_SPECIFIER, 2),
+    ...references(text, DYNAMIC_IMPORT, 2, (match) => match[1] === '\x60'),
+    ...references(text, ASSET_URL, 2),
+    ...globs,
+  ]
+}
+
+function pathFindings(source: SourceText): JsFinding[] {
+  return pathReferences(source.text).flatMap(({ offset, specifier }) => {
+    const problem = pathProblem(specifier, source.path)
+    return problem === null ? [] : [finding(source, offset, problem.code, problem.message)]
+  })
+}
+
 /** import() of a relative path or a shared module is fine; of a URL or a computed value it is not. */
 function dynamicImportFindings(source: SourceText): JsFinding[] {
   return Array.from(source.text.matchAll(DYNAMIC_IMPORT)).flatMap((match) => {
@@ -162,7 +216,13 @@ function shapeFindings(source: SourceText): JsFinding[] {
 /** Every JS-rule finding in one source file. */
 export function fileFindings(path: string, text: string): JsFinding[] {
   const source: SourceText = { path, text, lines: text.split('\n'), starts: lineStarts(text) }
-  const found = [...ruleFindings(source), ...importFindings(source), ...dynamicImportFindings(source), ...shapeFindings(source)]
+  const found = [
+    ...ruleFindings(source),
+    ...importFindings(source),
+    ...pathFindings(source),
+    ...dynamicImportFindings(source),
+    ...shapeFindings(source),
+  ]
   return found.sort((a, b) => a.line - b.line || (a.code < b.code ? -1 : a.code > b.code ? 1 : 0))
 }
 

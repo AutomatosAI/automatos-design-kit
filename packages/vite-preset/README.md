@@ -33,4 +33,11 @@ export default defineConfig({ plugins: [automatosTheme()] })
 
 CSS modules are named `<htmlClass>-[local]-[hash]`, which keeps their keyframes inside the theme's names.
 
+Only the theme's own `src/` goes into the build (`src/source-guard.ts`). The build fails on a module from anywhere
+else (a relative import that climbs out of `src/`, an absolute path, an `import.meta.glob` match outside it, a
+package from `node_modules`), on a `new URL('…', import.meta.url)` or a CSS `url()`, `@import`, `image-set()` or
+`composes … from` that is absolute or leaves `src/`, and on a run-time import that is not one of the host's shared
+modules. The entry must sit under `src/`. The Marketplace review rebuilds a package's `source/` with this guard, so
+a theme that builds for its author builds in the review.
+
 Then pack the theme with `automatos-theme pack` (`packages/theme-cli`).

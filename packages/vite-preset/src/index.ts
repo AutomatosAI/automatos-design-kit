@@ -5,23 +5,26 @@
  * The build is an ES library: `dist/entry.js` (plus `dist/chunks/*.js` for lazy imports) with the
  * import map's modules left as imports, and one stylesheet, `dist/theme.css`, wrapped under the
  * theme's class and checked as the server checks it. `htmlClass` comes from the theme's
- * `theme.json` unless given. Then `automatos-theme pack` (packages/theme-cli) zips the package.
+ * `theme.json` unless given. Only files under the theme's `src/` go into the build (source-guard.ts).
+ * Then `automatos-theme pack` (packages/theme-cli) zips the package.
  */
 import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import type { Plugin, UserConfig } from 'vite'
 import { cssScopeErrors, STYLE_PATH, type ThemeError } from './css-scope.ts'
 import { importRefusal, isSharedModule } from './imports.ts'
+import { sourceGuard } from './source-guard.ts'
 import { checkedOptions, transformThemeCss, type WrapForm } from './theme-css.ts'
 
 export { cssScopeErrors, CSS_ERROR_CODES, STYLE_PATH, type ThemeError } from './css-scope.ts'
 export { importRefusal, isSharedModule, SHARED_MODULES } from './imports.ts'
+export { isInsideSource, moduleProblem, referenceProblem, sourceGuard, sourceTree, SOURCE_DIR, type SourceTree } from './source-guard.ts'
 export { themeCssPlugin, transformThemeCss, wrapSelector, type ThemeCssOptions, type WrapForm } from './theme-css.ts'
 
 export interface ThemePresetOptions {
   /** The theme's class on <html>; read from theme.json in the project root when left out. */
   readonly htmlClass?: string
-  /** The entry module, relative to the project root. Default `src/entry.ts`. */
+  /** The entry module, relative to the project root and under its `src/`. Default `src/entry.ts`. */
   readonly entry?: string
   /** 'html' (default): rules under html.<htmlClass>. 'where': under :where(html.<htmlClass>). */
   readonly wrap?: WrapForm
@@ -162,9 +165,10 @@ export function automatosTheme(options: ThemePresetOptions = {}): Plugin[] {
       const root = resolve(userConfig.root ?? process.cwd())
       const settings = settingsFor(options, root)
       state.settings = settings
-      return presetConfig(options, root, settings.htmlClass)
+      // A worker is bundled on its own: give it the same guards on imports and on the source tree.
+      return { ...presetConfig(options, root, settings.htmlClass), worker: { plugins: () => [importGuard(), sourceGuard()] } }
     },
   }
-  return [config, importGuard(), styleScope(state)]
+  return [config, importGuard(), sourceGuard(), styleScope(state)]
 }
 

@@ -150,3 +150,38 @@ describe('a theme built with the preset', () => {
     await expect(buildTheme({ ...HELLO, 'theme.json': '{}' })).rejects.toThrow(/htmlClass/)
   })
 })
+
+describe('a theme reaching outside its src/', () => {
+  const LOGO = '<svg xmlns="http://www.w3.org/2000/svg"/>'
+  const withEntry = (head: string): string => `${head}\n${ENTRY}`
+
+  it.each<[string, Files]>([
+    ['a relative import', { 'outside.js': 'export const secret = 1\n', 'src/entry.js': withEntry("import { secret } from '../outside.js'\nexport { secret }") }],
+    ['an import.meta.glob match', { 'looks/a.json': '{"a":1}', 'src/entry.js': withEntry("export const looks = import.meta.glob('../looks/*.json', { eager: true })") }],
+    ['a new URL(..., import.meta.url) asset', { 'logo.svg': LOGO, 'src/entry.js': withEntry("export const logo = new URL('../logo.svg', import.meta.url)") }],
+    ['a CSS url()', { 'logo.svg': LOGO, 'src/theme.css': `${GLOBAL_CSS}.hello-bar { background: url('../logo.svg'); }\n` }],
+    ['a CSS url() in an imported stylesheet', {
+      'logo.svg': LOGO,
+      'src/parts/more.css': ".hello-more { background: url('../../logo.svg'); }\n",
+      'src/theme.css': `@import './parts/more.css';\n${GLOBAL_CSS}`,
+    }],
+  ])('does not build with %s', async (_name, extra) => {
+    await expect(buildTheme({ ...HELLO, ...extra })).rejects.toThrow(/outside the theme's src\//)
+  })
+
+  it('does not build with an absolute import', async () => {
+    const elsewhere = themeFolder({ 'secret.js': 'export const secret = 1\n' })
+    const entry = withEntry(`import { secret } from ${JSON.stringify(join(elsewhere, 'secret.js'))}\nexport { secret }`)
+    await expect(buildTheme({ ...HELLO, 'src/entry.js': entry })).rejects.toThrow(/outside the theme's src\//)
+  })
+
+  it('builds when globs and assets stay under src/, inlining the asset', async () => {
+    const entry = withEntry([
+      "export const looks = import.meta.glob('./looks/*.json', { eager: true })",
+      "export const logo = new URL('./logo.svg', import.meta.url)",
+    ].join('\n'))
+    const built = await buildTheme({ ...HELLO, 'src/entry.js': entry, 'src/looks/a.json': '{"a":1}', 'src/logo.svg': LOGO })
+    expect(built.files).toEqual(['entry.js', 'theme.css'])
+    expect(built.entry).toContain('data:image/svg+xml')
+  })
+})
