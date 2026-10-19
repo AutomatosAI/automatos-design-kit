@@ -1,0 +1,91 @@
+name: Theme review
+
+# PRD-261 C-02b (D3, 19 Oct): the isolated review of one Marketplace theme version, run by the
+# person reviewing it. It downloads the package, installs the kit from its lockfile with install
+# scripts off, then does everything that touches the submission inside `docker run --network none`:
+# a no-network probe, core's package checks (the kit's port), the digest against the one the admin
+# queue shows, the JS rules on source/, and the reproducible build of source/ with the kit's own
+# vite-preset. The job summary holds the text the reviewer pastes into the admin queue's report
+# note (POST /api/admin/themes/{id}/report-note) with its outcome. The orchestrator never runs
+# this job and never calls GitHub. No secrets, and the token has no permissions.
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_url:
+        description: "HTTPS URL of the version's .autotheme package"
+        required: true
+        type: string
+      expected_digest:
+        description: "The package digest the admin queue shows for the version (64 hex characters)"
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  # The container the submission is handled in. Node 22.18+ runs the kit's TypeScript directly.
+  REVIEW_IMAGE: node:22.18.0-bookworm-slim
+
+jobs:
+  review:
+    name: Review a theme version (no network, no secrets)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the kit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      # Same npm pin as kit.yml (npm/cli#9787).
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
+      # The inputs reach the shell through env only, never pasted into the script.
+      - name: Download the package
+        env:
+          PACKAGE_URL: ${{ inputs.package_url }}
+          EXPECTED_DIGEST: ${{ inputs.expected_digest }}
+        run: |
+          case "$PACKAGE_URL" in https://*) ;; *) echo "::error::package_url must be an https:// URL"; exit 1;; esac
+          if ! printf '%s' "$EXPECTED_DIGEST" | grep -Eqx '[0-9a-f]{64}'; then
+            echo "::error::expected_digest must be 64 lower-case hex characters"; exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/review"
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+            --max-filesize 10485760 --max-time 120 \
+            --output "$RUNNER_TEMP/review/package.autotheme" "$PACKAGE_URL"
+          sha256sum "$RUNNER_TEMP/review/package.autotheme"
+
+      - name: Pull the review image
+        run: docker pull "$REVIEW_IMAGE"
+
+      # The kit's own dependencies, exactly as package-lock.json records them, with no install
+      # scripts. Nothing from the submission is read before or during this step.
+      - name: Install the kit (from the lockfile)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # Everything after the install runs in a container with no network: the kit read-only, a
+      # work folder for the package and the rebuild, and the job summary file. No token, no secret.
+      - name: Review (no network)
+        env:
+          EXPECTED_DIGEST: ${{ inputs.expected_digest }}
+          KIT_COMMIT: ${{ github.sha }}
+        run: |
+          touch "$GITHUB_STEP_SUMMARY"
+          docker run --rm --network none \
+            --user "$(id -u):$(id -g)" --cap-drop ALL --security-opt no-new-privileges \
+            --memory 4g --pids-limit 512 \
+            -e HOME=/tmp -e EXPECTED_DIGEST -e KIT_COMMIT \
+            -e REVIEW_PACKAGE=/review/package.autotheme -e REVIEW_WORK=/review/work \
+            -e REVIEW_SUMMARY=/review-summary.md \
+            -v "$GITHUB_WORKSPACE:/kit:ro" -v "$RUNNER_TEMP/review:/review" \
+            -v "$GITHUB_STEP_SUMMARY:/review-summary.md" \
+            -w /kit "$REVIEW_IMAGE" node scripts/review/main.ts

@@ -34,7 +34,26 @@ core wins and the kit is fixed.
 
 - A workspace with `*.test.ts` files defines `test` (vitest); one with a `tsconfig.json` defines `typecheck`.
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
-- `tests/` at the root checks this contract (workspaces, exact pins, the workflow).
+- `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the review and
+  sign scripts under `scripts/`.
+
+## Marketplace review and signing (person-run, PRD-261 C-02b and C-03a)
+
+Two `workflow_dispatch` workflows a person runs from the Actions tab; core never calls GitHub.
+
+- `theme-review.yml` (inputs: the package's https URL and the digest the admin queue shows): no
+  permissions, no secrets; downloads the package, installs the kit with `npm ci --ignore-scripts`,
+  then runs `scripts/review/main.ts` in `docker run --network none`: a no-network probe, the
+  package checks, the digest, the JS rules on `source/` and the reproducible build. The job summary
+  holds the text the reviewer pastes into the admin queue's report note, with its outcome.
+- A Marketplace package ships `source/`: the theme's `src/` exactly as built (`source/entry.ts` is
+  `src/entry.ts`). The review rebuilds it with this kit's preset and lockfile, from the theme folder,
+  and the dist/ must match byte for byte.
+- `theme-sign.yml` (input: the signature request JSON from the admin queue): installs nothing; its one
+  `Sign` step reads the `THEME_SIGNING_KEY` secret (Ed25519, PKCS#8 PEM) and prints the base64
+  signature over the canonical JSON of `{id, version, digest, files}` (`scripts/sign/`), which the
+  person pastes into the admin queue. It refuses when the secret is absent. No other workflow may
+  name that secret; the root tests enforce both workflows' shape.
 
 ## Rules
 
