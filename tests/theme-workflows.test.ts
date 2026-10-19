@@ -152,6 +152,12 @@ describe("theme-sign.yml (C-03a signing step)", () => {
     expect(text).toMatch(/^ {4}environment: theme-signing$/m);
   });
 
+  it("documents that the theme-signing environment also needs required reviewers, self-review prevented", () => {
+    expect(text).toMatch(/^# .*must ALSO have$/m);
+    expect(text).toMatch(/required reviewers/);
+    expect(text).toMatch(/Prevent self-review/);
+  });
+
   it("reads THEME_SIGNING_KEY and no other secret, once, in the signing step's env", () => {
     expect(text.match(/\bsecrets\.[A-Za-z0-9_]+/g)).toEqual([SIGNING_SECRET]);
     const holders = steps.filter((step) => step.body.includes(SIGNING_SECRET));

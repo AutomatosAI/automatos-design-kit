@@ -49,11 +49,16 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
 - A Marketplace package ships `source/`: the theme's `src/` exactly as built (`source/entry.ts` is
   `src/entry.ts`). The review rebuilds it with this kit's preset and lockfile, from the theme folder,
   and the dist/ must match byte for byte.
-- `theme-sign.yml` (input: the signature request JSON from the admin queue): installs nothing; its one
-  `Sign` step reads the `THEME_SIGNING_KEY` secret (Ed25519, PKCS#8 PEM) and prints the base64
-  signature over the canonical JSON of `{id, version, digest, files}` (`scripts/sign/`), which the
-  person pastes into the admin queue. It refuses when the secret is absent. No other workflow may
-  name that secret; the root tests enforce both workflows' shape.
+- `theme-sign.yml` (input: the whole signature request JSON from the admin queue, `requestId` included):
+  installs nothing; its one `Sign` step reads the `THEME_SIGNING_KEY` secret (Ed25519, PKCS#8 PEM) and
+  prints the request id and the base64 signature over the canonical JSON of `{id, version, digest,
+  files}` (`scripts/sign/`; core's signed form, which keeps `requestId` outside the signed text), which
+  the person pastes into the admin queue. It refuses when the secret is absent, when id or version
+  break core's manifest patterns, and when any printed line would hold a line break or `::`. The
+  `theme-signing` environment allows main only and has required reviewers (the named signers, self-review
+  prevented). No other workflow may name that secret; the root tests enforce both workflows' shape.
+- The vite-preset builds only from the theme's `src/` (its source guard), and the JS rules refuse paths
+  that leave `source/`, so the reproducible build can't pull in files from outside the package.
 
 ## Rules
 

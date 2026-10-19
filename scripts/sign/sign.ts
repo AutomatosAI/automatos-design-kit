@@ -17,7 +17,8 @@ export const SIGNATURE_ALGORITHM = 'ed25519'
 const SIGNATURE_BYTES = 64
 
 export interface Signed {
-  readonly requestId: string | null
+  /** The admin queue's request id, pasted back with the signature; it is not part of the signed text. */
+  readonly requestId: string
   readonly id: string
   readonly version: string
   readonly digest: string
@@ -82,12 +83,12 @@ export function signedReport(signed: Signed): string[] {
   return [
     `Theme: ${signed.id} ${signed.version}`,
     `Digest: ${signed.digest}`,
-    `Request id: ${signed.requestId ?? '(not given: paste the payload with the request id the approval showed)'}`,
+    `Request id: ${signed.requestId}`,
     `Payload sha256: ${signed.payloadSha256}`,
     `Algorithm: ${signed.algorithm} (${signed.form})`,
     `Public key (SPKI, base64): ${signed.publicKey}`,
     '',
-    'Signature (paste this into the admin queue):',
+    'Signature (paste this into the admin queue with the request id above):',
     signed.signature,
   ]
 }

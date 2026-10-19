@@ -1,9 +1,12 @@
 name: Theme sign
 
 # PRD-261 C-03a (D3-c, 19 Oct): signs an approved Marketplace theme version. Approving a version in
-# the admin queue records a signature request; a person runs this workflow with the request's
-# payload {id, version, digest, files} (or the whole request the queue shows), then pastes the
-# printed signature into the admin queue (POST /api/admin/themes/{id}/signature). The Ed25519 key
+# the admin queue records a signature request; a person runs this workflow with the whole request
+# the queue shows ({requestId, payload, payloadSha256, canonical, ...}; payload is {id, version,
+# digest, files}, and only the payload is signed, as core's signing.py signs it), then pastes the
+# printed request id and signature into the admin queue (POST /api/admin/themes/{id}/signature).
+# The script refuses an id or version outside core's manifest patterns, a requestId that isn't a
+# UUID, and any output line holding a line break or "::". The Ed25519 key
 # is THEME_SIGNING_KEY, an ENVIRONMENT secret of the 'theme-signing' environment, read by the one
 # signing step and nowhere else; it is never on the orchestrator. Nothing is installed: no package
 # from npm runs next to the key. Verifying signatures is C-05, after WebSummit.
@@ -12,12 +15,16 @@ name: Theme sign
 # So the job runs only on main, and the key lives in the 'theme-signing' environment, whose
 # deployment-branch rule must allow main only (Settings > Environments > theme-signing).
 # GitHub then releases the secret to main's own code and to nothing else.
+#
+# The branch rule alone lets anyone who can run workflows sign. So 'theme-signing' must ALSO have
+# required reviewers: the named signers only, with "Prevent self-review" on, so the person who
+# starts a run can't approve its use of the key. Each run then waits for a second signer.
 
 on:
   workflow_dispatch:
     inputs:
       request:
-        description: "The signature request JSON from the admin queue: {id, version, digest, files}"
+        description: "The whole signature request JSON from the admin queue: {requestId, payload, payloadSha256, canonical, ...}"
         required: true
         type: string
 
