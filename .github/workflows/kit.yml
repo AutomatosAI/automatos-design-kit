@@ -32,6 +32,11 @@ jobs:
           node-version: "22"
           package-manager-cache: false
 
+      # npm 10 (Node 22's bundled npm) crashes resolving optional peers such as vitest 5's with
+      # "Cannot read properties of null (reading 'edgesOut')" (npm/cli#9787); fixed in 11.6.0.
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
       # No lockfile yet: every dependency is pinned exactly in package.json. This run
       # uploads the lockfile npm resolved; the next change commits it and switches
       # this step to npm ci.

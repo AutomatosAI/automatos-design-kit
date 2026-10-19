@@ -71,6 +71,9 @@ function localPackageNames(): Set<string> {
   return new Set(names.filter((name): name is string => typeof name === "string"));
 }
 
+// npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
+const PIN_NPM = "npm install -g npm@11.21.1";
+
 // The `run:` commands of the workflow, in file order.
 function workflowRuns(text: string): string[] {
   return text
@@ -196,17 +199,18 @@ describe("kit workflow", () => {
     expect(uses.filter((line) => !PINNED_ACTION.test(line))).toEqual([]);
   });
 
-  it("installs first, then runs every root script", () => {
+  it("pins npm, installs, then runs every root script", () => {
     const expected = ["npm run build", "npm run lint", "npm run typecheck", "npm test", "npm run pack"];
-    expect(runs.slice(1)).toEqual(expected);
+    expect(runs[0]).toBe(PIN_NPM);
+    expect(runs.slice(2)).toEqual(expected);
   });
 
   it("installs from the lockfile once it is committed, otherwise uploads the resolved one", () => {
     if (existsSync(join(ROOT, LOCKFILE))) {
-      expect(runs[0]).toBe("npm ci --no-audit --no-fund");
+      expect(runs[1]).toBe("npm ci --no-audit --no-fund");
       return;
     }
-    expect(runs[0]).toBe("npm install --no-audit --no-fund");
+    expect(runs[1]).toBe("npm install --no-audit --no-fund");
     expect(text).toMatch(/name: kit-lockfile\n\s+path: package-lock\.json\n\s+if-no-files-found: error/);
   });
 });
