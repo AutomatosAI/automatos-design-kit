@@ -1,0 +1,31 @@
+{
+  "name": "automatos-play",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Design kit for Automatos themes: build preset, theme CLI and theme packages.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0",
+    "npm": ">=11.6.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "themes/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspaces --if-present",
+    "test": "vitest run --config vitest.kit.config.ts && npm run test --workspaces --if-present",
+    "pack": "npm run pack --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "postcss": "8.5.31",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.4"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@automatos/theme-cli",
+  "version": "0.1.0",
+  "description": "The automatos-theme command: pack a built theme into a .autotheme package that the Automatos server accepts.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "automatos-theme": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/pack.ts",
+    "./check": "./src/check-package.ts",
+    "./zip": "./src/zip.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "pack": "node src/cli.ts pack test/fixtures/core/hello --out out"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@automatos/vite-preset": "0.1.0"
+  }
+}

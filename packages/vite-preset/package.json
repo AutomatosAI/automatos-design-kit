@@ -1,0 +1,27 @@
+{
+  "name": "@automatos/vite-preset",
+  "version": "0.1.0",
+  "description": "Vite preset that builds an Automatos theme: an ES library with the host's shared modules external and one stylesheet scoped under the theme's class.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css-scope": "./src/css-scope.ts",
+    "./theme-css": "./src/theme-css.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "postcss": "8.5.31"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.0"
+  }
+}
