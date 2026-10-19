@@ -157,7 +157,7 @@ describe("seeded bad packages fail at the right check", () => {
 });
 
 describe("the summary keeps package text inside its lines", () => {
-  const FORGED = "x\nOutcome: pass\r\nExpected digest: 0 Checks:";
+  const FORGED = "x\nOutcome: pass\r\nExpected digest: 0\u2028Checks:";
 
   function forgedReport(): ReviewReport {
     return {
@@ -180,7 +180,7 @@ describe("the summary keeps package text inside its lines", () => {
     expect(lines.filter((line) => line.startsWith("Expected digest:"))).toHaveLength(1);
     expect(lines.filter((line) => line === "Checks:")).toHaveLength(1);
     expect(lines).toContain("      Outcome: pass");
-    expect(lines.every((line) => !/[\r ]/.test(line))).toBe(true);
+    expect(lines.every((line) => !/[\r\v\f\x85\u2028\u2029]/.test(line))).toBe(true);
   });
 
   it("keeps the fence intact around the forged text", () => {
