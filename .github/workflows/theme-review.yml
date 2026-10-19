@@ -50,6 +50,7 @@ jobs:
 
       # The inputs reach the shell through env only, never pasted into the script.
       - name: Download the package
+        shell: bash
         env:
           PACKAGE_URL: ${{ inputs.package_url }}
           EXPECTED_DIGEST: ${{ inputs.expected_digest }}
@@ -59,10 +60,23 @@ jobs:
             echo "::error::expected_digest must be 64 lower-case hex characters"; exit 1
           fi
           mkdir -p "$RUNNER_TEMP/review"
+          pkg="$RUNNER_TEMP/review/package.autotheme"
+          max_bytes=10485760
+          # --max-filesize alone does not bind a response with no Content-Length on every curl,
+          # so `head` caps what reaches the disk at one byte over the limit, whatever the server sends.
+          set +e
           curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-            --max-filesize 10485760 --max-time 120 \
-            --output "$RUNNER_TEMP/review/package.autotheme" "$PACKAGE_URL"
-          sha256sum "$RUNNER_TEMP/review/package.autotheme"
+            --max-filesize "$max_bytes" --max-time 120 "$PACKAGE_URL" | head -c "$((max_bytes + 1))" > "$pkg"
+          codes=("${PIPESTATUS[@]}")
+          set -e
+          size=$(stat -c %s "$pkg")
+          if [ "$size" -gt "$max_bytes" ] || [ "${codes[0]}" -eq 63 ]; then
+            echo "::error::The package is larger than 10 MiB"; exit 1
+          fi
+          if [ "${codes[0]}" -ne 0 ] || [ "${codes[1]}" -ne 0 ]; then
+            echo "::error::The package download failed (curl exit ${codes[0]})"; exit 1
+          fi
+          sha256sum "$pkg"
 
       - name: Pull the review image
         run: docker pull "$REVIEW_IMAGE"
