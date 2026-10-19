@@ -4,7 +4,7 @@
  * A port of `FILE_KINDS`, the caps and the byte sniffers of core's
  * orchestrator/services/themes/package.py (and `check_woff2` of
  * orchestrator/modules/documents/brand_fonts.py). Each path matches at most one kind; a path that
- * matches none can't be in a package. The caps are the server's defaults (PRD-261 Q25, D1):
+ * matches none can't be in a package. The caps are the server's default caps:
  * package 10 MB, JS plus CSS 3 MB, the entry 300 KB, each mascot clip 1 MB.
  */
 

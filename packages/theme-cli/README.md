@@ -17,5 +17,5 @@ When the server would refuse the theme, `pack` writes nothing, prints every reas
 zip reader (`src/members.ts`, `src/check-package.ts`) and CSS scope check (`@automatos/vite-preset/css-scope`).
 Core's shared test corpus holds all of them to the server's verdicts (`test/core-corpus.test.ts`).
 
-Node 22.18 or later runs the TypeScript sources directly (type stripping): `npm run pack:hello` packs core's hello
+Node 22.18 or later runs the TypeScript sources directly (type stripping): `npm run pack` packs core's hello
 test theme into `out/`.

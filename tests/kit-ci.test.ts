@@ -163,6 +163,22 @@ describe("TypeScript configs", () => {
   it("the root config extends the base", () => {
     expect(readJson<{ extends?: string }>("tsconfig.json").extends).toBe("./tsconfig.base.json");
   });
+
+  // A theme that extends the base must be able to typecheck the preset's .ts sources.
+  it("the base config allows .ts import paths, without emitting", () => {
+    const base = readJson<{ compilerOptions: Record<string, unknown> }>("tsconfig.base.json");
+    expect(base.compilerOptions.allowImportingTsExtensions).toBe(true);
+    expect(base.compilerOptions.noEmit).toBe(true);
+    expect(base.compilerOptions.verbatimModuleSyntax).toBe(true);
+  });
+
+  const workspaceConfigs = workspaceManifests()
+    .map((rel) => rel.replace(/package\.json$/, "tsconfig.json"))
+    .filter((rel) => existsSync(join(ROOT, rel)));
+
+  it.each(workspaceConfigs)("%s extends the base", (rel) => {
+    expect(readJson<{ extends?: string }>(rel).extends).toBe("../../tsconfig.base.json");
+  });
 });
 
 describe("kit workflow", () => {

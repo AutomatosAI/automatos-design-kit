@@ -17,15 +17,12 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "pack:hello": "node src/cli.ts pack test/fixtures/core/hello --out out"
+    "pack": "node src/cli.ts pack test/fixtures/core/hello --out out"
   },
   "engines": {
     "node": ">=22.18.0"
   },
   "dependencies": {
     "@automatos/vite-preset": "0.1.0"
-  },
-  "devDependencies": {
-    "@types/node": "24.19.2"
   }
 }

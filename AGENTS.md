@@ -15,8 +15,8 @@ core wins and the kit is fixed.
 - CSS: every rule sits under `html.<htmlClass>` (or `:where(html.<htmlClass>)`); no `!important`, no
   `@import`, no selector naming `data-protected-surface`; every `@keyframes` name and `@font-face`
   family starts with `<htmlClass>-`.
-- Modules: `react`, `react-dom`, `react/jsx-runtime` and `@automatos/theme-sdk` come from the host's
-  import map and stay external. Nothing else is external.
+- Modules: `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client` and `@automatos/theme-sdk` come
+  from the host's import map and stay external. Nothing else is external.
 - SDK types: `@automatos/theme-sdk` declarations are vendored from core's `frontend/packages/theme-sdk`,
   by version.
 

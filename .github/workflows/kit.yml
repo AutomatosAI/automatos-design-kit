@@ -69,4 +69,4 @@ jobs:
           path: |
             **/*.autotheme*
             !**/node_modules/**
-          if-no-files-found: warn
+          if-no-files-found: error

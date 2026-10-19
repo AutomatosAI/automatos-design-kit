@@ -23,8 +23,5 @@
   },
   "peerDependencies": {
     "vite": "^8.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "24.19.2"
   }
 }

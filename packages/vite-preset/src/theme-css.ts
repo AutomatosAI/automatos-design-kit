@@ -2,8 +2,8 @@
  * The PostCSS step that puts a theme's whole stylesheet under its own class on <html>.
  *
  * Every top-level rule (and every rule inside @media, @supports, @layer or @container) gets the
- * wrap in front of each selector: `html.<htmlClass>` by default (specificity 0,1,1, PRD-261's D2-c
- * answer), or `:where(html.<htmlClass>)` (specificity 0) when `wrap: 'where'`. A selector that is
+ * wrap in front of each selector: `html.<htmlClass>` by default (specificity 0,1,1), or
+ * `:where(html.<htmlClass>)` (specificity 0) when `wrap: 'where'`. A selector that is
  * already under the wrap is left as it is; a leading `:root` or `html` becomes the wrap itself,
  * so `:root { --x: 1 }` styles `html.<htmlClass>`. Rules nested in a rule and keyframe steps are
  * not wrapped (their parent already is). Keyframes names and font families are renamed to
