@@ -4,9 +4,14 @@ name: Theme sign
 # the admin queue records a signature request; a person runs this workflow with the request's
 # payload {id, version, digest, files} (or the whole request the queue shows), then pastes the
 # printed signature into the admin queue (POST /api/admin/themes/{id}/signature). The Ed25519 key
-# is this repository's THEME_SIGNING_KEY secret, read by the one signing step and nowhere else; it
-# is never on the orchestrator. Nothing is installed: no package from npm runs next to the key.
-# Verifying signatures is C-05, after WebSummit.
+# is THEME_SIGNING_KEY, an ENVIRONMENT secret of the 'theme-signing' environment, read by the one
+# signing step and nowhere else; it is never on the orchestrator. Nothing is installed: no package
+# from npm runs next to the key. Verifying signatures is C-05, after WebSummit.
+#
+# workflow_dispatch can be started on any branch, and a branch could change scripts/sign/cli.ts.
+# So the job runs only on main, and the key lives in the 'theme-signing' environment, whose
+# deployment-branch rule must allow main only (Settings > Environments > theme-signing).
+# GitHub then releases the secret to main's own code and to nothing else.
 
 on:
   workflow_dispatch:
@@ -25,6 +30,8 @@ concurrency:
 jobs:
   sign:
     name: Sign a theme version
+    if: github.ref == 'refs/heads/main'
+    environment: theme-signing
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

@@ -147,6 +147,11 @@ describe("theme-sign.yml (C-03a signing step)", () => {
     expect(text.match(/^\s*permissions:/gm)).toHaveLength(1);
   });
 
+  it("runs only on main, in the theme-signing environment that holds the key", () => {
+    expect(text).toMatch(/^ {4}if: github\.ref == 'refs\/heads\/main'$/m);
+    expect(text).toMatch(/^ {4}environment: theme-signing$/m);
+  });
+
   it("reads THEME_SIGNING_KEY and no other secret, once, in the signing step's env", () => {
     expect(text.match(/\bsecrets\.[A-Za-z0-9_]+/g)).toEqual([SIGNING_SECRET]);
     const holders = steps.filter((step) => step.body.includes(SIGNING_SECRET));
