@@ -32,7 +32,8 @@ import { useMascotMotion } from './use-mascot-motion'
  * to play (playing={false}), he is his still and his ring stops (data-motion="still"),
  * so nothing of his moves without a control; he stays paused across a state change, a remount and a reload, in every
  * tab of this browser (lib/mascot/pause.ts). Under reduced motion he is the
- * same still, with no control, since nothing moves.
+ * same still, with no control, since nothing moves. Until the host can say
+ * whether he is paused (PRD-261 E3g) he is his still and the control is disabled.
  */
 
 export type AutoMascotSize = 'small' | 'regular' | 'large'
@@ -157,7 +158,7 @@ export function AutoMascot({
         </p>
       )}
       {pausable && (
-        <MascotPauseButton paused={motion.paused} onToggle={motion.togglePaused} />
+        <MascotPauseButton paused={motion.paused} disabled={!motion.ready} onToggle={motion.togglePaused} />
       )}
     </div>
   )

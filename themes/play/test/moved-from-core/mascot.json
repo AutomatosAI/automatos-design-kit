@@ -32,7 +32,7 @@
     "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
     "coreIts": 9,
     "kitPath": "test/mascot/auto-mascot-pause.test.tsx",
-    "kitIts": 9,
+    "kitIts": 10,
     "rehomed": [],
     "rewritten": "The pause is read and made through the SDK storage area (readThemeState, setMascotPaused) and another tab's through the stand-in's storage event, not through the automatos-play.mascot-paused key; Auto's files come from the SDK's assetUrl (assets/mascot/ under the package's files), not from /auto/."
   }

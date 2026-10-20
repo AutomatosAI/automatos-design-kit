@@ -4,7 +4,8 @@
 // made through the storage stand-in (test/storage-port.ts) and another tab's through its storage event,
 // and Auto's files come through the SDK's assetUrl from the package's assets/mascot/. It stops his loop
 // (his still shows, his ring stops), it survives a state change, a remount and another tab, and under the
-// OS reduced-motion setting he is the still with no control, since nothing moves. jsdom plays no media:
+// OS reduced-motion setting he is the still with no control, since nothing moves. Until the host can say
+// whether he is paused (E3g), he is the still and the control is disabled. jsdom plays no media:
 // play() is a mock that resolves. Roles, attributes and text only (CSS modules are proxies).
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -12,7 +13,7 @@ import { AutoMascot } from '../../src/components/mascot/auto-mascot.tsx'
 import { PAUSE_AUTO } from '../../src/components/mascot/mascot-pause-button.tsx'
 import { PAUSE_KEY, PAUSE_STATE, setMascotPaused } from '../../src/lib/mascot/pause.ts'
 import { CLIP_MS } from '../../src/lib/mascot/player.ts'
-import { changeInAnotherTab, readThemeState, resetStub, setFilesRoot } from '../sdk-stub.ts'
+import { changeInAnotherTab, readThemeState, resetStub, setFilesRoot, setStorage } from '../sdk-stub.ts'
 
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
@@ -61,6 +62,24 @@ describe('Pause Auto (F10, WCAG 2.2.2)', () => {
     expect(pauseButton()).toHaveAttribute('aria-pressed', 'false')
     expect(clips(container)).toHaveLength(1)
     expect(container.firstElementChild).not.toHaveAttribute('data-motion')
+  })
+
+  it('is disabled while the host cannot say whether he is paused, then enabled, and a press pauses him (E3g)', () => {
+    setStorage({ ready: false })
+    const { container } = render(<AutoMascot state="idle" />)
+    expect(pauseButton()).toBeDisabled()
+    expect(pauseButton()).toHaveAttribute('aria-pressed', 'false')
+    expect(clips(container)).toHaveLength(0)
+    expect(container.firstElementChild).toHaveAttribute('data-motion', 'still')
+    act(() => {
+      setStorage({ ready: true })
+    })
+    expect(pauseButton()).toBeEnabled()
+    expect(clips(container)).toHaveLength(1)
+    fireEvent.click(pauseButton())
+    expect(pauseButton()).toHaveAttribute('aria-pressed', 'true')
+    expect(clips(container)).toHaveLength(0)
+    expect(readThemeState(PAUSE_KEY, PAUSE_STATE)).toMatchObject({ ready: true, value: true })
   })
 
   it('stops the loop: his clip gives way to his still, his ring stops, nothing plays again, and the host keeps the pause', () => {
