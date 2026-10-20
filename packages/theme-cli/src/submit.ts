@@ -12,15 +12,21 @@
  * the environment gives (submit-target.ts) and prints the server's answer as it is.
  *
  * The token is never printed: every line this command writes passes through `redacting`.
+ * Before sending, the package's zip entries are read: a package with no source/ can't pass the
+ * Marketplace review (its reproducible-build check rebuilds dist/ from source/), so it is refused
+ * here with one line and nothing is sent (C-06p3). pack writes source/ from the theme folder's src/.
+ *
  * Exit code 0 when the server took the submission, 1 when it refused it or gave no answer, 2 for a
- * usage or environment problem (nothing was sent).
+ * usage or environment problem or a package refused before sending (nothing was sent).
  */
 import { readFileSync, statSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { redacting, type Output } from './output.ts'
-import { describeAnswer, describeNoAnswer, type ServerAnswer } from './submit-answer.ts'
+import { SOURCE_DIR, SOURCE_FOLDER } from './source.ts'
+import { describeAnswer, describeNoAnswer, plain, type ServerAnswer } from './submit-answer.ts'
 import { ENV_TOKEN, readTarget, requestHeaders, type Environment, type SubmitTarget } from './submit-target.ts'
+import { readZip } from './zip.ts'
 
 export const SUBMIT_USAGE = 'usage: automatos-theme submit <file.autotheme>'
 /** The review stage runs before the server answers, so the wait is long. */
@@ -60,6 +66,36 @@ function readPackage(path: string): Buffer | string {
   } catch {
     return `${path} can't be read.`
   }
+}
+
+const SOURCE_PREFIX = `${SOURCE_FOLDER}/`
+
+/** True when a member path is a file under source/ (a bare `source/` folder entry carries nothing). */
+function isSourceFile(path: string): boolean {
+  return path.startsWith(SOURCE_PREFIX) && path.length > SOURCE_PREFIX.length
+}
+
+type Members = { readonly ok: true; readonly paths: readonly string[] } | { readonly ok: false; readonly reason: string }
+
+/** The package's member paths, or why its zip can't be read. */
+function memberPaths(bytes: Buffer): Members {
+  try {
+    return { ok: true, paths: readZip(bytes).map((entry) => entry.path) }
+  } catch (error) {
+    return { ok: false, reason: error instanceof Error ? error.message : String(error) }
+  }
+}
+
+/** Why the package can't pass review and so is not sent, or null when it may be sent; always one line. */
+export function sourceProblem(fileName: string, bytes: Buffer): string | null {
+  const name = plain(fileName)
+  const members = memberPaths(bytes)
+  if (!members.ok) return `${name} can't be read as a package zip (${plain(members.reason)}): nothing was sent.`
+  if (members.paths.some(isSourceFile)) return null
+  return (
+    `${name} has no ${SOURCE_PREFIX}, so the Marketplace review can't rebuild it: nothing was sent. `
+    + `Pack it with automatos-theme pack from a theme folder with a ${SOURCE_DIR}/ and submit that package.`
+  )
 }
 
 async function postPackage(target: SubmitTarget, path: string, bytes: Buffer, fetchImpl: typeof fetch): Promise<ServerAnswer> {
@@ -112,6 +148,11 @@ export async function submitCommand(argv: readonly string[], output: Output, dep
   const bytes = readPackage(path)
   if (typeof bytes === 'string') {
     safe.err(bytes)
+    return EXIT_USAGE
+  }
+  const problem = sourceProblem(basename(path), bytes)
+  if (problem !== null) {
+    safe.err(problem)
     return EXIT_USAGE
   }
   return send(read.target, path, bytes, safe, deps.fetch)

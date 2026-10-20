@@ -4,6 +4,7 @@
  *
  * The answers are the shapes core's route and gates send at the pinned commit
  * (orchestrator/api/marketplace_themes_submit.py, core/auth/hybrid.py, core/auth/step_up.py).
+ * The package is a real zip with a source/ entry, since submit reads its entries before sending.
  */
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -13,12 +14,17 @@ import { run, USAGE } from '../src/cli-main.ts'
 import { SECRET_MASK } from '../src/output.ts'
 import { FORM_FIELD, SUBMIT_USAGE, submitCommand } from '../src/submit.ts'
 import { ENV_TOKEN, ENV_URL, ENV_WORKSPACE, SUBMIT_ROUTE, type Environment } from '../src/submit-target.ts'
+import { writeZip, type ZipEntry } from '../src/zip.ts'
 
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.test-only-session-token.c2lnbmF0dXJl'
 const API = 'https://api.example.test'
 const WORKSPACE = '00000000-0000-4000-8000-000000000001'
 const PACKAGE_NAME = 'automatos-e2e.hello-1.0.0.autotheme'
-const PACKAGE_BYTES = Buffer.from('PK\u0003\u0004 not a real zip; the server is mocked')
+const THEME_JSON: ZipEntry = { path: 'theme.json', data: Buffer.from('{"id":"automatos-e2e/hello"}') }
+const SOURCE_ENTRY: ZipEntry = { path: 'source/entry.ts', data: Buffer.from('export {}\n') }
+const DIST_ENTRY: ZipEntry = { path: 'dist/entry.js', data: Buffer.from('export {}\n') }
+/** Only its entry list is read here; the server is mocked. */
+const PACKAGE_BYTES = writeZip([THEME_JSON, DIST_ENTRY, SOURCE_ENTRY])
 
 interface Call {
   readonly url: string
@@ -44,10 +50,10 @@ afterEach(() => {
 })
 
 /** A folder holding the package file, used as the working folder. */
-function packageFolder(): string {
+function packageFolder(bytes: Buffer = PACKAGE_BYTES): string {
   const folder = mkdtempSync(join(tmpdir(), 'automatos-submit-'))
   folders.push(folder)
-  writeFileSync(join(folder, PACKAGE_NAME), PACKAGE_BYTES)
+  writeFileSync(join(folder, PACKAGE_NAME), bytes)
   return folder
 }
 
@@ -68,11 +74,13 @@ function failingFetch(error: Error): Mock {
   return mockFetch(() => Promise.reject(error))
 }
 
-async function submit(mock: Mock, env: Environment, argv: readonly string[] = ['submit', PACKAGE_NAME]): Promise<Ran> {
+async function submit(
+  mock: Mock, env: Environment, argv: readonly string[] = ['submit', PACKAGE_NAME], bytes: Buffer = PACKAGE_BYTES,
+): Promise<Ran> {
   const out: string[] = []
   const err: string[] = []
   const output = { out: (line: string) => out.push(line), err: (line: string) => err.push(line) }
-  const code = await run(argv, output, { env, fetch: mock.fetch, cwd: packageFolder() })
+  const code = await run(argv, output, { env, fetch: mock.fetch, cwd: packageFolder(bytes) })
   return { code, out, err, calls: mock.calls }
 }
 
@@ -329,5 +337,44 @@ describe('submit: usage and environment', () => {
       { env: WITH_TOKEN, fetch: mock.fetch, cwd: packageFolder() })
     expect(code).toBe(2)
     expect(mock.calls).toHaveLength(0)
+  })
+})
+
+describe('submit: a package the review could not rebuild is refused before sending', () => {
+  const DEFAULT_ARGV = ['submit', PACKAGE_NAME]
+
+  it.each<[string, Buffer]>([
+    ['no source/ entry', writeZip([THEME_JSON, DIST_ENTRY])],
+    ['only a bare source/ folder entry', writeZip([THEME_JSON, DIST_ENTRY, { path: 'source/', data: new Uint8Array(0) }])],
+    ['a source-like name outside source/', writeZip([THEME_JSON, { path: 'sources/entry.ts', data: SOURCE_ENTRY.data }])],
+  ])('exits 2 with one line and never calls fetch: %s', async (_case, bytes) => {
+    const ran = await submit(mockFetch(() => jsonResponse(201, PENDING)), WITH_TOKEN, DEFAULT_ARGV, bytes)
+    expect(ran.code).toBe(2)
+    expect(ran.calls).toHaveLength(0)
+    expect(ran.out).toEqual([])
+    expect(ran.err).toHaveLength(1)
+    expect(ran.err[0]).not.toContain('\n')
+    expect(ran.err[0]).toContain(`${PACKAGE_NAME} has no source/`)
+    expect(ran.err[0]).toContain('automatos-theme pack')
+  })
+
+  it('exits 2 with one line and never calls fetch when the file is not a zip', async () => {
+    const bytes = Buffer.from('PK\u0003\u0004 not a real zip')
+    const ran = await submit(mockFetch(() => jsonResponse(201, PENDING)), WITH_TOKEN, DEFAULT_ARGV, bytes)
+    expect(ran.code).toBe(2)
+    expect(ran.calls).toHaveLength(0)
+    expect(ran.err).toHaveLength(1)
+    expect(ran.err[0]).toContain(`${PACKAGE_NAME} can't be read as a package zip`)
+    expect(printed(ran)).not.toContain(TOKEN)
+  })
+
+  it('sends a package whose only source/ file is nested, bytes unchanged', async () => {
+    const nested = writeZip([THEME_JSON, { path: 'source/components/card.tsx', data: SOURCE_ENTRY.data }])
+    const ran = await submit(mockFetch(() => jsonResponse(201, PENDING)), WITH_TOKEN, DEFAULT_ARGV, nested)
+    expect(ran.code).toBe(0)
+    expect(ran.calls).toHaveLength(1)
+    const entry = (ran.calls[0].init.body as FormData).get(FORM_FIELD)
+    if (entry === null || typeof entry === 'string') throw new Error('the form has no file field')
+    expect(Buffer.from(await entry.arrayBuffer()).equals(nested)).toBe(true)
   })
 })
