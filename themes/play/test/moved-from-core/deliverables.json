@@ -1,0 +1,32 @@
+[
+  {
+    "corePath": "frontend/components/play/deliverables/__tests__/play-shelf.test.tsx",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 22,
+    "kitPath": "test/deliverables/play-shelf.test.tsx",
+    "kitIts": 22,
+    "rehomed": [
+      {
+        "assertion": "The shelf's list is asked again every SHELF_REFRESH_MS while the tab is visible: the host's react-query timer behind useDeliverables' refetchInterval (the kit asserts the option and what a new page shows).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "Load more sends the next page's offset (24) and limit with the chip's artifact_type and source_type_exclude=heartbeat on the wire: the host's buildListQuery (the kit asserts the filters and that the shelf asks for the next page).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "A list page that answers success: false is the query's error, thrown by the host's hook and never a page, and a failed refetch or Load more keeps the loaded pages (the kit asserts what the shelf shows and logs for that answer).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "/deliverables?deliverable=<id> opens that Deliverable: the host's deep link (the kit asserts the link each card carries).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "Start a chat opens a fresh draft beside the stored tabs and goes to /chat: the host's useStartChat (the kit asserts the shelf calls it).",
+        "corePath": "frontend/hooks/__tests__/use-start-chat.test.tsx"
+      }
+    ],
+    "rewritten": "The SDK is the stand-in (test/sdk-stub.ts): useDeliverables answers what the test sets, as react-query would, instead of core's mocked hook or its real hook over a mocked apiClient, so the real-hook cases keep their Play assertions and name core's tests for the host's part (rehomed); the seen record is written and read through the SDK storage area (writeSeen, readSeen), not the automatos-play:seen-deliverables key; the workspace, the backend's health, Start a chat and the pictures come from the stand-in's controls."
+  }
+]
