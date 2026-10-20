@@ -1,0 +1,54 @@
+name: Kit lockfile
+
+# PRD-261 B-00a (PB-16): resolves package-lock.json in CI, because nothing runs npm on the
+# maintainer's machine. A change that adds or bumps a dependency edits package.json, pushes its
+# branch, runs this workflow on that branch (Actions tab, or gh workflow run kit-lockfile.yml
+# --ref <branch>), downloads the kit-lockfile artifact, commits it as package-lock.json, and then
+# has one pull request run of kit.yml, which installs with npm ci.
+#
+# It only resolves: --package-lock-only reads registry metadata and writes no node_modules, and
+# --ignore-scripts runs no install script, so no dependency code runs here. No secrets; the
+# token can read the repo and nothing else. The action pins and the npm pin match kit.yml, so
+# the lockfile is resolved by the same npm that later runs npm ci on it.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    name: Resolve package-lock.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      # The same npm kit.yml pins (npm 10 crashes on optional peers, npm/cli#9787).
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
+      # Keeps every entry the committed lockfile already records and resolves only what changed.
+      - name: Resolve the lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      # The digest lets the committer check the file they downloaded is the one this run resolved.
+      - name: Record the lockfile digest
+        run: sha256sum package-lock.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the lockfile
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-lockfile
+          path: package-lock.json
+          if-no-files-found: error

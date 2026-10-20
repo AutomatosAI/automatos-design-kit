@@ -18,6 +18,8 @@ describe("each refused pattern is found", () => {
     ["JS_SEND_BEACON", "navigator.sendBeacon('/x', data)"],
     ["JS_COOKIE", "const c = document.cookie"],
     ["JS_LOCAL_STORAGE", "localStorage.setItem('k', 'v')"],
+    ["JS_SESSION_STORAGE", "sessionStorage.setItem('k', 'v')"],
+    ["JS_INDEXED_DB", "const request = indexedDB.open('theme-db')"],
     ["JS_EVAL", "eval(code)"],
     ["JS_NEW_FUNCTION", "const f = new Function('a', 'return a')"],
     ["JS_POST_MESSAGE", "parent.postMessage(data, '*')"],
@@ -93,6 +95,39 @@ describe("honest code that looks close is not refused", () => {
     expect(specifierProblem("./local.ts")).toBeNull();
     expect(specifierProblem("@/lib/utils")?.code).toBe("JS_ALIAS_IMPORT");
     expect(specifierProblem("next")?.code).toBe("JS_NEXT_IMPORT");
+  });
+});
+
+describe("browser storage is refused, the SDK's storage area is not", () => {
+  // The six names of the SDK's storage area (PRD-261 E3), used the way a theme uses them.
+  const sdkStorage = [
+    "import { readThemeState, writeThemeState, removeThemeState, subscribeThemeState, useThemeState, THEME_STATE_LIMITS } from '@automatos/theme-sdk'",
+    "const options = { lifetime: 'session', within: 'workspace' } as const",
+    "const read = readThemeState('hello-played', options)",
+    "const written = writeThemeState('hello-played', true, options)",
+    "const removed = removeThemeState('hello-played', options)",
+    "const stop = subscribeThemeState('hello-played', () => undefined, options)",
+    "const state = useThemeState('seen-deliverables', options)",
+    "if (JSON.stringify(state.value).length > THEME_STATE_LIMITS.valueChars) state.remove()",
+  ].join("\n");
+
+  it("has no findings for the six SDK storage names", () => {
+    expect(fileFindings(PATH, sdkStorage)).toEqual([]);
+  });
+
+  it.each([
+    ["JS_LOCAL_STORAGE", "window.localStorage.getItem('k')"],
+    ["JS_LOCAL_STORAGE", "globalThis.localStorage.clear()"],
+    ["JS_SESSION_STORAGE", "self.sessionStorage.removeItem('k')"],
+    ["JS_INDEXED_DB", "window.indexedDB.deleteDatabase('theme-db')"],
+  ])("%s through a global: %s", (code, text) => {
+    expect(codes(text)).toContain(code);
+  });
+
+  it("points each storage finding at the SDK's storage area", () => {
+    const found = fileFindings(PATH, "localStorage\nsessionStorage\nindexedDB");
+    expect(found.map((finding) => finding.code)).toEqual(["JS_LOCAL_STORAGE", "JS_SESSION_STORAGE", "JS_INDEXED_DB"]);
+    for (const finding of found) expect(finding.message).toMatch(/SDK's storage area/);
   });
 });
 
