@@ -1,8 +1,12 @@
 // Copied from core (AutomatosAI/automatos-ai) `frontend/lib/theme-host/builtin/play-prepaint.ts` at commit
-// ebedc7eb8d7f7f9d032706728a7f420a9e833392, the builder core's builtin Play boots from. Only the import
-// paths changed: core's `@/lib/...` modules are Play's copies under themes/play/src/lib/, and the table
-// types are ./boot-types.ts. compile-looks writes its result as the package's boot/prepaint.json, so the
-// installed package paints from the same table as builtin Play. Core's comment below is unchanged.
+// ebedc7eb8d7f7f9d032706728a7f420a9e833392 (the same at 0dd8b846e41772c8dd7ef159e4373bcb9419b06a, host
+// 1.1.0), the builder core's builtin Play boots from. Only the import paths changed: core's `@/lib/...`
+// modules are Play's copies under themes/play/src/lib/, and the table types are ./boot-types.ts.
+// compile-looks writes its result as the package's boot/prepaint.json, so the installed package paints
+// from the same table as builtin Play. Core's comment below is unchanged; it describes builtin Play, whose
+// tone rides its own cookie. The package's table also carries the tone rule (host 1.1.0), which
+// compile.ts adds beside this table from lib/looks/tone.ts, so the host's look runtime gives an installed
+// look the same tone.
 import { GLOW_SCALE, rgbList } from '../../themes/play/src/lib/look-kit/css.ts'
 import {
   ACCENTS,
