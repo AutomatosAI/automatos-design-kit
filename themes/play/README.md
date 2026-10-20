@@ -17,10 +17,10 @@ Play's code is copied from core (`AutomatosAI/automatos-ai`) at commit
 - `app/play-theme.css`, Play's tokens and base rules (core's `frontend/app/play-theme.css`);
 - outside `src/`, the package's files: `assets/mascot/` (core's `frontend/public/auto/`, the 36 clips and stills) and
   `assets/fonts/` (core's `frontend/app/fonts/play/`, the four display faces and their OFL licences), byte for byte.
-  Auto's clips are **not committed here** until the image rights are confirmed (PRD-001, open question 1): the
-  build fetches them from core at the commit `mascot.lock.json` pins, checking each one's sha256 and size
-  (`scripts/fetch-mascot.mjs`), so `assets/mascot/` exists only in a build. Once the rights are confirmed they can
-  be committed and the fetch step dropped.
+  Auto's clips and stills are committed in `assets/mascot/`, copied from core at the commit above; they are
+  (c) Automatos AI and not covered by the code licence (the repo's `NOTICE`). Their sha256 and size are listed in
+  `test/fixtures/mascot-files.json`, which `test/assets.test.ts` holds every file to; the build reads no list
+  and makes no request.
 
 Core's tests are not copied. The copied files are core's text, except for these lines:
 

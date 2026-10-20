@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "build": "node ../../scripts/fetch-mascot.mjs . && node ../../scripts/compile-looks.mjs . && vite build",
+    "build": "node ../../scripts/compile-looks.mjs . && vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "pack": "automatos-theme pack . --out out"

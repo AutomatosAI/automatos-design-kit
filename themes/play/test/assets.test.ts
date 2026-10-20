@@ -2,7 +2,9 @@
 // under assets/mascot/, and the display faces with their licences (core's app/fonts/play) under
 // assets/fonts/. Each file is a kind core's package check accepts (orchestrator/services/themes/package.py),
 // within its cap, and the code names each by the path the package holds it at: the mascot through the
-// SDK's assetUrl, the faces through play-fonts.css's url()s, relative to dist/theme.css.
+// SDK's assetUrl, the faces through play-fonts.css's url()s, relative to dist/theme.css. The mascot files are
+// committed, and each is held to its sha256 and size in test/fixtures/mascot-files.json (core's bytes).
+import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -19,6 +21,8 @@ const IMAGE_MAX_BYTES = 512 * KB
 const FONT_MAX_BYTES = 400 * KB
 const TEXT_MAX_BYTES = 256 * KB
 const MASCOT_FOLDER = join(THEME_ROOT, 'assets', 'mascot')
+const MASCOT_CHECKSUMS = join(THEME_ROOT, 'test', 'fixtures', 'mascot-files.json')
+const MASCOT_FILE_COUNT = 36
 const FONTS_FOLDER = join(THEME_ROOT, 'assets', 'fonts')
 const FONTS_CSS = 'app/play-fonts.css'
 const VIDEO_FORMATS: readonly VideoFormat[] = ['webm', 'mp4']
@@ -48,6 +52,20 @@ function mascotFiles(): string[] {
   return readdirSync(MASCOT_FOLDER).filter((name) => !name.startsWith('.')).sort()
 }
 
+type Checksum = { sha256: string; bytes: number }
+
+function listedChecksums(): Record<string, Checksum> {
+  return (JSON.parse(readFileSync(MASCOT_CHECKSUMS, 'utf8')) as { files: Record<string, Checksum> }).files
+}
+
+/** Every file in assets/mascot, by name, with its sha256 and size as read from disk. */
+function diskChecksums(): Record<string, Checksum> {
+  return Object.fromEntries(mascotFiles().map((name) => {
+    const bytes = readFileSync(join(MASCOT_FOLDER, name))
+    return [name, { sha256: createHash('sha256').update(bytes).digest('hex'), bytes: bytes.length }]
+  }))
+}
+
 function fontFiles(): string[] {
   return readdirSync(FONTS_FOLDER).filter((name) => !name.startsWith('.')).sort()
 }
@@ -63,6 +81,12 @@ describe("Auto's files, assets/mascot", () => {
     expect(name).toMatch(MASCOT_FILE)
     expect(SIGNATURES[extension(name)](bytes)).toBe(true)
     expect(bytes.length).toBeLessThanOrEqual(extension(name) === STILL ? IMAGE_MAX_BYTES : CLIP_MAX_BYTES)
+  })
+
+  it("are core's bytes: 36 of 36 match the checksum list (sha256 and size), and none is missing from it", () => {
+    const listed = listedChecksums()
+    expect(Object.keys(listed)).toHaveLength(MASCOT_FILE_COUNT)
+    expect(diskChecksums()).toEqual(listed)
   })
 })
 

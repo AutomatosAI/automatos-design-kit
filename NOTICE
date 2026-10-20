@@ -4,8 +4,16 @@ Copyright 2026 Automatos AI
 The source code in this repository is licensed under the Apache License,
 Version 2.0 (see LICENSE).
 
-The Auto mascot assets (the animations and images served from public/auto/)
-are NOT covered by the code licence and are NOT in this repository. They are
-kept out of version control until the usage rights of the generated images
-are confirmed (PRD-001, open question 1). Without them, Play shows a
-placeholder in place of the mascot.
+Auto mascot assets
+------------------
+
+(c) Automatos AI; not covered by the code licence.
+
+The Auto mascot's animations and images in themes/play/assets/mascot/ (the
+36 clips and stills Play's package ships) are (c) Automatos AI and are not
+covered by the code licence: the Apache License, Version 2.0 does not apply
+to them. They are in this repository so that Play's package can be built
+and reviewed from it.
+
+The pipeline that generated them (/mascot/ at the repository root) stays
+local and is ignored by git; it is not part of this repository.
