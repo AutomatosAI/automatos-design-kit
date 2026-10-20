@@ -1,0 +1,152 @@
+{
+  "_comment": "Auto's clips and stills are not committed to this public repo until the image rights are confirmed (PRD-001, open question 1). The build fetches them from core, where they already ship, at this pinned commit, and checks each against its sha256: scripts/fetch-mascot.mjs.",
+  "repository": "AutomatosAI/automatos-ai",
+  "ref": "ebedc7eb8d7f7f9d032706728a7f420a9e833392",
+  "path": "frontend/public/auto",
+  "files": {
+    "celebrate.mp4": {
+      "sha256": "5972c0c7f7c0f28337dab8d7646da22f09fcf2fac7c9dcdb021dec1ab1f7f9cf",
+      "bytes": 277691
+    },
+    "celebrate.png": {
+      "sha256": "a750be0966ba718db6cb36870cc40553fabd706954e851ba3205007fa026c21d",
+      "bytes": 97997
+    },
+    "celebrate.webm": {
+      "sha256": "2528d9ec7b72f2d41550196f1b4fbc8b2001ce6183cb618c05128b19665809f9",
+      "bytes": 213670
+    },
+    "hello.mp4": {
+      "sha256": "7c1d432cd2acf76dbf33255513a0fcb2d4f60e083d826bf69bc9eaa9b2dc9d66",
+      "bytes": 130358
+    },
+    "hello.png": {
+      "sha256": "a5b209ee5f967816e27ee3701082e856e45cb3dc4d3aa12bcb5c18673e48d52a",
+      "bytes": 97654
+    },
+    "hello.webm": {
+      "sha256": "40140b0e1d15e974894a6e0d7504398251db5ff297cfc7f10c04b6911764797c",
+      "bytes": 61099
+    },
+    "idle.mp4": {
+      "sha256": "bfe423e3b9f87c8f97367fb28d634abc966fa5759b3d7aaba01c906f815c2629",
+      "bytes": 155792
+    },
+    "idle.png": {
+      "sha256": "7acc84e05ca2e8162549727028222f28c113e125889b0cdc120af447d5159136",
+      "bytes": 97637
+    },
+    "idle.webm": {
+      "sha256": "ec782127b5bf74902edc502723b8551296df66acde53de4ffad3aa1e72714b85",
+      "bytes": 73084
+    },
+    "listening.mp4": {
+      "sha256": "1c646f1b849b66b0a5c6c2e85ec2960add52291cc08353939d279d17a5528372",
+      "bytes": 111424
+    },
+    "listening.png": {
+      "sha256": "96a83254d8934178435bae7ac53f971447aa334ed2e4db810a7a6e1899828ae0",
+      "bytes": 97881
+    },
+    "listening.webm": {
+      "sha256": "8b0bb4061719143c2e0180de3e054a699a28d37c9ad4c93224e5fae4a12f7fdb",
+      "bytes": 39229
+    },
+    "loading.mp4": {
+      "sha256": "93af5a55cd92dc7232a813b1a5060173c7b574821aa50c2da2a7e283e8615a79",
+      "bytes": 259823
+    },
+    "loading.png": {
+      "sha256": "48f1aead8fee117d341783edc8aa782e2af95d3ecc4188bca53fcee584f519a0",
+      "bytes": 97699
+    },
+    "loading.webm": {
+      "sha256": "e7533dbfbea12ec6aaadd31a50f4a8b6dff581ff8aef2ee4b9d1ebc081265098",
+      "bytes": 201996
+    },
+    "lost.mp4": {
+      "sha256": "f8ed9af30e88ba3faa4bee795f11e4f530e9ded4e8d796c14c09e39bf8f2bc93",
+      "bytes": 182593
+    },
+    "lost.png": {
+      "sha256": "15012fee0ce873c1e0f21d686214c645da5265ecb79bf05cdeb9dd46ffcd4b26",
+      "bytes": 97819
+    },
+    "lost.webm": {
+      "sha256": "2ced166dc74dd6935abefd2b717d4b87767a7a614b8e3c0bba56fe5d0fe3f4dc",
+      "bytes": 112038
+    },
+    "oops.mp4": {
+      "sha256": "38f478f5370ff29da4e63a2cc608bf17d9310bee692dd089abc712788e6acf49",
+      "bytes": 117228
+    },
+    "oops.png": {
+      "sha256": "5db546668b0a91e26196dbc4d608c4330fa14378633c881e30e4e64167edb46d",
+      "bytes": 97738
+    },
+    "oops.webm": {
+      "sha256": "f769d63b9d69b4f6f09ee0a51e6778262b529f941c63d8824ee0e01fb5c5f2dc",
+      "bytes": 45425
+    },
+    "reading.mp4": {
+      "sha256": "600f7a5adc56151da2a0cd674395f6a5333a67124d6c1b2f6ecef3f995f0a0db",
+      "bytes": 111086
+    },
+    "reading.png": {
+      "sha256": "27cfd175ad8a20232f1e82065ae72aa344754976d3a40b75c2accc770be71770",
+      "bytes": 97923
+    },
+    "reading.webm": {
+      "sha256": "9ffd0bf246bdf907622b1b2b3b39d3c87c6832169c64000d8717bd20f898c9c2",
+      "bytes": 37360
+    },
+    "searching.mp4": {
+      "sha256": "d7e05fbb81e79bcab18dfc4d1ec4ddce195f81a49db660004c6fd303156cec46",
+      "bytes": 182668
+    },
+    "searching.png": {
+      "sha256": "a8f7c97a100f91f86d9641a2ce0b89ee8d13c8b1207a7c22d59c4be4c2d73a8d",
+      "bytes": 97697
+    },
+    "searching.webm": {
+      "sha256": "0a1bc4bd1ceaad5f18fb70d524867d0d9e7133feda0b82cbbd266ed095012c8a",
+      "bytes": 110860
+    },
+    "sleeping.mp4": {
+      "sha256": "fc3743cc778df27178c2b901065ea05af8abc45b85e3c3b48c61981e3a0798f0",
+      "bytes": 104174
+    },
+    "sleeping.png": {
+      "sha256": "55178a8f85bc62269fd74410ab2986322292ff9525cc7b883c56e64458c1a96d",
+      "bytes": 97773
+    },
+    "sleeping.webm": {
+      "sha256": "e0d2c02656d02c05a9199928d504923e20f34d4fe28076189d09865318c17213",
+      "bytes": 28833
+    },
+    "thinking.mp4": {
+      "sha256": "6063bce593cae44f8fc3687828f1aea72a306b3c0cce647555702e2ca790bfe2",
+      "bytes": 115250
+    },
+    "thinking.png": {
+      "sha256": "349dd919fa8c297b440b458be91520829ee3bef4afefa32201a32db5e0a083f7",
+      "bytes": 97727
+    },
+    "thinking.webm": {
+      "sha256": "b6974eef00f2251a366f167ae4f78d995035daf0d21f2010baa927d7009cfbce",
+      "bytes": 45056
+    },
+    "working.mp4": {
+      "sha256": "a115fb4321c255b6c6c00c028405b211c1f141851430265053a85700ccf30bee",
+      "bytes": 222932
+    },
+    "working.png": {
+      "sha256": "6f0ded732a22c039b3173a856c1d589f0f1d786121f1961d88dbddd953e2a57f",
+      "bytes": 99246
+    },
+    "working.webm": {
+      "sha256": "0f86c178faa19242115014296ab8db6defa097eb95d72458d83537d64935b7f4",
+      "bytes": 147211
+    }
+  }
+}

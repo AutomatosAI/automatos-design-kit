@@ -1,5 +1,6 @@
 /**
- * The `automatos-theme` command line: `automatos-theme pack <theme folder> [--out <folder>]`.
+ * The `automatos-theme` command line: `automatos-theme pack <theme folder> [--out <folder>]` and
+ * `automatos-theme submit <file.autotheme>` (submit.ts).
  *
  * `pack` checks the theme folder as core's reader would and writes
  * `<publisher>.<slug>-<version>.autotheme` and its `.sha256.json` manifest to `--out` (default:
@@ -8,14 +9,13 @@
  */
 import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
+import type { Output } from './output.ts'
 import { packTheme } from './pack.ts'
+import { submitCommand, SUBMIT_USAGE, type SubmitDeps } from './submit.ts'
 
-export interface Output {
-  readonly out: (line: string) => void
-  readonly err: (line: string) => void
-}
+export type { Output } from './output.ts'
 
-export const USAGE = 'usage: automatos-theme pack <theme folder> [--out <folder>]'
+export const USAGE = ['usage: automatos-theme pack <theme folder> [--out <folder>]', SUBMIT_USAGE].join('\n')
 const EXIT_OK = 0
 const EXIT_REFUSED = 1
 const EXIT_USAGE = 2
@@ -57,4 +57,15 @@ export function main(argv: readonly string[], output: Output, cwd: string = proc
   output.out(`${result.file} ${result.bytes} bytes, digest ${result.manifest.digest}`)
   output.out(`${result.manifestFile}`)
   return EXIT_OK
+}
+
+/** The environment, network and folder the real command uses. */
+function processDeps(): SubmitDeps {
+  return { env: process.env, fetch: globalThis.fetch, cwd: process.cwd() }
+}
+
+/** Runs any command: `submit` (which waits on the network), else `main`; returns the exit code. */
+export async function run(argv: readonly string[], output: Output, deps: SubmitDeps = processDeps()): Promise<number> {
+  if (argv[0] === 'submit') return submitCommand(argv, output, deps)
+  return main(argv, output, deps.cwd)
 }

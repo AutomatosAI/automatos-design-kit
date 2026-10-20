@@ -1,0 +1,184 @@
+// Play's stylesheets pass the server's CSS scope check once the preset has wrapped them, and the wrap
+// (D2-c: html.play, specificity 0,1,1) keeps Play's cascade: the FX-01 rules keep core's specificity,
+// every other module rule gains exactly (0,1,1), and the rules rewritten from core's play-theme.css
+// still win where they won in core. A static check: the files are read and transformed, nothing is built.
+import { readdirSync } from 'node:fs'
+import { dirname, join, normalize, relative } from 'node:path'
+import { cssScopeErrors, transformThemeCss, wrapSelector } from '@automatos/vite-preset'
+import { describe, expect, it } from 'vitest'
+import {
+  addSpecificity, compareSpecificity, specificity, stripComments, styleRules, withoutGlobal, type Specificity,
+} from './css-rules.ts'
+import { importSpecifiers, readSource, sourceScripts, SOURCE_ROOT } from './source-files.ts'
+
+const HTML_CLASS = 'play'
+const OPTIONS = { htmlClass: HTML_CLASS, wrap: 'html' } as const
+const WRAP_WEIGHT: Specificity = [0, 1, 1]
+const THEME_CSS = 'app/play-theme.css'
+const FONTS_CSS = 'app/play-fonts.css'
+const GLOBAL_STYLESHEETS = [FONTS_CSS, THEME_CSS]
+/** 25 CSS modules, core's play-theme.css and the kit's play-fonts.css. */
+const STYLESHEET_COUNT = 27
+/** The FX-01 rules in core start with this (core's frontend/lib/__tests__/prd260-play-guards.test.ts). */
+const FX01_PREFIX = ':global(html.play)'
+/** Studio's element rules the FX-01 rules must outrank (core's app/globals.css). */
+const STUDIO_ELEMENT_RULES = ['.studio h1', '.studio h2', '.studio kbd', '.studio code', '.studio code:not(pre code)']
+/** core's forced-colours selectors in app/play-theme.css, before the kit's rewrite. */
+const CORE_FORCED_COLOURS = ['html.play [aria-pressed="true"]', 'html.play [aria-pressed="true"]:focus-visible']
+const FORCED_COLOURS_MEDIA = '@media (forced-colors: active)'
+/** The forced-colours rings set outline, outline-offset and outline-width. */
+const OUTLINE = 'outline'
+const MOTION_STOP_ID = ':not(#play-none)'
+const MOTION_STOP_SELECTORS = 6
+
+/** Every stylesheet under src/, relative to src/ with forward slashes. */
+function stylesheets(): string[] {
+  return readdirSync(SOURCE_ROOT, { encoding: 'utf8', recursive: true })
+    .map((rel) => rel.split('\\').join('/'))
+    .filter((rel) => rel.endsWith('.css'))
+    .sort()
+}
+
+/** A stylesheet as the preset's CSS step sees it: CSS modules have lost their :global() first. */
+function asBuilt(rel: string): string {
+  return rel.endsWith('.module.css') ? withoutGlobal(readSource(rel)) : readSource(rel)
+}
+
+/** Every stylesheet a source file imports, resolved relative to src/. */
+function importedStylesheets(): Set<string> {
+  return new Set(sourceScripts().flatMap((rel) => importSpecifiers(readSource(rel))
+    .filter((specifier) => specifier.endsWith('.css'))
+    .map((specifier) => relative(SOURCE_ROOT, normalize(join(SOURCE_ROOT, dirname(rel), specifier))).split('\\').join('/'))))
+}
+
+interface Selector {
+  readonly file: string
+  readonly written: string
+  readonly within: readonly string[]
+  readonly properties: readonly string[]
+}
+
+function selectorsOf(rel: string): Selector[] {
+  return styleRules(readSource(rel)).flatMap((rule) => rule.selectors.map((written) => ({
+    file: rel, written, within: rule.within, properties: rule.properties,
+  })))
+}
+
+const MODULE_SELECTORS = stylesheets().filter((rel) => rel.endsWith('.module.css')).flatMap(selectorsOf)
+const THEME_SELECTORS = selectorsOf(THEME_CSS)
+
+describe("Play's stylesheets", () => {
+  it('are the CSS modules the components import plus the two global sheets the entry imports', () => {
+    expect(stylesheets()).toHaveLength(STYLESHEET_COUNT)
+    expect(Array.from(importedStylesheets()).sort()).toEqual(stylesheets())
+    const entryImports = importSpecifiers(readSource('entry.ts')).filter((specifier) => specifier.endsWith('.css'))
+    expect(entryImports).toEqual(GLOBAL_STYLESHEETS.map((rel) => `./${rel}`))
+  })
+
+  it.each(stylesheets())('%s holds no !important and no @import', (rel) => {
+    const css = stripComments(readSource(rel))
+    expect(css).not.toContain('!')
+    expect(css).not.toMatch(/@import\b/i)
+  })
+
+  it.each(stylesheets())("%s passes the server's scope check once the preset has wrapped it", (rel) => {
+    expect(cssScopeErrors(transformThemeCss(asBuilt(rel), OPTIONS), HTML_CLASS)).toEqual([])
+  })
+
+  it("passes the server's scope check as one dist/theme.css, in the entry's order", () => {
+    const order = [...GLOBAL_STYLESHEETS, ...stylesheets().filter((rel) => !GLOBAL_STYLESHEETS.includes(rel))]
+    const css = transformThemeCss(order.map(asBuilt).join('\n'), OPTIONS)
+    expect(cssScopeErrors(css, HTML_CLASS)).toEqual([])
+    const keyframes = Array.from(css.matchAll(/@(?:-webkit-)?keyframes\s+([^\s{]+)/g), (match) => match[1])
+    expect(keyframes.length).toBeGreaterThan(0)
+    expect(keyframes.filter((name) => !name.startsWith(`${HTML_CLASS}-`))).toEqual([])
+  })
+
+  it('names every font family it defines play-…, already in the source', () => {
+    const families = Array.from(stripComments(readSource(FONTS_CSS)).matchAll(/font-family:\s*([^;}]+)/g), (m) => m[1].trim())
+    expect(families.length).toBeGreaterThan(0)
+    expect(families.filter((family) => !family.startsWith(`${HTML_CLASS}-`))).toEqual([])
+  })
+})
+
+const SPECIFICITY_CASES: readonly (readonly [string, Specificity])[] = [
+  ['.studio h1', [0, 1, 1]],
+  ['.studio code:not(pre code)', [0, 1, 3]],
+  ['html.play .title', [0, 2, 1]],
+  [":where(html.play) body:has([data-glow='snag'])::after", [0, 1, 2]],
+  [':where(html.play :focus-visible)', [0, 0, 0]],
+  ['html.play:is(html.play) [aria-pressed="true"]', [0, 3, 2]],
+  ['html.play:not(#play-none) *::before', [1, 1, 2]],
+]
+
+describe('the specificity helper', () => {
+  it.each(SPECIFICITY_CASES)('%s is %j', (selector, expected) => {
+    expect(specificity(selector)).toEqual(expected)
+  })
+})
+
+describe('the html.play wrap keeps the FX-01 cascade', () => {
+  it("leaves every rule of play-theme.css as written: they are all under html.play already", () => {
+    expect(THEME_SELECTORS.length).toBeGreaterThan(0)
+    expect(THEME_SELECTORS.filter((s) => wrapSelector(s.written, HTML_CLASS, 'html') !== s.written)).toEqual([])
+  })
+
+  it('leaves the FX-01 rules at their core specificity, above Studio element rules', () => {
+    const fx01 = MODULE_SELECTORS.filter((s) => s.written.startsWith(FX01_PREFIX))
+    expect(fx01.length).toBeGreaterThan(0)
+    const studioTop = STUDIO_ELEMENT_RULES.map(specificity).reduce((a, b) => (compareSpecificity(a, b) >= 0 ? a : b))
+    fx01.forEach((s) => {
+      const built = withoutGlobal(s.written)
+      expect(wrapSelector(built, HTML_CLASS, 'html')).toBe(built)
+      expect(compareSpecificity(specificity(built), studioTop), `${s.file}: ${s.written}`).toBeGreaterThan(0)
+    })
+  })
+
+  it('raises every other module selector by exactly (0,1,1)', () => {
+    const others = MODULE_SELECTORS.filter((s) => !s.written.startsWith(FX01_PREFIX))
+    expect(others.length).toBeGreaterThan(0)
+    others.forEach((s) => {
+      const built = withoutGlobal(s.written)
+      const wrapped = wrapSelector(built, HTML_CLASS, 'html')
+      expect(wrapped).toBe(`html.${HTML_CLASS} ${built}`)
+      expect(specificity(wrapped), `${s.file}: ${s.written}`).toEqual(addSpecificity(specificity(built), WRAP_WEIGHT))
+    })
+  })
+})
+
+/** Every module selector of a rule setting an outline property, as built and wrapped, with its core specificity. */
+function outlineModules(): { readonly label: string; readonly core: Specificity; readonly kit: Specificity }[] {
+  return MODULE_SELECTORS.filter((s) => s.properties.some((name) => name.startsWith(OUTLINE))).map((s) => {
+    const built = withoutGlobal(s.written)
+    return { label: `${s.file}: ${s.written}`, core: specificity(built), kit: specificity(wrapSelector(built, HTML_CLASS, 'html')) }
+  })
+}
+
+describe("play-theme.css's rewritten rules", () => {
+  it("give the forced-colours rings the same (0,1,1) as the modules, so each outline comparison is core's", () => {
+    const forced = THEME_SELECTORS.filter((s) => s.within.includes(FORCED_COLOURS_MEDIA)).map((s) => s.written)
+    expect(forced.map(specificity)).toEqual(CORE_FORCED_COLOURS.map((core) => addSpecificity(specificity(core), WRAP_WEIGHT)))
+    const modules = outlineModules()
+    expect(modules.length).toBeGreaterThan(0)
+    forced.forEach((kitSelector, index) => {
+      const coreRing = specificity(CORE_FORCED_COLOURS[index])
+      const kitRing = specificity(kitSelector)
+      const changed = modules.filter((m) => Math.sign(compareSpecificity(coreRing, m.core)) !== Math.sign(compareSpecificity(kitRing, m.kit)))
+      expect(changed.map((m) => m.label), kitSelector).toEqual([])
+    })
+  })
+
+  it('stop motion by an id in place of !important, which no other Play selector has', () => {
+    const stop = THEME_SELECTORS.filter((s) => s.written.includes(MOTION_STOP_ID))
+    expect(stop).toHaveLength(MOTION_STOP_SELECTORS)
+    stop.forEach((s) => expect(specificity(s.written)[0], s.written).toBe(1))
+    const others = [...THEME_SELECTORS.filter((s) => !s.written.includes(MOTION_STOP_ID)), ...MODULE_SELECTORS]
+    expect(others.filter((s) => specificity(withoutGlobal(s.written))[0] > 0).map((s) => s.written)).toEqual([])
+  })
+
+  it('meet no inline animation or transition, which a selector cannot outrank: no Play element sets one', () => {
+    const inline = /\b(?:animation|transition)[A-Za-z]*['"]?\s*:|\.style\.(?:animation|transition)|setProperty\(\s*['"](?:animation|transition)/
+    const scripts = sourceScripts().filter((rel) => !rel.startsWith('vendor/'))
+    expect(scripts.filter((rel) => inline.test(readSource(rel)))).toEqual([])
+  })
+})

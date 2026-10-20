@@ -19,3 +19,28 @@ Core's shared test corpus holds all of them to the server's verdicts (`test/core
 
 Node 22.18 or later runs the TypeScript sources directly (type stripping): `npm run pack` packs core's hello
 test theme into `out/`.
+
+## submit
+
+`automatos-theme submit <file.autotheme>` sends a package to the Automatos Marketplace for review, through core's
+`POST /api/marketplace/themes/submit` (the package as the multipart field `file`). The server checks the package,
+runs its automated review stage and stores the version as pending; a person reviews every version before it is
+listed. The command prints the server's answer: pending review with the automated verdict and each check, or every
+sentence and error code of a refusal.
+
+Where and as whom come from the environment only, never from a file:
+
+| Variable | Meaning |
+|---|---|
+| `AUTOMATOS_API_URL` | The Automatos API's address, `https://...` (plain `http://` only to this machine, or with no token). |
+| `AUTOMATOS_API_TOKEN` | Optional. Sent as `Authorization: Bearer <token>`; never printed (any line holding it shows `[AUTOMATOS_API_TOKEN]`). |
+| `AUTOMATOS_WORKSPACE_ID` | Optional. Sent as `X-Workspace-ID`; without it the server uses the person's own workspace. |
+
+Who the route accepts is core's decision. It needs a workspace member, the Marketplace switch on, and step-up: in the
+local edition step-up passes and no token is needed; in the SaaS edition it passes only a Clerk session token from a
+sign-in within the server's step-up window (10 minutes by default), and it refuses API keys. There is no long-lived
+credential for this route yet, so outside the local edition the command will usually print the server's 401 or 403
+and what it asks for.
+
+Exit code 0 when the server took the submission (201, or 200 when these exact bytes were submitted already), 1 when
+it refused it or gave no answer, 2 for a usage or environment problem (nothing is sent).

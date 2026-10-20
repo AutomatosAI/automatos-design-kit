@@ -1,7 +1,7 @@
 {
   "name": "@automatos/theme-cli",
   "version": "0.1.0",
-  "description": "The automatos-theme command: pack a built theme into a .autotheme package that the Automatos server accepts.",
+  "description": "The automatos-theme command: pack a built theme into a .autotheme package that the Automatos server accepts, and submit one to the Marketplace for review.",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -12,6 +12,7 @@
     ".": "./src/pack.ts",
     "./check": "./src/check-package.ts",
     "./zip": "./src/zip.ts",
+    "./manifest": "./src/core/package-manifest.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
