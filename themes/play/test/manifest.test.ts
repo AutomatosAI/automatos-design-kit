@@ -70,7 +70,7 @@ describe('theme.json', () => {
     expect(validateManifest(manifest).errors).toEqual([])
   })
 
-  it("is builtin Play's entry as core has it", () => {
+  it("declares Play's schema, id, version, htmlClass, minWidth, base, tone, routes and slots", () => {
     expect(manifest).toMatchObject({
       schema: 'automatos-theme/v1',
       id: 'automatos/play',
