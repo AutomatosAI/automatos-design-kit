@@ -33,7 +33,8 @@ to the core corpus.
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
 and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the
 `mobile` block's included (PRD-261 M-02: `src/files.ts` the `.ttf` and `.otf` fonts in `assets/fonts/mobile/`,
-`src/check-package.ts` the files the block names and the first paint `fromLooks` needs), and
+`src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (a port of the boot's
+`sanitizePrepaint` and fit check and of the server's paint), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
 to the server's verdicts. The corpus's `contrast` cases hold core's review measure
 (`orchestrator/services/themes/mobile_contrast.py`) to look-kit's `contrastRatio`; the CLI has no contrast check.
