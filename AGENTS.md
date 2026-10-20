@@ -67,8 +67,9 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   files}` (`scripts/sign/`; core's signed form, which keeps `requestId` outside the signed text), which
   the person pastes into the admin queue. It refuses when the secret is absent, when id or version
   break core's manifest patterns, and when any printed line would hold a line break or `::`. The
-  `theme-signing` environment allows main only and has required reviewers (the named signers, self-review
-  prevented). No other workflow may name that secret; the root tests enforce both workflows' shape.
+  `theme-signing` environment allows main only and has required reviewers, the named signers: either one may
+  approve a run, and "Prevent self-review" is off for now. No other workflow may name that secret; the root tests
+  enforce both workflows' shape.
 - The vite-preset builds only from the theme's `src/` (its source guard), and the JS rules refuse paths
   that leave `source/`, so the reproducible build can't pull in files from outside the package.
 

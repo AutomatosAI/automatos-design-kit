@@ -331,4 +331,11 @@ describe("AGENTS.md", () => {
     expect(text).toContain("PRD-261");
     ROOT_SCRIPTS.forEach((name) => expect(text).toContain(`\`${name}\``));
   });
+
+  it("says either required reviewer of theme-signing may approve, with Prevent self-review off for now", () => {
+    const text = readText("AGENTS.md").replace(/\s+/g, " ");
+    expect(text).toContain("either one may approve");
+    expect(text).toContain('"Prevent self-review" is off for now');
+    expect(text).not.toMatch(/self-review prevented|second signer|two signers/i);
+  });
 });
