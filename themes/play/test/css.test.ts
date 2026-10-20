@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Play's stylesheets pass the server's CSS scope check once the preset has wrapped them, and the wrap
 // (D2-c: html.play, specificity 0,1,1) keeps Play's cascade: the FX-01 rules keep core's specificity,
 // every other module rule gains exactly (0,1,1), and the rules rewritten from core's play-theme.css

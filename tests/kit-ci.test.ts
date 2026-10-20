@@ -12,6 +12,18 @@ const WORKFLOW = ".github/workflows/kit.yml";
 const LOCKFILE = "package-lock.json";
 const ROOT_SCRIPTS = ["build", "lint", "typecheck", "test", "pack"] as const;
 const D2_DEV_DEPENDENCIES = ["typescript", "vitest", "vite", "postcss", "@types/react"];
+// PRD-261 B-02a: the React test toolchain a theme's component tests run on (packages/theme-harness).
+const TEST_DEV_DEPENDENCIES = [
+  "jsdom",
+  "react",
+  "react-dom",
+  "@testing-library/react",
+  "@testing-library/dom",
+  "@testing-library/user-event",
+  "@testing-library/jest-dom",
+];
+// Every outside package a manifest may name. A new one needs the maintainer's OK and its name here.
+const APPROVED_DEPENDENCIES = [...D2_DEV_DEPENDENCIES, "@types/node", ...TEST_DEV_DEPENDENCIES];
 const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const TARBALL_URL = /^https:\/\/\S+\.tgz$/;
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
@@ -72,6 +84,11 @@ function localPackageNames(): Set<string> {
   return new Set(names.filter((name): name is string => typeof name === "string"));
 }
 
+// The outside packages a manifest depends on, in any dependency field; workspace packages are left out.
+function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>): string[] {
+  return DEPENDENCY_FIELDS.flatMap((field) => Object.keys(pkg[field] ?? {})).filter((name) => !localNames.has(name));
+}
+
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
 
@@ -128,6 +145,12 @@ describe("root package.json", () => {
     expect(Object.keys(dev)).toEqual(expect.arrayContaining(D2_DEV_DEPENDENCIES));
     expect(dev["@types/react"]).toMatch(/^19\./);
   });
+
+  it("pins the test toolchain exactly, with react-dom at react's version", () => {
+    const dev = pkg.devDependencies ?? {};
+    TEST_DEV_DEPENDENCIES.forEach((name) => expect(dev[name], name).toMatch(EXACT_VERSION));
+    expect(dev["react-dom"]).toBe(dev.react);
+  });
 });
 
 describe("every manifest pins its dependencies exactly", () => {
@@ -136,6 +159,26 @@ describe("every manifest pins its dependencies exactly", () => {
 
   it.each(manifests)("%s", (rel) => {
     expect(loosePins(readJson<PackageJson>(rel), local)).toEqual([]);
+  });
+});
+
+describe("every manifest names only approved outside packages", () => {
+  const manifests = ["package.json", ...workspaceManifests()];
+  const local = localPackageNames();
+
+  it("reads every dependency field and leaves workspace packages out", () => {
+    const pkg: PackageJson = {
+      dependencies: { a: "1.0.0", "@automatos/theme-sdk": "*" },
+      devDependencies: { b: "1.0.0" },
+      optionalDependencies: { c: "1.0.0" },
+    };
+    expect(outsideDependencies(pkg, new Set(["@automatos/theme-sdk"]))).toEqual(["a", "b", "c"]);
+  });
+
+  it.each(manifests)("%s", (rel) => {
+    const unapproved = outsideDependencies(readJson<PackageJson>(rel), local)
+      .filter((name) => !APPROVED_DEPENDENCIES.includes(name));
+    expect(unapproved).toEqual([]);
   });
 });
 

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Play's source imports only what a theme can: its own files by relative path and the host's shared
 // modules (React and the SDK). Core-only modules are refused by name: the app's '@/' alias, Next.js,
 // React Query, sonner and the API client. A static scan; nothing is built.

@@ -1,18 +1,20 @@
-// Play's own tests read files (the theme's source, theme.json, the stylesheets and the assets) and run
-// the few pure modules that need no host; they never load the vite preset's build, so this config
-// stands in for vite.config.ts. The host serves @automatos/theme-sdk at run time, so the tests get a
-// stand-in (test/sdk-stub.ts).
+// Play's tests run on the kit's harness preset (packages/theme-harness): jsdom by default, with React,
+// Testing Library and the jest-dom matchers; a test that only reads files (the theme's source, theme.json,
+// the stylesheets and the assets) names the node environment in its header. The harness's setup runs
+// first, then Play's own (test/setup.ts). The host serves @automatos/theme-sdk at run time, so the tests
+// get a stand-in (test/sdk-stub.ts). The tests never load the vite preset's build, so this config stands
+// in for vite.config.ts.
 import { fileURLToPath } from 'node:url'
+import { harnessTestConfig } from '@automatos/theme-harness/vitest-preset'
 import { defineConfig } from 'vitest/config'
 
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@automatos/theme-sdk': fileURLToPath(new URL('./test/sdk-stub.ts', import.meta.url)),
-    },
-  },
-  test: {
-    include: ['test/**/*.test.ts'],
-    environment: 'node',
-  },
-})
+/** An absolute path for a file of this theme folder. */
+const local = (path: string): string => fileURLToPath(new URL(path, import.meta.url))
+
+export default defineConfig(
+  harnessTestConfig({
+    sdk: local('./test/sdk-stub.ts'),
+    setupFiles: [local('./test/setup.ts')],
+    include: ['test/**/*.test.{ts,tsx}'],
+  }),
+)

@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Play's theme.json, entry and build config agree with each other, with core's manifest validator
 // (vendored in the theme CLI) and with what core's builtin Play declares. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
