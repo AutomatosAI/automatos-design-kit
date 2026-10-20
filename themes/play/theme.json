@@ -21,5 +21,7 @@
     { "id": "nav-play-style-sheet", "label": "Style sheet", "path": "/looks/style" }
   ],
   "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-command-center", "storage", "theme"],
-  "look": "ember"
+  "look": "ember",
+  "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },
+  "mobile": { "fromLooks": true, "mascot": "clips" }
 }
