@@ -343,13 +343,13 @@ function change(key: string, options: unknown, operation: Change): ThemeStateRes
   return Object.freeze({ ok: true as const, persisted })
 }
 
-export const readThemeState = ((key, options) => readSnapshot(key, options)) satisfies Sdk['readThemeState']
+export const readThemeState: Sdk['readThemeState'] = ((key, options) => readSnapshot(key, options))
 
-export const writeThemeState = ((key, value, options) => change(key, options, writeChange(key, value))) satisfies Sdk['writeThemeState']
+export const writeThemeState: Sdk['writeThemeState'] = ((key, value, options) => change(key, options, writeChange(key, value)))
 
-export const removeThemeState = ((key, options) => change(key, options, removeChange(key))) satisfies Sdk['removeThemeState']
+export const removeThemeState: Sdk['removeThemeState'] = ((key, options) => change(key, options, removeChange(key)))
 
-export const subscribeThemeState = ((key, listener, options) => {
+export const subscribeThemeState: Sdk['subscribeThemeState'] = ((key, listener, options) => {
   const resolved = resolveOptions(options)
   if (onTheServer() || resolved === null || typeof listener !== 'function') return () => undefined
   const subscriber: Subscriber = { key, options: resolved, listener }
@@ -359,7 +359,7 @@ export const subscribeThemeState = ((key, listener, options) => {
     subscribers.delete(subscriber)
     if (subscribers.size === 0) listenForOtherTabs(false)
   }
-}) satisfies Sdk['subscribeThemeState']
+})
 
 // ---- The test's controls ----
 

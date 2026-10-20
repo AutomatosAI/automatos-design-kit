@@ -116,12 +116,12 @@ const KIND_LABELS: Readonly<Record<string, string>> = Object.freeze({
 })
 
 /** :153 over lib/deliverables/tabs.ts:25: Socials only while the platform offers it. */
-export const visibleDeliverableTabs = ((socialsAvailable) =>
-  DELIVERABLE_TABS.filter((tab) => tab !== 'socials' || socialsAvailable)) satisfies Sdk['visibleDeliverableTabs']
+export const visibleDeliverableTabs: Sdk['visibleDeliverableTabs'] = ((socialsAvailable) =>
+  DELIVERABLE_TABS.filter((tab) => tab !== 'socials' || socialsAvailable))
 
 /** :158: a kind's name ("Reports"); a kind the host has no name for is named as it is. */
-export const deliverableLabel = ((kind) =>
-  Object.prototype.hasOwnProperty.call(KIND_LABELS, kind) ? KIND_LABELS[kind] : kind) satisfies Sdk['deliverableLabel']
+export const deliverableLabel: Sdk['deliverableLabel'] = ((kind) =>
+  Object.prototype.hasOwnProperty.call(KIND_LABELS, kind) ? KIND_LABELS[kind] : kind)
 
 /** One call of useDeliverables: what Play asked the list for. */
 export interface DeliverablesAsk {
@@ -149,13 +149,13 @@ let listAsks: readonly DeliverablesAsk[] = []
 let blobUrls: BlobUrls = NO_PICTURE
 
 /** :163 (react-query's infinite list, hooks/use-deliverables-api.ts:227): the answer a test set; each call is kept. */
-export const useDeliverables = ((filters, options) => {
+export const useDeliverables: Sdk['useDeliverables'] = ((filters, options) => {
   listAsks = [...listAsks, Object.freeze({ filters, options })]
   return list.use()
-}) satisfies Sdk['useDeliverables']
+})
 
 /** :178 (FilePreview's fetch with the caller's token): what the test's function answers for the file. */
-export const useAuthenticatedBlobUrl = ((url, forcedType) => blobUrls(url, forcedType)) satisfies Sdk['useAuthenticatedBlobUrl']
+export const useAuthenticatedBlobUrl: Sdk['useAuthenticatedBlobUrl'] = ((url, forcedType) => blobUrls(url, forcedType))
 
 /** What useDeliverables answers from now on: react-query's result, with the test's own fetchNextPage and refetch. */
 export function setDeliverables(answer: DeliverablesQuery): void {
@@ -187,11 +187,11 @@ const detail = cell<DeliverableQuery>(LOADING_DETAIL)
 let detailAsks: readonly DetailAsk[] = []
 
 /** :168 (hooks/use-deliverables-api.ts:250, idle while the id is null): the answer a test set; each call is kept. */
-export const useDeliverable = ((id, includeContent = false) => {
+export const useDeliverable: Sdk['useDeliverable'] = ((id, includeContent = false) => {
   detailAsks = [...detailAsks, Object.freeze({ id, includeContent })]
   const answer = detail.use()
   return id === null ? IDLE_DETAIL : answer
-}) satisfies Sdk['useDeliverable']
+})
 
 /** What useDeliverable answers from now on: react-query's result, with the test's own refetch. */
 export function setDetail(answer: DeliverableQuery): void {
@@ -219,7 +219,7 @@ const FILE_DOWNLOAD: FileDownload = Object.freeze({
 })
 
 /** :173 (hooks/use-api-file-download.ts:20): each download kept, none ever in progress or failing. */
-export const useFileDownload = (() => FILE_DOWNLOAD) satisfies Sdk['useFileDownload']
+export const useFileDownload: Sdk['useFileDownload'] = (() => FILE_DOWNLOAD)
 
 /** Every download Play asked for since the last resetStub, oldest first. */
 export function downloadsAsked(): readonly DownloadAsk[] {
@@ -239,10 +239,10 @@ export const CHAT_HREF = '/chat'
 const search = cell<string>('')
 
 /** :85 (the App Router's useSearchParams): a copy of the query string, a new one when the URL's query changes. */
-export const useHostSearchParams = (() => {
+export const useHostSearchParams: Sdk['useHostSearchParams'] = (() => {
   const query = search.use()
   return useMemo(() => new URLSearchParams(query), [query])
-}) satisfies Sdk['useHostSearchParams']
+})
 
 /** The URL's query string from now on, without its '?' ('' for none). */
 export function setSearchParams(query: string): void {
@@ -286,13 +286,13 @@ const workspace = cell<HostWorkspaceState>(workspaceState(WORKSPACE_DEFAULTS))
 const connection = cell<HostHealth['connection']>('connected')
 
 /** :81: the workspace as a theme sees it (the host's socials.available as socialsAvailable). */
-export const useWorkspace = (() => workspace.use()) satisfies Sdk['useWorkspace']
+export const useWorkspace: Sdk['useWorkspace'] = (() => workspace.use())
 
 /** :137 (the host's GET /health, hooks/use-backend-health.ts): the connection a test set. */
-export const useHealth = (() => {
+export const useHealth: Sdk['useHealth'] = (() => {
   const now = connection.use()
   return useMemo(() => Object.freeze({ connection: now, checking: false, check: CHECK_NOTHING }), [now])
-}) satisfies Sdk['useHealth']
+})
 
 const hasMatchMedia = (): boolean => typeof window.matchMedia === 'function'
 
@@ -306,10 +306,10 @@ function subscribeReducedMotion(onChange: () => void): () => void {
 const reducedMotionNow = (): boolean => hasMatchMedia() && window.matchMedia(REDUCED_MOTION).matches
 
 /** :146 over hooks/use-media-preferences.ts:12-28: the OS setting through matchMedia (jsdom has none: motion allowed). */
-export const useMediaPreferences = (() => {
+export const useMediaPreferences: Sdk['useMediaPreferences'] = (() => {
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, reducedMotionNow, () => true)
   return useMemo(() => Object.freeze({ reducedMotion }), [reducedMotion])
-}) satisfies Sdk['useMediaPreferences']
+})
 
 /** The workspace from now on: the defaults with these changes, or null (not loaded, or nobody signed in). */
 export function setWorkspace(changes: Partial<HostWorkspace> | null): void {
@@ -333,7 +333,7 @@ const START_CHAT: HostStartChat = Object.freeze({
 })
 
 /** :415 (the host's useStartChat: a fresh draft, then the chat page): ready, and each press counted. */
-export const useStartChat = (() => START_CHAT) satisfies Sdk['useStartChat']
+export const useStartChat: Sdk['useStartChat'] = (() => START_CHAT)
 
 /** How many times Play started a chat since the last resetStub. */
 export function startedChats(): number {
@@ -343,7 +343,7 @@ export function startedChats(): number {
 // ---- cards (lib/theme-sdk/cards.ts) ----
 
 /** :43 (host-cards/content.tsx:70, the host's sanitising react-markdown): the text as it is, read as no Markdown. */
-export const MarkdownView = (({ children, className }) => createElement('div', { className }, children)) satisfies Sdk['MarkdownView']
+export const MarkdownView: Sdk['MarkdownView'] = (({ children, className }) => createElement('div', { className }, children))
 
 // ---- every control at once ----
 

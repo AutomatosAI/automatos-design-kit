@@ -14,8 +14,8 @@ const DEFAULT_FILENAME = 'download'
 const CONTENT_ROUTE = /^\/api\/workspaces\/([^/]+)\/files\/content\?path=([^&#]*)/
 
 /** :27: the detail's file route, else the preview, else none. */
-export const deliverableFileUrl = ((deliverable) =>
-  deliverable.content_url || deliverable.preview_url || null) satisfies Sdk['deliverableFileUrl']
+export const deliverableFileUrl: Sdk['deliverableFileUrl'] = ((deliverable) =>
+  deliverable.content_url || deliverable.preview_url || null)
 
 /** :32: the path a query carries, decoded once; null when it isn't valid percent-encoding. */
 function decodedPath(encoded: string): string | null {
@@ -28,21 +28,21 @@ function decodedPath(encoded: string): string | null {
 }
 
 /** :42 over lib/api-client.ts:3020: a content route becomes the file's raw route; any other is unchanged. */
-export const fileDownloadUrl = ((url) => {
+export const fileDownloadUrl: Sdk['fileDownloadUrl'] = ((url) => {
   const match = CONTENT_ROUTE.exec(url)
   const path = match ? decodedPath(match[2]) : null
   return match && path !== null ? `/api/workspaces/${match[1]}/files/raw?path=${encodeURIComponent(path)}` : url
-}) satisfies Sdk['fileDownloadUrl']
+})
 
 /** :49: what Download fetches, the file's bytes, never a content route's JSON; null with no file. */
-export const deliverableDownloadUrl = ((deliverable) => {
+export const deliverableDownloadUrl: Sdk['deliverableDownloadUrl'] = ((deliverable) => {
   const url = deliverableFileUrl(deliverable)
   return url ? fileDownloadUrl(url) : null
-}) satisfies Sdk['deliverableDownloadUrl']
+})
 
 /** :55: the file's own name, else the last segment of its path. */
-export const deliverableFilename = ((deliverable) =>
-  deliverable.file_name || deliverable.file_path?.split('/').pop() || DEFAULT_FILENAME) satisfies Sdk['deliverableFilename']
+export const deliverableFilename: Sdk['deliverableFilename'] = ((deliverable) =>
+  deliverable.file_name || deliverable.file_path?.split('/').pop() || DEFAULT_FILENAME)
 
 // ---- chat: lib/theme-sdk/chat.ts over lib/chat/receipts.ts ----
 
@@ -69,7 +69,7 @@ function isReceipt(value: unknown): value is HostReceipt {
  * chat.ts:448 over receipts.ts:35-91: the receipts frame on a tool-data part, its real receipts only, the
  * non-blank lines above the reply and the model it names; null for any other part and for a frame without a list.
  */
-export const liveReceiptsOf = ((part) => {
+export const liveReceiptsOf: Sdk['liveReceiptsOf'] = ((part) => {
   const forwarded = fieldsOf(part)
   const frame = forwarded.type === 'tool-data' ? fieldsOf(fieldsOf(forwarded.data)[LIVE_KEY]) : NO_FIELDS
   const { receipts: list, above, model } = frame
@@ -80,4 +80,4 @@ export const liveReceiptsOf = ((part) => {
     above: lines.length > 0 ? Object.freeze(lines) : NO_LINES,
     model: typeof model === 'string' ? model : null,
   })
-}) satisfies Sdk['liveReceiptsOf']
+})

@@ -34,7 +34,7 @@ export interface HarnessOptions {
 
 /** The vitest config for a theme's tests. */
 export function harnessTestConfig(options: HarnessOptions = {}): ViteUserConfig {
-  const alias = options.sdk === undefined ? {} : { [SDK_MODULE]: options.sdk }
+  const alias: Record<string, string> = options.sdk === undefined ? {} : { [SDK_MODULE]: options.sdk }
   return {
     resolve: { alias },
     oxc: { jsx: { runtime: 'automatic', importSource: 'react' } },
