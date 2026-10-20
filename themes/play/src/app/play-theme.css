@@ -160,6 +160,9 @@ html.play {
   --pl-duration-card: 420ms; /* a Deliverable card lands with a 1.04 overshoot */
   --pl-duration-ring: 2.4s; /* the ring pulses */
   --pl-duration-glow: 600ms; /* the page glow crossfades with Auto's state */
+  /* The host's motion factor for calc(): 1, or 0 when the user asks for reduced motion. The host's look
+     runtime sets --theme-motion on <html> (PRD-261 A-19d2); builtin Play's LookProvider sets --pl-motion. */
+  --pl-motion-scale: var(--theme-motion, var(--pl-motion, 1));
 
   /* Layout */
   --pl-sidebar-width: 232px;
@@ -302,11 +305,15 @@ html.play {
   }
 }
 
-/* The same stop, set by the LookProvider (data-pl-motion on <html>, plus --pl-motion: 0 for calc()).
+/* The same stop, set by the host on <html>: data-theme-motion by its look runtime (PRD-261 A-19d2, with
+   --theme-motion: 0 for calc()), data-pl-motion by builtin Play's LookProvider (with --pl-motion: 0).
    Kit: the same three declarations, no longer marked important; (1,2,1) and (1,2,2) by the same id. */
 html.play:not(#play-none)[data-pl-motion="reduce"] *,
 html.play:not(#play-none)[data-pl-motion="reduce"] *::before,
-html.play:not(#play-none)[data-pl-motion="reduce"] *::after {
+html.play:not(#play-none)[data-pl-motion="reduce"] *::after,
+html.play:not(#play-none)[data-theme-motion="reduce"] *,
+html.play:not(#play-none)[data-theme-motion="reduce"] *::before,
+html.play:not(#play-none)[data-theme-motion="reduce"] *::after {
   animation-duration: 0.01ms;
   animation-iteration-count: 1;
   transition-duration: 0.01ms;
