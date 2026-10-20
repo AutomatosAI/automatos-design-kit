@@ -1,18 +1,21 @@
 // Stands in for the host's @automatos/theme-sdk in Play's tests (vitest.config.ts points the module
 // name here): the host serves the real one through its import map, and the kit vendors its types only.
-// It holds only what the tested modules call. Each stand-in names the core file and line it mirrors, in
-// core's frontend/ at 0dd8b846e41772c8dd7ef159e4373bcb9419b06a. A test sets the host with the controls
-// below: the files folder assetUrl answers from, the storage area's scope (test/storage-port.ts, core's
-// storage area ported), the Deliverables list's answer and its pictures, the backend's health, the
-// workspace and the OS motion setting (window.matchMedia, as core reads it); and it reads back what Play
-// asked of the host. resetStub puts every one back. The harness's SDK (packages/theme-harness, PRD-261
-// B-02b) replaces this file.
+// It holds every SDK name a module the tests import reads; core's pure helpers are ported in
+// test/support/sdk-ports.ts. Each stand-in names the core file and line it mirrors, in core's frontend/ at
+// 0dd8b846e41772c8dd7ef159e4373bcb9419b06a. A test sets the host with the controls below: the files folder
+// assetUrl answers from, the storage area's scope (test/storage-port.ts, core's storage area ported), the
+// Deliverables list's answer and its pictures, one Deliverable's answer, the URL's query string, the
+// backend's health, the workspace and the OS motion setting (window.matchMedia, as core reads it); and it
+// reads back what Play asked of the host. resetStub puts every one back. The harness's SDK
+// (packages/theme-harness, PRD-261 B-02b) replaces this file and test/support/sdk-ports.ts.
 import type {
   AuthenticatedBlobUrl,
   DeliverableFilters,
+  DeliverableQuery,
   DeliverablesOptions,
   DeliverablesQuery,
   DeliverableTab,
+  FileDownload,
   HostHealth,
   HostLinkProps,
   HostStartChat,
@@ -24,6 +27,7 @@ import { resetStorage } from './storage-port.ts'
 
 export { readThemeState, removeThemeState, subscribeThemeState, THEME_STATE_LIMITS, writeThemeState } from './storage-port.ts'
 export { changeInAnotherTab, resetStorage, setStorage, STORAGE_DEFAULTS, THEME_STATE_KEY_PREFIX } from './storage-port.ts'
+export { deliverableDownloadUrl, deliverableFilename, deliverableFileUrl, fileDownloadUrl, liveReceiptsOf } from './support/sdk-ports.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 
@@ -168,6 +172,60 @@ export function setBlobUrls(answer: BlobUrls): void {
   blobUrls = answer
 }
 
+/** One call of useDeliverable: the id Play asked for, and whether with its content. */
+export interface DetailAsk {
+  readonly id: string | null
+  readonly includeContent: boolean
+}
+
+/** One Deliverable before its answer (LOADING_DETAIL), and while its id is null (react-query's disabled query). */
+const DETAIL_START = { data: undefined, isError: false, error: null, refetch: async () => undefined } as const
+const LOADING_DETAIL: DeliverableQuery = Object.freeze({ ...DETAIL_START, isLoading: true })
+const IDLE_DETAIL: DeliverableQuery = Object.freeze({ ...DETAIL_START, isLoading: false })
+
+const detail = cell<DeliverableQuery>(LOADING_DETAIL)
+let detailAsks: readonly DetailAsk[] = []
+
+/** :168 (hooks/use-deliverables-api.ts:250, idle while the id is null): the answer a test set; each call is kept. */
+export const useDeliverable = ((id, includeContent = false) => {
+  detailAsks = [...detailAsks, Object.freeze({ id, includeContent })]
+  const answer = detail.use()
+  return id === null ? IDLE_DETAIL : answer
+}) satisfies Sdk['useDeliverable']
+
+/** What useDeliverable answers from now on: react-query's result, with the test's own refetch. */
+export function setDetail(answer: DeliverableQuery): void {
+  detail.set(answer)
+}
+
+/** Every useDeliverable call since the last resetStub, oldest first. */
+export function detailsAsked(): readonly DetailAsk[] {
+  return detailAsks
+}
+
+/** One Download: the API path fetched with the caller's token, and the name it saves under. */
+export interface DownloadAsk {
+  readonly url: string
+  readonly filename: string
+}
+
+let downloadAsks: readonly DownloadAsk[] = []
+
+const FILE_DOWNLOAD: FileDownload = Object.freeze({
+  download: async (url: string, filename: string) => {
+    downloadAsks = [...downloadAsks, Object.freeze({ url, filename })]
+  },
+  downloading: false,
+})
+
+/** :173 (hooks/use-api-file-download.ts:20): each download kept, none ever in progress or failing. */
+export const useFileDownload = (() => FILE_DOWNLOAD) satisfies Sdk['useFileDownload']
+
+/** Every download Play asked for since the last resetStub, oldest first. */
+export function downloadsAsked(): readonly DownloadAsk[] {
+  return downloadAsks
+}
+
 // ---- navigation (lib/theme-sdk/navigation.tsx) ----
 
 /** :24 and :25, lib/ticket-links.ts:53 and :55. */
@@ -175,6 +233,21 @@ export const DELIVERABLES_HREF = '/deliverables'
 export const DELIVERABLE_PARAM = 'deliverable'
 /** :35, lib/deliverables/tabs.ts:15. */
 export const DELIVERABLE_EXPLORER_HREF = '/deliverables/explorer'
+/** :23, lib/ticket-links.ts:50. */
+export const CHAT_HREF = '/chat'
+
+const search = cell<string>('')
+
+/** :85 (the App Router's useSearchParams): a copy of the query string, a new one when the URL's query changes. */
+export const useHostSearchParams = (() => {
+  const query = search.use()
+  return useMemo(() => new URLSearchParams(query), [query])
+}) satisfies Sdk['useHostSearchParams']
+
+/** The URL's query string from now on, without its '?' ('' for none). */
+export function setSearchParams(query: string): void {
+  search.set(query)
+}
 
 /** internal/href.ts:11-42: a path inside the app, or https out of it, with no control character or whitespace. */
 const INTERNAL_HREF = /^\/(?![/\\])/
@@ -267,6 +340,11 @@ export function startedChats(): number {
   return chatsStarted
 }
 
+// ---- cards (lib/theme-sdk/cards.ts) ----
+
+/** :43 (host-cards/content.tsx:70, the host's sanitising react-markdown): the text as it is, read as no Markdown. */
+export const MarkdownView = (({ children, className }) => createElement('div', { className }, children)) satisfies Sdk['MarkdownView']
+
 // ---- every control at once ----
 
 /** The host as a test starts with it: each control's default, nothing asked, no theme state in the window's storage. */
@@ -276,6 +354,10 @@ export function resetStub(): void {
   list.set(LOADING_LIST)
   listAsks = []
   blobUrls = NO_PICTURE
+  detail.set(LOADING_DETAIL)
+  detailAsks = []
+  downloadAsks = []
+  search.set('')
   workspace.set(workspaceState(WORKSPACE_DEFAULTS))
   connection.set('connected')
   chatsStarted = 0

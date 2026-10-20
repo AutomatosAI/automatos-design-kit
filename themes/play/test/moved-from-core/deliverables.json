@@ -4,7 +4,7 @@
     "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
     "coreIts": 22,
     "kitPath": "test/deliverables/play-shelf.test.tsx",
-    "kitIts": 22,
+    "kitIts": 23,
     "rehomed": [
       {
         "assertion": "The shelf's list is asked again every SHELF_REFRESH_MS while the tab is visible: the host's react-query timer behind useDeliverables' refetchInterval (the kit asserts the option and what a new page shows).",

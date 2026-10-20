@@ -6,21 +6,24 @@
 // spotlight), the chips setting artifact_type, Load more asking for the next page, a card's link
 // (?deliverable=<id>), the pictures through the host's authenticated path, the loading, empty and error
 // states (a list answer of success: false included), Auto's caption, focus after the last Load more
-// (P260-FX-22, M20), and the page's other sections. What core's real hook did under it (the offset on the
-// wire, a success: false page thrown and its data kept, the re-ask every SHELF_REFRESH_MS) and what the
-// host does with a card's link or Start a chat are core's to prove, and the ledger names those tests
-// (test/moved-from-core/deliverables.json). Roles, attributes and text only (CSS modules are proxies).
-// "Now" is pinned to a local date.
-import { DELIVERABLE_FEED_FILTERS } from '@automatos/theme-sdk'
+// (P260-FX-22, M20), and the page's other sections. The kit adds the shelf switch (PlayShelf, K8, which
+// core asserts in play-deliverable.test.tsx) on the stand-in's query string. What core's real hook did
+// under it (the offset on the wire, a success: false page thrown and its data kept, the re-ask every
+// SHELF_REFRESH_MS) and what the host does with a card's link or Start a chat are core's to prove, and the
+// ledger names those tests (test/moved-from-core/deliverables.json). Roles, attributes and text only (CSS
+// modules are proxies). "Now" is pinned to a local date.
+import { DELIVERABLE_FEED_FILTERS, DELIVERABLE_PARAM, type DeliverableQuery } from '@automatos/theme-sdk'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
-import { FILTER_GROUP_LABEL, SECTIONS_LABEL, ShelfScreen } from '../../src/components/play/deliverables/play-shelf.tsx'
+import { BAD_LINK, FILTER_GROUP_LABEL, PlayShelf, SECTIONS_LABEL, SHELF_TITLE, ShelfScreen } from '../../src/components/play/deliverables/play-shelf.tsx'
 import { MORE_FAILED, SHELF_FAILED } from '../../src/components/play/deliverables/shelf-body.tsx'
 import { readSeen, writeSeen } from '../../src/lib/play/seen.ts'
 import { SHELF_REFRESH_MS } from '../../src/lib/play/shelf.ts'
-import { deliverablesAsked, resetStub, setBlobUrls, setHealth, setWorkspace, startedChats } from '../sdk-stub.ts'
+import {
+  deliverablesAsked, detailsAsked, resetStub, setBlobUrls, setDetail, setHealth, setSearchParams, setWorkspace, startedChats,
+} from '../sdk-stub.ts'
 import { answer, at, numbered, page, PAGE_SIZE, ROWS } from '../support/deliverables.ts'
 
 // Auto as his state and caption only, as core's test has him: data-state, and the caption as text.
@@ -366,5 +369,31 @@ describe("ShelfScreen — the page's other sections", () => {
     setWorkspace({ socialsAvailable: true })
     renderShelf()
     expect(screen.getByRole('link', { name: 'Socials' })).toHaveAttribute('href', '/deliverables?tab=socials')
+  })
+})
+
+describe('PlayShelf — the ?deliverable= switch (K8)', () => {
+  it('shows the Deliverable a valid id names instead of the shelf; an id it refuses gets the shelf and a notice, never an ask', () => {
+    const [laptop] = ROWS
+    const found: DeliverableQuery = {
+      data: { success: true, deliverable: { ...laptop, content: 'The short answer' } },
+      isLoading: false, isError: false, error: null, refetch: vi.fn(async () => undefined),
+    }
+    setDetail(found)
+    answer({ data: { pages: [page(ROWS)] } })
+    setSearchParams(`${DELIVERABLE_PARAM}=${laptop.id}`)
+    render(<PlayShelf />)
+    expect(screen.getByRole('heading', { level: 1, name: 'Laptop shortlist' })).toBeInTheDocument()
+    expect(screen.getByText('The short answer')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: SHELF_TITLE })).toBeNull()
+    expect(detailsAsked()).toContainEqual({ id: laptop.id, includeContent: true })
+
+    cleanup()
+    const asked = detailsAsked().length
+    setSearchParams(`${DELIVERABLE_PARAM}=${encodeURIComponent('../../admin?x=1')}`)
+    render(<PlayShelf />)
+    expect(screen.getByRole('heading', { level: 1, name: SHELF_TITLE })).toBeInTheDocument()
+    expect(screen.getByText(BAD_LINK)).toBeInTheDocument()
+    expect(detailsAsked()).toHaveLength(asked)
   })
 })
