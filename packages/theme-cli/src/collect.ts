@@ -2,9 +2,11 @@
  * The files of a theme folder that go into its package.
  *
  * A package holds theme.json, the top-level docs (README.md, CHANGELOG.md, LICENSE), and everything
- * under dist/, boot/, looks/, assets/ and source/ (PRD-261 §4.2). The rest of the folder (src/,
- * package.json, vite.config.ts, node_modules) is the theme's build, not its package, and is left
- * out. Inside the packed folders nothing is skipped but dotfiles (a Finder .DS_Store), so a file
+ * under dist/, boot/, looks/, assets/ and source/ (PRD-261 §4.2). This file reads all of them but
+ * source/ from the theme folder as they are; pack writes source/ from the folder's src/ (source.ts)
+ * and never reads a source/ folder from disk. The rest of the folder (package.json, vite.config.ts,
+ * node_modules) is the theme's build, not its package, and is left out. Inside the packed folders
+ * nothing is skipped but dotfiles (a Finder .DS_Store), so a file
  * the server would refuse, a source map say, is reported rather than dropped. A symbolic link is
  * reported as one (the server refuses links) and never followed.
  */
@@ -12,15 +14,21 @@ import { lstatSync, readdirSync, readFileSync, type Dirent } from 'node:fs'
 import { join } from 'node:path'
 import type { PackageEntry } from './members.ts'
 
-export const PACKED_FOLDERS: readonly string[] = ['dist', 'boot', 'looks', 'assets', 'source']
+export const PACKED_FOLDERS: readonly string[] = ['dist', 'boot', 'looks', 'assets']
 export const PACKED_TOP_FILES: readonly string[] = [
   'theme.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'LICENSE.md', 'LICENSE.txt',
 ]
 
 const EMPTY = new Uint8Array(0)
 
-function isHidden(name: string): boolean {
+/** True for a dotfile or dot folder, which no package holds. */
+export function isHidden(name: string): boolean {
   return name.startsWith('.')
+}
+
+/** Orders anything with a name or a path by it, code unit by code unit (the zip's order). */
+export function byText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0
 }
 
 function entryFor(themeDir: string, path: string, linked: boolean): PackageEntry {
@@ -33,7 +41,7 @@ function folderEntries(themeDir: string, folder: string): PackageEntry[] {
   const dirents: Dirent[] = readdirSync(join(themeDir, folder), { withFileTypes: true })
   return dirents
     .filter((dirent) => !isHidden(dirent.name))
-    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+    .sort((a, b) => byText(a.name, b.name))
     .flatMap((dirent): PackageEntry[] => {
       const path = `${folder}/${dirent.name}`
       if (dirent.isSymbolicLink()) return [entryFor(themeDir, path, true)]
@@ -43,7 +51,7 @@ function folderEntries(themeDir: string, folder: string): PackageEntry[] {
 }
 
 /** The kind of thing at `path` in the theme folder, without following a link. */
-function statOf(themeDir: string, path: string): 'file' | 'folder' | 'link' | 'none' {
+export function statOf(themeDir: string, path: string): 'file' | 'folder' | 'link' | 'none' {
   try {
     const stat = lstatSync(join(themeDir, path))
     if (stat.isSymbolicLink()) return 'link'
@@ -65,5 +73,5 @@ export function collectThemeFiles(themeDir: string): PackageEntry[] {
     if (kind === 'link') return [entryFor(themeDir, folder, true)]
     return kind === 'folder' ? folderEntries(themeDir, folder) : []
   })
-  return [...top, ...folders].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+  return [...top, ...folders].sort((a, b) => byText(a.path, b.path))
 }
