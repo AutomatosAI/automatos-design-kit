@@ -17,7 +17,7 @@ import { useAutoMascot } from '../src/hooks/use-auto-mascot.ts'
 import { useCelebrateNew } from '../src/hooks/use-celebrate-new.ts'
 import { mascotPause, PAUSE_KEY, PAUSE_STATE, setMascotPaused, subscribeMascotPause } from '../src/lib/mascot/pause.ts'
 import { claimFirstOpen, HELLO_KEY, HELLO_STATE } from '../src/lib/mascot/session.ts'
-import { markSeen, readSeen, SEEN_CAP, SEEN_KEY, SEEN_STATE, writeSeen } from '../src/lib/play/seen.ts'
+import { markSeen, readSeen, SEEN_CAP, SEEN_KEY, SEEN_STATE, subscribeSeen, writeSeen } from '../src/lib/play/seen.ts'
 import { readSource, readThemeFile, SOURCE_ROOT, THEME_ROOT } from './source-files.ts'
 import {
   changeInAnotherTab, readThemeState, removeThemeState, resetStorage, setStorage, STORAGE_DEFAULTS,
@@ -41,6 +41,8 @@ const BROWSER_ACCOUNT = 'automatos-theme-state:v1:b:automatos/play:u:local'
 const SESSION_ACCOUNT = 'automatos-theme-state:v1:s:automatos/play:u:local'
 const BROWSER_WORKSPACE = 'automatos-theme-state:v1:b:automatos/play:w:workspace-1:u:local'
 const PROBE = 'probe'
+/** The renders after which a hook that keeps waking itself is stopped, so its test fails instead of looping. */
+const RENDER_LIMIT = 20
 
 const deliverable = (id: string, created: string): Deliverable => ({ id, created_at: created }) as Deliverable
 const FIRST = deliverable('a', '2026-01-01T00:00:00Z')
@@ -341,6 +343,22 @@ describe("seen: 'seen-deliverables', in this browser, for the user in this works
     expect(result.current).toBe(SECOND)
     rerender({ items: [SECOND, FIRST] })
     expect(celebrate).toHaveBeenCalledTimes(1)
+  })
+
+  it("writes once for SEEN_CAP + 4 Deliverables, and the host's report of its own write does not wake it", () => {
+    const minute = (index: number): string => new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString()
+    const items = Array.from({ length: SEEN_CAP + 4 }, (_, index) => deliverable(`m${index}`, minute(index)))
+    const [celebrate, written] = [vi.fn(), vi.fn()]
+    subscribeSeen(written)
+    let renders = 0
+    renderHook(() => {
+      renders += 1
+      if (renders > RENDER_LIMIT) throw new Error(`useCelebrateNew rendered ${renders} times`)
+      return useCelebrateNew(items, celebrate)
+    })
+    expect([written.mock.calls.length, renders]).toEqual([1, 1])
+    expect(readSeen().record?.ids).toHaveLength(SEEN_CAP)
+    expect(celebrate).not.toHaveBeenCalled()
   })
 
   it('reads and remembers nothing until the workspace is known', () => {

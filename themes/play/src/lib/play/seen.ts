@@ -107,11 +107,25 @@ function newestOf(items: readonly Dated[], start: string | null): string | null 
   }, start)
 }
 
-/** The record with these Deliverables remembered. Returns the same record when nothing changes. */
+/** Whether an unseen Deliverable can still count as new: dated, and newer than the newest seen (none yet: any date). */
+function canBeFresh(item: Dated, newest: number | null): boolean {
+  const created = time(item.created_at)
+  return created !== null && (newest === null || created > newest)
+}
+
+/**
+ * The record with these Deliverables remembered. Returns the same record when nothing changes.
+ *
+ * PRD-261 E3g: only the unseen ones that can still count as new are added. One undated, or no newer than
+ * the newest seen, never will (freshDeliverables), and adding it again and again is what kept more than
+ * SEEN_CAP of them, or two lists taking turns (two chips, two tabs), from ever reaching a record a second
+ * pass leaves as it is: each pass pushed out ids the next one added back.
+ */
 export function markSeen(record: SeenRecord | null, items: readonly Dated[]): SeenRecord {
   const ids = record?.ids ?? []
   const known = new Set(ids)
-  const added = items.map((item) => item.id).filter((id) => !known.has(id))
+  const bound = time(record?.newest)
+  const added = items.filter((item) => !known.has(item.id) && canBeFresh(item, bound)).map((item) => item.id)
   const newest = newestOf(items, record?.newest ?? null)
   if (record && added.length === 0 && newest === record.newest) return record
   return { ids: [...ids, ...added].slice(-SEEN_CAP), newest }
