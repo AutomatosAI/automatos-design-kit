@@ -337,8 +337,9 @@ describe("theme-release.yml (C-06a)", () => {
     const pattern = new RegExp(envOf(text, "TAG_PATTERN"));
     expect(["play-v1.1.0", "play-v10.0.12"].filter((tag) => !pattern.test(tag))).toEqual([]);
     expect(["play-v1.1", "play-v1.1.0-rc.1", "v1.1.0", "xplay-v1.1.0", "play-v1.1.0\n"].filter((tag) => pattern.test(tag))).toEqual([]);
+    expect(stepNamed(release, "Find a signature at the tag").body).toContain("\n        id: signature\n");
     expectInOrder(release, ["Pack Play", "Checksum", "Find a signature at the tag", "Check a signing key is published", "Verify the signature", "Publish the release"]);
-    ["Check a signing key is published", "Verify the signature"].forEach((name) => expect(stepNamed(release, name).body).toContain("\n        if: env.SIGNATURE != ''\n"));
+    ["Check a signing key is published", "Verify the signature"].forEach((name) => expect(stepNamed(release, name).body).toContain("\n        if: steps.signature.outputs.found == 'true'\n"));
     expect(stepNamed(release, "Verify the signature").run).toBe(verifyRun);
     ['assets=("$base.autotheme" "$base.autotheme.sha256")', 'gh release create "$TAG" "${assets[@]}" --verify-tag']
       .forEach((part) => expect(stepNamed(release, "Publish the release").run).toContain(part));

@@ -119,10 +119,12 @@ jobs:
           echo "PACKAGE_DIGEST=$(summary digest)" >> "$GITHUB_ENV"
 
       - name: Find a signature at the tag
+        id: signature
         shell: bash
         run: |
           sig="$SIGNATURES_DIR/$VERSION.sig.json"
           if [ -f "$sig" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
             echo "SIGNATURE=$sig" >> "$GITHUB_ENV"
             echo "KEYS=$KEYS_FILE" >> "$GITHUB_ENV"
           else
@@ -130,7 +132,7 @@ jobs:
           fi
 
       - name: Check a signing key is published
-        if: env.SIGNATURE != ''
+        if: steps.signature.outputs.found == 'true'
         shell: bash
         run: |
           active=$(node -p 'const held = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).keys; Array.isArray(held) ? held.filter((key) => key !== null && key.status === "active").length : 0' "$KEYS" 2> /dev/null) || {
@@ -142,7 +144,7 @@ jobs:
           echo "$KEYS_FILE holds $active active signing key(s)."
 
       - name: Verify the signature
-        if: env.SIGNATURE != ''
+        if: steps.signature.outputs.found == 'true'
         run: node scripts/sign/verify.ts "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$SIGNATURE" "$KEYS"
 
       - name: Publish the release
