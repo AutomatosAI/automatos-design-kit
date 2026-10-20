@@ -2,10 +2,11 @@
  * The `automatos-theme` command line: `automatos-theme pack <theme folder> [--out <folder>]` and
  * `automatos-theme submit <file.autotheme>` (submit.ts).
  *
- * `pack` checks the theme folder as core's reader would and writes
+ * `pack` checks the theme folder as core's reader would, with its src/ packed as source/, and writes
  * `<publisher>.<slug>-<version>.autotheme` and its `.sha256.json` manifest to `--out` (default:
- * the current folder). Exit code 0 when written, 1 when the theme was refused (every reason is
- * printed, one per line), 2 for a usage error.
+ * the current folder). Exit code 0 when written (a warning, such as no src/, is printed to stderr
+ * as `warning: ...`, one line each), 1 when the theme was refused (every reason is printed, one per
+ * line), 2 for a usage error.
  */
 import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
@@ -19,6 +20,7 @@ export const USAGE = ['usage: automatos-theme pack <theme folder> [--out <folder
 const EXIT_OK = 0
 const EXIT_REFUSED = 1
 const EXIT_USAGE = 2
+export const WARNING_PREFIX = 'warning: '
 
 interface Command {
   readonly themeDir: string
@@ -56,6 +58,7 @@ export function main(argv: readonly string[], output: Output, cwd: string = proc
   }
   output.out(`${result.file} ${result.bytes} bytes, digest ${result.manifest.digest}`)
   output.out(`${result.manifestFile}`)
+  result.warnings.forEach((warning) => output.err(`${WARNING_PREFIX}${warning}`))
   return EXIT_OK
 }
 

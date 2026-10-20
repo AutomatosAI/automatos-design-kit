@@ -1,5 +1,5 @@
 // PRD-261 C-02b: the isolated review over real packages. A theme is built with the kit's preset
-// (as its author would), its src/ shipped as source/, and packed with the theme CLI; the review
+// (as its author would) and packed with the theme CLI, which writes its src/ as source/ (C-06p1); the review
 // rebuilds source/ in another folder and must get the same bytes. Seeded bad packages fail at the
 // right check. The network probe is stubbed here; the workflow runs the real one in
 // `docker run --network none`.
@@ -9,7 +9,9 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { packTheme } from "@automatos/theme-cli";
-import { buildThemeFolder } from "../scripts/review/rebuild.ts";
+import { readZip } from "@automatos/theme-cli/zip";
+import { SOURCE_ENTRY_CANDIDATES } from "../packages/theme-cli/src/source.ts";
+import { buildThemeFolder, ENTRY_CANDIDATES } from "../scripts/review/rebuild.ts";
 import { reviewPackage, type ReviewReport } from "../scripts/review/review.ts";
 import { jobSummary, summaryText, SUMMARY_MAX_CHARS } from "../scripts/review/summary.ts";
 import type { ProbeResult } from "../scripts/review/probe.ts";
@@ -33,6 +35,7 @@ interface Packed {
 
 interface ThemeOptions {
   readonly entry?: string;
+  /** false removes src/ after the build, so pack writes no source/. */
   readonly withSource?: boolean;
   /** Runs on the theme folder after its build and before the pack. */
   readonly afterBuild?: (root: string) => void;
@@ -50,7 +53,7 @@ function tempFolder(): string {
   return folder;
 }
 
-/** The hello theme as its author would ship it: built with the preset, src/ copied to source/, packed. */
+/** The hello theme as its author would ship it: built with the preset, then packed (pack writes source/). */
 async function packedTheme(options: ThemeOptions = {}): Promise<Packed> {
   const root = join(tempFolder(), "hello");
   ["theme.json", "README.md", "looks"].forEach((path) => cpSync(join(HELLO, path), join(root, path), { recursive: true }));
@@ -58,7 +61,7 @@ async function packedTheme(options: ThemeOptions = {}): Promise<Packed> {
   writeFileSync(join(root, "src/entry.js"), `import './theme.css'\n${options.entry ?? HELLO_ENTRY}`);
   writeFileSync(join(root, "src/theme.css"), HELLO_CSS);
   await buildThemeFolder(root, "src/entry.js");
-  if (options.withSource !== false) cpSync(join(root, "src"), join(root, "source"), { recursive: true });
+  if (options.withSource === false) rmSync(join(root, "src"), { recursive: true });
   options.afterBuild?.(root);
   const out = tempFolder();
   const result = packTheme(root, out);
@@ -85,6 +88,13 @@ describe("an honest package", () => {
     expect(report).toMatchObject({ outcome: "pass", id: "automatos-e2e/hello", version: "1.0.0", digest: packed.digest });
   });
 
+  it("carries the source/ pack wrote from src/", async () => {
+    const packed = await packedTheme();
+    const source = readZip(packed.zip).filter((entry) => entry.path.startsWith("source/"));
+    expect(source.map((entry) => entry.path)).toEqual(["source/entry.js", "source/theme.css"]);
+    expect(Buffer.from(source[1].data).toString("utf8")).toBe(HELLO_CSS);
+  });
+
   it("gives a summary to paste, fenced in the job summary", async () => {
     const report = await review(await packedTheme());
     const text = summaryText(report);
@@ -94,6 +104,15 @@ describe("an honest package", () => {
     const markdown = jobSummary(report);
     expect(markdown).toContain("```text\n");
     expect(markdown).toContain("outcome **pass**");
+  });
+});
+
+describe("the rebuild and pack agree on the entry module", () => {
+  it("rebuild.ts takes the entry names from the theme CLI and names none itself", () => {
+    expect(ENTRY_CANDIDATES).toEqual(SOURCE_ENTRY_CANDIDATES.map((name) => `src/${name}`));
+    const text = readFileSync(fileURLToPath(new URL("../scripts/review/rebuild.ts", import.meta.url)), "utf8");
+    expect(text).toContain("SOURCE_ENTRY_CANDIDATES");
+    expect(text).not.toMatch(/['"`]src\/entry\.(?:ts|tsx|js|jsx)['"`]/);
   });
 });
 
@@ -120,7 +139,7 @@ describe("seeded bad packages fail at the right check", () => {
   it("source/ that imports sonner: a JS-rule finding and a refused build", async () => {
     const entry = `import { toast } from 'sonner'\n${HELLO_ENTRY}\ntoast('hi')\n`;
     const packed = await packedTheme({
-      afterBuild: (root) => writeFileSync(join(root, "source/entry.js"), `import './theme.css'\n${entry}`),
+      afterBuild: (root) => writeFileSync(join(root, "src/entry.js"), `import './theme.css'\n${entry}`),
     });
     const report = await review(packed);
     expect(report.findings.map((finding) => finding.code)).toContain("JS_IMPORT");
@@ -129,11 +148,13 @@ describe("seeded bad packages fail at the right check", () => {
     expect(build?.detail).toMatch(/sonner/);
   });
 
-  it("a package with no source/", async () => {
+  it("a package with no source/ (no src/ when packed): fails only at Source", async () => {
     const report = await review(await packedTheme({ withSource: false }));
     expect(report.outcome).toBe("fail");
-    expect(statusOf(report, "Source")).toBe("fail");
-    expect(statusOf(report, "Reproducible build")).toBe("not_run");
+    expect(report.checks.map((item) => [item.name, item.status])).toEqual([
+      ["No network", "pass"], ["Package", "pass"], ["Digest", "pass"], ["Source", "fail"], ["JS rules", "pass"],
+      ["Reproducible build", "not_run"],
+    ]);
   });
 
   it("a package that isn't the version the queue named", async () => {

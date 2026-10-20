@@ -6,7 +6,8 @@
  * `source/entry.ts` is the theme's `src/entry.ts`. The review writes the package back out as a
  * theme folder (every file but dist/, with source/ as src/), and builds it the way a kit theme
  * builds: `vite build` from the theme folder with only `automatosTheme()` (the entry is the one
- * `src/entry.{ts,tsx,js,jsx}` there is). Never the package's own config: no config file, no .env,
+ * `src/entry.{ts,tsx,js,jsx}` there is; the names are the theme CLI's, which packs source/ from src/
+ * and refuses a src/ without exactly one). Never the package's own config: no config file, no .env,
  * PostCSS options set inline (empty, so no postcss.config is searched for), and only the preset's
  * plugins.
  */
@@ -14,10 +15,11 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { dirname, join } from 'node:path'
 import { build } from 'vite'
 import { automatosTheme, OUT_DIR } from '@automatos/vite-preset'
+import { SOURCE_DIR, SOURCE_ENTRY_CANDIDATES } from '../../packages/theme-cli/src/source.ts'
 import { SOURCE_PREFIX } from './js-rules.ts'
 
-export const BUILD_SOURCE_DIR = 'src/'
-export const ENTRY_CANDIDATES: readonly string[] = ['src/entry.ts', 'src/entry.tsx', 'src/entry.js', 'src/entry.jsx']
+export const BUILD_SOURCE_DIR = `${SOURCE_DIR}/`
+export const ENTRY_CANDIDATES: readonly string[] = SOURCE_ENTRY_CANDIDATES.map((name) => `${BUILD_SOURCE_DIR}${name}`)
 export const DIST_PREFIX = `${OUT_DIR}/`
 const BUILD_ERROR_MAX = 1_500
 
