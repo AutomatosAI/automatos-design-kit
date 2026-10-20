@@ -5,6 +5,7 @@
 // still win where they won in core. A static check: the files are read and transformed, nothing is built.
 // PRD-261 K-19c (host 1.1.0): motion stops under the host's look runtime's marker as under builtin Play's,
 // with no !important, and the screen heading carries the host's heading mark beside Play's own.
+// PRD-261 E3g: the Pause Auto control, disabled until the host knows the pause flag, looks disabled.
 import { readdirSync } from 'node:fs'
 import { dirname, join, normalize, relative } from 'node:path'
 import { cssScopeErrors, transformThemeCss, wrapSelector } from '@automatos/vite-preset'
@@ -46,6 +47,11 @@ const MOTION_STOP: Readonly<Record<string, string>> = {
   'animation-iteration-count': '1',
   'transition-duration': '0.01ms',
 }
+/** The Pause Auto control's sheet, and the shelf's, whose Load more sets the look Play gives a disabled button. */
+const MASCOT_CSS = 'components/mascot/auto-mascot.module.css'
+const SHELF_CSS = 'components/play/deliverables/shelf.module.css'
+/** A disabled button while Play waits: a waiting cursor and the second text colour. */
+const WAITING_DISABLED: Readonly<Record<string, string>> = { cursor: 'progress', color: 'var(--pl-color-text-2)' }
 /** Play's motion factor for calc(): the host's look runtime's variable first, builtin Play's as the fallback. */
 const MOTION_SCALE = /--pl-motion-scale:\s*var\(--theme-motion,\s*var\(--pl-motion,\s*1\)\)\s*;/
 
@@ -164,9 +170,9 @@ describe('the html.play wrap keeps the FX-01 cascade', () => {
   })
 })
 
-/** The declarations (name → value) of the play-theme.css rule whose selector list holds `selector`. */
-function declarationsOf(selector: string): Readonly<Record<string, string>> {
-  const css = stripComments(readSource(THEME_CSS))
+/** The declarations (name → value) of the rule whose selector list holds `selector`, in play-theme.css or `rel`. */
+function declarationsOf(selector: string, rel = THEME_CSS): Readonly<Record<string, string>> {
+  const css = stripComments(readSource(rel))
   const listed = css.indexOf(`${selector},`)
   const at = listed >= 0 ? listed : css.indexOf(`${selector} {`)
   expect(at, selector).toBeGreaterThanOrEqual(0)
@@ -239,5 +245,12 @@ describe("play-theme.css's rewritten rules", () => {
 describe("the heading mark on Play's own screens", () => {
   it("carries the host's data-theme-heading beside builtin Play's data-play-only-heading", () => {
     expect(PLAY_ONLY_HEADING).toEqual({ 'data-play-only-heading': true, 'data-theme-heading': true })
+  })
+})
+
+describe("the Pause Auto control while it can't be pressed (E3g)", () => {
+  it("looks disabled as the shelf's Load more does: a waiting cursor and the second text colour", () => {
+    expect(declarationsOf('.pause:disabled', MASCOT_CSS)).toEqual(WAITING_DISABLED)
+    expect(declarationsOf('.moreButton:disabled', SHELF_CSS)).toEqual(WAITING_DISABLED)
   })
 })
