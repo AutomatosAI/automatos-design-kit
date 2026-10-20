@@ -29,8 +29,8 @@
     "@types/react": "19.3.0",
     "jsdom": "29.1.1",
     "postcss": "8.5.31",
-    "react": "19.2.0-canary-0bdb9206-20250818",
-    "react-dom": "19.2.0-canary-0bdb9206-20250818",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
     "typescript": "5.9.3",
     "vite": "8.3.4",
     "vitest": "5.0.4"
