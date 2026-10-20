@@ -3,7 +3,7 @@ name: Theme release
 # PRD-261 C-06a (PB-6): Play as a GitHub release. A local or open-source edition installs Play from
 # its release asset; the hosted edition gets Play from its Marketplace listing (Q7). Both jobs build
 # Play as kit.yml does (its Node and npm pins, the lockfile, the root build), with install scripts
-# off, then pack Play alone.
+# off, then pack Play alone. The listing run around a release: docs/OFFICIAL-LISTING.md.
 #
 # release: a pushed tag play-v<major>.<minor>.<patch> whose commit is on main and which names
 # themes/play/theme.json's version. The release holds automatos.play-<v>.autotheme and its

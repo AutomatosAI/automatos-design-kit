@@ -19,6 +19,7 @@ const REVIEW = `${WORKFLOWS}/theme-review.yml`;
 const SIGN = `${WORKFLOWS}/theme-sign.yml`;
 const RELEASE = `${WORKFLOWS}/theme-release.yml`;
 const KIT = `${WORKFLOWS}/kit.yml`;
+const LISTING = "docs/OFFICIAL-LISTING.md";
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 const OTHER_TRIGGERS = /^ {2}(?:push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|repository_dispatch|issue_comment):/m;
 const SIGNING_SECRET = "secrets.THEME_SIGNING_KEY";
@@ -214,10 +215,11 @@ describe("theme-sign.yml (C-03a signing step)", () => {
     expect(text).toMatch(/^ {4}environment: theme-signing$/m);
   });
 
-  it("documents that the theme-signing environment also needs required reviewers, self-review prevented", () => {
+  it("documents that the theme-signing environment also needs required reviewers, either of whom may approve (QB-22)", () => {
     expect(text).toMatch(/^# .*must ALSO have$/m);
     expect(text).toMatch(/required reviewers/);
     expect(text).toMatch(/Prevent self-review/);
+    expect([/either one may approve/.test(text), /second signer|two signers/i.test(text)]).toEqual([true, false]);
   });
 
   it("reads THEME_SIGNING_KEY and no other secret, once, in the signing step's env", () => {
@@ -290,9 +292,8 @@ describe("theme-release.yml (C-06a)", () => {
   it("runs on a play-v tag, on a push to main that changes a signature (a folder no package holds), and by hand with one tag", () => {
     const on = blockOf(text, "on");
     const folder = envOf(text, "SIGNATURES_DIR");
-    expect(on.match(/^ {2}\S+:$/gm)).toEqual(["  push:", "  workflow_dispatch:"]);
+    expect([on.match(/^ {2}\S+:$/gm), on.match(/^ {6}\S+:$/gm)]).toEqual([["  push:", "  workflow_dispatch:"], ["      tag:"]]);
     expect(on).toContain(`\n    branches: [main]\n    tags: ["play-v*"]\n    paths: ["${folder}/*.sig.json"]\n`);
-    expect(on.match(/^ {6}\S+:$/gm)).toEqual(["      tag:"]);
     expect(jobOf(text, "release")).toContain("\n    if: github.event_name == 'push' && github.ref_type == 'tag'\n");
     expect(jobOf(text, "signature")).toContain("\n    if: github.ref == 'refs/heads/main'\n");
     expect(trackedFiles()).toContain(`${folder}/.gitkeep`);
@@ -307,8 +308,7 @@ describe("theme-release.yml (C-06a)", () => {
     const holders = [...release, ...signature].filter((step) => step.body.includes("github.token"));
     expect(holders.map((step) => step.name)).toEqual(["Publish the release", "Attach the signature"]);
     holders.forEach((step) => expect(step.body).toMatch(/\n {10}GH_TOKEN: \$\{\{ github\.token \}\}\n[^]*\bgh release (?:create|upload) /));
-    const pins = new Set(usesLines(readText(KIT)).map((line) => line.trim()));
-    expect(usesLines(text).filter((line) => !PINNED_ACTION.test(line) || !pins.has(line.trim()))).toEqual([]);
+    expect(usesLines(text).filter((line) => !PINNED_ACTION.test(line) || !readText(KIT).includes(`\n${line}\n`))).toEqual([]);
     expect(text.match(/checkout@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+persist-credentials: false\n\s+fetch-depth: 0\n/g)).toHaveLength(2);
     [...release, ...signature].forEach((step) => expect(step.run, step.name).not.toContain("${{"));
   });
@@ -321,8 +321,8 @@ describe("theme-release.yml (C-06a)", () => {
     expect(stepNamed(release, "Install (from the lockfile)").run).toBe("npm ci --ignore-scripts --no-audit --no-fund");
     expect(stepNamed(release, "Pack Play").run).toBe('npm run pack --workspace "$PLAY_DIR"');
     const manifest = JSON.parse(readText("themes/play/theme.json"));
-    expect(JSON.parse(readText("themes/play/package.json")).scripts.pack).toBe("automatos-theme pack . --out out");
-    expect([envOf(text, "PLAY_DIR"), envOf(text, "PACK_DIR")]).toEqual(["themes/play", "themes/play/out"]);
+    expect([JSON.parse(readText("themes/play/package.json")).scripts.pack, envOf(text, "PLAY_DIR"), envOf(text, "PACK_DIR")])
+      .toEqual(["automatos-theme pack . --out out", "themes/play", "themes/play/out"]);
     expect(`${envOf(text, "PACKAGE_NAME")}-${manifest.version}`).toBe(packageBaseName(manifest.id, manifest.version));
     [`sha256sum "$base${PACKAGE_EXTENSION}" > "$base${PACKAGE_EXTENSION}.sha256"`, `"$base${MANIFEST_SUFFIX}"`, '"$actual" != "$(summary zipSha256)"']
       .forEach((part) => expect(stepNamed(release, "Checksum").run).toContain(part));
@@ -333,13 +333,14 @@ describe("theme-release.yml (C-06a)", () => {
     expect(check.body).toContain("\n          TAG: ${{ github.ref_name }}\n");
     ['[[ "$TAG" =~ $TAG_PATTERN ]]', "git merge-base --is-ancestor HEAD refs/remotes/origin/main", '"$version" != "${TAG#play-v}"']
       .forEach((part) => expect(check.run).toContain(part));
-    expectInOrder(release, ["Check the tag", "Install (from the lockfile)"]);
     const pattern = new RegExp(envOf(text, "TAG_PATTERN"));
-    expect(["play-v1.1.0", "play-v10.0.12"].filter((tag) => !pattern.test(tag))).toEqual([]);
-    expect(["play-v1.1", "play-v1.1.0-rc.1", "v1.1.0", "xplay-v1.1.0", "play-v1.1.0\n"].filter((tag) => pattern.test(tag))).toEqual([]);
+    const tags = ["play-v1.1.0", "play-v10.0.12", "play-v1.1", "play-v1.1.0-rc.1", "v1.1.0", "xplay-v1.1.0", "play-v1.1.0\n"];
+    expect(tags.filter((tag) => pattern.test(tag))).toEqual(["play-v1.1.0", "play-v10.0.12"]);
     expect(stepNamed(release, "Find a signature at the tag").body).toContain("\n        id: signature\n");
-    expectInOrder(release, ["Pack Play", "Checksum", "Find a signature at the tag", "Check a signing key is published", "Verify the signature", "Publish the release"]);
-    ["Check a signing key is published", "Verify the signature"].forEach((name) => expect(stepNamed(release, name).body).toContain("\n        if: steps.signature.outputs.found == 'true'\n"));
+    expectInOrder(release, ["Check the tag", "Install (from the lockfile)", "Pack Play", "Checksum", "Find a signature at the tag",
+      "Check a signing key is published", "Verify the signature", "Publish the release"]);
+    const gate = "\n        if: steps.signature.outputs.found == 'true'\n";
+    ["Check a signing key is published", "Verify the signature"].forEach((name) => expect(stepNamed(release, name).body).toContain(gate));
     expect(stepNamed(release, "Verify the signature").run).toBe(verifyRun);
     ['assets=("$base.autotheme" "$base.autotheme.sha256")', 'gh release create "$TAG" "${assets[@]}" --verify-tag']
       .forEach((part) => expect(stepNamed(release, "Publish the release").run).toContain(part));
@@ -354,27 +355,46 @@ describe("theme-release.yml (C-06a)", () => {
       "Check out the tagged commit", "Install (from the lockfile)", "Build", "Pack Play", "Verify the signature", "Attach the signature"]);
     expect(stepNamed(signature, "Keep the envelope and the keys").run).toMatch(/cp "\$sig" [^\n]*\n\s*cp "\$KEYS_FILE" /);
     expect(stepNamed(signature, "Check out the tagged commit").run).toMatch(/^git checkout --quiet --detach "refs\/tags\/\$TAG"$/m);
-    expect(stepNamed(signature, "Verify the signature").run).toBe(verifyRun);
-    expect(stepNamed(signature, "Attach the signature").run).toBe('gh release upload "$TAG" "$SIGNATURE" --clobber');
+    expect(["Verify the signature", "Attach the signature"].map((name) => stepNamed(signature, name).run))
+      .toEqual([verifyRun, 'gh release upload "$TAG" "$SIGNATURE" --clobber']);
   });
 
   const script = stepNamed(release, "Check a signing key is published").run;
   const keysPath = join(mkdtempSync(join(tmpdir(), "theme-release-")), "keys.json");
-  const keys = (...statuses: string[]): string => JSON.stringify({
-    schema: 1, keys: statuses.map((status, n) => ({ keyId: `ed25519:${String(n).repeat(16)}`, spki: "AAAA", status, added: "2026-10-20" })),
-  });
+  const keys = (...statuses: string[]): string =>
+    JSON.stringify({ schema: 1, keys: statuses.map((status) => ({ keyId: "ed25519:0123456789abcdef", spki: "AAAA", status, added: "2026-10-20" })) });
 
-  // The key check, before the production key is published and after, as the runner's bash runs it.
   it.each([
-    ["no key, as the file ships until the production key", keys(), 1, /^::error::No signing key yet: keys\/theme-signing\.json holds no active key/m],
-    ["no active key", keys("retired", "revoked"), 1, /^::error::No signing key yet: /m],
-    ["a file that isn't a keys file", "{", 1, /^::error::keys\/theme-signing\.json can't be read as a keys file/m],
-    ["an active key", keys("active"), 0, /^keys\/theme-signing\.json holds 1 active signing key\(s\)\.$/m],
-  ])("%s: exit %i with one plain line, never a stack trace", (_, keysText, status, line) => {
+    ["no key, as the file ships until the production key", 1, keys(), /^::error::No signing key yet: keys\/theme-signing\.json holds no active key/m],
+    ["no active key", 1, keys("retired", "revoked"), /^::error::No signing key yet: /m],
+    ["a file that isn't a keys file", 1, "{", /^::error::keys\/theme-signing\.json can't be read as a keys file/m],
+    ["an active key", 0, keys("active"), /^keys\/theme-signing\.json holds 1 active signing key\(s\)\.$/m],
+  ])("the key check, run as the runner's bash runs it, on %s: exit %i with one plain line, never a stack trace", (_, status, keysText, line) => {
     writeFileSync(keysPath, keysText);
     const env = { PATH: `${dirname(process.execPath)}:${process.env.PATH ?? ""}`, KEYS: keysPath, KEYS_FILE: envOf(text, "KEYS_FILE") };
     const result = spawnSync("bash", ["--noprofile", "--norc", "-eo", "pipefail", "-c", script], { encoding: "utf8", env });
     expect([result.status, result.stderr]).toEqual([status, ""]);
     expect(result.stdout).toMatch(line);
+  });
+});
+
+describe("docs/OFFICIAL-LISTING.md, the owner's run that lists Play (C-06b)", () => {
+  const doc = readText(LISTING);
+
+  it("is linked from theme-sign.yml's header and the README, which gives a local edition the release, hosted the listing", () => {
+    expect(section(readText(SIGN), "name: Theme sign", /^on:$/)).toMatch(/^# .*docs\/OFFICIAL-LISTING\.md/m);
+    ["](docs/OFFICIAL-LISTING.md)", "https://github.com/AutomatosAI/automatos-play/releases", ".sig.json",
+      "Settings › Appearance › Themes › Install theme", "Marketplace › Themes"].forEach((part) => expect(readText("README.md")).toContain(part));
+  });
+
+  it("lists steps 0 to 7 (workflows, inputs, admin-queue buttons, the review at the tag), no key or signature, never two signers", () => {
+    expect(doc.match(/^### \d+\. /gm)).toEqual(["0", "1", "2", "3", "4", "5", "6", "7"].map((n) => `### ${n}. `));
+    expect(doc).toMatch(/^gh workflow run theme-review\.yml --ref play-v<v> -f package_url=https:\S+ -f expected_digest=\S+$/m);
+    const buttons = ["Choose a .autotheme file", "Submit for review", "Save review note", "Approve", "Copy request", "Save signature",
+      "Deactivate", "Add to my workspace", "Use this theme"].map((label) => `**${label}**`);
+    ["theme-release.yml", "gh workflow run theme-sign.yml --ref main -f request=", "themes/play/signatures/<v>.sig.json",
+      "`tag` set to `play-v<v>`", "either one may approve", ...buttons].forEach((part) => expect(doc).toContain(part));
+    expect(doc).not.toMatch(/[A-Za-z0-9+/]{43,}/);
+    [doc, readText("README.md")].forEach((text) => expect(text).not.toMatch(/second signer|two signers/i));
   });
 });

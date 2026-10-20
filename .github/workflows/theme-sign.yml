@@ -19,8 +19,12 @@ name: Theme sign
 # GitHub then releases the secret to main's own code and to nothing else.
 #
 # The branch rule alone lets anyone who can run workflows sign. So 'theme-signing' must ALSO have
-# required reviewers: the named signers only, with "Prevent self-review" on, so the person who
-# starts a run can't approve its use of the key. Each run then waits for a second signer.
+# required reviewers: the named signers only. A run waits until one of them approves its use of
+# the key, and either one may approve. "Prevent self-review" is off for now, so a signer may
+# approve a run they started; turning it on stops that.
+#
+# The whole listing run, from Play's release to the pasted signature and the release's .sig.json:
+# docs/OFFICIAL-LISTING.md.
 
 on:
   workflow_dispatch:
