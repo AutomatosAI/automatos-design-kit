@@ -2,14 +2,14 @@
  * The reproducible build: the submission's source/ rebuilt with the kit's own vite-preset, and its
  * dist/ compared with the package's, file by file (PRD-261 §9; D3, 19 Oct: required in v1).
  *
- * The layout a package's source/ follows: it is the theme folder's src/ as it was built, so
- * `source/entry.ts` is the theme's `src/entry.ts`. The review writes the package back out as a
- * theme folder (every file but dist/, with source/ as src/), and builds it the way a kit theme
- * builds: `vite build` from the theme folder with only `automatosTheme()` (the entry is the one
- * `src/entry.{ts,tsx,js,jsx}` there is; the names are the theme CLI's, which packs source/ from src/
- * and refuses a src/ without exactly one). Never the package's own config: no config file, no .env,
- * PostCSS options set inline (empty, so no postcss.config is searched for), and only the preset's
- * plugins.
+ * The layout a package's source/ follows: it is the theme folder's src/ as it was built, so every
+ * file under source/ is the file at the same path under the theme's src/. The review writes the
+ * package back out as a theme folder (every file but dist/, with source/ as src/), and builds it
+ * the way a kit theme builds: `vite build` from the theme folder with only `automatosTheme()` (the
+ * entry is the one `src/entry.{ts,tsx,js,jsx}` there is; the names are the theme CLI's, which packs
+ * source/ from src/ and refuses a src/ without exactly one). Never the package's own config: no
+ * config file, no .env, PostCSS options set inline (empty, so no postcss.config is searched for),
+ * and only the preset's plugins.
  */
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
