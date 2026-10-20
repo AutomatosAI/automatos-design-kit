@@ -27,8 +27,9 @@ core wins and the kit is fixed.
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until
   PRD-261 A-19 removes builtin Play from core, a Play change in core is made here too, each pull request naming the other.
-- `scripts/compile-looks.mjs`: Play's look data (`looks/`, `boot/prepaint.json`) from its catalogue and presets,
-  run by Play's `build` before `vite build`; the files are generated, not committed.
+- `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
+  rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
+  `vite build`; the files are generated, not committed.
 - npm workspaces over both. `tsconfig.base.json` holds the shared compiler options; each workspace's
   `tsconfig.json` extends it.
 

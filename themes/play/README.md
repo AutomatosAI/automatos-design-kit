@@ -39,7 +39,9 @@ Core's tests are not copied. The copied files are core's text, except for these 
 | `lib/looks/scope.ts` | deleted | its one caller was `lib/play/seen.ts`; state kept before the storage area is dropped (PRD-261 E1) |
 | `lib/mascot/media.ts` | `MASCOT_DIR` is `'assets/mascot'`; `posterUrl` and `clipUrls` build each URL with the SDK's `assetUrl(path)` and give `undefined` where it gives `null`; the header comment says where the files are | an installed theme's files are served from its package, under a URL only the host knows |
 | `components/mascot/auto-mascot.tsx` | two comments say `assets/mascot/` for `public/auto/` | the same |
-| `app/play-theme.css` | the header names `src/entry.ts` and `app/play-fonts.css`; the 6 `!important` are gone (below) | a theme's CSS may hold no `!important` |
+| `app/play-theme.css` | the header names `src/entry.ts` and `app/play-fonts.css`; the 6 `!important` are gone and the forced-colours rings name the wrap twice (below) | a theme's CSS may hold no `!important`, and the wrap must not change which rule wins |
+| `app/play-theme.css` | the motion stop's selectors match `[data-theme-motion="reduce"]` as well as `[data-pl-motion="reduce"]`; `--pl-motion-scale` is `var(--theme-motion, var(--pl-motion, 1))` | PRD-261 K-19c: under an installed theme the host's look runtime marks `<html>` with `data-theme-motion` and `--theme-motion`; builtin Play's LookProvider keeps `data-pl-motion` and `--pl-motion` |
+| `components/looks/screen-heading.ts` | `PLAY_ONLY_HEADING` adds `data-theme-heading` beside `data-play-only-heading`; the header comment says why | PRD-261 K-19c: `data-theme-heading` is the mark the host's look runtime looks for under any installed theme |
 
 The vite-preset refuses any module from outside `src/`, `node_modules` included, so the Marketplace review can
 rebuild the package from its `source/` alone. The two icons and the store library Play's code uses are therefore
@@ -61,8 +63,9 @@ the preset puts all 27 into `dist/theme.css`, every rule under `html.play` (D2-c
   `play-theme.css` and every FX-01 rule of the modules (`:global(html.play) …`, the headings, keys and code that must
   outrank Studio's `.studio h1`) keeps core's specificity. Every other module rule gains exactly (0,1,1).
 - **The 6 `!important`** (the motion stop, three declarations in each of two rules: the OS setting and
-  `data-pl-motion="reduce"`) are gone. Each rule's selector carries `:not(#play-none)`, an id no element has, which
-  adds (1,0,0): it outranks every selector without an id, and no Play selector has one, nor sets a motion inline.
+  `data-pl-motion="reduce"`, which also matches `data-theme-motion="reduce"` now) are gone. Each rule's selector
+  carries `:not(#play-none)`, an id no element has, which adds (1,0,0): it outranks every selector without an id,
+  and no Play selector has one, nor sets a motion inline.
 - **The forced-colours rings** (`[aria-pressed="true"]` and its `:focus-visible`) name the wrap twice
   (`html.play:is(html.play)`), so they gain the same (0,1,1) as the modules: against every module rule that sets an
   outline, the comparison comes out as in core.
@@ -101,7 +104,9 @@ kept out of git (`.gitignore`):
   numeric-knob rule, capped at each ground and accent's safe glow. The builder is core's
   `frontend/lib/theme-host/builtin/play-prepaint.ts`, copied at the commit above into `scripts/looks/play-prepaint.ts`
   with only its imports changed, and the table's types are core's (`scripts/looks/boot-types.ts`), so the package
-  and builtin Play paint from the same table.
+  and builtin Play paint from the same table. Beside it the file carries the tone rule (`tone`: the knob `ground`
+  and each ground's tone, from `lib/looks/tone.ts`'s `toneOfGround`; PRD-261 K-19c), from which the host's look
+  runtime sets an installed look's tone, as builtin Play sets its own.
 
 `tests/compile-looks.test.ts` holds the files to core's look and CSS-value checks and paints every preset from the
 table as the boot script does, against Play's engine.
