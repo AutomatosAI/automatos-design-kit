@@ -43,6 +43,8 @@ const GLOW = {
   var: '--hello-glow', knob: 'glow', min: 0, max: 30, integer: true, scale: 100, capTable: null, template: 'rgba-alpha',
   color: { knob: 'accent', rgb: { blue: '47,111,237' } },
 }
+/** GLOW without capTable: a rule the web's boot drops (only a capTable given as null means no caps). */
+const UNCAPPED = Object.fromEntries(Object.entries(GLOW).filter(([key]) => key !== 'capTable'))
 const CLIP = 'assets/mascot/idle.mp4'
 const STILL = 'assets/mascot/idle.png'
 
@@ -171,8 +173,7 @@ describe('fromLooks: the defaults look paints the ground and its text', () => {
   })
 
   it('passes defaults a dropped rule would refuse: a rule with no capTable is not one the web keeps', () => {
-    const { capTable: _dropped, ...uncapped } = GLOW
-    expect(refusals(looksPackage({ ...BASE, numeric: [uncapped], defaults: { ...BASE.defaults, glow: 40 } }))).toEqual([])
+    expect(refusals(looksPackage({ ...BASE, numeric: [UNCAPPED], defaults: { ...BASE.defaults, glow: 40 } }))).toEqual([])
   })
 
   it('reads numbers as JSON.parse does: 2**53 + 1 is 2**53, inside a rule whose max is 2**53', () => {
@@ -226,7 +227,7 @@ describe("the table as the web's boot gets it (bootTable), and what it paints (p
   })
 
   it.each([
-    ['no capTable', (({ capTable: _dropped, ...rule }) => rule)(GLOW)],
+    ['no capTable', UNCAPPED],
     ['another template', { ...GLOW, template: 'rgb' }],
     ['integer not a boolean', { ...GLOW, integer: 1 }],
     ['min over max', { ...GLOW, min: 40, max: 30 }],
