@@ -6,9 +6,13 @@
  * `{id, version, digest, files}` (request.ts) and comes back as base64 (64 bytes), which the person
  * pastes into the admin queue (`POST /api/admin/themes/{id}/signature`). Node's own crypto only.
  *
- * Verifying signatures is PRD-261 C-05 (after WebSummit); nothing verifies them yet.
+ * It also prints the key's id (`ed25519:` + 16 hex, envelope.ts `keyIdOf`) and the signature
+ * envelope, one line of JSON to save as the package's `.sig.json` (C-05m). `verify.ts` checks an
+ * envelope against the package and `keys/theme-signing.json`; core verifies the pasted signature
+ * against its own copy of the same keys (C-05a, C-05b).
  */
 import { createPrivateKey, createPublicKey, sign, type KeyObject } from 'node:crypto'
+import { envelopeText, keyIdOf, makeEnvelope, type Envelope } from './envelope.ts'
 import { canonicalBytes, parseRequest, SIGNED_FORM, type Parsed, type SignPayload } from './request.ts'
 import { sha256Hex } from '../../packages/theme-cli/src/digest.ts'
 
@@ -29,6 +33,10 @@ export interface Signed {
   readonly signature: string
   /** The matching public key, SPKI DER as base64, for the record (it is not secret). */
   readonly publicKey: string
+  /** The key's id in keys/theme-signing.json: `ed25519:` + the first 16 hex of sha256(SPKI DER). */
+  readonly keyId: string
+  /** The `.sig.json` that goes next to the package. */
+  readonly envelope: Envelope
 }
 
 const NO_KEY = (
@@ -68,12 +76,15 @@ export function signRequest(requestText: string, pem: string | undefined): Parse
   if (!request.ok) return request
   const { payload, requestId } = request.value
   const { signature, payloadSha256 } = signPayload(payload, key.value)
-  const publicKey = createPublicKey(key.value).export({ format: 'der', type: 'spki' }).toString('base64')
+  const spki = createPublicKey(key.value).export({ format: 'der', type: 'spki' })
+  const keyId = keyIdOf(spki)
+  const { id, version, digest } = payload
   return {
     ok: true,
     value: {
-      requestId, id: payload.id, version: payload.version, digest: payload.digest, payloadSha256,
-      algorithm: SIGNATURE_ALGORITHM, form: SIGNED_FORM, signature, publicKey,
+      requestId, id, version, digest, payloadSha256, algorithm: SIGNATURE_ALGORITHM, form: SIGNED_FORM,
+      signature, publicKey: spki.toString('base64'), keyId,
+      envelope: makeEnvelope({ keyId, id, version, digest, signature }),
     },
   }
 }
@@ -87,8 +98,12 @@ export function signedReport(signed: Signed): string[] {
     `Payload sha256: ${signed.payloadSha256}`,
     `Algorithm: ${signed.algorithm} (${signed.form})`,
     `Public key (SPKI, base64): ${signed.publicKey}`,
+    `Key id: ${signed.keyId}`,
     '',
     'Signature (paste this into the admin queue with the request id above):',
     signed.signature,
+    '',
+    `Envelope (save this one line as ${signed.version}.sig.json next to the package):`,
+    envelopeText(signed.envelope),
   ]
 }

@@ -1,7 +1,10 @@
 // PRD-261 C-02b and C-03a (D3, 19 Oct): the two person-run workflows, read as files.
 // theme-review.yml holds no secret, its token has no permissions, and every step after the
 // install runs in `docker run --network none`. theme-sign.yml reads one secret,
-// THEME_SIGNING_KEY, in its signing step only, and installs nothing. Nothing is run here.
+// THEME_SIGNING_KEY, in its signing step only, and installs nothing. Nothing is run here. C-05m
+// adds the verify script and the key id and envelope the sign step prints; no private key is
+// committed anywhere.
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +17,12 @@ const SIGN = `${WORKFLOWS}/theme-sign.yml`;
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 const OTHER_TRIGGERS = /^ {2}(?:push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|repository_dispatch|issue_comment):/m;
 const SIGNING_SECRET = "secrets.THEME_SIGNING_KEY";
+/** A PEM private key's armour label, built so that this file doesn't spell it out. */
+const PEM_PRIVATE_LABEL = ["PRIVATE", "KEY"].join(" ");
+const SIGN_SCRIPTS = [
+  "scripts/sign/cli.ts", "scripts/sign/sign.ts", "scripts/sign/request.ts", "scripts/sign/envelope.ts",
+  "scripts/sign/verify.ts", "packages/theme-cli/src/digest.ts", "packages/theme-cli/src/zip.ts",
+];
 
 interface Step {
   readonly name: string;
@@ -49,6 +58,23 @@ function stepsOf(text: string): Step[] {
 
 function usesLines(text: string): string[] {
   return text.split("\n").filter((line) => /^\s*(?:-\s+)?uses:/.test(line));
+}
+
+/** Every file git tracks, repo-relative. */
+function trackedFiles(): string[] {
+  return execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "utf8" }).split("\0").filter((rel) => rel !== "");
+}
+
+/** True when `text` names a PEM private key anywhere but a comment line of a file under .github. */
+function namesPrivateKey(rel: string, text: string): boolean {
+  if (!text.includes(PEM_PRIVATE_LABEL)) return false;
+  if (!rel.startsWith(".github/")) return true;
+  return text.split("\n").some((line) => line.includes(PEM_PRIVATE_LABEL) && !/^\s*#/.test(line));
+}
+
+function fileNamesPrivateKey(rel: string): boolean {
+  const path = join(ROOT, rel);
+  return existsSync(path) && namesPrivateKey(rel, readFileSync(path).toString("latin1"));
 }
 
 describe("step parsing helper", () => {
@@ -180,6 +206,16 @@ describe("theme-sign.yml (C-03a signing step)", () => {
     expect(text).toMatch(/persist-credentials: false/);
     steps.forEach((step) => expect(step.run, step.name).not.toContain("${{"));
   });
+
+  it("says verifying exists now (C-05m): the stale 'Verifying signatures is C-05' text is gone", () => {
+    const sign = readText("scripts/sign/sign.ts");
+    [text, sign].forEach((source) => {
+      expect(source).not.toMatch(/Verifying signatures is (?:PRD-261 )?C-05/);
+      expect(source).not.toMatch(/nothing verifies them yet/);
+      expect(source).toContain("verify.ts");
+    });
+    expect(existsSync(join(ROOT, "scripts/sign/verify.ts"))).toBe(true);
+  });
 });
 
 describe("the signing key stays in the sign workflow", () => {
@@ -192,11 +228,24 @@ describe("the signing key stays in the sign workflow", () => {
 
   // The sign script runs with no install: only Node built-ins and files of this repo.
   it("the sign scripts import only node: built-ins and relative files", () => {
-    const files = ["scripts/sign/cli.ts", "scripts/sign/sign.ts", "scripts/sign/request.ts", "packages/theme-cli/src/digest.ts"];
-    const specifiers = files.flatMap((rel) => Array.from(
+    const specifiers = SIGN_SCRIPTS.flatMap((rel) => Array.from(
       readText(rel).matchAll(/^import\s+(?!type\b)[^'"]*?from\s+['"]([^'"]+)['"]/gm), (match) => match[1],
     ));
     expect(specifiers.length).toBeGreaterThan(0);
     expect(specifiers.filter((spec) => !spec.startsWith("node:") && !spec.startsWith("."))).toEqual([]);
+  });
+
+  it("no tracked file holds a PEM private key, except in a comment under .github", () => {
+    const tracked = trackedFiles();
+    expect(tracked).toEqual(expect.arrayContaining(["keys/theme-signing.json", "tests/fixtures/signing-vector.json"]));
+    expect(tracked.filter(fileNamesPrivateKey)).toEqual([]);
+  });
+
+  it("the private key check allows the label only on a comment line under .github", () => {
+    const label = `-----BEGIN ${PEM_PRIVATE_LABEL}-----`;
+    expect(namesPrivateKey(".github/workflows/x.yml", `# a ${label} never goes here\non: push\n`)).toBe(false);
+    expect(namesPrivateKey(".github/workflows/x.yml", `      run: echo "${label}"\n`)).toBe(true);
+    expect(namesPrivateKey("keys/theme-signing.json", `${label}\n`)).toBe(true);
+    expect(namesPrivateKey("keys/theme-signing.json", '{"schema":1,"keys":[]}\n')).toBe(false);
   });
 });

@@ -9,7 +9,9 @@ name: Theme sign
 # UUID, and any output line holding a line break or "::". The Ed25519 key
 # is THEME_SIGNING_KEY, an ENVIRONMENT secret of the 'theme-signing' environment, read by the one
 # signing step and nowhere else; it is never on the orchestrator. Nothing is installed: no package
-# from npm runs next to the key. Verifying signatures is C-05, after WebSummit.
+# from npm runs next to the key. The run also prints the key id and the one-line .sig.json
+# envelope to keep next to the package (C-05m); scripts/sign/verify.ts checks an envelope against
+# the package and keys/theme-signing.json, and core verifies the pasted signature (C-05a, C-05b).
 #
 # workflow_dispatch can be started on any branch, and a branch could change scripts/sign/cli.ts.
 # So the job runs only on main, and the key lives in the 'theme-signing' environment, whose
