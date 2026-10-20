@@ -5,11 +5,11 @@
  * - THEME_HOST_VERSION and SDK_VERSION: frontend/lib/theme-host/shared-modules.json ("hostVersion",
  *   "sdkVersion"), equal to THEME_HOST_VERSION and SDK_VERSION in orchestrator/services/themes/contract.py;
  * - HTML_CLASS_PATTERN: frontend/lib/theme-host/constants.ts;
- * - LOOK_ID_PATTERN: frontend/lib/looks/types.ts.
+ * - LOOK_ID_PATTERN: frontend/lib/look-kit/validate.ts.
  * A new host release that changes one of them is a re-vendor (README.md says how).
  */
-export const THEME_HOST_VERSION: string = '1.0.0'
-export const SDK_VERSION: string = '1.0.0'
+export const THEME_HOST_VERSION: string = '1.1.0'
+export const SDK_VERSION: string = '1.1.0'
 
 /** A theme's own class on <html>: 3 to 32 characters, lower-case letters, digits and hyphens. */
 export const HTML_CLASS_PATTERN = /^[a-z][a-z0-9-]{2,31}$/

@@ -19,7 +19,7 @@
     "@automatos/vite-preset": "0.1.0"
   },
   "peerDependencies": {
-    "@automatos/theme-sdk": "1.0.0",
+    "@automatos/theme-sdk": "1.1.0",
     "react": "^19.0.0"
   },
   "peerDependenciesMeta": {
