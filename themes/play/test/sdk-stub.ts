@@ -1,6 +1,8 @@
 // Stands in for the host's @automatos/theme-sdk in Play's tests (vitest.config.ts points the module
 // name here): the host serves the real one through its import map, and the kit vendors its types only.
-// It holds only what the tested modules call. A test sets the files folder assetUrl answers from.
+// It holds only what the tested modules call. A test sets the files folder assetUrl answers from, and
+// the storage area's scope through test/storage-port.ts (core's storage area, ported).
+export { readThemeState, removeThemeState, subscribeThemeState, THEME_STATE_LIMITS, writeThemeState } from './storage-port.ts'
 
 let filesRoot: string | null = null
 let asked: readonly string[] = []
