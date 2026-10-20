@@ -33,6 +33,11 @@ export default defineConfig({ plugins: [automatosTheme()] })
 
 CSS modules are named `<htmlClass>-[local]-[hash]`, which keeps their keyframes inside the theme's names.
 
+The build is a production build whatever `NODE_ENV` or `--mode` it runs under: `process.env.NODE_ENV` is
+`'production'`, `import.meta.env.DEV` is `false`, `PROD` `true` and `MODE` `'production'` (in the whole
+`import.meta.env` object too), and JSX compiles for production React. So a theme built under `NODE_ENV=development`
+writes the bytes the Marketplace review's rebuild writes (`test/preset-env.test.ts`).
+
 Only the theme's own `src/` goes into the build. The checks read what the build actually read and wrote, so how a
 reference is spelled (a CSS escape, a comment, a string built at run time) does not matter:
 

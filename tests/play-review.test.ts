@@ -48,9 +48,10 @@ function tempFolder(): string {
 
 /**
  * Runs `work` with NODE_ENV as the review job has it: unset (theme-review.yml's container sets
- * none), so Vite builds for production, as kit.yml's Build step did for the shipped dist/. Vitest
- * sets NODE_ENV=test, under which Vite's build gives import.meta.env DEV true and PROD false,
- * unlike the shipped dist/ (Play's vendored zustand reads import.meta.env).
+ * none), as kit.yml's Build step had it for the shipped dist/. Vitest sets NODE_ENV=test; the
+ * preset pins import.meta.env's DEV, PROD and MODE to a production build's whatever NODE_ENV says
+ * (packages/vite-preset/test/preset-env.test.ts; Play's vendored zustand reads import.meta.env),
+ * and this keeps the rest of the run as the job has it too.
  */
 async function withJobNodeEnv<T>(work: () => Promise<T>): Promise<T> {
   const saved = process.env.NODE_ENV;

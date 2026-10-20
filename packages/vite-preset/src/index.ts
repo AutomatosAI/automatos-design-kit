@@ -49,6 +49,20 @@ const STYLE_NAME = STYLE_FILE.replace(/\.css$/, '')
 const CHUNK_FILES = 'chunks/c-[hash].js'
 const MANIFEST_FILE = 'theme.json'
 const TARGET = 'es2020'
+const PRODUCTION = 'production'
+/**
+ * A production build's constants, whatever NODE_ENV or --mode the build runs under. Vite takes
+ * import.meta.env.DEV and PROD from NODE_ENV and MODE from the mode, and the Marketplace review
+ * rebuilds with NODE_ENV unset; without these, an author whose NODE_ENV is development (or a test
+ * runner's test) ships other bytes than the review's rebuild. Vite's define of an
+ * `import.meta.env.<key>` replaces its own value, in the whole `import.meta.env` object too.
+ */
+const PRODUCTION_DEFINE: Readonly<Record<string, string>> = Object.freeze({
+  'process.env.NODE_ENV': JSON.stringify(PRODUCTION),
+  'import.meta.env.DEV': JSON.stringify(false),
+  'import.meta.env.PROD': JSON.stringify(true),
+  'import.meta.env.MODE': JSON.stringify(PRODUCTION),
+})
 
 /** The theme's htmlClass from its theme.json, for a preset given none. */
 function htmlClassFromManifest(root: string): string {
@@ -74,7 +88,7 @@ function settingsFor(options: ThemePresetOptions, root: string): Settings {
 export function presetConfig(options: ThemePresetOptions, root: string, htmlClass: string): UserConfig {
   return {
     publicDir: false,
-    define: { 'process.env.NODE_ENV': JSON.stringify('production') },
+    define: { ...PRODUCTION_DEFINE },
     oxc: { jsx: { runtime: 'automatic', importSource: 'react', development: false } },
     css: {
       transformer: 'postcss',
