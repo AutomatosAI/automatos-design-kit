@@ -53,6 +53,7 @@ Never use `ORCHESTRATOR_API_KEY`. It is one admin key for the whole install, and
 - The proxy routes are the only place that knows the backend URL. Components call your own `/api/*`.
 - Treat every stream line as untrusted input: parse inside `try`, skip lines you don't understand, never `eval`, render text as text (no `dangerouslySetInnerHTML` on model output).
 - Unknown `d:` event types are normal, because the backend adds new ones. Ignore them without breaking the stream.
+- Every chat shows the AI label (`references/chat-stream.md`, "The AI label"). Inside Automatos the host draws it and pauses the chat while a theme hides it; outside, your UI draws its own.
 - Use the canonical words in UI copy: **Auto** (a name, not "the assistant"), **Mission**, **Deliverable** (not "output" or "file"), **Playbook**.
 - One request at a time per conversation. Cancel with `POST /api/chat/{chat_id}/cancel` before sending again. A stop before the `chat-id` frame has no id to cancel: abort your `fetch` only.
 

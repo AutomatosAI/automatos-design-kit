@@ -1,6 +1,17 @@
 # Chat with Auto: request and stream
 
-Source of truth: `automatos-ai/orchestrator/api/chat.py` (route and request model) and `automatos-ai/orchestrator/consumers/chatbot/streaming.py` (frame formatters). Re-check both when the backend changes; this file was written against `main` on 13 Oct 2026.
+Source of truth: `automatos-ai/orchestrator/api/chat.py` (route and request model) and `automatos-ai/orchestrator/consumers/chatbot/streaming.py` (frame formatters). Re-check both when the backend changes; this file was written against `main` on 13 Oct 2026 (the AI label section on 20 Oct).
+
+## The AI label (EU AI Act Art. 50, PRD-264)
+
+Every chat with Auto says that the person is talking to an AI, from before the first message to the last: "Auto is an AI", or "{agent name} is an AI" while another agent answers (`frontend/lib/ai-label/copy.ts`).
+
+- **Inside Automatos (a theme on `@automatos/theme-sdk`).** The host renders the AI label on `/chat` and on every `/x/` route that uses the chat area, outside the theme's page (`AiLabelGate`, core `frontend/components/ai-label/ai-label.tsx`). A theme can't remove, cover or restyle it away. The host checks at run time that a person can see it: displayed, visible, at least half opaque through its ancestors, at least 4 px each way and inside the viewport. While it can't be seen, chat pauses:
+  - the composer inside `cards.AiLabelFence` is disabled, and the host says why ("This theme hides the AI notice, so chat is paused. Switch theme in Settings.");
+  - `useChatController(conversation)`'s `send` and `retry` return `false` and send nothing, also when no label is mounted at all (`frontend/lib/theme-sdk/internal/ai-label-gate.ts`). `stop` always works.
+
+  So wrap the message box in `cards.AiLabelFence` (the box only: the approval cards in a reply stay clickable), and treat `false` from `send` as "not sent": keep the words in the box. Being drawn over by the theme's own overlay is not checked at run time, so it is a review rule (core `docs/theme-host/css-layer-model.md`).
+- **Outside Automatos (a separate UI over the API, as the rest of this skill describes).** There is no host label, so your UI shows its own beside every chat with Auto: the same words, visible before the first message, as text a screen reader reads (`role="note"`). Name the agent when you send `agentId`. No setting turns it off.
 
 ## Request
 
