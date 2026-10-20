@@ -1,0 +1,25 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "automatos/play",
+  "name": "Play",
+  "version": "1.0.0",
+  "description": "Automatos with Auto the mascot: a chat with Auto, a shelf of Deliverables, and looks you make your own.",
+  "engines": { "automatos": "^1.0.0", "sdk": "^1.0.0" },
+  "base": "studio",
+  "htmlClass": "play",
+  "minWidth": 1024,
+  "tone": "from-look",
+  "slots": ["frame@1", "lookEditor@1", "styleSheet@1", "notFound@1", "asleep@1"],
+  "pages": {
+    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] },
+    "/deliverables": { "mode": "own", "keepCorePage": ["tab", "post", "artifact_type"] }
+  },
+  "routes": ["conversations"],
+  "nav": [
+    { "id": "nav-play-conversations", "label": "Conversations", "path": "/x/conversations" },
+    { "id": "nav-play-looks", "label": "Make it yours", "path": "/looks" },
+    { "id": "nav-play-style-sheet", "label": "Style sheet", "path": "/looks/style" }
+  ],
+  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-command-center", "theme"],
+  "look": "ember"
+}

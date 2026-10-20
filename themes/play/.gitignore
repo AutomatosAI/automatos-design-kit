@@ -1,0 +1,5 @@
+# Pack output (CI uploads it as an artifact)
+out/
+# Written by Play's build (scripts/compile-looks.mjs) from src/lib/looks: never edited by hand
+looks/
+boot/

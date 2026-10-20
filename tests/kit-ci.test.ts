@@ -215,6 +215,45 @@ describe("kit workflow", () => {
   });
 });
 
+// PRD-261 A-16c: Play's build writes its look data first, its pack writes the package to out/,
+// and CI uploads every package the pack steps wrote.
+describe("Play's package in CI", () => {
+  const play = readJson<PackageJson>("themes/play/package.json");
+
+  it("fetches Auto's files (scripts/fetch-mascot.mjs) and builds its look data (scripts/compile-looks.mjs) before the bundle, then packs into out/", () => {
+    expect(play.scripts?.build).toBe(
+      "node ../../scripts/fetch-mascot.mjs . && node ../../scripts/compile-looks.mjs . && vite build",
+    );
+    expect(play.scripts?.pack).toBe("automatos-theme pack . --out out");
+    expect(existsSync(join(ROOT, "scripts/compile-looks.mjs"))).toBe(true);
+    expect(existsSync(join(ROOT, "scripts/fetch-mascot.mjs"))).toBe(true);
+  });
+
+  // PRD-001 open question 1: Auto's clips stay out of this public repo until the image rights are
+  // confirmed; the build fetches them from core at the pinned commit, each checked by its sha256.
+  it("pins Auto's files to a core commit by sha256, outside assets/, and keeps them out of git", () => {
+    const lock = readJson<{ ref: string; files: Record<string, { sha256: string; bytes: number }> }>(
+      "themes/play/mascot.lock.json",
+    );
+    expect(lock.ref).toMatch(/^[0-9a-f]{40}$/);
+    expect(Object.keys(lock.files)).toHaveLength(36);
+    Object.values(lock.files).forEach((entry) => expect(entry.sha256).toMatch(/^[0-9a-f]{64}$/));
+    const ignored = readText(".gitignore").split("\n").map((line) => line.trim());
+    expect(ignored).toContain("themes/*/assets/mascot/");
+  });
+
+  it("keeps the generated look data and the pack output out of git", () => {
+    const ignored = readText("themes/play/.gitignore").split("\n").map((line) => line.trim());
+    expect(ignored).toEqual(expect.arrayContaining(["out/", "looks/", "boot/"]));
+  });
+
+  it("uploads every package the pack steps wrote, and fails when there is none", () => {
+    expect(readText(WORKFLOW)).toMatch(
+      /name: kit-themes\n\s+path: \|\n\s+\*\*\/\*\.autotheme\*\n\s+!\*\*\/node_modules\/\*\*\n\s+if-no-files-found: error/,
+    );
+  });
+});
+
 describe("AGENTS.md", () => {
   it("points at PRD-261 and states the workspace script contract", () => {
     const text = readText("AGENTS.md");
