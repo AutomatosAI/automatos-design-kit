@@ -8,9 +8,10 @@ import { lazy } from 'react'
  * registrations, so they name only this small module: Conversations, its list and their CSS
  * load in their own chunk when that route renders, never for another page. SSR stays on.
  *
- * PRD-261 A-14c: React.lazy and import(), not next/dynamic (sdk-surface-map.md: a theme splits
- * its own bundle; next/* is host-only). The host's ThemeSlotRoute already renders every route
- * inside its own Suspense boundary (fallback null, as next/dynamic's was), so this adds none.
+ * PRD-261 A-14c: React.lazy and a dynamic import of a relative path, not next/dynamic
+ * (sdk-surface-map.md: a theme splits its own bundle; next/* is host-only). The host's
+ * ThemeSlotRoute already renders every route inside its own Suspense boundary (fallback null, as
+ * next/dynamic's was), so this adds none.
  */
 export const PlayConversations = lazy(() =>
   import('./play-conversations').then((m) => ({ default: m.PlayConversations })),
