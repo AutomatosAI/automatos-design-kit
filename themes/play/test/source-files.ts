@@ -1,17 +1,17 @@
 // Reading Play's source for the static tests: the files under src/ and the modules each one imports.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const THEME_MANIFEST = 'theme.json'
 
 /**
- * Play's folder. In node, from this module's own file URL. Under jsdom, vitest gives modules web-style
- * URLs (not file:), so the folder vitest runs in is used instead: the workspace's `vitest run` runs in
- * themes/play. Either way the folder must hold theme.json, so a wrong guess fails loudly here.
+ * Play's folder: two levels up from this module's file. The file URL goes to Node as the plain string,
+ * never through `new URL(...)`: under jsdom the global URL is jsdom's own, and Node's fileURLToPath
+ * refuses the object it makes. The folder must hold theme.json, so a wrong path fails loudly here.
  */
 function themeRoot(): string {
-  const root = import.meta.url.startsWith('file:') ? fileURLToPath(new URL('..', import.meta.url)) : process.cwd()
+  const root = dirname(dirname(fileURLToPath(import.meta.url)))
   if (!existsSync(join(root, THEME_MANIFEST))) throw new Error(`Play's folder not found: ${root} has no ${THEME_MANIFEST}`)
   return root
 }
