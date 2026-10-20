@@ -3,17 +3,22 @@
 // install runs in `docker run --network none`. theme-sign.yml reads one secret,
 // THEME_SIGNING_KEY, in its signing step only, and installs nothing. Nothing is run here. C-05m
 // adds the verify script and the key id and envelope the sign step prints; no private key is
-// committed anywhere.
-import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+// committed anywhere. C-06a adds theme-release.yml; its key check is the one script run here (bash).
+import { execFileSync, spawnSync } from "node:child_process";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
+import { MANIFEST_SUFFIX, PACKAGE_EXTENSION, packageBaseName } from "../packages/theme-cli/src/pack.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const WORKFLOWS = ".github/workflows";
 const REVIEW = `${WORKFLOWS}/theme-review.yml`;
 const SIGN = `${WORKFLOWS}/theme-sign.yml`;
+const RELEASE = `${WORKFLOWS}/theme-release.yml`;
+const KIT = `${WORKFLOWS}/kit.yml`;
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 const OTHER_TRIGGERS = /^ {2}(?:push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|repository_dispatch|issue_comment):/m;
 const SIGNING_SECRET = "secrets.THEME_SIGNING_KEY";
@@ -58,6 +63,33 @@ function stepsOf(text: string): Step[] {
 
 function usesLines(text: string): string[] {
   return text.split("\n").filter((line) => /^\s*(?:-\s+)?uses:/.test(line));
+}
+
+/** The lines from `first` up to the next line `next` matches, or the end. */
+function section(text: string, first: string, next: RegExp): string {
+  const lines = text.split("\n");
+  const start = lines.indexOf(first);
+  const end = lines.findIndex((line, index) => index > start && next.test(line));
+  return start < 0 ? "" : lines.slice(start, end < 0 ? lines.length : end).join("\n");
+}
+
+const blockOf = (text: string, key: string): string => section(text, `${key}:`, /^\S/);
+const jobOf = (text: string, job: string): string => section(blockOf(text, "jobs"), `  ${job}:`, /^ {2}\S/);
+const envOf = (text: string, name: string): string =>
+  (blockOf(text, "env").match(new RegExp(`^ {2}${name}: '?(.*?)'?$`, "m")) ?? ["", ""])[1];
+/** A step without its comments and blank lines: what it does. */
+const codeOf = (step: Step): string => step.body.split("\n").filter((line) => !/^\s*(?:#.*)?$/.test(line)).join("\n");
+
+function stepNamed(steps: readonly Step[], name: string): Step {
+  const step = steps.find((candidate) => candidate.name === name);
+  if (step === undefined) throw new Error(`no step named "${name}"`);
+  return step;
+}
+
+/** Every named step exists, in this order. */
+function expectInOrder(steps: readonly Step[], names: readonly string[]): void {
+  const at = names.map((name) => steps.findIndex((step) => step.name === name));
+  expect(at.every((index, n) => index >= 0 && (n === 0 || index > at[n - 1])), names.join(" < ")).toBe(true);
 }
 
 /** Every file git tracks, repo-relative. */
@@ -247,5 +279,101 @@ describe("the signing key stays in the sign workflow", () => {
     expect(namesPrivateKey(".github/workflows/x.yml", `      run: echo "${label}"\n`)).toBe(true);
     expect(namesPrivateKey("keys/theme-signing.json", `${label}\n`)).toBe(true);
     expect(namesPrivateKey("keys/theme-signing.json", '{"schema":1,"keys":[]}\n')).toBe(false);
+  });
+});
+
+describe("theme-release.yml (C-06a)", () => {
+  const text = readText(RELEASE);
+  const [release, signature] = ["release", "signature"].map((job) => stepsOf(jobOf(text, job)));
+  const verifyRun = 'node scripts/sign/verify.ts "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$SIGNATURE" "$KEYS"';
+
+  it("runs on a play-v tag, on a push to main that changes a signature (a folder no package holds), and by hand with one tag", () => {
+    const on = blockOf(text, "on");
+    const folder = envOf(text, "SIGNATURES_DIR");
+    expect(on.match(/^ {2}\S+:$/gm)).toEqual(["  push:", "  workflow_dispatch:"]);
+    expect(on).toContain(`\n    branches: [main]\n    tags: ["play-v*"]\n    paths: ["${folder}/*.sig.json"]\n`);
+    expect(on.match(/^ {6}\S+:$/gm)).toEqual(["      tag:"]);
+    expect(jobOf(text, "release")).toContain("\n    if: github.event_name == 'push' && github.ref_type == 'tag'\n");
+    expect(jobOf(text, "signature")).toContain("\n    if: github.ref == 'refs/heads/main'\n");
+    expect(trackedFiles()).toContain(`${folder}/.gitkeep`);
+    expect([...PACKED_FOLDERS, ...PACKED_TOP_FILES].filter((name) => folder.startsWith(`${envOf(text, "PLAY_DIR")}/${name}`))).toEqual([]);
+  });
+
+  it("gives each job contents: write only, reads no secrets, gives gh alone the job's token, and pins actions as kit.yml", () => {
+    expect(blockOf(text, "jobs").match(/^ {2}\S+:$/gm)).toEqual(["  release:", "  signature:"]);
+    expect(text.match(/^ *permissions:.*$/gm)).toEqual(["permissions: {}", "    permissions:", "    permissions:"]);
+    ["release", "signature"].forEach((job) => expect(jobOf(text, job)).toMatch(/\n {4}permissions:\n {6}contents: write\n {4}\S/));
+    expect(text).not.toMatch(/\bsecrets\./);
+    const holders = [...release, ...signature].filter((step) => step.body.includes("github.token"));
+    expect(holders.map((step) => step.name)).toEqual(["Publish the release", "Attach the signature"]);
+    holders.forEach((step) => expect(step.body).toMatch(/\n {10}GH_TOKEN: \$\{\{ github\.token \}\}\n[^]*\bgh release (?:create|upload) /));
+    const pins = new Set(usesLines(readText(KIT)).map((line) => line.trim()));
+    expect(usesLines(text).filter((line) => !PINNED_ACTION.test(line) || !pins.has(line.trim()))).toEqual([]);
+    expect(text.match(/checkout@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+persist-credentials: false\n\s+fetch-depth: 0\n/g)).toHaveLength(2);
+    [...release, ...signature].forEach((step) => expect(step.run, step.name).not.toContain("${{"));
+  });
+
+  it("installs and builds as kit.yml does, alike in both jobs, and finds the package where Play's pack writes it", () => {
+    ["Set up Node", "Pin npm", "Build"].forEach((name) => expect(codeOf(stepNamed(release, name))).toBe(codeOf(stepNamed(stepsOf(readText(KIT)), name))));
+    ["Set up Node", "Pin npm", "Install (from the lockfile)", "Build", "Pack Play", "Checksum"].forEach((name) =>
+      expect(codeOf(stepNamed(signature, name)), name).toBe(codeOf(stepNamed(release, name))));
+    expect(stepNamed(signature, "Check a signing key is published").run).toBe(stepNamed(release, "Check a signing key is published").run);
+    expect(stepNamed(release, "Install (from the lockfile)").run).toBe("npm ci --ignore-scripts --no-audit --no-fund");
+    expect(stepNamed(release, "Pack Play").run).toBe('npm run pack --workspace "$PLAY_DIR"');
+    const manifest = JSON.parse(readText("themes/play/theme.json"));
+    expect(JSON.parse(readText("themes/play/package.json")).scripts.pack).toBe("automatos-theme pack . --out out");
+    expect([envOf(text, "PLAY_DIR"), envOf(text, "PACK_DIR")]).toEqual(["themes/play", "themes/play/out"]);
+    expect(`${envOf(text, "PACKAGE_NAME")}-${manifest.version}`).toBe(packageBaseName(manifest.id, manifest.version));
+    [`sha256sum "$base${PACKAGE_EXTENSION}" > "$base${PACKAGE_EXTENSION}.sha256"`, `"$base${MANIFEST_SUFFIX}"`, '"$actual" != "$(summary zipSha256)"']
+      .forEach((part) => expect(stepNamed(release, "Checksum").run).toContain(part));
+  });
+
+  it("releases a play-v<major>.<minor>.<patch> tag on main naming theme.json's version, a signature at it once verified", () => {
+    const check = stepNamed(release, "Check the tag");
+    expect(check.body).toContain("\n          TAG: ${{ github.ref_name }}\n");
+    ['[[ "$TAG" =~ $TAG_PATTERN ]]', "git merge-base --is-ancestor HEAD refs/remotes/origin/main", '"$version" != "${TAG#play-v}"']
+      .forEach((part) => expect(check.run).toContain(part));
+    expectInOrder(release, ["Check the tag", "Install (from the lockfile)"]);
+    const pattern = new RegExp(envOf(text, "TAG_PATTERN"));
+    expect(["play-v1.1.0", "play-v10.0.12"].filter((tag) => !pattern.test(tag))).toEqual([]);
+    expect(["play-v1.1", "play-v1.1.0-rc.1", "v1.1.0", "xplay-v1.1.0", "play-v1.1.0\n"].filter((tag) => pattern.test(tag))).toEqual([]);
+    expectInOrder(release, ["Pack Play", "Checksum", "Find a signature at the tag", "Check a signing key is published", "Verify the signature", "Publish the release"]);
+    ["Check a signing key is published", "Verify the signature"].forEach((name) => expect(stepNamed(release, name).body).toContain("\n        if: env.SIGNATURE != ''\n"));
+    expect(stepNamed(release, "Verify the signature").run).toBe(verifyRun);
+    ['assets=("$base.autotheme" "$base.autotheme.sha256")', 'gh release create "$TAG" "${assets[@]}" --verify-tag']
+      .forEach((part) => expect(stepNamed(release, "Publish the release").run).toContain(part));
+  });
+
+  it("attaches a signature named by the tag input or the one changed file, from main's files, to the TAGGED build", () => {
+    const find = stepNamed(signature, "Find the tag");
+    expect(find.body).toContain("\n          TAG_INPUT: ${{ inputs.tag }}\n          BEFORE: ${{ github.event.before }}\n");
+    ['--diff-filter=AM "$BEFORE" HEAD -- "$SIGNATURES_DIR/*.sig.json"', 'tag="play-v${name%.sig.json}"', '[[ "$tag" =~ $TAG_PATTERN ]]',
+      'git rev-parse --quiet --verify "refs/tags/$tag^{commit}"'].forEach((part) => expect(find.run).toContain(part));
+    expectInOrder(signature, ["Find the tag", "Keep the envelope and the keys", "Check a signing key is published",
+      "Check out the tagged commit", "Install (from the lockfile)", "Build", "Pack Play", "Verify the signature", "Attach the signature"]);
+    expect(stepNamed(signature, "Keep the envelope and the keys").run).toMatch(/cp "\$sig" [^\n]*\n\s*cp "\$KEYS_FILE" /);
+    expect(stepNamed(signature, "Check out the tagged commit").run).toMatch(/^git checkout --quiet --detach "refs\/tags\/\$TAG"$/m);
+    expect(stepNamed(signature, "Verify the signature").run).toBe(verifyRun);
+    expect(stepNamed(signature, "Attach the signature").run).toBe('gh release upload "$TAG" "$SIGNATURE" --clobber');
+  });
+
+  const script = stepNamed(release, "Check a signing key is published").run;
+  const keysPath = join(mkdtempSync(join(tmpdir(), "theme-release-")), "keys.json");
+  const keys = (...statuses: string[]): string => JSON.stringify({
+    schema: 1, keys: statuses.map((status, n) => ({ keyId: `ed25519:${String(n).repeat(16)}`, spki: "AAAA", status, added: "2026-10-20" })),
+  });
+
+  // The key check, before the production key is published and after, as the runner's bash runs it.
+  it.each([
+    ["no key, as the file ships until the production key", keys(), 1, /^::error::No signing key yet: keys\/theme-signing\.json holds no active key/m],
+    ["no active key", keys("retired", "revoked"), 1, /^::error::No signing key yet: /m],
+    ["a file that isn't a keys file", "{", 1, /^::error::keys\/theme-signing\.json can't be read as a keys file/m],
+    ["an active key", keys("active"), 0, /^keys\/theme-signing\.json holds 1 active signing key\(s\)\.$/m],
+  ])("%s: exit %i with one plain line, never a stack trace", (_, keysText, status, line) => {
+    writeFileSync(keysPath, keysText);
+    const env = { PATH: `${dirname(process.execPath)}:${process.env.PATH ?? ""}`, KEYS: keysPath, KEYS_FILE: envOf(text, "KEYS_FILE") };
+    const result = spawnSync("bash", ["--noprofile", "--norc", "-eo", "pipefail", "-c", script], { encoding: "utf8", env });
+    expect([result.status, result.stderr]).toEqual([status, ""]);
+    expect(result.stdout).toMatch(line);
   });
 });
