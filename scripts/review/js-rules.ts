@@ -1,10 +1,12 @@
 /**
  * The JS rules on a submission's source/ (PRD-261 §9, the automated stage).
  *
- * They refuse: fetch, XHR, WebSocket, EventSource, sendBeacon, document.cookie, localStorage, eval,
- * new Function, import() of URLs (or of a computed specifier), postMessage, created <script> or
- * <iframe>, navigator.serviceWorker, window.open, writes to location, computed globalThis/window
- * property access, `@/` and `next/*` imports, imports the host can't serve (sonner, a second
+ * They refuse: fetch, XHR, WebSocket, EventSource, sendBeacon, document.cookie, localStorage,
+ * sessionStorage, indexedDB (a theme keeps state through the SDK's storage area, whose names
+ * readThemeState, useThemeState and the rest are never refused), eval, new Function, import() of
+ * URLs (or of a computed specifier), postMessage, created <script> or <iframe>,
+ * navigator.serviceWorker, window.open, writes to location, computed globalThis/window property
+ * access, `@/` and `next/*` imports, imports the host can't serve (sonner, a second
  * React; the vite-preset's own refusals), absolute paths and relative paths that leave source/ (in
  * imports, import(), import.meta.glob and `new URL(..., import.meta.url)`; the vite-preset's source
  * guard refuses the same in the build), bundled React, and obfuscated or minified-only source.
@@ -38,6 +40,8 @@ const EXCERPT_MAX = 120
 const MINIFIED_LINE = 1_000
 const ESCAPES_MIN = 20
 const ESCAPE_SHARE = 0.01
+/** Where a theme keeps state instead of browser storage: the SDK's storage area. */
+const STORAGE_AREA = "a theme keeps state through the SDK's storage area (useThemeState, readThemeState, writeThemeState)."
 
 function rule(code: string, pattern: string, message: string, flags = ''): Rule {
   return Object.freeze({ code, pattern: new RegExp(pattern, `g${flags}`), message })
@@ -50,7 +54,9 @@ const RULES: readonly Rule[] = Object.freeze([
   rule('JS_EVENTSOURCE', String.raw`\bEventSource\b`, 'opens an EventSource: a theme reads data through the SDK.'),
   rule('JS_SEND_BEACON', String.raw`\bsendBeacon\b`, 'calls sendBeacon: a theme sends nothing off the page.'),
   rule('JS_COOKIE', String.raw`\bdocument\s*\.\s*cookie\b`, 'touches document.cookie.'),
-  rule('JS_LOCAL_STORAGE', String.raw`\blocalStorage\b`, "uses localStorage: a theme keeps state through the SDK's looks."),
+  rule('JS_LOCAL_STORAGE', String.raw`\blocalStorage\b`, `uses localStorage: ${STORAGE_AREA}`),
+  rule('JS_SESSION_STORAGE', String.raw`\bsessionStorage\b`, `uses sessionStorage: ${STORAGE_AREA}`),
+  rule('JS_INDEXED_DB', String.raw`\bindexedDB\b`, `uses indexedDB: ${STORAGE_AREA}`),
   rule('JS_EVAL', String.raw`\beval\s*\(`, 'calls eval().'),
   rule('JS_NEW_FUNCTION', String.raw`\bnew\s+Function\s*\(`, 'builds code with new Function().'),
   rule('JS_POST_MESSAGE', String.raw`\bpostMessage\b`, 'calls postMessage.'),
