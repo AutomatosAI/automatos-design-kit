@@ -42,6 +42,12 @@ core wins and the kit is fixed.
 - `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the review and
   sign scripts under `scripts/`.
 
+## Adding a dependency
+
+Pin it exactly in `package.json`, push the branch and run `kit-lockfile.yml` on it (`gh workflow run`).
+Commit its `kit-lockfile` artifact, checked against the run summary's digest, as `package-lock.json`;
+the pull request then has one CI run, installing with `npm ci`. Never hand-edit the lockfile.
+
 ## Marketplace review and signing (person-run, PRD-261 C-02b and C-03a)
 
 Two `workflow_dispatch` workflows a person runs from the Actions tab; core never calls GitHub.
@@ -69,8 +75,7 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
 
 - Nothing runs on the maintainer's machine. CI is the test.
 - Every dependency is pinned to an exact version (the root tests enforce it). A new dependency needs
-  the maintainer's OK. Until `package-lock.json` is committed, CI installs with `npm install` and uploads
-  the lockfile it resolved as the `kit-lockfile` artifact; once committed, CI uses `npm ci`.
+  the maintainer's OK. `package-lock.json` is committed and CI installs from it with `npm ci`.
 - This repo is public: no secrets, no internal plans, no customer or pricing material.
 - Functions at most 50 lines, files at most 400 lines, plain comments.
 - Git: stage explicit paths, sign off (`git commit -s`), messages `type(scope): what`.

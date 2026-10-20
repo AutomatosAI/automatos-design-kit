@@ -9,12 +9,10 @@ mascot/out/
 *.hfkey
 .DS_Store
 
-# Mascot assets and pipeline stay local until the image rights are confirmed (PRD-001, open question 1).
-# A theme's mascot code (src/**/mascot/) is tracked; its clips are fetched from core at build time
-# (themes/*/mascot.lock.json, scripts/fetch-mascot.mjs; the lock sits outside assets/ so pack never ships it) and never committed.
+# The mascot generation pipeline (/mascot/) and the pilot's served copy (public/auto/) stay local.
+# Anchored, so a theme's mascot code (src/**/mascot/) and its committed clips (themes/*/assets/mascot/) are tracked.
 public/auto/
 /mascot/
-themes/*/assets/mascot/
 
 # Kit build output (built in CI, never committed)
 packages/*/dist/

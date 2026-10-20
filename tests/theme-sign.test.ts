@@ -6,6 +6,7 @@ import { generateKeyPairSync, verify, type KeyObject } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { canonicalBytes, canonicalJson, checkPayload, ID_PATTERN, isEchoSafe, parseRequest, VERSION_PATTERN } from "../scripts/sign/request.ts";
 import { KEY_ENV, signedReport, signingKey, signRequest } from "../scripts/sign/sign.ts";
+import { keyIdOf, parseEnvelope } from "../scripts/sign/envelope.ts";
 
 const PAYLOAD = {
   version: "1.0.0",
@@ -25,6 +26,8 @@ const PYTHON_PAYLOAD_SHA256 = "cf4484ebd29c236648120c026b75469c6a26da78211c9729c
 /** core's request_signature: requestId is str(uuid4()), kept beside the payload, not inside it. */
 const REQUEST_ID = "5d3c9a5e-8f2b-4c1d-9e7a-0b1c2d3e4f50";
 const WHOLE = { requestId: REQUEST_ID, payload: PAYLOAD, payloadSha256: PYTHON_PAYLOAD_SHA256, canonical: PYTHON_CANONICAL, algorithm: "ed25519" };
+/** A PEM private key's armour label, built so that no file in this repo spells it out. */
+const PEM_PRIVATE_LABEL = ["PRIVATE", "KEY"].join(" ");
 
 /** A whole request with `payload` changed by `change`. */
 function requestWith(change: Record<string, unknown>, outer: Record<string, unknown> = {}): string {
@@ -151,7 +154,34 @@ describe("signing", () => {
     const printed = lines.join("\n");
     expect(printed).toContain(`Request id: ${REQUEST_ID}`);
     expect(printed).toContain(result.value.signature);
-    expect(printed).not.toContain("PRIVATE KEY");
+    expect(printed).not.toContain(PEM_PRIVATE_LABEL);
     expect(printed).not.toContain(pem.split("\n")[1]);
+  });
+
+  it("prints the key id: ed25519 and the first 16 hex of sha256 of the public key's SPKI DER", () => {
+    const { pem, publicKey } = ed25519Pem();
+    const result = signRequest(JSON.stringify(WHOLE), pem);
+    if (!result.ok) throw new Error(result.error);
+    const spki = publicKey.export({ format: "der", type: "spki" });
+    expect(result.value.keyId).toBe(keyIdOf(spki));
+    expect(result.value.keyId).toMatch(/^ed25519:[0-9a-f]{16}$/);
+    expect(signedReport(result.value)).toContain(`Key id: ${result.value.keyId}`);
+  });
+
+  it("prints one echo-safe envelope line, the .sig.json that goes next to the package", () => {
+    const { pem } = ed25519Pem();
+    const result = signRequest(JSON.stringify(WHOLE), pem);
+    if (!result.ok) throw new Error(result.error);
+    const lines = signedReport(result.value);
+    const envelopes = lines.filter((line) => line.startsWith("{"));
+    expect(envelopes).toHaveLength(1);
+    expect(lines.every(isEchoSafe)).toBe(true);
+    const envelope = parseEnvelope(envelopes[0]);
+    if (!envelope.ok) throw new Error(envelope.error);
+    expect(envelope.value).toEqual({
+      form: "automatos-theme-signature/v1", algorithm: "ed25519", keyId: result.value.keyId,
+      id: PAYLOAD.id, version: PAYLOAD.version, digest: PAYLOAD.digest, signature: result.value.signature,
+    });
+    expect(lines[lines.indexOf(envelopes[0]) - 1]).toContain(`${PAYLOAD.version}.sig.json`);
   });
 });

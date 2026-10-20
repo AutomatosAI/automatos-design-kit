@@ -4,7 +4,8 @@
 installs.
 
 It reads the folder's package files (`theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, and everything under
-`dist/`, `boot/`, `looks/`, `assets/` and `source/`), checks them as core's package reader does, and writes:
+`dist/`, `boot/`, `looks/` and `assets/`), adds the theme's `src/` as `source/` (below), checks them as core's
+package reader does, and writes:
 
 - `<publisher>.<slug>-<version>.autotheme`: a plain zip, members in path order with one fixed time, so the same
   files always give the same package;
@@ -16,6 +17,24 @@ When the server would refuse the theme, `pack` writes nothing, prints every reas
 `theme.json`, the looks and the prepaint table (vendored in `src/core`, see its README), and ports of the server's
 zip reader (`src/members.ts`, `src/check-package.ts`) and CSS scope check (`@automatos/vite-preset/css-scope`).
 Core's shared test corpus holds all of them to the server's verdicts (`test/core-corpus.test.ts`).
+
+## source/
+
+A Marketplace package carries its source so the review can rebuild it: `pack` copies every file under the theme's
+`src/` (dotfiles and dot folders left out) to `source/<same path>`, byte for byte, and the package digest covers them. `pack` writes
+`source/` itself, so a `source/` folder in the theme folder is refused. It also refuses, writing nothing, a `src/` the
+review could not rebuild or core would not take as source: a file that isn't a source kind (`.ts`, `.tsx`, `.js`,
+`.jsx`, `.mjs`, `.cjs`, `.css`, `.json`, `.md` or `.txt` with a plain name), more than 8 levels deep, over 1 MB or not
+UTF-8; a symbolic link; and a `src/` without exactly one entry module (`entry.ts`, `entry.tsx`, `entry.js` or
+`entry.jsx` at its top). Every refusal names the `src/` path and the `source/` path it would have had. A theme with no
+`src/` still packs, with one warning, and its package has no `source/`: it installs privately, but the Marketplace
+review fails it at Source.
+
+The review (`scripts/review/rebuild.ts`) writes the package back out with `source/` as `src/` and builds it with the
+kit's preset alone: `automatosTheme({ entry })`, from the theme folder, with no config file. It sees no `tsconfig.json`,
+`package.json` or `vite.config.*`, because none of them is in the package. So a theme's build must not depend on its
+own config: no path aliases, no extra Vite or PostCSS plugins, no preset options but the entry, and nothing bundled
+from outside `src/` (the preset's source guard refuses that in the author's build too).
 
 Node 22.18 or later runs the TypeScript sources directly (type stripping): `npm run pack` packs core's hello
 test theme into `out/`.
