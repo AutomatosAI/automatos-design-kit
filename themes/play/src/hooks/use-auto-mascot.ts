@@ -1,6 +1,6 @@
 'use client'
 
-import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef, useSyncExternalStore } from 'react'
 
 import { IDLE_MS, useIdleTimeout } from './use-idle-timeout'
 import { mascotEventsFromData } from '../lib/mascot/data-events'
@@ -12,7 +12,7 @@ import {
   type ReplyProgress,
 } from '../lib/mascot/events'
 import { INITIAL_MASCOT, mascotReducer } from '../lib/mascot/reducer'
-import { claimFirstOpen, type SessionSource } from '../lib/mascot/session'
+import { claimFirstOpen, helloReady, subscribeHello } from '../lib/mascot/session'
 import type { MascotEvent, MascotName, MascotState } from '../lib/mascot/types'
 
 /**
@@ -40,8 +40,6 @@ export interface AutoMascotOptions {
   readonly backend?: BackendStatus
   /** How long without input before Auto naps. */
   readonly idleMs?: number
-  /** Where the first open is remembered (tests pass their own). */
-  readonly session?: SessionSource
 }
 
 export interface AutoMascotDriver {
@@ -52,7 +50,11 @@ export interface AutoMascotDriver {
   readonly onData: (part: unknown) => void
   /** The page's events: input-focus, input-blur, send, deliverable-added, not-found, … */
   readonly dispatch: Dispatch<MascotEvent>
-  /** hello, once per browser session (lib/mascot/session.ts). True when it plays. */
+  /**
+   * hello, once per browser session (lib/mascot/session.ts). True when it plays.
+   * A new function once the host can say whether it has played (PRD-261 E3g), so
+   * an effect keyed on it (play-chat-view.tsx) asks again then.
+   */
   readonly greet: () => boolean
   /** AutoMascot's onClipEnded: a one-shot's clip ended. */
   readonly onClipEnded: (state: MascotName) => void
@@ -91,8 +93,20 @@ function useBackendEvents(backend: BackendStatus | undefined, dispatch: Dispatch
   }, [backend, dispatch])
 }
 
+const helloNotReadyOnServer = (): boolean => false
+
+/** hello, once the host can say whether it played: a new function each time that readiness flips. */
+function useGreet(dispatch: Dispatch<MascotEvent>): () => boolean {
+  const ready = useSyncExternalStore(subscribeHello, helloReady, helloNotReadyOnServer)
+  return useCallback((): boolean => {
+    const first = ready && claimFirstOpen()
+    if (first) dispatch({ type: 'app-open' })
+    return first
+  }, [ready, dispatch])
+}
+
 export function useAutoMascot(options: AutoMascotOptions = {}): AutoMascotDriver {
-  const { status = 'idle', errorCode = null, reply = NO_REPLY, backend, idleMs = IDLE_MS, session } = options
+  const { status = 'idle', errorCode = null, reply = NO_REPLY, backend, idleMs = IDLE_MS } = options
   const [state, dispatch] = useReducer(mascotReducer, INITIAL_MASCOT)
 
   useStatusEvents(status, errorCode, dispatch)
@@ -105,11 +119,7 @@ export function useAutoMascot(options: AutoMascotOptions = {}): AutoMascotDriver
 
   const onData = useCallback((part: unknown) => mascotEventsFromData(part).forEach(dispatch), [])
   const onClipEnded = useCallback((ended: MascotName) => dispatch({ type: 'clip-ended', state: ended }), [])
-  const greet = useCallback((): boolean => {
-    const first = claimFirstOpen(session)
-    if (first) dispatch({ type: 'app-open' })
-    return first
-  }, [session])
+  const greet = useGreet(dispatch)
 
   return useMemo(
     () => ({ state, mascot: state.mascot, onData, dispatch, greet, onClipEnded }),

@@ -1,69 +1,67 @@
 /**
  * PRD-261 A-13b (PRD-260 review F10, M24; WCAG 2.2.2 Pause, Stop, Hide) —
- * whether the user has paused Auto in this browser. Auto's clips loop, and his
- * ring pulses, for longer than five seconds; without this the only way to stop
- * them was the OS reduced-motion setting. The flag is a per-browser preference
- * kept in localStorage, so it survives a state change, a remount and a reload,
- * and every Auto on the page (and in other tabs, through the `storage` event)
- * follows one switch. localStorage may be missing or blocked (a private
- * window, a sandbox): the flag then lives for this page load only, and the
- * first failure is logged once.
+ * whether the user has paused Auto. Auto's clips loop, and his ring pulses, for
+ * longer than five seconds; without this the only way to stop them was the OS
+ * reduced-motion setting.
+ *
+ * PRD-261 E3g: the flag is kept through the host, in the SDK's storage area:
+ * key `mascot-paused`, for the signed-in account, in this browser, holding
+ * `true` while paused and no value otherwise. It survives a state change, a
+ * remount and a reload, and every Auto on the page (and in other tabs) follows
+ * one switch, since the SDK tells every subscriber. Until the host can say whose
+ * flag it is (the user not known yet), it is unknown: Auto stands still and the
+ * switch does nothing (use-mascot-motion.ts). Where the browser blocks its
+ * storage the host keeps the flag for this page; a write the host refuses is
+ * logged once.
  */
+import {
+  readThemeState,
+  removeThemeState,
+  subscribeThemeState,
+  type ThemeStateOptions,
+  type ThemeStateResult,
+  writeThemeState,
+} from '@automatos/theme-sdk'
 
-export const PAUSE_KEY = 'automatos-play.mascot-paused'
+export const PAUSE_KEY = 'mascot-paused'
 
-const PAUSED = '1'
+/** For the signed-in account, in this browser until it is removed. */
+export const PAUSE_STATE: ThemeStateOptions = Object.freeze({ lifetime: 'browser', within: 'account' })
 
-export type PauseStorage = () => Storage
+/** The flag as one string, so useSyncExternalStore gets a stable snapshot: 'unknown' until the host is ready. */
+export type MascotPause = 'unknown' | 'paused' | 'playing'
 
-const browserStorage: PauseStorage = () => window.localStorage
+let warnedRefused = false
 
-/** The flag when localStorage can't hold it, and whether that has been said once. */
-let pausedWithoutStorage = false
-let warnedWithoutStorage = false
-
-const listeners = new Set<() => void>()
-
-function warnOnce(error: unknown): void {
-  if (warnedWithoutStorage) return
-  warnedWithoutStorage = true
-  console.warn("[mascot] localStorage isn't available, so pausing Auto lasts for this page only:", error)
+function warnRefusedOnce(result: ThemeStateResult): void {
+  if (result.ok || warnedRefused) return
+  warnedRefused = true
+  console.warn(`[mascot] the host didn't keep Auto's pause (${result.reason}): ${result.message}`)
 }
 
-/** True while the user has paused Auto in this browser. */
-export function isMascotPaused(storage: PauseStorage = browserStorage): boolean {
-  try {
-    return storage().getItem(PAUSE_KEY) === PAUSED
-  } catch (error) {
-    warnOnce(error)
-    return pausedWithoutStorage
-  }
+/** Whether Auto is paused, or 'unknown' while the host can't say whose flag it is. */
+export function mascotPause(): MascotPause {
+  const { ready, value } = readThemeState(PAUSE_KEY, PAUSE_STATE)
+  if (!ready) return 'unknown'
+  return value === true ? 'paused' : 'playing'
 }
 
-/** Pause (true) or play (false) every Auto in this browser, and tell the ones on screen. */
-export function setMascotPaused(paused: boolean, storage: PauseStorage = browserStorage): void {
-  pausedWithoutStorage = paused
-  try {
-    if (paused) storage().setItem(PAUSE_KEY, PAUSED)
-    else storage().removeItem(PAUSE_KEY)
-  } catch (error) {
-    warnOnce(error)
-  }
-  listeners.forEach((listener) => listener())
+/** True while the user has paused Auto (false while it is unknown). */
+export function isMascotPaused(): boolean {
+  return mascotPause() === 'paused'
+}
+
+/** Pause (true) or play (false) every Auto of this account in this browser; the SDK tells the ones on screen. */
+export function setMascotPaused(paused: boolean): ThemeStateResult {
+  const result = paused ? writeThemeState(PAUSE_KEY, true, PAUSE_STATE) : removeThemeState(PAUSE_KEY, PAUSE_STATE)
+  warnRefusedOnce(result)
+  return result
 }
 
 /**
- * Calls `onChange` when the flag changes here or in another tab (a `storage`
- * event for PAUSE_KEY, or a cleared store: key null). For useSyncExternalStore.
+ * Calls `onChange` when the flag may have changed: here, in another tab, or
+ * when the host learns or changes whose flag it is. For useSyncExternalStore.
  */
 export function subscribeMascotPause(onChange: () => void): () => void {
-  listeners.add(onChange)
-  const onStorage = (event: StorageEvent): void => {
-    if (event.key === PAUSE_KEY || event.key === null) onChange()
-  }
-  window.addEventListener('storage', onStorage)
-  return () => {
-    listeners.delete(onChange)
-    window.removeEventListener('storage', onStorage)
-  }
+  return subscribeThemeState(PAUSE_KEY, onChange, PAUSE_STATE)
 }

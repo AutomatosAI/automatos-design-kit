@@ -30,7 +30,11 @@ Core's tests are not copied. The copied files are core's text, except for these 
 | `stores/play-chat-store.ts` | `'zustand'` becomes `'../vendor/zustand/index.js'` | the build reads only `src/` (below) |
 | `components/play/shell/play-frame.tsx`, `play-sidebar.tsx` | `'lucide-react'` becomes `'../../../vendor/lucide-react/index.js'` | the same |
 | `components/play/shell/play-frame.tsx`, `components/play/chat/message-list.tsx`, `play-chat-view.tsx`, `components/play/edges/asleep-gate.tsx` | `RefObject<T>` becomes `RefObject<T \| null>` (6 types) | the kit types React 19, whose `useRef<T>(null)` is a `RefObject<T \| null>`; core's React 18 types accept both |
-| `components/play/chat/labels.ts`, `lib/looks/scope.ts` | a comment no longer names a person | this repo is public |
+| `components/play/chat/labels.ts` | a comment no longer names a person | this repo is public |
+| `lib/mascot/pause.ts`, `lib/mascot/session.ts`, `lib/play/seen.ts`, `hooks/use-celebrate-new.ts` | rewritten onto the SDK's storage area (`readThemeState`, `writeThemeState`, `removeThemeState`, `subscribeThemeState`): Auto's pause is `mascot-paused` (browser, account, `true` or no value), hello's first open `hello-played` (session, account), the seen Deliverables `seen-deliverables` (browser, workspace, the same record and `SEEN_CAP`); no `localStorage` or `sessionStorage`, no look scope, and no move of records kept before | PRD-261 E3g: a theme keeps its state through the host, and the Marketplace review refuses browser storage |
+| `components/mascot/use-mascot-motion.ts` | the pause snapshot is one string (`'unknown'`, `'paused'`, `'playing'`); until the host knows the flag Auto is a still and the toggle does nothing; `MascotMotion` gains `ready` | the same; no clip loops before the flag is known (WCAG 2.2.2) |
+| `hooks/use-auto-mascot.ts` | the `session` option is gone; `greet` is a new function when hello's readiness changes, so the chat page's effect asks again | the same |
+| `lib/looks/scope.ts` | deleted | its one caller was `lib/play/seen.ts`; state kept before the storage area is dropped (PRD-261 E1) |
 | `lib/mascot/media.ts` | `MASCOT_DIR` is `'assets/mascot'`; `posterUrl` and `clipUrls` build each URL with the SDK's `assetUrl(path)` and give `undefined` where it gives `null`; the header comment says where the files are | an installed theme's files are served from its package, under a URL only the host knows |
 | `components/mascot/auto-mascot.tsx` | two comments say `assets/mascot/` for `public/auto/` | the same |
 | `app/play-theme.css` | the header names `src/entry.ts` and `app/play-fonts.css`; the 6 `!important` are gone (below) | a theme's CSS may hold no `!important` |
@@ -75,7 +79,8 @@ the preset puts all 27 into `dist/theme.css`, every rule under `html.play` (D2-c
 
 Builtin Play stays in core until A-19 removes it. Until then, **a change to Play in core must be made here too, and
 the reverse**, with each pull request naming the other. Take the change from core by file and record the new core
-commit above. Keep the table of changed lines true.
+commit above. Keep the table of changed lines true. The storage port (PRD-261 E3g, the rows above) is the one
+exception: it is this package's own from 1.1.0, and builtin Play keeps its browser storage until A-19 removes it.
 
 ## Looks and the first paint
 
@@ -104,7 +109,10 @@ table as the boot script does, against Play's engine.
 - `npm run build`: `node ../../scripts/compile-looks.mjs .` (above), then `vite build` with `@automatos/vite-preset`, every rule under `html.play` (decision D2-c, so
   Play's cascade over Studio's rules stays as it is in core). React and the SDK come from the host's import map.
 - `npm run typecheck`, `npm test`: the TypeScript check and the static tests in `test/` (imports, `theme.json`
-  against core's validator, the entry's registrations, the stylesheets' scope and cascade, the assets and their URLs).
-- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.0.0.autotheme` and its `.sha256.json`, checked
+  against core's validator, the entry's registrations, the stylesheets' scope and cascade, the assets and their URLs),
+  and `test/storage-port.test.ts`: no browser storage under `src/`, and Auto's pause, his hello and the seen
+  Deliverables on the SDK's storage area, run on `test/storage-port.ts` (core's storage area at
+  `0dd8b846e41772c8dd7ef159e4373bcb9419b06a`, ported for the tests).
+- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.1.0.autotheme` and its `.sha256.json`, checked
   as core's reader checks a package (the caps: the entry 300 KB, JS and CSS 3 MB, each clip 1 MB; the scope check on
   `dist/theme.css`). Kit CI uploads both as the `kit-themes` artifact.
