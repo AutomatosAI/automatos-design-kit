@@ -1,5 +1,5 @@
 {
-  "_comment": "Auto's clips and stills are not committed to this public repo until the image rights are confirmed (PRD-001, open question 1). The build fetches them from core, where they already ship, at this pinned commit, and checks each against its sha256: scripts/fetch-mascot.mjs.",
+  "_comment": "The checksum list of Auto's 36 clips and stills committed in assets/mascot/, copied byte for byte from core (repository, ref, path below). Only test/assets.test.ts reads it; the build does not, and pack never ships test/.",
   "repository": "AutomatosAI/automatos-ai",
   "ref": "ebedc7eb8d7f7f9d032706728a7f420a9e833392",
   "path": "frontend/public/auto",

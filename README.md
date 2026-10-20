@@ -8,8 +8,8 @@ A fun second interface for your local Automatos, with Auto as an animated mascot
 - `skills/build-automatos-interface/`: how any interface talks to the Automatos API. Play is built from this skill alone.
 - `docs/design/CLAUDE-DESIGN-PROMPT.md`: the brief for the design mocks.
 
-The mascot animations (`public/auto/`) and the pipeline that made them (`mascot/`) stay local until the usage rights of the generated images are confirmed (PRD-001, open question 1).
+The mascot's clips and stills are committed in `themes/play/assets/mascot/`, under their own notice (`NOTICE`); the pipeline that made them (`/mascot/`) stays local.
 
 Play works with the **local edition** of Automatos (`docker compose up` in `automatos-ai`, no accounts). It changes nothing in Automatos itself: Studio stays your main interface.
 
-Code: Apache-2.0 (to be added with the scaffold). The Auto mascot: see the open questions in PRD-001.
+Code: Apache-2.0 (`LICENSE`). The Auto mascot's clips and stills: (c) Automatos AI, not covered by the code licence (`NOTICE`).

@@ -1,5 +1,6 @@
 // The kit's own contract: npm workspaces, exact pins, and a CI workflow that runs
 // every workspace's scripts. These checks read files only; nothing is installed.
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -215,31 +216,58 @@ describe("kit workflow", () => {
   });
 });
 
+// The words the dropped mascot fetch left behind, and the folders allowed to name them (its tests).
+const FETCH_WORDS = ["raw.githubusercontent.com", "fetch-mascot", "mascot.lock"];
+const FETCH_WORD_FOLDERS = ["tests/", "themes/play/test/"];
+const ASSET_NOTICE = "(c) Automatos AI; not covered by the code licence.";
+
+function trackedFiles(): string[] {
+  return execFileSync("git", ["ls-files", "-z"], { cwd: ROOT, encoding: "utf8" }).split("\0").filter(Boolean);
+}
+
+// .gitignore's patterns: trimmed, without blank lines and comments.
+function ignorePatterns(): string[] {
+  return readText(".gitignore").split("\n").map((line) => line.trim()).filter((line) => line && !line.startsWith("#"));
+}
+
 // PRD-261 A-16c: Play's build writes its look data first, its pack writes the package to out/,
 // and CI uploads every package the pack steps wrote.
 describe("Play's package in CI", () => {
   const play = readJson<PackageJson>("themes/play/package.json");
 
-  it("fetches Auto's files (scripts/fetch-mascot.mjs) and builds its look data (scripts/compile-looks.mjs) before the bundle, then packs into out/", () => {
-    expect(play.scripts?.build).toBe(
-      "node ../../scripts/fetch-mascot.mjs . && node ../../scripts/compile-looks.mjs . && vite build",
-    );
+  it("builds its look data (scripts/compile-looks.mjs) before the bundle, then packs into out/", () => {
+    expect(play.scripts?.build).toBe("node ../../scripts/compile-looks.mjs . && vite build");
     expect(play.scripts?.pack).toBe("automatos-theme pack . --out out");
     expect(existsSync(join(ROOT, "scripts/compile-looks.mjs"))).toBe(true);
-    expect(existsSync(join(ROOT, "scripts/fetch-mascot.mjs"))).toBe(true);
   });
 
-  // PRD-001 open question 1: Auto's clips stay out of this public repo until the image rights are
-  // confirmed; the build fetches them from core at the pinned commit, each checked by its sha256.
-  it("pins Auto's files to a core commit by sha256, outside assets/, and keeps them out of git", () => {
-    const lock = readJson<{ ref: string; files: Record<string, { sha256: string; bytes: number }> }>(
-      "themes/play/mascot.lock.json",
-    );
-    expect(lock.ref).toMatch(/^[0-9a-f]{40}$/);
-    expect(Object.keys(lock.files)).toHaveLength(36);
-    Object.values(lock.files).forEach((entry) => expect(entry.sha256).toMatch(/^[0-9a-f]{64}$/));
-    const ignored = readText(".gitignore").split("\n").map((line) => line.trim());
-    expect(ignored).toContain("themes/*/assets/mascot/");
+  // PRD-261 E4a: Auto's clips are committed (themes/play/assets/mascot, held to their checksums by Play's
+  // assets test), so the build fetches nothing and the lock it read is gone.
+  it("fetches nothing: the mascot fetch and its lock are gone, and no tracked file outside the tests names them", () => {
+    expect(existsSync(join(ROOT, "scripts/fetch-mascot.mjs"))).toBe(false);
+    expect(existsSync(join(ROOT, "themes/play/mascot.lock.json"))).toBe(false);
+    const checked = trackedFiles().filter((rel) => !FETCH_WORD_FOLDERS.some((folder) => rel.startsWith(folder)));
+    expect(checked.length).toBeGreaterThan(0);
+    const naming = checked.filter((rel) => existsSync(join(ROOT, rel)))
+      .flatMap((rel) => {
+        const bytes = readFileSync(join(ROOT, rel));
+        return FETCH_WORDS.filter((word) => bytes.includes(word)).map((word) => `${rel}: ${word}`);
+      });
+    expect(naming).toEqual([]);
+  });
+
+  it("tracks the committed clips, and still ignores the generation pipeline and the pilot's served copy", () => {
+    const patterns = ignorePatterns();
+    expect(patterns).not.toContain("themes/*/assets/mascot/");
+    expect(patterns).not.toContain("mascot/");
+    expect(patterns).toEqual(expect.arrayContaining(["/mascot/", "public/auto/"]));
+  });
+
+  it("gives the clips their own notice, outside the code licence", () => {
+    const notice = readText("NOTICE");
+    expect(notice).toContain(ASSET_NOTICE);
+    expect(notice).toContain("themes/play/assets/mascot/");
+    expect(notice).toContain("/mascot/");
   });
 
   it("keeps the generated look data and the pack output out of git", () => {
