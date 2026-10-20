@@ -5,8 +5,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
+import { SOURCE_DIR } from "../packages/theme-cli/src/source.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const PLAY_DIR = "themes/play";
 const WORKSPACE_GLOBS = ["packages/*", "themes/*"];
 const WORKFLOW = ".github/workflows/kit.yml";
 const LOCKFILE = "package-lock.json";
@@ -353,6 +356,29 @@ describe("Play's package in CI", () => {
     expect(readText(WORKFLOW)).toMatch(
       /name: kit-themes\n\s+path: \|\n\s+\*\*\/\*\.autotheme\*\n\s+!\*\*\/node_modules\/\*\*\n\s+if-no-files-found: error/,
     );
+  });
+});
+
+// PRD-261 C-06r (PB-4): released-unchanged.mjs keeps its own PACKED_PATHS (plain Node, no TypeScript
+// loader to read collect.ts/source.ts at run time); read back here as text, it must stay a superset of
+// what pack actually collects for Play, so the two guarded sets can't silently drift apart. A folder
+// collect.ts packs but Play never commits (dist/, boot/, looks/: generated from src/, gitignored) needs
+// no path of its own, until the day one of them is tracked.
+function releasedUnchangedPackedPaths(): string[] {
+  const match = /PACKED_PATHS\s*=\s*\[([^\]]*)\]/.exec(readText(RELEASED_SCRIPT));
+  if (match === null) throw new Error(`can't find PACKED_PATHS in ${RELEASED_SCRIPT}`);
+  return [...match[1].matchAll(/'([^']*)'/g)].map(([, path]) => path);
+}
+
+describe("released-unchanged.mjs guards everything pack collects for Play", () => {
+  const packedPaths = releasedUnchangedPackedPaths();
+  const committedFolders = PACKED_FOLDERS.filter((name) =>
+    trackedFiles().some((rel) => rel.startsWith(`${PLAY_DIR}/${name}/`)));
+
+  it("guards every top file and committed folder collect.ts names, and src/ (source.ts)", () => {
+    expect(PACKED_TOP_FILES.length).toBeGreaterThan(0);
+    expect(committedFolders).toContain("assets");
+    [...PACKED_TOP_FILES, ...committedFolders, SOURCE_DIR].forEach((name) => expect(packedPaths).toContain(`${PLAY_DIR}/${name}`));
   });
 });
 

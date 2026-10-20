@@ -18,8 +18,15 @@ const MANIFEST = "themes/play/theme.json";
 const SOURCE = "themes/play/src/entry.ts";
 const ASSET = "themes/play/assets/previews/home.png";
 const README = "themes/play/README.md";
+const CHANGELOG = "themes/play/CHANGELOG.md";
+const LICENSE = "themes/play/LICENSE";
 /** One file under each of Play's packed paths but theme.json, which manifest() writes. */
-const PACKED_FILES = { [SOURCE]: "export const entry = 1;\n", [ASSET]: "home preview\n", [README]: "# Play\n" };
+const PACKED_FILES = {
+  [SOURCE]: "export const entry = 1;\n",
+  [ASSET]: "home preview\n",
+  [README]: "# Play\n",
+  [CHANGELOG]: "## 1.1.0\n\n- Release.\n",
+};
 /** Files outside Play's packed paths: a change to them never needs a new version. */
 const OUTSIDE_FILES = {
   "themes/play/package.json": '{ "name": "@automatos/theme-play", "version": "1.1.0" }\n',
@@ -39,6 +46,8 @@ const GUARDED_CHANGES: ReadonlyArray<readonly [string, Readonly<Record<string, s
   ["a new asset", { "themes/play/assets/previews/chat.png": "chat preview\n" }],
   ["the README", { [README]: "# Play, reworded\n" }],
   ["theme.json at the same version", { [MANIFEST]: manifest(RELEASED, { name: "Play, renamed" }) }],
+  ["a new LICENSE", { [LICENSE]: "MIT\n" }],
+  ["a CHANGELOG.md edit", { [CHANGELOG]: "## 1.1.0\n\n- Release.\n- Reworded.\n" }],
 ];
 const BAD_VERSIONS: readonly unknown[] = ["1.1", "v1.1.0", "1.1.0-rc.1", "1.1.0\n", " 1.1.0", 110, null];
 

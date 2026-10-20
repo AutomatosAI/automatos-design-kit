@@ -5,10 +5,11 @@
 //   node scripts/release/released-unchanged.mjs
 //
 // Play is released by its tag, play-v<version> (theme-release.yml). While themes/play/theme.json names a
-// released version, Play's packed paths (themes/play/src, themes/play/assets, themes/play/theme.json and
-// themes/play/README.md) must be as that tag has them: a change to them needs a new version (a new
-// release, such as 1.1.1). An untagged version passes only when it is above every release tag, so with
-// no release tag yet nothing is released and the check passes.
+// released version, everything the kit's pack collects for Play (PACKED_PATHS below: theme.json, its
+// top docs — README.md, CHANGELOG.md and every LICENSE spelling — assets/ and src/, the source of the
+// package's generated dist/, boot/ and looks/ too) must be as that tag has them: a change to any of it
+// needs a new version (a new release, such as 1.1.1). An untagged version passes only when it is above
+// every release tag, so with no release tag yet nothing is released and the check passes.
 //
 // It lists origin's play-v* tags with git ls-remote (kit CI's checkout fetches no tags), fetches the
 // tag the version names (at depth 1 in a shallow checkout such as kit CI's) and lists the packed paths
@@ -22,8 +23,28 @@ const USAGE = 'usage: node scripts/release/released-unchanged.mjs (no arguments;
 const REMOTE = 'origin'
 const MANIFEST = 'themes/play/theme.json'
 const PLAY_PACKAGE_JSON = 'themes/play/package.json'
-/** Play's packed paths: a released version's package is built from these. */
-const PACKED_PATHS = ['themes/play/src', 'themes/play/assets', MANIFEST, 'themes/play/README.md']
+/**
+ * Play's packed paths: a released version's package is built from these. The top files and the
+ * folder match packages/theme-cli/src/collect.ts's PACKED_TOP_FILES (theme.json, README.md,
+ * CHANGELOG.md and every LICENSE spelling it names) and its one PACKED_FOLDERS member the theme
+ * folder commits, assets/ — collect.ts's other folders (dist, boot, looks) are gitignored
+ * (themes/play/.gitignore) and built from src/ at pack time, never committed, so they need no path
+ * of their own. src/ is source.ts's SOURCE_DIR, packed as source/. This script is plain Node with no
+ * TypeScript loader, so it cannot read those two files' constants at run time; the paths below are
+ * spelled out in full (no shared prefix constant, no template literal) so tests/kit-ci.test.ts can
+ * read this list back as plain text and assert it stays a superset of them, so the two can't
+ * silently drift apart.
+ */
+export const PACKED_PATHS = [
+  'themes/play/theme.json',
+  'themes/play/README.md',
+  'themes/play/CHANGELOG.md',
+  'themes/play/LICENSE',
+  'themes/play/LICENSE.md',
+  'themes/play/LICENSE.txt',
+  'themes/play/assets',
+  'themes/play/src',
+]
 const TAG_REF_PREFIX = 'refs/tags/play-v'
 /** A release tag, as theme-release.yml's TAG_PATTERN has it: play-v<major>.<minor>.<patch>. */
 const RELEASE_REF = /^refs\/tags\/play-v(\d+\.\d+\.\d+)$/
