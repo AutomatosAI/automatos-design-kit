@@ -1,0 +1,39 @@
+[
+  {
+    "corePath": "frontend/lib/mascot/__tests__/pause.test.ts",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 5,
+    "kitPath": "test/mascot/pause.test.ts",
+    "kitIts": 6,
+    "rehomed": [
+      {
+        "assertion": "The storage area itself keeps a value in localStorage across a reload, tells other tabs through the storage event, and keeps it in memory with one warning while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
+      }
+    ],
+    "rewritten": "E3g keeps the flag in the SDK storage area (mascot-paused, in this browser, for the account): setMascotPaused returns a ThemeStateResult and takes no storage, mascotPause is 'unknown' until the host is ready, a blocked storage is the host's memory fallback, and the automatos-play.mascot-paused key is not read (E1)."
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/session.test.ts",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 2,
+    "kitPath": "test/mascot/session.test.ts",
+    "kitIts": 4,
+    "rehomed": [
+      {
+        "assertion": "The storage area itself keeps session state in sessionStorage, and in memory with one warning while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
+      }
+    ],
+    "rewritten": "E3g (PB-9) keeps hello's first open in the SDK storage area (hello-played, for this tab's session, for the account): claimFirstOpen takes no storage and says false until the host is ready (helloReady, subscribeHello), a refused write plays hello once per page load, and core's memoryStorage and blockedStorage now stand for the window's own sessionStorage."
+  },
+  {
+    "corePath": "frontend/components/mascot/__tests__/auto-mascot-pause.test.tsx",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 9,
+    "kitPath": "test/mascot/auto-mascot-pause.test.tsx",
+    "kitIts": 10,
+    "rehomed": [],
+    "rewritten": "The pause is read and made through the SDK storage area (readThemeState, setMascotPaused) and another tab's through the stand-in's storage event, not through the automatos-play.mascot-paused key; Auto's files come from the SDK's assetUrl (assets/mascot/ under the package's files), not from /auto/."
+  }
+]

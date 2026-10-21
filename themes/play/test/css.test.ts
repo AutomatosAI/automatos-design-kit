@@ -1,7 +1,11 @@
+// @vitest-environment node
 // Play's stylesheets pass the server's CSS scope check once the preset has wrapped them, and the wrap
 // (D2-c: html.play, specificity 0,1,1) keeps Play's cascade: the FX-01 rules keep core's specificity,
 // every other module rule gains exactly (0,1,1), and the rules rewritten from core's play-theme.css
 // still win where they won in core. A static check: the files are read and transformed, nothing is built.
+// PRD-261 K-19c (host 1.1.0): motion stops under the host's look runtime's marker as under builtin Play's,
+// with no !important, and the screen heading carries the host's heading mark beside Play's own.
+// PRD-261 E3g: the Pause Auto control, disabled until the host knows the pause flag, looks disabled.
 import { readdirSync } from 'node:fs'
 import { dirname, join, normalize, relative } from 'node:path'
 import { cssScopeErrors, transformThemeCss, wrapSelector } from '@automatos/vite-preset'
@@ -10,6 +14,7 @@ import {
   addSpecificity, compareSpecificity, specificity, stripComments, styleRules, withoutGlobal, type Specificity,
 } from './css-rules.ts'
 import { importSpecifiers, readSource, sourceScripts, SOURCE_ROOT } from './source-files.ts'
+import { PLAY_ONLY_HEADING } from '../src/components/looks/screen-heading.ts'
 
 const HTML_CLASS = 'play'
 const OPTIONS = { htmlClass: HTML_CLASS, wrap: 'html' } as const
@@ -29,7 +34,26 @@ const FORCED_COLOURS_MEDIA = '@media (forced-colors: active)'
 /** The forced-colours rings set outline, outline-offset and outline-width. */
 const OUTLINE = 'outline'
 const MOTION_STOP_ID = ':not(#play-none)'
-const MOTION_STOP_SELECTORS = 6
+/** The OS setting's three, then three for each host marker. */
+const MOTION_STOP_SELECTORS = 9
+const REDUCED_MOTION_MEDIA = '@media (prefers-reduced-motion: reduce)'
+/** The marker on <html> that asks for reduced motion: the host's look runtime's (A-19d2), then builtin Play's. */
+const MOTION_MARKERS = ['data-theme-motion', 'data-pl-motion']
+/** What each stop selector reaches under html.play. */
+const MOTION_TARGETS = ['*', '*::before', '*::after']
+/** The stop's declarations, the OS setting's and each marker's alike. */
+const MOTION_STOP: Readonly<Record<string, string>> = {
+  'animation-duration': '0.01ms',
+  'animation-iteration-count': '1',
+  'transition-duration': '0.01ms',
+}
+/** The Pause Auto control's sheet, and the shelf's, whose Load more sets the look Play gives a disabled button. */
+const MASCOT_CSS = 'components/mascot/auto-mascot.module.css'
+const SHELF_CSS = 'components/play/deliverables/shelf.module.css'
+/** A disabled button while Play waits: a waiting cursor and the second text colour. */
+const WAITING_DISABLED: Readonly<Record<string, string>> = { cursor: 'progress', color: 'var(--pl-color-text-2)' }
+/** Play's motion factor for calc(): the host's look runtime's variable first, builtin Play's as the fallback. */
+const MOTION_SCALE = /--pl-motion-scale:\s*var\(--theme-motion,\s*var\(--pl-motion,\s*1\)\)\s*;/
 
 /** Every stylesheet under src/, relative to src/ with forward slashes. */
 function stylesheets(): string[] {
@@ -146,6 +170,20 @@ describe('the html.play wrap keeps the FX-01 cascade', () => {
   })
 })
 
+/** The declarations (name → value) of the rule whose selector list holds `selector`, in play-theme.css or `rel`. */
+function declarationsOf(selector: string, rel = THEME_CSS): Readonly<Record<string, string>> {
+  const css = stripComments(readSource(rel))
+  const listed = css.indexOf(`${selector},`)
+  const at = listed >= 0 ? listed : css.indexOf(`${selector} {`)
+  expect(at, selector).toBeGreaterThanOrEqual(0)
+  const body = css.slice(css.indexOf('{', at) + 1, css.indexOf('}', at))
+  const declarations = body.split(';').filter((line) => line.includes(':'))
+  return Object.fromEntries(declarations.map((line): [string, string] => {
+    const colon = line.indexOf(':')
+    return [line.slice(0, colon).trim(), line.slice(colon + 1).trim()]
+  }))
+}
+
 /** Every module selector of a rule setting an outline property, as built and wrapped, with its core specificity. */
 function outlineModules(): { readonly label: string; readonly core: Specificity; readonly kit: Specificity }[] {
   return MODULE_SELECTORS.filter((s) => s.properties.some((name) => name.startsWith(OUTLINE))).map((s) => {
@@ -176,9 +214,43 @@ describe("play-theme.css's rewritten rules", () => {
     expect(others.filter((s) => specificity(withoutGlobal(s.written))[0] > 0).map((s) => s.written)).toEqual([])
   })
 
+  it("stop motion under the OS setting with the stop's three declarations", () => {
+    const os = THEME_SELECTORS.filter((s) => s.within.includes(REDUCED_MOTION_MEDIA)).map((s) => s.written)
+    expect(os).toEqual(MOTION_TARGETS.map((target) => `html.play${MOTION_STOP_ID} ${target}`))
+    os.forEach((selector) => expect(declarationsOf(selector), selector).toEqual(MOTION_STOP))
+  })
+
+  it.each(MOTION_MARKERS)('stop motion when the host sets %s="reduce" on <html>, at any width and setting', (marker) => {
+    const stop = THEME_SELECTORS.filter((s) => s.written.includes(`[${marker}="reduce"]`))
+    const expected = MOTION_TARGETS.map((target) => `html.play${MOTION_STOP_ID}[${marker}="reduce"] ${target}`)
+    expect(stop.map((s) => s.written)).toEqual(expected)
+    stop.forEach((s) => {
+      expect(s.within, s.written).toEqual([])
+      expect(specificity(s.written)[0], s.written).toBe(1)
+      expect(declarationsOf(s.written), s.written).toEqual(MOTION_STOP)
+    })
+  })
+
+  it("give Play's motion factor for calc() from the host's --theme-motion, falling back to --pl-motion", () => {
+    expect(stripComments(readSource(THEME_CSS))).toMatch(MOTION_SCALE)
+  })
+
   it('meet no inline animation or transition, which a selector cannot outrank: no Play element sets one', () => {
     const inline = /\b(?:animation|transition)[A-Za-z]*['"]?\s*:|\.style\.(?:animation|transition)|setProperty\(\s*['"](?:animation|transition)/
     const scripts = sourceScripts().filter((rel) => !rel.startsWith('vendor/'))
     expect(scripts.filter((rel) => inline.test(readSource(rel)))).toEqual([])
+  })
+})
+
+describe("the heading mark on Play's own screens", () => {
+  it("carries the host's data-theme-heading beside builtin Play's data-play-only-heading", () => {
+    expect(PLAY_ONLY_HEADING).toEqual({ 'data-play-only-heading': true, 'data-theme-heading': true })
+  })
+})
+
+describe("the Pause Auto control while it can't be pressed (E3g)", () => {
+  it("looks disabled as the shelf's Load more does: a waiting cursor and the second text colour", () => {
+    expect(declarationsOf('.pause:disabled', MASCOT_CSS)).toEqual(WAITING_DISABLED)
+    expect(declarationsOf('.moreButton:disabled', SHELF_CSS)).toEqual(WAITING_DISABLED)
   })
 })

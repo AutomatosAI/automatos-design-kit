@@ -1,0 +1,25 @@
+[
+  {
+    "corePath": "frontend/lib/play/__tests__/seen.test.ts",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 11,
+    "kitPath": "test/lib/seen.test.ts",
+    "kitIts": 16,
+    "rehomed": [
+      {
+        "assertion": "The storage area itself scopes state to the theme, the user and, within the workspace, the workspace, and keeps it in memory while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
+      }
+    ],
+    "rewritten": "E3g keeps the record in the SDK storage area (seen-deliverables, in this browser, for the user in this workspace): readSeen and writeSeen take no scope, readSeen says whether the host is ready, writeSeen says whether the host kept the record, parseSeen reads a stored value rather than JSON text, and the move of a record kept before F5 went with the old keys (E1), so that case now asserts an old record is not read. The kit adds three markSeen cases: it adds no Deliverable that can never count as new, so more than SEEN_CAP of them, or two lists taking turns, reach a record a second round leaves as it is."
+  },
+  {
+    "corePath": "frontend/lib/play/__tests__/shelf.test.ts",
+    "coreSha": "0dd8b846e41772c8dd7ef159e4373bcb9419b06a",
+    "coreIts": 9,
+    "kitPath": "test/lib/shelf.test.ts",
+    "kitIts": 9,
+    "rehomed": [],
+    "rewritten": null
+  }
+]

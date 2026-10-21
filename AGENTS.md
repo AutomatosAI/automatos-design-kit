@@ -27,8 +27,9 @@ core wins and the kit is fixed.
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until
   PRD-261 A-19 removes builtin Play from core, a Play change in core is made here too, each pull request naming the other.
-- `scripts/compile-looks.mjs`: Play's look data (`looks/`, `boot/prepaint.json`) from its catalogue and presets,
-  run by Play's `build` before `vite build`; the files are generated, not committed.
+- `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
+  rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
+  `vite build`; the files are generated, not committed.
 - npm workspaces over both. `tsconfig.base.json` holds the shared compiler options; each workspace's
   `tsconfig.json` extends it.
 
@@ -66,8 +67,9 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   files}` (`scripts/sign/`; core's signed form, which keeps `requestId` outside the signed text), which
   the person pastes into the admin queue. It refuses when the secret is absent, when id or version
   break core's manifest patterns, and when any printed line would hold a line break or `::`. The
-  `theme-signing` environment allows main only and has required reviewers (the named signers, self-review
-  prevented). No other workflow may name that secret; the root tests enforce both workflows' shape.
+  `theme-signing` environment allows main only and has required reviewers, the named signers: either one may
+  approve a run, and "Prevent self-review" is off for now. No other workflow may name that secret; the root tests
+  enforce both workflows' shape.
 - The vite-preset builds only from the theme's `src/` (its source guard), and the JS rules refuse paths
   that leave `source/`, so the reproducible build can't pull in files from outside the package.
 

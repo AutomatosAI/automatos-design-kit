@@ -1,0 +1,19 @@
+{
+  "name": "@automatos/theme-harness",
+  "version": "0.1.0",
+  "description": "Runs a theme's tests without an Automatos host: vitest in jsdom with React, Testing Library and the jest-dom matchers, and @automatos/theme-sdk resolved to a stand-in.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    "./vitest-preset": "./src/vitest-preset.ts",
+    "./setup": "./src/setup.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

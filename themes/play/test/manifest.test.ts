@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Play's theme.json, entry and build config agree with each other, with core's manifest validator
 // (vendored in the theme CLI) and with what core's builtin Play declares. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
@@ -69,11 +70,11 @@ describe('theme.json', () => {
     expect(validateManifest(manifest).errors).toEqual([])
   })
 
-  it("is builtin Play's entry as core has it", () => {
+  it("declares Play's schema, id, version, htmlClass, minWidth, base, tone, routes and slots", () => {
     expect(manifest).toMatchObject({
       schema: 'automatos-theme/v1',
       id: 'automatos/play',
-      version: '1.0.0',
+      version: '1.1.0',
       htmlClass: 'play',
       minWidth: 1024,
       base: 'studio',

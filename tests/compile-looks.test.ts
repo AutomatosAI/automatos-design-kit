@@ -2,23 +2,31 @@
 // The schema is core's play-look-schema.json byte for byte, the five presets pass it, the prepaint table
 // passes core's CSS-value check, and painting a look from the table (as core's boot script does) sets
 // exactly the variables Play's engine gives that look. One case runs the real script with Node.
+// PRD-261 K-19c (host 1.1.0): the table carries the tone rule core's boot reads, each ground's tone as
+// toneOfGround gives it, and the presets ride the boot as core's server builds it. Both pass the vendored
+// check and the rules of core's boot gate, which are ported below as paint() ports the boot script: a
+// rule the gate refuses is dropped alone, and a preset set it refuses leaves the boot with no looks.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
-import { prepaintErrors } from "../packages/theme-cli/src/core/css-value.ts";
+import { prepaintErrors, toneRuleErrors } from "../packages/theme-cli/src/core/css-value.ts";
+import { LOOK_ID_PATTERN } from "../packages/theme-cli/src/core/host.ts";
 import { validateLookSchema } from "../packages/theme-cli/src/core/look-schema.ts";
 import { fileKind } from "../packages/theme-cli/src/files.ts";
-import { lookFileErrors, presetIds } from "../packages/theme-cli/src/looks.ts";
-import type { PrepaintNumericRule, PrepaintTable, PrepaintVars } from "../scripts/looks/boot-types.ts";
-import { lookFiles, PREPAINT_FILE, SCHEMA_FILE } from "../scripts/looks/compile.ts";
+import { lookFileErrors, presetIds, presetPaths } from "../packages/theme-cli/src/looks.ts";
+import type {
+  PrepaintNumericRule, PrepaintTable, PrepaintToneRule, PrepaintVars, ThemeBootLooks, ThemeBootPreset, ThemeTone,
+} from "../scripts/looks/boot-types.ts";
+import { lookFiles, PREPAINT_FILE, PRESET_SUFFIX, PRESETS_FOLDER, SCHEMA_FILE, TONE_KNOB } from "../scripts/looks/compile.ts";
 import {
   ACCENT_KEYS, GROUND_KEYS, LIGHT_KEYS, SHELL_KEYS, TYPE_STYLE_KEYS,
 } from "../themes/play/src/lib/looks/catalogue.ts";
 import { GLOW_VAR, lookToCssVars, lookToStudioTokens, safeGlowAlpha } from "../themes/play/src/lib/looks/engine.ts";
 import { DEFAULT_LOOK, PRESETS } from "../themes/play/src/lib/looks/presets.ts";
+import { toneOfGround } from "../themes/play/src/lib/looks/tone.ts";
 import { GLOW_MAX, GLOW_MIN, type Look } from "../themes/play/src/lib/looks/types.ts";
 
 const SCRIPT = fileURLToPath(new URL("../scripts/compile-looks.mjs", import.meta.url));
@@ -32,9 +40,22 @@ const CHOICES: Readonly<Record<string, readonly string[]>> = {
 };
 /** The boot script sets only names of this form (core's lib/theme-host/boot.ts, V). */
 const BOOT_PROPERTY = /^--[a-z0-9-]{1,64}$/;
+/**
+ * core's boot gate at 0dd8b846e41772c8dd7ef159e4373bcb9419b06a (frontend/lib/theme-host/boot-sanitize.ts,
+ * BOOT_PRESETS_MAX and BOOT_PRESET_MAX_BYTES, equal to orchestrator/services/themes/contract.py's) and the
+ * two tones it keeps.
+ */
+const BOOT_PRESETS_MAX = 12;
+const BOOT_PRESET_MAX_BYTES = 4096;
+const BOOT_TONES: readonly ThemeTone[] = ["light", "dark"];
+/** The per-ground tones core's frontend/lib/looks/__tests__/tone.test.ts asserted at that commit. */
+const CORE_GROUND_TONES: Readonly<Record<string, ThemeTone>> = {
+  graphite: "dark", obsidian: "dark", indigo: "dark", paper: "light",
+};
 
 type LookFields = Readonly<Record<string, string | number>>;
 const NO_VARS: PrepaintVars = {};
+const NO_TONES: Readonly<Record<string, ThemeTone>> = {};
 
 const files = lookFiles();
 const text = (path: string): string => files.get(path) ?? "";
@@ -58,6 +79,47 @@ function paint(prepaint: PrepaintTable, look: LookFields): Readonly<Record<strin
   const fromTables = tables.flatMap((vars) => Object.entries(vars ?? NO_VARS)).filter(([name]) => BOOT_PROPERTY.test(name));
   const fromRules = prepaint.numeric.map((rule): [string, string] => [rule.var, numericValue(rule, look)]);
   return Object.fromEntries([...fromTables, ...fromRules]);
+}
+
+/**
+ * The tone rule as core's boot gate keeps it (boot-sanitize.ts sanitizeToneRule): only when its knob is a
+ * choice knob of the table, not a numeric rule's, and gives every choice of it 'light' or 'dark'; else null.
+ */
+function gatedToneRule(prepaint: PrepaintTable): PrepaintToneRule | null {
+  const rule = prepaint.tone;
+  if (rule === undefined || !Object.hasOwn(prepaint.knobs, rule.knob)) return null;
+  if (prepaint.numeric.some((numeric) => numeric.knob === rule.knob)) return null;
+  const choices = Object.keys(prepaint.knobs[rule.knob]);
+  const mapped = choices.filter((choice) => Object.hasOwn(rule.values, choice) && BOOT_TONES.includes(rule.values[choice]));
+  if (choices.length === 0 || mapped.length !== choices.length) return null;
+  const values = mapped.map((choice): [string, ThemeTone] => [choice, rule.values[choice]]);
+  return { knob: rule.knob, values: Object.fromEntries(values) };
+}
+
+/** Text or a finite number: the only values a preset on the boot holds. */
+function isPresetValue(value: unknown): boolean {
+  return typeof value === "string" || (typeof value === "number" && Number.isFinite(value));
+}
+
+/** A preset core's boot gate keeps (sanitizePreset): flat text and finite numbers, a look id, its JSON within the cap. */
+function passesPresetGate(preset: Readonly<Record<string, unknown>>): boolean {
+  const flat = Object.values(preset).every(isPresetValue);
+  const id = preset.id;
+  return flat && typeof id === "string" && LOOK_ID_PATTERN.test(id) && JSON.stringify(preset).length <= BOOT_PRESET_MAX_BYTES;
+}
+
+const presetIdOf = (path: string): string => path.slice(`${PRESETS_FOLDER}/`.length, -PRESET_SUFFIX.length);
+
+/**
+ * The boot's looks as core's server builds them from the files (orchestrator/services/themes/serve.py
+ * boot_looks): the manifest's default look first, the rest in file-name order, at most BOOT_PRESETS_MAX.
+ */
+function bootLooks(defaultLook: string): ThemeBootLooks {
+  const paths = presetPaths(files.keys());
+  const isDefault = (path: string): boolean => presetIdOf(path) === defaultLook;
+  const ordered = [...paths.filter(isDefault), ...paths.filter((path) => !isDefault(path))];
+  const presets = ordered.slice(0, BOOT_PRESETS_MAX).map((path) => JSON.parse(text(path)) as ThemeBootPreset);
+  return { defaultLook: String(presets[0]?.id), presets };
 }
 
 describe("compile-looks: the files", () => {
@@ -148,6 +210,46 @@ describe("compile-looks: boot/prepaint.json", () => {
       const expected = { ...lookToCssVars(look), ...lookToStudioTokens(look) };
       expect({ id: look.id, vars: paint(table, fields(look)) }).toEqual({ id: look.id, vars: expected });
     });
+  });
+});
+
+describe("compile-looks: boot/prepaint.json's tone rule (host 1.1.0)", () => {
+  it("names the ground and gives every ground toneOfGround's tone, in the catalogue's order", () => {
+    expect(table.tone?.knob).toBe("ground");
+    expect(Object.entries(table.tone?.values ?? NO_TONES)).toEqual(GROUND_KEYS.map((key) => [key, toneOfGround(key)]));
+  });
+
+  it("holds the per-ground tones core's tone test asserted: Paper light; Graphite, Obsidian and Night dark", () => {
+    expect(table.tone?.values).toEqual(CORE_GROUND_TONES);
+  });
+
+  it("passes the vendored tone-rule check, which refuses the rule with a ground left out", () => {
+    expect(toneRuleErrors(table)).toEqual([]);
+    const values = Object.fromEntries(Object.entries(table.tone?.values ?? NO_TONES).slice(1));
+    expect(toneRuleErrors({ ...table, tone: { knob: TONE_KNOB, values } }).map((error) => error.code)).toEqual(["BAD_TONE_RULE"]);
+  });
+
+  it("is kept whole by core's boot gate, which drops a rule naming the glow (a numeric knob, no choice knob)", () => {
+    expect(gatedToneRule(table)).toEqual(table.tone);
+    expect(gatedToneRule({ ...table, tone: { knob: "glow", values: table.tone?.values ?? NO_TONES } })).toBeNull();
+  });
+});
+
+describe("compile-looks: the presets the boot carries (host 1.1.0)", () => {
+  const manifest = JSON.parse(readFileSync(join(PLAY, "theme.json"), "utf8")) as { look: string };
+  const looks = bootLooks(manifest.look);
+
+  it("are all of Play's presets, the default look first and the rest by file name", () => {
+    expect(presetPaths(files.keys()).length).toBeLessThanOrEqual(BOOT_PRESETS_MAX);
+    expect(looks.defaultLook).toBe(DEFAULT_LOOK.id);
+    const rest = PRESET_IDS.filter((id) => id !== DEFAULT_LOOK.id);
+    expect(looks.presets.map((preset) => preset.id)).toEqual([DEFAULT_LOOK.id, ...rest]);
+  });
+
+  it.each(PRESET_IDS)("%s rides the boot: a flat look with a look id, within the size cap", (id) => {
+    const body = text(`${PRESETS_FOLDER}/${id}${PRESET_SUFFIX}`);
+    expect(Buffer.byteLength(body)).toBeLessThanOrEqual(BOOT_PRESET_MAX_BYTES);
+    expect(passesPresetGate(JSON.parse(body) as Readonly<Record<string, unknown>>)).toBe(true);
   });
 });
 

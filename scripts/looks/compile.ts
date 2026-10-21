@@ -7,17 +7,21 @@
  *   which core keeps for builtin Play until this file ships (tests/compile-looks.test.ts holds the two equal).
  * - `looks/presets/<id>.look.json`: each of Play's presets (lib/looks/presets.ts), as Play stores a look.
  * - `boot/prepaint.json`: the first-paint table, from core's builder (play-prepaint.ts here): every
- *   catalogue entry's variables, the accent-on-ground pairs, and the glow as a numeric-knob rule.
+ *   catalogue entry's variables, the accent-on-ground pairs, and the glow as a numeric-knob rule; plus
+ *   the tone rule (host 1.1.0, PRD-261 A-19c): each ground's tone, as lib/looks/tone.ts toneOfGround gives
+ *   it, so the host's generic look runtime sets the tone from the look alone, as builtin Play does.
  *
  * Pure functions plus one writer; scripts/compile-looks.mjs runs the writer from Play's build.
  */
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { GROUND_KEYS } from '../../themes/play/src/lib/looks/catalogue.ts'
 import { PLAY_LOOK_SPEC } from '../../themes/play/src/lib/looks/engine.ts'
 import { DEFAULT_LOOK, PRESETS } from '../../themes/play/src/lib/looks/presets.ts'
+import { toneOfGround } from '../../themes/play/src/lib/looks/tone.ts'
 import type { Look } from '../../themes/play/src/lib/looks/types.ts'
 import type { LookKnobSpec } from '../../themes/play/src/lib/look-kit/validate.ts'
-import type { PrepaintTable } from './boot-types.ts'
+import type { PrepaintTable, PrepaintToneRule, ThemeTone } from './boot-types.ts'
 import { lookPrepaintTable } from './play-prepaint.ts'
 
 /** core's look-schema format (frontend/lib/theme-host/look-schema.ts LOOK_SCHEMA_SCHEMA). */
@@ -26,6 +30,8 @@ export const SCHEMA_FILE = 'looks/schema.json'
 export const PRESETS_FOLDER = 'looks/presets'
 export const PRESET_SUFFIX = '.look.json'
 export const PREPAINT_FILE = 'boot/prepaint.json'
+/** The look field whose choice sets the tone (PRD-260 K4: the ground). */
+export const TONE_KNOB: keyof Pick<Look, 'ground'> = 'ground'
 
 export type KnobDocument =
   | { readonly kind: 'choice'; readonly choices: readonly string[]; readonly default: string }
@@ -71,9 +77,15 @@ export function presetDocuments(): readonly Look[] {
   return PRESETS
 }
 
-/** boot/prepaint.json: core's builder's table, unchanged. */
+/** The table's tone rule: every ground, in the catalogue's order, with the tone toneOfGround gives it. */
+export function toneRule(): PrepaintToneRule {
+  const values = GROUND_KEYS.map((key): [string, ThemeTone] => [key, toneOfGround(key)])
+  return { knob: TONE_KNOB, values: Object.fromEntries(values) }
+}
+
+/** boot/prepaint.json: core's builder's table, unchanged, with the tone rule after it. */
 export function prepaintDocument(): PrepaintTable {
-  return lookPrepaintTable()
+  return { ...lookPrepaintTable(), tone: toneRule() }
 }
 
 /** JSON as the package holds it: two-space indent and a closing newline (core's data files' form). */

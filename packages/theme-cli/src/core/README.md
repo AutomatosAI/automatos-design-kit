@@ -3,7 +3,7 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `c6fbcb0d0988ac4cfb4871c7565c71238215fc2d` (main, 19 Oct 2026).
+Source: `AutomatosAI/automatos-ai` at `0dd8b846e41772c8dd7ef159e4373bcb9419b06a` (main, 20 Oct 2026: host contract and SDK 1.1.0).
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -12,10 +12,10 @@ Source: `AutomatosAI/automatos-ai` at `c6fbcb0d0988ac4cfb4871c7565c71238215fc2d`
 | `package-manifest.ts` | `frontend/lib/theme-host/package-manifest.ts` | import paths; the `PAGE_SCOPE` comment reworded |
 | `engines.ts` | `frontend/lib/theme-host/engines.ts` | none |
 | `plain-line.ts` | `frontend/lib/text/plain-line.ts` | none |
-| `host.ts` | values from `shared-modules.json`, `constants.ts`, `lib/looks/types.ts` | written here |
+| `host.ts` | values from `shared-modules.json`, `constants.ts`, `lib/look-kit/validate.ts` | written here |
 
-The import edits: `@/lib/text/plain-line` becomes `./plain-line.ts`; `@/lib/looks/types`, `./constants` and
-`./sdk` become `./host.ts`; `./css-value` and `./engines` gain their `.ts` extension (Node runs the CLI with type
+The import edits: `@/lib/text/plain-line` becomes `./plain-line.ts`; `@/lib/look-kit/validate`, `./constants`
+and `./sdk` become `./host.ts`; `./css-value` and `./engines` gain their `.ts` extension (Node runs the CLI with type
 stripping, which needs the extension).
 
 The test corpus `test/fixtures/core/cases.json` and the hello theme `test/fixtures/core/hello/` are copied from

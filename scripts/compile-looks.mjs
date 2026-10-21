@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // compile-looks: Play's look catalogue and presets (themes/play/src/lib/looks/catalogue.ts and presets.ts)
 // into the package's look data (PRD-261 A-16c): looks/schema.json, looks/presets/<id>.look.json and
-// boot/prepaint.json, with the glow as a numeric-knob rule. The work is in scripts/looks/compile.ts.
+// boot/prepaint.json, with the glow as a numeric-knob rule and the tone rule (PRD-261 K-19c: each ground's
+// tone, from lib/looks/tone.ts). The work is in scripts/looks/compile.ts.
 //
 //   node scripts/compile-looks.mjs [themeDir]     (default: themes/play; Play's build passes ".")
 //

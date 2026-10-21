@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Play's files in the package: Auto's 36 clips and stills (core's frontend/public/auto, byte for byte)
 // under assets/mascot/, and the display faces with their licences (core's app/fonts/play) under
 // assets/fonts/. Each file is a kind core's package check accepts (orchestrator/services/themes/package.py),

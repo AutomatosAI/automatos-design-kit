@@ -161,6 +161,13 @@
   background: var(--pl-tint-selected);
 }
 
+/* PRD-261 E3g: disabled until the host knows whether Auto is paused (mascot-pause-button.tsx), and it
+   looks it, as the shelf's Load more does while the next page is on its way. */
+.pause:disabled {
+  cursor: progress;
+  color: var(--pl-color-text-2);
+}
+
 /* Two bars, drawn by the page: no icon font, no image. */
 .pauseIcon {
   width: 10px;
