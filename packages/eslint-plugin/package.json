@@ -1,0 +1,28 @@
+{
+  "name": "@automatos/eslint-plugin",
+  "version": "0.1.0",
+  "description": "The JS rules the Automatos Marketplace review runs on a theme's source (@automatos/theme-rules), as ESLint rules, one per code, so a theme's author sees a refused pattern while writing it.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@automatos/theme-rules": "0.1.0"
+  },
+  "devDependencies": {
+    "eslint": "9.39.5"
+  },
+  "peerDependencies": {
+    "eslint": "9.39.5"
+  }
+}
