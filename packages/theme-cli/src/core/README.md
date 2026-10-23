@@ -3,8 +3,8 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `7ae677b52de7148cb5fa86f773bb2d11b5e61d70` (main, 20 Oct 2026: host contract and SDK
-1.1.0, with the theme format's optional `mobile` block).
+Source: `AutomatosAI/automatos-ai` at `101a0bf33f64fb4f89af81b4293415be60b661ac` (main, 22 Oct 2026: host contract and SDK
+1.1.0, with the theme format's optional `mobile` block; these files are unchanged since `7ae677b52`).
 
 | File here | Core file | Edits |
 |---|---|---|
