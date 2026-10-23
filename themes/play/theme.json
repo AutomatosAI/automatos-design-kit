@@ -22,6 +22,15 @@
   ],
   "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-command-center", "storage", "theme"],
   "look": "ember",
+  "previews": [
+    "assets/previews/ember.png",
+    "assets/previews/obsidian.png",
+    "assets/previews/aurora.png",
+    "assets/previews/workshop.png",
+    "assets/previews/daylight.png",
+    "assets/previews/ember-deliverables.png",
+    "assets/previews/ember-looks.png"
+  ],
   "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },
   "mobile": { "fromLooks": true, "mascot": "clips" }
 }
