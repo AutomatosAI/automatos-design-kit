@@ -49,9 +49,11 @@ A look is `{schema, interface, id, name, sub, <every knob>}`:
   40 characters; `sub`: the same, or empty.
 - Every knob has a value the knob accepts, and nothing else is in the look (`LOOK_UNKNOWN_FIELD`,
   `LOOK_BAD_VALUE`, `LOOK_WRONG_SCHEMA`, `LOOK_BAD_ID`, `LOOK_BAD_TEXT`).
-- A preset is a look in `looks/presets/<id>.look.json`. `theme.json` `look` names the default one. The host's boot
-  carries at most 12 presets of at most 4 KB each: the default first, then the rest in file-name order. A preset that
-  fails the schema is dropped.
+- A preset is a look in `looks/presets/<id>.look.json`, and its `id` is its file name (`PRESET_ID_MISMATCH`).
+  `theme.json` `look` names the default one. The host's boot carries at most 12 presets of at most 4 KB each: the
+  default first, then the rest in file-name order. A preset that fails the schema is dropped.
+- Every theme has a look editor, so every package ships `looks/schema.json` (`MISSING_FILE` without it) and at least
+  one preset (`NO_PRESET`).
 
 ## `boot/prepaint.json`: the first paint
 
