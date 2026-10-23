@@ -85,7 +85,7 @@ theme state kept, and nothing asked.
 | assets | `setFilesRoot` | `askedPaths()` |
 | storage | `setStorage({ ready, persisted, themeId, userKey, workspaceKey })`, `changeInAnotherTab` | the window's storage |
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
-| chat, Deliverables (B-02c) | `setChatScript`, `setConversations`, `setDeliverables`, `setDetail`, `setBlobUrls` | `startedChats()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` |
+| chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside

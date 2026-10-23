@@ -12,7 +12,7 @@ inside the app (`/api/...`, `/deliverables?...`) are not URLs and are fine.
 | `cards/` | The data each host card takes (`areas/cards.d.ts` props) | the card stand-ins |
 | `health/` | The host's health as `useHealth` reports it: up and down | `host.setHealth(health.connection, health)` |
 | `errors/` | The backend's error bodies (`404.json`: a Deliverable the workspace doesn't hold) | the Deliverables fake |
-| `conversations/` | The conversations the backend holds, newest activity by `updatedAt`, each with its messages | `host.conversationsOf(json)`, then `host.setConversations` |
+| `conversations/` | The conversations the backend holds, newest activity by `updatedAt`, each with its messages (a stored reply may name who wrote it, `provenance`, or be a failure the server saved, `savedError`) | `host.conversationsOf(json)`, then `host.setConversations` |
 
 ## The stream format
 
@@ -27,7 +27,8 @@ inside the app (`/api/...`, `/deliverables?...`) are not URLs and are fine.
 - `{ "data": ... }` is a `d:` line, in the backend's payload shapes: `chat-id` names a new chat; `tool-start`,
   `tool-end`, `tool-data` (an approval, a task card, the receipts frame, a generated document), `mission-suggestion`,
   `progress`, `reasoning`, `withdraw_offer`, `limit_reached` and `finish`.
-- `"hold": true` keeps the stream open after the frames, until Stop.
+- `"hold": true` keeps the stream open after the frames, until Stop, or until the test goes on with it:
+  `host.continueHeldTurn({ frames })` plays more frames, then ends the stream (or holds it again with `hold: true`).
 - `"status"` other than 200 answers that status with no stream (a refused request).
 
 Two additions of the harness's own, which core's recorded turns don't use: `{ "error": { "message", "code" } }` is an
