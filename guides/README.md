@@ -19,7 +19,7 @@ guide and core disagree, core wins and the guide is fixed.
 
 ## How they fit with the rest of the kit
 
-- The skills in `skills/` are the work order an agent follows; they point here for the facts.
+- The skills in [`skills/`](../skills/README.md) are the work order an agent follows; they point here for the facts.
 - `automatos-theme`, the kit's command line (`packages/theme-cli`), checks a theme as the server would:
   `automatos-theme check design` for the look data, `automatos-theme check` for the whole package, and
   `automatos-theme pack` to write the `.autotheme` file. Its [README](../packages/theme-cli/README.md) documents
