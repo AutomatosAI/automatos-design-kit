@@ -15,9 +15,10 @@ const README_FORBIDDEN = ["not built yet", "stay local until"];
 
 // The three facts every front-page doc must carry: themes run on both editions, the CLI is narrower
 // (local edition), and hosted CLI auth is a parked decision, not a gap.
-const EDITIONS_FACT = /\b(?:both|local edition and the hosted edition)\b[^.]*\bhosted edition\b/i;
-const CLI_LOCAL_FACT = /\bpack\b[^.]*\bsubmit\b[^.]*\blocal edition\b/i;
-const HOSTED_AUTH_DEFERRED_FACT = /hosted CLI auth[^.]*(?:parked|deferred)/i;
+// Docs wrap at a fixed width, so a phrase may break across lines: words are joined by any whitespace.
+const EDITIONS_FACT = /\b(?:both|local\s+edition\s+and\s+the\s+hosted\s+edition)\b[^.]*\bhosted\s+edition\b/i;
+const CLI_LOCAL_FACT = /\bpack\b[^.]*\bsubmit\b[^.]*\blocal\s+edition\b/i;
+const HOSTED_AUTH_DEFERRED_FACT = /hosted\s+CLI\s+auth[^.]*(?:parked|deferred)/i;
 
 // Names of planning artifacts a public doc must never point at.
 const FORBIDDEN_DOC_REFS = ["docs/prd/core", "scripts/ralph/prd-261.json", ".claude/"];
