@@ -1,7 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src", "test", "app", "shots", "vitest.config.ts", "vite.harness.config.ts"]
+  "include": [
+    "types",
+    "src",
+    "test",
+    "app",
+    "shots",
+    "vitest.config.ts",
+    "vite.harness.config.ts"
+  ]
 }
