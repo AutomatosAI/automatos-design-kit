@@ -23,6 +23,9 @@ import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan }
 const VIEWPORT_HEIGHT = 900
 const SHOT_SUFFIX = '.png'
 const SETTLED_STATUSES: readonly string[] = ['active', 'failed']
+/** How long the harness may take to settle one view before the test fails, naming the wait. */
+const SETTLE_TIMEOUT_MS = 30_000
+const SETTLE = Object.freeze({ timeout: SETTLE_TIMEOUT_MS })
 
 function required(name: string): string {
   const value = process.env[name]
@@ -49,22 +52,29 @@ function recordRequests(page: Page): string[] {
   return urls
 }
 
-/** Opens an address and waits until the harness drew it: the host's status, the network, the fonts, the images. */
+/**
+ * Opens an address and waits until the harness drew it: the host's status, the network, the fonts, and every image,
+ * a lazy one (loading="lazy", which an image below the fold never starts) asked for now, so the shot never races it.
+ */
 async function openSettled(page: Page, address: string): Promise<void> {
   await page.goto(address)
   await page.waitForFunction(
     ({ attribute, settled }) => settled.includes(document.documentElement.getAttribute(attribute) ?? ''),
     { attribute: HTML_ATTRS.status, settled: [...SETTLED_STATUSES] },
+    SETTLE,
   )
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState('networkidle', SETTLE)
   await page.evaluate(async () => {
     await document.fonts.ready
+    document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((image) => {
+      image.loading = 'eager'
+    })
   })
-  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete))
+  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete), undefined, SETTLE)
 }
 
 async function harnessReport(page: Page): Promise<HarnessReport> {
-  const handle = await page.waitForFunction((name) => Reflect.get(window, name) as unknown, HARNESS_GLOBAL)
+  const handle = await page.waitForFunction((name) => Reflect.get(window, name) as unknown, HARNESS_GLOBAL, SETTLE)
   return (await handle.jsonValue()) as HarnessReport
 }
 
