@@ -40,6 +40,14 @@ function topLevelDirs(rel: string): string[] {
     .sort();
 }
 
+// The text of one `## <heading>` section, up to the next `## ` heading.
+function sectionOf(text: string, heading: string): string {
+  const start = text.indexOf(`\n## ${heading}\n`);
+  if (start < 0) throw new Error(`no "## ${heading}" section`);
+  const end = text.indexOf("\n## ", start + 1);
+  return text.slice(start, end < 0 ? undefined : end);
+}
+
 describe("CLAUDE.md no longer describes the dropped local-only pilot", () => {
   const text = readText("CLAUDE.md");
 
@@ -75,6 +83,20 @@ describe("AGENTS.md's Layout section names every packages/* folder", () => {
 
   it.each(topLevelDirs("packages"))("names packages/%s", (name) => {
     expect(text).toContain(name);
+  });
+});
+
+// PRD-261 B-02e and B-02f: theme-harness also holds the browser harness that `automatos-theme shots` photographs, in
+// kit.yml's own harness job; the contract says so, not only the package's README.
+describe("AGENTS.md describes the browser harness and the job that runs it", () => {
+  const text = readText("AGENTS.md");
+
+  it("its Layout says theme-harness holds the browser harness that `automatos-theme shots` photographs", () => {
+    expect(sectionOf(text, "Layout")).toMatch(/`theme-harness`[\s\S]*\bbrowser\s+harness\b[\s\S]*`automatos-theme\s+shots`/);
+  });
+
+  it("its What CI runs section names kit.yml's harness job", () => {
+    expect(sectionOf(text, "What CI runs")).toMatch(/`harness`\s+job/);
   });
 });
 

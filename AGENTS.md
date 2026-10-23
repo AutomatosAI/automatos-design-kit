@@ -28,12 +28,15 @@ core wins and the kit is fixed.
 
 ## Layout
 
-- `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli`
-  (`pack` and `submit`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations), `theme-harness`
-  (the vitest preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in),
-  `theme-rules` (the one table of JS rules the Marketplace review runs on a package's `source/`: an error
-  refuses the package, a warning is listed for the reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`:
-  those rules as ESLint rules, one per code, which a theme's `lint` runs over its `src/`).
+- `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli` (the
+  `automatos-theme` command: `pack`, `submit`, `install`, `check`, `check design` and `shots`), `theme-sdk` (the
+  vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest preset a theme's own tests run on:
+  jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a mock host page in `app/` that
+  draws a theme from its folder with nothing of Automatos running, which `automatos-theme shots` photographs on
+  Chromium and WebKit with Playwright and scans with axe), `theme-rules` (the one table of JS rules the
+  Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
+  reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
+  theme's `lint` runs over its `src/`).
 - `themes/*`: theme packages. A theme bundles only its own `src/` (the preset's source guard refuses `node_modules`),
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until
@@ -46,8 +49,8 @@ core wins and the kit is fixed.
 
 ## What CI runs
 
-`.github/workflows/kit.yml` installs, then runs the root scripts `build`, `lint`, `typecheck`, `test` and
-`pack`. Each one runs the same script in every workspace that defines it, `packages/*` before `themes/*`.
+`.github/workflows/kit.yml`'s `kit` job installs, then runs the root scripts `build`, `lint`, `typecheck`, `test`
+and `pack`. Each one runs the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
 - A workspace with `*.test.ts` files defines `test` (vitest); one with a `tsconfig.json` defines `typecheck`.
 - A theme defines `lint`: eslint over its `src/` with `@automatos/eslint-plugin`'s recommended config (its
@@ -56,6 +59,9 @@ core wins and the kit is fixed.
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
 - `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the review and
   sign scripts under `scripts/`.
+- Its `harness` job installs and builds the same way, then the two browsers, and runs `automatos-theme shots`
+  over `themes/play` in `theme-harness`'s browser harness. It fails on a missing shot, a request to any other
+  origin or a critical axe violation, and uploads the shots and their `axe.json` files as `kit-harness`.
 
 ## Adding a dependency
 
