@@ -191,9 +191,9 @@ describe("the page's words", () => {
 describe('sourcesOf (P260-FX-13, M81)', () => {
   it("lists what it was made from as Play's side panel does: a web address as its host, else the title or the text", () => {
     const extra = {
-      sources: ['https://www.which.co.uk/reviews/laptops', { url: 'https://rtings.com/x' }, { title: '  Asus spec sheet ' }],
+      sources: ['https://www.reviews.example.com/laptops', { url: 'https://ratings.example.org/x' }, { title: '  Asus spec sheet ' }],
     }
-    expect(sourcesOf(deliverable({ extra }))).toEqual(['which.co.uk', 'rtings.com', 'Asus spec sheet'])
+    expect(sourcesOf(deliverable({ extra }))).toEqual(['reviews.example.com', 'ratings.example.org', 'Asus spec sheet'])
   })
 
   it('checks extra.sources off the wire: anything but a list, and any item that is no label, gives nothing', () => {
