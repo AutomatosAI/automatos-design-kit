@@ -21,7 +21,12 @@ export function presetPaths(paths: Iterable<string>): string[] {
 
 /** The presets' ids, by file name (a preset's id equals its file name). */
 export function presetIds(paths: Iterable<string>): Set<string> {
-  return new Set(presetPaths(paths).map((path) => path.slice(PRESETS_DIR.length, -PRESET_SUFFIX.length)))
+  return new Set(presetFiles(paths).keys())
+}
+
+/** Each preset's id and its file, in path order (look_schema.py `preset_ids`, `{id: path}`). */
+export function presetFiles(paths: Iterable<string>): Map<string, string> {
+  return new Map(presetPaths(paths).map((path): [string, string] => [path.slice(PRESETS_DIR.length, -PRESET_SUFFIX.length), path]))
 }
 
 function presetErrors(schema: LookSchema, path: string, raw: Uint8Array): ThemeError[] {

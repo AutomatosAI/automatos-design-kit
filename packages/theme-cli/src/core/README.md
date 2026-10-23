@@ -29,7 +29,7 @@ commit above:
 
 | File here | Core file | sha256 |
 |---|---|---|
-| `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `8d588ffc0c47db1386d73d253cbc5c6f4439076ca88b37ce50fc13eea9fbebc1` |
+| `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
 | `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `fa37c9b1c356f735df5e34ad7adf22707828995d546292e2a286114c37f58031` |
 
 ## Re-vendoring
@@ -45,8 +45,11 @@ and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts`
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (a port of the boot's
 `sanitizePrepaint` and fit check and of the server's paint), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
-to the server's verdicts. The corpus's `contrast` cases hold core's review measure
-(`orchestrator/services/themes/mobile_contrast.py`) to look-kit's `contrastRatio`. The review stage is Python too
-(`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`, and the preview rule of `listings.py`): `src/check/` ports it
-over the two data files, and its `check-uses` and `check-drift` tests repeat the cases of core's
-`orchestrator/tests/test_prd261_review_stage.py` at the same commit.
+to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
+the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
+`src/check/` ports it over the two data files, the contrast check included (`src/check/contrast.ts`, which paints
+`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, Play's copy of core's
+`frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
+`check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
+and `check-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases among
+them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

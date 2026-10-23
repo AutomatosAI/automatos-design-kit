@@ -8,19 +8,25 @@
  * `not_measured` never moves it.
  *
  * The reader's checks (`sizes`, `cssScope`, `looks`) run on a package core's reader accepted, so
- * each is a pass with what it measured. `contrast` is `not_measured` per preset, as core writes it
- * at CORE_SHA: a look is knob values, and nothing in the package says which painted colour is text
- * on which ground. `llm` is the Marketplace's own stage, which runs only on the server.
+ * each is a pass with what it measured. `contrast` (review_stage.py `contrast_check`) measures the
+ * colour pairs of theme.json's `mobile` block (contrast.ts, PRD-261 M-03): a pair under its AA
+ * minimum, or a colour set with no ground or text, is an error (MOBILE_CONTRAST_FAIL_LEVEL), every
+ * measured pair at AA a pass. Without the block it is `not_measured` per preset: a look is knob values,
+ * and nothing else in the package says which painted colour is text on which ground. `llm` is the
+ * Marketplace's own stage, which runs only on the server.
  */
 import { STYLE_PATH } from '@automatos/vite-preset/css-scope'
 import { ENTRY_PATH } from '../check-package.ts'
 import { byText } from '../collect.ts'
 import { CAPS, CODE_KINDS, fileKind } from '../files.ts'
 import { presetIds } from '../looks.ts'
+import {
+  describeMeasure, isMeasured, measureMobile, OUTCOME_FAIL, OUTCOME_NOT_MEASURED, OUTCOME_PASS, type MobileOutcome,
+} from './contrast.ts'
 
 /** The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line). */
 export const CORE_REPO = 'AutomatosAI/automatos-ai'
-export const CORE_SHA = '0dd8b846e41772c8dd7ef159e4373bcb9419b06a'
+export const CORE_SHA = '101a0bf33f64fb4f89af81b4293415be60b661ac'
 
 export const REPORT_SCHEMA = 'automatos-theme-scan/v2'
 export const STAGE = 'C-02a'
@@ -47,6 +53,14 @@ export const CONTRAST_NOT_RUN = (
   'Not measured: the package declares no text and ground colour pairs for its looks, '
   + 'so the server has nothing to check AA contrast against.'
 )
+/** The `contrast` line's second sentence for a theme without the block (the report keeps core's reason alone). */
+export const NO_MOBILE_BLOCK = 'The review measures the colour pairs of a "mobile" block, and theme.json has none.'
+/** review_stage.py: a mobile pair under AA blocks the review, since a phone must read a theme that claims it. */
+export const MOBILE_CONTRAST_FAIL_LEVEL: Level = LEVEL_ERROR
+/** review_stage.py CONTRAST_LEVELS: the measure's outcome as the check's level. */
+export const CONTRAST_LEVELS: Readonly<Record<MobileOutcome, Level>> = {
+  [OUTCOME_FAIL]: MOBILE_CONTRAST_FAIL_LEVEL, [OUTCOME_PASS]: LEVEL_PASS, [OUTCOME_NOT_MEASURED]: LEVEL_NOT_MEASURED,
+}
 export const LLM_SERVER_ONLY = 'server only: the Marketplace runs it'
 
 /** A package's files by path. */
@@ -74,11 +88,14 @@ export interface SizeEntry extends CheckEntry {
   readonly limits: Readonly<Record<(typeof CAP_NAMES)[number], number>>
 }
 
+/** The `contrast` entry: the mobile block measured (contrast.ts `MobileMeasure`), or not run per preset. */
+export type ContrastEntry = CheckEntry & { readonly reason: string }
+
 export interface ReaderChecks {
   readonly sizes: SizeEntry
   readonly cssScope: CheckEntry & { readonly status: string; readonly path: string }
   readonly looks: CheckEntry & { readonly presets: readonly string[] }
-  readonly contrast: CheckEntry & { readonly reason: string }
+  readonly contrast: ContrastEntry
 }
 
 export type Checks = Readonly<Record<string, CheckEntry>>
@@ -114,19 +131,31 @@ export function presetList(files: Files): string[] {
   return Array.from(presetIds(files.keys())).sort(byText)
 }
 
-/** review_stage.py `_reader_checks`: the reader's checks, passed with what they measured, and the unmeasured contrast. */
-export function readerChecks(files: Files, packageBytes: number): ReaderChecks {
+/**
+ * review_stage.py `contrast_check`: the mobile block's pairs measured, at the level its outcome gives,
+ * else scan.py's unmeasured entry, each preset listed as not run.
+ */
+export function contrastCheck(manifest: Manifest, files: Files, presets: readonly string[]): ContrastEntry {
+  const measured = measureMobile(manifest, files)
+  if (measured === null) {
+    return {
+      status: STATUS_NOT_RUN,
+      reason: CONTRAST_NOT_RUN,
+      presets: presets.map((id) => ({ id, status: STATUS_NOT_RUN })),
+      level: LEVEL_NOT_MEASURED,
+    }
+  }
+  return { ...measured, level: CONTRAST_LEVELS[measured.status] }
+}
+
+/** review_stage.py `_reader_checks`: the reader's checks, passed with what they measured, and the contrast check. */
+export function readerChecks(files: Files, packageBytes: number, manifest: Manifest): ReaderChecks {
   const presets = presetList(files)
   return {
     sizes: sizeCheck(files, packageBytes),
     cssScope: { status: files.has(STYLE_PATH) ? STATUS_PASS : STATUS_ABSENT, path: STYLE_PATH, level: LEVEL_PASS },
     looks: { status: STATUS_PASS, presets, level: LEVEL_PASS },
-    contrast: {
-      status: STATUS_NOT_RUN,
-      reason: CONTRAST_NOT_RUN,
-      presets: presets.map((id) => ({ id, status: STATUS_NOT_RUN })),
-      level: LEVEL_NOT_MEASURED,
-    },
+    contrast: contrastCheck(manifest, files, presets),
   }
 }
 
@@ -150,7 +179,7 @@ export function describeReader(checks: ReaderChecks): Readonly<Record<keyof Read
     sizes: { text: `${sizeText}.`, items: [] },
     cssScope: { text: scoped, items: [] },
     looks: { text: `${looks.presets.length} preset(s) pass looks/schema.json: ${looks.presets.join(', ')}.`, items: [] },
-    contrast: { text: contrast.reason, items: [] },
+    contrast: isMeasured(contrast) ? describeMeasure(contrast) : { text: `${contrast.reason} ${NO_MOBILE_BLOCK}`, items: [] },
   }
 }
 
