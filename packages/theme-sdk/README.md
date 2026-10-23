@@ -7,9 +7,10 @@ vite-preset keeps `@automatos/theme-sdk` external.
 ## Where it comes from
 
 Vendored from core (`AutomatosAI/automatos-ai`), `frontend/packages/theme-sdk`, at commit
-`0dd8b846e41772c8dd7ef159e4373bcb9419b06a` (SDK 1.1.0, which adds the `storage` area), by version (PRD-261
-D2-b): `package.json`, `index.d.ts`, `areas/*.d.ts` and `internal/*.d.ts` are core's files unchanged. Only this
-README is the kit's own.
+`101a0bf33f64fb4f89af81b4293415be60b661ac` (SDK 1.1.0, which adds the `storage` area; since `7ae677b52` only comments changed: the
+trial and `TrialExhaustedBanner` are described in credits, and `HeaderUtilities` names the credit balance), by version (PRD-261 D2-b):
+`package.json`, `index.d.ts`, `areas/*.d.ts` and `internal/*.d.ts` are core's files unchanged. Only this README is
+the kit's own.
 
 It stays vendored until core publishes the SDK tarball on its CDN; then the kit depends on that tarball by its
 exact-version URL instead, and this folder goes.

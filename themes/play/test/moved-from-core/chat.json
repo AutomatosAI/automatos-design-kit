@@ -266,5 +266,14 @@
       }
     ],
     "rewritten": "Core's test wrote useChat's data stream (0:, d:, e: lines) into a stubbed fetch; the harness's fake SDK (packages/theme-harness) plays the same lines as recorded turns, a frame per tick (host.setChatScript), a held turn going on with host.continueHeldTurn where core wrote more lines into the open stream, so the stream hook's own Stop, the server cancel and the chat_changed lane are in rehomed; the host's approval cards are the harness's stand-ins (host.cardActions()). Hello's first open is set through the SDK's storage area (hello-played, for the session and the account) instead of core's sessionStorage key automatos-play.hello-played (PB-10)."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/auto-reply-ai-generated.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 2,
+    "kitPath": "test/chat/auto-reply-ai-generated.test.tsx",
+    "kitIts": 2,
+    "rehomed": [],
+    "rewritten": null
   }
 ]

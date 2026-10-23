@@ -6,11 +6,11 @@
  *   (looks.ts over the vendored core/look-schema.ts), with core's codes.
  * - `prepaint`: boot/prepaint.json through core's prepaint checks (vendored core/css-value.ts), with
  *   core's codes; then its defaults and every preset must fit the table as the host keeps it
- *   (contrast.ts `sanitizePrepaint` and `lookFits`, the host's first-paint rule): the host drops a
+ *   (mobile-paint.ts `bootTable` and `lookFits`, the host's first-paint rule): the host drops a
  *   table whose defaults don't fit what is left, and paints the defaults for a look that doesn't fit.
  *   `not_measured` when the theme has no table.
  * - `contrast`: every pair design/contrast.json declares, on every preset as the first paint paints
- *   it from the kept table (contrast.ts `paintLook`), by the look runtime's own ratio. A pair under
+ *   it from the kept table (contrast.ts `firstPaint`), by the look runtime's own ratio. A pair under
  *   its `min` (default 4.5, WCAG AA for text) is an error naming the preset, both variables and the
  *   ratio; so is a pair that can't be measured (a variable the preset doesn't paint, or a value that
  *   isn't a colour).
@@ -33,12 +33,12 @@ import {
   type JsonRecord, type ThemeError,
 } from '../core/css-value.ts'
 import { parseJson } from '../json.ts'
-import { lookFileErrors, presetIds, presetPaths, SCHEMA_PATH } from '../looks.ts'
+import { lookFileErrors, presetFiles, SCHEMA_PATH } from '../looks.ts'
 import { pathErrors, type PackageEntry } from '../members.ts'
+import { bootTable, lookFits, type BootTable } from '../mobile-paint.ts'
 import type { Output } from '../output.ts'
 import {
-  contrastMeter, DEFAULT_PAIR_MIN, lookFits, measurePair, paintLook, sanitizePrepaint,
-  type ContrastMeter, type ContrastPair, type PairMeasure,
+  contrastMeter, DEFAULT_PAIR_MIN, firstPaint, measurePair, type ContrastMeter, type ContrastPair, type PairMeasure,
 } from './contrast.ts'
 import { DESIGN_CONTRAST_PATH, DESIGN_FOLDERS, LOOKS_FOLDER, readDesignFiles } from './design-files.ts'
 import {
@@ -112,21 +112,20 @@ function row(name: DesignRow['name'], level: Level, text: string, errors: readon
 
 /** Each preset whose file is a JSON object, by its id (the file's name). */
 function presetsOf(files: ReadonlyMap<string, Uint8Array>): Preset[] {
-  return presetPaths(files.keys()).flatMap((path): Preset[] => {
+  return Array.from(presetFiles(files.keys())).flatMap(([id, path]): Preset[] => {
     const { data } = parseJson(files.get(path) ?? EMPTY, path)
-    const [id] = presetIds([path])
-    return isRecord(data) && id !== undefined ? [{ id, path, look: data }] : []
+    return isRecord(data) ? [{ id, path, look: data }] : []
   })
 }
 
 /** boot/prepaint.json refused with core's codes, or read as the host keeps it: null when the host drops it whole. */
-function tableOf(files: ReadonlyMap<string, Uint8Array>): Read<JsonRecord | null> {
+function tableOf(files: ReadonlyMap<string, Uint8Array>): Read<BootTable | null> {
   const raw = files.get(PREPAINT_PATH)
   if (raw === undefined) return ABSENT
   const { data, error } = parseJson(raw, PREPAINT_PATH)
   if (error !== null) return { state: 'refused', errors: [error] }
   const errors = prepaintErrors(data)
-  return errors.length > 0 ? { state: 'refused', errors } : { state: 'read', value: sanitizePrepaint(data) }
+  return errors.length > 0 ? { state: 'refused', errors } : { state: 'read', value: bootTable(data) }
 }
 
 function badPairs(where: string, message: string): ThemeError {
@@ -211,7 +210,7 @@ function looksRow(files: ReadonlyMap<string, Uint8Array>, blocked: readonly Them
 }
 
 /** Every preset fits the kept table (null: the host dropped it, as its defaults don't fit), or each look that doesn't. */
-function fitErrors(table: JsonRecord | null, presets: readonly Preset[]): ThemeError[] {
+function fitErrors(table: BootTable | null, presets: readonly Preset[]): ThemeError[] {
   if (table === null) {
     return [themeError(DESIGN_CODES.defaultsUnfit, `${PREPAINT_PATH}#defaults`, (
       `The table's "defaults" don't name an option of every table the host keeps of ${PREPAINT_PATH} (it first drops each `
@@ -224,7 +223,7 @@ function fitErrors(table: JsonRecord | null, presets: readonly Preset[]): ThemeE
   )))
 }
 
-function prepaintRow(table: Read<JsonRecord | null>, presets: readonly Preset[], blocked: readonly ThemeError[]): DesignRow {
+function prepaintRow(table: Read<BootTable | null>, presets: readonly Preset[], blocked: readonly ThemeError[]): DesignRow {
   if (blocked.length > 0) return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} can't be read.`, blocked)
   if (table.state === 'absent') {
     const none = `No ${PREPAINT_PATH}: no look is painted before the theme's code runs, so no preset's colours can be read as data.`
@@ -256,10 +255,10 @@ function measureError({ preset, index, measure }: PresetMeasure): ThemeError | n
 
 /** Every declared pair on every preset that fits the kept table; a preset that doesn't is one error. */
 function measureAll(
-  table: JsonRecord, presets: readonly Preset[], pairs: readonly ContrastPair[], meter: ContrastMeter,
+  table: BootTable, presets: readonly Preset[], pairs: readonly ContrastPair[], meter: ContrastMeter,
 ): { readonly measures: readonly PresetMeasure[]; readonly errors: readonly ThemeError[] } {
   const measures = presets.filter((preset) => lookFits(table, preset.look)).flatMap((preset) => {
-    const vars = paintLook(table, preset.look)
+    const vars = firstPaint(table, preset.look)
     return pairs.map((pair, index): PresetMeasure => ({ preset: preset.id, index, measure: measurePair(meter, vars, pair) }))
   })
   const unfit = presets.filter((preset) => !lookFits(table, preset.look)).map((preset) => themeError(
@@ -271,7 +270,7 @@ function measureAll(
 
 interface ContrastInputs {
   readonly pairs: Read<readonly ContrastPair[]>
-  readonly table: Read<JsonRecord | null>
+  readonly table: Read<BootTable | null>
   readonly presets: readonly Preset[]
   /** The refusals of a link or a file in the way of design/contrast.json (checkDesignFiles). */
   readonly blocked: readonly ThemeError[]

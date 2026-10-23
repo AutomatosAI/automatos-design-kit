@@ -3,8 +3,8 @@
  * core's look validators and the prepaint table through core's prepaint checks, with core's codes
  * (core's corpus, case by case); every preset painted from its table and measured against every pair
  * of design/contrast.json, an error naming preset, text, ground and ratio under the pair's minimum;
- * Play passes with the pairs of its own contrast proof; pack never packs design/. The table is painted
- * as the host keeps it (boot-sanitize.ts), and the command also runs under plain Node, as installed.
+ * Play passes with the pairs of its own contrast proof; pack never packs design/. The command also runs
+ * under plain Node, as installed. The table as the host keeps it, and its first paint, are first-paint.test.ts's.
  *
  * The seeded theme is design-support.ts's: core's hello theme with a prepaint table and passing pairs.
  */
@@ -27,7 +27,7 @@ import { SCHEMA_PATH } from '../src/looks.ts'
 import { packTheme } from '../src/pack.ts'
 import { readZip } from '../src/zip.ts'
 import { removeTempFolders, tempFolder } from './check-support.ts'
-import { ACCENT_ON_BG, contrastFile, designFolder, entriesOf, GLOW, PASSING, TABLE, type Json } from './design-support.ts'
+import { ACCENT_ON_BG, contrastFile, designFolder, entriesOf, PASSING, rowOf, TABLE, type Json } from './design-support.ts'
 
 const PLAY = fileURLToPath(new URL('../../../themes/play/', import.meta.url))
 const README = new URL('../src/core/README.md', import.meta.url)
@@ -41,6 +41,8 @@ const CLI = fileURLToPath(new URL('../src/cli.ts', import.meta.url))
 const NODE_TIMEOUT_MS = 60_000
 /** What the test's resolve hook throws for a module under themes/play/. */
 const NO_PLAY = 'refused by the test: a module under themes/play/'
+/** The one module of Play's that `check` loads: look-kit's contrast.ts, for the mobile block's measure. */
+const LOOK_KIT_CONTRAST = 'src/lib/look-kit/contrast.ts'
 interface CorpusCase {
   readonly name: string
   readonly code: string | null
@@ -93,12 +95,6 @@ beforeAll(async () => {
 })
 
 afterEach(removeTempFolders)
-
-function rowOf(result: DesignResult, name: DesignRow['name']): DesignRow {
-  const found = result.rows.find((item) => item.name === name)
-  if (found === undefined) throw new Error(`no ${name} line`)
-  return found
-}
 
 function codesOf(found: DesignRow, keep: (path: string, code: string) => boolean): string[] {
   return Array.from(new Set(found.errors.filter((error) => keep(error.path, error.code)).map((error) => error.code)))
@@ -269,31 +265,6 @@ describe('the AA matrix: every preset × every pair', () => {
   })
 })
 
-describe('the table as the host keeps it (boot-sanitize.ts sanitizePrepaint), not as the file holds it', () => {
-  const capped = { ...GLOW, capTable: ['ground', 'accent'], caps: { paper: { blue: 1.5, green: 0.5 }, ink: { blue: 0.5, green: 0.5 } } }
-  const DROPPED: Array<[string, unknown]> = [
-    ['an rgb list with spaces', { ...TABLE, numeric: [{ ...GLOW, color: { ...GLOW.color, rgb: { ...GLOW.color.rgb, blue: '29, 78, 216' } } }] }],
-    ['a cap past 1', { ...TABLE, numeric: [capped] }],
-  ]
-
-  it.each(DROPPED)("measures nothing when the host's drops (%s) leave the defaults unfit, as it then drops the table", (_name, table) => {
-    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table }), meter)
-    expect(rowOf(result, 'prepaint').errors.map((error) => error.code)).toEqual(['PREPAINT_DEFAULTS_UNFIT'])
-    expect(rowOf(result, 'contrast').errors.map((error) => [error.code, error.path])).toEqual([['CONTRAST_NOT_MEASURED', PREPAINT_PATH]])
-    expect(result.measures).toEqual([])
-  })
-
-  it('paints nothing from a numeric rule the host drops (an integer that is not true or false)', () => {
-    const table = { ...TABLE, numeric: [{ ...GLOW, integer: 1 }] }
-    const pairs = contrastFile([{ text: '--hello-glow', ground: '--hello-bg' }])
-    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table, [DESIGN_CONTRAST_PATH]: pairs }), meter)
-    expect(rowOf(result, 'prepaint').level).toBe('pass')
-    expect(rowOf(result, 'contrast').errors.map((error) => error.message)).toContain(
-      'Preset "default": --hello-glow on --hello-bg can\'t be measured: --hello-glow is not painted.',
-    )
-  })
-})
-
 describe('Play', () => {
   let play: DesignResult
   let ran: Ran
@@ -354,14 +325,15 @@ describe('pack never packs design/', () => {
   })
 })
 
-/** A Node --import module whose resolve hook refuses every module under `playUrl`. */
-function noPlayHook(playUrl: string): string {
+/** A Node --import module whose resolve hook refuses every module under `playUrl` but `allowed`. */
+function noPlayHook(playUrl: string, allowed: string): string {
   return [
     "import { registerHooks } from 'node:module'",
     `const PLAY = ${JSON.stringify(playUrl)}`,
+    `const ALLOWED = ${JSON.stringify(allowed)}`,
     'registerHooks({ resolve(specifier, context, nextResolve) {',
     '  const resolved = nextResolve(specifier, context)',
-    `  if (resolved.url.startsWith(PLAY)) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
+    `  if (resolved.url.startsWith(PLAY) && resolved.url !== ALLOWED) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
     '  return resolved',
     '} })',
     '',
@@ -384,9 +356,10 @@ describe('under plain Node, as the automatos-theme executable runs', () => {
     expect(failed.stdout).toContain(`    CONTRAST_UNDER_MIN ${DESIGN_CONTRAST_PATH}#pairs[0]: Preset "night": --hello-accent on --hello-bg`)
   }, NODE_TIMEOUT_MS)
 
-  it("check runs without Play's source; only check design loads it", () => {
+  it("check loads no Play module but look-kit's contrast.ts; only check design loads the rest of look-kit (hsl.ts)", () => {
     const hook = join(tempFolder(), 'no-play.mjs')
-    writeFileSync(hook, noPlayHook(`${pathToFileURL(realpathSync(PLAY)).href}/`))
+    const play = `${pathToFileURL(realpathSync(PLAY)).href}/`
+    writeFileSync(hook, noPlayHook(play, `${play}${LOOK_KIT_CONTRAST}`))
     const check = runNode(['--import', pathToFileURL(hook).href, CLI, 'check'])
     expect(check.stderr).not.toContain(NO_PLAY)
     expect([check.status, check.stderr.includes(CHECK_USAGE)]).toEqual([2, true])

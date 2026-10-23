@@ -8,6 +8,9 @@
  * uses (uses.ts), clonedFrom (drift.ts), previews (previews.ts), jsRules (js.ts), reproducibleBuild
  * (only with `--rebuild`), contrast and llm, each at pass, warning, error or not_measured, with plain
  * lines under it, then the verdict. The first line names the core commit whose checks these are.
+ * `contrast` measures the WCAG AA colour pairs of theme.json's `mobile` block (mobile-contrast.ts): its line
+ * gives the outcome, each failing pair, and each scheme, the table's defaults or preset with how many
+ * of its pairs were measured. A theme without the block gets not_measured, and the line says so.
  *
  * `--rebuild` rebuilds source/ with the kit's preset and compares dist/ byte for byte, by importing
  * the review job's own scripts/review/rebuild.ts (`rebuildDist`, `compareDist`); without it, nothing
@@ -19,8 +22,9 @@
  * `check design <theme folder>` (PRD-261 B-03d) checks the design before any code: the look schema,
  * the presets, the prepaint table and design/contrast.json's pairs (design.ts, which has its own usage).
  * A theme folder that is itself named design is checked as `check ./design`. design.ts is loaded only
- * for `check design`: it measures with Play's look-kit (themes/play/src/lib/look-kit), which `check`
- * itself never needs.
+ * for `check design`: it registers a resolve hook to load Play's look-kit hsl.ts
+ * (themes/play/src/lib/look-kit), which `check` never needs. `check` loads look-kit's contrast.ts alone,
+ * which imports nothing, for the mobile block's measure (mobile-contrast.ts).
  */
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -119,7 +123,7 @@ function describeBuild(entry: BuildEntry): CheckText {
 
 /** core review_stage.py `run_review_stage` on a package the reader accepted, with the kit's own checks. */
 export async function reviewChecked(files: Files, manifest: Manifest, packageBytes: number, options: ReviewOptions = {}): Promise<Reviewed> {
-  const reader = readerChecks(files, packageBytes)
+  const reader = readerChecks(files, packageBytes, manifest)
   const said = describeReader(reader)
   const uses = usesCheck(manifest, files, options.surface)
   const clonedFrom = cloneCheck(manifest, options.release)
