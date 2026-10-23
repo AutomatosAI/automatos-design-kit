@@ -37,6 +37,15 @@ jobs:
       - name: Pin npm
         run: npm install -g npm@11.21.1
 
+      # PRD-261 C-06r (PB-4): a released Play version never changes. While themes/play/theme.json names a
+      # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md under
+      # themes/play) must be as the tag has them; a change needs a version above every release. The
+      # checkout above fetches no tags, so the script lists origin's play-v* tags (git ls-remote) and
+      # fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing
+      # installed: it runs before the install, so a change to a released Play fails first.
+      - name: Check a released Play is unchanged
+        run: node scripts/release/released-unchanged.mjs
+
       # Install exactly what package-lock.json records (committed in A-15b from the lockfile the
       # first kit CI run resolved with these exact pins).
       - name: Install (from the lockfile)

@@ -43,8 +43,12 @@ core wins and the kit is fixed.
 
 ## What CI runs
 
-`.github/workflows/kit.yml` installs, then runs the root scripts `build`, `lint`, `typecheck`, `test` and
-`pack`. Each one runs the same script in every workspace that defines it, `packages/*` before `themes/*`.
+`.github/workflows/kit.yml` first runs `scripts/release/released-unchanged.mjs`: once `play-v<version>` is
+tagged, a change to anything the kit's pack collects for Play — `theme.json`, its top docs (`README.md`,
+`CHANGELOG.md`, every `LICENSE` spelling), `assets/` and `src/` (the source of the package's generated
+`dist/`, `boot/` and `looks/` too) — fails until the version moves on.
+It then installs and runs the root scripts `build`, `lint`, `typecheck`, `test` and `pack`. Each one runs
+the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
 - A workspace with `*.test.ts` files defines `test` (vitest); one with a `tsconfig.json` defines `typecheck`.
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
