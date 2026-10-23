@@ -35,7 +35,7 @@ themes/harbour/
     "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "pack": "automatos-theme pack . --out out"
+    "pack": "automatos-theme check design . && automatos-theme pack . --out out"
   },
   "engines": { "node": ">=22.18.0" },
   "devDependencies": {
@@ -52,8 +52,9 @@ themes/harbour/
 
 Kit CI runs each of these scripts from the root, in every workspace that defines it. The kit's root tests hold every
 workspace to exact pins and to the approved outside packages, and a workspace with tests or a `tsconfig.json` must
-define `test` or `typecheck`. Play's `build` also runs `scripts/compile-looks.mjs` first, because its look data is
-generated from its catalogue; a theme whose look data is written by hand needs only `vite build`.
+define `test` or `typecheck`. `pack` runs `check design` first, so CI measures every preset's colour pairs as well
+as packing the theme. Play's `build` also runs `scripts/compile-looks.mjs` first, because its look data is generated
+from its catalogue; a theme whose look data is written by hand needs only `vite build`.
 
 ## `vite.config.ts`, `tsconfig.json`, `eslint.config.js`, `vitest.config.ts`
 
