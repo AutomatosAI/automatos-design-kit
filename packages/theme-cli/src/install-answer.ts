@@ -1,12 +1,15 @@
 /**
- * The server's answers to `install`'s three steps, as lines for the person who ran it.
+ * The server's answers to `install`'s steps, as lines for the person who ran it.
  *
  * Shapes read from core (orchestrator/api/themes_import.py, orchestrator/api/themes_install.py and
  * their gates):
  * - import, 201 (new) or 200 (these exact bytes are in this workspace already): `{package: {id,
  *   themeId, version, name, digest, ownerType, reviewed, scanVerdict, scanReport}, install: {id,
  *   themeId, packageId, pendingPackageId, isDefault}, status, duplicate}`, `status` being
- *   `installed`, `update_available` (a newer version, offered as the install's update) or `stored`;
+ *   `installed`, `update_available` (a newer version, offered as the install's update) or `stored`
+ *   (kept, while the install runs another version);
+ * - update, 200: the install as `GET /api/themes/installed` lists it, `{installId, themeId, packageId,
+ *   version, previousPackageId, ...}`, `packageId` being the package it runs now (services/themes/updates.py);
  * - opt-in, 200: `{installId, optIn: {required, wording, packageId}}`;
  * - choice, 200: the theme this member now sees, `{choice, source, theme, revoked?}`;
  * - a refusal: `{detail: "<sentence>"}` (403 when private uploads are off or the publisher is
@@ -26,12 +29,14 @@ export type Described<T> =
   | { readonly ok: true; readonly value: T; readonly lines: readonly string[] }
   | { readonly ok: false; readonly lines: readonly string[] }
 
-/** What the opt-in and the choice need from the import. */
+/** What the update, the opt-in and the choice need from the import. */
 export interface Imported {
   readonly installId: string
   readonly packageId: string
   readonly themeId: string
   readonly version: string
+  /** The install runs another version of the theme, so the update step moves it to this package first. */
+  readonly update: boolean
 }
 
 type Json = Record<string, unknown>
@@ -44,12 +49,16 @@ const RAW_TEXT_MAX = 300
 const STEP_UP_CODES = new Set(['step_up_required', 'step_up_unavailable'])
 const NOTHING_FOLLOWED = 'Nothing was opted in to or chosen.'
 
-/** The import outcomes that store the package without installing it (core themes_import.py). */
-const NOT_INSTALLED: Readonly<Record<string, string>> = {
-  update_available:
-    'It is stored as an update to the version installed now: a workspace admin applies it in Settings, Appearance, Themes.',
-  stored: 'It is stored, but another version of this theme is installed now.',
-}
+/**
+ * The import outcomes where the install runs another version (core themes_import.py
+ * `_install_status`): install asks the server to move the install to this package before it opts in.
+ */
+const MOVES_INSTALL: ReadonlyMap<string, string> = new Map([
+  ['update_available', 'It is an update to the version installed now: moving the install to it.'],
+  ['stored', 'Another version of this theme is installed now: moving the install to it.'],
+])
+/** After the update: where the version the install ran before is kept. */
+export const ROLLBACK_HINT = 'The version it ran before is kept: roll back to it in Settings, Appearance, Themes.'
 
 function isJson(value: unknown): value is Json {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -164,13 +173,16 @@ function importedLines(item: Json, duplicate: boolean): string[] {
   ]
 }
 
-/** The ids the next steps send, or null when the answer doesn't name an install of this package. */
-function importedOf(item: Json, install: unknown): Imported | null {
+/**
+ * The ids the next steps send, or null when the answer names no install: one that runs this package,
+ * or, with `update`, one of the theme that the update step moves to it.
+ */
+function importedOf(item: Json, install: unknown, update: boolean): Imported | null {
   if (!isJson(install)) return null
   const installId = install.id
   const packageId = item.id
-  if (!isUuid(installId) || !isUuid(packageId) || install.packageId !== packageId) return null
-  return { installId, packageId, themeId: plain(item.themeId), version: plain(item.version) }
+  if (!isUuid(installId) || !isUuid(packageId) || (!update && install.packageId !== packageId)) return null
+  return { installId, packageId, themeId: plain(item.themeId), version: plain(item.version), update }
 }
 
 /** The import's answer: the install to opt in to, or why install stops here. */
@@ -180,19 +192,27 @@ export function describeImport(answer: ServerAnswer, tokenSent: boolean): Descri
   if (!taken || !isJson(body) || !isJson(body.package)) return { ok: false, lines: refusalLines('import', answer, tokenSent) }
   const lines = importedLines(body.package, body.duplicate === true)
   const status = plain(body.status)
-  if (status !== STATUS_INSTALLED) {
-    const why = NOT_INSTALLED[status] ?? `The server stored it with the status ${status}, not installed.`
-    return { ok: false, lines: [...lines, why, NOTHING_FOLLOWED] }
+  const moving = MOVES_INSTALL.get(status)
+  if (status !== STATUS_INSTALLED && moving === undefined) {
+    return { ok: false, lines: [...lines, `The server stored it with the status ${status}, not installed.`, NOTHING_FOLLOWED] }
   }
-  const imported = importedOf(body.package, body.install)
+  const imported = importedOf(body.package, body.install, moving !== undefined)
   if (imported === null) {
     return { ok: false, lines: [...lines, 'The answer named no install of this package.', NOTHING_FOLLOWED] }
   }
-  return { ok: true, value: imported, lines }
+  return { ok: true, value: imported, lines: moving === undefined ? lines : [...lines, moving] }
 }
 
 function importedName(imported: Imported): string {
   return `${imported.themeId} ${imported.version}`
+}
+
+/** The update's answer: done when the install runs the imported package now. */
+export function describeUpdate(answer: ServerAnswer, imported: Imported, tokenSent: boolean): Described<true> {
+  const body = parseBody(answer.text)
+  const moved = answer.status === STATUS_OK && isJson(body) && body.packageId === imported.packageId
+  if (!moved) return { ok: false, lines: refusalLines('update', answer, tokenSent) }
+  return { ok: true, value: true, lines: [`Moved the install to ${importedName(imported)}. ${ROLLBACK_HINT}`] }
 }
 
 /** The opt-in's answer: done once the server says no opt-in is required any more. */

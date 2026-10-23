@@ -1,26 +1,32 @@
 /**
- * `install` against a mocked fetch: core's three calls in order (import, opt-in, and the choice only
- * with --choose) against the API base, each body as core reads it; the server's refusals printed with
- * their sentence and code; nothing sent for a bad --to or a missing file; the token never printed.
+ * `install` against a mocked fetch: core's calls in order (import, the update only when the install
+ * runs another version, opt-in, and the choice only with --choose) against the API base, each body as
+ * core reads it; the server's refusals printed with their sentence and code; nothing sent for a bad
+ * --to or a missing file; the token never printed.
  *
  * The answers are the shapes core's routes and gates send (orchestrator/api/themes_import.py,
- * orchestrator/api/themes_install.py, services/themes/records.py, core/auth/step_up.py).
+ * orchestrator/api/themes_install.py, services/themes/records.py, services/themes/updates.py,
+ * core/auth/step_up.py).
  */
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { run } from '../src/cli-main.ts'
-import { API_SERVICE, HEALTH_ROUTE } from '../src/host-resolve.ts'
-import { CHOICE_ROUTE, CHOOSE_HINT, IMPORT_FIELD, IMPORT_ROUTE, INSTALL_USAGE, optInRoute } from '../src/install.ts'
+import { API_SERVICE, HEALTH_ROUTE, HOST_FILE_ROUTE, HOST_FILE_SCHEMA } from '../src/host-resolve.ts'
+import { ROLLBACK_HINT } from '../src/install-answer.ts'
+import { CHOICE_ROUTE, CHOOSE_HINT, IMPORT_FIELD, IMPORT_ROUTE, INSTALL_USAGE, optInRoute, updateRoute } from '../src/install.ts'
 import { SECRET_MASK } from '../src/output.ts'
 import { ENV_TOKEN, ENV_WORKSPACE, type Environment } from '../src/submit-target.ts'
 
 const API = 'http://localhost:8000'
+const WEB = 'http://localhost:3000'
 const TOKEN = 'eyJhbGciOiJSUzI1NiJ9.test-only-session-token.c2lnbmF0dXJl'
 const WORKSPACE = '00000000-0000-4000-8000-000000000001'
 const INSTALL_ID = '5f0c1d2e-0000-4000-8000-000000000011'
 const PACKAGE_ID = '7b0c5d8e-0000-4000-8000-000000000012'
+/** The newer version's package, uploaded while the install runs PACKAGE_ID. */
+const NEWER_ID = '9d0e7f1a-0000-4000-8000-000000000013'
 const PACKAGE_NAME = 'automatos-e2e.hello-1.0.0.autotheme'
 const PACKAGE_BYTES = Buffer.from('PK\u0003\u0004 the package bytes, read and sent as they are')
 const WORDING = 'This theme was not reviewed. Its code runs with your access to all your workspaces.'
@@ -37,10 +43,25 @@ const IMPORTED = {
 }
 const OPTED_IN = { installId: INSTALL_ID, optIn: { required: false, wording: WORDING, packageId: PACKAGE_ID } }
 const CHOSEN = { choice: INSTALL_ID, source: 'choice', theme: { installId: INSTALL_ID, themeId: 'automatos-e2e/hello' } }
+/** core records.py `_offer_update`: a newer version, stored and offered as the install's update. */
+const NEWER = {
+  ...IMPORTED,
+  package: { ...IMPORTED.package, id: NEWER_ID, version: '1.1.0', digest: 'a'.repeat(64) },
+  install: { ...IMPORTED.install, pendingPackageId: NEWER_ID },
+  status: 'update_available',
+}
+/** core updates.py `install_row`: the install after the update, running the newer package. */
+const UPDATED = {
+  installId: INSTALL_ID, themeId: 'automatos-e2e/hello', name: 'Hello', packageId: NEWER_ID, version: '1.1.0',
+  ownerType: 'workspace', reviewed: false, private: true, isDefault: false, pinnedVersion: null,
+  previousPackageId: PACKAGE_ID, pendingPackageId: null, pendingVersion: null,
+  optIn: { required: true, wording: WORDING, packageId: NEWER_ID },
+}
 
 const IMPORT = `POST ${API}${IMPORT_ROUTE}`
 const OPT_IN = `POST ${API}${optInRoute(INSTALL_ID)}`
 const CHOICE = `PUT ${API}${CHOICE_ROUTE}`
+const UPDATE = `POST ${API}${updateRoute(INSTALL_ID)}`
 const HEALTH_CALL = `GET ${API}${HEALTH_ROUTE}`
 
 interface Call {
@@ -114,6 +135,11 @@ function printed(ran: Ran): string {
   return [...ran.out, ...ran.err].join('\n')
 }
 
+/** The origin a call went to. */
+function originOf(call: Call): string {
+  return new URL(call.key.slice(call.key.indexOf(' ') + 1)).origin
+}
+
 describe('install: the three calls', () => {
   it('imports, opts in and, with --choose, chooses, in that order and with the bodies core reads', async () => {
     const ran = await install(['--choose'])
@@ -159,10 +185,61 @@ describe('install: the three calls', () => {
     })
   })
 
+  it('sends every step to the API the host file names, never to the web app given as --to, the token only there', async () => {
+    const hostFile = { [`GET ${WEB}${HOST_FILE_ROUTE}`]: () => json(200, { schema: HOST_FILE_SCHEMA, apiUrl: API }) }
+    const ran = await install([], answers(hostFile), { [ENV_TOKEN]: TOKEN }, ['install', PACKAGE_NAME, '--to', WEB, '--choose'])
+    expect(ran.code).toBe(0)
+    expect(ran.sent.filter((call) => call.init.method !== 'GET').map((call) => call.key)).toEqual([IMPORT, OPT_IN, CHOICE])
+    expect(ran.sent.filter((call) => originOf(call) === WEB).map((call) => call.key))
+      .toEqual([`GET ${WEB}${HEALTH_ROUTE}`, `GET ${WEB}${HOST_FILE_ROUTE}`])
+    ran.sent.forEach((call) => {
+      const headers = call.init.headers as Record<string, string>
+      expect(headers.Authorization).toBe(originOf(call) === API ? `Bearer ${TOKEN}` : undefined)
+    })
+    expect(ran.out).toContain(`${WEB}${HOST_FILE_ROUTE} names the API: ${API}`)
+  })
+
+  it.each<[string, number, unknown]>([
+    ['a newer version offered as the update (201)', 201, NEWER],
+    ['a version stored while another runs (200, bytes held already)', 200,
+      { ...NEWER, install: IMPORTED.install, status: 'stored', duplicate: true }],
+  ])('moves the install to %s, then opts in to it and chooses it', async (_case, status, body) => {
+    const routes = answers({
+      [IMPORT]: () => json(status, body),
+      [UPDATE]: () => json(200, UPDATED),
+      [OPT_IN]: () => json(200, { installId: INSTALL_ID, optIn: { required: false, wording: WORDING, packageId: NEWER_ID } }),
+    })
+    const ran = await install(['--choose'], routes)
+    expect(ran.code).toBe(0)
+    expect(ran.sent.map((call) => call.key)).toEqual([IMPORT, UPDATE, OPT_IN, CHOICE])
+    const [, updated, optedIn, chosen] = ran.sent
+    expect(bodyOf(updated)).toEqual({ packageId: NEWER_ID })
+    expect(updated.init.redirect).toBe('manual')
+    expect(bodyOf(optedIn)).toEqual({ packageId: NEWER_ID })
+    expect(bodyOf(chosen)).toEqual({ choice: INSTALL_ID })
+    expect(ran.out).toContain(`Moved the install to automatos-e2e/hello 1.1.0. ${ROLLBACK_HINT}`)
+  })
+
+  it('prints the update refused for a version not newer, exit 1, and never opts in', async () => {
+    const sentence = 'That version is not newer than the one installed. Use rollback to go back to the previous version.'
+    const ran = await install(['--choose'], answers({ [IMPORT]: () => json(201, NEWER), [UPDATE]: () => json(409, { detail: sentence }) }))
+    expect(ran.code).toBe(1)
+    expect(ran.sent.map((call) => call.key)).toEqual([IMPORT, UPDATE])
+    expect(ran.err).toContain('The server refused the update (409):')
+    expect(ran.err).toContain(sentence)
+  })
+
+  it('stops, exit 1, when the update answers with an install that runs another package', async () => {
+    const ran = await install([], answers({ [IMPORT]: () => json(201, NEWER), [UPDATE]: () => json(200, { ...UPDATED, packageId: PACKAGE_ID }) }))
+    expect(ran.code).toBe(1)
+    expect(ran.sent.map((call) => call.key)).toEqual([IMPORT, UPDATE])
+    expect(ran.err[0]).toBe('The server answered the update with 200, but not in the form this command reads:')
+  })
+
   it.each<[string, unknown]>([
-    ['an update to the installed version', { ...IMPORTED, status: 'update_available' }],
-    ['stored but not installed', { ...IMPORTED, status: 'stored' }],
     ['no install in the answer', { ...IMPORTED, install: null }],
+    ['no install in an update answer', { ...NEWER, install: null }],
+    ['a status this command does not know', { ...IMPORTED, status: 'quarantined' }],
   ])('stops after the import, exit 1, when it is %s', async (_case, body) => {
     const ran = await install(['--choose'], answers({ [IMPORT]: () => json(201, body) }))
     expect(ran.code).toBe(1)

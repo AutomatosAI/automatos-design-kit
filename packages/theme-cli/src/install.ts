@@ -9,8 +9,12 @@
  * 1. `POST /api/themes/import`, the package as the multipart field `file` (gates: workspace:manage,
  *    who may install, the private-upload switch and setting, step-up): 201 with the package and its
  *    install, 200 when these exact bytes are in the workspace already;
- * 2. `POST /api/themes/installs/{installId}/opt-in` `{packageId}` (a member, step-up): 200;
- * 3. with `--choose` only, `PUT /api/themes/choice` `{choice: installId}` (a member): 200.
+ * 2. only when the install runs another version of the theme (the import's status `update_available`,
+ *    a newer version, or `stored`), `POST /api/themes/installs/{installId}/update` `{packageId}`
+ *    (workspace:manage, who may install, step-up: the import's own gates): 200, the install moved to
+ *    this package, the version before it kept for rollback;
+ * 3. `POST /api/themes/installs/{installId}/opt-in` `{packageId}` (a member, step-up): 200;
+ * 4. with `--choose` only, `PUT /api/themes/choice` `{choice: installId}` (a member): 200.
  * Step-up passes in the local edition.
  *
  * As whom comes from the environment, as for `submit` (submit-target.ts): AUTOMATOS_API_TOKEN
@@ -18,7 +22,8 @@
  * host-resolve's questions, and is never printed: every line passes through `redacting`.
  *
  * Exit code 0 when the package is installed and opted in to (and chosen, with --choose); 1 when the
- * server refused a step, gave no answer, or stored the package without installing it; 2 for a usage
+ * server refused a step (an update to a version not newer than the installed one included), gave no
+ * answer, or stored the package with a status this command does not know; 2 for a usage
  * or environment problem, a package file that can't be read, or a --to that names no Automatos API
  * (nothing was sent).
  */
@@ -27,7 +32,9 @@ import { basename, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import type { CommandDeps } from './cli-main.ts'
 import { parseTo, resolveHost, shownAddress } from './host-resolve.ts'
-import { describeChoice, describeImport, describeNoAnswer, describeOptIn, type Described, type Imported } from './install-answer.ts'
+import {
+  describeChoice, describeImport, describeNoAnswer, describeOptIn, describeUpdate, type Described, type Imported,
+} from './install-answer.ts'
 import { redacting, type Output } from './output.ts'
 import type { ServerAnswer } from './submit-answer.ts'
 import { ENV_TOKEN, readCredentials, requestHeaders, routeUrl, type Credentials } from './submit-target.ts'
@@ -55,6 +62,11 @@ const EXIT_USAGE = 2
 /** core themes_install.py `opt_in_to_theme`: the opt-in route of one install. */
 export function optInRoute(installId: string): string {
   return `/api/themes/installs/${encodeURIComponent(installId)}/opt-in`
+}
+
+/** core themes_install.py `update_theme_install`: the route that moves one install to another package. */
+export function updateRoute(installId: string): string {
+  return `/api/themes/installs/${encodeURIComponent(installId)}/update`
 }
 
 interface InstallArgs {
@@ -157,6 +169,13 @@ function importStep(path: string, bytes: Buffer): Step<Imported> {
   }
 }
 
+function updateStep(imported: Imported): Step<true> {
+  return {
+    name: 'update', method: 'POST', route: updateRoute(imported.installId), body: { packageId: imported.packageId },
+    timeoutSeconds: STEP_TIMEOUT_SECONDS, describe: (answer, tokenSent) => describeUpdate(answer, imported, tokenSent),
+  }
+}
+
 function optInStep(imported: Imported): Step<true> {
   return {
     name: 'opt-in', method: 'POST', route: optInRoute(imported.installId), body: { packageId: imported.packageId },
@@ -171,11 +190,12 @@ function choiceStep(imported: Imported): Step<true> {
   }
 }
 
-/** The three steps against the resolved API; returns the exit code. */
+/** The steps against the resolved API; returns the exit code. */
 async function installAt(api: Api, args: InstallArgs, bytes: Buffer, output: Output): Promise<number> {
   output.out(`Installing ${basename(args.path)} (${bytes.length} bytes) at ${shownAddress(api.base)}`)
   const imported = await runStep(api, output, importStep(args.path, bytes))
   if (imported === null) return EXIT_REFUSED
+  if (imported.update && (await runStep(api, output, updateStep(imported))) === null) return EXIT_REFUSED
   if ((await runStep(api, output, optInStep(imported))) === null) return EXIT_REFUSED
   if (!args.choose) {
     output.out(CHOOSE_HINT)
