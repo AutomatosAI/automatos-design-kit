@@ -12,13 +12,14 @@
  * waiting, turn-failed once per reply that failed in words, the suggestion cleared on a send).
  *
  * Each frame arrives on its own timer tick (setTimeout 0), so a component renders between frames; a test on fake
- * timers advances them. A held turn stays open until Stop. The cards live with the component here (core keeps them
- * in a store by conversation, so they outlive the chat screen there).
+ * timers advances them. A held turn stays open until Stop, or until a test goes on with it (continueHeldTurn in
+ * chat-script.ts: more frames, then the end, or another hold). The cards live with the component here (core keeps
+ * them in a store by conversation, so they outlive the chat screen there).
  */
 import type { HostChatStatus, HostChatTurnEvent, HostMissionSuggestion } from '@automatos/theme-sdk'
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import { type ApprovalStatus, approvalsInPart, type FiledApproval, fileApprovals, isWaitingCard, withStatus } from './approvals.ts'
-import { type RecordedFrame, type RecordedTurn, recordSent, REFUSED_BODY, STREAM_STATUS, takeTurn } from './chat-script.ts'
+import { holdTurn, type RecordedFrame, type RecordedTurn, recordSent, REFUSED_BODY, STREAM_STATUS, takeTurn } from './chat-script.ts'
 import {
   deliverablesInPart,
   fieldsOf,
@@ -160,11 +161,32 @@ function lastTurn(messages: readonly ReplyRecord[]): { readonly kept: readonly R
   return index < 0 || asked === undefined ? null : { kept: messages.slice(0, index), text: asked.text }
 }
 
-function untilAborted(signal: AbortSignal): Promise<void> {
+/** What a test goes on with a held turn with (continueHeldTurn), or null once `signal` aborts (Stop, an unmount). */
+function heldUntil(signal: AbortSignal): Promise<RecordedTurn | null> {
   return new Promise((resolve) => {
-    if (signal.aborted) resolve()
-    else signal.addEventListener('abort', () => resolve(), { once: true })
+    if (signal.aborted) {
+      resolve(null)
+      return
+    }
+    const letGo = holdTurn(resolve)
+    signal.addEventListener('abort', () => {
+      letGo()
+      resolve(null)
+    }, { once: true })
   })
+}
+
+/** A turn's frames into the reply, a frame per tick; a held turn then waits to go on, until `signal` aborts. */
+async function playFrames(replyId: string, turn: RecordedTurn, signal: AbortSignal, sink: TurnSink): Promise<void> {
+  let part: RecordedTurn | null = turn
+  while (part !== null) {
+    for (const frame of part.frames) {
+      await nextTick()
+      if (signal.aborted) return
+      sink.frame(replyId, frame)
+    }
+    part = part.hold === true ? await heldUntil(signal) : null
+  }
 }
 
 /**
@@ -177,12 +199,8 @@ async function playTurn(replyId: string, signal: AbortSignal, sink: TurnSink): P
   if (sink.down()) return sink.refuse(replyId, null)
   const turn: RecordedTurn = takeTurn()
   if (turn.status !== undefined && turn.status !== STREAM_STATUS) return sink.refuse(replyId, creditsCodeIn(turn.body ?? REFUSED_BODY))
-  for (const frame of turn.frames) {
-    await nextTick()
-    if (signal.aborted) return
-    sink.frame(replyId, frame)
-  }
-  if (turn.hold === true) return untilAborted(signal)
+  await playFrames(replyId, turn, signal, sink)
+  if (signal.aborted) return
   await nextTick()
   if (!signal.aborted) sink.end()
 }

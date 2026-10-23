@@ -5,9 +5,11 @@
  * 101a0bf33f64fb4f89af81b4293415be60b661ac): every Send or Try again takes the next recorded turn, in order, in
  * the format of core's e2e/browser/fixtures/play-parity/chat-turns.json (this package's fixtures/streams/*.json).
  * A send with no turn left is answered as a refused request (status 500), as a request nothing answers fails.
- * It also holds the conversations the lists show, New chat presses, whether the host's AI label is on screen,
- * and the words every send carried and every load of a conversation list, for a test to read back.
- * resetChatScript puts each one back.
+ * A turn recorded with hold: true stays open until Stop, or until a test goes on with it (continueHeldTurn: more
+ * frames, then its end, as core's stream arrives in parts). It also holds the conversations the lists show, New
+ * chat presses, whether the host's AI label is on screen, whether the screen is still opening its conversation,
+ * whether a turn is still ending, the Mission being planned, and the words every send carried and every load of a
+ * conversation list, for a test to read back. resetChatScript puts each one back.
  */
 import type { HostChatRole, HostChatSummary } from '@automatos/theme-sdk'
 import { cell, log } from '../cell.ts'
@@ -42,6 +44,10 @@ export interface RecordedTurns {
 export interface HistoryMessage {
   readonly role: HostChatRole
   readonly text: string
+  /** Who wrote a reply the turn didn't ("Auto · background"), as the stored row names it; absent for a reply of the turn. */
+  readonly provenance?: string
+  /** A failed turn the server saved, in its words: the reply is that failure, never an answer. */
+  readonly savedError?: string
 }
 
 /** A conversation as the lists show it, and the messages it opens with. */
@@ -138,11 +144,23 @@ export function scriptOf(recorded: RecordedTurns, names: readonly string[]): rea
   )
 }
 
+/** A stored row's optional words: absent (or null) is none. */
+function optionalTextOf(value: unknown, where: string): string | undefined {
+  return value === undefined || value === null ? undefined : textOf(value, where)
+}
+
 function historyOf(value: unknown, where: string): HistoryMessage {
   const fields = fieldsOf(value, where)
   const role = textOf(fields.role, `${where}.role`)
   if (!ROLES.has(role)) throw new TypeError(`${where}.role is not a chat role.`)
-  return Object.freeze({ role: role as HostChatRole, text: textOf(fields.text, `${where}.text`) })
+  const provenance = optionalTextOf(fields.provenance, `${where}.provenance`)
+  const savedError = optionalTextOf(fields.savedError, `${where}.savedError`)
+  return Object.freeze({
+    role: role as HostChatRole,
+    text: textOf(fields.text, `${where}.text`),
+    ...(provenance === undefined ? {} : { provenance }),
+    ...(savedError === undefined ? {} : { savedError }),
+  })
 }
 
 function previewOf(value: unknown, where: string): string | null {
@@ -174,10 +192,52 @@ const freshChats = cell(0)
 const activeChat = cell<string | null>(null)
 const aiLabel = cell(true)
 const listAsks = log<ConversationsAsk>()
+const opening = cell(false)
+const ending = cell(false)
+const planningMission = cell<string | null>(null)
+/** How the turn held open now goes on; null while no turn is held open. */
+let resumeHeld: ((next: RecordedTurn) => void) | null = null
+/** What a test went on with before any turn held (its frames still on their way): the next turn to hold takes it. */
+let queuedContinuation: RecordedTurn | null = null
 
 /** The turns the next sends get, in order (each Send or Try again takes one). */
 export function setChatScript(turns: readonly RecordedTurn[]): void {
   script.set(Object.freeze([...turns]))
+}
+
+/**
+ * A held turn's stream waits here (chat-turn.ts): `resume` gets what continueHeldTurn gives, at once when a test
+ * already went on. The returned function lets go (Stop, an unmount), unless a newer turn holds by then.
+ */
+export function holdTurn(resume: (next: RecordedTurn) => void): () => void {
+  const queued = queuedContinuation
+  if (queued !== null) {
+    queuedContinuation = null
+    resume(queued)
+    return () => undefined
+  }
+  resumeHeld = resume
+  return () => {
+    if (resumeHeld === resume) resumeHeld = null
+  }
+}
+
+/**
+ * The turn held open now goes on, as core's stream goes on after a pause: `next.frames`, a frame per tick, then
+ * the stream ends, or holds again when `next.hold` is true. Its status and body are not read. While no turn holds
+ * yet (a held turn holds a tick after its last frame), the next turn to hold goes on with it; a second one before
+ * then throws.
+ */
+export function continueHeldTurn(next: RecordedTurn): void {
+  const checked = recordedTurn(next, 'continueHeldTurn')
+  const resume = resumeHeld
+  if (resume !== null) {
+    resumeHeld = null
+    resume(checked)
+    return
+  }
+  if (queuedContinuation !== null) throw new TypeError('No chat turn has held since the last continueHeldTurn: one is already waiting.')
+  queuedContinuation = checked
 }
 
 /** The next recorded turn, taken off the script; UNSCRIPTED_TURN when none is left. */
@@ -256,6 +316,37 @@ export function useAiLabelShown(): boolean {
   return aiLabel.use()
 }
 
+/** Whether the chat screen is still opening its conversation from now on (the session, a link or a load settling). */
+export function setChatOpening(isOpening: boolean): void {
+  opening.set(isOpening)
+}
+
+export function useChatOpening(): boolean {
+  return opening.use()
+}
+
+/**
+ * Whether a turn is still ending from now on, as core's chat hook is still loading after its stream closed: the
+ * status is not streaming, yet Send and Try again start nothing.
+ */
+export function setTurnEnding(isEnding: boolean): void {
+  ending.set(isEnding)
+}
+
+/** The flag right now, as Send and Try again ask it at the moment they are called. */
+export function turnEnding(): boolean {
+  return ending.get()
+}
+
+/** The Mission the chat is planning from now on (core's Mission store); null for none. */
+export function setPlanningMissionId(missionId: string | null): void {
+  planningMission.set(missionId)
+}
+
+export function usePlanningMissionId(): string | null {
+  return planningMission.use()
+}
+
 /** The chat's backend as a test starts with it: no turns, no conversations, nothing sent, the label shown. */
 export function resetChatScript(): void {
   script.set(NO_TURNS)
@@ -265,4 +356,9 @@ export function resetChatScript(): void {
   activeChat.set(null)
   aiLabel.set(true)
   listAsks.clear()
+  opening.set(false)
+  ending.set(false)
+  planningMission.set(null)
+  resumeHeld = null
+  queuedContinuation = null
 }

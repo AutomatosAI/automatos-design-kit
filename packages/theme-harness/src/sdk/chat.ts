@@ -11,12 +11,15 @@
  *
  * The backend is scripted (src/internal/scripted/chat-script.ts; chat-turn.ts plays a turn): chatControls, which
  * host.ts gathers, set the recorded turns each send takes (setChatScript, from a fixture read with recordedTurns and
- * scriptOf), the conversations (setConversations, conversationsOf) and the host's AI label (setAiLabelShown), and
- * read back what was sent (chatSent, turnsLeft), how often New chat was pressed (startedChats) and each load of a
- * conversation list (conversationsAsked); resetChat puts them back.
- * Not modelled: the Mission store (planningMissionId stays null), a saved reply's provenance and saved failure
- * (null), the approvals store that keeps cards across chat screens, and a cold start on the newest conversation
- * (the screen opens on a new chat, as core's Play parity specs have it).
+ * scriptOf) and go on with one held open (continueHeldTurn), the conversations (setConversations, conversationsOf;
+ * a stored reply may name who wrote it, provenance, or be a failure the server saved, savedError), the host's AI
+ * label (setAiLabelShown), a screen still opening its conversation (setChatOpening: conversation null), a turn
+ * still ending (setTurnEnding: Send and Try again start nothing, as while core's chat hook is still loading) and
+ * the Mission being planned (setPlanningMissionId, core's Mission store), and read back what was sent (chatSent,
+ * turnsLeft), how often New chat was pressed (startedChats) and each load of a conversation list
+ * (conversationsAsked); resetChat puts them back.
+ * Not modelled: the approvals store that keeps cards across chat screens, and a cold start on the newest
+ * conversation (the screen opens on a new chat, as core's Play parity specs have it).
  */
 import type {
   HostChatApproval,
@@ -39,23 +42,31 @@ import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord
 import {
   aiLabelShown,
   chatSent,
+  continueHeldTurn,
   type ConversationFixture,
   conversationsAsked,
   conversationsOf,
+  type HistoryMessage,
   recordConversationsAsk,
   recordedTurns,
   resetChatScript,
   scriptOf,
   setActiveChatId,
   setAiLabelShown,
+  setChatOpening,
   setChatScript,
   setConversations,
+  setPlanningMissionId,
+  setTurnEnding,
   startedChats,
   startFreshChat,
+  turnEnding,
   turnsLeft,
   useActiveChatId,
+  useChatOpening,
   useConversations,
   useFreshChats,
+  usePlanningMissionId,
 } from '../internal/scripted/chat-script.ts'
 import { CREDITS_EXHAUSTED_CODE, type TurnState, useScriptedTurn } from '../internal/scripted/chat-turn.ts'
 import { CHAT_HREF, useHealth, useHostRouter, useHostSearchParams } from '../internal/scripted/host-inputs.ts'
@@ -116,9 +127,15 @@ function isForged(value: unknown): boolean {
   return typeof value === 'object' && value !== null && 'key' in value && openedOf(value) === null
 }
 
+/** A stored message as the conversation opens with it: a background post's provenance and a saved failure kept. */
+function storedReply(id: string, message: HistoryMessage): ReplyRecord {
+  const record = replyRecord(id, message.role, message.text)
+  return Object.freeze({ ...record, provenance: message.provenance ?? null, savedError: message.savedError ?? null })
+}
+
 function historyOf(conversation: ConversationFixture | null): readonly ReplyRecord[] {
   if (conversation === null) return Object.freeze([])
-  return Object.freeze(conversation.messages.map((message, index) => replyRecord(`${conversation.id}-${index}`, message.role, message.text)))
+  return Object.freeze(conversation.messages.map((message, index) => storedReply(`${conversation.id}-${index}`, message)))
 }
 
 /** A theme's draft link, read whenever the query string changes, until the chat screen takes the words. */
@@ -136,10 +153,14 @@ function useDraft(link: HostChatDraftLink | undefined, params: HostSearchParams)
   return { draft, takeDraft }
 }
 
-/** chat.ts:314: the conversation on screen, a ?chatId= link's while no New chat was pressed after it opened. */
+/**
+ * chat.ts:314: the conversation on screen, a ?chatId= link's while no New chat was pressed after it opened; null
+ * while the screen is still opening it (setChatOpening).
+ */
 function useConversationOnScreen(options: HostChatOnScreenOptions | undefined): HostChatOnScreen {
   const params = useHostSearchParams()
   const conversations = useConversations()
+  const opening = useChatOpening()
   const fresh = useFreshChats()
   const openedAt = useRef(fresh)
   const [named, setNamed] = useState<Readonly<Record<string, string>>>({})
@@ -153,7 +174,8 @@ function useConversationOnScreen(options: HostChatOnScreenOptions | undefined): 
   const conversation = useMemo(() => handedOut(key, chatId, title, { history, adopt }), [key, chatId, title, history, adopt])
   useEffect(() => setActiveChatId(chatId), [chatId])
   const { draft, takeDraft } = useDraft(options?.draftLink, params)
-  return useMemo(() => Object.freeze({ conversation, draft, takeDraft }), [conversation, draft, takeDraft])
+  const shown = opening ? null : conversation
+  return useMemo(() => Object.freeze({ conversation: shown, draft, takeDraft }), [shown, draft, takeDraft])
 }
 
 // ---- one conversation's turn, as a theme draws it (internal/chat-view.ts:67-152) ----
@@ -180,8 +202,6 @@ function hostMessage(record: ReplyRecord, state: TurnState, chatId: string, outc
     writing: record.id === state.writingId,
     stopped: state.stopped.includes(record.id),
     approvals: Object.freeze(raised.map((filed) => hostApproval(filed, chatId, outcome))),
-    provenance: null,
-    savedError: null,
     linkedDeliverables: deliverablesFromReceipts(record.receipts),
   })
 }
@@ -209,8 +229,9 @@ function useOpenConversation(conversation: HostChatConversation, opened: Opened,
   const chatId = conversation.chatId ?? ''
   const messages = useMemo(() => Object.freeze(state.messages.map((record) => hostMessage(record, state, chatId, card))), [state, chatId, card])
   const looseApprovals = useMemo(() => looseOf(state, chatId, card), [state, chatId, card])
-  const send = useCallback((text: string) => aiLabelShown() && sendTurn(text), [sendTurn])
-  const retry = useCallback(() => aiLabelShown() && retryTurn(), [retryTurn])
+  const send = useCallback((text: string) => aiLabelShown() && !turnEnding() && sendTurn(text), [sendTurn])
+  const retry = useCallback(() => aiLabelShown() && !turnEnding() && retryTurn(), [retryTurn])
+  const planningMissionId = usePlanningMissionId()
   const title = chatTitle(state.messages, conversation.title)
   return useMemo(
     () =>
@@ -223,14 +244,14 @@ function useOpenConversation(conversation: HostChatConversation, opened: Opened,
         errorCode: state.errorCode,
         trialExhausted: state.errorCode === CREDITS_EXHAUSTED_CODE,
         suggestion: state.suggestion,
-        planningMissionId: null,
+        planningMissionId,
         looseApprovals,
         approvalWaiting: state.approvals.some(isWaitingCard),
         send,
         retry,
         stop,
       }),
-    [conversation, title, messages, state, looseApprovals, send, retry, stop],
+    [conversation, title, messages, state, planningMissionId, looseApprovals, send, retry, stop],
   )
 }
 
@@ -343,8 +364,12 @@ export const liveReceiptsOf: Sdk['liveReceiptsOf'] = (part) => liveReceiptsIn(pa
 /** The controls of this area, gathered by host.ts: the scripted backend, and what the chat asked of it. */
 export const chatControls = Object.freeze({
   setChatScript,
+  continueHeldTurn,
   setConversations,
   setAiLabelShown,
+  setChatOpening,
+  setTurnEnding,
+  setPlanningMissionId,
   startedChats,
   chatSent,
   turnsLeft,
@@ -354,7 +379,10 @@ export const chatControls = Object.freeze({
   conversationsAsked,
 })
 
-/** The chat as a test starts with it: no turns, no conversations, nothing sent, the AI label on screen. */
+/**
+ * The chat as a test starts with it: no turns and none held open, no conversations, nothing sent, the AI label on
+ * screen, the screen not opening, no turn ending and no Mission being planned.
+ */
 export function resetChat(): void {
   resetChatScript()
 }

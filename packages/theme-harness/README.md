@@ -85,7 +85,7 @@ theme state kept, and nothing asked.
 | assets | `setFilesRoot` | `askedPaths()` |
 | storage | `setStorage({ ready, persisted, themeId, userKey, workspaceKey })`, `changeInAnotherTab` | the window's storage |
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
-| chat, Deliverables (B-02c) | `setChatScript`, `setConversations`, `setDeliverables`, `setDetail`, `setBlobUrls` | `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
+| chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
 | network | | `networkCalls()` |
 
