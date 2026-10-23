@@ -19,27 +19,28 @@
  * design/contrast.json is the kit's own file: pack never packs design/ (collect.ts PACKED_FOLDERS) and
  * the server never reads it. Its form:
  *   {"schema": "automatos-theme-contrast/v1", "pairs": [{"text": "--ring", "ground": "--background", "min": 3}]}
- * with `min` optional. The folder is read as it is on disk, nothing is built, nothing is sent anywhere;
- * a link, to a file or to a folder these files sit in, is refused with core's SYMLINK, as pack refuses it.
+ * with `min` optional. The folder is read as it is on disk (design-files.ts), nothing is built, nothing is
+ * sent anywhere; a link, to a file or to a folder these files sit in, is refused with core's SYMLINK, as pack
+ * refuses it, and a file where one of those folders goes with the kit's NOT_A_FOLDER; nothing under either is read.
  * Exit code 0 when no line is an error, 1 when one is, 2 for a usage error.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, posix, resolve } from 'node:path'
+import { statSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import type { CommandDeps } from '../cli-main.ts'
-import { isHidden, statOf } from '../collect.ts'
 import {
   CUSTOM_PROPERTY_PATTERN, echo, hasOwn, isFiniteNumber, isRecord, own, prepaintErrors, PREPAINT_PATH, themeError,
   type JsonRecord, type ThemeError,
 } from '../core/css-value.ts'
 import { parseJson } from '../json.ts'
-import { lookFileErrors, presetIds, presetPaths, PRESETS_DIR, SCHEMA_PATH } from '../looks.ts'
+import { lookFileErrors, presetIds, presetPaths, SCHEMA_PATH } from '../looks.ts'
 import { pathErrors, type PackageEntry } from '../members.ts'
 import type { Output } from '../output.ts'
 import {
   contrastMeter, DEFAULT_PAIR_MIN, lookFits, measurePair, paintLook, sanitizePrepaint,
   type ContrastMeter, type ContrastPair, type PairMeasure,
 } from './contrast.ts'
+import { DESIGN_CONTRAST_PATH, DESIGN_FOLDERS, LOOKS_FOLDER, readDesignFiles } from './design-files.ts'
 import {
   CORE_REPO, CORE_SHA, countsOf, LEVEL_ERROR, LEVEL_NOT_MEASURED, LEVEL_PASS, LEVELS, presetList, verdictOf,
   type CheckEntry, type Level,
@@ -47,7 +48,7 @@ import {
 
 export const DESIGN_SUBCOMMAND = 'design'
 export const DESIGN_USAGE = 'usage: automatos-theme check design <theme folder>'
-export const DESIGN_CONTRAST_PATH = 'design/contrast.json'
+export { DESIGN_CONTRAST_PATH, readDesignFiles }
 export const DESIGN_CONTRAST_SCHEMA = 'automatos-theme-contrast/v1'
 /** The kit's own codes; every other code a line lists is core's. */
 export const DESIGN_CODES = Object.freeze({
@@ -56,6 +57,7 @@ export const DESIGN_CODES = Object.freeze({
   notMeasured: 'CONTRAST_NOT_MEASURED',
   presetUnfit: 'PRESET_NOT_IN_PREPAINT',
   defaultsUnfit: 'PREPAINT_DEFAULTS_UNFIT',
+  notFolder: 'NOT_A_FOLDER',
 })
 const CONTRAST_FIELDS: readonly string[] = ['schema', 'pairs']
 const PAIR_FIELDS: readonly string[] = ['text', 'ground', 'min']
@@ -63,10 +65,6 @@ const PAIR_FIELDS: readonly string[] = ['text', 'ground', 'min']
 const RATIO_FLOOR = 1
 const RATIO_CEILING = 21
 const RATIO_DECIMALS = 2
-const PRESETS_FOLDER = PRESETS_DIR.replace(/\/$/, '')
-const LOOKS_FOLDER = posix.dirname(SCHEMA_PATH)
-/** The folders the design files sit in, each before the folders inside it. */
-const DESIGN_FOLDERS: readonly string[] = [LOOKS_FOLDER, PRESETS_FOLDER, posix.dirname(PREPAINT_PATH), posix.dirname(DESIGN_CONTRAST_PATH)]
 const EMPTY = new Uint8Array(0)
 const EXIT_OK = 0
 const EXIT_FAILED = 1
@@ -110,31 +108,6 @@ const ABSENT = Object.freeze({ state: 'absent' as const })
 
 function row(name: DesignRow['name'], level: Level, text: string, errors: readonly ThemeError[] = []): DesignRow {
   return { name, level, text, errors }
-}
-
-function entryAt(themeDir: string, path: string): PackageEntry[] {
-  const kind = statOf(themeDir, path)
-  if (kind === 'link') return [{ path, data: EMPTY, link: true }]
-  return kind === 'file' ? [{ path, data: new Uint8Array(readFileSync(join(themeDir, path))) }] : []
-}
-
-/** The design folders that are links (pack walks no linked folder); none inside a linked one, which is never read. */
-function linkedFolders(themeDir: string): string[] {
-  return DESIGN_FOLDERS.reduce<string[]>((linked, folder) => {
-    const inLinked = linked.some((parent) => folder.startsWith(`${parent}/`))
-    return inLinked || statOf(themeDir, folder) !== 'link' ? linked : [...linked, folder]
-  }, [])
-}
-
-/** A theme folder's design files (schema, presets, prepaint table, pairs) as on disk; nothing under a linked folder is read. */
-export function readDesignFiles(themeDir: string): PackageEntry[] {
-  const linked = linkedFolders(themeDir)
-  const readable = (path: string): boolean => !linked.some((folder) => path.startsWith(`${folder}/`))
-  const presets = readable(PRESETS_DIR) && statOf(themeDir, PRESETS_FOLDER) === 'folder'
-    ? readdirSync(join(themeDir, PRESETS_FOLDER)).filter((name) => !isHidden(name)).map((name) => `${PRESETS_DIR}${name}`)
-    : []
-  const paths = [SCHEMA_PATH, ...presetPaths(presets), PREPAINT_PATH, DESIGN_CONTRAST_PATH].filter(readable)
-  return [...linked.map((path): PackageEntry => ({ path, data: EMPTY, link: true })), ...paths.flatMap((path) => entryAt(themeDir, path))]
 }
 
 /** Each preset whose file is a JSON object, by its id (the file's name). */
@@ -230,8 +203,8 @@ function pairsOf(files: ReadonlyMap<string, Uint8Array>): Read<readonly Contrast
   return all.length > 0 ? { state: 'refused', errors: all } : { state: 'read', value: pairs.map((item) => item.pair) }
 }
 
-function looksRow(files: ReadonlyMap<string, Uint8Array>, links: readonly ThemeError[]): DesignRow {
-  const errors = [...links, ...lookFileErrors(files)]
+function looksRow(files: ReadonlyMap<string, Uint8Array>, blocked: readonly ThemeError[]): DesignRow {
+  const errors = [...blocked, ...lookFileErrors(files)]
   if (errors.length > 0) return row('looks', LEVEL_ERROR, `${SCHEMA_PATH} and its presets don't pass core's look validators.`, errors)
   const ids = presetList(files)
   return row('looks', LEVEL_PASS, `${ids.length} preset(s) pass ${SCHEMA_PATH}: ${ids.join(', ')}.`)
@@ -251,8 +224,8 @@ function fitErrors(table: JsonRecord | null, presets: readonly Preset[]): ThemeE
   )))
 }
 
-function prepaintRow(table: Read<JsonRecord | null>, presets: readonly Preset[], links: readonly ThemeError[]): DesignRow {
-  if (links.length > 0) return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} can't be read.`, links)
+function prepaintRow(table: Read<JsonRecord | null>, presets: readonly Preset[], blocked: readonly ThemeError[]): DesignRow {
+  if (blocked.length > 0) return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} can't be read.`, blocked)
   if (table.state === 'absent') {
     const none = `No ${PREPAINT_PATH}: no look is painted before the theme's code runs, so no preset's colours can be read as data.`
     return row('prepaint', LEVEL_NOT_MEASURED, none)
@@ -300,15 +273,16 @@ interface ContrastInputs {
   readonly pairs: Read<readonly ContrastPair[]>
   readonly table: Read<JsonRecord | null>
   readonly presets: readonly Preset[]
-  readonly links: readonly ThemeError[]
+  /** The refusals of a link or a file in the way of design/contrast.json (checkDesignFiles). */
+  readonly blocked: readonly ThemeError[]
 }
 
 function contrastRow(inputs: ContrastInputs, meter: ContrastMeter): DesignResult {
-  const { pairs, table, presets, links } = inputs
+  const { pairs, table, presets, blocked } = inputs
   const alone = (level: Level, text: string, errors: readonly ThemeError[] = []): DesignResult => (
     { rows: [row('contrast', level, text, errors)], measures: [] }
   )
-  if (links.length > 0) return alone(LEVEL_ERROR, `${DESIGN_CONTRAST_PATH} can't be read.`, links)
+  if (blocked.length > 0) return alone(LEVEL_ERROR, `${DESIGN_CONTRAST_PATH} can't be read.`, blocked)
   if (pairs.state === 'absent') {
     return alone(LEVEL_NOT_MEASURED, `No ${DESIGN_CONTRAST_PATH}: the theme declares no text and ground pairs, so contrast isn't measured.`)
   }
@@ -328,19 +302,28 @@ function contrastRow(inputs: ContrastInputs, meter: ContrastMeter): DesignResult
   return { rows: [row('contrast', level, text, errors)], measures }
 }
 
+/** Core's SYMLINK for each link, and the kit's NOT_A_FOLDER for each file where a design folder goes. */
+function blockedErrors(inTheWay: readonly PackageEntry[]): ThemeError[] {
+  const notFolders = inTheWay.filter((entry) => entry.link !== true).map(({ path }) => themeError(
+    DESIGN_CODES.notFolder, path, `${echo(path)} is a file, not a folder, so nothing in ${echo(path)}/ can be read.`,
+  ))
+  return [...pathErrors(inTheWay.filter((entry) => entry.link === true)), ...notFolders]
+}
+
 /** The design check over a theme's design files (readDesignFiles), measured with `meter`. */
 export function checkDesignFiles(entries: readonly PackageEntry[], meter: ContrastMeter): DesignResult {
-  const linked = entries.filter((entry) => entry.link === true)
-  // The links in the way of `target` (a file or a folder): itself, a folder it sits in, or a file under it.
-  const linksAt = (target: string): ThemeError[] => pathErrors(linked.filter(({ path }) => (
+  // A link, or a file at a design folder's own path: nothing under it is read.
+  const inTheWay = entries.filter((entry) => entry.link === true || DESIGN_FOLDERS.includes(entry.path))
+  // The ones in the way of `target` (a file or a folder): itself, a folder it sits in, or a file under it.
+  const blockedAt = (target: string): ThemeError[] => blockedErrors(inTheWay.filter(({ path }) => (
     path === target || path.startsWith(`${target}/`) || target.startsWith(`${path}/`)
   )))
-  const files = new Map(entries.filter((entry) => entry.link !== true).map((entry): [string, Uint8Array] => [entry.path, entry.data]))
+  const files = new Map(entries.filter((entry) => !inTheWay.includes(entry)).map((entry): [string, Uint8Array] => [entry.path, entry.data]))
   const presets = presetsOf(files)
   const table = tableOf(files)
-  const contrast = contrastRow({ pairs: pairsOf(files), table, presets, links: linksAt(DESIGN_CONTRAST_PATH) }, meter)
-  const looks = looksRow(files, linksAt(LOOKS_FOLDER))
-  const rows = [looks, prepaintRow(table, presets, linksAt(PREPAINT_PATH)), ...contrast.rows]
+  const contrast = contrastRow({ pairs: pairsOf(files), table, presets, blocked: blockedAt(DESIGN_CONTRAST_PATH) }, meter)
+  const looks = looksRow(files, blockedAt(LOOKS_FOLDER))
+  const rows = [looks, prepaintRow(table, presets, blockedAt(PREPAINT_PATH)), ...contrast.rows]
   return { rows, measures: contrast.measures }
 }
 

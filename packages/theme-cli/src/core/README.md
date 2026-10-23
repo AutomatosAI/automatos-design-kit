@@ -48,8 +48,9 @@ look-kit moves all three. Only `check design` loads it: `check/index.ts` imports
 `design/contrast.json` is kit-only. `pack` never packs `design/` (it is not one of the package's folders) and the
 server never reads it, so its pairs are measured by the kit alone: the server measures only the `mobile` block's ten
 Studio pairs (PRD-261 M-03), and declared pairs for every look stay kit-only for v1 (PRD-261 QB-40). The kit's own
-codes are `BAD_CONTRAST_PAIRS`, `CONTRAST_UNDER_MIN`, `CONTRAST_NOT_MEASURED`, `PRESET_NOT_IN_PREPAINT` and
-`PREPAINT_DEFAULTS_UNFIT`; every other code `check design` prints is core's.
+codes are `BAD_CONTRAST_PAIRS`, `CONTRAST_UNDER_MIN`, `CONTRAST_NOT_MEASURED`, `PRESET_NOT_IN_PREPAINT`,
+`PREPAINT_DEFAULTS_UNFIT` and `NOT_A_FOLDER` (a file where `looks/`, `looks/presets/`, `boot/` or `design/` goes);
+every other code `check design` prints is core's.
 
 ## Re-vendoring
 

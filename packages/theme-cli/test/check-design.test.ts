@@ -9,7 +9,7 @@
  * The seeded theme is design-support.ts's: core's hello theme with a prepaint table and passing pairs.
  */
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, symlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
@@ -243,6 +243,21 @@ describe('the AA matrix: every preset × every pair', () => {
       const found = rowOf(await checkDesign(theme), line)
       expect(found.level).toBe('error')
       expect(found.errors.filter((error) => error.code === 'SYMLINK').map((error) => error.path)).toEqual([folder])
+    },
+  )
+
+  it.each([['looks', 'looks'], ['looks/presets', 'looks'], ['boot', 'prepaint'], ['design', 'contrast']] as const)(
+    'a file where the %s/ folder goes: NOT_A_FOLDER on its %s line, nothing read in it, exit 1 (no ENOTDIR)',
+    async (folder, line) => {
+      const theme = designFolder()
+      rmSync(join(theme, folder), { recursive: true })
+      writeFileSync(join(theme, folder), '{}\n')
+      const found = rowOf(await checkDesign(theme), line)
+      expect(found.level).toBe('error')
+      expect(found.errors.filter((error) => error.code === 'NOT_A_FOLDER').map((error) => error.path)).toEqual([folder])
+      const ran = await ranDesign(['check', 'design', theme])
+      expect([ran.code, ran.err]).toEqual([1, []])
+      expect(ran.out.filter((text) => text.startsWith(`    NOT_A_FOLDER ${folder}: ${folder} is a file, not a folder`))).toHaveLength(1)
     },
   )
 
