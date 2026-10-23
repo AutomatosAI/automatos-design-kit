@@ -21,14 +21,25 @@ stripping, which needs the extension).
 The test corpus `test/fixtures/core/cases.json` and the hello theme `test/fixtures/core/hello/` are copied from
 `orchestrator/tests/fixtures/themes/` at the same commit, byte for byte.
 
+`check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
+edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
+commit above:
+
+| File here | Core file | sha256 |
+|---|---|---|
+| `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `8d588ffc0c47db1386d73d253cbc5c6f4439076ca88b37ce50fc13eea9fbebc1` |
+| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `fa37c9b1c356f735df5e34ad7adf22707828995d546292e2a286114c37f58031` |
+
 ## Re-vendoring
 
 When core changes one of these files, copy it again from core `main`, redo the import edits above, update the
 commit here, read every comment in the copy (this repo is public: reword any that names a person or an internal
-decision log), and copy `cases.json` and `hello/` from the same commit. `test/core-corpus.test.ts` then holds the copy
-to the core corpus.
+decision log), and copy `cases.json`, `hello/` and the two `data/` files from the same commit (their sha256 rows and
+`CORE_SHA` move with it). `test/core-corpus.test.ts` then holds the copy to the core corpus.
 
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
 and `css_scope.py`). `src/members.ts` and `src/check-package.ts` port the reader's rules, and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
-to the server's verdicts.
+to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
+and the preview rule of `listings.py`): `src/check/` ports it over the two data files, and its `check-uses` and
+`check-drift` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit.
