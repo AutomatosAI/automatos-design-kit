@@ -111,9 +111,9 @@
   {
     "corePath": "frontend/lib/looks/__tests__/style.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
-    "coreIts": 20,
+    "coreIts": 19,
     "kitPath": "test/lib/looks/style.test.ts",
-    "kitIts": 20,
+    "kitIts": 19,
     "rehomed": [],
     "rewritten": null
   },

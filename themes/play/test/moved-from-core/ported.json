@@ -2,7 +2,7 @@
   {
     "corePath": "frontend/lib/__tests__/prd261-port-chat.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
-    "coreIts": 19,
+    "coreIts": 13,
     "kitPath": "test/copied-from-core.test.ts",
     "kitIts": 6,
     "rehomed": [
@@ -33,38 +33,14 @@
       {
         "assertion": "The scan's helpers tell a relative import that stays in Play's folders from one that leaves them.",
         "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test calls in the scan's walk of the area (SOURCE_FILE.test, TEST_FILE.test); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the second of those two calls; the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call picking Play's stores (PLAY_STORE.test in playStores); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call naming a Play store (PLAY_STORE.test in isPlayStore); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call of the ban list (pattern.test in isBanned); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call of Play's folders (pattern.test in landsInPlay); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
       }
     ],
-    "rewritten": "Core held each copy to its own module (lib/chat/receipts.ts, deliverables.ts, message-text.ts, suggestion.ts, and the SDK's lib/theme-sdk/internal/chat-view.ts for the messages a theme gets); the kit holds it to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The test's six copy cases are kept, each on the snapshot; its seven scan cases are rehomed (Play's imports are the kit's test/imports.test.ts now). The ledger's counter reads core's six RegExp .test( calls as cases too, so core's 19 are 13 cases."
+    "rewritten": "Core held each copy to its own module (lib/chat/receipts.ts, deliverables.ts, message-text.ts, suggestion.ts, and the SDK's lib/theme-sdk/internal/chat-view.ts for the messages a theme gets); the kit holds it to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The test's six copy cases are kept, each on the snapshot; its seven scan cases are rehomed (Play's imports are the kit's test/imports.test.ts now)."
   },
   {
     "corePath": "frontend/lib/__tests__/prd261-port-conversations.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
-    "coreIts": 9,
+    "coreIts": 5,
     "kitPath": "test/copied-from-core.test.ts",
     "kitIts": 2,
     "rehomed": [
@@ -79,30 +55,14 @@
       {
         "assertion": "Play's conversations import only '@automatos/theme-sdk', react, react-dom and Play's own folders. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
         "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test calls in the scan's pick of the area's files (SOURCE_FILE.test, TEST_PATH.test); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the second of those two calls; the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call of the ban list (pattern.test in refusal); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call in the case that no test file is scanned (TEST_PATH.test); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
       }
     ],
-    "rewritten": "Core held Play's copies to its own modules (lib/chat/deliverables.ts UNTITLED, components/workspace/gallery-view/made-by.ts MADE_BY_SOURCE, lib/text/plain-line.ts oneLine); the kit holds the words to test/fixtures/core/copied-values.json (core at 101a0bf33) and the one-line rule to the theme's src/lib/text/plain-line.ts, which the snapshot holds to core's by its sha256. The two copy cases are kept; the three scan cases are rehomed. The ledger's counter reads core's four RegExp .test( calls as cases too, so core's 9 are 5 cases."
+    "rewritten": "Core held Play's copies to its own modules (lib/chat/deliverables.ts UNTITLED, components/workspace/gallery-view/made-by.ts MADE_BY_SOURCE, lib/text/plain-line.ts oneLine); the kit holds the words to test/fixtures/core/copied-values.json (core at 101a0bf33) and the one-line rule to the theme's src/lib/text/plain-line.ts, which the snapshot holds to core's by its sha256. The two copy cases are kept; the three scan cases are rehomed."
   },
   {
     "corePath": "frontend/lib/__tests__/prd261-port-deliverables.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
-    "coreIts": 13,
+    "coreIts": 9,
     "kitPath": "test/copied-from-core.test.ts",
     "kitIts": 3,
     "rehomed": [
@@ -129,24 +89,8 @@
       {
         "assertion": "The scan's helpers tell a relative import that stays in Play's folders from one that leaves them.",
         "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test calls in the scan's walk of the area (SOURCE_FILE.test, TEST_FILE.test); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the second of those two calls; the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call of the ban list (pattern.test in isBanned); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
-      },
-      {
-        "assertion": "Not a case: the ledger's counter (CASE_CALL) also counts the RegExp test call of Play's folders (pattern.test in landsInPlay); the scan it belongs to is rehomed above.",
-        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
       }
     ],
-    "rewritten": "Core held Play's copies (lib/play/shelf.ts isDeliverableId, deliverableHref, UNTITLED, DOWNLOAD_FAILED) to its own modules (lib/chat/deliverables.ts, lib/deliverables/download.ts); the kit holds them to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The three copy cases are kept; the six scan cases are rehomed. The ledger's counter reads core's four RegExp .test( calls as cases too, so core's 13 are 9 cases."
+    "rewritten": "Core held Play's copies (lib/play/shelf.ts isDeliverableId, deliverableHref, UNTITLED, DOWNLOAD_FAILED) to its own modules (lib/chat/deliverables.ts, lib/deliverables/download.ts); the kit holds them to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The three copy cases are kept; the six scan cases are rehomed."
   }
 ]
