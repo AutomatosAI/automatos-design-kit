@@ -1,0 +1,178 @@
+[
+  {
+    "corePath": "frontend/components/play/shell/__tests__/play-frame.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 11,
+    "kitPath": "test/shell/play-frame.test.tsx",
+    "kitIts": 6,
+    "rehomed": [
+      {
+        "assertion": "MainLayout under a theme at its width draws the theme's frame around the page, never the Studio shell or the fallback header (the kit asserts what Play's frame draws around the page).",
+        "corePath": "frontend/components/layout/__tests__/main-layout-theme-frame-slot.test.tsx"
+      },
+      {
+        "assertion": "Under Studio, with no theme, MainLayout draws the Studio shell exactly as before.",
+        "corePath": "frontend/components/layout/__tests__/main-layout-theme-frame-slot.test.tsx"
+      },
+      {
+        "assertion": "Under Play below 1024 px MainLayout draws the fallback chrome with the page in it, never the theme's frame.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "Under a theme while the width is not known MainLayout draws nothing, neither chrome nor the page (M69).",
+        "corePath": "frontend/components/layout/__tests__/main-layout-theme-frame-slot.test.tsx"
+      },
+      {
+        "assertion": "Under Classic, with no theme, the frame slot draws the fallback chrome, never a frame.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-slot.test.tsx"
+      },
+      {
+        "assertion": "The header utilities' members (the credit balance, the theme menu, notifications, the profile control by edition, Help) are the host's HeaderUtilities card (the kit asserts Play's header draws the card and a click on it reaches the host).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/cards.test.tsx"
+      },
+      {
+        "assertion": "MainLayout hands the theme's frame the full-bleed flag and Auto's floating widget (the kit asserts Play's frame draws the widget it is handed, outside its main).",
+        "corePath": "frontend/components/layout/__tests__/main-layout-theme-frame-slot.test.tsx"
+      },
+      {
+        "assertion": "The widget's page name (activity on /command-center) is the host's AutoWidget; its visible={!pathname.startsWith('/chat')} (hidden on the chat) has no core test of its own once this test goes.",
+        "corePath": "frontend/components/layout/__tests__/main-layout-widget-page.test.tsx"
+      }
+    ],
+    "rewritten": "Core's test drew the frame through MainLayout over mocked width, style and health hooks; the kit renders Play's frame@1 registration (PlayFrameSlot) as the host renders it, on the harness's fake host: the header utilities are the SDK's stand-in card (host.cardActions), the global search is counted (host.globalSearchOpens) and the backend is up by default. Which chrome MainLayout picks and what the widget says are core's (rehomed)."
+  },
+  {
+    "corePath": "frontend/components/play/shell/__tests__/play-sidebar.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 16,
+    "kitPath": "test/shell/play-sidebar.test.tsx",
+    "kitIts": 14,
+    "rehomed": [
+      {
+        "assertion": "An unknown role (no role provider) is not an admin: the host's useCoreNav reads isAdmin false and its buildCoreNav hides Workspace Admin and Settings (the kit asserts Play shows what the core nav holds for a member).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/navigation.test.tsx"
+      },
+      {
+        "assertion": "No workspace provider fails open: an unknown exposure shows every gated item.",
+        "corePath": "frontend/lib/__tests__/nav-exposure.test.ts"
+      },
+      {
+        "assertion": "The basic plan's exposure hides Team and Analytics: the host's filter (the kit asserts Play shows exactly the core nav it is handed, its own pages added).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/navigation.test.tsx"
+      },
+      {
+        "assertion": "The Docs link's address and the menu's items for each edition are the host's Studio menu (the kit asserts the fake core nav's).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/navigation.test.tsx"
+      },
+      {
+        "assertion": "Recent asks getChatHistory for 8 on the wire, once as it first shows (the kit asserts Play's Recent asks once at useRecentChats' own limit).",
+        "corePath": "frontend/hooks/__tests__/use-recent-chats.test.tsx"
+      },
+      {
+        "assertion": "New chat opens a fresh draft beside the stored tabs in the chat session store before /chat (the kit asserts New chat reaches the host's useStartChat and the chat page).",
+        "corePath": "frontend/hooks/__tests__/use-start-chat.test.tsx"
+      },
+      {
+        "assertion": "/health is asked with its timeout's AbortSignal (P260-FX-21): a frozen backend is down once every ask has timed out.",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "The connection is down only once /health has failed on the first ask and every retry, and stays connected through a failed poll's retries: the host's useHealth, which the pill reads (the kit asserts the pill's words for each connection).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      }
+    ],
+    "rewritten": "Core's test rendered the sidebar over a mocked apiClient, getChatHistory, chat session store, workspace and role providers and an edition env stub; the kit renders it on the harness's fake host: the edition, role, path, conversations and health are host controls (setEdition, setRole, setPathname, setConversations, setHealth), the plan's exposure is a core nav the test hands over (setCoreNav), the open conversation is the one the fake chat has on screen (a ?chatId= link through useChatController), and New chat and the loads are read back (startedChats, navigations, conversationsAsked). The host's nav filters, the requests on the wire and the health's retries are core's (rehomed)."
+  },
+  {
+    "corePath": "frontend/components/play/__tests__/play-layout-phone.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 9,
+    "kitPath": "test/shell/play-layout-phone.test.tsx",
+    "kitIts": 3,
+    "rehomed": [
+      {
+        "assertion": "On a phone the chat layout shows the core's chat: the linked conversation is not opened, and the event lane and the theme's frame never start.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "On a phone MainLayout keeps the fallback chrome with the page in it from its first render: the theme's frame never renders, so it never polls /health or asks for Recent.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "On a phone /looks/style shows the host's note that it opens on a wider screen and Auto's 12 mascot slots are never drawn: the host's own page below the theme's width (the note itself is builtin code W-A8 deletes; no core test holds ThemeSlotPage's below-width choice: flagged).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-slot.test.tsx"
+      },
+      {
+        "assertion": "On a phone /looks shows the host's note too, and the look editor never mounts: the host's own page below the theme's width (same flag).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-slot.test.tsx"
+      },
+      {
+        "assertion": "On a phone the 404 is the plain page; the theme's 404 never mounts.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "On the server the chat layout sends neither the theme's chat nor the core's.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "On the server MainLayout, the Deliverables layout, the look pages and the 404 send nothing of the theme (the kit asserts the same of Play's Conversations).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "On the server a theme's registered page renders nothing while the width is not known.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-slot-server.test.tsx"
+      }
+    ],
+    "rewritten": "Core's test ran the host's real switches, layouts and UiStyleProvider in a phone-wide window over mocked chat, health and Recent hooks; the kit keeps the Play-owned part on the harness's fake host: Play's Conversations reads the width itself (host.setWidth), so on a phone it replaces to /chat without asking for the list or showing Auto, and on the server it renders nothing; the laptop case renders Play's frame and chat, read back through boardStreams, conversationsAsked and Recent. The host's chrome and pages below a theme's width are core's (rehomed)."
+  },
+  {
+    "corePath": "frontend/components/play/edges/__tests__/edges.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 28,
+    "kitPath": "test/edges/edges.test.tsx",
+    "kitIts": 21,
+    "rehomed": [
+      {
+        "assertion": "Under Classic or Studio the 404 is the plain page in Next's words with a link home, and no theme design: ThemeSlot draws the host's own page with no theme (app/not-found.tsx draws the plain 404 through it).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-slot.test.tsx"
+      },
+      {
+        "assertion": "Under a theme below 1024 px the 404 is the plain page; the theme's 404 never mounts (D7).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "Under a theme while the width is not known the 404 renders nothing, neither the theme's screen nor the plain page (M69).",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "Next's own 404 title for every style (metadata.title is NOT_FOUND_TITLE, M68): host code with no core test of its own once this test goes (flagged).",
+        "corePath": "frontend/app/not-found.tsx"
+      },
+      {
+        "assertion": "A recheck's retries finish before the next automatic recheck asks: the host's retries and their waits fit one poll period (the kit asserts Play's countdown holds while a check is in flight, M94; Play's ASLEEP_RECHECK_MS and the host's retry budget are no longer compared in one test).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "A frozen /health (it never answers) is down once every ask has timed out (M43).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "connectionOf: the connection stays down while a query that never answered is asked again, until the next answer (M89).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "The asleep screen shows only once /health has failed on the first ask and every retry, each ask carrying its AbortSignal (the kit asserts the swap once the host says down).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "One failed poll whose retry answers is never down, and a poll that fails on every retry after an answer is (the kit asserts the page stays while the host says connected or checking).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      },
+      {
+        "assertion": "Check again asks /health at once and checking holds through its retries; a frame mounted again over the cache while down opens asleep; one /health a period while it answers (the kit asserts Play's side of each on the host's health).",
+        "corePath": "frontend/components/theme-host/__tests__/asleep-slot.test.tsx"
+      }
+    ],
+    "rewritten": "Core's test drove Play's frame over a mocked apiClient, react-query and fake timers, so its cases counted /health asks and retries; the kit drives Play's frame (PlayFrameSlot) on the harness's fake host, whose health is set directly (host.setHealth: connected, checking or down, the API's host, an ask in flight) and whose check is counted (host.healthChecks); offline is host.setOnline instead of a navigator.onLine spy, and the 404 is Play's notFound@1 lazy slot instead of app/not-found.tsx. When /health is down, the host's 404 for each style and width and Next's 404 title are core's (rehomed)."
+  }
+]
