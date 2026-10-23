@@ -3,7 +3,8 @@
  * 101a0bf33f64fb4f89af81b4293415be60b661ac): outside a look runtime (the default here) useLook answers
  * `available: false`, listLooks is empty, exportLook is null and every action refuses in core's words. A test
  * mounts a look runtime with host.setLooks: the active look, the saved looks and their flags, and the theme's
- * own look check (by default: a look names its schema, id, name and sub as text). Its actions change that state
+ * own look check (by default: a look names its schema, id, name and sub as text), and the theme's default look
+ * when the active one is another (a user's saved look, read back on a reload). Its actions change that state
  * as core's runtime does, and its forced tone is the one useTone answers. useLookScope is the workspace and
  * the storage area's user, as core's look-kit/scope.ts:23 joins them; null while no workspace is loaded.
  */
@@ -17,8 +18,10 @@ type Sdk = typeof import('@automatos/theme-sdk')
 
 /** A look runtime as a test mounts it. */
 export interface LooksStandIn {
-  /** The active look, and the theme's default one: deleting the active look goes back to it. */
+  /** The active look; the theme's default one too, unless `defaultLook` names another. */
   readonly look: HostLook
+  /** The theme's default look, which deleting the active look goes back to; left out, `look`. */
+  readonly defaultLook?: HostLook
   readonly saved?: readonly HostLook[]
   readonly loaded?: boolean
   readonly persisted?: boolean
@@ -177,7 +180,7 @@ export const lookControls = Object.freeze({
   setLooks(next: LooksStandIn | null): void {
     const tone = next?.tone ?? null
     runtime.set(next === null ? null : Object.freeze({
-      defaultLook: next.look,
+      defaultLook: next.defaultLook ?? next.look,
       look: next.look,
       saved: Object.freeze([...(next.saved ?? NO_LOOKS)]),
       loaded: next.loaded ?? true,
