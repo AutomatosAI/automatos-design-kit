@@ -22,8 +22,11 @@ const TEST_DEV_DEPENDENCIES = [
   "@testing-library/user-event",
   "@testing-library/jest-dom",
 ];
+// PRD-261 B-03i, approved in QB-13b: ESLint, which a theme's lint runs the review's JS rules through
+// (packages/eslint-plugin).
+const LINT_DEV_DEPENDENCIES = ["eslint"];
 // Every outside package a manifest may name. A new one needs the maintainer's OK and its name here.
-const APPROVED_DEPENDENCIES = [...D2_DEV_DEPENDENCIES, "@types/node", ...TEST_DEV_DEPENDENCIES];
+const APPROVED_DEPENDENCIES = [...D2_DEV_DEPENDENCIES, "@types/node", ...TEST_DEV_DEPENDENCIES, ...LINT_DEV_DEPENDENCIES];
 const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const TARBALL_URL = /^https:\/\/\S+\.tgz$/;
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
