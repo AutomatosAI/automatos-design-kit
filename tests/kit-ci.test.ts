@@ -357,7 +357,7 @@ describe("kit workflow, harness job (PRD-261 B-02f)", () => {
   it("installs and builds as the kit job does, then installs Chromium and WebKit and runs the shots over Play", () => {
     expect(workflowRuns(harness)).toEqual([
       PIN_NPM,
-      workflowRuns(kit)[1],
+      workflowRuns(kit)[INSTALL_AT],
       "npm run build",
       "npx playwright install --with-deps chromium webkit",
       `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,

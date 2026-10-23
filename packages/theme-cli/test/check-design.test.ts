@@ -41,6 +41,8 @@ const CLI = fileURLToPath(new URL('../src/cli.ts', import.meta.url))
 const NODE_TIMEOUT_MS = 60_000
 /** What the test's resolve hook throws for a module under themes/play/. */
 const NO_PLAY = 'refused by the test: a module under themes/play/'
+/** The one module of Play's that `check` loads: look-kit's contrast.ts, for the mobile block's measure. */
+const LOOK_KIT_CONTRAST = 'src/lib/look-kit/contrast.ts'
 interface CorpusCase {
   readonly name: string
   readonly code: string | null
@@ -323,14 +325,15 @@ describe('pack never packs design/', () => {
   })
 })
 
-/** A Node --import module whose resolve hook refuses every module under `playUrl`. */
-function noPlayHook(playUrl: string): string {
+/** A Node --import module whose resolve hook refuses every module under `playUrl` but `allowed`. */
+function noPlayHook(playUrl: string, allowed: string): string {
   return [
     "import { registerHooks } from 'node:module'",
     `const PLAY = ${JSON.stringify(playUrl)}`,
+    `const ALLOWED = ${JSON.stringify(allowed)}`,
     'registerHooks({ resolve(specifier, context, nextResolve) {',
     '  const resolved = nextResolve(specifier, context)',
-    `  if (resolved.url.startsWith(PLAY)) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
+    `  if (resolved.url.startsWith(PLAY) && resolved.url !== ALLOWED) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
     '  return resolved',
     '} })',
     '',
@@ -353,9 +356,10 @@ describe('under plain Node, as the automatos-theme executable runs', () => {
     expect(failed.stdout).toContain(`    CONTRAST_UNDER_MIN ${DESIGN_CONTRAST_PATH}#pairs[0]: Preset "night": --hello-accent on --hello-bg`)
   }, NODE_TIMEOUT_MS)
 
-  it("check runs without Play's source; only check design loads it", () => {
+  it("check loads no Play module but look-kit's contrast.ts; only check design loads the rest of look-kit (hsl.ts)", () => {
     const hook = join(tempFolder(), 'no-play.mjs')
-    writeFileSync(hook, noPlayHook(`${pathToFileURL(realpathSync(PLAY)).href}/`))
+    const play = `${pathToFileURL(realpathSync(PLAY)).href}/`
+    writeFileSync(hook, noPlayHook(play, `${play}${LOOK_KIT_CONTRAST}`))
     const check = runNode(['--import', pathToFileURL(hook).href, CLI, 'check'])
     expect(check.stderr).not.toContain(NO_PLAY)
     expect([check.status, check.stderr.includes(CHECK_USAGE)]).toEqual([2, true])

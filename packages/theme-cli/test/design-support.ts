@@ -49,6 +49,19 @@ export const ACCENT_ON_BG = contrastFile([{ text: '--hello-accent', ground: '--h
 /** Files set (any JSON value, written as JSON) or, with null, dropped, over hello's looks with TABLE and PASSING. */
 export type Change = Readonly<Record<string, unknown>>
 
+/** A literal past the double's range, which JSON.parse reads as Infinity (the corpus has a 310-digit one). */
+const PAST_THE_DOUBLE = '1e400'
+const INFINITE_MARK = 'design-support: past the double'
+
+/**
+ * `value` as JSON text that JSON.parse reads back as `value`: JSON.stringify writes Infinity as null, so
+ * Infinity (a corpus number past the double's range, as JSON.parse read it) is written as such a literal.
+ */
+function jsonText(value: unknown): string {
+  const marked = JSON.stringify(value, (_key, item: unknown) => (item === Infinity ? INFINITE_MARK : item), 2)
+  return marked.replaceAll(JSON.stringify(INFINITE_MARK), PAST_THE_DOUBLE)
+}
+
 /** The line of `result` named `name`. */
 export function rowOf(result: DesignResult, name: DesignRow['name']): DesignRow {
   const found = result.rows.find((item) => item.name === name)
@@ -63,7 +76,7 @@ function designFiles(change: Change = {}): Map<string, string> {
     [PREPAINT_PATH, TABLE], [DESIGN_CONTRAST_PATH, contrastFile(PASSING)],
   ]
   const all = Object.entries(Object.fromEntries([...base, ...Object.entries(change)]))
-  return new Map(all.filter(([, value]) => value !== null).map(([path, value]) => [path, `${JSON.stringify(value, null, 2)}\n`]))
+  return new Map(all.filter(([, value]) => value !== null).map(([path, value]) => [path, `${jsonText(value)}\n`]))
 }
 
 /** The design files with `change`, as `check design` reads them from a folder. */
