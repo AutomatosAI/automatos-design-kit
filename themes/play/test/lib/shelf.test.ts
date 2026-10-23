@@ -11,7 +11,7 @@
  * Moved from core's lib/play/__tests__/shelf.test.ts as it was, but for its
  * imports: the Deliverable types and the feed's filters come from the theme
  * SDK (DELIVERABLE_FEED_FILTERS, a copy of the host's FEED_DEFAULT_FILTERS; the
- * stand-in test/sdk-stub.ts here), and the shelf from the theme's source.
+ * harness's fake SDK here), and the shelf from the theme's source.
  */
 import { type Deliverable, type DeliverableListResponse, DELIVERABLE_FEED_FILTERS } from '@automatos/theme-sdk'
 import { describe, expect, it } from 'vitest'

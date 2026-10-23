@@ -1,13 +1,19 @@
 # AGENTS.md: automatos-play, the Automatos design kit
 
 This repo is the design kit that builds installable theme packages (`.autotheme`) for Automatos, under
-PRD-261 (installable themes). `README.md` and `CLAUDE.md` still describe the earlier pilot and are rewritten
-later; where they differ from this file, this file wins.
+PRD-261 (installable themes). `README.md` and `CLAUDE.md` describe the same kit from a different angle
+(install and licensing, and Claude Code working notes); where they differ from this file, this file wins.
 
 ## The kit contract
 
 The package format belongs to the core repo (`AutomatosAI/automatos-ai`). When the kit and core disagree,
 core wins and the kit is fixed.
+
+- Editions: a built `.autotheme` installs and runs the same way on both the local edition and the hosted
+  edition — the format carries no edition switch. The theme CLI is narrower: `pack` and `submit` are
+  exercised, and recommended, against the local edition. Hosted CLI auth (a credential `submit` could use
+  against a hosted API without a browser sign-in) is parked for now, the maintainer's call, not a gap; until
+  it lands, `submit` against a hosted API will usually print the server's 401 or 403.
 
 - Format and checks: `orchestrator/services/themes/{package,manifest,contract,css_scope,digest}.py` and
   `frontend/lib/theme-host/package-manifest.ts`. `theme.json` uses schema `automatos-theme/v1`; only
@@ -22,7 +28,9 @@ core wins and the kit is fixed.
 
 ## Layout
 
-- `packages/*`: build tools (the vite preset, the theme CLI, the vendored SDK types).
+- `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli`
+  (`pack` and `submit`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations) and `theme-harness`
+  (the vitest preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in).
 - `themes/*`: theme packages. A theme bundles only its own `src/` (the preset's source guard refuses `node_modules`),
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until

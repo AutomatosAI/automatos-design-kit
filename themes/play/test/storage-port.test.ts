@@ -1,11 +1,15 @@
 // PRD-261 E3g: Play keeps its own state only through the SDK's storage area. Its source names no browser
 // storage (the Marketplace review's JS rules, scripts/review/js-rules.ts, read comments and strings too),
 // and Auto's pause, his hello and the seen Deliverables live under the keys, lifetimes and scopes the plan
-// names, on the storage stand-in (test/storage-port.ts, core's storage area ported), whose own rules are
-// held to core's here as well.
+// names, on the harness's storage area (packages/theme-harness, core's storage area ported), whose own rules
+// are held to core's here as well, through the fake host's controls (host.setStorage).
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import type { Deliverable, ThemeStateOptions, ThemeStateValue } from '@automatos/theme-sdk'
+import {
+  readThemeState, removeThemeState, subscribeThemeState, THEME_STATE_LIMITS, writeThemeState,
+  type Deliverable, type ThemeStateOptions, type ThemeStateValue,
+} from '@automatos/theme-sdk'
+import { host, STORAGE_DEFAULTS, THEME_STATE_KEY_PREFIX } from '@automatos/theme-harness/host'
 import { act, render, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createElement, useEffect } from 'react'
@@ -19,16 +23,6 @@ import { mascotPause, PAUSE_KEY, PAUSE_STATE, setMascotPaused, subscribeMascotPa
 import { claimFirstOpen, HELLO_KEY, HELLO_STATE } from '../src/lib/mascot/session.ts'
 import { markSeen, readSeen, SEEN_CAP, SEEN_KEY, SEEN_STATE, subscribeSeen, writeSeen } from '../src/lib/play/seen.ts'
 import { readSource, readThemeFile, SOURCE_ROOT, THEME_ROOT } from './source-files.ts'
-import {
-  changeInAnotherTab, readThemeState, removeThemeState, resetStorage, setStorage, STORAGE_DEFAULTS,
-  subscribeThemeState, THEME_STATE_KEY_PREFIX, THEME_STATE_LIMITS, writeThemeState,
-} from './storage-port.ts'
-
-// The stand-in has no media preferences: Auto may move here, so his clip shows whenever nothing stops it.
-vi.mock('@automatos/theme-sdk', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
-  useMediaPreferences: () => ({ reducedMotion: false }),
-}))
 
 /** The JS rules' four names (JS_LOCAL_STORAGE, JS_SESSION_STORAGE, JS_INDEXED_DB, JS_COOKIE), and a spelling of each. */
 const BROWSER_STORAGE = [/\blocalStorage\b/, /\bsessionStorage\b/, /\bindexedDB\b/, /\bdocument\s*\.\s*cookie\b/]
@@ -36,7 +30,7 @@ const BROWSER_STORAGE_SPELT = ['localStorage', 'sessionStorage', 'indexedDB', 'd
 /** What the move to the storage area dropped (PRD-261 E1): the look scope's move of old records, and the old keys. */
 const DROPPED = ['moveUnscopedOnce', 'UNSCOPED_SEEN_MOVED_KEY', 'automatos-play.', 'automatos-play:']
 const STORAGE_TYPES = join(THEME_ROOT, '..', '..', 'packages', 'theme-sdk', 'areas', 'storage.d.ts')
-/** core's key scheme for Play, the local edition's user and the stand-in's workspace (plan §2.2.1). */
+/** core's key scheme for Play, the local edition's user and the fake host's workspace (plan §2.2.1). */
 const BROWSER_ACCOUNT = 'automatos-theme-state:v1:b:automatos/play:u:local'
 const SESSION_ACCOUNT = 'automatos-theme-state:v1:s:automatos/play:u:local'
 const BROWSER_WORKSPACE = 'automatos-theme-state:v1:b:automatos/play:w:workspace-1:u:local'
@@ -89,7 +83,9 @@ function Greeter() {
 }
 
 beforeEach(() => {
-  resetStorage()
+  host.reset()
+  // Auto may move here (no OS reduced-motion setting), so his clip shows whenever nothing stops it.
+  host.setReducedMotion(false)
   vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined)
 })
 
@@ -123,7 +119,7 @@ describe("Play's own state", () => {
   })
 })
 
-describe("the storage stand-in keeps core's rules", () => {
+describe("the harness's storage area keeps core's rules", () => {
   it('has the caps the vendored declaration names', () => {
     const declared = readFileSync(STORAGE_TYPES, 'utf8')
     const block = /THEME_STATE_LIMITS: Readonly<\{([^}]*)\}>/.exec(declared)?.[1] ?? ''
@@ -134,7 +130,7 @@ describe("the storage stand-in keeps core's rules", () => {
   })
 
   it("reads not ready, refuses 'not-ready' and leaves the window's storage alone with no scope", () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const touched = [vi.spyOn(Storage.prototype, 'getItem'), vi.spyOn(Storage.prototype, 'setItem')]
     expect(readThemeState(PROBE)).toMatchObject({ ready: false, value: null })
     expect(writeThemeState(PROBE, true)).toMatchObject({ ok: false, reason: 'not-ready' })
@@ -149,7 +145,7 @@ describe("the storage stand-in keeps core's rules", () => {
     expect(blobData(window.localStorage, BROWSER_ACCOUNT)).toEqual({ [PROBE]: 1 })
     expect(blobData(window.sessionStorage, SESSION_ACCOUNT)).toEqual({ [PROBE]: 2 })
     expect(blobData(window.localStorage, BROWSER_WORKSPACE)).toEqual({ [PROBE]: 3 })
-    setStorage({ workspaceKey: null })
+    host.setStorage({ workspaceKey: null })
     expect(readThemeState(PROBE, { within: 'workspace' }).ready).toBe(false)
     expect(readThemeState(PROBE).value).toBe(1)
   })
@@ -178,7 +174,7 @@ describe("the storage stand-in keeps core's rules", () => {
     const now = vi.spyOn(Date, 'now')
     for (let user = 0; user <= THEME_STATE_LIMITS.blobsPerLifetime; user += 1) {
       now.mockReturnValue(1_000 + user)
-      setStorage({ userKey: `user-${user}` })
+      host.setStorage({ userKey: `user-${user}` })
       writeThemeState(PROBE, user)
     }
     const keys = themeStateKeys(window.localStorage)
@@ -199,7 +195,7 @@ describe("the storage stand-in keeps core's rules", () => {
 
   it('keeps state in memory while the storage is blocked, with one warning in all', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    setStorage({ persisted: false })
+    host.setStorage({ persisted: false })
     expect(writeThemeState(PROBE, true)).toEqual({ ok: true, persisted: false })
     expect(writeThemeState(PROBE, 'tab', { lifetime: 'session' })).toEqual({ ok: true, persisted: false })
     expect(readThemeState(PROBE)).toMatchObject({ ready: true, value: true, persisted: false })
@@ -211,7 +207,7 @@ describe("the storage stand-in keeps core's rules", () => {
     const [probe, other] = [vi.fn(), vi.fn()]
     subscribeThemeState(PROBE, probe)
     subscribeThemeState('other', other)
-    changeInAnotherTab(PROBE, true)
+    host.changeInAnotherTab(PROBE, true)
     expect([probe.mock.calls.length, other.mock.calls.length]).toEqual([1, 0])
     window.dispatchEvent(new StorageEvent('storage', { key: null }))
     expect([probe.mock.calls.length, other.mock.calls.length]).toEqual([2, 1])
@@ -228,9 +224,9 @@ describe("pause: 'mascot-paused', in this browser, for the account", () => {
   })
 
   it("hands useSyncExternalStore one string: 'unknown' until the host is ready", () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const seen = [mascotPause()]
-    setStorage({ ready: true })
+    host.setStorage({ ready: true })
     seen.push(mascotPause())
     setMascotPaused(true)
     seen.push(mascotPause())
@@ -238,11 +234,11 @@ describe("pause: 'mascot-paused', in this browser, for the account", () => {
   })
 
   it('keeps Auto a still with an inert toggle while the host is not ready', () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const { result } = renderHook(() => useMascotMotion())
     expect(result.current).toMatchObject({ ready: false, paused: false, still: true })
     act(() => result.current.togglePaused())
-    act(() => setStorage({ ready: true }))
+    act(() => host.setStorage({ ready: true }))
     expect(result.current).toMatchObject({ ready: true, paused: false, still: false })
     expect(window.localStorage.getItem(BROWSER_ACCOUNT)).toBeNull()
   })
@@ -257,19 +253,19 @@ describe("pause: 'mascot-paused', in this browser, for the account", () => {
   it("calls its subscriber on another tab's storage event", () => {
     const listener = vi.fn()
     subscribeMascotPause(listener)
-    changeInAnotherTab(PAUSE_KEY, true, PAUSE_STATE)
+    host.changeInAnotherTab(PAUSE_KEY, true, PAUSE_STATE)
     expect(listener).toHaveBeenCalledTimes(1)
     expect(mascotPause()).toBe('paused')
   })
 
   it('starts no clip before the flag is known, and stops it once paused (WCAG 2.2.2)', async () => {
     const user = userEvent.setup()
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const { container } = render(createElement(AutoMascot, { state: 'idle' }))
     expect(container.querySelector('video')).toBeNull()
     expect(container.firstElementChild).toHaveAttribute('data-motion', 'still')
     await user.click(screen.getByRole('button', { name: PAUSE_AUTO }))
-    act(() => setStorage({ ready: true }))
+    act(() => host.setStorage({ ready: true }))
     expect(mascotPause()).toBe('playing')
     expect(container.querySelector('video')).not.toBeNull()
     await user.click(screen.getByRole('button', { name: PAUSE_AUTO }))
@@ -280,9 +276,9 @@ describe("pause: 'mascot-paused', in this browser, for the account", () => {
 describe("hello: 'hello-played', for this tab's session, for the account", () => {
   it('is claimed exactly once per session once the host is ready, and never before', () => {
     expect([HELLO_KEY, HELLO_STATE]).toEqual(['hello-played', { lifetime: 'session', within: 'account' }])
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const claims = [claimFirstOpen(), claimFirstOpen()]
-    setStorage({ ready: true })
+    host.setStorage({ ready: true })
     claims.push(claimFirstOpen(), claimFirstOpen())
     expect(claims).toEqual([false, false, true, false])
     expect(blobData(window.sessionStorage, SESSION_ACCOUNT)).toEqual({ 'hello-played': true })
@@ -290,21 +286,21 @@ describe("hello: 'hello-played', for this tab's session, for the account", () =>
   })
 
   it("changes greet's identity when readiness flips, and not on a plain re-render", () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const { result, rerender } = renderHook(() => useAutoMascot())
     const notReady = result.current.greet
     expect(notReady()).toBe(false)
     rerender()
     expect(result.current.greet).toBe(notReady)
-    act(() => setStorage({ ready: true }))
+    act(() => host.setStorage({ ready: true }))
     expect(result.current.greet).not.toBe(notReady)
   })
 
   it("lets play-chat-view's effect say hello once, when the host turns ready, and not on a later open", () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const opened = render(createElement(Greeter))
     expect(screen.getByRole('status')).toHaveTextContent('idle')
-    act(() => setStorage({ ready: true }))
+    act(() => host.setStorage({ ready: true }))
     expect(screen.getByRole('status')).toHaveTextContent('hello')
     opened.unmount()
     render(createElement(Greeter))
@@ -319,9 +315,9 @@ describe("seen: 'seen-deliverables', in this browser, for the user in this works
     expect(writeSeen(record)).toBe(true)
     expect(blobData(window.localStorage, BROWSER_WORKSPACE)).toEqual({ 'seen-deliverables': record })
     expect(readSeen()).toEqual({ ready: true, record })
-    setStorage({ workspaceKey: null })
+    host.setStorage({ workspaceKey: null })
     expect(readSeen()).toEqual({ ready: false, record: null })
-    setStorage({ workspaceKey: 'workspace-2' })
+    host.setStorage({ workspaceKey: 'workspace-2' })
     expect(readSeen()).toEqual({ ready: true, record: null })
   })
 
@@ -362,11 +358,11 @@ describe("seen: 'seen-deliverables', in this browser, for the user in this works
   })
 
   it('reads and remembers nothing until the workspace is known', () => {
-    setStorage({ workspaceKey: null })
+    host.setStorage({ workspaceKey: null })
     const celebrate = vi.fn()
     renderHook(() => useCelebrateNew(BOTH, celebrate))
     expect(themeStateKeys(window.localStorage)).toEqual([])
-    act(() => setStorage({ workspaceKey: STORAGE_DEFAULTS.workspaceKey }))
+    act(() => host.setStorage({ workspaceKey: STORAGE_DEFAULTS.workspaceKey }))
     expect(readSeen().record).toEqual({ ids: ['a', 'b'], newest: SECOND.created_at })
     expect(celebrate).not.toHaveBeenCalled()
   })

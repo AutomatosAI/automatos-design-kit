@@ -1,0 +1,14 @@
+{
+  "id": 422,
+  "number": "#0422",
+  "title": "Compare laptops",
+  "status": "in_progress",
+  "assigned_agent": "Scout",
+  "runtime": "auto",
+  "last_tool": "platform_search_documents",
+  "files_touched": 2,
+  "exit_reason": null,
+  "denials": 0,
+  "started_at": "2026-10-14T09:00:00+00:00",
+  "completed_at": null
+}

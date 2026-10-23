@@ -1,13 +1,13 @@
 // PRD-260 T-007a: Play's Deliverables shelf over the SDK's useDeliverables (PRD-261 A-14b). Moved from
 // core's components/play/deliverables/__tests__/play-shelf.test.tsx and rewritten for the kit (PB-10):
-// the SDK is the stand-in (test/sdk-stub.ts), whose useDeliverables answers what a test sets, as
+// the SDK is the harness's fake (packages/theme-harness), whose useDeliverables answers what a test sets, as
 // react-query would, and the shelf's seen record is kept in the SDK's storage area (lib/play/seen.ts).
 // Every assertion of what Play renders is kept: the cards (title, type, date, the newest in the
 // spotlight), the chips setting artifact_type, Load more asking for the next page, a card's link
 // (?deliverable=<id>), the pictures through the host's authenticated path, the loading, empty and error
 // states (a list answer of success: false included), Auto's caption, focus after the last Load more
 // (P260-FX-22, M20), and the page's other sections. The kit adds the shelf switch (PlayShelf, K8, which
-// core asserts in play-deliverable.test.tsx) on the stand-in's query string. What core's real hook did
+// core asserts in play-deliverable.test.tsx) on the fake host's query string. What core's real hook did
 // under it (the offset on the wire, a success: false page thrown and its data kept, the re-ask every
 // SHELF_REFRESH_MS) and what the host does with a card's link or Start a chat are core's to prove, and the
 // ledger names those tests (test/moved-from-core/deliverables.json). Roles, attributes and text only (CSS
@@ -21,9 +21,7 @@ import { BAD_LINK, FILTER_GROUP_LABEL, PlayShelf, SECTIONS_LABEL, SHELF_TITLE, S
 import { MORE_FAILED, SHELF_FAILED } from '../../src/components/play/deliverables/shelf-body.tsx'
 import { readSeen, writeSeen } from '../../src/lib/play/seen.ts'
 import { SHELF_REFRESH_MS } from '../../src/lib/play/shelf.ts'
-import {
-  deliverablesAsked, detailsAsked, resetStub, setBlobUrls, setDetail, setHealth, setSearchParams, setWorkspace, startedChats,
-} from '../sdk-stub.ts'
+import { host } from '@automatos/theme-harness/host'
 import { answer, at, numbered, page, PAGE_SIZE, ROWS } from '../support/deliverables.ts'
 
 // Auto as his state and caption only, as core's test has him: data-state, and the caption as text.
@@ -51,7 +49,7 @@ function cards() {
 }
 
 function lastAsk() {
-  const asks = deliverablesAsked()
+  const asks = host.deliverablesAsked()
   return asks[asks.length - 1]
 }
 
@@ -71,7 +69,7 @@ function twoPages() {
 }
 
 beforeEach(() => {
-  resetStub()
+  host.reset()
 })
 
 afterEach(() => {
@@ -96,7 +94,7 @@ describe('ShelfScreen — the cards', () => {
     expect(poster).toHaveTextContent('Mon')
     expect(slides).toHaveTextContent('Slides')
     expect(slides).toHaveTextContent('4 Oct')
-    expect(deliverablesAsked().map((ask) => ask.filters)).toContainEqual({ ...DELIVERABLE_FEED_FILTERS, artifact_type: null })
+    expect(host.deliverablesAsked().map((ask) => ask.filters)).toContainEqual({ ...DELIVERABLE_FEED_FILTERS, artifact_type: null })
     expect(lastFilters()?.source_type_exclude).toEqual(['heartbeat'])
   })
 
@@ -113,7 +111,7 @@ describe('ShelfScreen — the cards', () => {
 
   it("loads each picture through the core's authenticated path: an image's preview, else the thumbnail", () => {
     const blobUrl = vi.fn((url: string | undefined) => ({ src: url ? `blob:core/${url.split('/').pop()}` : null, error: null }))
-    setBlobUrls(blobUrl)
+    host.setBlobUrls(blobUrl)
     answer({ data: { pages: [page(ROWS)] } })
     renderShelf()
 
@@ -292,7 +290,7 @@ describe('ShelfScreen — loading, empty and error', () => {
     expect(screen.getByText(/Nothing on your shelf yet/)).toBeInTheDocument()
     expect(screen.queryByRole('alert')).toBeNull()
     await user.click(screen.getByRole('button', { name: 'Start a chat' }))
-    expect(startedChats()).toBe(1)
+    expect(host.startedChats()).toBe(1)
   })
 
   it('shows the error state when the list answers success: false, never the empty state or the backend text', async () => {
@@ -347,7 +345,7 @@ describe('ShelfScreen — loading, empty and error', () => {
 
   it('lets Auto sleep while the backend does not answer', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    setHealth('down')
+    host.setHealth('down')
     answer({ isError: true })
     renderShelf()
     expect(auto()).toHaveAttribute('data-state', 'sleeping')
@@ -366,7 +364,7 @@ describe("ShelfScreen — the page's other sections", () => {
       ['Explorer', '/deliverables/explorer'],
     ])
     cleanup()
-    setWorkspace({ socialsAvailable: true })
+    host.setWorkspace({ socialsAvailable: true })
     renderShelf()
     expect(screen.getByRole('link', { name: 'Socials' })).toHaveAttribute('href', '/deliverables?tab=socials')
   })
@@ -379,21 +377,21 @@ describe('PlayShelf — the ?deliverable= switch (K8)', () => {
       data: { success: true, deliverable: { ...laptop, content: 'The short answer' } },
       isLoading: false, isError: false, error: null, refetch: vi.fn(async () => undefined),
     }
-    setDetail(found)
+    host.setDetail(found)
     answer({ data: { pages: [page(ROWS)] } })
-    setSearchParams(`${DELIVERABLE_PARAM}=${laptop.id}`)
+    host.setSearchParams(`${DELIVERABLE_PARAM}=${laptop.id}`)
     render(<PlayShelf />)
     expect(screen.getByRole('heading', { level: 1, name: 'Laptop shortlist' })).toBeInTheDocument()
     expect(screen.getByText('The short answer')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: SHELF_TITLE })).toBeNull()
-    expect(detailsAsked()).toContainEqual({ id: laptop.id, includeContent: true })
+    expect(host.detailsAsked()).toContainEqual({ id: laptop.id, includeContent: true })
 
     cleanup()
-    const asked = detailsAsked().length
-    setSearchParams(`${DELIVERABLE_PARAM}=${encodeURIComponent('../../admin?x=1')}`)
+    const asked = host.detailsAsked().length
+    host.setSearchParams(`${DELIVERABLE_PARAM}=${encodeURIComponent('../../admin?x=1')}`)
     render(<PlayShelf />)
     expect(screen.getByRole('heading', { level: 1, name: SHELF_TITLE })).toBeInTheDocument()
     expect(screen.getByText(BAD_LINK)).toBeInTheDocument()
-    expect(detailsAsked()).toHaveLength(asked)
+    expect(host.detailsAsked()).toHaveLength(asked)
   })
 })

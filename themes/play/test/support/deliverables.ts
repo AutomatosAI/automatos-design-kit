@@ -1,10 +1,10 @@
 // The shelf's Deliverables, moved with core's components/play/deliverables/__tests__/play-shelf.test.tsx
 // (its rows, pages and dates; fake data only), and react-query's answer as the SDK's useDeliverables hands
-// it, set on the stand-in (test/sdk-stub.ts setDeliverables).
+// it, set on the harness's fake host (host.setDeliverables).
 import type { Deliverable, DeliverableListResponse } from '@automatos/theme-sdk'
 import { act } from '@testing-library/react'
 import { vi } from 'vitest'
-import { setDeliverables } from '../sdk-stub.ts'
+import { host } from '@automatos/theme-harness/host'
 
 /** The host's page of the list (hooks/use-deliverables-api.ts PAGE_SIZE). */
 export const PAGE_SIZE = 24
@@ -93,7 +93,7 @@ export function answer({ data, isError = false, error = null, hasNextPage = fals
     refetch: vi.fn(async (): Promise<unknown> => ({})),
   }
   act(() => {
-    setDeliverables(result)
+    host.setDeliverables(result)
   })
   return result
 }
