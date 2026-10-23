@@ -11,6 +11,7 @@
  * reads the table as aliases (a bundler's import map), so the theme's src/entry.ts gets the harness's instances.
  */
 import { realpathSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { SHARED_MODULES } from '@automatos/vite-preset'
 
@@ -20,7 +21,8 @@ export interface HarnessImportMap {
 }
 
 /** The fake SDK by its real path, so the app's own imports of it and the theme's are one module. */
-export const HARNESS_SDK_ENTRY = realpathSync(fileURLToPath(new URL('../sdk/index.ts', import.meta.url)))
+// From the string import.meta.url: under jsdom, `new URL()` is jsdom's class, which fileURLToPath refuses.
+export const HARNESS_SDK_ENTRY = realpathSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sdk/index.ts'))
 
 const SDK_SPECIFIER = '@automatos/theme-sdk'
 

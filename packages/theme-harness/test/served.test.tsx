@@ -6,6 +6,7 @@
 import { THEME_TONES } from '@automatos/theme-cli/manifest'
 import { render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { markRefused, MANIFEST_REASON, Refused } from '../app/refused.tsx'
@@ -14,7 +15,7 @@ import { readServedTheme, type ServedFiles } from '../src/host/register.ts'
 import { EMPTY_SERVED, HARNESS_GLOBAL } from '../src/host/router.ts'
 
 const PLAY_MANIFEST = JSON.parse(
-  readFileSync(fileURLToPath(new URL('../../../themes/play/theme.json', import.meta.url)), 'utf8'),
+  readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../../../themes/play/theme.json'), 'utf8'),
 ) as Readonly<Record<string, unknown>>
 const DUSK = Object.freeze({ schema: 'sample-look/v1', id: 'dusk', name: 'Dusk', sub: 'Dark' })
 const ZED = Object.freeze({ ...DUSK, id: 'zed', name: 'Zed' })

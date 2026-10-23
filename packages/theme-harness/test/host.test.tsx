@@ -10,6 +10,7 @@ import { SHARED_MODULES } from '@automatos/vite-preset'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { readFileSync } from 'node:fs'
+import { dirname, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -22,7 +23,8 @@ import {
   DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, shotGroups, viewOfPath, viewSlug, type HarnessSettings,
 } from '../src/host/router.ts'
 
-const PLAY_DIR = fileURLToPath(new URL('../../../themes/play/', import.meta.url))
+// From the string import.meta.url: under jsdom, `new URL()` is jsdom's class, which fileURLToPath refuses.
+const PLAY_DIR = `${resolve(dirname(fileURLToPath(import.meta.url)), '../../../themes/play')}${sep}`
 const PLAY_ENTRY = `${PLAY_DIR}src/entry.ts`
 const NONE = Object.freeze({ slots: [], pages: [], routes: [] })
 /** Play's entry pulls its frame's modules through vitest's transform on first import: more than the 5 s default. */
