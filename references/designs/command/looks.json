@@ -1,0 +1,47 @@
+{
+  "$schema": "automatos-interface-look/v0",
+  "interface": "command",
+  "default": "arc",
+  "options": {
+    "accent": {
+      "arc":    { "hex": "#3FE0FF", "ink": "#021116" },
+      "forge":  { "hex": "#FF8A3D", "ink": "#1A0A02" },
+      "ghost":  { "hex": "#E3ECF0", "ink": "#06090B" },
+      "nova":   { "hex": "#FF5CDB", "ink": "#1F0219" },
+      "signal": { "hex": "#5CFF9A", "ink": "#021208" },
+      "gold":   { "hex": "#FFC94A", "ink": "#1C1400" }
+    },
+    "ground": {
+      "void":   { "bg": "#030507" },
+      "carbon": { "bg": "#0B0B0D" },
+      "navy":   { "bg": "#050B18" },
+      "ember":  { "bg": "#0C0806" }
+    },
+    "font": {
+      "raj":    { "family": "Rajdhani", "weight": 700, "titlePx": 18, "labelPx": 13 },
+      "chakra": { "family": "Chakra Petch", "weight": 600, "titlePx": 15, "labelPx": 12 },
+      "mono":   { "family": "Geist Mono", "weight": 500, "titlePx": 14, "labelPx": 11 }
+    },
+    "grid":   { "min": 0, "max": 30, "unit": "alpha/300 of accent" },
+    "glow":   { "min": 0, "max": 40, "unit": "% alpha of accent" },
+    "scan":   { "type": "boolean" },
+    "auto":   { "type": "boolean", "meaning": "show the Auto mascot inside the voice core" },
+    "motion": { "type": "boolean", "meaning": "false = all loops stop; forced false under prefers-reduced-motion" }
+  },
+  "fixed": {
+    "text": "#E6F1F5",
+    "text2": "#93A6AF",
+    "line": "rgba(230,241,245,.10)",
+    "track": "rgba(230,241,245,.08)",
+    "error": "#FF6B6B",
+    "bodyFont": "Geist",
+    "monoFont": "Geist Mono"
+  },
+  "presets": [
+    { "id": "arc",    "name": "ARC",    "ground": "void",   "accent": "arc",    "font": "raj",    "grid": 14, "glow": 22, "scan": true,  "auto": true,  "motion": true },
+    { "id": "forge",  "name": "FORGE",  "ground": "ember",  "accent": "forge",  "font": "chakra", "grid": 8,  "glow": 26, "scan": false, "auto": true,  "motion": true },
+    { "id": "ghost",  "name": "GHOST",  "ground": "carbon", "accent": "ghost",  "font": "mono",   "grid": 6,  "glow": 8,  "scan": false, "auto": false, "motion": true },
+    { "id": "nova",   "name": "NOVA",   "ground": "navy",   "accent": "nova",   "font": "chakra", "grid": 16, "glow": 30, "scan": true,  "auto": true,  "motion": true },
+    { "id": "signal", "name": "SIGNAL", "ground": "void",   "accent": "signal", "font": "mono",   "grid": 22, "glow": 18, "scan": true,  "auto": false, "motion": true }
+  ]
+}

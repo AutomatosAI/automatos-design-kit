@@ -1,0 +1,15 @@
+{
+  "schema": "automatos-interface-look/v1",
+  "interface": "command",
+  "id": "ghost",
+  "name": "GHOST",
+  "sub": "",
+  "ground": "carbon",
+  "accent": "ghost",
+  "font": "mono",
+  "grid": 6,
+  "glow": 8,
+  "scan": "off",
+  "auto": "off",
+  "motion": "on"
+}
