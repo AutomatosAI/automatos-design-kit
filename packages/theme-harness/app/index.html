@@ -1,9 +1,83 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="harness-font-geist-sans harness-font-geist-mono harness-font-newsreader">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Automatos theme harness</title>
+    <!--
+      The host's fonts, as core supplies them to every page: the faces core's frontend/app/core-fonts.ts declares
+      (next/font/local), from core's own files in fonts/core/ (its README names the commit and each file's sha256),
+      and one class on <html> per variable, as core's layout puts them there. The build emits each file under
+      harness/ and points its url() there, on the harness's origin. The sheet stays in this page, apart from the
+      theme's stylesheet, so the theme's wrap and renames never reach it.
+    -->
+    <style>
+      @font-face {
+        font-family: 'harness-geist-sans';
+        src: url('./fonts/core/geist-latin-wght-normal.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 100 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'harness-geist-mono';
+        src: url('./fonts/core/geist-mono-latin-wght-normal.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 100 900;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-400-normal.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-400-italic.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 400;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-500-normal.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 500;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-500-italic.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 500;
+        font-style: italic;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-600-normal.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 600;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: 'harness-newsreader';
+        src: url('./fonts/core/newsreader-latin-600-italic.woff2') format('woff2');
+        font-display: swap;
+        font-weight: 600;
+        font-style: italic;
+      }
+      .harness-font-geist-sans {
+        --font-geist-sans: 'harness-geist-sans';
+      }
+      .harness-font-geist-mono {
+        --font-geist-mono: 'harness-geist-mono';
+      }
+      .harness-font-newsreader {
+        --font-newsreader: 'harness-newsreader';
+      }
+    </style>
   </head>
   <body style="margin: 0">
     <div id="harness"></div>

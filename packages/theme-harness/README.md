@@ -132,6 +132,12 @@ workspace does (`tests/workspace-deps.test.ts`).
   while drawing, the host's own page stands alone, the latter with core's notice.
 - **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
   look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+- **The host's fonts** (`app/fonts/core`, core's own files; its README names core's commit and pins each file's
+  sha256): Geist, Geist Mono and Newsreader, which core supplies to every page. The page (`app/index.html`) declares
+  their `@font-face` rules with the weights and styles core declares, and binds `--font-geist-sans`,
+  `--font-geist-mono` and `--font-newsreader` on `<html>` with one class each, as core's layout does, so a theme's
+  `var(--font-geist-sans)` text draws in Geist, not in the browser's default face. The rules stay in the page, apart
+  from the theme's stylesheet and its wrap; the build emits the files under `harness/`.
 - **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the
   theme's editor sets paints too), the width (the window's, 1440, 1024, or just below `minWidth`), the tone (off
   while the theme or its look forces one), reduced motion and forced colours. A page cannot turn the browser's media

@@ -20,6 +20,10 @@
  *   with more than that one feature is left as it is. Vite's dev server writes no file, so draw from the build.
  * - The folder's assets/ is copied to the output's assets/, so the stylesheet's ../assets/ URLs (left as written,
  *   as in the package) and the SDK's assetUrl find the files there; the app's own files go under harness/.
+ * - The host's fonts (app/fonts/core, core's own files) are the page's: app/index.html's <style> declares their
+ *   @font-face rules and binds core's --font-* variables on <html>, as core's layout does. Vite keeps a page's
+ *   <style> in the page, out of the one stylesheet, so the theme's wrap never reaches it, and emits each url()'s
+ *   file under harness/, on the harness's origin.
  */
 import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
