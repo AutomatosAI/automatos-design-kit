@@ -1,5 +1,7 @@
 /**
  * Where `submit` sends the package and as whom, read from the environment only (never a file).
+ * `install` reads the same credentials (readCredentials) and checks its own address with the same
+ * rules (parseUrl, isLoopback, routeUrl).
  *
  * - AUTOMATOS_API_URL: the Automatos API's address (`https://...`; plain `http://` only to this
  *   machine, or when no token is sent). A path prefix is kept; no user, password, query or fragment.
@@ -25,14 +27,22 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 
 export type Environment = Readonly<Record<string, string | undefined>>
 
-export interface SubmitTarget {
+/** As whom a request is sent: the token and the workspace, each optional. */
+export interface Credentials {
+  readonly token: string | null
+  readonly workspaceId: string | null
+}
+
+export interface SubmitTarget extends Credentials {
   /** The submit route's full URL. */
   readonly endpoint: string
   /** scheme://host[:port] of the API, the only part of the URL ever printed. */
   readonly origin: string
-  readonly token: string | null
-  readonly workspaceId: string | null
 }
+
+export type CredentialsResult =
+  | { readonly ok: true; readonly credentials: Credentials }
+  | { readonly ok: false; readonly message: string }
 
 export type TargetResult =
   | { readonly ok: true; readonly target: SubmitTarget }
@@ -47,12 +57,23 @@ function present(value: string | undefined): string | null {
   return trimmed === '' ? null : trimmed
 }
 
-function parseUrl(raw: string): URL | null {
+/** `raw` as a URL, or null when it isn't one. */
+export function parseUrl(raw: string): URL | null {
   try {
     return new URL(raw)
   } catch {
     return null
   }
+}
+
+/** True when `url` names this machine (localhost, 127.0.0.1 or [::1]), where plain http:// stays on it. */
+export function isLoopback(url: URL): boolean {
+  return LOOPBACK_HOSTS.has(url.hostname)
+}
+
+/** True when `value` is a UUID, the form of a workspace, install or package id. */
+export function isUuid(value: unknown): value is string {
+  return typeof value === 'string' && UUID_PATTERN.test(value)
 }
 
 /** Why the API address can't be used, or null when it can. */
@@ -62,7 +83,7 @@ function urlProblem(url: URL, sendsToken: boolean): string | null {
     return `${ENV_URL} must not carry a user or password; put the token in ${ENV_TOKEN}.`
   }
   if (url.search !== '' || url.hash !== '') return `${ENV_URL} must be the API's address, with no query or fragment.`
-  if (url.protocol === 'http:' && sendsToken && !LOOPBACK_HOSTS.has(url.hostname)) {
+  if (url.protocol === 'http:' && sendsToken && !isLoopback(url)) {
     return `${ENV_URL} is plain http:// to another machine, which would send ${ENV_TOKEN} unencrypted; use https://.`
   }
   return null
@@ -74,13 +95,27 @@ function tokenProblem(token: string | null): string | null {
 }
 
 function workspaceProblem(workspaceId: string | null): string | null {
-  if (workspaceId === null || UUID_PATTERN.test(workspaceId)) return null
+  if (workspaceId === null || isUuid(workspaceId)) return null
   return `${ENV_WORKSPACE} must be a workspace id (a UUID).`
+}
+
+/** `route` under the address `url`, keeping any path prefix (`route` '' gives the address itself). */
+export function routeUrl(url: URL, route: string): string {
+  return `${url.origin}${url.pathname.replace(/\/+$/, '')}${route}`
 }
 
 /** The submit route's URL under the API address, keeping any path prefix. */
 export function submitEndpoint(url: URL): string {
-  return `${url.origin}${url.pathname.replace(/\/+$/, '')}${SUBMIT_ROUTE}`
+  return routeUrl(url, SUBMIT_ROUTE)
+}
+
+/** The token and workspace from `env`; a refusal names the variable to fix and never repeats its value. */
+export function readCredentials(env: Environment): CredentialsResult {
+  const token = present(env[ENV_TOKEN])
+  const workspaceId = present(env[ENV_WORKSPACE])
+  const problem = tokenProblem(token) ?? workspaceProblem(workspaceId)
+  if (problem !== null) return { ok: false, message: problem }
+  return { ok: true, credentials: { token, workspaceId } }
 }
 
 /** Reads the target from `env`; a refusal names the variable to fix and never repeats its value. */
@@ -97,7 +132,7 @@ export function readTarget(env: Environment): TargetResult {
 }
 
 /** The request's headers: JSON answers, the token as a bearer credential, the workspace when named. */
-export function requestHeaders(target: SubmitTarget): Record<string, string> {
+export function requestHeaders(target: Credentials): Record<string, string> {
   return {
     Accept: 'application/json',
     ...(target.token === null ? {} : { Authorization: `Bearer ${target.token}` }),

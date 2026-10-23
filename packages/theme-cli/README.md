@@ -63,3 +63,46 @@ and what it asks for.
 
 Exit code 0 when the server took the submission (201, or 200 when these exact bytes were submitted already), 1 when
 it refused it or gave no answer, 2 for a usage or environment problem (nothing is sent).
+
+## install
+
+`automatos-theme install <file.autotheme> --to <url> [--choose]` installs a package privately in your workspace on
+the local edition, the way Settings, Appearance, Themes does by hand, so you can try a theme without the web UI. It
+makes core's three calls, each only once the one before it succeeded:
+
+1. `POST /api/themes/import`, the package as the multipart field `file`: 201 with the package and its install, or
+   200 when these exact bytes are in the workspace already. The server checks the package and runs its automated
+   review stage; the package stays private to the workspace and unreviewed.
+2. `POST /api/themes/installs/{installId}/opt-in` with `{packageId}`: you opt in to the unreviewed code, and the
+   command prints the server's opt-in wording.
+3. With `--choose` only, `PUT /api/themes/choice` with `{choice: installId}`: the theme becomes yours in that
+   workspace. Without it, choose the theme in Settings, Appearance, Themes.
+
+`--to` takes either address of the local edition: the web app's URL (`install --to http://localhost:3000`) or the
+API's (`http://localhost:8000`). The command asks `GET <to>/health` first; when that is the API's health answer,
+`<to>` is the API. Otherwise it reads `GET <to>/automatos-host.json`, the web app's `{schema: 1, apiUrl}`, and sends to
+that `apiUrl`. Neither question carries a credential or follows a redirect. When neither answers, it prints one
+sentence naming both forms, sends nothing and exits 2. Every address must be `http://` or `https://` with no user,
+password, query or fragment, and plain `http://` only to this machine (`localhost`, `127.0.0.1`, `[::1]`); a host
+file whose `apiUrl` breaks that is refused.
+
+As whom comes from the environment, as for `submit`: `AUTOMATOS_API_TOKEN` (optional; the local edition needs none;
+sent only to the API, never printed) and `AUTOMATOS_WORKSPACE_ID` (optional). The import needs a workspace admin, the
+workspace's "who may install" setting, private uploads switched on, and step-up, which the local edition passes.
+
+Each refusal is printed in the server's words with its status and code: private uploads off or a reserved publisher
+(403), a version clash (409), a package over the cap (413, `PACKAGE_TOO_LARGE`), step-up (403, `step_up_required`).
+
+Exit code 0 when the package is installed and opted in to (and chosen, with `--choose`); 1 when the server refused a
+step, gave no answer, or stored the package without installing it (a newer version is stored as an update to the one
+installed, which a workspace admin applies in Settings); 2 for a usage or environment problem, a package file that
+can't be read, or a `--to` that names no Automatos API (nothing is sent).
+
+Limits:
+
+- The local edition only. Hosted CLI auth, a credential the command could use against a hosted API without a browser
+  sign-in, is parked for now; that is the maintainer's call, not a gap. Against a hosted API the command will usually
+  print the server's 401 or 403.
+- Core's web app serves `/automatos-host.json` only once PRD-261 B-03j has shipped, which is not yet on core's `main`.
+  Against a core without it, `--to` with the web app's URL exits 2 with the sentence above; give the API's URL
+  (`--to http://localhost:8000`) instead.
