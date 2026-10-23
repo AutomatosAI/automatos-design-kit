@@ -14,6 +14,8 @@ import { entryImporting, helloFolder, ranCheck, removeTempFolders, tempFolder } 
 const ORDER = ['sizes', 'cssScope', 'looks', 'uses', 'clonedFrom', 'previews', 'jsRules', 'contrast', 'llm']
 const WITH_BUILD = ['sizes', 'cssScope', 'looks', 'uses', 'clonedFrom', 'previews', 'jsRules', 'reproducibleBuild', 'contrast', 'llm']
 const LINE = /^(\S+)\s+(pass|warning|error|not_measured)\s+\S/
+/** A theme with a `mobile` block admits no host below 1.1.0. */
+const MOBILE_ENGINES = { automatos: '^1.1.0', sdk: '^1.0.0' }
 
 afterEach(removeTempFolders)
 
@@ -65,6 +67,24 @@ describe('the lines', () => {
     const at = ran.out.indexOf(lineOf(ran.out, 'uses'))
     expect(ran.out[at + 1]).toMatch(/^ {4}The theme imports names this host's SDK doesn't export, so its code can't load: stealSession\.$/)
     expect(ran.out.at(-1)).toMatch(/^verdict: blocked \(/)
+  })
+
+  it('without a mobile block, the contrast line says there is nothing to measure and why', async () => {
+    const ran = await ranCheck(['check', helloFolder()])
+    expect(lineOf(ran.out, 'contrast')).toMatch(/not_measured\s+Not measured: .+\. The review measures the colour pairs of a "mobile" block, and theme\.json has none\.$/)
+  })
+
+  it('with a mobile block, the contrast line gives the outcome, each failing pair and each scheme measured', async () => {
+    const mobile = { tokens: { light: { '--background': '0 0% 100%', '--foreground': '0 0% 58%' } } }
+    const ran = await ranCheck(['check', helloFolder({ manifest: { engines: MOBILE_ENGINES, mobile } })])
+    expect(ran.code).toBe(1)
+    const at = ran.out.indexOf(lineOf(ran.out, 'contrast'))
+    expect(ran.out[at]).toMatch(/^contrast\s+error\s+1 measured colour pair\(s\) of the mobile block are under WCAG AA /)
+    expect(ran.out.slice(at + 1, at + 3)).toEqual([
+      '    mobile.tokens.light: --foreground on --background is 3.03:1, under the AA minimum of 4.5:1 for text.',
+      '    mobile.tokens.light: fail, 1 of 10 pair(s) measured',
+    ])
+    expect(ran.out.at(-1)).toBe('verdict: blocked (6 pass, 0 warning, 1 error, 2 not_measured)')
   })
 
   it('exits 0 on a warning', async () => {

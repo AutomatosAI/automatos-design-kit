@@ -81,6 +81,12 @@ the preset puts all 27 into `dist/theme.css`, every rule under `html.play` (D2-c
   the byte signatures and the names.
 - **The wordmark** is text ("Automatos Play", `components/play/edges/wordmark.tsx` and the sidebar), so there is no
   `assets/brand/`.
+- **The previews.** `assets/previews/` holds the seven images the Marketplace listing shows, screenshots of Play at
+  1440×900 on demo data: one per preset (`ember.png`, `obsidian.png`, `aurora.png`, `workshop.png`, `daylight.png`)
+  and two more of Ember (`ember-deliverables.png`, `ember-looks.png`). `theme.json`'s `previews` lists them, and the
+  listing shows each under its preset by name: `<preset>.png`, or `<preset>-<screen>.png` for another screen in that
+  look (the longest matching preset id wins). Each is a PNG under the 512 KB image cap; `test/previews.test.ts` holds
+  the list to the folder, each name to a preset and the bytes to the cap.
 
 ## Until A-19: a Play change goes into both repositories
 
