@@ -102,3 +102,32 @@ The test toolchain (vitest, jsdom, React, React DOM and Testing Library's `react
 `jest-dom`) is pinned exactly in the kit's root `package.json`, so every workspace runs on the same versions, and
 this package names none of its own. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
 every outside package on the kit's approved list.
+
+## The browser harness
+
+`app/` is a mock host page that draws a theme in a browser, with no Automatos running: a local design tool, and what
+`automatos-theme shots` photographs. `vite.harness.config.ts` builds it for one theme folder
+(`AUTOMATOS_HARNESS_THEME`, default `themes/play`) and serves the build on `http://127.0.0.1:4318` (`vite preview`).
+
+- **The theme's own entry.** The build bundles the folder's `src/entry.ts` with the page. Its bare imports go through
+  the harness's import map (`src/host/import-map.ts`), the same specifiers core's import map serves: React from the
+  kit's install, `@automatos/theme-sdk` to the fake SDK above. Its CSS is wrapped under `html.<htmlClass>` as the
+  vite-preset wraps the package's, and the folder's `assets/` is served where the stylesheet's `../assets/` URLs and
+  the SDK's `assetUrl` find it.
+- **Core's load.** `theme.json` is checked with core's own validator, then the entry's `register(host)` runs as core's
+  loader runs it (`src/host/register.ts`): an unknown slot, page or route, a second registration, a missing frame or
+  a throw stops the theme. The host draws what `theme.json` declares and the theme registers; the toolbar lists what
+  is declared and not registered, and what is registered and not declared.
+- **What the host draws** (`src/host/slots.ts`, `src/host/router.ts`): the fake host's path picks the view, so the
+  theme's own links move it too. A slot, page or route sits inside the theme's frame (`lookEditor@1` on `/looks`,
+  `styleSheet@1` on `/looks/style`, a page on its route, a route on `/x/<path>`); a path the theme draws nothing for
+  is the host's own page inside the frame. Below `minWidth`, and after a failed load or a throw while drawing, the
+  host's own page stands alone, the latter with core's notice.
+- **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
+  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+- **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the
+  theme's editor sets paints too), the width (the window's, 1440, 1024, or just below `minWidth`), the tone (off
+  while the theme or its look forces one), reduced motion and forced colours. A page cannot turn the browser's media
+  features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors:
+  active)` rules under the toolbar's two attributes, and forced colours paints the system colours over the page;
+  the shots set both features for real. Each setting is in the address, so a reload opens the same view.
