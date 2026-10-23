@@ -23,7 +23,9 @@ import {
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
-import { HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View } from '../src/host/router.ts'
+import {
+  EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
+} from '../src/host/router.ts'
 import { drawView } from '../src/host/slots.ts'
 import { BasePage } from './base-page.tsx'
 import { Toolbar } from './toolbar.tsx'
@@ -41,7 +43,6 @@ export interface Failure {
   readonly message: string
 }
 
-const NO_SERVED: Served = Object.freeze({ slots: [], pages: [], routes: [] })
 const NOTICE_STYLE: CSSProperties = Object.freeze({
   padding: '12px 16px', background: '#fef2f2', color: '#7f1d1d', borderBottom: '1px solid #b91c1c',
   fontFamily: 'system-ui, sans-serif', fontSize: '14px',
@@ -195,15 +196,15 @@ function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, setting
   }, [theme, base, htmlClass, status, reason, tone, look, reducedMotion, forcedColors])
 }
 
-/** What the shots read once the theme loaded or failed (HARNESS_GLOBAL). */
-function usePublishedReport(theme: HarnessTheme, status: HostStatus, served: Served): void {
+/** What the shots read once the theme loaded or failed (HARNESS_GLOBAL): the views it drew, and what it left out. */
+function usePublishedReport(theme: HarnessTheme, status: HostStatus, served: Served, missing: Served): void {
   useEffect(() => {
     if (status === 'loading') return
     const report: HarnessReport = {
-      status, views: viewsOf(served), presets: theme.presets.map((look) => look.id), minWidth: theme.manifest.minWidth,
+      status, views: viewsOf(served), missing, presets: theme.presets.map((look) => look.id), minWidth: theme.manifest.minWidth,
     }
     Reflect.set(window, HARNESS_GLOBAL, Object.freeze(report))
-  }, [theme, status, served])
+  }, [theme, status, served, missing])
 }
 
 export interface HarnessHostProps {
@@ -225,7 +226,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   const forced = themeTone(theme, look)
   const declared = useMemo(() => declaredOf(theme.manifest), [theme])
   const active = load?.status === 'active' ? load : null
-  const served = useMemo(() => (active === null ? NO_SERVED : servedOf(active.registrations, declared)), [active, declared])
+  const served = useMemo(() => (active === null ? EMPTY_SERVED : servedOf(active.registrations, declared)), [active, declared])
   const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
   const failure = renderFailure ?? (load?.status === 'failed' ? { reason: load.reason, message: load.message } : null)
   const status: HostStatus = load === null ? 'loading' : failure === null ? 'active' : 'failed'
@@ -233,7 +234,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   useEffect(() => setForcedTone(forced), [forced])
   useEffect(() => onSettings?.({ ...settings, path }), [settings, path, onSettings])
   useHtmlPaint(theme, { status, reason: failure?.reason ?? null, tone: forced ?? settings.tone, look, settings })
-  usePublishedReport(theme, status, served)
+  usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
     setSettings(next)

@@ -17,7 +17,7 @@ import { KNOWN_SLOTS, PAGE_SCOPE, THEME_HOST_VERSION, validateManifest, type The
 import type { ComponentType } from 'react'
 import { SDK_VERSION } from '../sdk/theme.ts'
 import { isPrepaintTable, type PrepaintTable } from './prepaint.ts'
-import { FRAME_SLOT, presetOrder, type Served } from './router.ts'
+import { declaredIn, FRAME_SLOT, presetOrder, type Served } from './router.ts'
 
 /** A component the host draws, with the props its place hands it (frame@1: FrameProps; the rest: none). */
 export type ThemeComponent = ComponentType<Readonly<Record<string, unknown>>>
@@ -120,9 +120,9 @@ export async function loadTheme(loadEntry: () => Promise<unknown>): Promise<Them
   }
 }
 
-/** What theme.json declares: its slots, its pages' routes and its routes, in its order. */
+/** What theme.json declares: its slots, its pages' routes and its routes, in its order (router.ts declaredIn, as the shots read it). */
 export function declaredOf(manifest: ThemePackageManifest): Served {
-  return { slots: [...manifest.slots], pages: Object.keys(manifest.pages ?? {}), routes: [...(manifest.routes ?? [])] }
+  return declaredIn(manifest)
 }
 
 export interface RegisterReport {

@@ -10,7 +10,9 @@ import { files, loadEntry } from 'virtual:automatos-harness/theme'
 import { host } from '../src/host.ts'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import { readServedTheme } from '../src/host/register.ts'
-import { FILES_ROOT, HARNESS_GLOBAL, readSettings, settingsQuery, type HarnessReport, type HarnessSettings } from '../src/host/router.ts'
+import {
+  EMPTY_SERVED, FILES_ROOT, HARNESS_GLOBAL, readSettings, settingsQuery, type HarnessReport, type HarnessSettings,
+} from '../src/host/router.ts'
 import { HarnessHost, prepareHost } from './host.tsx'
 
 const ROOT_ID = 'harness'
@@ -42,7 +44,7 @@ function refuse(root: ReturnType<typeof createRoot>, errors: readonly string[]):
   const html = document.documentElement
   html.setAttribute(HTML_ATTRS.status, 'failed')
   html.setAttribute(HTML_ATTRS.reason, MANIFEST_REASON)
-  const report: HarnessReport = { status: 'failed', views: [], presets: [], minWidth: 0 }
+  const report: HarnessReport = { status: 'failed', views: [], missing: EMPTY_SERVED, presets: [], minWidth: 0 }
   Reflect.set(window, HARNESS_GLOBAL, Object.freeze(report))
   root.render(<Refused errors={errors} />)
 }

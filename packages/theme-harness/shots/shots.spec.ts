@@ -6,22 +6,28 @@
  * reads the views the app drew the theme with (HARNESS_GLOBAL), then for each view opens its address, waits until
  * the harness settled (the host's status, the network idle, the fonts and every image in; no fixed sleep), shoots
  * the page and scans the theme's stage. The folder gets <project>/<preset>/<width>/<view>.png and its axe.json.
- * The test fails when the theme did not start, when a view's PNG is missing, when any request went to another
+ *
+ * What a group must hold is read from the theme folder, not from the views the page drew: theme.json's slots, pages
+ * and routes, less what the page reports the theme did not register, one file name each (router.ts expectedShots).
+ * The test fails when the theme did not start, when the page's presets are not the folder's, when the folder's PNGs
+ * are not exactly those files (one missing, one extra, or two views on one name), when any request went to another
  * origin than the harness's (every request is recorded), and on a critical axe violation (after every shot is
- * written, so the artefact holds them all).
+ * written, so the artefact holds them all). A theme.json naming a default look that looks/presets lacks fails the
+ * whole run before a test starts.
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import {
-  HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, STAGE_ID, THEME_ENV, offOrigin, presetOrder, shotAddress,
-  shotGroups, viewSlug, type HarnessReport, type ShotGroup, type View,
+  HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, expectedShots,
+  offOrigin, shotAddress, shotGroups, shotPresets, viewSlug, type HarnessReport, type Served, type ShotGroup, type View,
 } from '../src/host/router.ts'
 import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan } from './axe.ts'
 
 const VIEWPORT_HEIGHT = 900
-const SHOT_SUFFIX = '.png'
+const MANIFEST_FILE = 'theme.json'
+const PRESETS_DIR = 'looks/presets'
 const SETTLED_STATUSES: readonly string[] = ['active', 'failed']
 /** How long the harness may take to settle one view before the test fails, naming the wait. */
 const SETTLE_TIMEOUT_MS = 30_000
@@ -33,17 +39,27 @@ function required(name: string): string {
   return value
 }
 
-/** The theme's shot groups, from its folder: its presets (looks/presets, default first) and its minWidth. */
-function themeGroups(themeDir: string): ShotGroup[] {
-  const manifest = JSON.parse(readFileSync(join(themeDir, 'theme.json'), 'utf8')) as { look?: unknown; minWidth?: unknown }
-  const dir = join(themeDir, 'looks/presets')
+/** The theme folder as the shots read it, apart from the page. */
+interface ThemeFolder {
+  /** What theme.json declares. */
+  readonly declared: Served
+  /** looks/presets by id, the default look first. */
+  readonly presets: readonly string[]
+  readonly groups: readonly ShotGroup[]
+}
+
+/** The folder's theme.json and presets; a throw when theme.json names a default look with no preset file. */
+function readThemeFolder(themeDir: string): ThemeFolder {
+  const manifest = JSON.parse(readFileSync(join(themeDir, MANIFEST_FILE), 'utf8')) as { look?: unknown; minWidth?: unknown }
+  const dir = join(themeDir, PRESETS_DIR)
   const ids = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith(PRESET_SUFFIX)).map((name) => name.slice(0, -PRESET_SUFFIX.length)) : []
-  const presets = presetOrder(ids, typeof manifest.look === 'string' ? manifest.look : undefined)
-  return shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0)
+  const presets = shotPresets(ids, typeof manifest.look === 'string' ? manifest.look : undefined)
+  const groups = shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0)
+  return { declared: declaredIn(manifest), presets, groups }
 }
 
 const OUT_DIR = required(OUT_ENV)
-const GROUPS = themeGroups(required(THEME_ENV))
+const THEME = readThemeFolder(required(THEME_ENV))
 
 /** Every URL the page asks for, from now on. */
 function recordRequests(page: Page): string[] {
@@ -78,6 +94,14 @@ async function harnessReport(page: Page): Promise<HarnessReport> {
   return (await handle.jsonValue()) as HarnessReport
 }
 
+/** The folder a group's files go to, emptied first, so a file an earlier run wrote can't stand in for a missing one. */
+function freshFolder(...parts: readonly string[]): string {
+  const folder = join(OUT_DIR, ...parts)
+  rmSync(folder, { recursive: true, force: true })
+  mkdirSync(folder, { recursive: true })
+  return folder
+}
+
 /** Shoots and scans every view, in order, into `folder`. */
 async function shootViews(page: Page, group: ShotGroup, views: readonly View[], folder: string): Promise<ShotScan[]> {
   const scans: ShotScan[] = []
@@ -91,20 +115,21 @@ async function shootViews(page: Page, group: ShotGroup, views: readonly View[], 
   return scans
 }
 
-for (const group of GROUPS) {
+for (const group of THEME.groups) {
   test(`${group.folder}: a shot and an axe scan of every slot, page and route`, async ({ page }, testInfo) => {
     const requests = recordRequests(page)
     await page.setViewportSize({ width: group.width, height: VIEWPORT_HEIGHT })
     await openSettled(page, shotAddress(group, HOME_PATH))
     const report = await harnessReport(page)
     expect(report.status, 'the theme started in the harness').toBe('active')
-    expect(report.views.length, 'the theme serves a slot, page or route').toBeGreaterThan(0)
-    const folder = join(OUT_DIR, testInfo.project.name, group.folder)
-    mkdirSync(folder, { recursive: true })
+    expect(report.presets, "the page serves the folder's presets, the default look first").toEqual(THEME.presets)
+    const expected = expectedShots(THEME.declared, report.missing)
+    expect(expected.length, 'the theme serves a slot, page or route').toBeGreaterThan(0)
+    const folder = freshFolder(testInfo.project.name, group.folder)
     const scans = await shootViews(page, group, report.views, folder)
     writeAxeReport(join(folder, AXE_FILE), scans)
-    const missing = report.views.map((view) => `${viewSlug(view)}${SHOT_SUFFIX}`).filter((shot) => !existsSync(join(folder, shot)))
-    expect(missing, 'every view has its PNG').toEqual([])
+    const written = readdirSync(folder).filter((name) => name.endsWith(SHOT_SUFFIX)).sort()
+    expect(written, 'one PNG per slot, page and route theme.json declares and the theme registered').toEqual([...expected].sort())
     expect(offOrigin(requests), `every request went to ${HARNESS_ORIGIN}`).toEqual([])
     expect(criticalViolations(scans), 'no critical axe violation').toEqual([])
   })

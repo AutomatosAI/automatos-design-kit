@@ -14,7 +14,8 @@
  *   harness's own two for the toolbar's reduced motion and forced colours. A page's script cannot turn the browser's
  *   media features on, so the build mirrors a theme's `@media (prefers-reduced-motion: reduce)` and
  *   `@media (forced-colors: active)` rules under these attributes (vite.harness.config.ts), and FORCED_COLORS_PREVIEW
- *   paints the system colours over the page, as a browser in forced colours would. The shots set both for real.
+ *   paints the system colours over the page, as a browser in forced colours would. The shots ask the browser itself
+ *   for reduced motion (Playwright's emulation) and draw no forced-colours set: that is the toolbar's preview only.
  */
 import type { PrepaintNumericRule, PrepaintTable, PrepaintVars, ThemeTone } from '../../../../scripts/looks/boot-types.ts'
 

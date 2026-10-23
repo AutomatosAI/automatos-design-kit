@@ -7,6 +7,7 @@
  *   the host draws it on (core: lookEditor@1 on /looks, styleSheet@1 on /looks/style, a page on its own route, a
  *   route under /x/), and the view a path shows. A path the theme draws nothing for is the host's own page inside
  *   the theme's frame, as core's MainLayout draws a core page under a theme.
+ * - The shots' plan: the groups, each view's file name, and the files a group must hold, read from the theme folder.
  * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
  */
 
@@ -62,6 +63,9 @@ export interface Served {
   readonly routes: readonly string[]
 }
 
+/** Nothing served: a theme that failed, or a report with nothing missing. */
+export const EMPTY_SERVED: Served = Object.freeze({ slots: [], pages: [], routes: [] })
+
 const own = (record: Readonly<Record<string, string>>, key: string): boolean => Object.prototype.hasOwnProperty.call(record, key)
 
 export function slotPath(slot: string): string {
@@ -94,9 +98,19 @@ export function viewOfPath(path: string, served: Served): View {
   return drawn ?? { kind: 'base', key: path, path }
 }
 
-/** A view as a file name: its kind and key in letters, digits and dashes ('page-chat', 'slot-lookEditor-1'). */
+/** A route's '/' in a file name: '_', which no route holds (THEME_ROUTE_PATTERN), so 'a/b' and 'a-b' get two files. */
+const ROUTE_SEPARATOR = /\//g
+const ROUTE_SEPARATOR_IN_SLUG = '_'
+const NOT_IN_SLUG = /[^A-Za-z0-9_]+/g
+const SLUG_EDGES = /^[-_]+|[-_]+$/g
+
+/**
+ * A view as a file name: its kind and key in letters, digits and dashes ('page-chat', 'slot-lookEditor-1'), a route's
+ * segments joined by '_' ('route-notes_today'). No two slots, pages or routes core knows share one.
+ */
 export function viewSlug(view: View): string {
-  const key = view.key.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  const spelled = view.kind === 'route' ? view.key.replace(ROUTE_SEPARATOR, ROUTE_SEPARATOR_IN_SLUG) : view.key
+  const key = spelled.replace(NOT_IN_SLUG, '-').replace(SLUG_EDGES, '')
   return `${view.kind}-${key === '' ? 'root' : key}`
 }
 
@@ -267,6 +281,44 @@ export function shotAddress(group: ShotGroup, path: string): string {
 export interface HarnessReport {
   readonly status: 'active' | 'failed'
   readonly views: readonly View[]
+  /** What theme.json declares that the theme did not register (none for a theme that failed). */
+  readonly missing: Served
   readonly presets: readonly string[]
   readonly minWidth: number
+}
+
+/** Each shot's file: <view slug>.png. */
+export const SHOT_SUFFIX = '.png'
+
+const textList = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [])
+
+/** What a theme.json declares, in its order: its slots, its pages' routes and its routes (read leniently: the app checks the file). */
+export function declaredIn(manifest: unknown): Served {
+  const fields = (manifest !== null && typeof manifest === 'object' ? manifest : {}) as Readonly<Record<string, unknown>>
+  const pages = fields.pages
+  const pageRoutes = pages !== null && typeof pages === 'object' && !Array.isArray(pages) ? Object.keys(pages) : []
+  return { slots: textList(fields.slots), pages: pageRoutes, routes: textList(fields.routes) }
+}
+
+/**
+ * The PNG files one shot group must hold, from the theme folder rather than from the views the page drew: one per
+ * view of what theme.json declares, less what the page reports the theme did not register. Two views with one file
+ * name would show here twice.
+ */
+export function expectedShots(declared: Served, missing: Served): string[] {
+  const kept = (keys: readonly string[], gone: readonly string[]): string[] => keys.filter((key) => !gone.includes(key))
+  const served: Served = {
+    slots: kept(declared.slots, missing.slots),
+    pages: kept(declared.pages, missing.pages),
+    routes: kept(declared.routes, missing.routes),
+  }
+  return viewsOf(served).map((view) => `${viewSlug(view)}${SHOT_SUFFIX}`)
+}
+
+/** The presets the shots draw, the default look first; a throw when theme.json names a default look with no file. */
+export function shotPresets(ids: readonly string[], defaultLook: string | undefined): string[] {
+  if (defaultLook !== undefined && !ids.includes(defaultLook)) {
+    throw new Error(`looks/presets has no ${defaultLook}${PRESET_SUFFIX}, the default look theme.json names: build the theme first.`)
+  }
+  return presetOrder(ids, defaultLook)
 }
