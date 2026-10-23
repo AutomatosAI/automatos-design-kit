@@ -18,6 +18,13 @@
  * the Marketplace's own stage: always not_measured here. The command sends nothing anywhere.
  *
  * Exit code 0 when no check is an error, 1 when one is (or the reader refuses the theme), 2 for a usage error.
+ *
+ * `check design <theme folder>` (PRD-261 B-03d) checks the design before any code: the look schema,
+ * the presets, the prepaint table and design/contrast.json's pairs (design.ts, which has its own usage).
+ * A theme folder that is itself named design is checked as `check ./design`. design.ts is loaded only
+ * for `check design`: it registers a resolve hook to load Play's look-kit hsl.ts
+ * (themes/play/src/lib/look-kit), which `check` never needs. `check` loads look-kit's contrast.ts alone,
+ * which imports nothing, for the mobile block's measure (mobile-contrast.ts).
  */
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -47,6 +54,8 @@ const LEVEL_WIDTH = 13
 const ITEM_INDENT = '    '
 const JSON_INDENT = 2
 const TEMP_PREFIX = 'automatos-check-'
+/** design.ts DESIGN_SUBCOMMAND, kept here so that `check` loads design.ts only when it runs. */
+const DESIGN_SUBCOMMAND = 'design'
 
 /** The review job's rebuild (scripts/review/rebuild.ts), as `--rebuild` runs it. */
 export interface Rebuilder {
@@ -221,7 +230,9 @@ export async function runCheck(
   }
 }
 
-/** The command table's runner (cli-main.ts): `check` in the folder `deps.cwd`; it never uses the network. */
-export function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
-  return runCheck(argv, output, deps.cwd)
+/** The command table's runner (cli-main.ts): `check`, or `check design`, in the folder `deps.cwd`; neither uses the network. */
+export async function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
+  if (argv[1] !== DESIGN_SUBCOMMAND) return runCheck(argv, output, deps.cwd)
+  const { designCommand } = await import('./design.ts')
+  return designCommand(argv, output, deps)
 }

@@ -23,8 +23,9 @@
  * The ratio is look-kit's `contrastRatio`, from Play's copy of core's frontend/lib/look-kit/contrast.ts
  * (the same file at CORE_SHA). A token's colour is mobile_tokens.py `parse_colour`: a #rrggbb upper-cased,
  * or a triplet through look-kit hsl.ts `hslToHex`, ported here step for step because hsl.ts imports
- * './contrast' with no extension, which plain Node doesn't resolve (compile-looks.mjs needs a resolve hook
- * for Play's modules; contrast.ts imports nothing). test/check-mobile-contrast.test.ts holds both to the corpus's
+ * './contrast' with no extension, which plain Node doesn't resolve (compile-looks.mjs and `check design`'s
+ * meter, check/contrast.ts, load it through a resolve hook, so `check` registers none; contrast.ts imports
+ * nothing). test/check-mobile-contrast.test.ts holds both to the corpus's
  * `contrast` cases. Nothing here throws on a table or preset of the wrong shape: it paints nothing.
  */
 import { contrastRatio, toHex, type Rgb } from '../../../../themes/play/src/lib/look-kit/contrast.ts'

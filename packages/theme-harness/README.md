@@ -100,5 +100,58 @@ request refused for used-up credits.
 
 The test toolchain (vitest, jsdom, React, React DOM and Testing Library's `react`, `dom`, `user-event` and
 `jest-dom`) is pinned exactly in the kit's root `package.json`, so every workspace runs on the same versions, and
-this package names none of its own. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
-every outside package on the kit's approved list.
+this package names none of its own; so are the shots' Playwright (`@playwright/test`, at the version core's browser
+lane pins) and `@axe-core/playwright`. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
+every outside package on the kit's approved list. The package does name the kit's own packages it loads
+(`@automatos/theme-cli` for core's manifest check, `@automatos/theme-sdk`, `@automatos/vite-preset`), as every
+workspace does (`tests/workspace-deps.test.ts`).
+
+## The browser harness
+
+`app/` is a mock host page that draws a theme in a browser, with no Automatos running: a local design tool, and what
+`automatos-theme shots` photographs. `vite.harness.config.ts` builds it for one theme folder
+(`AUTOMATOS_HARNESS_THEME`, default `themes/play`) and serves the build on `http://127.0.0.1:4318` (`vite preview`).
+
+- **The theme's own entry.** The build bundles the folder's `src/entry.ts` with the page. Its bare imports go through
+  the harness's import map (`src/host/import-map.ts`), the same specifiers core's import map serves: React from the
+  kit's install, `@automatos/theme-sdk` to the fake SDK above. Its CSS is made as the vite-preset makes the
+  package's `dist/theme.css`: CSS modules name the classes first (`<htmlClass>-<name>-<hash>`), the build writes one
+  stylesheet, and that file is then wrapped under `html.<htmlClass>`, with its keyframes and font families renamed
+  once over the whole sheet. Draw from the build (`vite build`, then `vite preview`): the dev server writes no
+  stylesheet to wrap. The folder's `assets/` is served where the stylesheet's `../assets/` URLs and the SDK's
+  `assetUrl` find it.
+- **Core's load.** `theme.json` is checked with core's own validator, then the entry's `register(host)` runs as core's
+  loader runs it (`src/host/register.ts`): an unknown slot, page or route, a second registration, a missing frame or
+  a throw stops the theme. The host draws what `theme.json` declares and the theme registers; the toolbar lists what
+  is declared and not registered, and what is registered and not declared.
+- **What the host draws** (`src/host/slots.ts`, `src/host/router.ts`): the fake host's path picks the view, so the
+  theme's own links move it too. A slot, page or route sits inside the theme's frame (`lookEditor@1` on `/looks`,
+  `styleSheet@1` on `/looks/style`, a page on its route, a route on `/x/<path>`); a path the theme draws nothing for
+  is the host's own page inside the frame, the frame's own view among them (on `/`, or on `/harness/slot/frame@1`
+  for a theme that owns `/`, so no two views share a path). Below `minWidth`, and after a failed load or a throw
+  while drawing, the host's own page stands alone, the latter with core's notice.
+- **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
+  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+- **The host's fonts** (`app/fonts/core`, core's own files; its README names core's commit and pins each file's
+  sha256): Geist, Geist Mono and Newsreader, which core supplies to every page. The page (`app/index.html`) declares
+  their `@font-face` rules with the weights and styles core declares, and binds `--font-geist-sans`,
+  `--font-geist-mono` and `--font-newsreader` on `<html>` with one class each, as core's layout does, so a theme's
+  `var(--font-geist-sans)` text draws in Geist, not in the browser's default face. The rules stay in the page, apart
+  from the theme's stylesheet and its wrap; the build emits the files under `harness/`.
+- **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the
+  theme's editor sets paints too), the width (the window's, 1440, 1024, or just below `minWidth`), the tone (off
+  while the theme or its look forces one), reduced motion and forced colours. A page cannot turn the browser's media
+  features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors:
+  active)` rules under the toolbar's two attributes, and forced colours paints the system colours over the page.
+  The shots ask the browser itself for reduced motion; forced colours is the toolbar's preview only, and no shot
+  draws it. Each setting is in the address, so a reload opens the same view.
+
+`shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one
+test per preset and width, each waiting on the host's status, the network, the fonts and the images (never a fixed
+sleep), with reduced motion on and animations off. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`);
+a set's scans go to its `axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and
+route that `theme.json` declares, less what the page reports the theme did not register (a route's `/` is `_` in its
+file name, so no two views share one); when the page's presets are not the folder's, default look first; on any
+request to another origin than `http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a
+default look that `looks/presets/` lacks stops the shots before they start. It proves a theme draws, not that core
+draws it the same way: core's browser lane does that.

@@ -222,7 +222,7 @@ describe('fromLooks: per preset, painted through the prepaint table', () => {
   })
 
   it('a preset that does not fit the table is painted as the defaults whole', () => {
-    // boot.ts :164: the web paints the whole default look (paper and blue), never ink with the default accent.
+    // boot.ts :173: the web paints the whole default look (paper and blue), never ink with the default accent.
     const [defaults, odd] = subjectsOf(measured(FROM_LOOKS, lookFiles({ odd: { accent: 'violet', ground: 'ink' } })))
     expect([odd.status, odd.pairs]).toEqual(['pass', defaults.pairs])
     expect(pairOf(odd, '--primary', '--background')?.ratio).toBe(5.17) // blue on paper's white

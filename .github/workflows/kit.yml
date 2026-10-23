@@ -76,3 +76,48 @@ jobs:
             **/*.autotheme*
             !**/node_modules/**
           if-no-files-found: error
+
+  # PRD-261 B-02f: the theme drawn in the browser harness (packages/theme-harness), with nothing of Automatos
+  # running: Play's build writes its look data, `automatos-theme shots` builds the harness, serves it on
+  # 127.0.0.1:4318 and shoots every slot, page and route Play serves, for each preset at 1440 and 1024 px and
+  # once below its minWidth, on Chromium and WebKit, with an axe scan of each shot. It fails on a missing shot,
+  # a request to any other origin, or a critical axe violation; the shots and axe.json files are uploaded either way.
+  harness:
+    name: Harness shots and axe
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
+      - name: Install (from the lockfile)
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      # The two browsers the shots run on, with their system libraries, at the version @playwright/test pins.
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Shots
+        run: npx automatos-theme shots themes/play --out packages/theme-harness/dist/shots
+
+      - name: Upload shots
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-harness
+          path: packages/theme-harness/dist/shots/
+          if-no-files-found: error

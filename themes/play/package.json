@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "node ../../scripts/compile-looks.mjs . && vite build",
+    "lint": "eslint src --max-warnings 0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "pack": "automatos-theme pack . --out out"
@@ -15,9 +16,11 @@
     "node": ">=22.18.0"
   },
   "devDependencies": {
+    "@automatos/eslint-plugin": "0.1.0",
     "@automatos/theme-cli": "0.1.0",
     "@automatos/theme-harness": "0.1.0",
-    "@automatos/vite-preset": "0.1.0"
+    "@automatos/vite-preset": "0.1.0",
+    "eslint": "9.39.5"
   },
   "peerDependencies": {
     "@automatos/theme-sdk": "1.1.0",

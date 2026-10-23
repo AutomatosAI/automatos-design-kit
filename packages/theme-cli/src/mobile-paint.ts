@@ -10,14 +10,20 @@
  *   boot gets it, or null when its defaults don't fit what is left (:231), and the web then paints
  *   nothing from it. Its tone rule (:232) is left out: it never changes what is painted, only the tone a
  *   phone is drawn in, which the reader doesn't decide.
- * - `lookFits` is boot-sanitize.ts `lookFitsPrepaint` (:182-:186), the boot script's `fits` (boot.ts :158-:159).
+ * - `lookFits` is boot-sanitize.ts `lookFitsPrepaint` (:182-:186), the boot script's `fits` (boot.ts :167-:168).
  * - `paintLook` is mobile_tokens.py `paint_look` (:365-:371): the look when it fits, else the defaults
- *   whole (boot.ts :164); every knob table's entry, then every pair table's, a later one overwriting
- *   (:165-:166); a numeric rule's variable left out, since the web paints rgba() there last (:167); kept,
+ *   whole (boot.ts :173); every knob table's entry, then every pair table's, a later one overwriting
+ *   (:174-:175); a numeric rule's variable left out, since the web paints rgba() there last (:176); kept,
  *   as the table writes them, only the MOBILE_TOKEN_NAMES whose value is an "H S% L%" triplet.
  * - `missingTokens` is mobile_tokens.py `missing_tokens` (:374-:377).
  *
- * Numbers are the doubles JSON.parse gives (contract.py `js_number` :225-:239): the table reaches here
+ * `bootTable` and `lookFits` are the CLI's one port of boot-sanitize.ts: `check design` keeps and fits a
+ * table with them too (src/check/contrast.ts), so each rule keeps its `scale`, which the phone never reads.
+ * `paintLook` is the server's paint, not the browser's: contrast.ts `firstPaint` is THEME_BOOT_SCRIPT's own
+ * paint (boot.ts :173-:176), every variable it sets, numeric rules' rgba() included, which a design pair may
+ * name; this keeps only the triplet Studio tokens a phone draws.
+ *
+ * Numbers are the doubles JSON.parse gives (contract.py `js_number` :227-:241): the table reaches here
  * through parseJson (json.ts), which is JSON.parse, so a 310-digit literal is already Infinity (not
  * finite) and 2**53 + 1 is already 2**53. Nothing here throws on a table or look of the wrong shape.
  */
@@ -57,6 +63,8 @@ export interface BootRule {
   readonly min: number
   readonly max: number
   readonly integer: boolean
+  /** The rgba() alpha is look[knob] / scale: check design's first paint reads it (module comment). */
+  readonly scale: number
   readonly capTable: readonly [string, string] | null
   readonly caps: Table<Table<number>>
   readonly color: { readonly knob: string; readonly rgb: Table<string> }
@@ -151,7 +159,7 @@ function bootRule(raw: unknown): BootRule | null {
   if (!isFiniteNumber(min) || !isFiniteNumber(max) || !isFiniteNumber(scale) || min > max || scale <= 0) return null
   const caps = bootCaps(raw)
   const color = bootColor(own(raw, 'color'))
-  return caps === null || color === null ? null : { var: name, knob, min, max, integer, ...caps, color }
+  return caps === null || color === null ? null : { var: name, knob, min, max, integer, scale, ...caps, color }
 }
 
 /** `sanitizeDefaults` (:188-:195): look fields whose value is text or a finite number. */
@@ -215,7 +223,7 @@ export function isStudioTriplet(value: unknown): boolean {
   return typeof value === 'string' && !value.startsWith(HEX_MARK) && isMobileColour(value)
 }
 
-/** mobile_tokens.py `_phone_tokens` (:351-:362): boot.ts :165-:167 for a look that fits, phone tokens only. */
+/** mobile_tokens.py `_phone_tokens` (:351-:362): boot.ts :174-:176 for a look that fits, phone tokens only. */
 function phoneTokens(table: BootTable, look: JsonRecord): BootVars {
   const cells: BootVars[] = [
     ...Object.entries(table.knobs).map(([knob, options]) => options[String(own(look, knob))]),
