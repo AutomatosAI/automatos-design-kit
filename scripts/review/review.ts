@@ -3,14 +3,15 @@
  *
  * In order: no network (probe.ts); the package read and checked as core's reader checks it (the
  * kit's port, `@automatos/theme-cli/check`); its digest against the one the admin queue named;
- * source/ present; the JS rules on source/ (js-rules.ts); the reproducible build (rebuild.ts). The
- * outcome is `pass` only when every check passed. The reviewer pastes the summary (summary.ts) into
- * the admin queue's report note with that outcome; core refuses to approve without a passing note.
+ * source/ present; the JS rules on source/ (`@automatos/theme-rules`); the reproducible build
+ * (rebuild.ts). The outcome is `pass` only when every check passed; a JS-rule warning is listed for
+ * the reviewer and fails nothing. The reviewer pastes the summary (summary.ts) into the admin
+ * queue's report note with that outcome; core refuses to approve without a passing note.
  */
 import { checkPackage } from '@automatos/theme-cli/check'
 import { readZip } from '@automatos/theme-cli/zip'
+import { jsRuleFindings, sourceScripts, SOURCE_PREFIX, type JsFinding } from '@automatos/theme-rules'
 import { packageDigest, sha256Hex } from '../../packages/theme-cli/src/digest.ts'
-import { jsRuleFindings, sourceScripts, SOURCE_PREFIX, type JsFinding } from './js-rules.ts'
 import type { ProbeResult } from './probe.ts'
 import { compareDist, DIST_PREFIX, rebuildDist, type DistComparison, type Files } from './rebuild.ts'
 
@@ -97,9 +98,22 @@ function sourceCheck(files: Files): Check {
   return check('Source', 'pass', `${all.length} files under source/, ${sourceScripts(files).length} of them scripts.`)
 }
 
+/** What a reviewer reads before a warning's line, so it can't pass for a refusal. */
+export const WARNING_ITEM_PREFIX = 'warning: '
+
+function findingItem(item: JsFinding): string {
+  const line = `${item.code} ${item.path}:${item.line} ${item.message} | ${item.excerpt}`
+  return item.severity === 'warning' ? `${WARNING_ITEM_PREFIX}${line}` : line
+}
+
+/** Errors fail the check; warnings alone pass it, each listed for the reviewer to read. */
 function jsCheck(findings: readonly JsFinding[], scripts: number): Check {
   if (findings.length === 0) return check('JS rules', 'pass', `No findings in ${scripts} source scripts.`)
-  const items = findings.map((item) => `${item.code} ${item.path}:${item.line} ${item.message} | ${item.excerpt}`)
+  const items = findings.map(findingItem)
+  if (findings.every((item) => item.severity === 'warning')) {
+    const noun = findings.length === 1 ? 'warning' : 'warnings'
+    return check('JS rules', 'pass', `Nothing refused; ${findings.length} ${noun} in source/ for the reviewer to read.`, items)
+  }
   return check('JS rules', 'fail', `${findings.length} findings in source/.`, items)
 }
 

@@ -1,7 +1,7 @@
 // PRD-261 §9: the JS rules the isolated review runs on a submission's source/. Each refused
 // pattern is found with its code and line; honest code that only looks close is not.
 import { describe, expect, it } from "vitest";
-import { excerptOf, fileFindings, jsRuleFindings, pathProblem, specifierProblem } from "../scripts/review/js-rules.ts";
+import { excerptOf, fileFindings, jsRuleFindings, pathProblem, RULES, specifierProblem } from "@automatos/theme-rules";
 
 const PATH = "source/entry.ts";
 
@@ -166,5 +166,75 @@ describe("findings name the file and line", () => {
       ["dist/entry.js", text],
     ]);
     expect(jsRuleFindings(files).map((finding) => finding.path)).toEqual(["source/a.ts"]);
+  });
+});
+
+describe("the rules table is data, and every refusal is an error", () => {
+  it("is frozen, one row per pattern, each with a code, a severity and a global pattern", () => {
+    expect(Object.isFrozen(RULES)).toBe(true);
+    for (const row of RULES) {
+      expect(Object.isFrozen(row), row.code).toBe(true);
+      expect(row.code, row.code).toMatch(/^JS_[A-Z_]+$/);
+      expect(["error", "warning"], row.code).toContain(row.severity);
+      expect(row.pattern.flags, row.code).toContain("g");
+      expect(row.message.length, row.code).toBeGreaterThan(0);
+    }
+  });
+
+  it("warns on exactly two rows: SpeechRecognition and getUserMedia", () => {
+    const warned = RULES.filter((row) => row.severity === "warning").map((row) => row.code);
+    expect(warned).toEqual(["JS_SPEECH_RECOGNITION", "JS_GET_USER_MEDIA"]);
+  });
+
+  it.each([
+    ["JS_FETCH", "fetch('/x')"],
+    ["JS_LOCAL_STORAGE", "localStorage.clear()"],
+    ["JS_IMPORT", "import { toast } from 'sonner'"],
+    ["JS_PATH_IMPORT", "import { secret } from '../outside.js'"],
+    ["JS_DYNAMIC_IMPORT", "await import(url)"],
+    ["JS_OBFUSCATED", "var _0x3f2a = ['x']"],
+  ])("%s is an error", (code, text) => {
+    const found = fileFindings(PATH, text).filter((finding) => finding.code === code);
+    expect(found.length).toBeGreaterThan(0);
+    expect(found.map((finding) => finding.severity)).toEqual(found.map(() => "error"));
+  });
+});
+
+describe("listening, or opening the microphone or camera, is a warning, not a refusal", () => {
+  it.each([
+    ["JS_SPEECH_RECOGNITION", "const recognition = new SpeechRecognition()"],
+    ["JS_SPEECH_RECOGNITION", "const recognition = new webkitSpeechRecognition()"],
+    ["JS_SPEECH_RECOGNITION", "const Listener = window.SpeechRecognition ?? window.webkitSpeechRecognition"],
+    ["JS_GET_USER_MEDIA", "const stream = await navigator.mediaDevices.getUserMedia({ audio: true })"],
+    ["JS_GET_USER_MEDIA", "const { getUserMedia } = navigator.mediaDevices"],
+    // As with every rule, a name in a comment is still reported; the reviewer reads the line.
+    ["JS_SPEECH_RECOGNITION", "// a later version could add SpeechRecognition here"],
+    ["JS_GET_USER_MEDIA", "/* getUserMedia( for a voice look */"],
+  ])("%s: %s", (code, text) => {
+    const found = fileFindings(PATH, text);
+    expect(found.map((finding) => finding.code)).toContain(code);
+    expect(found.map((finding) => [finding.code, finding.severity])).toEqual(found.map(() => [code, "warning"]));
+  });
+
+  it("names the reason and the line", () => {
+    const [finding] = fileFindings(PATH, "const a = 1
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+");
+    expect(finding).toMatchObject({ code: "JS_GET_USER_MEDIA", severity: "warning", line: 2 });
+    expect(finding.message).toMatch(/microphone or camera/);
+    expect(fileFindings(PATH, "new SpeechRecognition()")[0].message).toMatch(/browser vendor's speech service/);
+  });
+
+  it("has no findings for code that only looks close", () => {
+    const close = [
+      "const speechRecognitionEnabled = false",
+      "const mySpeechRecognition = null",
+      "speechSynthesis.speak(new SpeechSynthesisUtterance('hello'))",
+      "const getUserMediaAllowed = () => false",
+      "const devices = await navigator.mediaDevices.enumerateDevices()",
+      "const userMedia = { audio: false }",
+      "return <audio src={clip} controls />",
+    ].join("\n");
+    expect(fileFindings(PATH, close)).toEqual([]);
   });
 });
