@@ -25,6 +25,11 @@ const V0_LOOK_SCHEMA = "automatos-interface-look/v0";
 const V1_LOOK_SCHEMA = "automatos-interface-look/v1";
 const ON = "on";
 const OFF = "off";
+/** Each knob's label: the HUD's LOOK drawer heading for that knob, in title case (v0 has no labels). */
+const KNOB_LABELS: Readonly<Record<string, string>> = {
+  accent: "Accent", ground: "Background", font: "Type", grid: "Grid", glow: "Glow", scan: "Scan", auto: "Auto",
+  motion: "Motion",
+};
 /** The ground rules that described the pilot's standalone app, and the two that still hold. */
 const OBSOLETE_RULES = ["Own repo", "Proxy only", "API knowledge", "Fonts"];
 const KEPT_RULES = ["Deliverables list", "Words"];
@@ -159,14 +164,15 @@ describe("Command's looks/schema.json (look schema v1)", () => {
     expect(schema.interface).toBe(v0.interface);
   });
 
-  it("has v0's options as its knobs, in v0's order", () => {
+  it("has v0's options as its knobs, in v0's order, each with an expected label", () => {
     expect(Object.keys(schemaDocument.knobs)).toEqual(Object.keys(v0.options));
+    expect(Object.keys(KNOB_LABELS)).toEqual(Object.keys(v0.options));
   });
 
   it.each(Object.keys(v0.options))("knob %s equals its v0 option, the default preset's value its default", (name) => {
     const { label, ...knob } = schemaDocument.knobs[name];
     expect(knob).toEqual(expectedKnob(v0.options[name], (v0Default as V0Preset)[name]));
-    expect(typeof label).toBe("string");
+    expect(label).toBe(KNOB_LABELS[name]);
   });
 });
 
