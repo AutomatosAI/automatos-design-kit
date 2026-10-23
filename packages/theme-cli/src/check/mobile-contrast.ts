@@ -24,7 +24,7 @@
  * (the same file at CORE_SHA). A token's colour is mobile_tokens.py `parse_colour`: a #rrggbb upper-cased,
  * or a triplet through look-kit hsl.ts `hslToHex`, ported here step for step because hsl.ts imports
  * './contrast' with no extension, which plain Node doesn't resolve (compile-looks.mjs needs a resolve hook
- * for Play's modules; contrast.ts imports nothing). test/check-contrast.test.ts holds both to the corpus's
+ * for Play's modules; contrast.ts imports nothing). test/check-mobile-contrast.test.ts holds both to the corpus's
  * `contrast` cases. Nothing here throws on a table or preset of the wrong shape: it paints nothing.
  */
 import { contrastRatio, toHex, type Rgb } from '../../../../themes/play/src/lib/look-kit/contrast.ts'

@@ -1,5 +1,5 @@
 /**
- * The contrast measure (src/check/contrast.ts) gives core's answers: the cases of core's
+ * The contrast measure (src/check/mobile-contrast.ts) gives core's answers: the cases of core's
  * orchestrator/tests/test_prd261_mobile_contrast.py at the commit src/core/README.md names.
  *
  * - every `contrast` case of the shared corpus (test/fixtures/core/cases.json) gets the hexes core reads and
@@ -20,7 +20,7 @@ import { describe, expect, it } from 'vitest'
 import {
   CONTRAST_REASONS, DEFAULTS_ID, describeMeasure, measureMobile, measurePair, outcomeOf, parseColour,
   type ContrastPair, type ContrastSubject, type MobileMeasure,
-} from '../src/check/contrast.ts'
+} from '../src/check/mobile-contrast.ts'
 import { MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS } from '../src/core/mobile-manifest.ts'
 import { HELLO_DIR, MANIFEST } from './check-support.ts'
 

@@ -8,7 +8,7 @@
  * uses (uses.ts), clonedFrom (drift.ts), previews (previews.ts), jsRules (js.ts), reproducibleBuild
  * (only with `--rebuild`), contrast and llm, each at pass, warning, error or not_measured, with plain
  * lines under it, then the verdict. The first line names the core commit whose checks these are.
- * `contrast` measures the WCAG AA colour pairs of theme.json's `mobile` block (contrast.ts): its line
+ * `contrast` measures the WCAG AA colour pairs of theme.json's `mobile` block (mobile-contrast.ts): its line
  * gives the outcome, each failing pair, and each scheme, the table's defaults or preset with how many
  * of its pairs were measured. A theme without the block gets not_measured, and the line says so.
  *

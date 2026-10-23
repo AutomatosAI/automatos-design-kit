@@ -47,9 +47,9 @@ and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts`
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
 to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
 the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
-`src/check/` ports it over the two data files, the contrast check included (`src/check/contrast.ts`, which paints
+`src/check/` ports it over the two data files, the contrast check included (`src/check/mobile-contrast.ts`, which paints
 `fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, Play's copy of core's
 `frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
 `check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
-and `check-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases among
-them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).
+and `check-mobile-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases
+among them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

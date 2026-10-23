@@ -61,7 +61,7 @@ describe('the report and the verdict', () => {
   })
 })
 
-// M-03 (PB-35): a theme with a mobile block has its ten colour pairs measured (check-contrast.test.ts holds
+// M-03 (PB-35): a theme with a mobile block has its ten colour pairs measured (check-mobile-contrast.test.ts holds
 // the measuring itself), for the table's defaults and then each preset. hello's two presets painted for the
 // phone: default (paper, blue) reads, night (ink, green) puts white text on a green at 3.41:1.
 const MOBILE_ENGINES = { automatos: '^1.1.0', sdk: '^1.0.0' }
