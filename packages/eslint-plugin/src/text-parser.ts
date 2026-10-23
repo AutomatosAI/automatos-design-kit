@@ -10,8 +10,11 @@
 import type { AST, Linter } from 'eslint'
 import { PACKAGE } from './package-meta.ts'
 
-/** ESLint's own line breaks (SourceCode's lines), so the Program ends where ESLint's last line does. */
-const LINE_BREAK = /\r\n|[\r\n  ]/u
+/**
+ * ESLint's own line breaks (SourceCode's lines), so the Program ends where ESLint's last line does. U+2028
+ * and U+2029 are written as escapes: either one raw would end the regular expression literal.
+ */
+const LINE_BREAK = /\r\n|[\r\n\u2028\u2029]/u
 
 /** An empty Program spanning `text`: no statements, no tokens and no comments. */
 export function parseText(text: string): AST.Program {

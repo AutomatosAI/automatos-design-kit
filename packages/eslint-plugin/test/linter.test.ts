@@ -5,7 +5,7 @@
  */
 import { resolve } from 'node:path'
 import { fileFindings, SOURCE_PREFIX } from '@automatos/theme-rules'
-import { Linter } from 'eslint'
+import { Linter, SourceCode } from 'eslint'
 import { describe, expect, it } from 'vitest'
 import plugin, { NAMESPACE } from '../src/index.ts'
 import { SETTINGS_KEY, THEME_SOURCE_DIR } from '../src/rules.ts'
@@ -16,6 +16,15 @@ import { SEEDED_CODES, SEEDED_FILE, SEEDED_TEXT } from './seeded.ts'
 const THEME = resolve('/theme')
 const ERROR = 2
 const WARNING = 1
+/** One text per line break ESLint counts, each written as an escape, and a text ending in a break. */
+const LINE_BREAK_TEXTS: Readonly<Record<string, string>> = {
+  'CR LF': 'one\r\ntwo',
+  CR: 'one\rtwo',
+  LF: 'one\ntwo',
+  'the line separator': 'one\u2028two',
+  'the paragraph separator': 'one\u2029two',
+  'a final break': 'one\ntwo\n',
+}
 
 interface Reported {
   readonly ruleId: string | null
@@ -87,7 +96,7 @@ describe('the recommended config', () => {
 
 describe('the text parser', () => {
   it('gives an empty Program, no tokens or comments, spanning the text as ESLint counts lines', () => {
-    const text = 'one\r\ntwo three\nfour'
+    const text = 'one\r\ntwo\u2028three\nfour'
     expect(parseText(text)).toEqual({
       type: 'Program',
       sourceType: 'module',
@@ -96,6 +105,13 @@ describe('the text parser', () => {
       tokens: [],
       range: [0, text.length],
       loc: { start: { line: 1, column: 0 }, end: { line: 4, column: 4 } },
+    })
+  })
+
+  Object.entries(LINE_BREAK_TEXTS).forEach(([kind, text]) => {
+    it(`ends the Program where ESLint's own last line ends, across ${kind}`, () => {
+      const lines = SourceCode.splitLines(text)
+      expect(parseText(text).loc.end).toEqual({ line: lines.length, column: lines[lines.length - 1].length })
     })
   })
 })
