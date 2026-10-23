@@ -92,6 +92,9 @@ function Approvals({ chat }: { readonly chat: HostChatController }) {
 function Conversation({ conversation, onView, onEvent, onData, onSent }: ChatProps & { readonly conversation: HostChatConversation }) {
   const chat = useChatController(conversation, { onEvent, onData })
   onView(chat)
+  // Send and Try again run first, then onSent hears the answer: `onSent?.(chat.send(...))` would skip the send
+  // itself whenever a test passes no onSent, since an optional call evaluates its arguments only when it calls.
+  const told = (accepted: boolean): void => onSent?.(accepted)
   return (
     <main>
       <ol aria-label="Messages">
@@ -100,8 +103,8 @@ function Conversation({ conversation, onView, onEvent, onData, onSent }: ChatPro
         ))}
       </ol>
       <Approvals chat={chat} />
-      <button type="button" onClick={() => onSent?.(chat.send(WORDS))}>Send</button>
-      <button type="button" onClick={() => onSent?.(chat.retry())}>Try again</button>
+      <button type="button" onClick={() => told(chat.send(WORDS))}>Send</button>
+      <button type="button" onClick={() => told(chat.retry())}>Try again</button>
       <button type="button" onClick={chat.stop}>Stop</button>
     </main>
   )
