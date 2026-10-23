@@ -1,0 +1,15 @@
+{
+  "schema": "automatos-interface-look/v1",
+  "interface": "command",
+  "id": "arc",
+  "name": "ARC",
+  "sub": "",
+  "ground": "void",
+  "accent": "arc",
+  "font": "raj",
+  "grid": 14,
+  "glow": 22,
+  "scan": "on",
+  "auto": "on",
+  "motion": "on"
+}
