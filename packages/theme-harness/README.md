@@ -91,6 +91,10 @@ theme state kept, and nothing asked.
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside
 `act()` renders every component that reads it again.
 
+Beside `host`, the module names what a theme's own fixtures build the chat's parts with: `LIVE_KEY`, the tool-data
+key the receipts frame rides under (what `liveReceiptsOf` reads), and `CREDITS_EXHAUSTED_CODE`, the `errorCode` of a
+request refused for used-up credits.
+
 ## Dependencies
 
 The test toolchain (vitest, jsdom, React, React DOM and Testing Library's `react`, `dom`, `user-event` and
