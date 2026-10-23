@@ -1,7 +1,7 @@
 // PRD-261 A-13b (PRD-260 review F10, M24; WCAG 2.2.2 Pause, Stop, Hide): the Pause Auto control under
 // Auto. Moved from core's components/mascot/__tests__/auto-mascot-pause.test.tsx and rewritten for E3g
 // (PB-10): the pause flag lives in the SDK's storage area (lib/mascot/pause.ts), so a pause is read and
-// made through the storage stand-in (test/storage-port.ts) and another tab's through its storage event,
+// made through the harness's storage area (packages/theme-harness) and another tab's through its storage event,
 // and Auto's files come through the SDK's assetUrl from the package's assets/mascot/. It stops his loop
 // (his still shows, his ring stops), it survives a state change, a remount and another tab, and under the
 // OS reduced-motion setting he is the still with no control, since nothing moves. Until the host can say
@@ -13,7 +13,8 @@ import { AutoMascot } from '../../src/components/mascot/auto-mascot.tsx'
 import { PAUSE_AUTO } from '../../src/components/mascot/mascot-pause-button.tsx'
 import { PAUSE_KEY, PAUSE_STATE, setMascotPaused } from '../../src/lib/mascot/pause.ts'
 import { CLIP_MS } from '../../src/lib/mascot/player.ts'
-import { changeInAnotherTab, readThemeState, resetStub, setFilesRoot, setStorage } from '../sdk-stub.ts'
+import { readThemeState } from '@automatos/theme-sdk'
+import { host } from '@automatos/theme-harness/host'
 
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
@@ -42,8 +43,8 @@ const mockPlay = () => vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolved
 let play: ReturnType<typeof mockPlay>
 
 beforeEach(() => {
-  resetStub()
-  setFilesRoot(FILES_ROOT)
+  host.reset()
+  host.setFilesRoot(FILES_ROOT)
   Object.defineProperty(window.navigator, 'userAgent', { configurable: true, value: CHROME })
   play = mockPlay()
 })
@@ -65,14 +66,14 @@ describe('Pause Auto (F10, WCAG 2.2.2)', () => {
   })
 
   it('is disabled while the host cannot say whether he is paused, then enabled, and a press pauses him (E3g)', () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     const { container } = render(<AutoMascot state="idle" />)
     expect(pauseButton()).toBeDisabled()
     expect(pauseButton()).toHaveAttribute('aria-pressed', 'false')
     expect(clips(container)).toHaveLength(0)
     expect(container.firstElementChild).toHaveAttribute('data-motion', 'still')
     act(() => {
-      setStorage({ ready: true })
+      host.setStorage({ ready: true })
     })
     expect(pauseButton()).toBeEnabled()
     expect(clips(container)).toHaveLength(1)
@@ -135,7 +136,7 @@ describe('Pause Auto (F10, WCAG 2.2.2)', () => {
     expect(clips(container)).toHaveLength(0)
     expect(stills(container)).toEqual([`${MASCOT}idle.png`, `${MASCOT}searching.png`])
     act(() => {
-      changeInAnotherTab(PAUSE_KEY, undefined, PAUSE_STATE)
+      host.changeInAnotherTab(PAUSE_KEY, undefined, PAUSE_STATE)
     })
     expect(clips(container)).toHaveLength(2)
   })

@@ -2,17 +2,18 @@
 // and rewritten for E3g (PB-10): the flag is kept through the host, in the SDK's storage area (key
 // mascot-paused, in this browser, for the account), so every Auto on the page and in other tabs hears it,
 // a reload still finds it, and where the browser blocks its storage the host keeps it for the page. Until
-// the host can say whose flag it is, it is unknown. Run on the storage stand-in (test/storage-port.ts).
+// the host can say whose flag it is, it is unknown. Run on the harness's storage area (packages/theme-harness).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { isMascotPaused, mascotPause, PAUSE_KEY, PAUSE_STATE, setMascotPaused, subscribeMascotPause } from '../../src/lib/mascot/pause.ts'
-import { changeInAnotherTab, readThemeState, resetStub, setStorage } from '../sdk-stub.ts'
+import { readThemeState } from '@automatos/theme-sdk'
+import { host } from '@automatos/theme-harness/host'
 import { blobData, blockedStorage, BROWSER_ACCOUNT, swapWindowStorage, themeStateKeys } from '../support/memory-storage.ts'
 
 /** Where the flag lived before the move to the host (PRD-261 E1): never read again. */
 const OLD_PAUSE_KEY = 'automatos-play.mascot-paused'
 
 beforeEach(() => {
-  resetStub()
+  host.reset()
 })
 
 afterEach(() => {
@@ -56,15 +57,15 @@ describe('the Pause Auto flag', () => {
     const onChange = vi.fn()
     const stop = subscribeMascotPause(onChange)
     window.dispatchEvent(new StorageEvent('storage', { key: 'unrelated-key' }))
-    changeInAnotherTab('other-setting', true, PAUSE_STATE)
+    host.changeInAnotherTab('other-setting', true, PAUSE_STATE)
     expect(onChange).not.toHaveBeenCalled()
-    changeInAnotherTab(PAUSE_KEY, true, PAUSE_STATE)
+    host.changeInAnotherTab(PAUSE_KEY, true, PAUSE_STATE)
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(isMascotPaused()).toBe(true)
     window.dispatchEvent(new StorageEvent('storage', { key: null }))
     expect(onChange).toHaveBeenCalledTimes(2)
     stop()
-    changeInAnotherTab(PAUSE_KEY, undefined, PAUSE_STATE)
+    host.changeInAnotherTab(PAUSE_KEY, undefined, PAUSE_STATE)
     expect(onChange).toHaveBeenCalledTimes(2)
   })
 
@@ -81,7 +82,7 @@ describe('the Pause Auto flag', () => {
 
   it('is unknown while the host cannot say whose flag it is: a press is refused, logged once, and nothing is kept', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     expect(setMascotPaused(true)).toMatchObject({ ok: false, reason: 'not-ready' })
     expect(setMascotPaused(false)).toMatchObject({ ok: false, reason: 'not-ready' })
     expect(mascotPause()).toBe('unknown')
