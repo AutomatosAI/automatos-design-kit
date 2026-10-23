@@ -185,7 +185,9 @@ interface Painted {
 function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, settings }: Painted): void {
   const { base, htmlClass } = theme.manifest
   const { reducedMotion, forcedColors } = settings
-  useEffect(() => installPreviewStyle(document), [])
+  useEffect(() => {
+    installPreviewStyle(document)
+  }, [])
   useLayoutEffect(() => {
     const running = status !== 'failed'
     const vars = running && theme.prepaint !== null && look !== null ? paintLook(theme.prepaint, asValues(look)) : {}
@@ -230,9 +232,17 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
   const failure = renderFailure ?? (load?.status === 'failed' ? { reason: load.reason, message: load.message } : null)
   const status: HostStatus = load === null ? 'loading' : failure === null ? 'active' : 'failed'
-  useEffect(() => applySettings(theme, settings, windowWidth), [theme, settings, windowWidth])
-  useEffect(() => setForcedTone(forced), [forced])
-  useEffect(() => onSettings?.({ ...settings, path }), [settings, path, onSettings])
+  // Block bodies: an effect may return only its cleanup, and these calls return values (a cell's set, a caller's
+  // onSettings) that React would try to call as one.
+  useEffect(() => {
+    applySettings(theme, settings, windowWidth)
+  }, [theme, settings, windowWidth])
+  useEffect(() => {
+    setForcedTone(forced)
+  }, [forced])
+  useEffect(() => {
+    onSettings?.({ ...settings, path })
+  }, [settings, path, onSettings])
   useHtmlPaint(theme, { status, reason: failure?.reason ?? null, tone: forced ?? settings.tone, look, settings })
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
