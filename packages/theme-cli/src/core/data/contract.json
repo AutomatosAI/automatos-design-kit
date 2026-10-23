@@ -1,0 +1,70 @@
+{
+  "_comment": "PRD-261 B-01b: the slots and pages of core's orchestrator/services/themes/contract.py (KNOWN_SLOTS, REQUIRED_SLOTS, PAGE_SOURCES, HOST_OWNED_ROUTES) at commit 101a0bf33f64fb4f89af81b4293415be60b661ac, as JSON. Generated with the python3 lines in packages/theme-cli/src/core/README.md. Don't edit by hand.",
+  "KNOWN_SLOTS": [
+    "frame@1",
+    "lookEditor@1",
+    "styleSheet@1",
+    "notFound@1",
+    "asleep@1",
+    "page-header.mascot@1",
+    "page-header.art@1",
+    "empty-state.mascot@1"
+  ],
+  "REQUIRED_SLOTS": [
+    "lookEditor@1",
+    "styleSheet@1"
+  ],
+  "PAGE_SOURCES": {
+    "/chat": [
+      "app/chat/page.tsx",
+      "components/chatbot/studio-chat-shell.tsx"
+    ],
+    "/deliverables": [
+      "app/deliverables/page.tsx",
+      "components/deliverables/studio/deliverables-studio.tsx"
+    ],
+    "/assignments": [
+      "app/assignments/page.tsx"
+    ],
+    "/missions/[id]": [
+      "app/missions/[id]/page.tsx"
+    ],
+    "/agents": [
+      "app/agents/page.tsx",
+      "components/agents/studio/agent-management-studio.tsx"
+    ],
+    "/documents": [
+      "app/documents/page.tsx",
+      "components/documents/document-management.tsx"
+    ],
+    "/playbooks": [
+      "app/playbooks/page.tsx",
+      "components/playbooks/PlaybooksPanel.tsx"
+    ],
+    "/command-center": [
+      "app/command-center/page.tsx",
+      "components/command-center/command-center-shell.tsx"
+    ],
+    "/": [
+      "app/page.tsx"
+    ]
+  },
+  "HOST_OWNED_ROUTES": [
+    "/sign-in",
+    "/sign-up",
+    "/auth",
+    "/sso-callback",
+    "/reset-password",
+    "/accept-invitation",
+    "/settings",
+    "/team",
+    "/admin",
+    "/marketplace",
+    "/looks",
+    "/safe-mode",
+    "/x",
+    "/api",
+    "/dev",
+    "/verify"
+  ]
+}

@@ -32,6 +32,40 @@ commit above:
 | `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
 | `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `fa37c9b1c356f735df5e34ad7adf22707828995d546292e2a286114c37f58031` |
 
+## `data/contract.json` (the guides' lists)
+
+The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
+no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
+(that file's sha256 there: `9572b7e1d8993f764311febfb4d8b77bdc5efce71f26636662156cde91306c39`), written as JSON with
+no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
+`HOST_OWNED_ROUTES`. The four lists are the same at core `main`
+`b9d25e1b8a3bb8e9a5903203e5c98b0694a3e954` (23 Oct 2026). `tests/guides.test.ts` holds the file to the sha256 below and
+to the copies of the same lists in `package-manifest.ts`.
+
+| File here | Core source | sha256 |
+|---|---|---|
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `119618571720d95c6c64b9a01949ff1ee32e671b1015d457d21a71a26abf5df9` |
+
+It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
+
+```sh
+SHA=<the commit above>
+git -C <core checkout> show "${SHA}:orchestrator/services/themes/contract.py" > contract.py
+python3 - contract.py "$SHA" > packages/theme-cli/src/core/data/contract.json <<'PY'
+import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("contract", sys.argv[1])
+contract = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(contract)
+print(json.dumps({
+    "_comment": f"PRD-261 B-01b: the slots and pages of core's orchestrator/services/themes/contract.py (KNOWN_SLOTS, REQUIRED_SLOTS, PAGE_SOURCES, HOST_OWNED_ROUTES) at commit {sys.argv[2]}, as JSON. Generated with the python3 lines in packages/theme-cli/src/core/README.md. Don't edit by hand.",
+    "KNOWN_SLOTS": list(contract.KNOWN_SLOTS),
+    "REQUIRED_SLOTS": list(contract.REQUIRED_SLOTS),
+    "PAGE_SOURCES": {route: list(files) for route, files in contract.PAGE_SOURCES.items()},
+    "HOST_OWNED_ROUTES": list(contract.HOST_OWNED_ROUTES),
+}, indent=2))
+PY
+```
+
 ## `check design` and `design/contrast.json` (kit only)
 
 `check design <theme folder>` (`src/check/design.ts`) checks a theme's design before any of its code: `looks/schema.json`
@@ -71,7 +105,8 @@ every other code `check design` prints is core's.
 When core changes one of these files, copy it again from core `main`, redo the import edits above, update the
 commit here, read every comment in the copy (this repo is public: reword any that names a person or an internal
 decision log), and copy `cases.json`, `hello/` and the two `data/` files from the same commit (their sha256 rows and
-`CORE_SHA` move with it). `test/core-corpus.test.ts` then holds the copy to the core corpus. Read `boot.ts`'s
+`CORE_SHA` move with it), and write `data/contract.json` again with the lines above (its sha256 row moves too; when its
+lists change, the guides change with them). `test/core-corpus.test.ts` then holds the copy to the core corpus. Read `boot.ts`'s
 `THEME_BOOT_SCRIPT` and `boot-sanitize.ts`'s `sanitizePrepaint` and `lookFitsPrepaint` at the new commit too: port a
 change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFits`) and a change to the paint into
 `src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite.

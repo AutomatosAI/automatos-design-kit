@@ -1,0 +1,106 @@
+{
+  "themeId": "acme/harbour",
+  "themeDir": "themes/harbour",
+  "branchName": "ralph/harbour-wave-1",
+  "baseBranch": "main",
+  "prBase": "main",
+  "prTitle": "feat(harbour): the Harbour theme, wave 1",
+  "description": "An example wave: the Harbour theme's frame, looks, look editor, style sheet and 404, one story per surface. Replace the theme, the stories and their files with your own; keep every story's files under themeDir.",
+  "userStories": [
+    {
+      "id": "TW-01",
+      "title": "theme.json, the entry and the frame",
+      "description": "As a member, I want Harbour's frame around every page, so the app is Harbour's while the host keeps its data and its header.",
+      "files": [
+        "themes/harbour/theme.json",
+        "themes/harbour/README.md",
+        "themes/harbour/vite.config.ts",
+        "themes/harbour/tsconfig.json",
+        "themes/harbour/eslint.config.js",
+        "themes/harbour/vitest.config.ts",
+        "themes/harbour/src/entry.ts",
+        "themes/harbour/src/frame.tsx",
+        "themes/harbour/src/screens/index.ts",
+        "themes/harbour/src/app/harbour.css",
+        "themes/harbour/test/setup.ts",
+        "themes/harbour/test/frame.test.tsx"
+      ],
+      "acceptanceCriteria": [
+        "theme.json as guides/contract.md says: id acme/harbour, htmlClass harbour, base studio, tone from-look, minWidth 1024, slots frame@1, lookEditor@1 and styleSheet@1",
+        "src/entry.ts registers the frame, and a placeholder look editor and style sheet from src/screens/index.ts, with defineTheme",
+        "The frame renders its children, the host's HeaderUtilities and a menu of HostLink links",
+        "Every CSS rule sits under html.harbour and every variable starts with --harbour-",
+        "test/frame.test.tsx renders the frame on the harness and finds the page, the menu and the header utilities",
+        "CI green on the wave's pull request"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "TW-02",
+      "title": "The look data: schema, presets, first paint and colour pairs",
+      "description": "As a member, I want Harbour's looks to read well on every ground, so whichever look I pick stays readable.",
+      "files": [
+        "themes/harbour/looks/schema.json",
+        "themes/harbour/looks/presets/paper.look.json",
+        "themes/harbour/looks/presets/ink.look.json",
+        "themes/harbour/boot/prepaint.json",
+        "themes/harbour/design/contrast.json",
+        "themes/harbour/theme.json"
+      ],
+      "acceptanceCriteria": [
+        "looks/schema.json has choice knobs ground and accent and a number knob radius (guides/looks.md)",
+        "Two presets, paper (the default, named by theme.json look) and ink, each with a value for every knob",
+        "boot/prepaint.json paints every knob's variables, the accent text per ground through a pair table with every cell, Studio's --background and --foreground as triplets, and a tone rule on ground",
+        "design/contrast.json declares every text-on-ground pair, and the accent on each ground with min 3",
+        "CI's npm run pack runs automatos-theme check design first (the theme's pack script): no pair under its minimum on either preset"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "TW-03",
+      "title": "The look editor and the style sheet",
+      "description": "As a member, I want to pick, change, save, export and import a look, so Harbour is mine.",
+      "files": [
+        "themes/harbour/src/screens/look-editor.tsx",
+        "themes/harbour/src/screens/style-sheet.tsx",
+        "themes/harbour/src/screens/index.ts",
+        "themes/harbour/src/entry.ts",
+        "themes/harbour/test/looks.test.tsx"
+      ],
+      "acceptanceCriteria": [
+        "The look editor reads useLook() and offers each knob's choices, Save, Export and Import, each refusal shown in its plain words",
+        "The style sheet shows the active look's type and colours",
+        "test/looks.test.tsx drives both on the harness's looks runtime (host.setLooks)",
+        "CI green on the wave's pull request"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "TW-04",
+      "title": "The 404 screen",
+      "description": "As a member, I want a lost page to look like Harbour, so I know where I am.",
+      "files": [
+        "themes/harbour/src/screens/lost-screen.tsx",
+        "themes/harbour/src/screens/index.ts",
+        "themes/harbour/src/entry.ts",
+        "themes/harbour/theme.json",
+        "themes/harbour/test/lost-screen.test.tsx"
+      ],
+      "acceptanceCriteria": [
+        "notFound@1 is listed in theme.json and registered in src/entry.ts",
+        "The screen has one heading and a link back to the chat (CHAT_HREF)",
+        "test/lost-screen.test.tsx finds both by role",
+        "CI green on the wave's pull request"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

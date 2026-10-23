@@ -46,6 +46,11 @@ core wins and the kit is fixed.
   `vite build`; the files are generated, not committed.
 - npm workspaces over both. `tsconfig.base.json` holds the shared compiler options; each workspace's
   `tsconfig.json` extends it.
+- `guides/`: how to build a theme — the host contract (slots, routes, the `mobile` block), the page inventory, the
+  SDK, looks, where the mascot goes and the pitfalls. `skills/`: Claude Code skills for building a theme, writing
+  a look schema and passing the Marketplace review (`skills/README.md` is their index).
+- `templates/ralph/`: a template for running a theme wave with Ralph (an explicit model id, a terminal start, CI as
+  the test). `references/designs/`: design references (Ember and Command) to read, never to build from.
 
 ## What CI runs
 

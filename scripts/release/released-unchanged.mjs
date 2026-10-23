@@ -31,9 +31,9 @@ const PLAY_PACKAGE_JSON = 'themes/play/package.json'
  * (themes/play/.gitignore) and built from src/ at pack time, never committed, so they need no path
  * of their own. src/ is source.ts's SOURCE_DIR, packed as source/. This script is plain Node with no
  * TypeScript loader, so it cannot read those two files' constants at run time; the paths below are
- * spelled out in full (no shared prefix constant, no template literal) so tests/kit-ci.test.ts can
- * read this list back as plain text and assert it stays a superset of them, so the two can't
- * silently drift apart.
+ * spelled out in full (no shared prefix constant, no template literal) so
+ * tests/play-package-ci.test.ts can read this list back as plain text and assert it stays a superset
+ * of them, so the two can't silently drift apart.
  */
 export const PACKED_PATHS = [
   'themes/play/theme.json',

@@ -1,0 +1,14 @@
+{
+  "schema": "automatos-look-schema/v1",
+  "look": {"schema": "automatos-interface-look/v1", "interface": "command"},
+  "knobs": {
+    "accent": {"kind": "choice", "label": "Accent", "choices": ["arc", "forge", "ghost", "nova", "signal", "gold"], "default": "arc"},
+    "ground": {"kind": "choice", "label": "Background", "choices": ["void", "carbon", "navy", "ember"], "default": "void"},
+    "font": {"kind": "choice", "label": "Type", "choices": ["raj", "chakra", "mono"], "default": "raj"},
+    "grid": {"kind": "number", "label": "Grid", "min": 0, "max": 30, "integer": true, "default": 14},
+    "glow": {"kind": "number", "label": "Glow", "min": 0, "max": 40, "integer": true, "default": 22},
+    "scan": {"kind": "choice", "label": "Scan", "choices": ["on", "off"], "default": "on"},
+    "auto": {"kind": "choice", "label": "Auto", "choices": ["on", "off"], "default": "on"},
+    "motion": {"kind": "choice", "label": "Motion", "choices": ["on", "off"], "default": "on"}
+  }
+}
