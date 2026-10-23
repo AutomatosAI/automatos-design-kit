@@ -1,0 +1,28 @@
+[
+  {
+    "id": "harness-chat-chemistry",
+    "title": "Chemistry revision",
+    "updatedAt": "2026-10-12T10:00:00+00:00",
+    "preview": "Here is a plan for the week.",
+    "messages": [
+      { "role": "user", "text": "Plan my chemistry revision" },
+      { "role": "assistant", "text": "Here is a plan for the week." }
+    ]
+  },
+  {
+    "id": "harness-chat-laptops",
+    "title": "Laptop shortlist",
+    "updatedAt": "2026-10-14T09:00:00+00:00",
+    "preview": "Here is your laptop shortlist.",
+    "messages": [
+      { "role": "user", "text": "Help me pick a laptop" },
+      { "role": "assistant", "text": "Here is your laptop shortlist." }
+    ]
+  },
+  {
+    "id": "harness-chat-bake-sale",
+    "title": "Bake sale",
+    "updatedAt": "2026-10-13T08:00:00+00:00",
+    "preview": null
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "goal": "Research and buy a laptop",
+  "complexity": "medium",
+  "agentId": 7,
+  "chatId": "harness-chat",
+  "recentMessages": [
+    { "role": "user", "content": "Help me pick a laptop" },
+    { "role": "assistant", "content": "Here is your laptop shortlist." }
+  ]
+}
