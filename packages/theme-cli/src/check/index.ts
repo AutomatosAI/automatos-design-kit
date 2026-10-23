@@ -18,7 +18,9 @@
  *
  * `check design <theme folder>` (PRD-261 B-03d) checks the design before any code: the look schema,
  * the presets, the prepaint table and design/contrast.json's pairs (design.ts, which has its own usage).
- * A theme folder that is itself named design is checked as `check ./design`.
+ * A theme folder that is itself named design is checked as `check ./design`. design.ts is loaded only
+ * for `check design`: it measures with Play's look-kit (themes/play/src/lib/look-kit), which `check`
+ * itself never needs.
  */
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -30,7 +32,6 @@ import { WARNING_PREFIX, type CommandDeps } from '../cli-main.ts'
 import type { Output } from '../output.ts'
 import { packTheme } from '../pack.ts'
 import { readZip } from '../zip.ts'
-import { designCommand, DESIGN_SUBCOMMAND } from './design.ts'
 import { cloneCheck, describeClones } from './drift.ts'
 import { describeJs, jsRulesCheck } from './js.ts'
 import { describePreviews, previewsCheck } from './previews.ts'
@@ -49,6 +50,8 @@ const LEVEL_WIDTH = 13
 const ITEM_INDENT = '    '
 const JSON_INDENT = 2
 const TEMP_PREFIX = 'automatos-check-'
+/** design.ts DESIGN_SUBCOMMAND, kept here so that `check` loads design.ts only when it runs. */
+const DESIGN_SUBCOMMAND = 'design'
 
 /** The review job's rebuild (scripts/review/rebuild.ts), as `--rebuild` runs it. */
 export interface Rebuilder {
@@ -224,7 +227,8 @@ export async function runCheck(
 }
 
 /** The command table's runner (cli-main.ts): `check`, or `check design`, in the folder `deps.cwd`; neither uses the network. */
-export function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
-  if (argv[1] === DESIGN_SUBCOMMAND) return designCommand(argv, output, deps)
-  return runCheck(argv, output, deps.cwd)
+export async function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
+  if (argv[1] !== DESIGN_SUBCOMMAND) return runCheck(argv, output, deps.cwd)
+  const { designCommand } = await import('./design.ts')
+  return designCommand(argv, output, deps)
 }

@@ -3,30 +3,31 @@
  * core's look validators and the prepaint table through core's prepaint checks, with core's codes
  * (core's corpus, case by case); every preset painted from its table and measured against every pair
  * of design/contrast.json, an error naming preset, text, ground and ratio under the pair's minimum;
- * Play passes with the pairs of its own contrast proof; pack never packs design/.
+ * Play passes with the pairs of its own contrast proof; pack never packs design/. The table is painted
+ * as the host keeps it (boot-sanitize.ts), and the command also runs under plain Node, as installed.
  *
- * The seeded theme is core's hello theme with a prepaint table: hex variables, Studio triplets and an
- * hsl()-wrapped triplet on each ground, a pair table, and a numeric rule (an rgba() value, not a colour).
+ * The seeded theme is design-support.ts's: core's hello theme with a prepaint table and passing pairs.
  */
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, realpathSync, renameSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { run, type CommandDeps } from '../src/cli-main.ts'
 import { collectThemeFiles } from '../src/collect.ts'
 import { contrastMeter, type ContrastMeter } from '../src/check/contrast.ts'
 import {
-  checkDesign, checkDesignFiles, DESIGN_CONTRAST_PATH, DESIGN_CONTRAST_SCHEMA, DESIGN_USAGE, type DesignResult, type DesignRow,
+  checkDesign, checkDesignFiles, DESIGN_CONTRAST_PATH, DESIGN_USAGE, type DesignResult, type DesignRow,
 } from '../src/check/design.ts'
+import { CHECK_USAGE } from '../src/check/index.ts'
 import { CORE_SHA } from '../src/check/report.ts'
 import { PREPAINT_ERROR_CODES, PREPAINT_PATH } from '../src/core/css-value.ts'
 import { LOOK_ERROR_CODES } from '../src/core/look-schema.ts'
 import { SCHEMA_PATH } from '../src/looks.ts'
-import type { PackageEntry } from '../src/members.ts'
 import { packTheme } from '../src/pack.ts'
 import { readZip } from '../src/zip.ts'
-import { HELLO_DIR, removeTempFolders, tempFolder } from './check-support.ts'
-import { folderFiles } from './hello-files.ts'
+import { removeTempFolders, tempFolder } from './check-support.ts'
+import { ACCENT_ON_BG, contrastFile, designFolder, entriesOf, GLOW, PASSING, TABLE, type Json } from './design-support.ts'
 
 const PLAY = fileURLToPath(new URL('../../../themes/play/', import.meta.url))
 const README = new URL('../src/core/README.md', import.meta.url)
@@ -35,8 +36,11 @@ const DEFAULT_PRESET = 'looks/presets/default.look.json'
 const NIGHT_PRESET = 'looks/presets/night.look.json'
 /** Reading Play's built look files and painting its presets on a cold runner. */
 const PLAY_TIMEOUT_MS = 60_000
-
-type Json = Readonly<Record<string, unknown>>
+const CLI = fileURLToPath(new URL('../src/cli.ts', import.meta.url))
+/** Node starting the CLI from its TypeScript source on a cold runner. */
+const NODE_TIMEOUT_MS = 60_000
+/** What the test's resolve hook throws for a module under themes/play/. */
+const NO_PLAY = 'refused by the test: a module under themes/play/'
 interface CorpusCase {
   readonly name: string
   readonly code: string | null
@@ -50,35 +54,6 @@ interface Corpus {
   readonly prepaint: { readonly cases: readonly CorpusCase[] }
 }
 
-const GROUNDS = {
-  paper: { '--hello-bg': '#FFFFFF', '--hello-text': '#1F1F1F', '--background': '0 0% 100%', '--foreground': '0 0% 12%', '--fg': 'hsl(0 0% 12%)' },
-  ink: { '--hello-bg': '#111111', '--hello-text': '#EEEEEE', '--background': '0 0% 7%', '--foreground': '0 0% 93%', '--fg': 'hsl(0 0% 93%)' },
-}
-const LINKS = {
-  paper: { blue: { '--hello-link': '#1D4ED8' }, green: { '--hello-link': '#1E7F3C' } },
-  ink: { blue: { '--hello-link': '#6B8CFF' }, green: { '--hello-link': '#2E9E52' } },
-}
-const GLOW = {
-  var: '--hello-glow', knob: 'radius', min: 0, max: 16, integer: true, scale: 100, capTable: null, caps: null,
-  color: { knob: 'accent', rgb: { blue: '29,78,216', green: '30,127,60' } }, template: 'rgba-alpha',
-}
-const TABLE = {
-  knobs: { ground: GROUNDS, accent: { blue: { '--hello-accent': '#1D4ED8' }, green: { '--hello-accent': '#1E7F3C' } } },
-  pairs: [{ a: 'ground', b: 'accent', table: LINKS }],
-  numeric: [GLOW],
-  defaults: { ground: 'paper', accent: 'blue', radius: 6 },
-}
-/** Each reads on both presets: hex, triplets, a wrapped triplet, a pair table's variable, and #1E7F3C on #111111 (3.74:1) at 3. */
-const PASSING = [
-  { text: '--hello-text', ground: '--hello-bg' },
-  { text: '--foreground', ground: '--background' },
-  { text: '--fg', ground: '--background' },
-  { text: '--hello-link', ground: '--hello-bg' },
-  { text: '--hello-accent', ground: '--hello-bg', min: 3 },
-]
-const contrastFile = (pairs: readonly unknown[]): Json => ({ schema: DESIGN_CONTRAST_SCHEMA, pairs })
-/** --hello-accent on --hello-bg at the default 4.5: #1D4ED8 on #FFFFFF reads (6.70:1), #1E7F3C on #111111 doesn't (3.74:1). */
-const ACCENT_ON_BG = contrastFile([{ text: '--hello-accent', ground: '--hello-bg' }])
 /** A design/contrast.json that can't be read as pairs, and the one field each refusal is at. */
 const BAD_FILES: Array<[string, unknown, string]> = [
   ['not an object', [], ''],
@@ -91,35 +66,6 @@ const BAD_FILES: Array<[string, unknown, string]> = [
   ['a pair field it does not have', contrastFile([{ text: '--hello-text', ground: '--hello-bg', why: 'x' }]), 'pairs[0].why'],
   ['a pair twice', contrastFile([PASSING[0], PASSING[0]]), 'pairs[1]'],
 ]
-
-/** Files set (any JSON value, written as JSON) or, with null, dropped, over hello's looks with TABLE and PASSING. */
-type Change = Readonly<Record<string, unknown>>
-
-function designFiles(change: Change = {}): Map<string, string> {
-  const looks = Array.from(folderFiles(HELLO_DIR)).filter(([path]) => path.startsWith('looks/'))
-  const base: Array<[string, unknown]> = [
-    ...looks.map(([path, data]): [string, unknown] => [path, JSON.parse(new TextDecoder().decode(data))]),
-    [PREPAINT_PATH, TABLE], [DESIGN_CONTRAST_PATH, contrastFile(PASSING)],
-  ]
-  const all = Object.entries(Object.fromEntries([...base, ...Object.entries(change)]))
-  return new Map(all.filter(([, value]) => value !== null).map(([path, value]) => [path, `${JSON.stringify(value, null, 2)}\n`]))
-}
-
-function entriesOf(change: Change = {}): PackageEntry[] {
-  return Array.from(designFiles(change), ([path, text]) => ({ path, data: new TextEncoder().encode(text) }))
-}
-
-/** A copy of the hello theme folder with the design files written in. */
-function designFolder(change: Change = {}): string {
-  const theme = join(tempFolder(), 'hello')
-  cpSync(HELLO_DIR, theme, { recursive: true })
-  rmSync(join(theme, 'looks'), { recursive: true, force: true })
-  designFiles(change).forEach((text, path) => {
-    mkdirSync(dirname(join(theme, path)), { recursive: true })
-    writeFileSync(join(theme, path), text)
-  })
-  return theme
-}
 
 interface Ran { readonly code: number; readonly out: readonly string[]; readonly err: readonly string[]; readonly sent: readonly unknown[] }
 
@@ -286,6 +232,51 @@ describe('the AA matrix: every preset × every pair', () => {
     const found = rowOf(await checkDesign(theme), 'contrast')
     expect(found.errors.map((error) => error.code)).toEqual(['SYMLINK'])
   })
+
+  it.each([['looks', 'looks'], ['boot', 'prepaint'], ['design', 'contrast']] as const)(
+    'refuses a linked %s/ folder on its %s line and reads nothing through it, as pack refuses a linked folder',
+    async (folder, line) => {
+      const theme = designFolder()
+      const target = join(tempFolder(), folder)
+      renameSync(join(theme, folder), target)
+      symlinkSync(target, join(theme, folder))
+      const found = rowOf(await checkDesign(theme), line)
+      expect(found.level).toBe('error')
+      expect(found.errors.filter((error) => error.code === 'SYMLINK').map((error) => error.path)).toEqual([folder])
+    },
+  )
+
+  it('names a repeated pair, and the pair it repeats, by their places in the file', () => {
+    const file = contrastFile([{ text: 'red', ground: '--hello-bg' }, PASSING[0], PASSING[0]])
+    const found = rowOf(checkDesignFiles(entriesOf({ [DESIGN_CONTRAST_PATH]: file }), meter), 'contrast')
+    expect(found.errors.map((error) => error.path)).toEqual([`${DESIGN_CONTRAST_PATH}#pairs[0].text`, `${DESIGN_CONTRAST_PATH}#pairs[2]`])
+    expect(found.errors[1]?.message).toBe('pairs[2] repeats pairs[1]: --hello-text on --hello-bg.')
+  })
+})
+
+describe('the table as the host keeps it (boot-sanitize.ts sanitizePrepaint), not as the file holds it', () => {
+  const capped = { ...GLOW, capTable: ['ground', 'accent'], caps: { paper: { blue: 1.5, green: 0.5 }, ink: { blue: 0.5, green: 0.5 } } }
+  const DROPPED: Array<[string, unknown]> = [
+    ['an rgb list with spaces', { ...TABLE, numeric: [{ ...GLOW, color: { ...GLOW.color, rgb: { ...GLOW.color.rgb, blue: '29, 78, 216' } } }] }],
+    ['a cap past 1', { ...TABLE, numeric: [capped] }],
+  ]
+
+  it.each(DROPPED)("measures nothing when the host's drops (%s) leave the defaults unfit, as it then drops the table", (_name, table) => {
+    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table }), meter)
+    expect(rowOf(result, 'prepaint').errors.map((error) => error.code)).toEqual(['PREPAINT_DEFAULTS_UNFIT'])
+    expect(rowOf(result, 'contrast').errors.map((error) => [error.code, error.path])).toEqual([['CONTRAST_NOT_MEASURED', PREPAINT_PATH]])
+    expect(result.measures).toEqual([])
+  })
+
+  it('paints nothing from a numeric rule the host drops (an integer that is not true or false)', () => {
+    const table = { ...TABLE, numeric: [{ ...GLOW, integer: 1 }] }
+    const pairs = contrastFile([{ text: '--hello-glow', ground: '--hello-bg' }])
+    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table, [DESIGN_CONTRAST_PATH]: pairs }), meter)
+    expect(rowOf(result, 'prepaint').level).toBe('pass')
+    expect(rowOf(result, 'contrast').errors.map((error) => error.message)).toContain(
+      'Preset "default": --hello-glow on --hello-bg can\'t be measured: --hello-glow is not painted.',
+    )
+  })
 })
 
 describe('Play', () => {
@@ -346,4 +337,46 @@ describe('pack never packs design/', () => {
     expect(readme).toMatch(/the server measures only the `mobile` block's ten\s+Studio pairs \(PRD-261 M-03\)/)
     expect(readme).toMatch(/declared pairs for every look stay kit-only for v1 \(PRD-261 QB-40\)/)
   })
+})
+
+/** A Node --import module whose resolve hook refuses every module under `playUrl`. */
+function noPlayHook(playUrl: string): string {
+  return [
+    "import { registerHooks } from 'node:module'",
+    `const PLAY = ${JSON.stringify(playUrl)}`,
+    'registerHooks({ resolve(specifier, context, nextResolve) {',
+    '  const resolved = nextResolve(specifier, context)',
+    `  if (resolved.url.startsWith(PLAY)) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
+    '  return resolved',
+    '} })',
+    '',
+  ].join('\n')
+}
+
+/** The CLI's own process: Node on `args`, as the installed executable runs. */
+function runNode(args: readonly string[]): { readonly status: number | null; readonly stdout: string; readonly stderr: string } {
+  return spawnSync(process.execPath, [...args], { encoding: 'utf8' })
+}
+
+describe('under plain Node, as the automatos-theme executable runs', () => {
+  it("check design loads Play's look-kit through its resolve hook: exit 0 with three pass lines, exit 1 under a minimum", () => {
+    const passed = runNode([CLI, 'check', 'design', designFolder()])
+    expect(passed.status, passed.stderr).toBe(0)
+    const lines = passed.stdout.split('\n').slice(1, 4).map((line) => line.split(/\s+/).slice(0, 2).join(' '))
+    expect(lines).toEqual(['looks pass', 'prepaint pass', 'contrast pass'])
+    const failed = runNode([CLI, 'check', 'design', designFolder({ [DESIGN_CONTRAST_PATH]: ACCENT_ON_BG })])
+    expect(failed.status, failed.stderr).toBe(1)
+    expect(failed.stdout).toContain(`    CONTRAST_UNDER_MIN ${DESIGN_CONTRAST_PATH}#pairs[0]: Preset "night": --hello-accent on --hello-bg`)
+  }, NODE_TIMEOUT_MS)
+
+  it("check runs without Play's source; only check design loads it", () => {
+    const hook = join(tempFolder(), 'no-play.mjs')
+    writeFileSync(hook, noPlayHook(`${pathToFileURL(realpathSync(PLAY)).href}/`))
+    const check = runNode(['--import', pathToFileURL(hook).href, CLI, 'check'])
+    expect(check.stderr).not.toContain(NO_PLAY)
+    expect([check.status, check.stderr.includes(CHECK_USAGE)]).toEqual([2, true])
+    const design = runNode(['--import', pathToFileURL(hook).href, CLI, 'check', 'design', designFolder()])
+    expect(design.status).not.toBe(0)
+    expect(design.stderr).toContain(NO_PLAY)
+  }, NODE_TIMEOUT_MS)
 })

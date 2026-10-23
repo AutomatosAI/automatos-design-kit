@@ -5,23 +5,26 @@
  * - `looks`: looks/schema.json and every looks/presets/*.look.json through core's own look validators
  *   (looks.ts over the vendored core/look-schema.ts), with core's codes.
  * - `prepaint`: boot/prepaint.json through core's prepaint checks (vendored core/css-value.ts), with
- *   core's codes; then its defaults and every preset must fit its table (contrast.ts `lookFits`, the
- *   host's first-paint rule): the host drops a table whose defaults don't fit, and paints the defaults
- *   for a look that doesn't. `not_measured` when the theme has no table.
+ *   core's codes; then its defaults and every preset must fit the table as the host keeps it
+ *   (contrast.ts `sanitizePrepaint` and `lookFits`, the host's first-paint rule): the host drops a
+ *   table whose defaults don't fit what is left, and paints the defaults for a look that doesn't fit.
+ *   `not_measured` when the theme has no table.
  * - `contrast`: every pair design/contrast.json declares, on every preset as the first paint paints
- *   it (contrast.ts `paintLook`), by the look runtime's own ratio. A pair under its `min` (default
- *   4.5, WCAG AA for text) is an error naming the preset, both variables and the ratio; so is a pair
- *   that can't be measured (a variable the preset doesn't paint, or a value that isn't a colour).
+ *   it from the kept table (contrast.ts `paintLook`), by the look runtime's own ratio. A pair under
+ *   its `min` (default 4.5, WCAG AA for text) is an error naming the preset, both variables and the
+ *   ratio; so is a pair that can't be measured (a variable the preset doesn't paint, or a value that
+ *   isn't a colour).
  *   `not_measured` when the theme has no design/contrast.json.
  *
  * design/contrast.json is the kit's own file: pack never packs design/ (collect.ts PACKED_FOLDERS) and
  * the server never reads it. Its form:
  *   {"schema": "automatos-theme-contrast/v1", "pairs": [{"text": "--ring", "ground": "--background", "min": 3}]}
- * with `min` optional. The folder is read as it is on disk, nothing is built, nothing is sent anywhere.
+ * with `min` optional. The folder is read as it is on disk, nothing is built, nothing is sent anywhere;
+ * a link, to a file or to a folder these files sit in, is refused with core's SYMLINK, as pack refuses it.
  * Exit code 0 when no line is an error, 1 when one is, 2 for a usage error.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, posix, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import type { CommandDeps } from '../cli-main.ts'
 import { isHidden, statOf } from '../collect.ts'
@@ -34,7 +37,8 @@ import { lookFileErrors, presetIds, presetPaths, PRESETS_DIR, SCHEMA_PATH } from
 import { pathErrors, type PackageEntry } from '../members.ts'
 import type { Output } from '../output.ts'
 import {
-  contrastMeter, DEFAULT_PAIR_MIN, lookFits, measurePair, paintLook, type ContrastMeter, type ContrastPair, type PairMeasure,
+  contrastMeter, DEFAULT_PAIR_MIN, lookFits, measurePair, paintLook, sanitizePrepaint,
+  type ContrastMeter, type ContrastPair, type PairMeasure,
 } from './contrast.ts'
 import {
   CORE_REPO, CORE_SHA, countsOf, LEVEL_ERROR, LEVEL_NOT_MEASURED, LEVEL_PASS, LEVELS, presetList, verdictOf,
@@ -60,7 +64,9 @@ const RATIO_FLOOR = 1
 const RATIO_CEILING = 21
 const RATIO_DECIMALS = 2
 const PRESETS_FOLDER = PRESETS_DIR.replace(/\/$/, '')
-const LOOKS_PREFIX = 'looks/'
+const LOOKS_FOLDER = posix.dirname(SCHEMA_PATH)
+/** The folders the design files sit in, each before the folders inside it. */
+const DESIGN_FOLDERS: readonly string[] = [LOOKS_FOLDER, PRESETS_FOLDER, posix.dirname(PREPAINT_PATH), posix.dirname(DESIGN_CONTRAST_PATH)]
 const EMPTY = new Uint8Array(0)
 const EXIT_OK = 0
 const EXIT_FAILED = 1
@@ -112,14 +118,23 @@ function entryAt(themeDir: string, path: string): PackageEntry[] {
   return kind === 'file' ? [{ path, data: new Uint8Array(readFileSync(join(themeDir, path))) }] : []
 }
 
-/** A theme folder's design files, as on disk: the look schema, the presets, the prepaint table, design/contrast.json. */
+/** The design folders that are links (pack walks no linked folder); none inside a linked one, which is never read. */
+function linkedFolders(themeDir: string): string[] {
+  return DESIGN_FOLDERS.reduce<string[]>((linked, folder) => {
+    const inLinked = linked.some((parent) => folder.startsWith(`${parent}/`))
+    return inLinked || statOf(themeDir, folder) !== 'link' ? linked : [...linked, folder]
+  }, [])
+}
+
+/** A theme folder's design files (schema, presets, prepaint table, pairs) as on disk; nothing under a linked folder is read. */
 export function readDesignFiles(themeDir: string): PackageEntry[] {
-  const presets = statOf(themeDir, PRESETS_FOLDER) === 'folder'
+  const linked = linkedFolders(themeDir)
+  const readable = (path: string): boolean => !linked.some((folder) => path.startsWith(`${folder}/`))
+  const presets = readable(PRESETS_DIR) && statOf(themeDir, PRESETS_FOLDER) === 'folder'
     ? readdirSync(join(themeDir, PRESETS_FOLDER)).filter((name) => !isHidden(name)).map((name) => `${PRESETS_DIR}${name}`)
     : []
-  const linkedFolder = entryAt(themeDir, PRESETS_FOLDER).filter((entry) => entry.link === true)
-  const files = [SCHEMA_PATH, ...presetPaths(presets), PREPAINT_PATH, DESIGN_CONTRAST_PATH].flatMap((path) => entryAt(themeDir, path))
-  return [...linkedFolder, ...files]
+  const paths = [SCHEMA_PATH, ...presetPaths(presets), PREPAINT_PATH, DESIGN_CONTRAST_PATH].filter(readable)
+  return [...linked.map((path): PackageEntry => ({ path, data: EMPTY, link: true })), ...paths.flatMap((path) => entryAt(themeDir, path))]
 }
 
 /** Each preset whose file is a JSON object, by its id (the file's name). */
@@ -131,13 +146,14 @@ function presetsOf(files: ReadonlyMap<string, Uint8Array>): Preset[] {
   })
 }
 
-function tableOf(files: ReadonlyMap<string, Uint8Array>): Read<JsonRecord> {
+/** boot/prepaint.json refused with core's codes, or read as the host keeps it: null when the host drops it whole. */
+function tableOf(files: ReadonlyMap<string, Uint8Array>): Read<JsonRecord | null> {
   const raw = files.get(PREPAINT_PATH)
   if (raw === undefined) return ABSENT
   const { data, error } = parseJson(raw, PREPAINT_PATH)
   if (error !== null) return { state: 'refused', errors: [error] }
   const errors = prepaintErrors(data)
-  return errors.length > 0 || !isRecord(data) ? { state: 'refused', errors } : { state: 'read', value: data }
+  return errors.length > 0 ? { state: 'refused', errors } : { state: 'read', value: sanitizePrepaint(data) }
 }
 
 function badPairs(where: string, message: string): ThemeError {
@@ -180,9 +196,16 @@ function pairOf(item: unknown, index: number): ContrastPair | ThemeError[] {
   return errors.length > 0 || text === null || ground === null || min === null ? errors : { text, ground, min }
 }
 
-function repeatErrors(pairs: readonly ContrastPair[]): ThemeError[] {
-  return pairs.flatMap((pair, index) => {
-    const first = pairs.findIndex((other) => other.text === pair.text && other.ground === pair.ground)
+/** A pair that reads, with its place in the file's "pairs". */
+interface PlacedPair {
+  readonly pair: ContrastPair
+  readonly index: number
+}
+
+/** Each pair that repeats an earlier one, both named by their place in the file. */
+function repeatErrors(pairs: readonly PlacedPair[]): ThemeError[] {
+  return pairs.flatMap(({ pair, index }) => {
+    const first = pairs.find((other) => other.pair.text === pair.text && other.pair.ground === pair.ground)?.index ?? index
     return first === index ? [] : [badPairs(`pairs[${index}]`, `pairs[${index}] repeats pairs[${first}]: ${pair.text} on ${pair.ground}.`)]
   })
 }
@@ -201,10 +224,10 @@ function pairsOf(files: ReadonlyMap<string, Uint8Array>): Read<readonly Contrast
     ...(own(data, 'schema') === DESIGN_CONTRAST_SCHEMA ? [] : [badPairs('schema', `"schema" must be "${DESIGN_CONTRAST_SCHEMA}".`)]),
     ...(Array.isArray(items) && items.length > 0 ? [] : [badPairs('pairs', '"pairs" must list at least one {"text", "ground"} pair.')]),
   ]
-  const read = (Array.isArray(items) ? items : []).map(pairOf)
-  const pairs = read.filter((item): item is ContrastPair => !Array.isArray(item))
-  const all = [...errors, ...read.flatMap((item) => (Array.isArray(item) ? item : [])), ...repeatErrors(pairs)]
-  return all.length > 0 ? { state: 'refused', errors: all } : { state: 'read', value: pairs }
+  const checked = (Array.isArray(items) ? items : []).map(pairOf)
+  const pairs = checked.flatMap((item, index): PlacedPair[] => (Array.isArray(item) ? [] : [{ pair: item, index }]))
+  const all = [...errors, ...checked.flatMap((item) => (Array.isArray(item) ? item : [])), ...repeatErrors(pairs)]
+  return all.length > 0 ? { state: 'refused', errors: all } : { state: 'read', value: pairs.map((item) => item.pair) }
 }
 
 function looksRow(files: ReadonlyMap<string, Uint8Array>, links: readonly ThemeError[]): DesignRow {
@@ -214,18 +237,21 @@ function looksRow(files: ReadonlyMap<string, Uint8Array>, links: readonly ThemeE
   return row('looks', LEVEL_PASS, `${ids.length} preset(s) pass ${SCHEMA_PATH}: ${ids.join(', ')}.`)
 }
 
-/** The defaults and every preset fit the table, or each look that doesn't. */
-function fitErrors(table: JsonRecord, presets: readonly Preset[]): ThemeError[] {
-  const defaults = lookFits(table, own(table, 'defaults')) ? [] : [themeError(DESIGN_CODES.defaultsUnfit, `${PREPAINT_PATH}#defaults`, (
-    `The table's "defaults" don't name an option of every table it paints, so the host paints nothing from ${PREPAINT_PATH}.`
-  ))]
-  const unfit = presets.filter((preset) => !lookFits(table, preset.look)).map((preset) => themeError(DESIGN_CODES.presetUnfit, preset.path, (
-    `Preset "${echo(preset.id)}" names a choice or value ${PREPAINT_PATH} has no entry for, so its first paint is the table's defaults.`
+/** Every preset fits the kept table (null: the host dropped it, as its defaults don't fit), or each look that doesn't. */
+function fitErrors(table: JsonRecord | null, presets: readonly Preset[]): ThemeError[] {
+  if (table === null) {
+    return [themeError(DESIGN_CODES.defaultsUnfit, `${PREPAINT_PATH}#defaults`, (
+      `The table's "defaults" don't name an option of every table the host keeps of ${PREPAINT_PATH} (it first drops each `
+      + 'name and value its first paint refuses, such as an rgb list with spaces), so the host drops the table and paints nothing from it.'
+    ))]
+  }
+  return presets.filter((preset) => !lookFits(table, preset.look)).map((preset) => themeError(DESIGN_CODES.presetUnfit, preset.path, (
+    `Preset "${echo(preset.id)}" names a choice or value with no entry in ${PREPAINT_PATH} as the host keeps it, `
+    + "so its first paint is the table's defaults."
   )))
-  return [...defaults, ...unfit]
 }
 
-function prepaintRow(table: Read<JsonRecord>, presets: readonly Preset[], links: readonly ThemeError[]): DesignRow {
+function prepaintRow(table: Read<JsonRecord | null>, presets: readonly Preset[], links: readonly ThemeError[]): DesignRow {
   if (links.length > 0) return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} can't be read.`, links)
   if (table.state === 'absent') {
     const none = `No ${PREPAINT_PATH}: no look is painted before the theme's code runs, so no preset's colours can be read as data.`
@@ -234,7 +260,9 @@ function prepaintRow(table: Read<JsonRecord>, presets: readonly Preset[], links:
   if (table.state === 'refused') return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} doesn't pass core's prepaint checks.`, table.errors)
   const errors = fitErrors(table.value, presets)
   if (errors.length > 0) return row('prepaint', LEVEL_ERROR, `${errors.length} look(s) don't fit ${PREPAINT_PATH}.`, errors)
-  return row('prepaint', LEVEL_PASS, `${PREPAINT_PATH} passes core's prepaint checks; its defaults and ${presets.length} preset(s) fit it.`)
+  return row('prepaint', LEVEL_PASS, (
+    `${PREPAINT_PATH} passes core's prepaint checks; its defaults and ${presets.length} preset(s) fit what the host keeps of it.`
+  ))
 }
 
 function unreadText(measure: PairMeasure): string {
@@ -253,7 +281,7 @@ function measureError({ preset, index, measure }: PresetMeasure): ThemeError | n
   return themeError(DESIGN_CODES.underMin, where, `${named} is ${ratio.toFixed(RATIO_DECIMALS)}:1, under its minimum of ${pair.min}:1.`)
 }
 
-/** Every declared pair on every preset that fits the table; a preset that doesn't is one error. */
+/** Every declared pair on every preset that fits the kept table; a preset that doesn't is one error. */
 function measureAll(
   table: JsonRecord, presets: readonly Preset[], pairs: readonly ContrastPair[], meter: ContrastMeter,
 ): { readonly measures: readonly PresetMeasure[]; readonly errors: readonly ThemeError[] } {
@@ -270,7 +298,7 @@ function measureAll(
 
 interface ContrastInputs {
   readonly pairs: Read<readonly ContrastPair[]>
-  readonly table: Read<JsonRecord>
+  readonly table: Read<JsonRecord | null>
   readonly presets: readonly Preset[]
   readonly links: readonly ThemeError[]
 }
@@ -286,13 +314,14 @@ function contrastRow(inputs: ContrastInputs, meter: ContrastMeter): DesignResult
   }
   if (pairs.state === 'refused') return alone(LEVEL_ERROR, `${DESIGN_CONTRAST_PATH} isn't a list of pairs this check can measure.`, pairs.errors)
   const count = pairs.value.length
-  if (table.state !== 'read' || !lookFits(table.value, own(table.value, 'defaults'))) {
+  const kept = table.state === 'read' ? table.value : null
+  if (kept === null) {
     const message = `The ${count} pair(s) can't be measured without a ${PREPAINT_PATH} the host paints from.`
     const why = themeError(DESIGN_CODES.notMeasured, PREPAINT_PATH, message)
     return alone(LEVEL_ERROR, `No preset's colours can be read, so ${count} pair(s) aren't measured.`, [why])
   }
   if (presets.length === 0) return alone(LEVEL_NOT_MEASURED, `No preset to measure the ${count} pair(s) on.`)
-  const { measures, errors } = measureAll(table.value, presets, pairs.value, meter)
+  const { measures, errors } = measureAll(kept, presets, pairs.value, meter)
   const scope = `${count} pair(s) on ${presets.length} preset(s)`
   const level = errors.length > 0 ? LEVEL_ERROR : LEVEL_PASS
   const text = errors.length > 0 ? `${errors.length} problem(s) in ${scope}.` : `${scope}, each at or above its minimum.`
@@ -302,13 +331,16 @@ function contrastRow(inputs: ContrastInputs, meter: ContrastMeter): DesignResult
 /** The design check over a theme's design files (readDesignFiles), measured with `meter`. */
 export function checkDesignFiles(entries: readonly PackageEntry[], meter: ContrastMeter): DesignResult {
   const linked = entries.filter((entry) => entry.link === true)
-  const linksUnder = (prefix: string): ThemeError[] => pathErrors(linked.filter((entry) => entry.path.startsWith(prefix)))
+  // The links in the way of `target` (a file or a folder): itself, a folder it sits in, or a file under it.
+  const linksAt = (target: string): ThemeError[] => pathErrors(linked.filter(({ path }) => (
+    path === target || path.startsWith(`${target}/`) || target.startsWith(`${path}/`)
+  )))
   const files = new Map(entries.filter((entry) => entry.link !== true).map((entry): [string, Uint8Array] => [entry.path, entry.data]))
   const presets = presetsOf(files)
   const table = tableOf(files)
-  const contrast = contrastRow({ pairs: pairsOf(files), table, presets, links: linksUnder(DESIGN_CONTRAST_PATH) }, meter)
-  const looks = looksRow(files, linksUnder(LOOKS_PREFIX))
-  const rows = [looks, prepaintRow(table, presets, linksUnder(PREPAINT_PATH)), ...contrast.rows]
+  const contrast = contrastRow({ pairs: pairsOf(files), table, presets, links: linksAt(DESIGN_CONTRAST_PATH) }, meter)
+  const looks = looksRow(files, linksAt(LOOKS_FOLDER))
+  const rows = [looks, prepaintRow(table, presets, linksAt(PREPAINT_PATH)), ...contrast.rows]
   return { rows, measures: contrast.measures }
 }
 
