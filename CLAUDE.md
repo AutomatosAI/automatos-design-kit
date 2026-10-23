@@ -1,28 +1,42 @@
 # CLAUDE.md: automatos-play
 
-A playful second interface on a **local** Automatos install, with Auto as an animated mascot. A pilot. Studio (in `automatos-ai`) stays the default interface.
+The Automatos design kit: it builds installable theme packages (`.autotheme`) for Automatos, under PRD-261
+(installable themes). `AGENTS.md` is the current, maintained contract — read it first. This file adds a few
+working notes on top of it for a Claude Code session; where the two differ, `AGENTS.md` wins.
 
 ## What this repo is
 
-- Its own repo, outside `automatos-ai`. It must never require a change in the core. If it needs one, write it up as an open question in `docs/prd/`.
-- The spec is `docs/prd/PRD-001-FUN-UI-PILOT.md`.
-- The API knowledge is `skills/build-automatos-interface/` and nowhere else. Build from the skill. When the core and the skill disagree, the core wins: fix the skill and log it in `docs/SKILL-GAPS.md`.
-- Local edition only: no login, no hosted edition.
+- Its own repo, outside `automatos-ai`. The package format belongs to the core repo (`AutomatosAI/automatos-ai`):
+  when the kit and core disagree, core wins and the kit is fixed.
+- A theme built here installs and runs the same way on both the local edition and the hosted edition of
+  Automatos — the package format carries no edition switch. The theme CLI (`packages/theme-cli`) is narrower
+  than that today: its `pack` and `submit` commands are exercised, and recommended, against the local edition.
+  Hosted CLI auth — a credential `submit` could use against a hosted API without a browser sign-in — is parked
+  for now; that is the maintainer's call, not a gap. Until it lands, `submit` against a hosted API will usually
+  print the server's 401 or 403.
+- `themes/play`: Play, copied from core at one pinned commit (its own README names the commit and what changed).
+  The original pilot plan for Play, superseded by PRD-261, is kept at `docs/prd/PRD-001-FUN-UI-PILOT.md` for
+  history.
 
-## Stack (planned, not built yet)
+## Stack
 
-Next.js 15 App Router, TypeScript strict, vitest, ESLint. Plain CSS with tokens in one file. Port 3100. The backend is at `AUTOMATOS_BACKEND_URL` (default `http://localhost:8000`).
+npm workspaces (`packages/*` build tools, `themes/*` theme packages), TypeScript (strict), vitest, ESLint, and
+the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler options; each workspace's
+`tsconfig.json` extends it.
 
 ## Traps
 
-- The browser never calls the backend directly. Use the proxy routes only (no CORS change in the core, no secrets in the page).
-- Never use `ORCHESTRATOR_API_KEY`. The local edition needs no credentials.
-- Use `next/font/local` with vendored fonts, never `next/font/google` (it broke `next build` in the core).
-- Mascot video: `.mp4` (HEVC alpha) for Safari and iOS, `.webm` (VP9 alpha) everywhere else. The wrong one shows a black box.
-- The Deliverables list returns HTTP 200 with `success: false` on failure. Check `success`.
-- Stream recordings in `tests/fixtures/` contain everything Auto said. Record from test data only, and read them before committing.
-- No API keys in this repo, ever. That includes Higgsfield keys for the mascot pipeline.
+- Nothing runs on the maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test.
+- A theme's build may read only its own `src/` (the vite preset's source guard refuses `node_modules` and
+  anything outside `src/`); an outside library it needs is vendored into `src/vendor/` as source, at the
+  version core pins.
+- `package-lock.json` is committed and installed with `npm ci`. Never hand-edit it — a new dependency goes
+  through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency").
+- `theme-review.yml` and `theme-sign.yml` are person-run `workflow_dispatch` jobs; core never calls GitHub.
+- This repo is public: no secrets, no internal plans, no customer or pricing material, no API keys (including
+  the mascot pipeline's).
 
 ## Workspace conventions
 
-CI is the gate. Nothing runs on the maintainer's machine unless he runs it. Stage files explicitly (never `git add -A`). Commits use `type(scope): description`. Never push until asked; the repo is local only for now.
+CI is the gate. Stage files explicitly (never `git add -A`). Commits use `type(scope): description`, signed off
+(`git commit -s`). Never push until asked.
