@@ -112,9 +112,12 @@ every outside package on the kit's approved list.
 
 - **The theme's own entry.** The build bundles the folder's `src/entry.ts` with the page. Its bare imports go through
   the harness's import map (`src/host/import-map.ts`), the same specifiers core's import map serves: React from the
-  kit's install, `@automatos/theme-sdk` to the fake SDK above. Its CSS is wrapped under `html.<htmlClass>` as the
-  vite-preset wraps the package's, and the folder's `assets/` is served where the stylesheet's `../assets/` URLs and
-  the SDK's `assetUrl` find it.
+  kit's install, `@automatos/theme-sdk` to the fake SDK above. Its CSS is made as the vite-preset makes the
+  package's `dist/theme.css`: CSS modules name the classes first (`<htmlClass>-<name>-<hash>`), the build writes one
+  stylesheet, and that file is then wrapped under `html.<htmlClass>`, with its keyframes and font families renamed
+  once over the whole sheet. Draw from the build (`vite build`, then `vite preview`): the dev server writes no
+  stylesheet to wrap. The folder's `assets/` is served where the stylesheet's `../assets/` URLs and the SDK's
+  `assetUrl` find it.
 - **Core's load.** `theme.json` is checked with core's own validator, then the entry's `register(host)` runs as core's
   loader runs it (`src/host/register.ts`): an unknown slot, page or route, a second registration, a missing frame or
   a throw stops the theme. The host draws what `theme.json` declares and the theme registers; the toolbar lists what

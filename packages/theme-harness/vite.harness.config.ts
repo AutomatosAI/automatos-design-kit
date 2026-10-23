@@ -9,18 +9,23 @@
  *   (src/host/import-map.ts): @automatos/theme-sdk is the fake SDK, React the app's own copy.
  * - The theme folder's theme.json, looks/presets/*.look.json and boot/prepaint.json reach the app through one
  *   module (app/served-theme.d.ts), read when the build asks for it; the app checks them.
- * - Its CSS is wrapped as the theme's own build wraps it (the vite-preset's theme-css step, under html.<htmlClass>),
- *   with the same CSS module names, and its `@media (prefers-reduced-motion: reduce)` and
- *   `@media (forced-colors: active)` rules are copied under the toolbar's attributes (src/host/prepaint.ts), so the
- *   toolbar can show them; a query with more than that one feature is left as it is.
+ * - Its CSS is made as the theme's own build makes dist/theme.css: CSS modules name the classes first, with the
+ *   preset's pattern (<htmlClass>-[local]-[hash]); the build writes one stylesheet (cssCodeSplit off, unminified, as
+ *   the preset's); then, on the written file as the preset's styleScope works, the vite-preset's theme-css step wraps
+ *   it under html.<htmlClass> and renames its keyframes and font families once over the whole sheet (themeStylesheet).
+ *   The wrap is the preset's default form, html.<htmlClass>. It can't run in css.postcss: Vite puts postcss-modules
+ *   first, and that plugin names classes in OnceExit, after every plugin's Once, so a wrap there would be renamed as
+ *   a local class. Then the sheet's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)`
+ *   rules are copied under the toolbar's attributes (src/host/prepaint.ts), so the toolbar can show them; a query
+ *   with more than that one feature is left as it is. Vite's dev server writes no file, so draw from the build.
  * - The folder's assets/ is copied to the output's assets/, so the stylesheet's ../assets/ URLs (left as written,
  *   as in the package) and the SDK's assetUrl find the files there; the app's own files go under harness/.
  */
-import { cpSync, existsSync, readdirSync, readFileSync } from 'node:fs'
+import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { themeCssPlugin } from '@automatos/vite-preset/theme-css'
-import type { AtRule, Plugin as PostcssPlugin, Rule } from 'postcss'
+import { checkedOptions, themeCssPlugin } from '@automatos/vite-preset/theme-css'
+import postcss, { type AtRule, type Plugin as PostcssPlugin, type Rule } from 'postcss'
 import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import { dedupedPackages, importMapAliases } from './src/host/import-map.ts'
 import { FORCED_ACTIVE, HTML_ATTRS, MOTION_REDUCE } from './src/host/prepaint.ts'
@@ -39,7 +44,8 @@ const PRESETS_DIR = 'looks/presets'
 const PREPAINT_FILE = 'boot/prepaint.json'
 const ASSETS_DIR = 'assets'
 /** The app's own scripts and stylesheets, beside the theme's assets/. */
-const APP_ASSETS_DIR = 'harness'
+export const APP_ASSETS_DIR = 'harness'
+const CSS_SUFFIX = '.css'
 
 /** The theme folder to draw, from the environment. */
 export function harnessThemeDir(env: NodeJS.ProcessEnv = process.env): string {
@@ -54,11 +60,11 @@ function readJson(path: string): unknown {
   }
 }
 
-/** theme.json's htmlClass, which the theme's stylesheet is wrapped under. */
+/** theme.json's htmlClass, which the theme's stylesheet is wrapped under; a throw for one the server would refuse. */
 function htmlClassOf(themeDir: string): string {
   const manifest = readJson(join(themeDir, MANIFEST_FILE)) as { htmlClass?: unknown } | null
   if (typeof manifest?.htmlClass !== 'string') throw new Error(`${join(themeDir, MANIFEST_FILE)} has no "htmlClass".`)
-  return manifest.htmlClass
+  return checkedOptions({ htmlClass: manifest.htmlClass }).htmlClass
 }
 
 /** The served module: the folder's files as data, and the entry as a dynamic import. */
@@ -135,6 +141,38 @@ export function mediaMirror(): PostcssPlugin {
   }
 }
 
+/**
+ * The theme's whole stylesheet as the harness draws it: the vite-preset's theme-css step (wrap and rename, once over
+ * the sheet, as the preset runs it on dist/theme.css), then its reduced-motion and forced-colours rules mirrored.
+ */
+export function harnessStylesheet(css: string, htmlClass: string): string {
+  return postcss([themeCssPlugin({ htmlClass }), mediaMirror()]).process(css, { from: undefined }).css
+}
+
+/** Rewrites each stylesheet the build wrote to the app's folder of `outDir` with harnessStylesheet; returns their paths. */
+export function wrapWrittenStylesheets(outDir: string, htmlClass: string): string[] {
+  const dir = join(outDir, APP_ASSETS_DIR)
+  const names = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith(CSS_SUFFIX)) : []
+  return names.map((name) => {
+    const path = join(dir, name)
+    writeFileSync(path, harnessStylesheet(readFileSync(path, 'utf8'), htmlClass))
+    return path
+  })
+}
+
+/** The wrap on the written stylesheet, after CSS modules named its classes (the vite-preset's styleScope works so too). */
+function themeStylesheet(htmlClass: string): Plugin {
+  return {
+    name: 'automatos-harness:theme-css',
+    apply: 'build',
+    enforce: 'post',
+    writeBundle(options) {
+      if (options.dir === undefined) throw new Error('The theme harness build has no output folder, so its stylesheet would go unwrapped.')
+      wrapWrittenStylesheets(options.dir, htmlClass)
+    },
+  }
+}
+
 /** The harness's Vite config for one theme folder. */
 export function harnessConfig(themeDir: string): UserConfig {
   const htmlClass = htmlClassOf(themeDir)
@@ -142,15 +180,24 @@ export function harnessConfig(themeDir: string): UserConfig {
     root: join(HARNESS_DIR, 'app'),
     base: '/',
     publicDir: false,
-    plugins: [servedTheme(themeDir), themeAssets(themeDir)],
+    plugins: [servedTheme(themeDir), themeAssets(themeDir), themeStylesheet(htmlClass)],
     resolve: { alias: importMapAliases(), dedupe: dedupedPackages() },
     oxc: { jsx: { runtime: 'automatic', importSource: 'react' } },
     css: {
       transformer: 'postcss',
-      postcss: { plugins: [themeCssPlugin({ htmlClass }), mediaMirror()] },
+      // Given, so Vite reads no postcss.config.* (as the preset); the wrap runs on the written file (themeStylesheet).
+      postcss: { plugins: [] },
       modules: { generateScopedName: `${htmlClass}-[local]-[hash:base64:5]` },
     },
-    build: { outDir: APP_OUT_DIR, emptyOutDir: true, assetsDir: APP_ASSETS_DIR, sourcemap: false },
+    build: {
+      outDir: APP_OUT_DIR,
+      emptyOutDir: true,
+      assetsDir: APP_ASSETS_DIR,
+      sourcemap: false,
+      // One stylesheet, unminified, as the preset writes dist/theme.css: the wrap renames over all of it at once.
+      cssCodeSplit: false,
+      cssMinify: false,
+    },
     preview: { host: HARNESS_HOST, port: HARNESS_PORT, strictPort: true },
     server: { host: HARNESS_HOST, port: HARNESS_PORT, strictPort: true },
   }
