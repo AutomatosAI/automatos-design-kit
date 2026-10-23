@@ -16,7 +16,6 @@ export const WITHDRAW_LABEL = 'Withdraw'
 export const KEEP_LABEL = 'Keep it'
 export const WITHDRAWN_LINE = 'Withdrawn.'
 export const KEPT_LINE = 'Kept.'
-export const SUGGESTION_LABEL = 'Mission suggestion'
 export const CREATE_MISSION_LABEL = 'Create Mission'
 export const DISMISS_SUGGESTION_LABEL = 'Dismiss suggestion'
 export const MISSION_CREATED_LINE = 'Mission created'
@@ -85,12 +84,16 @@ export const WithdrawOfferCard: Sdk['WithdrawOfferCard'] = function WithdrawOffe
   )
 }
 
-/** cards.MissionSuggestionCard: the goal and its size, Create Mission, and a way to dismiss it. */
+/**
+ * cards.MissionSuggestionCard: the goal and its size, Create Mission, and a way to dismiss it. Its root is a plain
+ * element with no landmark role or name, as core's components/chatbot/mission-suggestion-card.tsx draws it, so a
+ * theme's own labelled section around it stays the one "Mission suggestion" region.
+ */
 export const MissionSuggestionCard: Sdk['MissionSuggestionCard'] = function MissionSuggestionCard({ goal, complexity, chatId }) {
   const [dismissed, setDismissed] = useState(false)
   if (dismissed) return <></>
   return (
-    <section data-protected-surface="mission-suggestion" aria-label={SUGGESTION_LABEL}>
+    <div data-protected-surface="mission-suggestion">
       <p>{goal}</p>
       <p>{complexity}</p>
       <button type="button" onClick={() => recordCardAction({ card: 'mission-suggestion', id: chatId, action: 'created' })}>
@@ -99,7 +102,7 @@ export const MissionSuggestionCard: Sdk['MissionSuggestionCard'] = function Miss
       <button type="button" aria-label={DISMISS_SUGGESTION_LABEL} onClick={() => setDismissed(true)}>
         ×
       </button>
-    </section>
+    </div>
   )
 }
 
