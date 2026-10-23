@@ -249,10 +249,10 @@ describe('PlayDeliverable — the side panel', () => {
   })
 
   it("lists Sources · N from extra.sources, as Play's panel does: a web address as its host (P260-FX-13, M81)", () => {
-    found({ extra: { sources: ['https://www.which.co.uk/reviews/laptops', { url: 'https://rtings.com/x' }, { title: 'Asus spec sheet' }] } })
+    found({ extra: { sources: ['https://www.reviews.example.com/laptops', { url: 'https://ratings.example.org/x' }, { title: 'Asus spec sheet' }] } })
     renderDetail()
     expect(panel().getByRole('heading', { level: 2, name: `${SOURCES} · 3` })).toBeInTheDocument()
-    expect(panel().getAllByRole('listitem').map((item) => item.textContent)).toEqual(['which.co.uk', 'rtings.com', 'Asus spec sheet'])
+    expect(panel().getAllByRole('listitem').map((item) => item.textContent)).toEqual(['reviews.example.com', 'ratings.example.org', 'Asus spec sheet'])
   })
 
   it('has no Sources section when it carries none', () => {

@@ -101,7 +101,7 @@
   {
     "corePath": "frontend/components/looks/__tests__/style-screen.test.tsx",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
-    "coreIts": 23,
+    "coreIts": 24,
     "kitPath": "test/looks/style-screen.test.tsx",
     "kitIts": 20,
     "rehomed": [
@@ -110,7 +110,7 @@
         "corePath": "frontend/lib/theme-host/looks/__tests__/provider.test.tsx"
       },
       {
-        "assertion": "/looks/style draws the sheet full bleed inside MainLayout; under Classic or Studio it is the core's note with Switch to Play, no sheet and no look variable on <html> (K9; core's it.each over Studio and Classic, which the case count does not see): the host's ThemeSlotPage and its note.",
+        "assertion": "/looks/style draws the sheet full bleed inside MainLayout; under Classic or Studio it is the core's note with Switch to Play, no sheet and no look variable on <html> (K9; core's it.each over Studio and Classic): the host's ThemeSlotPage and its note.",
         "corePath": "frontend/app/__tests__/page-frames.test.ts"
       },
       {

@@ -3,13 +3,13 @@
 // test/moved-from-core/<area>.json naming the core test (corePath, read at coreSha, where it had coreIts
 // cases), the kit test that replaces it (kitPath, with kitIts cases), the core tests that now hold any of
 // its assertions (rehomed), and why it was rewritten rather than ported (rewritten; null for a port). A
-// case is an it() or test() call, it.each() counted once, as the count of core's file is made. This test
-// holds the ledger to the files: a kit test that is missing, that no longer has the cases its row says or
-// that skips or focuses one, or that has fewer cases than core's with the gap not listed in rehomed, fails
-// it. Several rows name one kit test only where core's ledger moved several core tests into it
-// (SHARED_KIT_TESTS): each row's kitIts counts the cases that replace its own core test's, and the rows'
-// kitIts add up to the kit test's cases. CI checks out the kit alone, so coreIts is counted from core's git
-// objects when the row is written.
+// case is an it() or test() call, it.each() counted once, never a RegExp's .test() call (CASE_CALL), as the
+// count of core's file is made. This test holds the ledger to the files: a kit test that is missing, that no
+// longer has the cases its row says or that skips or focuses one, or that has fewer cases than core's with the
+// gap not listed in rehomed, fails it. Several rows name one kit test only where core's ledger moved several
+// core tests into it (SHARED_KIT_TESTS): each row's kitIts counts the cases that replace its own core test's,
+// and the rows' kitIts add up to the kit test's cases. CI checks out the kit alone, so coreIts is counted from
+// core's git objects when the row is written.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -38,7 +38,13 @@ interface Located {
 
 const LEDGER_DIR = join(THEME_ROOT, 'test', 'moved-from-core')
 const ROW_FIELDS: readonly string[] = ['coreIts', 'corePath', 'coreSha', 'kitIts', 'kitPath', 'rehomed', 'rewritten']
-const CASE_CALL = /\b(?:it|test)(?:\.each)?\(/g
+/**
+ * A case: an it() or test() call wherever it stands (a file's top level too), never a member's .test( or .it(
+ * (a RegExp's test call is no case); with .only, .skip or .todo (still a case, which rowProblems refuses in a kit
+ * test); it.each() or test.each() with or without a type argument (it.each<Row>(), one level of nesting and arrow
+ * types read) or a template table, counted once; it.runIf() and it.skipIf(). No u flag: \w is ASCII.
+ */
+const CASE_CALL = /(?<![\w$.])(?:it|test)(?:\.(?:only|skip|todo))?(?:\(|\.each(?:<(?:=>|[^<>]|<[^<>]*>)*>)?[(`]|\.(?:runIf|skipIf)\()/g
 const SKIPPED_OR_FOCUSED = /\b(?:it|test|describe)\.(?:skip|only|todo)\b/
 const COMMIT_SHA = /^[0-9a-f]{40}$/
 const CORE_TEST = /^frontend\/(?:[\w.-]+\/)*__tests__\/[\w.-]+\.test\.tsx?$/
@@ -97,7 +103,7 @@ function isRow(value: unknown): value is LedgerRow {
   )
 }
 
-/** The cases a test file declares: it(), test() and it.each(), as core's count is made. */
+/** The cases a test file declares: it(), test() and it.each() (CASE_CALL), as core's count is made. */
 function countCases(code: string): number {
   return Array.from(code.matchAll(CASE_CALL)).length
 }
@@ -208,6 +214,24 @@ describe("the ledger's own checks", () => {
   it('counts it(), test() and it.each() once each, as core is counted, and nothing else', () => {
     const code = ["it('a', () => {})", "it.each([1])('b %s', () => {})", "test('c', () => {})", 'commit(); split(); describe("d")'].join('\n')
     expect(countCases(code)).toBe(3)
+  })
+
+  it("never counts a RegExp's .test() call, or any other member's .test( or .it(, as a case", () => {
+    const calls = ['const PATTERN = /x/', '/x/.test(s)', 'PATTERN.test(line)', 'patterns[0]?.test(name)', "suite.it('x')", "$test('y')"]
+    expect(countCases(calls.join('\n'))).toBe(0)
+    expect(countCases([...calls, "it('a', () => expect(PATTERN.test('x')).toBe(true))"].join('\n'))).toBe(1)
+  })
+
+  it('counts it.each<T>() and test.each<T>(), a template table, it.runIf() and a skipped case once each', () => {
+    const code = [
+      "it.each<UiStyle>(['studio', 'classic'])('under %s', (style) => {})",
+      "test.each<[string, Readonly<Row>]>([['a', row]])('%s', () => {})",
+      "it.each<[string, () => void]>([['b', noop]])('%s', () => {})",
+      "it.each`a | b ${1} | ${2}`('$a and $b', () => {})",
+      "it.runIf(brought)('c', () => {})",
+      "it.skip('d', () => {})",
+    ].join('\n')
+    expect(countCases(code)).toBe(6)
   })
 
   it('fails a row whose kit test is missing, whose count is not the file, or whose gap is not in rehomed', () => {
