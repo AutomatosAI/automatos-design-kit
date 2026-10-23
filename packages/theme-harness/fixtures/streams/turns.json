@@ -1,0 +1,74 @@
+{
+  "_comment": "Recorded chat turns for the harness's fake chat, in the format of core's e2e/browser/fixtures/play-parity/chat-turns.json: each frame is a text line ({ text }) or a data line ({ data }) with the payload shapes the backend sends. A turn with hold: true keeps its stream open until Stop; a turn with a status answers that status with no stream, and body is what the refused response says. Fake data only.",
+  "chatId": "harness-chat",
+  "turns": {
+    "answer": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-chat" } },
+        { "text": "Here is your laptop" },
+        { "text": " shortlist." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "partial": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-chat" } },
+        { "text": "I am still writing" },
+        { "text": " the comparison" }
+      ],
+      "hold": true
+    },
+    "approvals": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-chat" } },
+        { "text": "Two things need your answer before they run." },
+        {
+          "data": {
+            "type": "tool-data",
+            "data": {
+              "tool_approval": {
+                "grant_id": 26101,
+                "action": "platform_delete_document",
+                "message": "This action (destructive) requires confirmation.",
+                "permission_level": "destructive",
+                "params": { "document_id": "harness-doc-1" },
+                "risk_tier": "human_in_the_loop",
+                "oversight_rationale": "Deletes a document. A human must approve before it runs."
+              }
+            }
+          }
+        },
+        {
+          "data": {
+            "type": "tool-data",
+            "data": {
+              "mission_approval": {
+                "mission_id": "harness-mission-1",
+                "goal": "Write and send the weekly report",
+                "state": "pending_approval",
+                "task_count": 2,
+                "tasks": [
+                  { "title": "Draft the weekly report", "agent_role": "writer", "sequence": 1 },
+                  { "title": "Send it to the team", "agent_role": "communications", "sequence": 2 }
+                ],
+                "cost_estimate_usd": 0.42,
+                "risk_tier": "human_in_the_loop",
+                "oversight_rationale": "A Mission runs agents for you. A human approves its plan first."
+              }
+            }
+          }
+        },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "refused": {
+      "status": 500,
+      "frames": []
+    },
+    "outOfCredits": {
+      "status": 402,
+      "body": "{\"error_code\": \"credits_exhausted\"}",
+      "frames": []
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "grant_id": 26101,
+  "action": "platform_delete_document",
+  "message": "This action (destructive) requires confirmation.",
+  "permission_level": "destructive",
+  "params": { "document_id": "harness-doc-1" },
+  "risk_tier": "human_in_the_loop",
+  "oversight_rationale": "Deletes a document. A human must approve before it runs."
+}

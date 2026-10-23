@@ -1,0 +1,13 @@
+{
+  "mission_id": "harness-mission-1",
+  "goal": "Write and send the weekly report",
+  "state": "pending_approval",
+  "task_count": 2,
+  "tasks": [
+    { "title": "Draft the weekly report", "agent_role": "writer", "sequence": 1 },
+    { "title": "Send it to the team", "agent_role": "communications", "sequence": 2 }
+  ],
+  "cost_estimate_usd": 0.42,
+  "risk_tier": "human_in_the_loop",
+  "oversight_rationale": "A Mission runs agents for you. A human approves its plan first."
+}

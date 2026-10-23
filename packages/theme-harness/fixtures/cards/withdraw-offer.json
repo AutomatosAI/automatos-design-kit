@@ -1,0 +1,7 @@
+{
+  "message": "A request is still waiting on your yes.",
+  "requests": [
+    { "grant_id": 26102, "action": "platform_delete_document", "reason": "You said no" },
+    { "grant_id": 26103, "action": "platform_archive_agent", "reason": null }
+  ]
+}

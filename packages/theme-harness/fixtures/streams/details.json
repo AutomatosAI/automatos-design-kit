@@ -1,0 +1,96 @@
+{
+  "_comment": "Recorded chat turns carrying what else a reply can hold: tool calls (one waiting on its card), the receipts frame, a generated document, a task card, a Mission suggestion, reasoning, a withdraw offer, a cap, and two failures in words ({ error } frames, the harness's own addition: an 'e:' line). Same format as streams/turns.json. Fake data only.",
+  "chatId": "harness-details-chat",
+  "turns": {
+    "tools": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-details-chat" } },
+        { "data": { "type": "tool-start", "data": { "toolCallId": "call-1", "toolName": "platform_search_documents", "input": { "query": "laptops" } } } },
+        { "data": { "type": "progress", "data": { "text": "Reading three reviews" } } },
+        { "data": { "type": "tool-end", "data": { "toolCallId": "call-1", "toolName": "platform_search_documents", "success": true, "durationMs": 420, "summary": "3 documents found" } } },
+        { "data": { "type": "tool-start", "data": { "toolCallId": "call-2", "toolName": "platform_delete_document" } } },
+        { "data": { "type": "tool-end", "data": { "toolCallId": "call-2", "toolName": "platform_delete_document", "waiting": true } } },
+        { "text": "Found three reviews." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "receipts": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-details-chat" } },
+        {
+          "data": {
+            "type": "tool-data",
+            "data": {
+              "receipts": {
+                "receipts": [
+                  { "action": "platform_update_task", "kind": "write", "status": "done", "subject": "#0422", "effect": "moved to Done", "link": "/board?task=422", "reason": null },
+                  { "action": "platform_write_document", "kind": "write", "status": "done", "subject": "Laptop shortlist", "effect": "saved", "link": "/deliverables?deliverable=d-report-1", "reason": null },
+                  { "action": "platform_send_message", "kind": "write", "status": "refused", "subject": "Weekly update", "effect": "", "link": null, "reason": "no account connected" }
+                ],
+                "above": ["One write was refused."],
+                "model": "harness-model"
+              }
+            }
+          }
+        },
+        { "text": "I moved the card and saved the shortlist." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "document": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-details-chat" } },
+        { "data": { "type": "tool-data", "data": { "generated_document": { "deliverable_id": "d-report-1", "title": "Laptop shortlist", "format": "pdf" } } } },
+        { "text": "I wrote it up." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "taskCard": {
+      "frames": [
+        { "data": { "type": "tool-data", "data": { "task_card": { "id": 422, "number": "#0422", "title": "Compare laptops", "status": "in_progress", "assigned_agent": "Scout" } } } },
+        { "text": "Scout is on it." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "suggestion": {
+      "frames": [
+        { "data": { "type": "mission-suggestion", "data": { "goal": "Research and buy a laptop", "complexity": "medium", "agent_id": 7 } } },
+        { "text": "This could be a Mission." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "thinking": {
+      "frames": [
+        { "data": { "type": "reasoning", "data": { "delta": "Comparing " } } },
+        { "data": { "type": "reasoning", "data": { "delta": "battery life" } } },
+        { "text": "The second one lasts longer." },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "withdraw": {
+      "frames": [
+        { "text": "Understood, I will not delete it." },
+        { "data": { "type": "withdraw_offer", "data": { "message": "A request is still waiting on your yes.", "requests": [{ "grant_id": 26102, "action": "platform_delete_document", "reason": "You said no" }] } } },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "limit": {
+      "frames": [
+        { "text": "I looked at the first pages." },
+        { "data": { "type": "limit_reached", "data": { "limit": "tool_calls", "value": 25, "message": "This turn reached its limit of 25 tool calls." } } },
+        { "data": { "type": "finish" } }
+      ]
+    },
+    "failed": {
+      "frames": [
+        { "text": "Let me check" },
+        { "error": { "message": "The model did not answer in time.", "code": "model_timeout" } }
+      ]
+    },
+    "outOfCreditsMidTurn": {
+      "frames": [
+        { "error": { "message": "The workspace's credits are used up.", "code": "credits_exhausted" } }
+      ]
+    }
+  }
+}
