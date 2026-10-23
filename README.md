@@ -1,16 +1,17 @@
 # Automatos Play
 
-A fun second interface for your local Automatos, with Auto as an animated mascot that reacts to what Auto is doing.
+A fun second interface for Automatos, with Auto as an animated mascot that reacts to what Auto is doing. This
+repo is the design kit: it builds Play, and any other theme, as an installable package (`.autotheme`) for
+Automatos (PRD-261). `AGENTS.md` has the kit's contract and layout in full.
 
-**Status: pilot, not built yet.** This repo currently holds the plan, the build skill and the mascot assets:
+The mascot's clips and stills are committed in `themes/play/assets/mascot/`, under their own notice (`NOTICE`);
+the pipeline that made them (`/mascot/`) stays local.
 
-- `docs/prd/PRD-001-FUN-UI-PILOT.md`: what Play will do.
-- `skills/build-automatos-interface/`: how any interface talks to the Automatos API. Play is built from this skill alone.
-- `docs/design/CLAUDE-DESIGN-PROMPT.md`: the brief for the design mocks.
+Play installs and runs the same way on the local edition and the hosted edition of Automatos. It changes
+nothing in Automatos itself: Studio stays your main interface.
 
-The mascot's clips and stills are committed in `themes/play/assets/mascot/`, under their own notice (`NOTICE`); the pipeline that made them (`/mascot/`) stays local.
-
-Play works with the **local edition** of Automatos (`docker compose up` in `automatos-ai`, no accounts). It changes nothing in Automatos itself: Studio stays your main interface.
+Play's original pilot plan, superseded by PRD-261, is kept at
+[`docs/prd/PRD-001-FUN-UI-PILOT.md`](docs/prd/PRD-001-FUN-UI-PILOT.md) for history.
 
 ## Install Play
 
