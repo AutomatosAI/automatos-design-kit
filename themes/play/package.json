@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@automatos/theme-cli": "0.1.0",
+    "@automatos/theme-harness": "0.1.0",
     "@automatos/vite-preset": "0.1.0"
   },
   "peerDependencies": {
