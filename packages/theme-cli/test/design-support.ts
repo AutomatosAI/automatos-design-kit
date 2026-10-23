@@ -6,7 +6,9 @@
  */
 import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { DESIGN_CONTRAST_PATH, DESIGN_CONTRAST_SCHEMA } from '../src/check/design.ts'
+import {
+  DESIGN_CONTRAST_PATH, DESIGN_CONTRAST_SCHEMA, type DesignResult, type DesignRow,
+} from '../src/check/design.ts'
 import { PREPAINT_PATH } from '../src/core/css-value.ts'
 import type { PackageEntry } from '../src/members.ts'
 import { HELLO_DIR, tempFolder } from './check-support.ts'
@@ -46,6 +48,13 @@ export const ACCENT_ON_BG = contrastFile([{ text: '--hello-accent', ground: '--h
 
 /** Files set (any JSON value, written as JSON) or, with null, dropped, over hello's looks with TABLE and PASSING. */
 export type Change = Readonly<Record<string, unknown>>
+
+/** The line of `result` named `name`. */
+export function rowOf(result: DesignResult, name: DesignRow['name']): DesignRow {
+  const found = result.rows.find((item) => item.name === name)
+  if (found === undefined) throw new Error(`no ${name} line`)
+  return found
+}
 
 function designFiles(change: Change = {}): Map<string, string> {
   const looks = Array.from(folderFiles(HELLO_DIR)).filter(([path]) => path.startsWith('looks/'))

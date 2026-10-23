@@ -3,8 +3,8 @@
  * core's look validators and the prepaint table through core's prepaint checks, with core's codes
  * (core's corpus, case by case); every preset painted from its table and measured against every pair
  * of design/contrast.json, an error naming preset, text, ground and ratio under the pair's minimum;
- * Play passes with the pairs of its own contrast proof; pack never packs design/. The table is painted
- * as the host keeps it (boot-sanitize.ts), and the command also runs under plain Node, as installed.
+ * Play passes with the pairs of its own contrast proof; pack never packs design/. The command also runs
+ * under plain Node, as installed. The table as the host keeps it, and its first paint, are first-paint.test.ts's.
  *
  * The seeded theme is design-support.ts's: core's hello theme with a prepaint table and passing pairs.
  */
@@ -27,7 +27,7 @@ import { SCHEMA_PATH } from '../src/looks.ts'
 import { packTheme } from '../src/pack.ts'
 import { readZip } from '../src/zip.ts'
 import { removeTempFolders, tempFolder } from './check-support.ts'
-import { ACCENT_ON_BG, contrastFile, designFolder, entriesOf, GLOW, PASSING, TABLE, type Json } from './design-support.ts'
+import { ACCENT_ON_BG, contrastFile, designFolder, entriesOf, PASSING, rowOf, TABLE, type Json } from './design-support.ts'
 
 const PLAY = fileURLToPath(new URL('../../../themes/play/', import.meta.url))
 const README = new URL('../src/core/README.md', import.meta.url)
@@ -93,12 +93,6 @@ beforeAll(async () => {
 })
 
 afterEach(removeTempFolders)
-
-function rowOf(result: DesignResult, name: DesignRow['name']): DesignRow {
-  const found = result.rows.find((item) => item.name === name)
-  if (found === undefined) throw new Error(`no ${name} line`)
-  return found
-}
 
 function codesOf(found: DesignRow, keep: (path: string, code: string) => boolean): string[] {
   return Array.from(new Set(found.errors.filter((error) => keep(error.path, error.code)).map((error) => error.code)))
@@ -266,31 +260,6 @@ describe('the AA matrix: every preset × every pair', () => {
     const found = rowOf(checkDesignFiles(entriesOf({ [DESIGN_CONTRAST_PATH]: file }), meter), 'contrast')
     expect(found.errors.map((error) => error.path)).toEqual([`${DESIGN_CONTRAST_PATH}#pairs[0].text`, `${DESIGN_CONTRAST_PATH}#pairs[2]`])
     expect(found.errors[1]?.message).toBe('pairs[2] repeats pairs[1]: --hello-text on --hello-bg.')
-  })
-})
-
-describe('the table as the host keeps it (boot-sanitize.ts sanitizePrepaint), not as the file holds it', () => {
-  const capped = { ...GLOW, capTable: ['ground', 'accent'], caps: { paper: { blue: 1.5, green: 0.5 }, ink: { blue: 0.5, green: 0.5 } } }
-  const DROPPED: Array<[string, unknown]> = [
-    ['an rgb list with spaces', { ...TABLE, numeric: [{ ...GLOW, color: { ...GLOW.color, rgb: { ...GLOW.color.rgb, blue: '29, 78, 216' } } }] }],
-    ['a cap past 1', { ...TABLE, numeric: [capped] }],
-  ]
-
-  it.each(DROPPED)("measures nothing when the host's drops (%s) leave the defaults unfit, as it then drops the table", (_name, table) => {
-    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table }), meter)
-    expect(rowOf(result, 'prepaint').errors.map((error) => error.code)).toEqual(['PREPAINT_DEFAULTS_UNFIT'])
-    expect(rowOf(result, 'contrast').errors.map((error) => [error.code, error.path])).toEqual([['CONTRAST_NOT_MEASURED', PREPAINT_PATH]])
-    expect(result.measures).toEqual([])
-  })
-
-  it('paints nothing from a numeric rule the host drops (an integer that is not true or false)', () => {
-    const table = { ...TABLE, numeric: [{ ...GLOW, integer: 1 }] }
-    const pairs = contrastFile([{ text: '--hello-glow', ground: '--hello-bg' }])
-    const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table, [DESIGN_CONTRAST_PATH]: pairs }), meter)
-    expect(rowOf(result, 'prepaint').level).toBe('pass')
-    expect(rowOf(result, 'contrast').errors.map((error) => error.message)).toContain(
-      'Preset "default": --hello-glow on --hello-bg can\'t be measured: --hello-glow is not painted.',
-    )
   })
 })
 
