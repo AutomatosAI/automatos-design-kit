@@ -1,11 +1,31 @@
 // @vitest-environment node
-// PRD-261 B-02f: the shots' plan (src/host/router.ts). Each view gets a file name of its own, for every slot and page
+// PRD-261 B-02e/B-02f: the harness's views and the shots' plan (src/host/router.ts). Each view keeps a path of its
+// own, frame@1's too when the theme owns the home page; each gets a file name of its own, for every slot and page
 // core knows and for routes that differ only by '/' and '-'; the files a shot group must hold come from theme.json,
 // less what the page reports missing; and the presets go default look first, the rest in file-name order, with the
 // shots refusing a folder that lacks the default look theme.json names.
 import { KNOWN_SLOTS, PAGE_SCOPE } from '@automatos/theme-cli/manifest'
 import { describe, expect, it } from 'vitest'
-import { declaredIn, EMPTY_SERVED, expectedShots, presetOrder, shotPresets, viewsOf, viewSlug, type Served } from '../src/host/router.ts'
+import {
+  declaredIn, EMPTY_SERVED, expectedShots, HOME_PATH, presetOrder, shotPresets, SLOT_PREFIX, viewOfPath, viewsOf, viewSlug, type Served,
+} from '../src/host/router.ts'
+
+const OWNS_HOME: Served = Object.freeze({ slots: ['frame@1', 'lookEditor@1'], pages: ['/', '/chat'], routes: ['notes'] })
+
+describe('a theme that owns the home page', () => {
+  it("has frame@1's own view on a path of its own, so every view has one path and each path shows its view", () => {
+    const views = viewsOf(OWNS_HOME)
+    const paths = views.map((view) => view.path)
+    expect(new Set(paths).size).toBe(paths.length)
+    expect(views[0]).toEqual({ kind: 'slot', key: 'frame@1', path: `${SLOT_PREFIX}frame@1` })
+    views.forEach((view) => expect(viewOfPath(view.path, OWNS_HOME)).toEqual(view))
+    expect(viewOfPath(HOME_PATH, OWNS_HOME)).toEqual({ kind: 'page', key: '/', path: HOME_PATH })
+  })
+
+  it('keeps frame@1 on the home page for a theme that does not own it', () => {
+    expect(viewsOf({ ...OWNS_HOME, pages: ['/chat'] })[0]).toEqual({ kind: 'slot', key: 'frame@1', path: HOME_PATH })
+  })
+})
 
 describe('the shots file names', () => {
   it('give every slot and page core knows, and routes that differ only by / and -, a file of their own', () => {

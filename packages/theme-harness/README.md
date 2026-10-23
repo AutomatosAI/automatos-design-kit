@@ -127,8 +127,9 @@ workspace does (`tests/workspace-deps.test.ts`).
 - **What the host draws** (`src/host/slots.ts`, `src/host/router.ts`): the fake host's path picks the view, so the
   theme's own links move it too. A slot, page or route sits inside the theme's frame (`lookEditor@1` on `/looks`,
   `styleSheet@1` on `/looks/style`, a page on its route, a route on `/x/<path>`); a path the theme draws nothing for
-  is the host's own page inside the frame. Below `minWidth`, and after a failed load or a throw while drawing, the
-  host's own page stands alone, the latter with core's notice.
+  is the host's own page inside the frame, the frame's own view among them (on `/`, or on `/harness/slot/frame@1`
+  for a theme that owns `/`, so no two views share a path). Below `minWidth`, and after a failed load or a throw
+  while drawing, the host's own page stands alone, the latter with core's notice.
 - **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
   look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
 - **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the

@@ -5,8 +5,9 @@
  * - Where the harness serves (HARNESS_ORIGIN), and the global the app publishes what it drew on (HARNESS_GLOBAL).
  * - The views: every slot, page and route the theme both declares in theme.json and registers, each at the path
  *   the host draws it on (core: lookEditor@1 on /looks, styleSheet@1 on /looks/style, a page on its own route, a
- *   route under /x/), and the view a path shows. A path the theme draws nothing for is the host's own page inside
- *   the theme's frame, as core's MainLayout draws a core page under a theme.
+ *   route under /x/; frame@1's own view on /, or on a harness path of its own when the theme owns /), and the view a
+ *   path shows. A path the theme draws nothing for is the host's own page inside the theme's frame, as core's
+ *   MainLayout draws a core page under a theme.
  * - The shots' plan: the groups, each view's file name, and the files a group must hold, read from the theme folder.
  * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
  */
@@ -68,12 +69,23 @@ export const EMPTY_SERVED: Served = Object.freeze({ slots: [], pages: [], routes
 
 const own = (record: Readonly<Record<string, string>>, key: string): boolean => Object.prototype.hasOwnProperty.call(record, key)
 
-export function slotPath(slot: string): string {
+/**
+ * The path the host draws a slot on. frame@1's own view is the host's home page inside the frame, unless one of the
+ * theme's `pages` answers on HOME_PATH ('/' is a page a theme may own): then the frame's own view is drawn on its own
+ * harness path, so no two views share a path.
+ */
+export function slotPath(slot: string, pages: readonly string[] = []): string {
+  if (slot === FRAME_SLOT && ownsHome(pages)) return `${SLOT_PREFIX}${slot}`
   return own(SLOT_PATHS, slot) ? SLOT_PATHS[slot] : `${SLOT_PREFIX}${slot}`
 }
 
 export function pagePath(page: string): string {
   return page.replace(DYNAMIC_SEGMENT, SAMPLE_SEGMENT)
+}
+
+/** True when one of the theme's pages is drawn on HOME_PATH. */
+function ownsHome(pages: readonly string[]): boolean {
+  return pages.some((page) => pagePath(page) === HOME_PATH)
 }
 
 export function routePath(route: string): string {
@@ -83,7 +95,7 @@ export function routePath(route: string): string {
 /** Every slot, page and route the theme serves, each once, at its path: slots first, then pages, then routes. */
 export function viewsOf(served: Served): View[] {
   return [
-    ...served.slots.map((key): View => ({ kind: 'slot', key, path: slotPath(key) })),
+    ...served.slots.map((key): View => ({ kind: 'slot', key, path: slotPath(key, served.pages) })),
     ...served.pages.map((key): View => ({ kind: 'page', key, path: pagePath(key) })),
     ...served.routes.map((key): View => ({ kind: 'route', key, path: routePath(key) })),
   ]

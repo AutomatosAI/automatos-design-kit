@@ -173,6 +173,10 @@ describe('the toolbar', () => {
     await user.selectOptions(screen.getByLabelText('Width'), '1023')
     expect(screen.queryByTestId('frame')).toBeNull()
     expect(screen.getByRole('main', { name: 'Studio: /chat' })).toHaveTextContent("narrower than the theme's minWidth (1024 px)")
+    await user.selectOptions(screen.getByLabelText('Width'), '1440')
+    expect(screen.getByTestId('frame')).toBeInTheDocument()
+    expect(screen.getByTestId('chat')).toHaveTextContent('layout theme')
+    expect(document.getElementById('harness-stage')).toHaveStyle({ width: '1440px' })
   })
 
   it('switches the tone of a theme that leaves it to the user', async () => {
@@ -213,6 +217,21 @@ describe('the toolbar', () => {
     expect(screen.getByText('Notes')).toBeInTheDocument()
     expect(written[written.length - 1]?.path).toBe('/x/notes')
     expect(settingsQuery(written[written.length - 1] ?? DEFAULT_SETTINGS)).toContain('path=%2Fx%2Fnotes')
+  })
+
+  it("gives the frame's own view its own option for a theme that owns /, and draws the host's page in the frame there", async () => {
+    const user = userEvent.setup()
+    const manifest = sampleManifest({ pages: { '/chat': { mode: 'own' }, '/': { mode: 'own' } } })
+    mount(sampleTheme(manifest, (registration) => {
+      registerAll(registration)
+      registration.registerPage('/', () => <p>Home</p>)
+    }))
+    expect(await screen.findByText('Home')).toBeInTheDocument()
+    const values = Array.from(screen.getByLabelText<HTMLSelectElement>('View').options, (option) => option.value)
+    expect(new Set(values).size).toBe(values.length)
+    await user.selectOptions(screen.getByLabelText('View'), '/harness/slot/frame@1')
+    expect(document.getElementById('harness-stage')).toHaveAttribute('data-harness-view', 'slot:frame@1')
+    expect(screen.getByRole('region', { name: 'Studio: /harness/slot/frame@1' })).toBeInTheDocument()
   })
 })
 
