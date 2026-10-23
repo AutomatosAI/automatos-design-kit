@@ -1,5 +1,6 @@
 # Pack output (CI uploads it as an artifact)
-out/
-# Written by Play's build (scripts/compile-looks.mjs) from src/lib/looks: never edited by hand
-looks/
-boot/
+/out/
+# Written by Play's build (scripts/compile-looks.mjs) from src/lib/looks: never edited by hand.
+# Anchored to this folder, so the folders of the same names under src/ and test/ are tracked.
+/looks/
+/boot/

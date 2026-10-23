@@ -35,5 +35,86 @@
     "kitIts": 10,
     "rehomed": [],
     "rewritten": "The pause is read and made through the SDK storage area (readThemeState, setMascotPaused) and another tab's through the stand-in's storage event, not through the automatos-play.mascot-paused key; Auto's files come from the SDK's assetUrl (assets/mascot/ under the package's files), not from /auto/."
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/events.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 31,
+    "kitPath": "test/mascot/events.test.ts",
+    "kitIts": 31,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/media.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 8,
+    "kitPath": "test/mascot/media.test.ts",
+    "kitIts": 9,
+    "rehomed": [],
+    "rewritten": "The kit's media.ts names Auto's files through the SDK's assetUrl, from the package's assets/mascot/ (core served them from /auto/): the clip files case reads them from the folder the fake host serves the package from (host.setFilesRoot), with the paths asked for, and a new case holds that no file is named while the host names no package."
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/player.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 16,
+    "kitPath": "test/mascot/player.test.ts",
+    "kitIts": 16,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/reducer.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 41,
+    "kitPath": "test/mascot/reducer.test.ts",
+    "kitIts": 41,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/ring.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 7,
+    "kitPath": "test/mascot/ring.test.ts",
+    "kitIts": 7,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/mascot/__tests__/tools.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 4,
+    "kitPath": "test/mascot/tools.test.ts",
+    "kitIts": 4,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/components/mascot/__tests__/auto-mascot.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 18,
+    "kitPath": "test/mascot/auto-mascot.test.tsx",
+    "kitIts": 18,
+    "rehomed": [],
+    "rewritten": "Auto's clips and stills come through the SDK's assetUrl from the package's assets/mascot/ under the folder the fake host serves the package from (host.setFilesRoot), not from /auto/; every other assertion as in core."
+  },
+  {
+    "corePath": "frontend/hooks/__tests__/use-auto-mascot.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 16,
+    "kitPath": "test/mascot/use-auto-mascot.test.tsx",
+    "kitIts": 17,
+    "rehomed": [],
+    "rewritten": "E3g (PB-9) keeps hello's first open in the SDK storage area (hello-played, for this tab's session, for the account): useAutoMascot takes no session option, so the hello cases run on the fake host's storage (host.reset, host.setStorage) instead of core's memoryStorage, read the kept value back with readThemeState, and a new case holds that greet says no until the host is ready and a new greet says hello then."
+  },
+  {
+    "corePath": "frontend/hooks/__tests__/use-idle-timeout.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 3,
+    "kitPath": "test/mascot/use-idle-timeout.test.ts",
+    "kitIts": 3,
+    "rehomed": [],
+    "rewritten": null
   }
 ]
