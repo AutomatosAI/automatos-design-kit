@@ -31,6 +31,7 @@ export type { NetworkCall } from './internal/network.ts'
 export type { PageAsk, PageQueryAnswer, PageRun } from './internal/page-views.ts'
 export type { DatabaseKnowledgeAnswer } from './sdk/pages-documents.ts'
 export type { BlobUrls, DeliverablesAsk, DetailAsk, DownloadAsk } from './sdk/deliverables.ts'
+export type { ConversationsAsk } from './sdk/chat.ts'
 /**
  * The names a theme's own fixtures build the chat's parts with: the tool-data key the receipts frame rides under
  * (what the fake's liveReceiptsOf reads, core's lib/chat/receipts.ts), and the code a request refused for used-up
