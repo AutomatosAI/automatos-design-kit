@@ -4,7 +4,7 @@
  * theme.json with top-level fields set (`uses: ["theme"]` unless a test sets it), dist/entry.js
  * replaced, then read by the reader's port and reviewed with `reviewChecked`.
  */
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,6 +12,7 @@ import { checkPackage } from '../src/check-package.ts'
 import { reviewChecked, runCheck, type Rebuilder, type Reviewed, type ReviewOptions } from '../src/check/index.ts'
 import type { SurfaceAreas } from '../src/check/uses.ts'
 import { writeZip } from '../src/zip.ts'
+import { folderFiles } from './hello-files.ts'
 
 export const HELLO_DIR = fileURLToPath(new URL('./fixtures/core/hello/', import.meta.url))
 export const MANIFEST = 'theme.json'
@@ -33,17 +34,6 @@ export interface HelloChange {
   readonly manifest?: Fields
   /** Files set (bytes or text) or, with null, dropped. */
   readonly replace?: Readonly<Record<string, Uint8Array | string | null>>
-}
-
-/** Every file of a folder by its relative path, dotfiles left out (build.py `_folder_members`). */
-export function folderFiles(root: string, prefix = ''): Map<string, Uint8Array> {
-  const files = new Map<string, Uint8Array>()
-  readdirSync(join(root, prefix)).filter((name) => !name.startsWith('.')).forEach((name) => {
-    const path = prefix ? `${prefix}/${name}` : name
-    if (statSync(join(root, path)).isDirectory()) folderFiles(root, path).forEach((data, inner) => files.set(inner, data))
-    else files.set(path, new Uint8Array(readFileSync(join(root, path))))
-  })
-  return files
 }
 
 /** hello's theme.json with `fields` set, as package bytes (build.py `changed_manifest`). */

@@ -8,7 +8,7 @@
  * replace sets a file's text or, with null, drops it), exactly as core's pytest builds it. A case's
  * code is null when core accepts the input; otherwise every error carries that code.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -17,6 +17,7 @@ import { cssValueProblem, prepaintErrors, type ThemeError } from '../src/core/cs
 import { validateLook, validateLookSchema, type LookSchema } from '../src/core/look-schema.ts'
 import { validateManifest } from '../src/core/package-manifest.ts'
 import type { PackageEntry } from '../src/members.ts'
+import { folderFiles } from './hello-files.ts'
 
 type JsonObject = Readonly<Record<string, unknown>>
 
@@ -50,20 +51,6 @@ const CORE_DIR = fileURLToPath(new URL('./fixtures/core/', import.meta.url))
 const HELLO_DIR = join(CORE_DIR, 'hello')
 const CORPUS = JSON.parse(readFileSync(join(CORE_DIR, 'cases.json'), 'utf8')) as Corpus
 const MANIFEST = 'theme.json'
-
-/** Every file of a folder by its relative path, as core's build.py reads the hello package. */
-function folderFiles(root: string, prefix = ''): Map<string, Uint8Array> {
-  const files = new Map<string, Uint8Array>()
-  readdirSync(join(root, prefix)).filter((name) => !name.startsWith('.')).forEach((name) => {
-    const path = prefix ? `${prefix}/${name}` : name
-    if (statSync(join(root, path)).isDirectory()) {
-      folderFiles(root, path).forEach((data, inner) => files.set(inner, data))
-    } else {
-      files.set(path, new Uint8Array(readFileSync(join(root, path))))
-    }
-  })
-  return files
-}
 
 /** The case's input: `document` as given, or `base` with `set` applied and `unset` removed. */
 function patched(base: JsonObject | undefined, set: JsonObject | undefined, unset: readonly string[] = []): JsonObject {
