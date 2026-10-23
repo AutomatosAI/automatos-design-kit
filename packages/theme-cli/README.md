@@ -111,3 +111,21 @@ Limits:
   print the server's 401 or 403.
 - A core without `/automatos-host.json` (PRD-261 B-03j) answers neither form for the web app's URL, so `--to` with it
   exits 2 with the sentence above; there, give the API's URL (`--to http://localhost:8000`).
+
+## shots
+
+`automatos-theme shots <theme folder> [--out <folder>]` draws the theme in the kit's browser harness
+(`packages/theme-harness`, its README says how), with nothing of Automatos running, and shoots it on Chromium and
+WebKit: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px, plus one set
+just below its `minWidth`, each with an axe scan (`axe.json` beside each set). The out folder (default `./shots`) holds
+`<browser>/<preset>/<width>/<view>.png`.
+
+It builds the harness for the folder (`vite build --config vite.harness.config.ts`), then runs the shots
+(`playwright test --config shots/playwright.config.ts`, which serves that build on `http://127.0.0.1:4318`). The
+browsers come from `npx playwright install chromium webkit`. A theme whose `theme.json` names a default look needs
+its `looks/presets/` first: run the theme's build (Play's writes them).
+
+Exit code 0 when every shot passed; the failing step's own exit code when one failed (the shots fail on a missing
+PNG, on any request to another origin than the harness's, and on a critical axe violation); 1 when the folder has no
+`theme.json` or `src/entry.ts`, or its presets are not built yet; 2 for a usage error. Kit CI's `harness` job runs it
+over Play and uploads the folder as the `kit-harness` artifact.

@@ -100,7 +100,8 @@ request refused for used-up credits.
 
 The test toolchain (vitest, jsdom, React, React DOM and Testing Library's `react`, `dom`, `user-event` and
 `jest-dom`) is pinned exactly in the kit's root `package.json`, so every workspace runs on the same versions, and
-this package names none of its own. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
+this package names none of its own; so are the shots' Playwright (`@playwright/test`, at the version core's browser
+lane pins) and `@axe-core/playwright`. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
 every outside package on the kit's approved list.
 
 ## The browser harness
@@ -131,3 +132,10 @@ every outside package on the kit's approved list.
   features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors:
   active)` rules under the toolbar's two attributes, and forced colours paints the system colours over the page;
   the shots set both features for real. Each setting is in the address, so a reload opens the same view.
+
+`shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one
+test per preset and width, each waiting on the host's status, the network, the fonts and the images (never a fixed
+sleep), with reduced motion on and animations off. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`);
+a set's scans go to its `axe.json`. A shot fails on a missing PNG, on any request to another origin than
+`http://127.0.0.1:4318`, and on a critical axe violation. It proves a theme draws, not that core draws it the same
+way: core's browser lane does that.

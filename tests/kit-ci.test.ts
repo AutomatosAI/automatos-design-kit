@@ -22,8 +22,20 @@ const TEST_DEV_DEPENDENCIES = [
   "@testing-library/user-event",
   "@testing-library/jest-dom",
 ];
+// PRD-261 QB-13b (the maintainer's OK): Playwright at the version core's browser lane pins and axe for the
+// harness shots (B-02f), and ESLint 9 for the kit's eslint plugin (B-03i), each pinned at this version.
+const QB13B_DEV_DEPENDENCIES: Readonly<Record<string, string>> = {
+  "@playwright/test": "1.57.0",
+  "@axe-core/playwright": "4.14.0",
+  eslint: "9.39.5",
+};
 // Every outside package a manifest may name. A new one needs the maintainer's OK and its name here.
-const APPROVED_DEPENDENCIES = [...D2_DEV_DEPENDENCIES, "@types/node", ...TEST_DEV_DEPENDENCIES];
+const APPROVED_DEPENDENCIES = [
+  ...D2_DEV_DEPENDENCIES,
+  "@types/node",
+  ...TEST_DEV_DEPENDENCIES,
+  ...Object.keys(QB13B_DEV_DEPENDENCIES),
+];
 const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const TARBALL_URL = /^https:\/\/\S+\.tgz$/;
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
@@ -92,6 +104,26 @@ function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>):
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
 
+// The jobs of the workflow, in file order: each key two spaces in under `jobs:`.
+function jobNames(text: string): string[] {
+  const jobs = text.slice(text.indexOf("\njobs:\n"));
+  return Array.from(jobs.matchAll(/^ {2}([A-Za-z0-9_-]+):$/gm), (match) => match[1]);
+}
+
+// One job's lines, from its key to the next job's key (or the end of the file).
+function jobBlock(text: string, job: string): string {
+  const lines = text.split("\n");
+  const start = lines.indexOf(`  ${job}:`);
+  if (start < 0) return "";
+  const end = lines.findIndex((line, index) => index > start && /^ {2}[A-Za-z0-9_-]+:$/.test(line));
+  return lines.slice(start, end < 0 ? lines.length : end).join("\n");
+}
+
+// The `uses:` lines of a block, as written.
+function usesLines(text: string): string[] {
+  return text.split("\n").filter((line) => /^\s*(?:-\s+)?uses:/.test(line)).map((line) => line.trim());
+}
+
 // The `run:` commands of the workflow, in file order.
 function workflowRuns(text: string): string[] {
   return text
@@ -150,6 +182,11 @@ describe("root package.json", () => {
     const dev = pkg.devDependencies ?? {};
     TEST_DEV_DEPENDENCIES.forEach((name) => expect(dev[name], name).toMatch(EXACT_VERSION));
     expect(dev["react-dom"]).toBe(dev.react);
+  });
+
+  it("pins the browser and lint toolchain at the versions QB-13b approved", () => {
+    const dev = pkg.devDependencies ?? {};
+    Object.entries(QB13B_DEV_DEPENDENCIES).forEach(([name, version]) => expect(dev[name], name).toBe(version));
   });
 });
 
@@ -230,7 +267,20 @@ describe("TypeScript configs", () => {
 
 describe("kit workflow", () => {
   const text = readText(WORKFLOW);
-  const runs = workflowRuns(text);
+  const runs = workflowRuns(jobBlock(text, "kit"));
+
+  it("reads each job's own block", () => {
+    const sample = ["jobs:", "  one:", "    steps:", "      - name: A", "        run: a", "", "  two:", "    steps:", "      - name: B", "        run: b"]
+      .join("\n");
+    expect(jobNames(`x\n${sample}`)).toEqual(["one", "two"]);
+    expect(workflowRuns(jobBlock(sample, "one"))).toEqual(["a"]);
+    expect(workflowRuns(jobBlock(sample, "two"))).toEqual(["b"]);
+    expect(jobBlock(sample, "three")).toBe("");
+  });
+
+  it("has the kit job, then the harness job (PRD-261 B-02f)", () => {
+    expect(jobNames(text)).toEqual(["kit", "harness"]);
+  });
 
   it("runs on pull requests and on pushes to main, read-only", () => {
     expect(text).toMatch(/^on:\n {2}pull_request:\n {2}push:\n {4}branches: \[main\]$/m);
@@ -256,6 +306,50 @@ describe("kit workflow", () => {
     }
     expect(runs[1]).toBe("npm install --no-audit --no-fund");
     expect(text).toMatch(/name: kit-lockfile\n\s+path: package-lock\.json\n\s+if-no-files-found: error/);
+  });
+});
+
+// PRD-261 B-02f: the harness job installs and builds as the kit job does, installs the two browsers the shots run
+// on, runs `automatos-theme shots` over Play and uploads its PNGs and axe.json files as kit-harness.
+const SHOTS_OUT = "packages/theme-harness/dist/shots";
+const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
+const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
+
+describe("kit workflow, harness job (PRD-261 B-02f)", () => {
+  const text = readText(WORKFLOW);
+  const kit = jobBlock(text, "kit");
+  const harness = jobBlock(text, "harness");
+
+  it("installs and builds as the kit job does, then installs Chromium and WebKit and runs the shots over Play", () => {
+    expect(workflowRuns(harness)).toEqual([
+      PIN_NPM,
+      workflowRuns(kit)[1],
+      "npm run build",
+      "npx playwright install --with-deps chromium webkit",
+      `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
+    ]);
+  });
+
+  it("uses only the actions the kit job uses, at the same pins, with no checkout credentials and the same Node", () => {
+    const kitUses = usesLines(kit);
+    expect(usesLines(harness).length).toBeGreaterThan(0);
+    expect(usesLines(harness).filter((line) => !kitUses.includes(line))).toEqual([]);
+    expect(harness).toMatch(/actions\/checkout@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+persist-credentials: false/);
+    expect(/node-version: "(\d+)"/.exec(harness)?.[1]).toBe(/node-version: "(\d+)"/.exec(kit)?.[1]);
+  });
+
+  it("uploads the shots as kit-harness whatever they did, and fails when there are none", () => {
+    const upload = new RegExp(
+      `- name: Upload shots\\n\\s+if: always\\(\\)\\n\\s+uses: actions/upload-artifact@[0-9a-f]{40}[^\\n]*\\n` +
+        `\\s+with:\\n\\s+name: kit-harness\\n\\s+path: ${escapedPath(SHOTS_OUT)}/\\n\\s+if-no-files-found: error`,
+    );
+    expect(harness).toMatch(upload);
+  });
+
+  it("shoots on Chromium and WebKit, with no retry", () => {
+    const config = readText(SHOTS_CONFIG);
+    expect(Array.from(config.matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).toEqual(["chromium", "webkit"]);
+    expect(config).toMatch(/^\s+retries: 0,$/m);
   });
 });
 

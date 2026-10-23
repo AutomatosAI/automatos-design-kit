@@ -1,7 +1,7 @@
 {
   "name": "@automatos/theme-harness",
   "version": "0.1.0",
-  "description": "Runs a theme's tests without an Automatos host: vitest in jsdom with React, Testing Library and the jest-dom matchers, @automatos/theme-sdk resolved to a fake SDK held to the vendored types, and the fake host's controls.",
+  "description": "Runs a theme without an Automatos host: its tests in vitest (jsdom, React, Testing Library and the jest-dom matchers, @automatos/theme-sdk resolved to a fake SDK held to the vendored types, and the fake host's controls), and the theme itself in a browser, in a mock host app with a toolbar, shot on Chromium and WebKit with an axe scan.",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -9,6 +9,7 @@
     "./vitest-preset": "./src/vitest-preset.ts",
     "./setup": "./src/setup.ts",
     "./host": "./src/host.ts",
+    "./router": "./src/host/router.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
