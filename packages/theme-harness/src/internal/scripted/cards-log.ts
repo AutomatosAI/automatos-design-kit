@@ -1,11 +1,13 @@
 /**
- * PRD-261 B-02c: what the owner did on the host cards' stand-ins (src/sdk/cards/*.tsx). Not an SDK name.
+ * PRD-261 B-02c: what the owner did on the host cards' stand-ins (src/sdk/cards/*.tsx), and what a theme handed the
+ * host's markdown renderer. Not an SDK name.
  *
  * Core's cards make the host's own calls (approve or deny a grant, approve or reject a Mission, withdraw a request,
  * create a Mission); the stand-ins make none and keep each click here instead, for a test to read back
  * (cardActions). Every stand-in's root carries data-protected-surface with the card's name, so a test can find it
  * and a theme's stylesheet can be checked against it (core's components/theme-host/protected-surface.tsx:29).
  */
+import type { MarkdownViewProps } from '@automatos/theme-sdk'
 import { log } from '../cell.ts'
 
 /** core components/theme-host/protected-surface.tsx:29-30. */
@@ -37,6 +39,7 @@ export interface CardAction {
 }
 
 const actions = log<CardAction>()
+const markdown = log<MarkdownViewProps>()
 
 export function recordCardAction(action: CardAction): void {
   actions.add(Object.freeze({ ...action }))
@@ -47,6 +50,20 @@ export function cardActions(): readonly CardAction[] {
   return actions.all()
 }
 
+/**
+ * The stand-in shows its text as it is, so the props each MarkdownView drew with (the theme's element overrides,
+ * skipHtml, the text) are kept for a test to read: the host renders the markdown by them (cards.test in core).
+ */
+export function recordMarkdownView(props: MarkdownViewProps): void {
+  markdown.add(Object.freeze({ ...props }))
+}
+
+/** Every MarkdownView render since the last reset, oldest first, with the props it was given. */
+export function markdownViews(): readonly MarkdownViewProps[] {
+  return markdown.all()
+}
+
 export function resetCardsLog(): void {
   actions.clear()
+  markdown.clear()
 }

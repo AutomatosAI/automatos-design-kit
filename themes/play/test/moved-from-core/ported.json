@@ -1,0 +1,96 @@
+[
+  {
+    "corePath": "frontend/lib/__tests__/prd261-port-chat.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/copied-from-core.test.ts",
+    "kitIts": 6,
+    "rehomed": [
+      {
+        "assertion": "The scan of the chat area finds the area's files and reads their imports. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The chat area imports nothing on the ban list (the app's @/ alias, Next.js, React Query, sonner, the API client, zustand outside Play's own stores). In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The chat area imports packages only from the allowed list (the SDK, React, React DOM). In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "Every relative import of the chat area lands inside Play's own folders. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The scan's helpers ban core by path, Next.js, React Query, sonner, the API client and zustand outside Play's stores (the A-19f2 guard's own helpers catch every banned name).",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The scan's helpers allow zustand in Play's own stores only, and never its middleware.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The scan's helpers tell a relative import that stays in Play's folders from one that leaves them.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      }
+    ],
+    "rewritten": "Core held each copy to its own module (lib/chat/receipts.ts, deliverables.ts, message-text.ts, suggestion.ts, and the SDK's lib/theme-sdk/internal/chat-view.ts for the messages a theme gets); the kit holds it to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The test's six copy cases are kept, each on the snapshot; its seven scan cases are rehomed (Play's imports are the kit's test/imports.test.ts now)."
+  },
+  {
+    "corePath": "frontend/lib/__tests__/prd261-port-conversations.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 5,
+    "kitPath": "test/copied-from-core.test.ts",
+    "kitIts": 2,
+    "rehomed": [
+      {
+        "assertion": "The guard scans the conversations area's runtime files (components/play/conversations, lib/play/{conversations,detail,draft,focus}.ts) and none of its tests. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The guard refuses the ban list and any package or path outside Play, and allows the SDK, React and Play (the A-19f2 guard's own helpers catch every banned name).",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "Play's conversations import only '@automatos/theme-sdk', react, react-dom and Play's own folders. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      }
+    ],
+    "rewritten": "Core held Play's copies to its own modules (lib/chat/deliverables.ts UNTITLED, components/workspace/gallery-view/made-by.ts MADE_BY_SOURCE, lib/text/plain-line.ts oneLine); the kit holds the words to test/fixtures/core/copied-values.json (core at 101a0bf33) and the one-line rule to the theme's src/lib/text/plain-line.ts, which the snapshot holds to core's by its sha256. The two copy cases are kept; the three scan cases are rehomed."
+  },
+  {
+    "corePath": "frontend/lib/__tests__/prd261-port-deliverables.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 9,
+    "kitPath": "test/copied-from-core.test.ts",
+    "kitIts": 3,
+    "rehomed": [
+      {
+        "assertion": "The scan of the Deliverables area finds the area's files and reads their imports. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The Deliverables area imports nothing on the ban list (the app's @/ alias, Next.js, React Query, sonner, the API client, zustand). In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The Deliverables area imports packages only from the allowed list (the SDK, React, React DOM). In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "Every relative import of the Deliverables area lands inside Play's own folders. In the kit, test/imports.test.ts holds Play's imports (its own files by relative path and the host's shared modules only) and the vite-preset's source guard refuses a module outside src/; in core, the A-19f2 guard finds no Play file left to scan.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The scan's helpers ban core by path, Next.js, React Query, sonner, the API client and zustand (the A-19f2 guard's own helpers catch every banned name).",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "The scan's helpers tell a relative import that stays in Play's folders from one that leaves them.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      }
+    ],
+    "rewritten": "Core held Play's copies (lib/play/shelf.ts isDeliverableId, deliverableHref, UNTITLED, DOWNLOAD_FAILED) to its own modules (lib/chat/deliverables.ts, lib/deliverables/download.ts); the kit holds them to test/fixtures/core/copied-values.json, core's values and its functions' answers for the port test's own inputs at 101a0bf33. The three copy cases are kept; the six scan cases are rehomed."
+  }
+]

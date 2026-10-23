@@ -4,9 +4,10 @@
  * does (components/workspace/gallery-view/made-by.ts). FilePreview names the preview it would draw (the type given,
  * else inferred from the file name) and shows text content as it is, or the API path of a binary file; it fetches
  * nothing. MarkdownView shows its text as it is, read as no Markdown and no HTML, so a test reads the words the host
- * would render. Each root carries data-protected-surface.
+ * would render, and keeps the props it drew with (cardsControls.markdownViews). Each root carries data-protected-surface.
  */
 import type { FilePreviewType } from '@automatos/theme-sdk'
+import { recordMarkdownView } from '../../internal/scripted/cards-log.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 
@@ -77,8 +78,10 @@ export const FilePreview: Sdk['FilePreview'] = function FilePreview({ content, u
   )
 }
 
-/** cards.MarkdownView: the text as it is (no Markdown, no HTML), at the density asked for. */
-export const MarkdownView: Sdk['MarkdownView'] = function MarkdownView({ children, density = DEFAULT_DENSITY, className }) {
+/** cards.MarkdownView: the text as it is (no Markdown, no HTML), at the density asked for; its props kept. */
+export const MarkdownView: Sdk['MarkdownView'] = function MarkdownView(props) {
+  const { children, density = DEFAULT_DENSITY, className } = props
+  recordMarkdownView(props)
   return (
     <div data-protected-surface="markdown-view" data-density={density} className={className}>
       {children}

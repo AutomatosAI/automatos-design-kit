@@ -3,10 +3,13 @@
 // test/moved-from-core/<area>.json naming the core test (corePath, read at coreSha, where it had coreIts
 // cases), the kit test that replaces it (kitPath, with kitIts cases), the core tests that now hold any of
 // its assertions (rehomed), and why it was rewritten rather than ported (rewritten; null for a port). A
-// case is an it() or test() call, it.each() counted once, as the count of core's file is made. This test
-// holds the ledger to the files: a kit test that is missing, that no longer has the cases its row says or
-// that skips or focuses one, or that has fewer cases than core's with the gap not listed in rehomed, fails
-// it. CI checks out the kit alone, so coreIts is counted from core's git objects when the row is written.
+// case is an it() or test() call, it.each() counted once, never a RegExp's .test() call (CASE_CALL), as the
+// count of core's file is made. This test holds the ledger to the files: a kit test that is missing, that no
+// longer has the cases its row says or that skips or focuses one, or that has fewer cases than core's with the
+// gap not listed in rehomed, fails it. Several rows name one kit test only where core's ledger moved several
+// core tests into it (SHARED_KIT_TESTS): each row's kitIts counts the cases that replace its own core test's,
+// and the rows' kitIts add up to the kit test's cases. CI checks out the kit alone, so coreIts is counted from
+// core's git objects when the row is written.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -35,7 +38,13 @@ interface Located {
 
 const LEDGER_DIR = join(THEME_ROOT, 'test', 'moved-from-core')
 const ROW_FIELDS: readonly string[] = ['coreIts', 'corePath', 'coreSha', 'kitIts', 'kitPath', 'rehomed', 'rewritten']
-const CASE_CALL = /\b(?:it|test)(?:\.each)?\(/g
+/**
+ * A case: an it() or test() call wherever it stands (a file's top level too), never a member's .test( or .it(
+ * (a RegExp's test call is no case); with .only, .skip or .todo (still a case, which rowProblems refuses in a kit
+ * test); it.each() or test.each() with or without a type argument (it.each<Row>(), one level of nesting and arrow
+ * types read) or a template table, counted once; it.runIf() and it.skipIf(). No u flag: \w is ASCII.
+ */
+const CASE_CALL = /(?<![\w$.])(?:it|test)(?:\.(?:only|skip|todo))?(?:\(|\.each(?:<(?:=>|[^<>]|<[^<>]*>)*>)?[(`]|\.(?:runIf|skipIf)\()/g
 const SKIPPED_OR_FOCUSED = /\b(?:it|test|describe)\.(?:skip|only|todo)\b/
 const COMMIT_SHA = /^[0-9a-f]{40}$/
 const CORE_TEST = /^frontend\/(?:[\w.-]+\/)*__tests__\/[\w.-]+\.test\.tsx?$/
@@ -53,6 +62,17 @@ const B05P_MOVES: Readonly<Record<string, boolean>> = Object.freeze({
   'test/lib/seen.test.ts': true,
   'test/lib/shelf.test.ts': false,
   'test/deliverables/play-shelf.test.tsx': true,
+})
+/**
+ * The kit tests that hold several core tests' cases, each with the core tests it holds: core's ledger (PRD-261
+ * A-19f2) names that one kit test for each of them, so their rows share it.
+ */
+const SHARED_KIT_TESTS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  'test/copied-from-core.test.ts': [
+    'frontend/lib/__tests__/prd261-port-chat.test.ts',
+    'frontend/lib/__tests__/prd261-port-conversations.test.ts',
+    'frontend/lib/__tests__/prd261-port-deliverables.test.ts',
+  ],
 })
 
 const isText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
@@ -83,7 +103,7 @@ function isRow(value: unknown): value is LedgerRow {
   )
 }
 
-/** The cases a test file declares: it(), test() and it.each(), as core's count is made. */
+/** The cases a test file declares: it(), test() and it.each() (CASE_CALL), as core's count is made. */
 function countCases(code: string): number {
   return Array.from(code.matchAll(CASE_CALL)).length
 }
@@ -113,16 +133,21 @@ function ledgerRows(): Located[] {
   })
 }
 
-/** Why a row doesn't hold for its kit test (none when it does). */
-function rowProblems({ file, row }: Located): string[] {
+/**
+ * Why a row doesn't hold for its kit test (none when it does). `shared` is the cases the other rows naming the
+ * same kit test count (SHARED_KIT_TESTS): the kit test has the cases of all its rows.
+ */
+function rowProblems({ file, row }: Located, shared = 0): string[] {
   const where = `${file} ${row.corePath}`
   const kitFile = join(THEME_ROOT, row.kitPath)
   if (!existsSync(kitFile)) return [`${where}: its kitPath ${row.kitPath} is missing`]
   const code = readFileSync(kitFile, 'utf8')
   const cases = countCases(code)
   const gap = row.coreIts - row.kitIts
+  const counted = row.kitIts + shared
+  const says = shared > 0 ? `its row says ${row.kitIts} and the rows sharing it ${shared}` : `its row says ${row.kitIts}`
   const problems: readonly (string | null)[] = [
-    cases === row.kitIts ? null : `${where}: ${row.kitPath} has ${cases} cases, its row says ${row.kitIts}`,
+    cases === counted ? null : `${where}: ${row.kitPath} has ${cases} cases, ${says}`,
     SKIPPED_OR_FOCUSED.test(code) ? `${where}: ${row.kitPath} skips or focuses a case` : null,
     gap > row.rehomed.length ? `${where}: ${gap} cases fewer than core's, ${row.rehomed.length} listed in rehomed` : null,
   ]
@@ -131,6 +156,25 @@ function rowProblems({ file, row }: Located): string[] {
 
 function duplicates(values: readonly string[]): string[] {
   return values.filter((value, index) => values.indexOf(value) !== index)
+}
+
+/** The cases the other rows naming the same kit test count. */
+function sharedCases(rows: readonly Located[], { row }: Located): number {
+  return rows
+    .filter((other) => other.row !== row && other.row.kitPath === row.kitPath)
+    .reduce((sum, other) => sum + other.row.kitIts, 0)
+}
+
+/** Each kit test whose rows aren't one, or aren't exactly the core tests SHARED_KIT_TESTS lists for it. */
+function sharingProblems(rows: readonly Located[]): string[] {
+  const kitPaths = Array.from(new Set(rows.map(({ row }) => row.kitPath)))
+  return kitPaths.flatMap((kitPath) => {
+    const named = rows.filter(({ row }) => row.kitPath === kitPath).map(({ row }) => row.corePath).sort()
+    const listed = [...(SHARED_KIT_TESTS[kitPath] ?? [])].sort()
+    if (named.length === 1 && listed.length === 0) return []
+    if (named.join() === listed.join()) return []
+    return [`${kitPath} is named by ${named.join(', ')}; SHARED_KIT_TESTS lists ${listed.join(', ') || 'none'}`]
+  })
 }
 
 describe('the test-move ledger', () => {
@@ -143,12 +187,12 @@ describe('the test-move ledger', () => {
   })
 
   it('finds the kit test of every row, with the cases its row says and none skipped or focused', () => {
-    expect(rows.flatMap(rowProblems)).toEqual([])
+    expect(rows.flatMap((located) => rowProblems(located, sharedCases(rows, located)))).toEqual([])
   })
 
-  it('names each core test and each kit test in one row only', () => {
+  it('names each core test in one row only, and each kit test in one row but the shared ones SHARED_KIT_TESTS lists', () => {
     expect(duplicates(rows.map(({ row }) => row.corePath))).toEqual([])
-    expect(duplicates(rows.map(({ row }) => row.kitPath))).toEqual([])
+    expect(sharingProblems(rows)).toEqual([])
   })
 
   it("holds B-05p's moves at core's 1.1.0 merge, the tests E3g changed marked rewritten (PB-10)", () => {
@@ -172,6 +216,24 @@ describe("the ledger's own checks", () => {
     expect(countCases(code)).toBe(3)
   })
 
+  it("never counts a RegExp's .test() call, or any other member's .test( or .it(, as a case", () => {
+    const calls = ['const PATTERN = /x/', '/x/.test(s)', 'PATTERN.test(line)', 'patterns[0]?.test(name)', "suite.it('x')", "$test('y')"]
+    expect(countCases(calls.join('\n'))).toBe(0)
+    expect(countCases([...calls, "it('a', () => expect(PATTERN.test('x')).toBe(true))"].join('\n'))).toBe(1)
+  })
+
+  it('counts it.each<T>() and test.each<T>(), a template table, it.runIf() and a skipped case once each', () => {
+    const code = [
+      "it.each<UiStyle>(['studio', 'classic'])('under %s', (style) => {})",
+      "test.each<[string, Readonly<Row>]>([['a', row]])('%s', () => {})",
+      "it.each<[string, () => void]>([['b', noop]])('%s', () => {})",
+      "it.each`a | b ${1} | ${2}`('$a and $b', () => {})",
+      "it.runIf(brought)('c', () => {})",
+      "it.skip('d', () => {})",
+    ].join('\n')
+    expect(countCases(code)).toBe(6)
+  })
+
   it('fails a row whose kit test is missing, whose count is not the file, or whose gap is not in rehomed', () => {
     const { file, row } = pause()
     expect(rowProblems({ file, row })).toEqual([])
@@ -180,6 +242,18 @@ describe("the ledger's own checks", () => {
     const unlisted = { ...row, coreIts: row.kitIts + 1, rehomed: [] }
     expect(rowProblems({ file, row: unlisted })).toEqual([expect.stringContaining('fewer than core')])
     expect(rowProblems({ file, row: { ...unlisted, rehomed: row.rehomed } })).toEqual([])
+  })
+
+  it("splits a shared kit test's cases among its rows, and lets only the listed core tests share one", () => {
+    const { file, row } = pause()
+    const first: Located = { file, row: { ...row, corePath: 'frontend/lib/__tests__/a.test.ts', coreIts: 1, kitIts: 1, rehomed: [] } }
+    const rest = row.kitIts - first.row.kitIts
+    const second: Located = { file, row: { ...row, corePath: 'frontend/lib/__tests__/b.test.ts', coreIts: rest, kitIts: rest, rehomed: [] } }
+    const both = [first, second]
+    expect(both.flatMap((located) => rowProblems(located, sharedCases(both, located)))).toEqual([])
+    expect(rowProblems(first)).toEqual([expect.stringContaining('its row says')])
+    expect(sharingProblems(both)).toEqual([expect.stringContaining('SHARED_KIT_TESTS lists none')])
+    expect(sharingProblems([{ file, row }])).toEqual([])
   })
 
   it('refuses a row missing a field, with another field, or with a short sha', () => {

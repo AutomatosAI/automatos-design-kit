@@ -21,5 +21,248 @@
     "kitIts": 9,
     "rehomed": [],
     "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/play/__tests__/conversations.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 15,
+    "kitPath": "test/lib/conversations.test.ts",
+    "kitIts": 15,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/play/__tests__/detail.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 21,
+    "kitPath": "test/lib/detail.test.ts",
+    "kitIts": 21,
+    "rehomed": [
+      {
+        "assertion": "The file a Deliverable hands over (deliverableFileUrl, deliverableDownloadUrl, deliverableFilename) is the host's rule, lib/deliverables/download.ts: the kit's three cases hold the SDK's helpers (the harness's fake, which mirrors it) to it, and core's own test holds the host's.",
+        "corePath": "frontend/lib/deliverables/__tests__/download.test.ts"
+      }
+    ],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/play/__tests__/draft.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/lib/draft.test.ts",
+    "kitIts": 13,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/play/__tests__/focus.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 7,
+    "kitPath": "test/lib/focus.test.ts",
+    "kitIts": 7,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/catalogue.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 8,
+    "kitPath": "test/lib/looks/catalogue.test.ts",
+    "kitIts": 8,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/contrast.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 19,
+    "kitPath": "test/lib/looks/contrast.test.ts",
+    "kitIts": 19,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/css.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/lib/looks/css.test.ts",
+    "kitIts": 13,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/document.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 3,
+    "kitPath": "test/lib/looks/document.test.ts",
+    "kitIts": 3,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/editor.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 16,
+    "kitPath": "test/lib/looks/editor.test.ts",
+    "kitIts": 16,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/style.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 19,
+    "kitPath": "test/lib/looks/style.test.ts",
+    "kitIts": 19,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/studio-tokens.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/lib/looks/studio-tokens.test.ts",
+    "kitIts": 13,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/transfer.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/lib/looks/transfer.test.ts",
+    "kitIts": 13,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/looks/__tests__/validate.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 20,
+    "kitPath": "test/lib/looks/validate.test.ts",
+    "kitIts": 20,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/lib/look-kit/__tests__/play-presets-parity.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 3,
+    "kitPath": "test/lib/looks/play-presets-parity.test.ts",
+    "kitIts": 3,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/caption.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 18,
+    "kitPath": "test/chat/caption.test.ts",
+    "kitIts": 13,
+    "rehomed": [
+      {
+        "assertion": "The core chat's own tool time stays whole seconds (formatDuration, lib/chat/tool-calls.ts: 2140 ms is '2 s'); Play's one-decimal toolSeconds is the kit's.",
+        "corePath": "frontend/lib/chat/__tests__/tool-calls.test.ts"
+      },
+      {
+        "assertion": "A message's words are its text parts, else its content (messageText, lib/chat/message-text.ts): the SDK hands a theme each message's words as text.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat.test.tsx"
+      },
+      {
+        "assertion": "The conversation is named by its stored title, else its first user words, else New chat (chatTitle): the SDK hands a theme the title.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat.test.tsx"
+      },
+      {
+        "assertion": "A reply's activity lines are its narration, then a long tool's progress, blanks left out (activityLines): the SDK hands a theme a message's activity.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat.test.tsx"
+      },
+      {
+        "assertion": "A failed turn the server saved reads as its words without the core's warning sign, and any other message as none (savedTurnError): the SDK hands a theme savedError.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "Who wrote a reply is metadata.source, never a saved turn error's label (provenanceOf): the SDK hands a theme provenance.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "The reply being written reads its words from the content when it has no text parts, its reasoning's length and a cap only when the cap has words (replyProgress over the core's messages): the SDK hands a theme text, reasoningChars and limitReached, which the kit's cases set.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat.test.tsx"
+      }
+    ],
+    "rewritten": "Play's chat reads the SDK's messages (HostChatMessage), which the host reads off its own ChatMessage (lib/theme-sdk/internal/chat-view.ts over lib/chat/message-text.ts), so the cases of Play's own readings (src/components/play/chat/reply.ts: latestReply, runningToolInput, replyProgress) are written on messages shaped as the SDK hands them, with every assertion kept; the host's readings of its own messages and the core chat's whole-seconds formatter are core's (rehomed)."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/deliverables.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 7,
+    "kitPath": "test/chat/deliverables.test.ts",
+    "kitIts": 2,
+    "rehomed": [
+      {
+        "assertion": "A receipt link names a Deliverable by the core's absolute open_url, keeping only the id (deliverableIdFromLink, M76).",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "A path in the app names one too: the open_url without FRONTEND_URL, and /deliverables/<id>.",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "Card and agent pages, and ids that cannot go in a link, name none.",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "Any other scheme, a protocol-relative link and a bare relative one name none.",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "The id the card links is the one read from the receipt's link, whatever its origin (the kit asserts Play's link for that id).",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "Only done receipts list a Deliverable, titled by their subject, the absolute open_url working like a path (deliverablesFromReceipts).",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      },
+      {
+        "assertion": "The document tool's data names the generated Deliverable's id, title and kind, and a bad id is none (deliverableFromToolData).",
+        "corePath": "frontend/lib/chat/__tests__/deliverables.test.ts"
+      }
+    ],
+    "rewritten": "Every case ran on core's lib/chat/deliverables.ts, the host's (core's lib/chat/__tests__/deliverables.test.ts holds them all since W-L1); a theme gets a turn's Deliverables from the SDK already read and checked. The kit keeps Play's half: its copy of the link (src/components/play/chat/deliverable-link.ts) on the ids the core's cases read from their links."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/first-open-layout.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 4,
+    "kitPath": "test/chat/first-open-layout.test.ts",
+    "kitIts": 4,
+    "rehomed": [],
+    "rewritten": null
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/play-markdown.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 3,
+    "kitPath": "test/chat/play-markdown.test.tsx",
+    "kitIts": 3,
+    "rehomed": [
+      {
+        "assertion": "The renderer draws the markdown (a heading, strong, a link) and a theme's element overrides in place of its own (the fenced block into Play's <pre>).",
+        "corePath": "frontend/components/shared/__tests__/markdown-view.test.tsx"
+      },
+      {
+        "assertion": "The SDK's MarkdownView hands the host's renderer the theme's overrides, skipHtml and its density as given.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/cards.test.tsx"
+      }
+    ],
+    "rewritten": "The markdown renderer is the host's (the SDK's MarkdownView), which the harness stands in for with the text as it is, so each case asserts Play's half of what core rendered: what PlayMarkdown hands the renderer (skipHtml, its own components, the compact density, the text) and what each of its components draws (the plain <pre>, the link in a new tab, the image as its alt text); the renderer's half is core's (rehomed)."
+  },
+  {
+    "corePath": "frontend/hooks/__tests__/use-play-turn.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 2,
+    "kitPath": "test/hooks/use-play-turn.test.ts",
+    "kitIts": 2,
+    "rehomed": [],
+    "rewritten": null
   }
 ]

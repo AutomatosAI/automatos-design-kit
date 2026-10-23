@@ -1,0 +1,279 @@
+[
+  {
+    "corePath": "frontend/components/play/chat/__tests__/play-chat.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 35,
+    "kitPath": "test/chat/play-chat.test.tsx",
+    "kitIts": 19,
+    "rehomed": [
+      {
+        "assertion": "A cold start on this device lands on the newest conversation (getChatHistory(1), no hello): the chat controller's conversation loading.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "The same ?chatId= deep link opens the conversation again once the URL was cleaned (Recent, New chat, Recent).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A conversation that can't be loaded is closed (closeTab) with the toast 'That conversation is no longer available', and a new chat shows.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "After New chat, the conversation the new chat became opens from the server, not as an empty first open (M03).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A stored conversation opened again after New chat is loaded again, though a later turn named it (M03).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A ?chatId= link wins over a ?draft= link's words and drops them with itself.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A new chat the backend named comes back from the server after Automatos was asleep and Play's frame mounted again, not as an empty first open (M09).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A stored conversation shows what was said meanwhile after Automatos was asleep: its messages are asked again (M09).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A refresh of the same workspace (a key saved from the trial banner) keeps the chat on screen: the session key stays hydrated, never Opening, one chat screen (M09).",
+        "corePath": "frontend/hooks/__tests__/use-chat-session.test.tsx"
+      },
+      {
+        "assertion": "A Recent link opens the next conversation without mounting the previous one again on the way (one stream per conversation).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "New chat pressed before the cold start reads the newest conversation stays a new chat (M10).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A conversation opened before the cold start answers stays on screen (M10).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A blank ?chatId= is no link: it leaves the URL and a new chat shows, never Opening (M11).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A blank ?chatId= on a cold start lands on the newest conversation (M11).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "The history lists are asked again when a reply ends, at CONVERSATION_LIMIT, so Conversations and Recent show the turn (P260-FX-10, M44).",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A turn that fails asks the history again too; a render with the status unchanged does not.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A stored conversation loads through getChat and getChatMessages and its stream opens on it (useChatWithReceipts' id and initialMessages); the kit asserts what Play shows once it has opened.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "Auto's answer rendered as Markdown (**16 GB** as <strong>, a surface's components overriding an element, an image dropped to its text): the host's MarkdownView, which the harness stands in for with the text as it is; the kit asserts Play hands it the whole answer, compact, and draws no image.",
+        "corePath": "frontend/components/shared/__tests__/markdown-view.test.tsx"
+      },
+      {
+        "assertion": "The SDK's MarkdownView hands the host's renderer the theme's components and skipHtml (Play's image-as-alt-text and no raw HTML).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/cards.test.tsx"
+      },
+      {
+        "assertion": "A ?chatId= deep link opens through the session store (openChat), leaves the URL (router.replace('/chat')) and asks no history.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A new chat's id goes to the session store (chatIdAssigned) and the stream follows it (useChatWithReceipts' id), nothing loaded, one stream mounted.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "New chat over a new chat whose first send failed mounts a fresh stream through the session's fresh draft (M12).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      },
+      {
+        "assertion": "A ?draft= link opens a new draft in the session store (newDraft), leaves the URL, and loads no conversation or history.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      }
+    ],
+    "rewritten": "The SDK is the harness's fake (packages/theme-harness): core's mocks of the chat hook, the session store, the chat API, the backend's health and the frame became the fake host's controls (setConversations, setSearchParams, setChatScript with continueHeldTurn, setChatOpening, setTurnEnding), and what was sent is read with host.chatSent() instead of the hook's sendMessage; the stream's status comes from a real send, not a flipped mock. Hello's first open is set through the SDK's storage area (hello-played, for the session and the account) instead of core's sessionStorage key automatos-play.hello-played (PB-10). Assertions of the controller under Play (the session store, the URL cleaned, the history asked again, a cold start, the asleep remounts and races) are in rehomed."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/play-chat-turn.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 26,
+    "kitPath": "test/chat/play-chat-turn.test.tsx",
+    "kitIts": 26,
+    "rehomed": [
+      {
+        "assertion": "A stored reply's receipts (a receipts part, or the receipts field) are read into the reply, linked only when done and in this app; the kit streams the receipts frame instead.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "A done receipt that links a Deliverable by the core's absolute open_url (https://.../deliverables?tab=outputs&deliverable=d-7) lists it by its checked id; the kit's receipt links the app path, which the harness reads.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "A failed turn the server saved (source turn_error) becomes the reply's savedError without the warning sign or the 'Error' label, and a background post (source watcher) its provenance 'Auto · background'; the kit sets both on the stored messages.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "Try again on a failed reply calls the hook's reload(): the same words asked again in the reply's place; the kit reads the retry with host.chatSent().",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "Stop calls the hook's stop() and cancels the turn on the server; the kit asserts the reply reads stopped.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A generated document part is filed under the reply being written, mid-turn, and a part with a bad Deliverable id files nothing.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "The core's TrialExhaustedBanner words ('Your credits are used up', and on the Own keys plan that the AI runs on your own keys) and that a workspace on its own keys keeps working: the host's banner; the kit asserts Play places the banner (the harness's stand-in) and no snag box.",
+        "corePath": "frontend/components/onboarding/__tests__/trial-exhausted-banner.test.tsx"
+      },
+      {
+        "assertion": "The SDK's useTrial reads the billing summary: exhausted while work is paused, converted on own keys (the kit sets the trial with host.setTrial).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/context.test.tsx"
+      },
+      {
+        "assertion": "The host's MissionSuggestionCard says 'Multi-step' for an organ-sized goal and its Launch Mission creates the Mission with the goal, source chat, chat_id and the recent messages; the kit asserts the props Play hands the card.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "The Mission store's activePlanningMissionId is the view model's planningMissionId (the kit sets it with host.setPlanningMissionId).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "The host's WithdrawOfferCard shows each request's reason (Delete 'christmas-box-2026.csv') and its Withdraw calls useDenyApproval with the grant id; the kit reads the click on the harness's stand-in.",
+        "corePath": "frontend/components/chatbot/__tests__/withdraw-offer-card.test.tsx"
+      },
+      {
+        "assertion": "The host's TaskCard says 'Ticket #0043' and its Open on the board pushes /command-center?tab=board&task_id=92.",
+        "corePath": "frontend/components/chatbot/__tests__/task-card.test.tsx"
+      },
+      {
+        "assertion": "A stored task_card part and the live taskCards make one card per ticket on the reply; the kit streams two task cards of one ticket.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      }
+    ],
+    "rewritten": "The SDK is the harness's fake (packages/theme-harness): what core's mocked chat hook handed Play (a reply's tool calls, receipts, Deliverables, failure, withdraw offer and tickets, a Mission suggestion part, a refused send) comes from recorded turns the sends take (host.setChatScript, a held turn going on with host.continueHeldTurn) after the stored question, a stored reply's savedError and provenance from host.setConversations, the paused trial from host.setTrial and the Mission being planned from host.setPlanningMissionId; the host's cards are the harness's stand-ins (MissionSuggestionCard wrapped to read Play's props), so a card's own words and calls are read back as host.cardActions() or rehomed. A failed turn's 'Auto plays oops' is asserted before Try again, since Try again now starts a real turn. Hello's first open is set through the SDK's storage area (hello-played, for the session and the account) instead of core's sessionStorage key automatos-play.hello-played (PB-10)."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/play-chat-approvals.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 17,
+    "kitPath": "test/chat/play-chat-approvals.test.tsx",
+    "kitIts": 9,
+    "rehomed": [
+      {
+        "assertion": "A failed approve keeps the card waiting with the toast 'Failed to approve the action', and Auto listening.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "Leaving the chat and opening the conversation again shows the waiting card after it, Approve & run still calling grant(42), Auto listening until then (P260-FX-08, M46): the controller's approvals store.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "A reply that comes back with the same id holds its card again, not loose.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "Another conversation never shows the card, and a closed card stays closed when its conversation is open again.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "A new chat's card goes with the name the backend gives it: that conversation shows it again, a new chat doesn't.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "approvalsInPart builds chat.tsx's widget data with the oversight fields, each checked (task_count from the tasks, an unknown risk_tier dropped, a string grant id).",
+        "corePath": "frontend/lib/chat/__tests__/approvals.test.ts"
+      },
+      {
+        "assertion": "fileApprovals files a card once, under the reply that raised it; withStatus keeps a closed card closed.",
+        "corePath": "frontend/lib/chat/__tests__/approvals.test.ts"
+      },
+      {
+        "assertion": "looseApprovals: a card whose reply left the conversation is loose until it is closed, answered or not.",
+        "corePath": "frontend/lib/chat/__tests__/approvals.test.ts"
+      },
+      {
+        "assertion": "The host's ToolApprovalWidget draws the oversight rationale (deletes data) and the params digest (document_id 7); the harness's stand-in shows the title and the action.",
+        "corePath": "frontend/components/widgets/__tests__/tool-approval-widget.test.tsx"
+      },
+      {
+        "assertion": "The host's MissionApprovalWidget is handed the checked plan (task_count 2, the tasks in order).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/cards.test.tsx"
+      },
+      {
+        "assertion": "The host's MissionApprovalWidget draws the plan's oversight (acts on a third-party system).",
+        "corePath": "frontend/components/widgets/__tests__/mission-approval-oversight.test.tsx"
+      },
+      {
+        "assertion": "Approve & run, Deny and Reject call the host's hooks: useGrantApproval(42), useDenyApproval(42), useApproveMission({id: 'm-1', body: {}}), useRejectMission with the reason 'Rejected from chat'; the kit reads each click on the harness's stand-ins.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      },
+      {
+        "assertion": "Parts that only look like approvals (bad ids, a tool-start, other tool data) file no card.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      }
+    ],
+    "rewritten": "The SDK is the harness's fake (packages/theme-harness): the tool_approval and mission_approval parts come from a held recorded turn (host.setChatScript) the test sends after a stored exchange, ended with host.continueHeldTurn instead of a flipped mock; the host's ToolApproval and MissionApproval are the harness's stand-ins, whose clicks are read with host.cardActions() where core's mocked hooks were. Hello's first open is set through the SDK's storage area (hello-played, for the session and the account) instead of core's sessionStorage key automatos-play.hello-played (PB-10). The approvals store across chat screens and lib/chat/approvals.ts itself are in rehomed."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/play-chat-approvals-stream.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 11,
+    "kitPath": "test/chat/play-chat-approvals-stream.test.tsx",
+    "kitIts": 9,
+    "rehomed": [
+      {
+        "assertion": "Studio's own hook is untouched: useChatWithReceipts on its own still drops the reply it was writing on Stop.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A reply the server finishes detached (the page opened mid-turn) merges in when the SSE lane says chat_changed: Send comes back, Auto idles.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "Stop at the wire: useChat drops the reply on the abort, the controller keeps it as stopped and cancels the turn (cancelChatTurn('c1')); the kit asserts what Play shows of the kept reply.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "Each card a d: line raises is filed in wire order under the reply being written.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A card whose reply Try again replaced is loose: answered it stays there answered, closed it goes.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "A card settled while the turn still runs is told to the theme (approval-settled) and the turn carries on.",
+        "corePath": "frontend/lib/chat-controller/__tests__/controller-cases.test.ts"
+      },
+      {
+        "assertion": "The host's ToolApprovalWidget shows the params digest (document_id).",
+        "corePath": "frontend/components/widgets/__tests__/tool-approval-widget.test.tsx"
+      },
+      {
+        "assertion": "Approve & run and Deny call useGrantApproval(42) and useDenyApproval(42); the kit reads each click on the harness's stand-in.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cards-cases.test.tsx"
+      }
+    ],
+    "rewritten": "Core's test wrote useChat's data stream (0:, d:, e: lines) into a stubbed fetch; the harness's fake SDK (packages/theme-harness) plays the same lines as recorded turns, a frame per tick (host.setChatScript), a held turn going on with host.continueHeldTurn where core wrote more lines into the open stream, so the stream hook's own Stop, the server cancel and the chat_changed lane are in rehomed; the host's approval cards are the harness's stand-ins (host.cardActions()). Hello's first open is set through the SDK's storage area (hello-played, for the session and the account) instead of core's sessionStorage key automatos-play.hello-played (PB-10)."
+  },
+  {
+    "corePath": "frontend/components/play/chat/__tests__/auto-reply-ai-generated.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 2,
+    "kitPath": "test/chat/auto-reply-ai-generated.test.tsx",
+    "kitIts": 2,
+    "rehomed": [],
+    "rewritten": null
+  }
+]

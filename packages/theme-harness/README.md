@@ -81,15 +81,20 @@ theme state kept, and nothing asked.
 | navigation | `setPathname`, `setSearchParams`, `setCoreNav` | `navigations()`: router calls and followed links |
 | notices | | `notices()`, `dismissals()` |
 | events | `emitHostEvent` | `globalSearchOpens()` |
-| looks | `setLooks` (a look runtime, its check and its forced tone) | through `useLook` and `listLooks` |
+| looks | `setLooks` (a look runtime, its check, its default look and its forced tone) | through `useLook` and `listLooks` |
 | assets | `setFilesRoot` | `askedPaths()` |
 | storage | `setStorage({ ready, persisted, themeId, userKey, workspaceKey })`, `changeInAnotherTab` | the window's storage |
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
-| chat, Deliverables (B-02c) | `setChatScript`, `setConversations`, `setDeliverables`, `setDetail`, `setBlobUrls` | `startedChats()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` |
+| chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
+| cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside
 `act()` renders every component that reads it again.
+
+Beside `host`, the module names what a theme's own fixtures build the chat's parts with: `LIVE_KEY`, the tool-data
+key the receipts frame rides under (what `liveReceiptsOf` reads), and `CREDITS_EXHAUSTED_CODE`, the `errorCode` of a
+request refused for used-up credits.
 
 ## Dependencies
 

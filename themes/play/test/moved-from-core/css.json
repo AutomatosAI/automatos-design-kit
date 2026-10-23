@@ -1,0 +1,52 @@
+[
+  {
+    "corePath": "frontend/lib/__tests__/prd260-play-guards.test.ts",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 33,
+    "kitPath": "test/css-guards.test.ts",
+    "kitIts": 25,
+    "rehomed": [
+      {
+        "assertion": "(a) Play is ported, never imported: the scan reads import syntax only, so a comment or a string that mentions the reference never counts.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(a) It catches every way of naming a module: import and export declarations, import(), require(), vi.mock() and its kin, import types.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(a) It reads the files next/font/local loads and a stylesheet's @import, url() and composes, never a comment (M96).",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(a) No module specifier anywhere in the frontend reaches the read-only Play reference or the kit's repository.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(a) Play's own font files are read, and no stylesheet loads a file of the reference (M96).",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(e) The core's seams load Play's screens on demand: the reader tells a static load (declarations, require()) from import() on demand, and never counts a type.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(e) It finds the seams (the chrome, every layout, the 404, the theme route page) and walks a seam's import graph through the core's modules.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(e) A seam's graph reaches components/play only at the lazy slots, however deep.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(e) Each Play screen mounts through its ThemeSlot entry point and its slot, which fetches it with import() and loads nothing of Play with it.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      },
+      {
+        "assertion": "(e) Builtin Play's registrations load Play's screens only through lazy slots, and none on demand themselves.",
+        "corePath": "frontend/lib/__tests__/prd261-no-theme-in-core.test.ts"
+      }
+    ],
+    "rewritten": "Sections (b), (c), (d) and Make it yours run over the theme's src/ (every stylesheet, and the components under src/components/{play,looks,mascot}), with their readers in test/support/play-css.ts; (b) lets Play read the host's --theme-motion, never define it (PRD-261 K-19c); (d) compares with core's globals.css rules as test/fixtures/core/studio-element-rules.css holds them (core at 101a0bf33), whose host side core's app/__tests__/studio-element-rules-contract.test.ts holds; Make it yours reads the kit's forced-colours ring (html.play:is(html.play), the README's table). The kit adds two cases: every stylesheet under src/ is read, and --theme-motion is read and never defined. Sections (a) and (e) do not move: core's A-19f2 guard replaces them (rehomed)."
+  }
+]

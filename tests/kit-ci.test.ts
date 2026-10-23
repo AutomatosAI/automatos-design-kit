@@ -1,6 +1,6 @@
 // The kit's own contract: npm workspaces, exact pins, and a CI workflow that runs
 // every workspace's scripts. These checks read files only; nothing is installed.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -307,6 +307,29 @@ function ignorePatterns(): string[] {
   return readText(".gitignore").split("\n").map((line) => line.trim()).filter((line) => line && !line.startsWith("#"));
 }
 
+// PRD-261 B-05a: the folders Play's build and pack write, ignored at Play's own root only (themes/play/.gitignore).
+const PLAY_BUILD_OUTPUT = ["out", "looks", "boot"];
+// A file in each of them, matched by its folder's line alone (no other ignore rule names it).
+const PLAY_BUILD_FILES = ["themes/play/out/summary.json", "themes/play/looks/ember.json", "themes/play/boot/prepaint.json"];
+// Play's own files in folders of the same names, which git must track.
+const PLAY_NAMESAKE_FILES = [
+  "themes/play/test/looks/x.test.tsx",
+  "themes/play/src/components/looks/x.tsx",
+  "themes/play/src/lib/looks/x.ts",
+];
+
+// The forms of a folder's ignore line that match a folder of that name at any depth.
+function unanchoredForms(folder: string): string[] {
+  return [folder, `${folder}/`, `**/${folder}`, `**/${folder}/`];
+}
+
+// The paths git ignores, of those given, in their order (git check-ignore exits 1 when it ignores none).
+function ignoredPaths(paths: readonly string[]): string[] {
+  const run = spawnSync("git", ["check-ignore", ...paths], { cwd: ROOT, encoding: "utf8" });
+  if (run.status !== 0 && run.status !== 1) throw new Error(`git check-ignore failed (${String(run.status)}): ${run.stderr}`);
+  return run.stdout.split("\n").filter(Boolean);
+}
+
 // PRD-261 A-16c: Play's build writes its look data first, its pack writes the package to out/,
 // and CI uploads every package the pack steps wrote.
 describe("Play's package in CI", () => {
@@ -347,9 +370,17 @@ describe("Play's package in CI", () => {
     expect(notice).toContain("/mascot/");
   });
 
-  it("keeps the generated look data and the pack output out of git", () => {
+  // PRD-261 B-05a: anchored to Play's folder, so src/**/looks/ and test/looks/ (Play's look tests) stay tracked.
+  it("keeps the generated look data and the pack output out of git, anchored to Play's folder", () => {
     const ignored = readText("themes/play/.gitignore").split("\n").map((line) => line.trim());
-    expect(ignored).toEqual(expect.arrayContaining(["out/", "looks/", "boot/"]));
+    expect(ignored).toEqual(expect.arrayContaining(PLAY_BUILD_OUTPUT.map((folder) => `/${folder}/`)));
+    const unanchored = ignored.filter((line) => PLAY_BUILD_OUTPUT.some((folder) => unanchoredForms(folder).includes(line)));
+    expect(unanchored).toEqual([]);
+  });
+
+  it("ignores Play's build output, and none of Play's files in folders of the same names (git check-ignore)", () => {
+    expect(ignoredPaths(PLAY_NAMESAKE_FILES)).toEqual([]);
+    expect(ignoredPaths(PLAY_BUILD_FILES)).toEqual(PLAY_BUILD_FILES);
   });
 
   it("uploads every package the pack steps wrote, and fails when there is none", () => {

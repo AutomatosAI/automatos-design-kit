@@ -1,0 +1,125 @@
+/*
+ * Core's Studio element rules: the rules core's frontend/app/globals.css puts on every page that reach a theme's
+ * headings, keyboard keys and inline code (`.studio h1`, `.studio code:not(pre code)`, ...) and the elements inside
+ * the SDK's MarkdownView (`.md-view a`, `.studio .md-view a`, ...), which a theme's own rules have to outrank (FX-01).
+ *
+ * Copied byte for byte from core (AutomatosAI/automatos-ai) at 101a0bf33f64fb4f89af81b4293415be60b661ac,
+ * frontend/app/globals.css lines 356-374 (inside its second `@layer base`), then lines 871-878 and 2967-3046
+ * (inside its `@layer components`), each inside the at-rule it sits in there; this comment, the `@layer` lines
+ * around the parts and the blank lines between them are the kit's. Never built into Play: test/css-guards.test.ts
+ * reads it. Core's frontend/app/__tests__/studio-element-rules-contract.test.ts pins these rules on the host's
+ * side, so a change there changes this copy.
+ */
+@layer base {
+  .studio h1,
+  .studio h2,
+  .studio .font-serif,
+  .studio [data-studio-serif] {
+    font-family: var(--font-newsreader), "Tiempos Headline", Charter,
+                 "Iowan Old Style", Georgia, ui-serif, serif;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+  .studio .font-mono,
+  .studio code,
+  .studio kbd,
+  .studio pre,
+  .studio [data-studio-mono] {
+    font-family: var(--font-geist-mono), "JetBrains Mono", "Fira Code",
+                 "SF Mono", Monaco, Consolas, monospace;
+    font-feature-settings: "liga" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Mono on inline code blocks, kbd, and explicit .font-mono */
+  .studio code:not(pre code),
+  .studio kbd {
+    background: hsl(var(--secondary));
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .md-view {
+    color: hsl(var(--foreground));
+    font-size: 14px; line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  .md-view > * + * { margin-top: 0.9em; }
+  .md-view > :first-child { margin-top: 0; }
+  .md-view p { margin: 0; }
+  .md-view h1, .md-view h2, .md-view h3,
+  .md-view h4, .md-view h5, .md-view h6 {
+    color: hsl(var(--foreground));
+    font-weight: 600; line-height: 1.25; letter-spacing: -0.01em;
+    margin-top: 1.7em;
+  }
+  .md-view h1 {
+    font-size: 1.5rem;
+    padding-bottom: 0.3em; border-bottom: 1px solid hsl(var(--border));
+  }
+  .md-view h2 {
+    font-size: 1.25rem;
+    padding-bottom: 0.25em; border-bottom: 1px solid hsl(var(--border) / 0.6);
+  }
+  .md-view h3 { font-size: 1.0625rem; }
+  .md-view h4 { font-size: 0.9375rem; }
+  .md-view h5, .md-view h6 { font-size: 0.875rem; color: hsl(var(--muted-foreground)); }
+  .md-view strong { font-weight: 650; color: hsl(var(--foreground)); }
+  .md-view em { font-style: italic; }
+  .md-view a { color: hsl(var(--primary)); text-decoration: underline; text-underline-offset: 2px; }
+  .md-view a:hover { opacity: 0.82; }
+  .md-view ul { list-style: disc; padding-left: 1.35em; }
+  .md-view ol { list-style: decimal; padding-left: 1.45em; }
+  .md-view li { margin: 0; }
+  .md-view li + li { margin-top: 0.35em; }
+  .md-view li > ul, .md-view li > ol { margin-top: 0.35em; }
+  .md-view li > p + p { margin-top: 0.5em; }
+  .md-view li::marker { color: hsl(var(--muted-foreground)); }
+  .md-view .contains-task-list { list-style: none; padding-left: 0; }
+  .md-view .task-list-item { display: flex; align-items: baseline; gap: 0.5em; }
+  .md-view .md-task { accent-color: hsl(var(--accent)); }
+  .md-view code {
+    font-family: var(--font-geist-mono, ui-monospace, SFMono-Regular, monospace);
+    font-size: 0.875em;
+    padding: 0.1em 0.35em; border-radius: 4px;
+    background: hsl(var(--muted) / 0.7);
+    border: 1px solid hsl(var(--border) / 0.7);
+  }
+  .md-view pre { overflow-x: auto; }
+  .md-view pre code { background: none; border: 0; padding: 0; font-size: 0.8125rem; }
+  .md-view blockquote {
+    border-left: 3px solid hsl(var(--accent) / 0.5);
+    padding: 0.15em 0 0.15em 1em;
+    color: hsl(var(--muted-foreground));
+  }
+  .md-view hr { border: 0; border-top: 1px solid hsl(var(--border)); margin: 1.6em 0; }
+  .md-view img { max-width: 100%; border-radius: 8px; }
+  .md-view table {
+    display: block; width: 100%; overflow-x: auto;
+    border-collapse: collapse; font-size: 0.8125rem;
+  }
+  .md-view th, .md-view td {
+    border: 1px solid hsl(var(--border));
+    padding: 6px 10px; text-align: left; vertical-align: top;
+  }
+  .md-view th { background: hsl(var(--muted) / 0.6); font-weight: 600; }
+
+  /* Side panels and cards — the same document, tighter. */
+  .md-view-compact { font-size: 12.5px; line-height: 1.55; }
+  .md-view-compact > * + * { margin-top: 0.7em; }
+  .md-view-compact h1, .md-view-compact h2,
+  .md-view-compact h3, .md-view-compact h4 { margin-top: 1.15em; }
+  .md-view-compact h1 { font-size: 1.125rem; }
+  .md-view-compact h2 { font-size: 1rem; }
+  .md-view-compact h3, .md-view-compact h4 { font-size: 0.9375rem; }
+
+  /* Studio: paper serif headings, navy links. */
+  .studio .md-view h1, .studio .md-view h2, .studio .md-view h3 {
+    font-family: var(--serif);
+    font-weight: 500; letter-spacing: -0.015em;
+  }
+  .studio .md-view a { color: var(--navy); }
+}
