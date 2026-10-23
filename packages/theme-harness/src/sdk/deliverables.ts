@@ -10,8 +10,9 @@
  * The backend is scripted (src/internal/scripted/deliverables-source.ts): deliverablesControls, which host.ts
  * gathers, set what it answers (setDeliverables, setDetail, setBlobUrls) and read back every call (deliverablesAsked,
  * detailsAsked, downloadsAsked); resetDeliverables puts it back. A backend the host's health says is down fails each
- * ask as a fetch that can't connect. Every answer arrives on the next timer tick. Downloads are kept and always
- * succeed; the re-ask every `refetchInterval` ms runs whether or not the tab is visible.
+ * ask as a fetch that can't connect. Every answer arrives on the next timer tick. Downloads are kept, with the words
+ * the theme gave useFileDownload for a failure, and always succeed; the re-ask every `refetchInterval` ms runs whether
+ * or not the tab is visible.
  */
 import type {
   DeliverableDetailResponse,
@@ -350,15 +351,19 @@ export const useDeliverable: Sdk['useDeliverable'] = (id, includeContent = false
 
 // ---- files (hooks/use-api-file-download.ts, FilePreview's useAuthenticatedBlobUrl) ----
 
-const FILE_DOWNLOAD: FileDownload = Object.freeze({
-  download: async (url: string, filename: string) => {
-    recordDownload({ url, filename })
-  },
-  downloading: false,
-})
+/** A download that keeps each file asked for, with the words a failure would show (none fails here). */
+function fileDownload(failedMessage: string | undefined): FileDownload {
+  const words = failedMessage === undefined ? {} : { failedMessage }
+  return Object.freeze({
+    download: async (url: string, filename: string) => {
+      recordDownload({ url, filename, ...words })
+    },
+    downloading: false,
+  })
+}
 
-/** deliverables.ts:212: each download kept (downloadsAsked), none in progress or failing. */
-export const useFileDownload: Sdk['useFileDownload'] = () => FILE_DOWNLOAD
+/** deliverables.ts:212: each download kept with the theme's failure words (downloadsAsked), none in progress or failing. */
+export const useFileDownload: Sdk['useFileDownload'] = (failedMessage) => useMemo(() => fileDownload(failedMessage), [failedMessage])
 
 /** deliverables.ts:217: what the test's setBlobUrls answers for the file (by default no picture yet). */
 export const useAuthenticatedBlobUrl: Sdk['useAuthenticatedBlobUrl'] = (url, forcedType) => useBlobUrls()(url, forcedType)

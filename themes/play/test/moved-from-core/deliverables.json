@@ -28,5 +28,47 @@
       }
     ],
     "rewritten": "The SDK is the stand-in (test/sdk-stub.ts): useDeliverables answers what the test sets, as react-query would, instead of core's mocked hook or its real hook over a mocked apiClient, so the real-hook cases keep their Play assertions and name core's tests for the host's part (rehomed); the seen record is written and read through the SDK storage area (writeSeen, readSeen), not the automatos-play:seen-deliverables key; the workspace, the backend's health, Start a chat and the pictures come from the stand-in's controls."
+  },
+  {
+    "corePath": "frontend/components/play/deliverables/__tests__/play-deliverable.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 33,
+    "kitPath": "test/deliverables/play-deliverable.test.tsx",
+    "kitIts": 31,
+    "rehomed": [
+      {
+        "assertion": "DeliverableDeepLink stays closed under the theme at its width: /deliverables?deliverable=<id>, and the backend's ?tab=outputs&deliverable=<id>, open the theme's page for that Deliverable through the host's deliverables layout (the kit asserts PlayShelf shows the page the link names).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "DeliverableDeepLink opens as before under a core style and below the theme's width, with the core page, and the theme's page never asks for the Deliverable: the host's deliverables layout.",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "Below the theme's width the Deliverables layout keeps the core page and its deep link for a ?deliverable= link, and the theme's page never mounts.",
+        "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
+      },
+      {
+        "assertion": "The detail is asked on the wire as /api/deliverables/<id>?include_content=true: the host's useDeliverable (the kit asserts PlayDeliverable asks useDeliverable(id, true) and shows the content the backend answers).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "Download fetches a text file's raw route, never its content route's JSON, and a raw route as it is, with the caller's token, saved under the file's name: the host's deliverableDownloadUrl, fileDownloadUrl and useFileDownload (the kit asserts the route, the name and the words Play hands the download).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "A failed download says Play's own words (DOWNLOAD_FAILED), never the host's default, and saves nothing: the host's useFileDownload (the kit asserts Play gives it those words, from the file card and the side panel).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/deliverables-cases.test.tsx"
+      },
+      {
+        "assertion": "The sheet's markdown becomes elements (headings, strong, a table) and its fenced code a <pre>: the host's MarkdownView (the kit asserts the text Play hands it, and Play's pre and img rules on their own).",
+        "corePath": "frontend/components/shared/__tests__/markdown-view.test.tsx"
+      },
+      {
+        "assertion": "MarkdownView drops raw HTML for skipHtml and applies the theme's element overrides: the host's renderer under the SDK card (the kit asserts Play hands it skipHtml and PLAY_MARKDOWN_COMPONENTS).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/cards.test.tsx"
+      }
+    ],
+    "rewritten": "The SDK is the harness's fake (packages/theme-harness): useDeliverable answers what the test sets (host.setDetail) or the scripted backend's rows (host.setDeliverables, its 404 for an unknown id), instead of core's mocked hook or its real hook over a mocked apiClient; the query string, the pictures (host.setBlobUrls) and the downloads (host.downloadsAsked, with the words for a failure) are the fake host's; the host's MarkdownView is a stand-in, so the sheet's cases assert the props Play hands it (host.markdownViews) and Play's element rules rendered alone; DeliverableDeepLink in the host's layout and the request on the wire are core's (rehomed)."
   }
 ]

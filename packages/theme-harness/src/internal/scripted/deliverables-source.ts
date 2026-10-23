@@ -60,10 +60,12 @@ export interface DetailAsk {
   readonly includeContent: boolean
 }
 
-/** One Download: the API path, and the name it saves under. */
+/** One Download: the API path, the name it saves under, and the theme's words for a failure (useFileDownload's). */
 export interface DownloadAsk {
   readonly url: string
   readonly filename: string
+  /** What a failed download would say; absent when the theme gave no words of its own (the host's default). */
+  readonly failedMessage?: string
 }
 
 export type BlobUrls = (url: string | undefined, forcedType?: string) => AuthenticatedBlobUrl

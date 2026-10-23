@@ -12,8 +12,8 @@
  * The backend is scripted (src/internal/scripted/chat-script.ts; chat-turn.ts plays a turn): chatControls, which
  * host.ts gathers, set the recorded turns each send takes (setChatScript, from a fixture read with recordedTurns and
  * scriptOf), the conversations (setConversations, conversationsOf) and the host's AI label (setAiLabelShown), and
- * read back what was sent (chatSent, turnsLeft) and how often New chat was pressed (startedChats); resetChat puts
- * them back.
+ * read back what was sent (chatSent, turnsLeft), how often New chat was pressed (startedChats) and each load of a
+ * conversation list (conversationsAsked); resetChat puts them back.
  * Not modelled: the Mission store (planningMissionId stays null), a saved reply's provenance and saved failure
  * (null), the approvals store that keeps cards across chat screens, and a cold start on the newest conversation
  * (the screen opens on a new chat, as core's Play parity specs have it).
@@ -40,7 +40,9 @@ import {
   aiLabelShown,
   chatSent,
   type ConversationFixture,
+  conversationsAsked,
   conversationsOf,
+  recordConversationsAsk,
   recordedTurns,
   resetChatScript,
   scriptOf,
@@ -257,7 +259,11 @@ function summariesOf(conversations: readonly ConversationFixture[], limit: numbe
   return Object.freeze(newest.map(({ id, title, updatedAt, preview }) => Object.freeze({ id, title, updatedAt, preview })))
 }
 
-/** chat.ts:398 over hooks/use-conversation-list.ts:38: newest first; failed while the backend is down, with Retry. */
+/**
+ * chat.ts:398 over hooks/use-conversation-list.ts:38: newest first; failed while the backend is down, with Retry.
+ * Each load (on mount, on Retry, for a new limit, and when the conversations or the backend's health change) is
+ * kept with its limit (conversationsAsked), as core's getChatHistory is asked.
+ */
 export const useConversationList: Sdk['useConversationList'] = (limit = CONVERSATION_LIMIT) => {
   const conversations = useConversations()
   const down = useHealth().connection === 'down'
@@ -265,13 +271,14 @@ export const useConversationList: Sdk['useConversationList'] = (limit = CONVERSA
   const [phase, setPhase] = useState<'loading' | 'loaded' | 'failed'>('loading')
   useEffect(() => {
     let current = true
+    recordConversationsAsk({ limit })
     void nextTick().then(() => {
       if (current) setPhase(down ? 'failed' : 'loaded')
     })
     return () => {
       current = false
     }
-  }, [conversations, down, attempt])
+  }, [conversations, down, attempt, limit])
   const retry = useCallback(() => {
     setPhase('loading')
     setAttempt((count) => count + 1)
@@ -344,6 +351,7 @@ export const chatControls = Object.freeze({
   recordedTurns,
   scriptOf,
   conversationsOf,
+  conversationsAsked,
 })
 
 /** The chat as a test starts with it: no turns, no conversations, nothing sent, the AI label on screen. */
@@ -351,4 +359,6 @@ export function resetChat(): void {
   resetChatScript()
 }
 
-export type { ConversationFixture, ConversationInput, HistoryMessage, RecordedFrame, RecordedTurn, RecordedTurns, SentWords } from '../internal/scripted/chat-script.ts'
+export type {
+  ConversationFixture, ConversationInput, ConversationsAsk, HistoryMessage, RecordedFrame, RecordedTurn, RecordedTurns, SentWords,
+} from '../internal/scripted/chat-script.ts'

@@ -1,0 +1,32 @@
+[
+  {
+    "corePath": "frontend/components/play/conversations/__tests__/play-conversations.test.tsx",
+    "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+    "coreIts": 13,
+    "kitPath": "test/conversations/play-conversations.test.tsx",
+    "kitIts": 13,
+    "rehomed": [
+      {
+        "assertion": "Paging: the history is one page asked once through getChatHistory at the host's CONVERSATION_LIMIT (or the theme's own limit) on the wire, newest first as the backend sends it (the kit asserts Play asks once, with no size of its own).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/conversations-cases.test.tsx"
+      },
+      {
+        "assertion": "A failed load is logged with the backend's words and Try again loads the list from the backend: the host's useConversationList (the kit asserts the alert has no internals and Try again asks again).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/conversations-cases.test.tsx"
+      },
+      {
+        "assertion": "A row's /chat?chatId=<id> link encodes the id: the host's chatHref (the kit asserts each row's link).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/conversations-cases.test.tsx"
+      },
+      {
+        "assertion": "Rename: a conversation the backend renames shows its new title as the same row when its turn ends and when the page opens again: the host's history refresh (the kit's list shows the titles it is handed).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/conversations-cases.test.tsx"
+      },
+      {
+        "assertion": "New chat opens a fresh draft in the host's chat session store before /chat: the host's useStartChat (the kit asserts New chat reaches it and the chat page).",
+        "corePath": "frontend/lib/theme-sdk/__tests__/chat-controller-cases.test.tsx"
+      }
+    ],
+    "rewritten": "The SDK is the harness's fake (packages/theme-harness): the history is what the test sets (host.setConversations), loaded on the next tick and failing while the backend is down (host.setHealth), instead of core's mocked getChatHistory under a QueryClient; the width is the fake host's (host.setWidth, host.setMinWidth) instead of a mocked useThemeLayout; New chat and the router are the fake host's (host.startedChats, host.navigations), and the loads are read back (host.conversationsAsked); the page size on the wire, the failure's log, the rename and New chat's draft are core's (rehomed)."
+  }
+]

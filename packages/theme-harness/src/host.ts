@@ -31,6 +31,7 @@ export type { NetworkCall } from './internal/network.ts'
 export type { PageAsk, PageQueryAnswer, PageRun } from './internal/page-views.ts'
 export type { DatabaseKnowledgeAnswer } from './sdk/pages-documents.ts'
 export type { BlobUrls, DeliverablesAsk, DetailAsk, DownloadAsk } from './sdk/deliverables.ts'
+export type { ConversationsAsk } from './sdk/chat.ts'
 
 /**
  * Every area's reset. Storage first: it forgets the last test's subscribers before the context's workspace,

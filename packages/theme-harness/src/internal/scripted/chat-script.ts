@@ -6,7 +6,8 @@
  * the format of core's e2e/browser/fixtures/play-parity/chat-turns.json (this package's fixtures/streams/*.json).
  * A send with no turn left is answered as a refused request (status 500), as a request nothing answers fails.
  * It also holds the conversations the lists show, New chat presses, whether the host's AI label is on screen,
- * and the words every send carried, for a test to read back. resetChatScript puts each one back.
+ * and the words every send carried and every load of a conversation list, for a test to read back.
+ * resetChatScript puts each one back.
  */
 import type { HostChatRole, HostChatSummary } from '@automatos/theme-sdk'
 import { cell, log } from '../cell.ts'
@@ -58,6 +59,11 @@ export interface SentWords {
   readonly text: string
   /** Try again, not Send. */
   readonly retry: boolean
+}
+
+/** One load of a conversation list (useConversationList, useRecentChats): how many it asked the backend for. */
+export interface ConversationsAsk {
+  readonly limit: number
 }
 
 /** The status a recorded turn streams with. */
@@ -167,6 +173,7 @@ const conversations = cell<readonly ConversationFixture[]>(NO_CONVERSATIONS)
 const freshChats = cell(0)
 const activeChat = cell<string | null>(null)
 const aiLabel = cell(true)
+const listAsks = log<ConversationsAsk>()
 
 /** The turns the next sends get, in order (each Send or Try again takes one). */
 export function setChatScript(turns: readonly RecordedTurn[]): void {
@@ -192,6 +199,15 @@ export function recordSent(words: SentWords): void {
 /** Every Send and Try again since the last reset, oldest first. */
 export function chatSent(): readonly SentWords[] {
   return sent.all()
+}
+
+export function recordConversationsAsk(ask: ConversationsAsk): void {
+  listAsks.add(Object.freeze({ ...ask }))
+}
+
+/** Every load of a conversation list since the last reset, oldest first: what core's getChatHistory was asked. */
+export function conversationsAsked(): readonly ConversationsAsk[] {
+  return listAsks.all()
 }
 
 /** The conversations the backend holds from now on, as useConversationList and useRecentChats show them. */
@@ -248,4 +264,5 @@ export function resetChatScript(): void {
   freshChats.set(0)
   activeChat.set(null)
   aiLabel.set(true)
+  listAsks.clear()
 }
