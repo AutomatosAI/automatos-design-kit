@@ -1,17 +1,17 @@
 // Browser storage for the tests that need one other than jsdom's, and what it holds of Play's theme state.
 // memoryStorage and blockedStorage are core's (frontend/lib/looks/__tests__/helpers.ts at
-// 0dd8b846e41772c8dd7ef159e4373bcb9419b06a); swapWindowStorage hands one to the window, so the storage
-// stand-in (test/storage-port.ts) meets it as it would meet the browser's: a new tab's session, or site
+// 0dd8b846e41772c8dd7ef159e4373bcb9419b06a); swapWindowStorage hands one to the window, so the harness's
+// storage area (packages/theme-harness) meets it as it would meet the browser's: a new tab's session, or site
 // data the browser blocks. The keys are core's scheme for the storage area, one blob per lifetime, theme
-// and scope, here for the stand-in's scope (STORAGE_DEFAULTS: Play, the local edition's user, workspace-1).
+// and scope, here for the fake host's scope (STORAGE_DEFAULTS: Play, the local edition's user, workspace-1).
 import { vi } from 'vitest'
-import { THEME_STATE_KEY_PREFIX } from '../storage-port.ts'
+import { THEME_STATE_KEY_PREFIX } from '@automatos/theme-harness/host'
 
 /** Play's blob in this browser for the account. */
 export const BROWSER_ACCOUNT = `${THEME_STATE_KEY_PREFIX}b:automatos/play:u:local`
 /** Play's blob in this tab's session for the account. */
 export const SESSION_ACCOUNT = `${THEME_STATE_KEY_PREFIX}s:automatos/play:u:local`
-/** Play's blob in this browser for the user in the stand-in's workspace. */
+/** Play's blob in this browser for the user in the fake host's workspace. */
 export const BROWSER_WORKSPACE = `${THEME_STATE_KEY_PREFIX}b:automatos/play:w:workspace-1:u:local`
 
 /** A Storage kept in memory, for tests that shouldn't share jsdom's localStorage. */

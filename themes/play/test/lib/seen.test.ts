@@ -7,7 +7,7 @@
 // The kit adds markSeen's fixed point (E3g: the host tells the shelf of every change, so a record that
 // a pass always changes is written again and again): it adds only the Deliverables that can still count
 // as new, so more than SEEN_CAP of them, or two lists taking turns, settle after one round.
-// Run on the storage stand-in (test/storage-port.ts); blocked storage is core's blockedStorage.
+// Run on the harness's storage area (packages/theme-harness); blocked storage is core's blockedStorage.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   freshDeliverables,
@@ -21,7 +21,8 @@ import {
   subscribeSeen,
   writeSeen,
 } from '../../src/lib/play/seen.ts'
-import { changeInAnotherTab, resetStub, setStorage, STORAGE_DEFAULTS, THEME_STATE_LIMITS } from '../sdk-stub.ts'
+import { THEME_STATE_LIMITS } from '@automatos/theme-sdk'
+import { host, STORAGE_DEFAULTS } from '@automatos/theme-harness/host'
 import { blobData, blockedStorage, BROWSER_WORKSPACE, swapWindowStorage, themeStateKeys } from '../support/memory-storage.ts'
 
 const OLD = { id: 'd-old', created_at: '2026-10-10T09:00:00+00:00' }
@@ -71,7 +72,7 @@ function settle(lists: readonly (readonly Item[])[]): Settled {
 }
 
 beforeEach(() => {
-  resetStub()
+  host.reset()
 })
 
 afterEach(() => {
@@ -149,11 +150,11 @@ describe('the stored record', () => {
 
   it("is kept per user and workspace: another account or workspace in this browser doesn't read it (F5)", () => {
     writeSeen(RECORD)
-    setStorage({ userKey: 'user-b' })
+    host.setStorage({ userKey: 'user-b' })
     expect(readSeen()).toEqual({ ready: true, record: null })
-    setStorage({ userKey: STORAGE_DEFAULTS.userKey, workspaceKey: 'workspace-2' })
+    host.setStorage({ userKey: STORAGE_DEFAULTS.userKey, workspaceKey: 'workspace-2' })
     expect(readSeen()).toEqual({ ready: true, record: null })
-    setStorage({ workspaceKey: STORAGE_DEFAULTS.workspaceKey })
+    host.setStorage({ workspaceKey: STORAGE_DEFAULTS.workspaceKey })
     expect(readSeen()).toEqual({ ready: true, record: RECORD })
   })
 
@@ -170,7 +171,7 @@ describe('the stored record', () => {
     expect(parseSeen({ ids: 'd-old' })).toBeNull()
     expect(parseSeen(['d-old'])).toBeNull()
     expect(parseSeen({ ids: ['d-old', 7], newest: 3 })).toEqual({ ids: ['d-old'], newest: null })
-    changeInAnotherTab(SEEN_KEY, { ids: 'd-old' }, SEEN_STATE)
+    host.changeInAnotherTab(SEEN_KEY, { ids: 'd-old' }, SEEN_STATE)
     expect(readSeen()).toEqual({ ready: true, record: null })
   })
 
@@ -197,10 +198,10 @@ describe('the stored record', () => {
   it('tells its subscriber when another tab writes the record, and when the workspace changes', () => {
     const onChange = vi.fn()
     const stop = subscribeSeen(onChange)
-    changeInAnotherTab(SEEN_KEY, RECORD, SEEN_STATE)
+    host.changeInAnotherTab(SEEN_KEY, RECORD, SEEN_STATE)
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(readSeen()).toEqual({ ready: true, record: RECORD })
-    setStorage({ workspaceKey: 'workspace-2' })
+    host.setStorage({ workspaceKey: 'workspace-2' })
     expect(onChange).toHaveBeenCalledTimes(2)
     stop()
   })

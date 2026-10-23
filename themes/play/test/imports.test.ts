@@ -2,7 +2,7 @@
 // Play's source imports only what a theme can: its own files by relative path and the host's shared
 // modules (React and the SDK). Core-only modules are refused by name: the app's '@/' alias, Next.js,
 // React Query, sonner and the API client. Play's tests, the ones moved from core included, refuse the
-// same names: they run on the kit's SDK stand-in, never on core's modules. A static scan; nothing is built.
+// same names: they run on the kit's harness (its fake SDK), never on core's modules. A static scan; nothing is built.
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { isSharedModule } from '@automatos/vite-preset'
@@ -114,7 +114,7 @@ describe("Play's tests", () => {
   const scripts = testScripts()
 
   it('are read from every folder under test/, the tests moved from core included', () => {
-    expect(scripts).toEqual(expect.arrayContaining([...MOVED_TESTS, 'imports.test.ts', 'sdk-stub.ts']))
+    expect(scripts).toEqual(expect.arrayContaining([...MOVED_TESTS, 'imports.test.ts', 'setup.ts']))
   })
 
   it("import nothing of core's: no @/ alias, Next.js, React Query, sonner or the API client", () => {

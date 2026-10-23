@@ -2,11 +2,12 @@
 // and rewritten for E3g (PB-9, PB-10): the session remembers it through the host, in the SDK's storage area
 // (key hello-played, for this tab's session, for the account), where the browser blocks its storage the
 // host keeps it for the page, so hello plays once per page load, and until the host can say whose session
-// it is nothing is claimed. Run on the storage stand-in (test/storage-port.ts); a new tab's session and
+// it is nothing is claimed. Run on the harness's storage area (packages/theme-harness); a new tab's session and
 // blocked storage are core's memoryStorage and blockedStorage (test/support/memory-storage.ts).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { claimFirstOpen, HELLO_KEY, HELLO_STATE, helloReady, subscribeHello } from '../../src/lib/mascot/session.ts'
-import { readThemeState, resetStub, setStorage, THEME_STATE_LIMITS, writeThemeState } from '../sdk-stub.ts'
+import { readThemeState, THEME_STATE_LIMITS, writeThemeState } from '@automatos/theme-sdk'
+import { host } from '@automatos/theme-harness/host'
 import {
   blobData, blockedStorage, memoryStorage, SESSION_ACCOUNT, swapWindowStorage, themeStateKeys,
 } from '../support/memory-storage.ts'
@@ -15,7 +16,7 @@ import {
 const OLD_HELLO_KEY = 'automatos-play.hello-played'
 
 beforeEach(() => {
-  resetStub()
+  host.reset()
 })
 
 afterEach(() => {
@@ -47,11 +48,11 @@ describe('claimFirstOpen', () => {
   })
 
   it('says no until the host can say whose session it is, and tells its caller when it can', () => {
-    setStorage({ ready: false })
+    host.setStorage({ ready: false })
     expect([helloReady(), claimFirstOpen(), claimFirstOpen()]).toEqual([false, false, false])
     const onChange = vi.fn()
     const stop = subscribeHello(onChange)
-    setStorage({ ready: true })
+    host.setStorage({ ready: true })
     expect(onChange).toHaveBeenCalledTimes(1)
     expect([helloReady(), claimFirstOpen(), claimFirstOpen()]).toEqual([true, true, false])
     stop()

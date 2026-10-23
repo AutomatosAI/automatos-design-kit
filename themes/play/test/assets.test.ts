@@ -8,11 +8,11 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { host } from '@automatos/theme-harness/host'
 import { describe, expect, it } from 'vitest'
 import { clipUrls, MASCOT_DIR, posterUrl, type VideoFormat } from '../src/lib/mascot/media.ts'
 import { MASCOT_STATES } from '../src/lib/mascot/types.ts'
 import { stripComments } from './css-rules.ts'
-import { askedPaths, setFilesRoot } from './sdk-stub.ts'
 import { readSource, sourceScripts, SOURCE_ROOT, THEME_ROOT } from './source-files.ts'
 
 const KB = 1024
@@ -93,20 +93,20 @@ describe("Auto's files, assets/mascot", () => {
 
 describe("the mascot's URLs", () => {
   it("come from the SDK's assetUrl, for files the package holds", () => {
-    setFilesRoot(FILES_ROOT)
+    host.setFilesRoot(FILES_ROOT)
     expect(MASCOT_DIR).toBe('assets/mascot')
     expect(posterUrl('idle')).toBe(`${FILES_ROOT}assets/mascot/idle.png`)
     expect(clipUrls('hello', 'webm')).toEqual({
       video: `${FILES_ROOT}assets/mascot/hello.webm`, poster: `${FILES_ROOT}assets/mascot/hello.png`,
     })
     MASCOT_STATES.forEach((state) => VIDEO_FORMATS.forEach((format) => clipUrls(state, format)))
-    const asked = Array.from(new Set(askedPaths()))
+    const asked = Array.from(new Set(host.askedPaths()))
     expect(asked.length).toBe(mascotFiles().length)
     expect(asked.filter((path) => !existsSync(join(THEME_ROOT, path)))).toEqual([])
   })
 
   it('are undefined while the host names no package, so nothing loads', () => {
-    setFilesRoot(null)
+    host.setFilesRoot(null)
     expect(posterUrl('lost')).toBeUndefined()
     expect(clipUrls('oops', 'mp4')).toEqual({ video: undefined, poster: undefined })
   })
