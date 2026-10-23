@@ -1,0 +1,505 @@
+{
+  "_comment": "What Play's chat, conversations and Deliverables code copies from core, as core had it at 101a0bf33f64fb4f89af81b4293415be60b661ac: the values and the readings core's lib/__tests__/prd261-port-chat.test.ts, prd261-port-conversations.test.ts and prd261-port-deliverables.test.ts held Play's copies to, for test/copied-from-core.test.ts. The constants are core's text (frontend/lib/chat/receipts.ts NO_ACTIONS and NOTHING_ON_THE_BOARD, frontend/lib/chat/deliverables.ts UNTITLED and KIND_WORDS, frontend/lib/deliverables/download.ts DOWNLOAD_FAILED, frontend/components/workspace/gallery-view/made-by.ts MADE_BY_SOURCE, frontend/lib/chat/suggestion.ts CONTEXT_MESSAGES_KEPT). The rest are what core's functions answer for the port tests' own inputs: frontend/lib/chat/deliverables.ts isDeliverableId (its DELIVERABLE_ID), deliverableHref (frontend/lib/ticket-links.ts DELIVERABLES_HREF and DELIVERABLE_PARAM) and mergeDeliverables; for the port test's seven conversations, the messages core's frontend/lib/theme-sdk/internal/chat-view.ts hostMessages hands a theme (each is hostMessage with the fields it lists), and core's own readings of them (frontend/lib/chat/message-text.ts latestReply, replyProgress and runningToolInput, frontend/lib/chat/suggestion.ts recentMessages; null where core's answer is undefined). plainLine is the sha256 of core's frontend/lib/text/plain-line.ts, which the theme's src/lib/text/plain-line.ts is byte for byte. Produced statically, by reading those files at that commit (nothing runs on the machine that wrote it); change it only with core's own.",
+  "source": "101a0bf33f64fb4f89af81b4293415be60b661ac",
+  "receipts": {
+    "NO_ACTIONS": "No actions in this turn.",
+    "NOTHING_ON_THE_BOARD": "No actions on the board."
+  },
+  "deliverables": {
+    "UNTITLED": "Your Deliverable",
+    "KIND_WORDS": {
+      "document": "Document",
+      "image": "Image",
+      "video": "Video"
+    },
+    "ids": [
+      {
+        "id": "d-laptop",
+        "valid": true
+      },
+      {
+        "id": "A_b-9",
+        "valid": true
+      },
+      {
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "valid": true
+      },
+      {
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "valid": false
+      },
+      {
+        "id": "",
+        "valid": false
+      },
+      {
+        "id": "../../admin?x=1",
+        "valid": false
+      },
+      {
+        "id": "d laptop",
+        "valid": false
+      },
+      {
+        "id": "d/1",
+        "valid": false
+      }
+    ],
+    "hrefs": [
+      {
+        "id": "d-laptop",
+        "href": "/deliverables?deliverable=d-laptop"
+      },
+      {
+        "id": "A_b-9",
+        "href": "/deliverables?deliverable=A_b-9"
+      },
+      {
+        "id": "a b",
+        "href": "/deliverables?deliverable=a%20b"
+      }
+    ],
+    "merges": [
+      {
+        "known": [
+          {
+            "id": "d-1",
+            "title": "Shortlist",
+            "kind": "document"
+          }
+        ],
+        "found": [
+          {
+            "id": "d-1",
+            "title": "Again",
+            "kind": "document"
+          }
+        ],
+        "merged": [
+          {
+            "id": "d-1",
+            "title": "Shortlist",
+            "kind": "document"
+          }
+        ]
+      },
+      {
+        "known": [
+          {
+            "id": "d-1",
+            "title": "Shortlist",
+            "kind": "document"
+          }
+        ],
+        "found": [
+          {
+            "id": "d-2",
+            "title": "Chart",
+            "kind": "image"
+          },
+          {
+            "id": "d-2",
+            "title": "Dup",
+            "kind": "image"
+          }
+        ],
+        "merged": [
+          {
+            "id": "d-1",
+            "title": "Shortlist",
+            "kind": "document"
+          },
+          {
+            "id": "d-2",
+            "title": "Chart",
+            "kind": "image"
+          }
+        ]
+      },
+      {
+        "known": [],
+        "found": [],
+        "merged": []
+      }
+    ]
+  },
+  "download": {
+    "DOWNLOAD_FAILED": "Couldn't download the file. Try again in a moment."
+  },
+  "madeBy": {
+    "MADE_BY_SOURCE": {
+      "social_post": "Socials",
+      "upload": "Uploaded",
+      "mission": "Mission",
+      "playbook": "Playbook",
+      "heartbeat": "Heartbeat",
+      "task": "Task",
+      "chat": "Chat",
+      "agent_output": "Generated",
+      "document": "Templates",
+      "trigger": "Trigger"
+    }
+  },
+  "suggestion": {
+    "CONTEXT_MESSAGES_KEPT": 5
+  },
+  "plainLine": {
+    "corePath": "frontend/lib/text/plain-line.ts",
+    "sha256": "b91b913f53d6b40178063e17f61dcfbcbb144daf03c3f64a659988551ef7a79b"
+  },
+  "hostMessage": {
+    "id": "",
+    "role": "assistant",
+    "text": "",
+    "activity": [],
+    "error": null,
+    "writing": false,
+    "stopped": false,
+    "receipts": null,
+    "above": [],
+    "deliverables": [],
+    "approvals": [],
+    "taskCards": [],
+    "toolCalls": [],
+    "provenance": null,
+    "savedError": null,
+    "limitReached": null,
+    "reasoningChars": 0,
+    "withdrawOffer": null,
+    "linkedDeliverables": []
+  },
+  "conversations": [
+    {
+      "messages": [],
+      "core": {
+        "latestReplyId": null,
+        "replyProgress": {
+          "id": null,
+          "hasText": false,
+          "toolRunning": false,
+          "reasoningChars": 0,
+          "limitReached": false
+        },
+        "runningToolInput": null,
+        "recentMessages": []
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        }
+      ],
+      "core": {
+        "latestReplyId": null,
+        "replyProgress": {
+          "id": null,
+          "hasText": false,
+          "toolRunning": false,
+          "reasoningChars": 0,
+          "limitReached": false
+        },
+        "runningToolInput": null,
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          }
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "toolCalls": [
+            {
+              "toolCallId": "t1",
+              "toolName": "platform_web_search",
+              "state": "completed",
+              "input": {
+                "query": "old"
+              },
+              "skipped": false,
+              "waiting": false
+            },
+            {
+              "toolCallId": "t2",
+              "toolName": "platform_web_search",
+              "state": "running",
+              "input": {
+                "query": "budget laptops"
+              },
+              "skipped": false,
+              "waiting": false
+            }
+          ],
+          "reasoningChars": 22
+        }
+      ],
+      "core": {
+        "latestReplyId": "r1",
+        "replyProgress": {
+          "id": "r1",
+          "hasText": false,
+          "toolRunning": true,
+          "reasoningChars": 22,
+          "limitReached": false
+        },
+        "runningToolInput": {
+          "query": "budget laptops"
+        },
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          },
+          {
+            "role": "assistant",
+            "content": ""
+          }
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "text": "Here are three",
+          "limitReached": "Turn limit reached."
+        }
+      ],
+      "core": {
+        "latestReplyId": "r1",
+        "replyProgress": {
+          "id": "r1",
+          "hasText": true,
+          "toolRunning": false,
+          "reasoningChars": 0,
+          "limitReached": true
+        },
+        "runningToolInput": null,
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          },
+          {
+            "role": "assistant",
+            "content": "Here are three"
+          }
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "text": "  "
+        }
+      ],
+      "core": {
+        "latestReplyId": "r1",
+        "replyProgress": {
+          "id": "r1",
+          "hasText": false,
+          "toolRunning": false,
+          "reasoningChars": 0,
+          "limitReached": false
+        },
+        "runningToolInput": null,
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          },
+          {
+            "role": "assistant",
+            "content": "  "
+          }
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "text": "Here are three",
+          "limitReached": "Turn limit reached."
+        },
+        {
+          "id": "u2",
+          "role": "user",
+          "text": "And the battery?"
+        }
+      ],
+      "core": {
+        "latestReplyId": "r1",
+        "replyProgress": {
+          "id": null,
+          "hasText": false,
+          "toolRunning": false,
+          "reasoningChars": 0,
+          "limitReached": false
+        },
+        "runningToolInput": null,
+        "recentMessages": [
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          },
+          {
+            "role": "assistant",
+            "content": "Here are three"
+          },
+          {
+            "role": "user",
+            "content": "And the battery?"
+          }
+        ]
+      }
+    },
+    {
+      "messages": [
+        {
+          "id": "u0",
+          "role": "user",
+          "text": "a"
+        },
+        {
+          "id": "r0",
+          "role": "assistant",
+          "text": "b"
+        },
+        {
+          "id": "u1",
+          "role": "user",
+          "text": "Shortlist three laptops?"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "text": "Here are three",
+          "limitReached": "Turn limit reached."
+        },
+        {
+          "id": "u2",
+          "role": "user",
+          "text": "c"
+        },
+        {
+          "id": "r1",
+          "role": "assistant",
+          "toolCalls": [
+            {
+              "toolCallId": "t1",
+              "toolName": "platform_web_search",
+              "state": "completed",
+              "input": {
+                "query": "old"
+              },
+              "skipped": false,
+              "waiting": false
+            },
+            {
+              "toolCallId": "t2",
+              "toolName": "platform_web_search",
+              "state": "running",
+              "input": {
+                "query": "budget laptops"
+              },
+              "skipped": false,
+              "waiting": false
+            }
+          ],
+          "reasoningChars": 22
+        }
+      ],
+      "core": {
+        "latestReplyId": "r1",
+        "replyProgress": {
+          "id": "r1",
+          "hasText": false,
+          "toolRunning": true,
+          "reasoningChars": 22,
+          "limitReached": false
+        },
+        "runningToolInput": {
+          "query": "budget laptops"
+        },
+        "recentMessages": [
+          {
+            "role": "assistant",
+            "content": "b"
+          },
+          {
+            "role": "user",
+            "content": "Shortlist three laptops?"
+          },
+          {
+            "role": "assistant",
+            "content": "Here are three"
+          },
+          {
+            "role": "user",
+            "content": "c"
+          },
+          {
+            "role": "assistant",
+            "content": ""
+          }
+        ]
+      }
+    }
+  ],
+  "stopConversation": [
+    {
+      "id": "u1",
+      "role": "user",
+      "text": "Shortlist three laptops?"
+    },
+    {
+      "id": "r1",
+      "role": "assistant",
+      "text": "Here are three",
+      "limitReached": "Turn limit reached."
+    },
+    {
+      "id": "u2",
+      "role": "user",
+      "text": "And the battery?"
+    },
+    {
+      "id": "r2",
+      "role": "assistant",
+      "text": "Ten"
+    }
+  ]
+}
