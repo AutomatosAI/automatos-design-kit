@@ -29,8 +29,10 @@ core wins and the kit is fixed.
 ## Layout
 
 - `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli`
-  (`pack` and `submit`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations) and `theme-harness`
-  (the vitest preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in).
+  (`pack` and `submit`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations), `theme-harness`
+  (the vitest preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in) and
+  `theme-rules` (the one table of JS rules the Marketplace review runs on a package's `source/`: an error
+  refuses the package, a warning is listed for the reviewer).
 - `themes/*`: theme packages. A theme bundles only its own `src/` (the preset's source guard refuses `node_modules`),
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until

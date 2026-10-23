@@ -23,12 +23,21 @@ runs the CLI with type stripping, which needs the extension).
 The test corpus `test/fixtures/core/cases.json` and the hello theme `test/fixtures/core/hello/` are copied from
 `orchestrator/tests/fixtures/themes/` at the same commit, byte for byte.
 
+`check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
+edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
+commit above:
+
+| File here | Core file | sha256 |
+|---|---|---|
+| `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
+| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `fa37c9b1c356f735df5e34ad7adf22707828995d546292e2a286114c37f58031` |
+
 ## Re-vendoring
 
 When core changes one of these files, copy it again from core `main`, redo the import edits above, update the
 commit here, read every comment in the copy (this repo is public: reword any that names a person or an internal
-decision log), and copy `cases.json` and `hello/` from the same commit. `test/core-corpus.test.ts` then holds the copy
-to the core corpus.
+decision log), and copy `cases.json`, `hello/` and the two `data/` files from the same commit (their sha256 rows and
+`CORE_SHA` move with it). `test/core-corpus.test.ts` then holds the copy to the core corpus.
 
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
 and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the
@@ -36,5 +45,11 @@ and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts`
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (a port of the boot's
 `sanitizePrepaint` and fit check and of the server's paint), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
-to the server's verdicts. The corpus's `contrast` cases hold core's review measure
-(`orchestrator/services/themes/mobile_contrast.py`) to look-kit's `contrastRatio`; the CLI has no contrast check.
+to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
+the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
+`src/check/` ports it over the two data files, the contrast check included (`src/check/mobile-contrast.ts`, which paints
+`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, Play's copy of core's
+`frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
+`check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
+and `check-mobile-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases
+among them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

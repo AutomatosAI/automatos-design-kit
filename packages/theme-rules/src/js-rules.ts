@@ -1,5 +1,10 @@
 /**
- * The JS rules on a submission's source/ (PRD-261 §9, the automated stage).
+ * The JS rules on a submission's source/ (PRD-261 §9, the automated stage). RULES is the one table of
+ * the text rules, exported as data, so every tool that reads a theme's source applies the same rows.
+ *
+ * Each finding has a severity. An error refuses the package; a warning is reported for the reviewer
+ * to read and refuses nothing. They warn on: SpeechRecognition and webkitSpeechRecognition (a theme
+ * that listens) and getUserMedia (a theme that opens the microphone or camera).
  *
  * They refuse: fetch, XHR, WebSocket, EventSource, sendBeacon, document.cookie, localStorage,
  * sessionStorage, indexedDB (a theme keeps state through the SDK's storage area, whose names
@@ -19,8 +24,12 @@
 import { posix } from 'node:path'
 import { importRefusal, isSharedModule } from '@automatos/vite-preset'
 
+/** An error refuses the package; a warning is reported for the reviewer and refuses nothing. */
+export type Severity = 'error' | 'warning'
+
 export interface JsFinding {
   readonly code: string
+  readonly severity: Severity
   readonly path: string
   readonly line: number
   readonly message: string
@@ -28,8 +37,14 @@ export interface JsFinding {
   readonly excerpt: string
 }
 
-interface Rule {
+/**
+ * One row of the table: every match of `pattern` in a script's text is a finding with this code. The
+ * pattern is a global RegExp shared by every reader: read it with matchAll (which copies it), never
+ * test or exec, which move its lastIndex.
+ */
+export interface Rule {
   readonly code: string
+  readonly severity: Severity
   readonly pattern: RegExp
   readonly message: string
 }
@@ -43,11 +58,16 @@ const ESCAPE_SHARE = 0.01
 /** Where a theme keeps state instead of browser storage: the SDK's storage area. */
 const STORAGE_AREA = "a theme keeps state through the SDK's storage area (useThemeState, readThemeState, writeThemeState)."
 
-function rule(code: string, pattern: string, message: string, flags = ''): Rule {
-  return Object.freeze({ code, pattern: new RegExp(pattern, `g${flags}`), message })
+function rule(code: string, pattern: string, message: string, flags = '', severity: Severity = 'error'): Rule {
+  return Object.freeze({ code, severity, pattern: new RegExp(pattern, `g${flags}`), message })
 }
 
-const RULES: readonly Rule[] = Object.freeze([
+/** A row the reviewer reads: reported as a warning, never a refusal. */
+function warning(code: string, pattern: string, message: string): Rule {
+  return rule(code, pattern, message, '', 'warning')
+}
+
+export const RULES: readonly Rule[] = Object.freeze([
   rule('JS_FETCH', String.raw`\bfetch\s*\(`, 'calls fetch(): a theme reads data through the SDK, never the network.'),
   rule('JS_XHR', String.raw`\bXMLHttpRequest\b`, 'uses XMLHttpRequest: a theme reads data through the SDK.'),
   rule('JS_WEBSOCKET', String.raw`\bWebSocket\b`, 'opens a WebSocket: a theme reads data through the SDK.'),
@@ -68,6 +88,8 @@ const RULES: readonly Rule[] = Object.freeze([
   rule('JS_LOCATION_WRITE', String.raw`\blocation\s*\.\s*(?:assign|replace)\s*\(`, 'navigates with location.assign/replace: navigate through the SDK.'),
   rule('JS_COMPUTED_GLOBAL', String.raw`\b(?:globalThis|window|self)\s*(?:\?\.\s*)?\[`, 'reads a computed property of globalThis/window.'),
   rule('JS_BUNDLED_REACT', String.raw`__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED|__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE|react\.production(?:\.min)?\.js|Symbol\.for\(\s*['"]react\.element['"]\s*\)`, "bundles React: the host's React comes through its import map."),
+  warning('JS_SPEECH_RECOGNITION', String.raw`\b(?:webkit)?SpeechRecognition\b`, "uses SpeechRecognition: a theme that listens can send the microphone's audio to the browser vendor's speech service."),
+  warning('JS_GET_USER_MEDIA', String.raw`\bgetUserMedia\b`, 'calls getUserMedia: a theme that opens the microphone or camera can record the person using it.'),
 ])
 
 /** `from 'x'`, `import 'x'`, `import('x')`, `require('x')`: the quoted specifier is group 2. */
@@ -117,14 +139,14 @@ interface SourceText {
   readonly starts: readonly number[]
 }
 
-function finding(source: SourceText, offset: number, code: string, message: string): JsFinding {
+function finding(source: SourceText, offset: number, code: string, message: string, severity: Severity = 'error'): JsFinding {
   const line = lineOf(source.starts, offset)
-  return { code, path: source.path, line, message, excerpt: excerptOf(source.lines[line - 1] ?? '') }
+  return { code, severity, path: source.path, line, message, excerpt: excerptOf(source.lines[line - 1] ?? '') }
 }
 
 function ruleFindings(source: SourceText): JsFinding[] {
   return RULES.flatMap((item) => Array.from(source.text.matchAll(item.pattern), (match) => (
-    finding(source, match.index ?? 0, item.code, item.message)
+    finding(source, match.index ?? 0, item.code, item.message, item.severity)
   )))
 }
 

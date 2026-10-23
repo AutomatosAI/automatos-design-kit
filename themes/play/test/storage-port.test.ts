@@ -1,5 +1,5 @@
 // PRD-261 E3g: Play keeps its own state only through the SDK's storage area. Its source names no browser
-// storage (the Marketplace review's JS rules, scripts/review/js-rules.ts, read comments and strings too),
+// storage (the Marketplace review's JS rules, packages/theme-rules, read comments and strings too),
 // and Auto's pause, his hello and the seen Deliverables live under the keys, lifetimes and scopes the plan
 // names, on the harness's storage area (packages/theme-harness, core's storage area ported), whose own rules
 // are held to core's here as well, through the fake host's controls (host.setStorage).

@@ -14,9 +14,9 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { build } from 'vite'
+import { SOURCE_PREFIX } from '@automatos/theme-rules'
 import { automatosTheme, OUT_DIR } from '@automatos/vite-preset'
 import { SOURCE_DIR, SOURCE_ENTRY_CANDIDATES } from '../../packages/theme-cli/src/source.ts'
-import { SOURCE_PREFIX } from './js-rules.ts'
 
 export const BUILD_SOURCE_DIR = `${SOURCE_DIR}/`
 export const ENTRY_CANDIDATES: readonly string[] = SOURCE_ENTRY_CANDIDATES.map((name) => `${BUILD_SOURCE_DIR}${name}`)

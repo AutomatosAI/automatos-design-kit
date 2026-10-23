@@ -1,0 +1,21 @@
+{
+  "name": "@automatos/theme-rules",
+  "version": "0.1.0",
+  "description": "The JS rules the Automatos Marketplace review runs on a theme package's source/: one table of rows, exported as data, with each finding's code, severity, line and excerpt.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/js-rules.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@automatos/vite-preset": "0.1.0"
+  }
+}

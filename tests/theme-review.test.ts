@@ -12,7 +12,7 @@ import { packTheme } from "@automatos/theme-cli";
 import { readZip } from "@automatos/theme-cli/zip";
 import { SOURCE_ENTRY_CANDIDATES } from "../packages/theme-cli/src/source.ts";
 import { buildThemeFolder, ENTRY_CANDIDATES } from "../scripts/review/rebuild.ts";
-import { reviewPackage, type ReviewReport } from "../scripts/review/review.ts";
+import { reviewPackage, WARNING_ITEM_PREFIX, type ReviewReport } from "../scripts/review/review.ts";
 import { jobSummary, summaryText, SUMMARY_MAX_CHARS } from "../scripts/review/summary.ts";
 import type { ProbeResult } from "../scripts/review/probe.ts";
 
@@ -174,6 +174,23 @@ describe("seeded bad packages fail at the right check", () => {
     const report = await review(await packedTheme(), undefined, REACHED);
     expect(report.outcome).toBe("fail");
     expect(report.checks.map((item) => item.name)).toEqual(["No network"]);
+  });
+});
+
+describe("a JS-rule warning is listed for the reviewer and refuses nothing", () => {
+  it("source/ that listens to the microphone: the review passes, the warning is under JS rules", async () => {
+    const entry = `${HELLO_ENTRY}\nexport function listen() { return new webkitSpeechRecognition() }\n`;
+    const report = await review(await packedTheme({ entry }));
+    expect(report.outcome).toBe("pass");
+    expect(report.findings.map((finding) => [finding.code, finding.severity, finding.path])).toEqual([
+      ["JS_SPEECH_RECOGNITION", "warning", "source/entry.js"],
+    ]);
+    const js = report.checks.find((item) => item.name === "JS rules");
+    expect(js?.status).toBe("pass");
+    expect(js?.detail).toMatch(/^Nothing refused; 1 warning in source\//);
+    expect(js?.items).toHaveLength(1);
+    expect(js?.items[0]).toMatch(new RegExp(`^${WARNING_ITEM_PREFIX}JS_SPEECH_RECOGNITION source/entry\\.js:\\d+ `));
+    expect(summaryText(report)).toContain(`- ${WARNING_ITEM_PREFIX}JS_SPEECH_RECOGNITION`);
   });
 });
 
