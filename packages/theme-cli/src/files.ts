@@ -6,6 +6,10 @@
  * orchestrator/modules/documents/brand_fonts.py). Each path matches at most one kind; a path that
  * matches none can't be in a package. The caps are the server's default caps:
  * package 10 MB, JS plus CSS 3 MB, the entry 300 KB, each mascot clip 1 MB.
+ *
+ * A phone's font (the `mobile` block, host 1.1.0) is `assets/fonts/mobile/<NAME>.ttf` or `.otf`, one
+ * sfnt face each (`sfntProblem`, package.py `_sfnt_problem`): a .woff2 in that folder, or a .ttf beside
+ * the web's woff2 fonts, matches no kind.
  */
 
 export const KB = 1024
@@ -30,6 +34,19 @@ const WOFF2_MAX_BYTES = 2 * MB
 const WOFF2_HEADER_BYTES = 48
 const WOFF2_COLLECTION_FLAVOR = 0x74746366 // "ttcf"
 const WOFF2_FLAVORS: ReadonlySet<number> = new Set([0x00010000, 0x4f54544f])
+// package.py :100-:112: a phone's font is one sfnt face, as the woff2 a browser gets is: TrueType outlines
+// (00 01 00 00, or Apple's "true") or CFF ("OTTO"); a collection ("ttcf") is refused. The header is the
+// version, then numTables and three search fields (two bytes each); each table record is tag, checksum,
+// offset, length (four bytes each).
+const SFNT_VERSIONS: ReadonlySet<string> = new Set(['\x00\x01\x00\x00', 'true', 'OTTO'])
+const SFNT_COLLECTION = 'ttcf'
+const SFNT_VERSION_BYTES = 4
+const SFNT_HEADER_BYTES = 12
+const SFNT_RECORD_BYTES = 16
+const SFNT_FIELD_BYTES = 4
+const SFNT_SPAN_AT = 8 // where a record's offset sits; its length follows
+const SFNT_MIN_TABLES = 1
+const SFNT_MAX_TABLES = 64
 
 const NAME = '[A-Za-z0-9][A-Za-z0-9._-]{0,127}'
 const LOOK_ID = '[A-Za-z0-9][A-Za-z0-9_-]{0,63}'
@@ -87,6 +104,46 @@ export function woff2Problem(data: Uint8Array): string | null {
   return null
 }
 
+interface SfntTables {
+  readonly tables: number
+  readonly problem: string | null
+}
+
+function sfntRefused(problem: string): SfntTables {
+  return { tables: 0, problem }
+}
+
+/** The face's table count once its header and table directory fit the file, else why not (package.py `_sfnt_tables`). */
+function sfntTables(data: Uint8Array): SfntTables {
+  const version = ascii(data, 0, SFNT_VERSION_BYTES)
+  if (data.length === 0) return sfntRefused('the file is empty')
+  if (version === SFNT_COLLECTION) return sfntRefused('it is a font collection (ttcf), and a theme ships one face per file')
+  if (!SFNT_VERSIONS.has(version)) return sfntRefused('its bytes are not a TrueType or OpenType font')
+  if (data.length < SFNT_HEADER_BYTES) return sfntRefused('its font header is cut short')
+  const tables = new DataView(data.buffer, data.byteOffset, data.byteLength).getUint16(SFNT_VERSION_BYTES)
+  if (tables < SFNT_MIN_TABLES || tables > SFNT_MAX_TABLES) {
+    return sfntRefused(`its header lists ${tables} tables, and a font holds ${SFNT_MIN_TABLES} to ${SFNT_MAX_TABLES}`)
+  }
+  if (SFNT_HEADER_BYTES + tables * SFNT_RECORD_BYTES > data.length) return sfntRefused('its table directory runs past the end of the file')
+  return { tables, problem: null }
+}
+
+/**
+ * Why `data` is not one complete sfnt face (a .ttf or .otf), or null: every table lies inside the file
+ * (package.py `_sfnt_problem`, check for check and in its order). A record is named by its index, never
+ * by its tag, so no byte of the file is echoed.
+ */
+export function sfntProblem(data: Uint8Array): string | null {
+  const { tables, problem } = sfntTables(data)
+  if (problem !== null) return problem
+  const view = new DataView(data.buffer, data.byteOffset, data.byteLength)
+  const pastEnd = Array.from({ length: tables }, (_, index) => index).find((index) => {
+    const at = SFNT_HEADER_BYTES + index * SFNT_RECORD_BYTES + SFNT_SPAN_AT
+    return view.getUint32(at) + view.getUint32(at + SFNT_FIELD_BYTES) > data.length
+  })
+  return pastEnd === undefined ? null : `its table ${pastEnd + 1} of ${tables} runs past the end of the file`
+}
+
 function kind(
   name: string, path: string, contentType: string, cap: number, tooLargeCode = 'FILE_TOO_LARGE', check: ByteCheck | null = null,
 ): FileKind {
@@ -103,6 +160,8 @@ export const FILE_KINDS: readonly FileKind[] = Object.freeze([
   kind('look-schema', String.raw`looks/schema\.json`, 'application/json', JSON_MAX_BYTES),
   kind('preset', String.raw`looks/presets/${LOOK_ID}\.look\.json`, 'application/json', JSON_MAX_BYTES),
   kind('font', String.raw`assets/fonts/${NAME}\.woff2`, 'font/woff2', FONT_MAX_BYTES, 'FILE_TOO_LARGE', woff2Problem),
+  kind('mobile-font', String.raw`assets/fonts/mobile/${NAME}\.ttf`, 'font/ttf', FONT_MAX_BYTES, 'FILE_TOO_LARGE', sfntProblem),
+  kind('mobile-font', String.raw`assets/fonts/mobile/${NAME}\.otf`, 'font/otf', FONT_MAX_BYTES, 'FILE_TOO_LARGE', sfntProblem),
   kind('licence', String.raw`assets/fonts/${NAME}\.(?:txt|md)`, TEXT_TYPE, TEXT_MAX_BYTES),
   kind('clip', String.raw`assets/mascot/${NAME}\.webm`, 'video/webm', CAPS.clip, 'CLIP_TOO_LARGE', IS_WEBM),
   kind('clip', String.raw`assets/mascot/${NAME}\.mp4`, 'video/mp4', CAPS.clip, 'CLIP_TOO_LARGE', IS_MP4),

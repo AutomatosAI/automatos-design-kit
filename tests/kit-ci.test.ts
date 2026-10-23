@@ -5,8 +5,11 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
+import { SOURCE_DIR } from "../packages/theme-cli/src/source.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const PLAY_DIR = "themes/play";
 const WORKSPACE_GLOBS = ["packages/*", "themes/*"];
 const WORKFLOW = ".github/workflows/kit.yml";
 const LOCKFILE = "package-lock.json";
@@ -91,6 +94,13 @@ function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>):
 
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
+// PRD-261 C-06r (PB-4): a released Play version never changes. The check runs right after the npm pin
+// (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
+const RELEASED_STEP = "Check a released Play is unchanged";
+const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
+const RELEASED_CHECK = `node ${RELEASED_SCRIPT}`;
+/** Where the install runs: after the npm pin and the released-bytes check. */
+const INSTALL_AT = 2;
 
 // The `run:` commands of the workflow, in file order.
 function workflowRuns(text: string): string[] {
@@ -98,6 +108,15 @@ function workflowRuns(text: string): string[] {
     .split("\n")
     .map((line) => /^\s*run:\s*(.+)$/.exec(line)?.[1]?.trim())
     .filter((run): run is string => typeof run === "string");
+}
+
+/** A step's lines, from its `- name:` line up to the next step's (empty when there is no such step). */
+function stepLines(text: string, name: string): string[] {
+  const lines = text.split("\n");
+  const start = lines.indexOf(`      - name: ${name}`);
+  if (start < 0) return [];
+  const next = lines.findIndex((line, index) => index > start && /^ {6}- name: /.test(line));
+  return lines.slice(start, next < 0 ? lines.length : next);
 }
 
 describe("pin check helper", () => {
@@ -243,19 +262,34 @@ describe("kit workflow", () => {
     expect(uses.filter((line) => !PINNED_ACTION.test(line))).toEqual([]);
   });
 
-  it("pins npm, installs, then runs every root script", () => {
+  it("pins npm, checks a released Play is unchanged, installs, then runs every root script", () => {
     const expected = ["npm run build", "npm run lint", "npm run typecheck", "npm test", "npm run pack"];
-    expect(runs[0]).toBe(PIN_NPM);
-    expect(runs.slice(2)).toEqual(expected);
+    expect(runs.slice(0, INSTALL_AT)).toEqual([PIN_NPM, RELEASED_CHECK]);
+    expect(runs.slice(INSTALL_AT + 1)).toEqual(expected);
   });
 
   it("installs from the lockfile once it is committed, otherwise uploads the resolved one", () => {
     if (existsSync(join(ROOT, LOCKFILE))) {
-      expect(runs[1]).toBe("npm ci --no-audit --no-fund");
+      expect(runs[INSTALL_AT]).toBe("npm ci --no-audit --no-fund");
       return;
     }
-    expect(runs[1]).toBe("npm install --no-audit --no-fund");
+    expect(runs[INSTALL_AT]).toBe("npm install --no-audit --no-fund");
     expect(text).toMatch(/name: kit-lockfile\n\s+path: package-lock\.json\n\s+if-no-files-found: error/);
+  });
+
+  // PRD-261 C-06r: the script lists origin's play-v* tags and fetches the matching one itself, anonymously
+  // (tests/released-unchanged.test.ts runs it against git repositories).
+  it("checks a released Play is unchanged after a credential-free checkout, with Node alone and no secret or token", () => {
+    const step = stepLines(text, RELEASED_STEP);
+    const lines = text.split("\n");
+    const checkout = lines.findIndex((line) => /^\s*uses: actions\/checkout@/.test(line));
+    expect(step.filter((line) => /^\s*run:/.test(line)).map((line) => line.trim())).toEqual([`run: ${RELEASED_CHECK}`]);
+    expect(step.filter((line) => /^\s*(?:env|with|uses|shell):/.test(line))).toEqual([]);
+    expect(checkout).toBeGreaterThanOrEqual(0);
+    expect(lines.indexOf(`      - name: ${RELEASED_STEP}`)).toBeGreaterThan(checkout);
+    expect(lines.slice(checkout, checkout + 3).join("\n")).toMatch(/\n\s+with:\n\s+persist-credentials: false$/);
+    expect(text).not.toMatch(/\bsecrets\.|GITHUB_TOKEN|github\.token/);
+    expect(existsSync(join(ROOT, RELEASED_SCRIPT))).toBe(true);
   });
 });
 
@@ -353,6 +387,29 @@ describe("Play's package in CI", () => {
     expect(readText(WORKFLOW)).toMatch(
       /name: kit-themes\n\s+path: \|\n\s+\*\*\/\*\.autotheme\*\n\s+!\*\*\/node_modules\/\*\*\n\s+if-no-files-found: error/,
     );
+  });
+});
+
+// PRD-261 C-06r (PB-4): released-unchanged.mjs keeps its own PACKED_PATHS (plain Node, no TypeScript
+// loader to read collect.ts/source.ts at run time); read back here as text, it must stay a superset of
+// what pack actually collects for Play, so the two guarded sets can't silently drift apart. A folder
+// collect.ts packs but Play never commits (dist/, boot/, looks/: generated from src/, gitignored) needs
+// no path of its own, until the day one of them is tracked.
+function releasedUnchangedPackedPaths(): string[] {
+  const match = /PACKED_PATHS\s*=\s*\[([^\]]*)\]/.exec(readText(RELEASED_SCRIPT));
+  if (match === null) throw new Error(`can't find PACKED_PATHS in ${RELEASED_SCRIPT}`);
+  return [...match[1].matchAll(/'([^']*)'/g)].map(([, path]) => path);
+}
+
+describe("released-unchanged.mjs guards everything pack collects for Play", () => {
+  const packedPaths = releasedUnchangedPackedPaths();
+  const committedFolders = PACKED_FOLDERS.filter((name) =>
+    trackedFiles().some((rel) => rel.startsWith(`${PLAY_DIR}/${name}/`)));
+
+  it("guards every top file and committed folder collect.ts names, and src/ (source.ts)", () => {
+    expect(PACKED_TOP_FILES.length).toBeGreaterThan(0);
+    expect(committedFolders).toContain("assets");
+    [...PACKED_TOP_FILES, ...committedFolders, SOURCE_DIR].forEach((name) => expect(packedPaths).toContain(`${PLAY_DIR}/${name}`));
   });
 });
 
