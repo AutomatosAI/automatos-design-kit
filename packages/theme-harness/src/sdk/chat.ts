@@ -380,8 +380,8 @@ export const chatControls = Object.freeze({
 })
 
 /**
- * The chat as a test starts with it: no turns and none held open, no conversations, nothing sent, the AI label on
- * screen, the screen not opening, no turn ending and no Mission being planned.
+ * The chat as a test starts with it: no turns and none held open, no conversations, nothing sent, no list load kept,
+ * the AI label on screen, the screen not opening, no turn ending and no Mission being planned.
  */
 export function resetChat(): void {
   resetChatScript()

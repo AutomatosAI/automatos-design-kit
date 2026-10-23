@@ -29,7 +29,7 @@ import { TICKETS_LABEL } from '../../src/components/play/chat/reply-cards.tsx'
 import { SNAG_TITLE, TRY_AGAIN, TURN_FAILED } from '../../src/components/play/chat/snag-box.tsx'
 import { TOOL_LINES_LABEL } from '../../src/components/play/chat/tool-lines.tsx'
 import { HELLO_KEY, HELLO_STATE } from '../../src/lib/mascot/session.ts'
-import { host } from '@automatos/theme-harness/host'
+import { CREDITS_EXHAUSTED_CODE, host, LIVE_KEY } from '@automatos/theme-harness/host'
 
 /** Every MissionSuggestionCard Play drew, with its props, newest last. */
 const seen = vi.hoisted(() => ({ suggestions: [] as readonly MissionSuggestionCardProps[] }))
@@ -65,8 +65,6 @@ const UPDATED = '2026-10-14T09:00:00+00:00'
 const QUESTION = 'Shortlist three laptops?'
 /** What each test asks after the stored question. */
 const ASKED = 'And now?'
-/** lib/credits.ts: the code a request refused for used-up credits carries. */
-const CREDITS_EXHAUSTED = 'credits_exhausted'
 /** The host's banner, as its protected surface names it (core's test reads its test id). */
 const TRIAL_BANNER = 'trial-exhausted-banner'
 /** The label a failed turn's stored row carries, which a reply never shows. */
@@ -74,7 +72,7 @@ const TURN_ERROR_LABEL = 'Error'
 const BACKGROUND_LABEL = 'Auto · background'
 const HELD: Turn = { frames: [], hold: true }
 const REFUSED: Turn = { frames: [], status: 500 }
-const OUT_OF_CREDITS: Turn = { frames: [], status: 402, body: `{"error_code": "${CREDITS_EXHAUSTED}"}` }
+const OUT_OF_CREDITS: Turn = { frames: [], status: 402, body: `{"error_code": "${CREDITS_EXHAUSTED_CODE}"}` }
 
 function receipt(fields: Partial<HostReceipt>): HostReceipt {
   return { action: 'platform_update_task', kind: 'write', status: 'done', subject: '', effect: '', link: null, reason: null, ...fields }
@@ -83,7 +81,7 @@ function receipt(fields: Partial<HostReceipt>): HostReceipt {
 const words = (text: string): Frame => ({ text })
 const dataPart = (type: string, data: unknown): Frame => ({ data: { type, data } })
 const toolData = (data: unknown): Frame => dataPart('tool-data', data)
-const receiptsPart = (receipts: readonly HostReceipt[]): Frame => toolData({ receipts: { receipts, above: [] } })
+const receiptsPart = (receipts: readonly HostReceipt[]): Frame => toolData({ [LIVE_KEY]: { receipts, above: [] } })
 const failure = (error: Readonly<Record<string, string>>): Frame => ({ error })
 const toolStart = (toolCallId: string, toolName: string, input?: unknown): Frame => dataPart('tool-start', { toolCallId, toolName, input })
 const toolEnd = (fields: Readonly<Record<string, unknown>>): Frame => dataPart('tool-end', fields)
@@ -357,7 +355,7 @@ describe('used-up credits (PRD-265)', () => {
   })
 
   it('a reply refused mid-stream for credits shows the banner instead of its snag box', async () => {
-    await renderChat([{ frames: [failure({ message: 'Credits used up.', code: CREDITS_EXHAUSTED })] }])
+    await renderChat([{ frames: [failure({ message: 'Credits used up.', code: CREDITS_EXHAUSTED_CODE })] }])
     ask()
     expect(await screen.findByRole('alert')).toHaveAttribute('data-protected-surface', TRIAL_BANNER)
     expect(screen.queryByRole('region', { name: SNAG_TITLE })).toBeNull()
