@@ -15,5 +15,9 @@ covered by the code licence: the Apache License, Version 2.0 does not apply
 to them. They are in this repository so that Play's package can be built
 and reviewed from it.
 
+The same holds for Play's listing previews in themes/play/assets/previews/:
+they are screenshots that show Auto, and are (c) Automatos AI, not covered by
+the code licence.
+
 The pipeline that generated them (/mascot/ at the repository root) stays
 local and is ignored by git; it is not part of this repository.

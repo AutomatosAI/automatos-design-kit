@@ -13,6 +13,7 @@
     "./check": "./src/check-package.ts",
     "./zip": "./src/zip.ts",
     "./manifest": "./src/core/package-manifest.ts",
+    "./mobile": "./src/core/mobile-manifest.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

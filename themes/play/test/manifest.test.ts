@@ -1,10 +1,13 @@
 // @vitest-environment node
 // Play's theme.json, entry and build config agree with each other, with core's manifest validator
 // (vendored in the theme CLI) and with what core's builtin Play declares. Files are read, not built.
+// PRD-261 M-07: theme.json names Auto's states (`mascot`) and the phone's block (`mobile`); the files and
+// colours the block needs are test/mobile.test.ts's.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
 import { describe, expect, it } from 'vitest'
+import { MASCOT_STATES } from '../src/lib/mascot/types.ts'
 import { readSource, readThemeFile, SOURCE_ROOT, sourceScripts, THEME_ROOT } from './source-files.ts'
 
 const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
@@ -82,6 +85,14 @@ describe('theme.json', () => {
       routes: ['conversations'],
     })
     expect([...manifest.slots].sort()).toEqual(['asleep@1', 'frame@1', 'lookEditor@1', 'notFound@1', 'styleSheet@1'])
+  })
+
+  it("names Auto's states as the mascot field: MASCOT_STATES, in their order", () => {
+    expect(manifest.mascot).toEqual({ states: [...MASCOT_STATES] })
+  })
+
+  it("gives the phone the look's colours and Auto's clips, and no phone fonts (Play's faces are woff2 only)", () => {
+    expect(manifest.mobile).toEqual({ fromLooks: true, mascot: 'clips' })
   })
 
   it('keeps the core page for the links core keeps it for', () => {
