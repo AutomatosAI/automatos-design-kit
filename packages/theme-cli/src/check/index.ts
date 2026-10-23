@@ -15,6 +15,10 @@
  * the Marketplace's own stage: always not_measured here. The command sends nothing anywhere.
  *
  * Exit code 0 when no check is an error, 1 when one is (or the reader refuses the theme), 2 for a usage error.
+ *
+ * `check design <theme folder>` (PRD-261 B-03d) checks the design before any code: the look schema,
+ * the presets, the prepaint table and design/contrast.json's pairs (design.ts, which has its own usage).
+ * A theme folder that is itself named design is checked as `check ./design`.
  */
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -26,6 +30,7 @@ import { WARNING_PREFIX, type CommandDeps } from '../cli-main.ts'
 import type { Output } from '../output.ts'
 import { packTheme } from '../pack.ts'
 import { readZip } from '../zip.ts'
+import { designCommand, DESIGN_SUBCOMMAND } from './design.ts'
 import { cloneCheck, describeClones } from './drift.ts'
 import { describeJs, jsRulesCheck } from './js.ts'
 import { describePreviews, previewsCheck } from './previews.ts'
@@ -218,7 +223,8 @@ export async function runCheck(
   }
 }
 
-/** The command table's runner (cli-main.ts): `check` in the folder `deps.cwd`; it never uses the network. */
+/** The command table's runner (cli-main.ts): `check`, or `check design`, in the folder `deps.cwd`; neither uses the network. */
 export function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
+  if (argv[1] === DESIGN_SUBCOMMAND) return designCommand(argv, output, deps)
   return runCheck(argv, output, deps.cwd)
 }
