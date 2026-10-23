@@ -63,8 +63,9 @@ the vendored types fails it until it is faked) and `test/types.test.ts` holds th
 
 The fakes keep the SDK's rules where a theme depends on them: the href checks, the notice checks, the event
 names, the asset path rule, the page areas' id checks, and the storage area, which is core's runtime ported. They
-answer from the fake host's state, not a backend. Chat, Deliverables and the host cards are stubs that throw "not
-faked yet" (`src/sdk/stubs.ts`) until PRD-261 B-02c fakes them.
+answer from the fake host's state, not a backend. Chat plays recorded turns from `fixtures/streams/`, Deliverables
+answer from `fixtures/deliverables/` (or rows a test sets), and the host cards are stand-ins with the cards' props
+(`fixtures/README.md` says what each fixture holds; every fixture is made-up data).
 
 ## The fake host
 

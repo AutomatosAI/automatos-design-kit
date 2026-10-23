@@ -3,8 +3,7 @@
  * (vitest-preset.ts aliases it here). It mirrors core's frontend/lib/theme-sdk/index.ts:16-31: one module per
  * area, re-exported here. Each area names its SDK names, so an area module's own controls and helpers never
  * reach the surface, and test/surface.test.ts holds the union to the vendored types' value exports, nothing
- * missing and nothing extra. Chat, deliverables and cards come from stubs.ts until PRD-261 B-02c fakes them:
- * the lane merge changes each of those three lines' module to './chat.ts', './deliverables.ts', './cards.ts'.
+ * missing and nothing extra. Chat, deliverables and cards are PRD-261 B-02c's fakes over fake fixtures.
  */
 export { SDK_VERSION, defineTheme } from './theme.ts'
 export {
@@ -19,15 +18,15 @@ export { notify, dismissNotice } from './notices.ts'
 export { HOST_EVENT_NAMES, onHostEvent, useHostEvent, openGlobalSearch } from './events.ts'
 export {
   useChatController, useConversationList, useRecentChats, useStartChat, receiptLine, receiptLink, movedSomethingOnTheBoard, liveReceiptsOf,
-} from './stubs.ts'
+} from './chat.ts'
 export {
   DELIVERABLE_FEED_FILTERS, DELIVERABLE_TAB_LABELS, useDeliverables, useDeliverable, useFileDownload, useAuthenticatedBlobUrl,
   deliverableFileUrl, deliverableDownloadUrl, fileDownloadUrl, deliverableFilename, visibleDeliverableTabs, deliverableLabel,
-} from './stubs.ts'
+} from './deliverables.ts'
 export {
   ToolApproval, MissionApproval, TaskCard, WithdrawOfferCard, MissionSuggestionCard, MissionCreatedCard, FilePreview, MarkdownView,
   MadeBy, TrialExhaustedBanner, FirstRunNudge, HeaderUtilities, AiLabelFence, CorePage,
-} from './stubs.ts'
+} from './cards.ts'
 export { useLook, saveLook, listLooks, exportLook, importLook, useLookScope } from './looks.ts'
 export { assetUrl } from './assets.ts'
 export { useAgents, useAgentStats } from './pages-agents.ts'

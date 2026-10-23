@@ -5,9 +5,6 @@
  * starts: the local edition's one operator in WORKSPACE_DEFAULTS, online, the backend up, a desktop width,
  * the light tone, no look runtime, no package files, STORAGE_DEFAULTS with no theme state kept, nothing asked
  * and nothing refused. Call it in a beforeEach; a control set inside act() renders what reads it again.
- *
- * Chat, deliverables and cards are stubs.ts's until PRD-261 B-02c fakes them; the lane merge changes each of
- * those three import lines to the area's own module ('./sdk/chat.ts', './sdk/deliverables.ts', './sdk/cards.ts').
  */
 import { forgetNetworkCalls, networkCalls } from './internal/network.ts'
 import { pageControls, resetPages } from './internal/page-views.ts'
@@ -20,9 +17,9 @@ import { noticeControls, resetNotices } from './sdk/notices.ts'
 import { commandCenterControls, resetCommandCenter } from './sdk/pages-command-center.ts'
 import { documentsControls, resetDocuments } from './sdk/pages-documents.ts'
 import { resetStorage, storageControls } from './sdk/storage.ts'
-import { chatControls, resetChat } from './sdk/stubs.ts'
-import { deliverablesControls, resetDeliverables } from './sdk/stubs.ts'
-import { cardsControls, resetCards } from './sdk/stubs.ts'
+import { chatControls, resetChat } from './sdk/chat.ts'
+import { deliverablesControls, resetDeliverables } from './sdk/deliverables.ts'
+import { cardsControls, resetCards } from './sdk/cards.ts'
 
 export { WORKSPACE_DEFAULTS, ROLE_DEFAULTS, DEFAULT_WIDTH, DEFAULT_MIN_WIDTH } from './sdk/context.ts'
 export { STORAGE_DEFAULTS, THEME_STATE_KEY_PREFIX, type StorageStandIn } from './sdk/storage.ts'
@@ -33,7 +30,7 @@ export type { ShownNotice } from './sdk/notices.ts'
 export type { NetworkCall } from './internal/network.ts'
 export type { PageAsk, PageQueryAnswer, PageRun } from './internal/page-views.ts'
 export type { DatabaseKnowledgeAnswer } from './sdk/pages-documents.ts'
-export type { BlobUrls, DeliverablesAsk, DetailAsk, DownloadAsk } from './sdk/stubs.ts'
+export type { BlobUrls, DeliverablesAsk, DetailAsk, DownloadAsk } from './sdk/deliverables.ts'
 
 /**
  * Every area's reset. Storage first: it forgets the last test's subscribers before the context's workspace,

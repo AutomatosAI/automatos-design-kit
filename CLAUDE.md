@@ -35,6 +35,9 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 - `theme-review.yml` and `theme-sign.yml` are person-run `workflow_dispatch` jobs; core never calls GitHub.
 - This repo is public: no secrets, no internal plans, no customer or pricing material, no API keys (including
   the mascot pipeline's).
+- Stream recordings and fixtures hold everything Auto said. Record them from made-up test data only, and read
+  them before committing (`tests/fixtures-fake-data.test.ts` refuses e-mails, outside URLs and key shapes, not
+  everything).
 
 ## Workspace conventions
 
