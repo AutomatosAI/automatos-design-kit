@@ -220,7 +220,7 @@ function numericEntry(rule: unknown, look: JsonRecord): Array<[string, string]> 
   const [row, column] = list(at(rule, 'capTable'))
   const capped = at(rule, 'capTable') ? Math.min(alpha, Number(cellOf(at(rule, 'caps'), look, row, column))) : alpha
   const color = at(rule, 'color')
-  return [[name, `rgba(${String(at(at(color, 'rgb'), at(look, at(color, 'knob'))))},${capped}`]]
+  return [[name, `rgba(${String(at(at(color, 'rgb'), at(look, at(color, 'knob'))))},${capped})`]]
 }
 
 /** What the first paint sets for a look that fits the table (lookFits): knob entries, pair entries, numeric rules. */
