@@ -81,7 +81,7 @@ theme state kept, and nothing asked.
 | navigation | `setPathname`, `setSearchParams`, `setCoreNav` | `navigations()`: router calls and followed links |
 | notices | | `notices()`, `dismissals()` |
 | events | `emitHostEvent` | `globalSearchOpens()` |
-| looks | `setLooks` (a look runtime, its check and its forced tone) | through `useLook` and `listLooks` |
+| looks | `setLooks` (a look runtime, its check, its default look and its forced tone) | through `useLook` and `listLooks` |
 | assets | `setFilesRoot` | `askedPaths()` |
 | storage | `setStorage({ ready, persisted, themeId, userKey, workspaceKey })`, `changeInAnotherTab` | the window's storage |
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
