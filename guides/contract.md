@@ -183,5 +183,7 @@ block's contrast: 4.5:1 for each text token on its fill, 3:1 for `--primary` and
 scheme (or per preset under `fromLooks`); a pair under its minimum blocks the listing. The phone reads the result
 from `GET /api/themes/mobile/<install id>`: the colours, the font and mascot file URLs, never a JS or CSS URL.
 
-The kit's vendored reader predates the `mobile` block: until the kit re-vendors core's validators at a commit that
-has it, `automatos-theme pack` and `automatos-theme check` refuse a `theme.json` with `mobile` (`UNKNOWN_FIELD`).
+The kit's vendored reader takes the block as core does (`packages/theme-cli/src/core/mobile-manifest.ts`, at the
+commit its README names): `automatos-theme pack` refuses what core refuses, the fonts and clips the block names
+included, and `automatos-theme check` measures its colour pairs as the review does, so a pair under its minimum is
+an error there before you submit.
