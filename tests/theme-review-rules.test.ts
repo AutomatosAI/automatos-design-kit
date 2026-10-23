@@ -217,9 +217,7 @@ describe("listening, or opening the microphone or camera, is a warning, not a re
   });
 
   it("names the reason and the line", () => {
-    const [finding] = fileFindings(PATH, "const a = 1
-const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-");
+    const [finding] = fileFindings(PATH, "const a = 1\nconst stream = await navigator.mediaDevices.getUserMedia({ audio: true })\n");
     expect(finding).toMatchObject({ code: "JS_GET_USER_MEDIA", severity: "warning", line: 2 });
     expect(finding.message).toMatch(/microphone or camera/);
     expect(fileFindings(PATH, "new SpeechRecognition()")[0].message).toMatch(/browser vendor's speech service/);
