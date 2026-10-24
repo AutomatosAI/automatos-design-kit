@@ -26,7 +26,7 @@ import {
 
 /** The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line). */
 export const CORE_REPO = 'AutomatosAI/automatos-ai'
-export const CORE_SHA = '101a0bf33f64fb4f89af81b4293415be60b661ac'
+export const CORE_SHA = '1699a4f95d496be0c2e14102bbff5aaa8f3fb020'
 
 export const REPORT_SCHEMA = 'automatos-theme-scan/v2'
 export const STAGE = 'C-02a'
