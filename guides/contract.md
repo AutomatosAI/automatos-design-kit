@@ -52,7 +52,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `routes`, `nav` | no | The theme's own pages and their menu entries (below) |
 | `uses` | no | The SDK areas the code imports ([sdk.md](sdk.md)); the review warns when code and list disagree |
 | `look` | no | The id of the default preset |
-| `fonts`, `previews` | no | Up to 16 `assets/fonts/*.woff2`, up to 16 `assets/previews/*.png` |
+| `fonts`, `previews` | no | Up to 16 `assets/fonts/*.woff2`, up to 16 `assets/previews/*.png`. The listing shows a preview `<preset>.png` or `<preset>-<screen>.png` under that preset, in `theme.json`'s order, and its cover is the first; `automatos-theme previews` writes them from harness shots. |
 | `brand` | no | `{"name", "wordmark"}`, the wordmark an `assets/brand/` image |
 | `mascot` | no | `{"states": [...]}`: up to 32 state names ([mascot-placement.md](mascot-placement.md)) |
 | `pricing` | no | A label of at most 40 characters |

@@ -1,0 +1,19 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "{{id}}",
+  "name": "{{name}}",
+  "version": "0.1.0",
+  "description": "Automatos in a frame of its own, with the host's pages inside it and looks you pick and change.",
+  "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
+  "base": "studio",
+  "htmlClass": "{{htmlClass}}",
+  "minWidth": 1024,
+  "tone": "from-look",
+  "slots": ["frame@1", "lookEditor@1", "styleSheet@1", "notFound@1"],
+  "nav": [
+    { "id": "theme-looks", "label": "Make it yours", "path": "/looks" },
+    { "id": "theme-style-sheet", "label": "Style sheet", "path": "/looks/style" }
+  ],
+  "uses": ["cards", "events", "looks", "navigation", "theme"],
+  "look": "day"
+}

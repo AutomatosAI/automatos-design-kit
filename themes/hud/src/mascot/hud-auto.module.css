@@ -1,0 +1,111 @@
+/*
+ * Auto in HUD's slot (the Command design's Mascot.dc.html). The stage is 0.9 of his size wide; the ring
+ * the page draws under him is 0.8 by 0.18, its glow the ring's colour at 35%. His figure stands on it in the
+ * box Play's clips are cut for (themes/play/src/components/mascot/auto-mascot.module.css): the same clips, so
+ * the same box. Every colour is a look variable (src/lib/looks/vars.ts).
+ */
+
+.auto {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hud-space-2);
+}
+
+/* The ring's colour by tone (@automatos/mascot's ring.ts): the accent calm or busy, the design's coral, dusk
+   and violet otherwise. */
+.stage {
+  --hud-auto-ring: var(--hud-accent);
+  position: relative;
+  flex: none;
+  width: calc(var(--hud-auto-size) * 0.9);
+  height: var(--hud-auto-size);
+}
+
+.stage[data-ring="error"] {
+  --hud-auto-ring: var(--hud-ring-oops);
+}
+
+.stage[data-ring="dusk"] {
+  --hud-auto-ring: var(--hud-ring-dusk);
+}
+
+.stage[data-ring="quiet"] {
+  --hud-auto-ring: var(--hud-ring-loading);
+}
+
+.ring {
+  --hud-auto-ring-glow: color-mix(in srgb, var(--hud-auto-ring) 35%, transparent);
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: calc(var(--hud-auto-size) * 0.8);
+  height: calc(var(--hud-auto-size) * 0.18);
+  transform: translateX(-50%);
+  border: 2px solid var(--hud-auto-ring);
+  border-radius: 50%;
+  box-shadow:
+    0 0 22px var(--hud-auto-ring-glow),
+    inset 0 0 14px var(--hud-auto-ring-glow);
+  background: radial-gradient(closest-side, var(--hud-auto-ring-glow), transparent);
+}
+
+.figure {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--hud-auto-size) * 0.06);
+  width: calc(var(--hud-auto-size) * 0.86);
+  height: calc(var(--hud-auto-size) * 0.86);
+  transform: translateX(-50%);
+  object-fit: contain;
+}
+
+/* What he is doing, in words: the state chip under him ("SEARCHING THE WEB"), wrapping where it is narrow. */
+.chip {
+  max-width: 100%;
+  margin: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--hud-accent-line);
+  background: var(--hud-bg);
+  color: var(--hud-accent-text);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* The Pause Auto control: HUD's secondary button, an accent-line outline. */
+.pause {
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 500 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pause[aria-pressed="true"] {
+  border-color: var(--hud-accent);
+  background: var(--hud-accent-fill);
+  color: var(--hud-accent-text);
+}
+
+.pause:disabled {
+  cursor: progress;
+  color: var(--hud-text-2);
+}
+
+/* Two bars, drawn by the page. */
+.pauseIcon {
+  width: 8px;
+  height: 10px;
+  border-left: 3px solid currentcolor;
+  border-right: 3px solid currentcolor;
+}

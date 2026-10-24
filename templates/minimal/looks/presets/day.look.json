@@ -1,0 +1,9 @@
+{
+  "schema": "{{htmlClass}}-look/v1",
+  "id": "day",
+  "name": "Day",
+  "sub": "Blue on paper",
+  "ground": "paper",
+  "accent": "blue",
+  "corners": "soft"
+}
