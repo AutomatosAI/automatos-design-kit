@@ -2,7 +2,7 @@
  * The web server of `automatos-theme dev` (PRD-261 B-02i), over a made-up build folder in the system temp folder:
  * which file a request's path names (only one under the folder: no `..` however escaped, no link out, no folder, no
  * dotfile), the one byte range it answers, and its answers over a real node:http server on 127.0.0.1: the types,
- * no-store, HEAD, 206, 416, 405, and 503 before a build is in.
+ * no-store, HEAD, 206, 416, 405, 421 for a Host that is not this machine, and 503 before a build is in.
  */
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { request as httpRequest, type IncomingHttpHeaders } from 'node:http'
@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { HARNESS_HOST } from '@automatos/theme-harness/router'
 import { afterEach, describe, expect, it } from 'vitest'
-import { byteRange, INDEX_FILE, listenDev, servedFile, type ByteRange } from '../src/dev-server.ts'
+import { byteRange, INDEX_FILE, isLoopbackHost, listenDev, servedFile, type ByteRange } from '../src/dev-server.ts'
 
 const CLIP = Buffer.from('0123456789')
 const folders: string[] = []
@@ -133,5 +133,15 @@ describe('the answers', () => {
     expect([out.status, out.body.includes('outside')]).toEqual([404, false])
     const building = await ask(await serving(() => null), '/')
     expect(building.status).toBe(503)
+  })
+
+  it('answers only a Host of 127.0.0.1, localhost or [::1], so a rebound name gets 421 and no file', async () => {
+    expect(['127.0.0.1:4319', 'localhost', 'LOCALHOST:80', '[::1]:4319'].map(isLoopbackHost)).toEqual([true, true, true, true])
+    expect(['rebind.example', 'rebind.example:4319', '127.0.0.1.example', undefined].map(isLoopbackHost)).toEqual([false, false, false, false])
+    const { root } = buildFolder()
+    const port = await serving(() => root)
+    const rebound = await ask(port, '/', 'GET', { Host: `rebind.example:${port}` })
+    expect([rebound.status, rebound.body.includes('page')]).toEqual([421, false])
+    expect((await ask(port, '/', 'GET', { Host: `localhost:${port}` })).status).toBe(200)
   })
 })

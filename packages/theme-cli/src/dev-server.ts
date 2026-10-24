@@ -19,8 +19,14 @@ import { extname, isAbsolute, relative, resolve, sep } from 'node:path'
 export const INDEX_FILE = 'index.html'
 const URL_BASE = 'http://dev.invalid'
 const STATUS = Object.freeze({
-  ok: 200, partial: 206, notFound: 404, notAllowed: 405, unsatisfiable: 416, unreadable: 500, building: 503,
+  ok: 200, partial: 206, notFound: 404, notAllowed: 405, unsatisfiable: 416, misdirected: 421, unreadable: 500,
+  building: 503,
 })
+/**
+ * The names a request to this server may carry in its Host header: a page on any other name that reaches 127.0.0.1
+ * (DNS rebinding) is refused, so it can't read the theme being served.
+ */
+const LOOPBACK_HOSTS: readonly string[] = ['127.0.0.1', 'localhost', '[::1]']
 const READ_METHODS: readonly string[] = ['GET', 'HEAD']
 /** The types of the files a harness build writes, and of a theme's assets. */
 const CONTENT_TYPES: Readonly<Record<string, string>> = Object.freeze({
@@ -139,8 +145,19 @@ function sendFile(request: IncomingMessage, response: ServerResponse, file: stri
   stream.pipe(response)
 }
 
+/** True when a Host header names this machine's loopback address, with or without a port. */
+export function isLoopbackHost(host: string | undefined): boolean {
+  if (host === undefined) return false
+  const name = host.startsWith('[') ? host.slice(0, host.indexOf(']') + 1) : host.split(':')[0]
+  return LOOPBACK_HOSTS.includes(name.toLowerCase())
+}
+
 /** Answers one request from `root`, the folder served now (null before the first build). */
 export function answer(request: IncomingMessage, response: ServerResponse, root: string | null): void {
+  if (!isLoopbackHost(request.headers.host)) {
+    reply(response, STATUS.misdirected, 'The harness answers 127.0.0.1 and localhost only.')
+    return
+  }
   if (!READ_METHODS.includes(request.method ?? '')) {
     reply(response, STATUS.notAllowed, 'The harness answers GET and HEAD only.', { Allow: READ_METHODS.join(', ') })
     return
