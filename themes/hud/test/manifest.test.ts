@@ -226,4 +226,3 @@ describe('the build', () => {
     expect(refused.map(({ rel, specifier }) => `${rel}: ${specifier}`)).toEqual([])
   })
 })
-})
