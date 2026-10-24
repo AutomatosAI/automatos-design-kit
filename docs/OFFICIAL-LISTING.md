@@ -65,7 +65,7 @@ works (raise `THEME_LLM_MAX_CHUNKS` for the run only if the reviewer wants the L
 ### 3. Review at the tag
 
 ```sh
-gh workflow run theme-review.yml --ref play-v<v> -f package_url=https://github.com/AutomatosAI/automatos-play/releases/download/play-v<v>/automatos.play-<v>.autotheme -f expected_digest=<digest>
+gh workflow run theme-review.yml --ref play-v<v> -f package_url=https://github.com/AutomatosAI/automatos-design-kit/releases/download/play-v<v>/automatos.play-<v>.autotheme -f expected_digest=<digest>
 ```
 
 `<digest>` is the 64-hex digest the admin queue shows. `--ref play-v<v>` runs the review with the kit as it was
