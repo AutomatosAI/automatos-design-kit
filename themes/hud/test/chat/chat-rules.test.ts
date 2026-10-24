@@ -1,0 +1,96 @@
+// The core screen's pure rules: the layout the screen picks for its size (the design's desktop until measured), the
+// state chip's words, a tool call's glyph, an agent's status and a Deliverable's day, and a turn that failed before
+// its reply began. Each is a plain function, read without rendering.
+import type { HostChatMessage, HostToolCall } from '@automatos/theme-sdk'
+import { describe, expect, it } from 'vitest'
+import { captionFor } from '@automatos/mascot/media'
+import { AWAITING_ANSWER, autoLabel, chipWords, NAPPING } from '../../src/chat/chip.ts'
+import { MARK_DONE, MARK_MUTED, MARK_RUNNING, toolLineLabel } from '../../src/chat/labels.ts'
+import {
+  DEFAULT_LAYOUT, LARGE_CORE_MIN_HEIGHT, screenLayout, THREE_COLUMNS_MIN, TWO_COLUMNS_MIN,
+} from '../../src/chat/layout.ts'
+import { agentStatus, madeWhen, TODAY } from '../../src/chat/panels/panel-rows.ts'
+import { failedBeforeReply } from '../../src/chat/turn-end.tsx'
+
+function call(fields: Partial<HostToolCall>): HostToolCall {
+  return { toolCallId: 't1', toolName: 'platform_web_search', state: 'running', skipped: false, waiting: false, ...fields }
+}
+
+function message(fields: Partial<HostChatMessage>): HostChatMessage {
+  return { id: 'm1', role: 'assistant', text: '', error: null, ...fields } as HostChatMessage
+}
+
+describe('the layout', () => {
+  it("is the design's desktop until the screen is measured", () => {
+    expect(screenLayout(null)).toEqual(DEFAULT_LAYOUT)
+    expect(DEFAULT_LAYOUT).toEqual({ columns: 'three', core: 'large' })
+  })
+
+  it('puts the panels on both sides when wide, beside the conversation when narrower, nowhere below that', () => {
+    const tall = LARGE_CORE_MIN_HEIGHT
+    expect(screenLayout({ width: THREE_COLUMNS_MIN, height: tall }).columns).toBe('three')
+    expect(screenLayout({ width: THREE_COLUMNS_MIN - 1, height: tall }).columns).toBe('two')
+    expect(screenLayout({ width: TWO_COLUMNS_MIN, height: tall }).columns).toBe('two')
+    expect(screenLayout({ width: TWO_COLUMNS_MIN - 1, height: tall }).columns).toBe('one')
+  })
+
+  it("takes the 420 px core when there is height for it, the phone's 290 px core otherwise", () => {
+    expect(screenLayout({ width: THREE_COLUMNS_MIN, height: LARGE_CORE_MIN_HEIGHT }).core).toBe('large')
+    expect(screenLayout({ width: THREE_COLUMNS_MIN, height: LARGE_CORE_MIN_HEIGHT - 1 }).core).toBe('small')
+  })
+})
+
+describe('the state chip', () => {
+  it("says the state in the mascot's own words", () => {
+    expect(chipWords('thinking')).toBe(captionFor('thinking'))
+    expect(chipWords('sleeping', { backendDown: true })).toBe(captionFor('sleeping'))
+  })
+
+  it("adds a running search's query, cut to fit", () => {
+    expect(chipWords('searching', { runningInput: { query: 'budget laptops' } })).toBe(`${captionFor('searching')} · budget laptops`)
+    const long = chipWords('searching', { runningInput: { query: 'x'.repeat(60) } })
+    expect(long.endsWith('…')).toBe(true)
+  })
+
+  it("tells a nap from the backend being down, names a card waiting and the Deliverable that landed", () => {
+    expect(chipWords('sleeping')).toBe(NAPPING)
+    expect(chipWords('listening', { approvalWaiting: true })).toBe(AWAITING_ANSWER)
+    expect(chipWords('celebrate', { deliverableKind: 'document' })).toBe('Your document is ready')
+    expect(autoLabel('Thinking')).toBe('Auto: Thinking')
+  })
+})
+
+describe('a tool line', () => {
+  it('is ▸ while it runs, ✓ when done, and – when the reply stopped under it', () => {
+    expect(toolLineLabel(call({}), true).mark).toBe(MARK_RUNNING)
+    expect(toolLineLabel(call({ state: 'completed' }), false).mark).toBe(MARK_DONE)
+    expect(toolLineLabel(call({}), false)).toEqual({ mark: MARK_MUTED, text: 'Stopped: searching the web', tone: 'muted' })
+  })
+})
+
+describe('the panels', () => {
+  it("say an agent's status as a glyph and a word: unavailable first, then the backend's own", () => {
+    expect(agentStatus({ status: 'active', unavailable: null })).toEqual({ glyph: '●', word: 'Active', tone: 'live' })
+    expect(agentStatus({ status: 'active', unavailable: 'No AI credit' })).toEqual({ glyph: '○', word: 'Unavailable', tone: 'quiet' })
+    expect(agentStatus({ status: 'error' })).toEqual({ glyph: '✕', word: 'Error', tone: 'failed' })
+    expect(agentStatus({ status: 'paused_by_owner' })).toEqual({ glyph: '◆', word: 'Paused by owner', tone: 'quiet' })
+  })
+
+  it("name a Deliverable's day: today, a weekday within the week, else the day and month", () => {
+    const now = new Date(2026, 9, 24, 12)
+    expect(madeWhen(new Date(2026, 9, 24, 8).toISOString(), now)).toBe(TODAY)
+    expect(madeWhen(new Date(2026, 9, 19, 12).toISOString(), now)).toBe('Mon')
+    expect(madeWhen(new Date(2026, 9, 2, 12).toISOString(), now)).toBe('2 Oct')
+    expect(madeWhen('not a date', now)).toBe('')
+  })
+})
+
+describe('a turn that failed before its reply', () => {
+  it('is an error with no reply holding it, and never one the used-up credits explain', () => {
+    const asked = message({ role: 'user', text: 'Hi?' })
+    expect(failedBeforeReply('error', [asked], false)).toBe(true)
+    expect(failedBeforeReply('error', [asked], true)).toBe(false)
+    expect(failedBeforeReply('error', [asked, message({ error: { message: 'It failed.', code: null } })], false)).toBe(false)
+    expect(failedBeforeReply('idle', [asked], false)).toBe(false)
+  })
+})

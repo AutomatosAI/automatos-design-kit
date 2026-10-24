@@ -1,0 +1,76 @@
+/*
+ * The transcript (the Command design's YOU and AUTO rows): a 52 px speaker column in mono capitals, then the words.
+ * The newest exchange is the design's size (your words 17 px in the secondary text, Auto's 20 px in the text);
+ * earlier rows are smaller. The sizes ride on custom properties, so Auto's reply (reply.module.css) reads them.
+ */
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--hud-chat-column, 620px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}
+
+/* The list sits at the bottom of a short conversation, under the core. */
+.list {
+  margin: auto 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-3);
+}
+
+.item {
+  min-width: 0;
+}
+
+.empty {
+  margin: auto 0 0;
+  color: var(--hud-text-2);
+  font: 15px/1.5 var(--hud-font-text);
+  text-align: center;
+}
+
+.row {
+  --hud-row-you: 15px;
+  --hud-row-auto: 16px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: start;
+}
+
+.row[data-recent="true"] {
+  --hud-row-you: 17px;
+  --hud-row-auto: 20px;
+}
+
+/* Unlayered and under html.hud, so it outranks Studio's heading rules, which reach every h2 on the page. */
+.speaker {
+  margin: 0;
+  padding-top: 4px;
+  color: var(--hud-text-2);
+  font: 500 11px/1.4 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.row[data-speaker="auto"] .speaker {
+  padding-top: 5px;
+  color: var(--hud-accent-text);
+}
+
+.you {
+  margin: 0;
+  color: var(--hud-text-2);
+  font-family: var(--hud-font-text);
+  font-size: var(--hud-row-you);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

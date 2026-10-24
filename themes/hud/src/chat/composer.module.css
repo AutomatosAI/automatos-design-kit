@@ -1,0 +1,111 @@
+/*
+ * The message box: a bracketed bar on the panel fill, the ▸ prompt, the textarea growing with its words up to a
+ * limit, and Send (the design's primary button) or Stop (its secondary, an accent-line outline); the keys in mono
+ * capitals under it. The focus ring goes round the whole bar.
+ */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.box {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--hud-space-3);
+  padding: 6px 6px 6px 14px;
+  border: 1px solid var(--hud-accent-line);
+  background:
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    var(--hud-panel-fill);
+}
+
+.box:focus-within {
+  border-color: var(--hud-accent);
+  box-shadow: 0 0 30px -8px var(--hud-accent-line);
+  outline: 2px solid var(--hud-accent-text);
+  outline-offset: 2px;
+}
+
+.prompt {
+  flex: none;
+  align-self: center;
+  color: var(--hud-accent-text);
+  font: 500 14px/1 var(--hud-font-mono);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--hud-tap-min);
+  max-height: 160px;
+  padding: 11px 0;
+  border: 0;
+  border-radius: 0;
+  resize: none;
+  field-sizing: content;
+  background: transparent;
+  color: var(--hud-text);
+  font: 16px/1.4 var(--hud-font-text);
+}
+
+/* The ring is the bar's; a transparent outline stays for forced colours, which drop the bar's. */
+.input:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.input::placeholder {
+  color: var(--hud-text-2);
+}
+
+.send,
+.stop {
+  flex: none;
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 var(--hud-space-5);
+  border-radius: 0;
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.send {
+  border: 0;
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.stop {
+  border: 1px solid var(--hud-accent-line);
+  background: transparent;
+  color: var(--hud-text);
+}
+
+.stopIcon {
+  width: 9px;
+  height: 9px;
+  background: currentcolor;
+}
+
+.hint {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 500 11px/1.5 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-align: center;
+  text-transform: uppercase;
+}
