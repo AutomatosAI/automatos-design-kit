@@ -4,7 +4,9 @@
 // `npm run pack` does, into a temp folder, and reviews the package as scripts/review/main.ts does:
 // the network probe stubbed (the workflow runs the real one in `docker run --network none`) and the
 // work folder outside the kit tree, so the rebuilt theme folder finds neither the kit's tsconfig.json
-// nor its node_modules above it, as in the job.
+// nor its node_modules above it, as in the job. PRD-261 B-01i: Play bundles two kit workspace packages,
+// @automatos/look-kit and @automatos/mascot, so its source/ carries their src/ too, under
+// source/packages/<name>/src/, and the review rebuilds them beside the theme.
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, isAbsolute, join, relative } from "node:path";
@@ -13,8 +15,9 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PACKAGE_EXTENSION, packTheme } from "@automatos/theme-cli";
 import { ENTRY_PATH } from "@automatos/theme-cli/check";
 import { readZip } from "@automatos/theme-cli/zip";
+import { bundledPackages, kitPackageFolder } from "@automatos/vite-preset";
 import { isHidden } from "../packages/theme-cli/src/collect.ts";
-import { SOURCE_DIR, SOURCE_FOLDER } from "../packages/theme-cli/src/source.ts";
+import { SOURCE_DIR, SOURCE_FOLDER, SOURCE_PACKAGES_DIR } from "../packages/theme-cli/src/source.ts";
 import { readTree } from "../scripts/review/rebuild.ts";
 import { reviewPackage, type ReviewReport } from "../scripts/review/review.ts";
 import type { ProbeResult } from "../scripts/review/probe.ts";
@@ -24,6 +27,10 @@ const PLAY = join(KIT, "themes", "play");
 const PLAY_ID = "automatos/play";
 const PLAY_VERSION = (JSON.parse(readFileSync(join(PLAY, "theme.json"), "utf8")) as { version: string }).version;
 const CHECKS = ["No network", "Package", "Digest", "Source", "JS rules", "Reproducible build"];
+/** The kit packages Play's package.json names, which its build bundles and pack writes under source/packages/. */
+const BUNDLED = ["@automatos/look-kit", "@automatos/mascot"];
+/** A file of each bundled package that must be in the package's source/ (the AA math, the Pause control). */
+const BUNDLED_FILES = ["look-kit/src/contrast.ts", "mascot/src/mascot-pause-button.tsx"];
 const TOOLS = { kitCommit: "test", node: process.version, vite: "test", preset: "test" };
 const ISOLATED: ProbeResult = { isolated: true, lines: ["https://example.com/: failed (ENOTFOUND)"] };
 /** Packing Play and rebuilding its source/ is a whole Vite build of the theme on a cold runner. */
@@ -119,9 +126,17 @@ describe("Play's own package", () => {
     expect(reviewed.report.outcome).toBe("pass");
   });
 
-  it("carries exactly themes/play/src as source/, byte for byte", () => {
+  it("carries exactly themes/play/src as source/ and its kit packages' src/ under source/packages/, byte for byte", () => {
     const prefix = `${SOURCE_FOLDER}/`;
-    const expected = packedTree(join(PLAY, SOURCE_DIR), prefix);
+    const packagesPrefix = `${prefix}${SOURCE_PACKAGES_DIR}/`;
+    const packages = bundledPackages(PLAY);
+    expect(packages.map((item) => item.name)).toEqual(BUNDLED);
+    const bundled = packages.flatMap((item) => [
+      ...packedTree(join(item.dir, SOURCE_DIR), `${packagesPrefix}${kitPackageFolder(item.name)}/${SOURCE_DIR}/`),
+    ]);
+    const expected = new Map([...packedTree(join(PLAY, SOURCE_DIR), prefix), ...bundled]);
+    const present = BUNDLED_FILES.map((path) => `${packagesPrefix}${path}`);
+    expect(Array.from(expected.keys())).toEqual(expect.arrayContaining(present));
     const shipped = new Map(readZip(reviewed.zip)
       .filter((entry) => entry.path.startsWith(prefix))
       .map((entry): [string, Uint8Array] => [entry.path, entry.data]));
