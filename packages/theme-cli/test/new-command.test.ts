@@ -1,15 +1,15 @@
 /**
  * `automatos-theme new` (PRD-261 B-03f): the arguments it takes, the themes it refuses before it writes anything (a
- * folder that is there already, Automatos's own publisher, a class core keeps on <html>, a name that can't be a
- * class), and the minimal template written with its placeholders filled. The full template's real builds are the
- * kit's tests/template-full.test.ts; the minimal one's is tests/template-minimal.test.ts.
+ * folder that is there already, one inside the kit's own folders, Automatos's own publisher, a class core keeps on
+ * <html>, a name that can't be a class), and the minimal template written with its placeholders filled. The full
+ * template's real builds are the kit's tests/template-full.test.ts; the minimal one's is tests/template-minimal.test.ts.
  */
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { COMMANDS, run, type CommandDeps } from '../src/cli-main.ts'
-import { KIT_ROOT, NEW_USAGE, parseNew, runNew } from '../src/new/index.ts'
+import { KIT_FOLDERS_KEPT, KIT_ROOT, NEW_USAGE, parseNew, runNew } from '../src/new/index.ts'
 import { placeholdersIn, readFolder, themeNames } from '../src/new/placeholders.ts'
 
 const folders: string[] = []
@@ -90,6 +90,13 @@ describe('the themes new refuses, writing nothing', () => {
     expect(ran.code).toBe(1)
     expect(ran.err.join('\n')).toContain('new never writes over a folder')
     expect(readdirSync(join(cwd, 'themes', 'sample'))).toEqual([])
+  })
+
+  it.each(KIT_FOLDERS_KEPT)("a folder inside the kit's %s, which new only reads", (folder) => {
+    const target = join(KIT_ROOT, folder, 'automatos-new-refused')
+    const ran = ranNew(['new', 'acme/sample', '--template', 'minimal', '--to', target], tempFolder())
+    expect([ran.code, ran.err.slice(1)]).toEqual([1, [`  ${target} is inside the kit's ${folder}/, which new only reads: pick a --to outside it.`]])
+    expect(existsSync(target)).toBe(false)
   })
 })
 

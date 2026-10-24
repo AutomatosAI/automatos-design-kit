@@ -165,8 +165,10 @@ the kit's templates, in a folder that builds, packs and passes `check` as it is.
 
 The name is also the theme's class on `<html>` and its folder's name: 3 to 32 lower-case letters and digits, in words
 joined by single dashes, starting with a letter. The command refuses, writing nothing, a folder that is there already,
-the `automatos` publisher (Automatos's own themes), a class core keeps on `<html>` (`studio`, `classic`, `dark`, `light`,
-`system`), and a name whose renames would merge two of Play's names into one.
+a folder inside the kit's `themes/play`, `templates` or `packages` (which it only reads: a theme written there would
+change Play's package or every theme made from a template), the `automatos` publisher (Automatos's own themes), a
+class core keeps on `<html>` (`studio`, `classic`, `dark`, `light`, `system`), and a name whose renames would merge
+two of Play's names into one.
 
 A theme folder under `themes/` is a new npm workspace, so it changes `package-lock.json`: push the branch and run
 `kit-lockfile.yml` (the kit's `AGENTS.md`, "Adding a dependency").

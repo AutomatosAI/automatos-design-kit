@@ -11,10 +11,13 @@
  * name, so it is 3 to 32 lower-case letters and digits in words joined by single dashes, starting with a letter. The
  * `automatos` publisher is core's (contract.py RESERVED_PUBLISHERS) and the classes core keeps on <html> are no
  * theme's (the vendored package-manifest.ts RESERVED_HTML_CLASSES). `--to` (default `themes/<name>`, from the folder
- * the command runs in) must not exist yet: nothing is ever written over.
+ * the command runs in) must not exist yet: nothing is ever written over. Nor may it be inside the kit's own folders
+ * the command reads (KIT_FOLDERS_KEPT): a theme written into Play would change Play's package, and one written into
+ * a template would be copied into every theme made from it.
  *
  * Exit code 0 when the folder is written; 1 when the theme can't be made (a reserved name, an existing folder, a
- * rename that would merge two of Play's names), every reason printed and nothing written; 2 for a usage error.
+ * folder of the kit's, a rename that would merge two of Play's names), every reason printed and nothing written; 2
+ * for a usage error.
  * The command reads the kit's own folders and writes only `--to`; it sends nothing anywhere.
  */
 import { existsSync } from 'node:fs'
@@ -24,6 +27,7 @@ import { parseArgs } from 'node:util'
 import type { CommandDeps } from '../cli-main.ts'
 import { HTML_CLASS_PATTERN } from '../core/host.ts'
 import { ID_PATTERN, RESERVED_HTML_CLASSES } from '../core/package-manifest.ts'
+import { within } from '../dev-server.ts'
 import type { Output } from '../output.ts'
 import { fullTheme } from './full.ts'
 import { copyTemplate, placeholderValues, themeNames, writeFolder, type ThemeNames } from './placeholders.ts'
@@ -38,6 +42,8 @@ export const NO_MASCOT = 'none'
 export const THEMES_DIR = 'themes'
 /** The kit's root, from this file (packages/theme-cli/src/new/). */
 export const KIT_ROOT = fileURLToPath(new URL('../../../../', import.meta.url))
+/** The kit's folders, from its root, no theme is written into: Play, the templates, the packages (Play bundles two). */
+export const KIT_FOLDERS_KEPT: readonly string[] = ['themes/play', 'templates', 'packages']
 /** A theme's name: words of lower-case letters and digits, joined by single dashes, starting with a letter. */
 const NAME_WORDS = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 const EXIT_OK = 0
@@ -73,8 +79,14 @@ export function parseNew(argv: readonly string[], cwd: string): NewCommand | nul
   }
 }
 
-/** Every reason `command` can't be made, before anything is read or written. */
-export function refusals(command: NewCommand): string[] {
+/** Why `target` can't be written: it is inside one of the kit's folders that `new` only reads. */
+function keptFolderProblems(target: string, kitRoot: string): string[] {
+  const kept = KIT_FOLDERS_KEPT.find((folder) => within(join(kitRoot, folder), target))
+  return kept === undefined ? [] : [`${target} is inside the kit's ${kept}/, which new only reads: pick a --to outside it.`]
+}
+
+/** Every reason `command` can't be made in the kit at `kitRoot`, before anything is read or written. */
+export function refusals(command: NewCommand, kitRoot: string): string[] {
   if (!ID_PATTERN.test(command.id)) {
     return [`"${command.id}" is not a theme id: publisher/name, in lower-case letters, digits and dashes.`]
   }
@@ -88,6 +100,7 @@ export function refusals(command: NewCommand): string[] {
     )]),
     ...(RESERVED_HTML_CLASSES.includes(name) ? [`"${name}" is a class core keeps on <html>, so no theme may take it.`] : []),
     ...(existsSync(command.target) ? [`${command.target} is there already: new never writes over a folder. Pick another --to.`] : []),
+    ...keptFolderProblems(command.target, kitRoot),
   ]
 }
 
@@ -118,7 +131,7 @@ export function runNew(argv: readonly string[], output: Output, cwd: string, kit
     output.err(NEW_USAGE)
     return EXIT_USAGE
   }
-  const refused = refusals(command)
+  const refused = refusals(command, kitRoot)
   const result = refused.length > 0 ? { problems: refused } : writeTheme(command, themeNames(command.id), kitRoot)
   if ('problems' in result) {
     output.err(`automatos-theme new ${command.id}: nothing was written.`)

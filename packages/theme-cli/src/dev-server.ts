@@ -52,7 +52,7 @@ const OTHER_TYPE = 'application/octet-stream'
 const SINGLE_RANGE = /^bytes=(\d*)-(\d*)$/
 
 /** True when `path` is `root` itself or under it. */
-function within(root: string, path: string): boolean {
+export function within(root: string, path: string): boolean {
   const rel = relative(root, path)
   return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel))
 }
