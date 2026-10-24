@@ -188,12 +188,12 @@ just below its `minWidth`, each with an axe scan (`axe.json` beside each set). T
 It builds the harness for the folder (`vite build --config vite.harness.config.ts`), then runs the shots
 (`playwright test --config shots/playwright.config.ts`, which serves that build on `http://127.0.0.1:4318`). The
 browsers come from `npx playwright install chromium webkit`. A theme whose `theme.json` names a default look needs
-its `looks/presets/` first: run the theme's build (Play's writes them).
+its `looks/presets/` first: run the theme's build (Play's writes them; HUD's are committed).
 
 Exit code 0 when every shot passed; the failing step's own exit code when one failed (the shots fail on a missing
 PNG, on any request to another origin than the harness's, and on a critical axe violation); 1 when the folder has no
 `theme.json` or `src/entry.ts`, or its presets are not built yet; 2 for a usage error. Kit CI's `harness` job runs it
-over Play and uploads the folder as the `kit-harness` artifact.
+over Play, then over HUD into the `hud/` folder of the same out folder, and uploads it as the `kit-harness` artifact.
 
 ## previews
 
