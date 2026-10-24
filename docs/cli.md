@@ -39,6 +39,7 @@ commands) to stderr and exits 2.
 | [`pack --watch`](#pack---watch) | The theme's build and `pack`, again after each change under `src/` | none |
 | [`check`](#check) | The server's review checks on the folder, packed as `pack` packs it | none |
 | [`check design`](#check-design) | The look schema, presets, first-paint table and declared colour pairs, before any code | none |
+| [`brief`](#brief) | A theme's brief from a brand kit file: grounds, accents and text pairs with their AA ratios, fonts, logos, voice | none |
 | [`new`](#new) | A new theme folder from `templates/minimal`, or from Play without its brand | none |
 | [`dev`](#dev) | The browser harness for one theme, served on `127.0.0.1`, rebuilt after each change | `127.0.0.1` only |
 | [`shots`](#shots) | Every slot, page and route the theme serves, shot on Chromium and WebKit with an axe scan | `127.0.0.1` only |
@@ -46,8 +47,8 @@ commands) to stderr and exits 2.
 | [`install`](#install) | A package installed privately in a local Automatos, opted in to and optionally chosen | the address given |
 | [`submit`](#submit) | A package sent to the Automatos Marketplace for review | `AUTOMATOS_API_URL` |
 
-The table also names `clone` and `brief`, whose modules are not in the kit (`src/clone.ts`, `src/brief.ts`). Each
-prints one line saying it is not built yet, and exits 2.
+The table also names `clone`, whose module is not in the kit (`src/clone.ts`). It prints one line saying it is not
+built yet, and exits 2.
 
 ## `pack`
 
@@ -201,6 +202,59 @@ A malformed file is `BAD_CONTRAST_PAIRS`; a link where one of these files or fol
 file where a folder goes `NOT_A_FOLDER`. A theme folder itself named `design` is checked as `check design ./design`.
 
 Exit codes: 0 when no line is an error; 1 when one is; 2 usage error, or the path is not a folder.
+
+## `brief`
+
+```text
+usage:    automatos-theme brief --brand-kit <file.json> --out <file.md>
+example:  npx automatos-theme brief --brand-kit brand-kit.json --out briefs/harbour/BRIEF.md
+```
+
+Writes a theme's brief from a brand kit, so a branded theme starts from the brand's real colours and voice
+(`src/brief.ts`, `src/brief-kit.ts`, `src/brief-colours.ts`, `src/brief-markdown.ts`). It reads one file and sends
+nothing.
+
+| Argument | Meaning |
+|---|---|
+| `--brand-kit <file.json>` | Required. The brand kit as core's `GET /api/documents/brand-kit` answers it, saved to a file. On a local edition: `curl -sf http://localhost:8000/api/documents/brand-kit -o brand-kit.json` (no token). |
+| `--out <file.md>` | Required. The brief to write, usually `briefs/<slug>/BRIEF.md`. Its folder is made when missing. |
+
+The brief has the sections of `skills/brand-a-theme/references/brief-template.md`, in order:
+
+- **Brand**: the name, the tagline and the accent use (`sparing` or `bold`).
+- **Grounds**: the kit's `paper`, `surface` and `surface_2` as the page, cards and header fills, and the other ground,
+  the colour of the kit's `ink`, `heading`, `primary_color`, `secondary_color` and `text_color` that stands furthest
+  from the page. Each with its `#rrggbb`, its Studio triplet, its tone (light when black reads on it better than white)
+  and the field it comes from, with `palette_source`'s `set` or `derived`.
+- **Accents**: the kit's `accent`, its `accent_2` when it has one, and its `primary_color` when that is neither. Each
+  as a fill on every ground (3:1) and as text on each tone's grounds and with a label on it (4.5:1).
+- **Proposed pairs**: every text pair, each with both colours and its ratio, rounded down to two decimals. A text
+  colour is the kit's own when it reads at 4.5:1 on each of its grounds; otherwise it is `@automatos/look-kit`'s
+  `readableOnAll` mix of it toward the grounds' body text (body text itself toward black or white). Only a pair at
+  4.5:1 or more is proposed; any other is listed under the table as not proposed, with a warning.
+- **Fonts**: the body and heading stacks, and each uploaded font file with the path it takes in a theme
+  (`assets/fonts/<name>.woff2`) and its route.
+- **Logo variants**: the logo, the logo for dark grounds, the one-colour logo and the square mark, each uploaded (PNG,
+  or JPEG to convert), a link or not set, with its path in a theme (`assets/brand/<variant>.png`).
+- **Voice**: the tone words and their meanings, the banned phrases and the sign-off.
+- **Theme**: a theme name from the brand's name, when one fits `new`'s rule, the tones the grounds give, and what the
+  brand kit can't decide, to finish by hand.
+
+The palette is read strictly: `paper`, `surface`, `surface_2`, `ink`, `heading`, `muted` and `accent` must each be a
+hex colour (`#abc` is read as `#aabbcc`), and `accent_2` too when present. Every other field is read as core reads a
+stored kit: one of the wrong type counts as unset. Every text from the file is printed as one plain line. The kit's
+company contact details and social handles are never read.
+
+It refuses, writing nothing and printing every reason:
+
+- a `--brand-kit` that is not a file, not JSON (`BAD_JSON`'s reasons: not UTF-8 JSON text, nested past 32 levels, a
+  lone surrogate), not a JSON object, or without a `palette` object;
+- a colour role that is missing or not a hex colour, each named;
+- an `--out` that is there already: a brief is finished by hand, so it is never written over.
+
+On success it prints the brief's path, then one line saying every proposed pair reads at 4.5:1 or more.
+
+Exit codes: 0 written; 1 refused; 2 usage error.
 
 ## `new`
 

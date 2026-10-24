@@ -18,7 +18,7 @@
  */
 import { AA_NON_TEXT, AA_TEXT, contrastRatio, readableOnAll } from '@automatos/look-kit/contrast'
 import { hexToTriplet } from '@automatos/look-kit/hsl'
-import type { BriefKit, KitColourField, MeasuredRole } from './brief-kit.ts'
+import { SECOND_ACCENT_ROLE, type BriefKit, type KitColourField, type MeasuredRole } from './brief-kit.ts'
 
 export type Tone = 'light' | 'dark'
 
@@ -125,7 +125,7 @@ function otherGround(kit: BriefKit): Ground {
 
 /** The accent candidates: the accent roles, then the brand's own colour when it is neither. */
 function accentSources(kit: BriefKit): { label: string; colour: string; from: string }[] {
-  const second = kit.secondAccent === null ? [] : [{ label: 'second accent', colour: kit.secondAccent, from: sourceOf(kit, 'accent_2') }]
+  const second = kit.secondAccent === null ? [] : [{ label: 'second accent', colour: kit.secondAccent, from: sourceOf(kit, SECOND_ACCENT_ROLE) }]
   const roles = [{ label: 'accent', colour: kit.roles.accent, from: sourceOf(kit, 'accent') }, ...second]
   const brand = kit.kitColours[BRAND_COLOUR_FIELD]
   if (brand === null || roles.some((role) => role.colour === brand)) return roles
