@@ -7,6 +7,10 @@
  * server's reader: each case changes the hello package (manifestSet/manifestUnset on theme.json,
  * replace sets a file's text or, with null, drops it), exactly as core's pytest builds it. A case's
  * code is null when core accepts the input; otherwise every error carries that code.
+ *
+ * Core A-20 (QB-11): htmlClass 'play' is no longer reserved. As core's validator-parity and theme-package
+ * tests pin it, the corpus gives 'play' to any theme id, in theme.json and in a package, and still refuses
+ * every class the host keeps; the vendored validator keeps no class for an id.
  */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -15,6 +19,7 @@ import { describe, expect, it } from 'vitest'
 import { checkPackage } from '../src/check-package.ts'
 import { cssValueProblem, prepaintErrors, type ThemeError } from '../src/core/css-value.ts'
 import { validateLook, validateLookSchema, type LookSchema } from '../src/core/look-schema.ts'
+import * as packageManifest from '../src/core/package-manifest.ts'
 import { validateManifest } from '../src/core/package-manifest.ts'
 import type { PackageEntry } from '../src/members.ts'
 import { folderFiles } from './hello-files.ts'
@@ -51,6 +56,11 @@ const CORE_DIR = fileURLToPath(new URL('./fixtures/core/', import.meta.url))
 const HELLO_DIR = join(CORE_DIR, 'hello')
 const CORPUS = JSON.parse(readFileSync(join(CORE_DIR, 'cases.json'), 'utf8')) as Corpus
 const MANIFEST = 'theme.json'
+/** A-20: the <html> classes the host keeps, and the one it no longer reserves for any id. */
+const HOST_HTML_CLASSES: readonly string[] = ['studio', 'classic', 'dark', 'light', 'system']
+const FREED_HTML_CLASS = 'play'
+const RESERVED_CODE = 'RESERVED_HTML_CLASS'
+const FREED_CLASS_IDS_MIN = 3
 
 /** The case's input: `document` as given, or `base` with `set` applied and `unset` removed. */
 function patched(base: JsonObject | undefined, set: JsonObject | undefined, unset: readonly string[] = []): JsonObject {
@@ -84,6 +94,11 @@ function expectVerdict(errors: readonly ThemeError[], code: string | null): void
   }
   expect(errors.length).toBeGreaterThan(0)
   expect(Array.from(new Set(errors.map((error) => error.code)))).toEqual([code])
+}
+
+/** The cases of `cases` whose `field` sets `htmlClass` to `htmlClass`. */
+function htmlClassCases(cases: readonly CorpusCase[], field: 'set' | 'manifestSet', htmlClass: string): CorpusCase[] {
+  return cases.filter((testCase) => testCase[field]?.htmlClass === htmlClass)
 }
 
 function helloLookSchema(): LookSchema {
@@ -138,5 +153,26 @@ describe("checkPackage gives core's reader verdicts", () => {
     const result = checkPackage(packageEntries(testCase))
     expectVerdict(result.errors, testCase.code)
     expect(result.manifest === null).toBe(testCase.code !== null)
+  })
+})
+
+describe("htmlClass 'play' is any theme's (core A-20)", () => {
+  it('the corpus gives play to three ids or more and to a package with CSS under html.play, and refuses each host class', () => {
+    const freed = htmlClassCases(CORPUS.manifests.cases, 'set', FREED_HTML_CLASS)
+    const ids = new Set(freed.map((testCase) => testCase.set?.id ?? CORPUS.manifests.base?.id))
+    expect(ids.size).toBeGreaterThanOrEqual(FREED_CLASS_IDS_MIN)
+    expect(freed.map((testCase) => testCase.code)).toEqual(freed.map(() => null))
+    const packages = htmlClassCases(CORPUS.packages.cases, 'manifestSet', FREED_HTML_CLASS)
+    expect(packages.map((testCase) => testCase.code)).toEqual([null])
+    HOST_HTML_CLASSES.forEach((htmlClass) => {
+      const codes = htmlClassCases(CORPUS.manifests.cases, 'set', htmlClass).map((testCase) => testCase.code)
+      expect(codes.length, htmlClass).toBeGreaterThan(0)
+      expect(Array.from(new Set(codes)), htmlClass).toEqual([RESERVED_CODE])
+    })
+  })
+
+  it('the vendored validator reserves only the classes the host keeps, and keeps none for a theme id', () => {
+    expect(packageManifest.RESERVED_HTML_CLASSES).toEqual(HOST_HTML_CLASSES)
+    expect(packageManifest).not.toHaveProperty('HTML_CLASS_OWNERS')
   })
 })

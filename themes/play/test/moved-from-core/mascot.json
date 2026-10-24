@@ -7,7 +7,7 @@
     "kitIts": 6,
     "rehomed": [
       {
-        "assertion": "The storage area itself keeps a value in localStorage across a reload, tells other tabs through the storage event, and keeps it in memory with one warning while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "assertion": "The storage area itself keeps a value in localStorage across a reload, tells other tabs through the storage event, and keeps it in memory with one warning while the storage is blocked; the kit asserts these on the harness's port of the area (test/storage-port.test.ts).",
         "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
       }
     ],
@@ -21,7 +21,7 @@
     "kitIts": 4,
     "rehomed": [
       {
-        "assertion": "The storage area itself keeps session state in sessionStorage, and in memory with one warning while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "assertion": "The storage area itself keeps session state in sessionStorage, and in memory with one warning while the storage is blocked; the kit asserts these on the harness's port of the area (test/storage-port.test.ts).",
         "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
       }
     ],

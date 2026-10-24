@@ -3,8 +3,10 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `101a0bf33f64fb4f89af81b4293415be60b661ac` (main, 22 Oct 2026: host contract and SDK
-1.1.0, with the theme format's optional `mobile` block; these files are unchanged since `7ae677b52`).
+Source: `AutomatosAI/automatos-ai` at `1699a4f95d496be0c2e14102bbff5aaa8f3fb020` (main, 24 Oct 2026: host contract and SDK
+1.1.0, with the theme format's optional `mobile` block, after builtin Play left core and `play` stopped being a reserved
+`htmlClass`. Since `101a0bf33` only `package-manifest.ts` (no theme id keeps a reserved class) and `css-value.ts` (its
+`var()` example) changed; the other files are unchanged since `7ae677b52`).
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -23,6 +25,16 @@ runs the CLI with type stripping, which needs the extension).
 The test corpus `test/fixtures/core/cases.json` and the hello theme `test/fixtures/core/hello/` are copied from
 `orchestrator/tests/fixtures/themes/` at the same commit, byte for byte.
 
+So is the shared review corpus (PRD-261 B-03e), `test/fixtures/core/review-cases.json`: core's
+`orchestrator/tests/test_prd261_review_corpus.py` runs each case through the server's review stage, and
+`test/review-corpus.test.ts` runs it through `check`, which must give the level the case expects at each check it
+names (sizes, cssScope, looks, uses and clonedFrom). Core keeps the file in one canonical form, so its sha256 moves
+only when a case does; the test holds the copy to this row:
+
+| File here | Core file | sha256 |
+|---|---|---|
+| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `26dc0ce566b64b60c3056f7994295bd6ea8a3e8b4115ab20a438cffc35461ae5` |
+
 `check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
 edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
 commit above:
@@ -36,15 +48,15 @@ commit above:
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `9572b7e1d8993f764311febfb4d8b77bdc5efce71f26636662156cde91306c39`), written as JSON with
+(that file's sha256 there: `daf3a774a21ca0bfefd9f2e4ee76f454a0369f543bf7048a787312db6a42dcd8`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
-`HOST_OWNED_ROUTES`. The four lists are the same at core `main`
-`b9d25e1b8a3bb8e9a5903203e5c98b0694a3e954` (23 Oct 2026). `tests/guides.test.ts` holds the file to the sha256 below and
+`HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
+contract.py changed only its reserved `htmlClass` names. `tests/guides.test.ts` holds the file to the sha256 below and
 to the copies of the same lists in `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `119618571720d95c6c64b9a01949ff1ee32e671b1015d457d21a71a26abf5df9` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `9bcbbc9854e0dc3e9b8d428ae05bd72e2f4a7385e1765496a419cf3566272fa4` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
@@ -104,9 +116,10 @@ every other code `check design` prints is core's.
 
 When core changes one of these files, copy it again from core `main`, redo the import edits above, update the
 commit here, read every comment in the copy (this repo is public: reword any that names a person or an internal
-decision log), and copy `cases.json`, `hello/` and the two `data/` files from the same commit (their sha256 rows and
-`CORE_SHA` move with it), and write `data/contract.json` again with the lines above (its sha256 row moves too; when its
-lists change, the guides change with them). `test/core-corpus.test.ts` then holds the copy to the core corpus. Read `boot.ts`'s
+decision log), and copy `cases.json`, `review-cases.json`, `hello/` and the two `data/` files from the same commit
+(their sha256 rows and `CORE_SHA` move with it), and write `data/contract.json` again with the lines above (its sha256
+row moves too; when its lists change, the guides change with them). `test/core-corpus.test.ts` then holds the copy to
+the core corpus, and `test/review-corpus.test.ts` holds `check` to the review corpus. Read `boot.ts`'s
 `THEME_BOOT_SCRIPT` and `boot-sanitize.ts`'s `sanitizePrepaint` and `lookFitsPrepaint` at the new commit too: port a
 change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFits`) and a change to the paint into
 `src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite.

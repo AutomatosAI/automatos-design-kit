@@ -7,7 +7,7 @@
     "kitIts": 16,
     "rehomed": [
       {
-        "assertion": "The storage area itself scopes state to the theme, the user and, within the workspace, the workspace, and keeps it in memory while the storage is blocked; the kit asserts these on its port of the area (test/storage-port.ts).",
+        "assertion": "The storage area itself scopes state to the theme, the user and, within the workspace, the workspace, and keeps it in memory while the storage is blocked; the kit asserts these on the harness's port of the area (test/storage-port.test.ts).",
         "corePath": "frontend/lib/theme-sdk/__tests__/storage.test.tsx"
       }
     ],

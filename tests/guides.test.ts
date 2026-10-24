@@ -11,7 +11,9 @@ import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { COMMANDS } from "../packages/theme-cli/src/cli-main.ts";
-import { HOST_OWNED_ROUTES, KNOWN_SLOTS, PAGE_SOURCES, REQUIRED_SLOTS } from "../packages/theme-cli/src/core/package-manifest.ts";
+import {
+  HOST_OWNED_ROUTES, KNOWN_SLOTS, PAGE_SOURCES, REQUIRED_SLOTS, RESERVED_HTML_CLASSES,
+} from "../packages/theme-cli/src/core/package-manifest.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const GUIDES = "guides";
@@ -43,6 +45,9 @@ const MOBILE_TOKEN_NAMES = [
   "--background-gradient-from", "--background-gradient-to", "--glass-border-hover", "--cc-hover", "--cc-hover-border",
 ];
 const MOBILE_HEADING = "## The `mobile` block";
+// contract.md's htmlClass row, and the sentence in it naming the classes the host keeps.
+const HTML_CLASS_ROW = "| `htmlClass` |";
+const HOST_KEEPS = /The host keeps ([^;|]+);/;
 const MOBILE_PREDATES = /vendored reader predates the `mobile` block/;
 
 // Local paths, planning files and people a public guide must never name (docs.test.ts holds the same paths for every
@@ -143,6 +148,14 @@ describe("contract.md names every slot, page and host-owned route", () => {
   it.each(routes)("names the page %s", (route) => expect(named(text, route)).toBe(true));
   it.each(files)("names the core file %s a clone copies", (file) => expect(named(text, file)).toBe(true));
   it.each(contract.HOST_OWNED_ROUTES)("names the host-owned route %s", (route) => expect(named(text, route)).toBe(true));
+});
+
+describe("contract.md names the htmlClass names the host keeps", () => {
+  it("lists exactly the vendored validator's RESERVED_HTML_CLASSES, in its order", () => {
+    const row = guide("contract.md").split("\n").find((line) => line.startsWith(HTML_CLASS_ROW)) ?? "";
+    const kept = HOST_KEEPS.exec(row)?.[1] ?? "";
+    expect(Array.from(kept.matchAll(/`([a-z][a-z0-9-]*)`/g), (match) => match[1])).toEqual([...RESERVED_HTML_CLASSES]);
+  });
 });
 
 describe("contract.md documents the theme.json mobile block", () => {

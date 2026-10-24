@@ -16,6 +16,9 @@ const WITH_BUILD = ['sizes', 'cssScope', 'looks', 'uses', 'clonedFrom', 'preview
 const LINE = /^(\S+)\s+(pass|warning|error|not_measured)\s+\S/
 /** A theme with a `mobile` block admits no host below 1.1.0. */
 const MOBILE_ENGINES = { automatos: '^1.1.0', sdk: '^1.0.0' }
+/** hello's sheet under html.play: since core's A-20 any theme id may take the class. */
+const PLAY_SHEET = 'html.play .hello-frame { color: red; }\n'
+const CLEAN_VERDICT = 'verdict: pass (6 pass, 0 warning, 0 error, 3 not_measured)'
 
 afterEach(removeTempFolders)
 
@@ -55,7 +58,7 @@ describe('the lines', () => {
     expect(ran.out[0]).toContain(`AutomatosAI/automatos-ai at ${CORE_SHA}`)
     expect(ran.out[0]).toContain(REPORT_SCHEMA)
     expect(checkLines(ran.out).map(([name]) => name)).toEqual(ORDER)
-    expect(ran.out.at(-1)).toBe('verdict: pass (6 pass, 0 warning, 0 error, 3 not_measured)')
+    expect(ran.out.at(-1)).toBe(CLEAN_VERDICT)
     expect(lineOf(ran.out, 'llm')).toMatch(new RegExp(`not_measured\\s+${LLM_SERVER_ONLY}$`))
     expect(ran.err).toEqual([`warning: ${NO_SOURCE_WARNING}`])
   })
@@ -85,6 +88,15 @@ describe('the lines', () => {
       '    mobile.tokens.light: fail, 1 of 10 pair(s) measured',
     ])
     expect(ran.out.at(-1)).toBe('verdict: blocked (6 pass, 0 warning, 1 error, 2 not_measured)')
+  })
+
+  it("checks a theme of any id with htmlClass 'play' (core A-20), and refuses a class the host keeps, Play's id too", async () => {
+    const anyId = { manifest: { id: 'acme/ink', htmlClass: 'play' }, replace: { 'dist/theme.css': PLAY_SHEET } }
+    const play = await ranCheck(['check', helloFolder(anyId)])
+    expect([play.code, play.out.at(-1)]).toEqual([0, CLEAN_VERDICT])
+    const studio = await ranCheck(['check', helloFolder({ manifest: { id: 'automatos/play', htmlClass: 'studio' } })])
+    expect([studio.code, studio.out]).toEqual([1, []])
+    expect(studio.err.join('\n')).toContain('RESERVED_HTML_CLASS')
   })
 
   it('exits 0 on a warning', async () => {
