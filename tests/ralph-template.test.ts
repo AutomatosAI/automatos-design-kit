@@ -32,7 +32,7 @@ const NPM_SCRIPT = /\bnpm (?:run ([a-z][\w:-]*)|(test)\b)/g;
 const BUILD_SENTINELS = ["STORY_DONE", "RALPH_COMPLETE", "RALPH_BLOCKED"];
 const CIFIX_SENTINEL = "CI_FIX_DONE";
 const FORBIDDEN_TEXT = [
-  "AutomatosAI/automatos-play", "/Users/", "/home/", ".claude/", ".worktrees", "docs/prd/core", "scripts/ralph/prd-261.json",
+  "AutomatosAI/automatos-play", "AutomatosAI/automatos-design-kit", "/Users/", "/home/", ".claude/", ".worktrees", "docs/prd/core", "scripts/ralph/prd-261.json",
   "DUMPING AREA", "HANDOFF", "phase-bc-plan",
 ];
 const FORBIDDEN_PATTERNS = [/\bGerard\b/, /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+\.[A-Za-z]{2,}/];

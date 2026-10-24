@@ -383,7 +383,7 @@ describe("docs/OFFICIAL-LISTING.md, the owner's run that lists Play (C-06b)", ()
 
   it("is linked from theme-sign.yml's header and the README, which gives a local edition the release, hosted the listing", () => {
     expect(section(readText(SIGN), "name: Theme sign", /^on:$/)).toMatch(/^# .*docs\/OFFICIAL-LISTING\.md/m);
-    ["](docs/OFFICIAL-LISTING.md)", "https://github.com/AutomatosAI/automatos-play/releases", ".sig.json",
+    ["](docs/OFFICIAL-LISTING.md)", "https://github.com/AutomatosAI/automatos-design-kit/releases", ".sig.json",
       "Settings › Appearance › Themes › Install theme", "Marketplace › Themes"].forEach((part) => expect(readText("README.md")).toContain(part));
   });
 
