@@ -37,7 +37,7 @@ The full template's `/agents` page is a finished clone to copy the shape of:
 
 ## The order of work
 
-1. **Clone the page**, from the theme's folder or naming it ([docs/cli.md](../../docs/cli.md#clone)):
+1. **Clone the page**, from the theme's folder or naming it ([docs/cli-design.md](../../docs/cli-design.md#clone)):
 
    ```sh
    automatos-theme clone /agents themes/<slug>

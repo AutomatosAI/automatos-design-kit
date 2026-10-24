@@ -26,7 +26,7 @@ theme itself (the folder, the frame, the pages), [build-automatos-theme](../buil
    host's pages with Studio's triplets.
 3. [guides/contract.md](../../guides/contract.md): the files a theme may hold (`assets/fonts/`, `assets/brand/`) and
    `theme.json`'s `brand` and `fonts`.
-4. [docs/cli.md](../../docs/cli.md#brief): the brief command's flags, refusals and exit codes.
+4. [docs/cli-design.md](../../docs/cli-design.md#brief): the brief command's flags, refusals and exit codes.
 
 ## 1. The brand kit, as a file
 
