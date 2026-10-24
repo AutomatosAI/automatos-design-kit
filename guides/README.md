@@ -23,9 +23,13 @@ guide and core disagree, core wins and the guide is fixed.
 - `automatos-theme`, the kit's command line (`packages/theme-cli`), starts a theme and checks it as the server would:
   `automatos-theme new` to start one from a template (`templates/minimal`, or `templates/full`: Play de-branded),
   `automatos-theme check design` for the look data, `automatos-theme check` for the whole package, and
-  `automatos-theme pack` to write the `.autotheme` file. Its [README](../packages/theme-cli/README.md) documents
-  `pack` and `pack --watch`, `submit`, `install`, `new`, `shots`, `previews` and `dev`; `check` and `check design` are
-  described at the top of `packages/theme-cli/src/check/index.ts` and `design.ts`.
+  `automatos-theme pack` to write the `.autotheme` file. [docs/cli.md](../docs/cli.md) documents every command, its
+  flags, what it refuses and its exit codes; its [README](../packages/theme-cli/README.md) has more on `pack`,
+  `source/` and each command's internals.
+- The kit's own reference sits in [`docs/`](../docs/): [architecture.md](../docs/architecture.md) (how the packages,
+  the source guard, the package layout and the harness fit, and what the kit takes from core),
+  [releasing.md](../docs/releasing.md) (how a theme version is released, reviewed and signed), and a page each for
+  [Play](../docs/themes/play.md) and [HUD](../docs/themes/hud.md).
 - `themes/play` is a complete theme built on this contract: when a guide is not enough, read how Play does it.
   `themes/hud` is a second one, HUD: its frame around the host's own pages, with its look data committed rather
   than generated (its catalogue in `src/lib/looks/`, its `design/contrast.json` and its tests).

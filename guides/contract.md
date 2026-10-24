@@ -43,7 +43,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `version` | yes | `MAJOR.MINOR.PATCH`. A version once submitted is spent: the same version with other bytes, or a lower one, is refused. |
 | `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and so is the SDK. |
 | `base` | yes | `studio` or `classic`: the design the host draws wherever the theme has none of its own |
-| `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
+| `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes, starting with a letter. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
 | `minWidth` | yes | Pixels, 0 to 3840. Below it the host draws its own pages and chrome. |
 | `tone` | yes | `from-look`, `user`, `light` or `dark`: who sets light or dark under the theme |
 | `slots` | yes | The slots below that the theme fills |
@@ -138,8 +138,8 @@ with its licence.
 `dist/theme.css` is checked rule by rule (`CSS_UNSCOPED` and friends):
 
 - every rule sits under `html.<htmlClass>`, or `:where(…)` or `:is(…)` whose every argument does;
-- no `!important`, no `@import`; at-rules only `@media`, `@supports`, `@layer`, `@container`, `@font-face` and
-  `@keyframes`;
+- no `!important`, no `@import`; at-rules only `@media`, `@supports`, `@layer`, `@container`, `@font-face`,
+  `@keyframes` (or `@-webkit-keyframes`) and `@charset`;
 - every `@keyframes` name and `@font-face` family starts with `<htmlClass>-`;
 - no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards are the host's.
 
