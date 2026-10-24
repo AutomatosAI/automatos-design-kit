@@ -263,6 +263,14 @@ in, with nothing of Automatos running (`src/dev.ts`, `src/dev-server.ts`).
 The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own build last wrote it: after changing
 the looks, run that build (or keep `pack --watch` running beside `dev`).
 
+Two pages: `/`, the mock host, and `/phone`, the phone view (the toolbar's **Phone view** link). The phone view
+draws the theme's skin, its `theme.json` `mobile` block, on Automatos Go's Studio layout at 390 × 844 (Chat,
+Command Centre, First open), light or dark, or through each look preset under `fromLooks`. Beside it are the
+`mobile` block's contrast pairs, measured exactly as `check` measures them, and where each token lands. A theme
+without a skin is drawn in Studio's own colours. For Play and HUD, which Automatos Go draws with its built-in Play
+and HUD layouts and none of the block, it says so and draws the theme's own web screens at 390 px
+(`packages/theme-harness/README.md`, "The phone view").
+
 Exit codes: 0 once stopped (Ctrl-C); 1 no `theme.json` (or not JSON) or no `src/entry.ts`, a default look with no
 `looks/presets/` yet, or a port that can't be served; 2 usage error.
 
