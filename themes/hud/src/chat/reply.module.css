@@ -1,0 +1,232 @@
+/*
+ * Auto's reply, the AUTO row's words: the answer in Geist at the row's size (transcript.module.css), with the
+ * design's blinking block cursor while it streams; the tool lines and the receipts in mono, each a glyph and
+ * words, the glyph alone in the line's tone. The answer's Markdown is the host's renderer (MarkdownView); these
+ * rules set its type and colours, each under html.hud, so they outrank the host's own .md-view rules.
+ */
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--hud-space-3);
+}
+
+.answer {
+  color: var(--hud-text);
+  font-family: var(--hud-font-text);
+  font-size: var(--hud-row-auto, 16px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.markdown {
+  font: inherit;
+  color: inherit;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol {
+  margin: 0 0 var(--hud-space-3);
+}
+
+.markdown a {
+  color: var(--hud-accent-text);
+}
+
+.markdown strong {
+  color: var(--hud-text);
+  font-weight: 600;
+}
+
+.markdown code {
+  padding: 0 var(--hud-space-1);
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-track);
+  font-family: var(--hud-font-mono);
+  font-size: 0.85em;
+}
+
+.markdown pre {
+  overflow-x: auto;
+  padding: var(--hud-space-3);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: var(--hud-surface);
+  font-size: 13px;
+}
+
+/* A fenced block prints in the reply's own colour, whatever a code highlighter's theme says. */
+.markdown pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 var(--hud-space-3);
+  font-size: 14px;
+}
+
+.markdown th,
+.markdown td {
+  padding: var(--hud-space-1) var(--hud-space-2);
+  border: 1px solid var(--hud-line);
+  text-align: left;
+}
+
+/* An image shown as its alt text: italic in the text's own colour. */
+.imageAlt {
+  font-style: italic;
+  color: inherit;
+}
+
+@keyframes hud-reply-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The design's cursor: a 9 by 18 px block of the accent, blinking once a second. */
+.cursor {
+  display: inline-block;
+  width: 9px;
+  height: 18px;
+  margin-left: var(--hud-space-1);
+  vertical-align: -3px;
+  background: var(--hud-accent);
+  animation: hud-reply-blink 1s step-end infinite;
+}
+
+.above,
+.notice,
+.activity {
+  margin: 0;
+  font: 13px/1.5 var(--hud-font-text);
+}
+
+.above {
+  color: var(--hud-text);
+}
+
+.notice {
+  color: var(--hud-text-2);
+}
+
+.activity {
+  color: var(--hud-text-2);
+  font-style: italic;
+}
+
+.error {
+  margin: 0;
+  display: flex;
+  gap: var(--hud-space-2);
+  color: var(--hud-error-text);
+  font: 13px/1.5 var(--hud-font-text);
+}
+
+.mark {
+  flex: none;
+  width: 18px;
+  text-align: center;
+}
+
+/* The tool lines: one mono line per call, the glyph in the line's tone, the words in the secondary text. */
+.toolLines,
+.receiptList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-1);
+}
+
+.toolLine,
+.receipt {
+  display: flex;
+  align-items: baseline;
+  gap: var(--hud-space-2);
+  color: var(--hud-text-2);
+  font: 13px/1.5 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.toolLine[data-tone="running"],
+.toolLine[data-tone="waiting"],
+.receipt[data-tone="waiting"] {
+  color: var(--hud-accent-text);
+}
+
+.toolLine[data-tone="done"] .mark,
+.receipt[data-tone="done"] .mark {
+  color: var(--hud-accent-text);
+}
+
+.toolLine[data-tone="failed"] .mark,
+.receipt[data-tone="failed"] .mark {
+  color: var(--hud-error-text);
+}
+
+/* What Auto did: a bordered block under the answer, its title a panel label. */
+.receipts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+  padding: var(--hud-space-3) 14px;
+  border-left: 1.5px solid var(--hud-accent-line);
+  background: var(--hud-panel-fill);
+}
+
+.partTitle {
+  margin: 0;
+  color: var(--hud-text-2);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-panel);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.receiptLink {
+  color: var(--hud-text);
+}
+
+.badge {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid var(--hud-line);
+  color: var(--hud-text);
+  font: 500 11px/1.6 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.note {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 12px/1.5 var(--hud-font-mono);
+}

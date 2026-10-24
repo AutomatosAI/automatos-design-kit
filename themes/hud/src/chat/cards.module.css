@@ -1,0 +1,129 @@
+/*
+ * The cards in and after Auto's reply. HUD's own (the Deliverable card and the snag box) are square, bracketed and
+ * set in the look's colours, their buttons the design's (primary: solid accent with its ink; secondary: an
+ * accent-line outline; mono 12 px capitals tracked .14em, at least 44 px high). The host's cards (approvals,
+ * tickets, the withdraw offer, the Mission cards, the credits banner) are only placed: each sits in a plain
+ * column cell, with nothing of HUD's drawn over it and no rule reaching inside it.
+ */
+
+.stack,
+.after {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-3);
+}
+
+.after:empty {
+  display: none;
+}
+
+.hostCard {
+  min-width: 0;
+}
+
+.mark {
+  flex: none;
+  width: 18px;
+  text-align: center;
+}
+
+.primary,
+.secondary {
+  flex: none;
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--hud-space-4);
+  border-radius: 0;
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.secondary {
+  align-self: flex-start;
+  border: 1px solid var(--hud-accent-line);
+  background: transparent;
+  color: var(--hud-text);
+}
+
+/* The Deliverable just made: a bracketed row, its type over its title, Open on the right. */
+.deliverable {
+  display: flex;
+  align-items: center;
+  gap: var(--hud-space-4);
+  padding: var(--hud-space-3) var(--hud-space-4);
+  border: 1px solid var(--hud-panel-line);
+  background:
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    var(--hud-panel-fill);
+}
+
+.deliverableText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deliverableTitle {
+  margin: 0;
+  color: var(--hud-text);
+  font: 600 15px/1.35 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+.deliverableMeta {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 500 11px/1.5 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+/* I hit a snag: the error colour's border on the left, ✕ before each line, Try again under them. */
+.snag {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+  padding: var(--hud-space-3) var(--hud-space-4);
+  border: 1px solid var(--hud-line);
+  border-left: 2px solid var(--hud-error);
+  background: var(--hud-surface);
+}
+
+.snagTitle {
+  margin: 0;
+  color: var(--hud-error-text);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-panel);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.snagLine {
+  margin: 0;
+  display: flex;
+  gap: var(--hud-space-2);
+  color: var(--hud-text);
+  font: 14px/1.5 var(--hud-font-text);
+}
+
+.snagLine .mark {
+  color: var(--hud-error-text);
+}

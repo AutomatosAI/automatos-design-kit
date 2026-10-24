@@ -14,7 +14,7 @@
     { "id": "nav-hud-looks", "label": "Look", "path": "/looks" },
     { "id": "nav-hud-style-sheet", "label": "Style sheet", "path": "/looks/style" }
   ],
-  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "storage", "theme"],
+  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-agents", "pages-command-center", "storage", "theme"],
   "look": "arc",
   "fonts": ["assets/fonts/chakra-petch-latin-600-normal.woff2", "assets/fonts/rajdhani-latin-700-normal.woff2"],
   "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },
