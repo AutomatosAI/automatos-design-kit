@@ -5,6 +5,10 @@
 // skill teaches what a theme may not do: ORCHESTRATOR_API_KEY, a REST path, a proxy route, localStorage (named only
 // as the JS rule that refuses it, in pass-marketplace-review), and build-automatos-interface appears on one line
 // only, the one that says it is superseded. No skill names a local path, a planning file or a person.
+// PRD-261 B-04a: the one REST path a skill may name is the brand kit's, `/api/documents/brand-kit` and the routes under
+// it, and only in the two brand skills: the person or agent saves the local edition's answer to a file before any theme
+// code exists (the theme itself calls nothing). Both skills name that route on the local edition, and no brand skill
+// names a hosted address, a token or a credential header (E2: hosted CLI auth is parked).
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,6 +30,14 @@ const DESCRIPTION_MAX = 1024;
 const NOT_PLAIN_YAML = /: |\s#|^[-?:,[\]{}#&*!|>'"%@`]/;
 
 const NEVER = ["ORCHESTRATOR_API_KEY", "/api/", "proxy route"];
+const API_PREFIX = "/api/";
+const BRAND_KIT_ROUTE = "/api/documents/brand-kit";
+const BRAND_SKILLS = ["brand-a-theme", "white-label-from-a-brand-kit"];
+/** The local edition's API, where a brand skill reads the brand kit. */
+const LOCAL_BRAND_KIT = `http://localhost:8000${BRAND_KIT_ROUTE}`;
+const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
+const CREDENTIALS = ["AUTOMATOS_API_TOKEN", "Authorization", "Bearer", "X-API-Key", "x-api-key"];
+const URL_LIKE = /\b[a-z][a-z0-9+.-]*:\/\/[^\s"'<>`)\]]+/gi;
 const STORAGE_WORD = "localStorage";
 const STORAGE_SKILL = "pass-marketplace-review";
 const STORAGE_RULE = "JS_LOCAL_STORAGE";
@@ -109,6 +121,25 @@ function linesWith(text: string): string[] {
     .map((line) => `${file}: ${line}`));
 }
 
+/** True when `line` (`file: text`) is in a brand skill and every REST path on it is the brand kit's route. */
+function brandKitLine(line: string): boolean {
+  const inBrandSkill = BRAND_SKILLS.some((skill) => line.startsWith(`${SKILLS}/${skill}/`));
+  return inBrandSkill && line.split(API_PREFIX).slice(1).every((rest) => `${API_PREFIX}${rest}`.startsWith(BRAND_KIT_ROUTE));
+}
+
+/** Every Markdown file of the brand skills. */
+function brandSkillMarkdown(): string[] {
+  return skillMarkdown().filter((file) => BRAND_SKILLS.some((skill) => file.startsWith(`${SKILLS}/${skill}/`)));
+}
+
+function hostOf(url: string): string | null {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
 const builtCommands = COMMANDS
   .filter((command) => existsSync(fileURLToPath(new URL(command.module, CLI_MAIN))))
   .map((command) => command.name);
@@ -165,7 +196,16 @@ describe("every skill file links only to files that exist and names only built c
 });
 
 describe("no skill teaches what a theme may not do", () => {
-  it.each(NEVER)("no skill names %s", (text) => expect(linesWith(text)).toEqual([]));
+  it.each(NEVER)("no skill names %s (the brand skills only the brand kit's route)", (text) => {
+    expect(linesWith(text).filter((line) => text !== API_PREFIX || !brandKitLine(line))).toEqual([]);
+  });
+
+  it("the brand kit line rule takes the brand kit's routes in a brand skill, and nothing else", () => {
+    const brand = `${SKILLS}/${BRAND_SKILLS[0]}/SKILL.md: `;
+    expect(brandKitLine(`${brand}curl -sf ${LOCAL_BRAND_KIT}/logo -o logo.png`)).toBe(true);
+    expect(brandKitLine(`${brand}curl ${LOCAL_BRAND_KIT} and /api/themes/import`)).toBe(false);
+    expect(brandKitLine(`${SKILLS}/build-automatos-theme/SKILL.md: ${LOCAL_BRAND_KIT}`)).toBe(false);
+  });
 
   it(`${STORAGE_WORD} appears only in ${STORAGE_SKILL}, on the lines of the rule that refuses it`, () => {
     const allowed = `${SKILLS}/${STORAGE_SKILL}/${SKILL_FILE}: `;
@@ -185,5 +225,25 @@ describe("no skill teaches what a theme may not do", () => {
     const text = readText(file);
     expect(FORBIDDEN_TEXT.filter((forbidden) => text.includes(forbidden))).toEqual([]);
     expect(FORBIDDEN_PATTERNS.filter((pattern) => pattern.test(text)).map(String)).toEqual([]);
+  });
+});
+
+describe("the brand skills read the brand kit from the local edition or a file, never a hosted address or a token (E2)", () => {
+  it.each(BRAND_SKILLS)("%s names the local edition's brand kit route and the brief's file flag", (skill) => {
+    const text = readText(`${SKILLS}/${skill}/${SKILL_FILE}`);
+    expect(text).toContain(LOCAL_BRAND_KIT);
+    expect(text).toContain("automatos-theme brief --brand-kit ");
+  });
+
+  it("found the brand skills' files", () => expect(brandSkillMarkdown().length).toBeGreaterThanOrEqual(BRAND_SKILLS.length));
+
+  it.each(brandSkillMarkdown())("%s names only local addresses", (file) => {
+    const urls = Array.from(readText(file).matchAll(URL_LIKE), (match) => match[0]);
+    expect(urls.filter((url) => !LOCAL_HOSTS.includes(hostOf(url) ?? ""))).toEqual([]);
+  });
+
+  it.each(brandSkillMarkdown())("%s names no token or credential header", (file) => {
+    const text = readText(file);
+    expect(CREDENTIALS.filter((credential) => text.includes(credential))).toEqual([]);
   });
 });

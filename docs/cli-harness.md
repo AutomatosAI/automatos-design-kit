@@ -1,0 +1,92 @@
+# `automatos-theme`: the harness commands
+
+The commands that run the kit's browser harness (`packages/theme-harness`), the mock host page that draws a theme
+from its folder with nothing of Automatos running: `dev` serves it as a local app, `shots` photographs every view on
+Chromium and WebKit with an axe scan, and `previews` copies picked shots into the theme's listing. The rest of the
+command line (running it, the commands table, the environment) is in [cli.md](cli.md).
+
+## `dev`
+
+```text
+usage:    automatos-theme dev <theme folder> [--port <n>]
+example:  npx automatos-theme dev themes/harbour --port 5000
+```
+
+Serves the kit's browser harness (the mock host page `shots` photographs) for one theme, as a local app to build it
+in, with nothing of Automatos running (`src/dev.ts`, `src/dev-server.ts`).
+
+1. It listens first, on `127.0.0.1` only, on `--port` (default 4319; `0` picks a free port; at most 65535). A port it
+   can't serve is refused before anything is built.
+2. It builds the harness for the folder (`vite build --config vite.harness.config.ts` from the harness's folder,
+   with `AUTOMATOS_HARNESS_THEME` naming the theme), each build into a fresh folder under the harness's `dist/`.
+   Until one build has passed, every request is answered 503.
+3. It serves the last build that passed and nothing else: GET and HEAD only, `Cache-Control: no-store`, a `Host`
+   other than `127.0.0.1`, `localhost` or `[::1]` refused (421), any path outside the build, through a link, to a
+   folder or to a dotfile answered 404.
+4. Each change under `src/` builds again, taken as `pack --watch` takes changes. A failed build is printed and the
+   last good one stays served; reload the page to see a new one.
+
+The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own build last wrote it: after changing
+the looks, run that build (or keep `pack --watch` running beside `dev`).
+
+Two pages: `/`, the mock host, and `/phone`, the phone view (the toolbar's **Phone view** link). The phone view
+draws the theme's skin, its `theme.json` `mobile` block, on Automatos Go's Studio layout at 390 × 844 (Chat,
+Command Centre, First open), light or dark, or through each look preset under `fromLooks`. Beside it are the
+`mobile` block's contrast pairs, measured exactly as `check` measures them, and where each token lands. A theme
+without a skin is drawn in Studio's own colours. For Play and HUD, which Automatos Go draws with its built-in Play
+and HUD layouts and none of the block, it says so: those layouts are part of the app
+(`packages/theme-harness/README.md`, "The phone view").
+
+Exit codes: 0 once stopped (Ctrl-C); 1 no `theme.json` (or not JSON) or no `src/entry.ts`, a default look with no
+`looks/presets/` yet, or a port that can't be served; 2 usage error.
+
+## `shots`
+
+```text
+usage:    automatos-theme shots <theme folder> [--out <folder>]
+example:  npx automatos-theme shots themes/harbour --out shots
+```
+
+Draws the theme in the browser harness and shoots it on Chromium and WebKit with an axe scan of every shot
+(`src/shots.ts`, the harness's `shots/`). Two steps, the second only when the first passed, both from the harness's
+folder with the theme folder in `AUTOMATOS_HARNESS_THEME` and the out folder in `AUTOMATOS_HARNESS_OUT`:
+
+1. `vite build --config vite.harness.config.ts`: the harness app with the theme's `src/entry.ts` in it;
+2. `playwright test --config shots/playwright.config.ts`, whose web server previews that build on
+   `http://127.0.0.1:4318`.
+
+The out folder (default `./shots`) gets `<browser>/<preset>/<width>/<view>.png`: one PNG per slot, page and route
+the theme both declares and registers, for each preset at 1440 and 1024 px and once just below its `minWidth`, and an
+`axe.json` beside each set. A set fails on a missing shot, on any request to another origin than the harness's, and on
+a critical axe violation. The browsers come from `npx playwright install chromium webkit`.
+
+Exit codes: 0 every shot passed; the failing step's own exit code; 1 no `theme.json` (or not JSON) or no
+`src/entry.ts`, or a default look with no `looks/presets/` yet; 2 usage error.
+
+## `previews`
+
+```text
+usage:    automatos-theme previews <theme folder> --from <shots folder> [--pick <name>=<shot>]...
+example:  npx automatos-theme previews themes/harbour --from shots \
+          --pick day=chromium/day/1440/slot-frame-1.png --pick day-looks=chromium/day/1440/slot-lookEditor-1.png
+```
+
+Copies the shots you pick into the theme's listing previews and sets `theme.json` `previews` to them, in the order
+given (`src/previews.ts`). The Marketplace listing keeps that order and its cover is the first preview, so the first
+pick is the cover.
+
+| Argument | Meaning |
+|---|---|
+| `--from <shots folder>` | The folder `shots` wrote. Required. |
+| `--pick <name>=<shot>` | Repeatable. `<name>` is the preview's file stem, `<preset>` or `<preset>-<screen>`, written as `assets/previews/<name>.png`; `<shot>` is a PNG path under the shots folder. |
+
+With no `--pick`, each preset gets `<preset>.png`: its first view (slots, then pages, then routes) on Chromium at
+1440 px, the default look first.
+
+Every pick is checked before anything is written, and every reason is printed: a name core's reader would not take
+as a preview path, a name no preset claims (the longest matching preset id wins) or picked twice, a shot outside the
+shots folder, missing, not a PNG or over 512 KB, and more than 16 previews. `theme.json` keeps its own layout: only
+`previews` is rewritten. A file in `assets/previews/` the new list no longer names stays where it is, with a warning,
+since `pack` still packs it.
+
+Exit codes: 0 written; 1 refused (nothing written); 2 usage error.
