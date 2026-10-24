@@ -343,6 +343,9 @@ describe("kit workflow", () => {
 // on, runs `automatos-theme shots` over Play and uploads its PNGs and axe.json files as kit-harness.
 const SHOTS_OUT = "packages/theme-harness/dist/shots";
 const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
+// PRD-261 B-02i: the run lines of the harness job's dev smoke (`automatos-theme dev themes/play` serves the harness and
+// /chat renders), after the shots and before the upload, in kit.yml's order. Empty until B-02i's step lands with them.
+const DEV_SMOKE_RUNS: readonly string[] = [];
 const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
 
 describe("kit workflow, harness job (PRD-261 B-02f)", () => {
@@ -357,7 +360,16 @@ describe("kit workflow, harness job (PRD-261 B-02f)", () => {
       "npm run build",
       "npx playwright install --with-deps chromium webkit",
       `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
+      ...DEV_SMOKE_RUNS,
     ]);
+  });
+
+  it("runs the dev smoke (PRD-261 B-02i) after the shots and before the upload, when it has a step", () => {
+    const steps = Array.from(harness.matchAll(/^ {6}- name: (.+)$/gm), (match) => match[1]);
+    const shots = steps.indexOf("Shots");
+    const upload = steps.indexOf("Upload shots");
+    expect(shots).toBeGreaterThanOrEqual(0);
+    expect(steps.slice(shots + 1, upload)).toEqual(DEV_SMOKE_RUNS.length === 0 ? [] : ["Dev smoke"]);
   });
 
   it("uses only the actions the kit job uses, at the same pins, with no checkout credentials and the same Node", () => {

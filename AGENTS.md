@@ -29,8 +29,8 @@ core wins and the kit is fixed.
 ## Layout
 
 - `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli` (the
-  `automatos-theme` command: `pack`, `submit`, `install`, `check`, `check design` and `shots`), `theme-sdk` (the
-  vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest preset a theme's own tests run on:
+  `automatos-theme` command: `pack`, `submit`, `install`, `check`, `check design`, `shots` and `previews`), `theme-sdk`
+  (the vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest preset a theme's own tests run on:
   jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a mock host page in `app/` that
   draws a theme from its folder with nothing of Automatos running, which `automatos-theme shots` photographs on
   Chromium and WebKit with Playwright and scans with axe), `theme-rules` (the one table of JS rules the

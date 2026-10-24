@@ -23,6 +23,6 @@ guide and core disagree, core wins and the guide is fixed.
 - `automatos-theme`, the kit's command line (`packages/theme-cli`), checks a theme as the server would:
   `automatos-theme check design` for the look data, `automatos-theme check` for the whole package, and
   `automatos-theme pack` to write the `.autotheme` file. Its [README](../packages/theme-cli/README.md) documents
-  `pack`, `submit`, `install` and `shots`; `check` and `check design` are described at the top of
+  `pack`, `submit`, `install`, `shots` and `previews`; `check` and `check design` are described at the top of
   `packages/theme-cli/src/check/index.ts` and `design.ts`.
 - `themes/play` is a complete theme built on this contract: when a guide is not enough, read how Play does it.

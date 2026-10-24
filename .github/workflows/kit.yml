@@ -115,6 +115,11 @@ jobs:
       - name: Shots
         run: npx automatos-theme shots themes/play --out packages/theme-harness/dist/shots
 
+      # PRD-261 B-02i's dev smoke goes here, after the shots and before the upload, on the browsers installed above:
+      # one step, `- name: Dev smoke`, whose one run line starts `automatos-theme dev themes/play` (or a Playwright
+      # config whose web server does) and checks that /chat renders. tests/kit-ci.test.ts's DEV_SMOKE_RUNS lists that
+      # run line, so the step and the test land together.
+
       - name: Upload shots
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
