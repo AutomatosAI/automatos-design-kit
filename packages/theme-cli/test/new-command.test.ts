@@ -93,6 +93,10 @@ describe('the themes new refuses, writing nothing', () => {
     expect(readdirSync(join(cwd, 'themes', 'sample'))).toEqual([])
   })
 
+  it("keeps both released themes, Play and HUD, among the folders it only reads", () => {
+    expect(KIT_FOLDERS_KEPT).toEqual(expect.arrayContaining(['themes/play', 'themes/hud']))
+  })
+
   it.each(KIT_FOLDERS_KEPT)("a folder inside the kit's %s, which new only reads", (folder) => {
     const target = join(KIT_ROOT, folder, 'automatos-new-refused')
     const ran = ranNew(['new', 'acme/sample', '--template', 'minimal', '--to', target], tempFolder())

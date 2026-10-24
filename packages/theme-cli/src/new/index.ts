@@ -12,8 +12,8 @@
  * `automatos` publisher is core's (contract.py RESERVED_PUBLISHERS) and the classes core keeps on <html> are no
  * theme's (the vendored package-manifest.ts RESERVED_HTML_CLASSES). `--to` (default `themes/<name>`, from the folder
  * the command runs in) must not exist yet: nothing is ever written over. Nor may it be inside the kit's own folders
- * the command reads (KIT_FOLDERS_KEPT): a theme written into Play would change Play's package, and one written into
- * a template would be copied into every theme made from it.
+ * the command reads (KIT_FOLDERS_KEPT): a theme written into Play or HUD would change a released package, and one
+ * written into a template would be copied into every theme made from it.
  *
  * Exit code 0 when the folder is written; 1 when the theme can't be made (a reserved name, an existing folder, a
  * folder of the kit's, a rename that would merge two of Play's names), every reason printed and nothing written; 2
@@ -43,8 +43,11 @@ export const NO_MASCOT = 'none'
 export const THEMES_DIR = 'themes'
 /** The kit's root, from this file (packages/theme-cli/src/new/). */
 export const KIT_ROOT = fileURLToPath(new URL('../../../../', import.meta.url))
-/** The kit's folders, from its root, no theme is written into: Play, the templates, the packages (Play bundles two). */
-export const KIT_FOLDERS_KEPT: readonly string[] = ['themes/play', 'templates', 'packages']
+/**
+ * The kit's folders, from its root, no theme is written into: the released themes (Play and HUD, whose packed files the
+ * released-files guard freezes), the templates, the packages (the themes bundle two).
+ */
+export const KIT_FOLDERS_KEPT: readonly string[] = ['themes/play', 'themes/hud', 'templates', 'packages']
 /** A theme's name: words of lower-case letters and digits, joined by single dashes, starting with a letter. */
 const NAME_WORDS = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/
 const EXIT_OK = 0
