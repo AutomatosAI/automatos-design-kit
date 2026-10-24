@@ -5,9 +5,9 @@ import type { MascotName } from './types'
  * state, ported from Automatos Play's lib/mascot/ring.ts (the Ember rule). His
  * light when calm, the accent when busy, the fixed error coral for oops, a dusk
  * made from the ground while he sleeps or is lost, and the ground's secondary
- * text while loading. components/mascot/auto-mascot.module.css draws the same
- * mapping from data-ring, through app/play-theme.css's --pl-color-* tokens;
- * lib/mascot/__tests__/ring.test.ts holds the two together.
+ * text while loading. Play's components/mascot/auto-mascot.module.css draws the
+ * same mapping from data-ring, through its app/play-theme.css's --pl-color-*
+ * tokens; test/ring.test.ts holds the two together.
  *
  * PRD-261 B-01i: in @automatos/mascot, ringColour reads the colour from the
  * look's custom properties, which the theme makes (Play's lookToCssVars), so
@@ -32,7 +32,7 @@ const RING_TONES: Readonly<Record<MascotName, RingTone>> = {
   loading: 'quiet',
 }
 
-/** The look variable (lib/look-kit/css.ts, through lib/looks/engine.ts) each tone's ring is drawn in. */
+/** The look variable (@automatos/look-kit's css.ts, through Play's lib/looks/engine.ts) each tone's ring is drawn in. */
 export const RING_VARS: Readonly<Record<RingTone, string>> = {
   light: '--pl-auto-light',
   accent: '--pl-accent',

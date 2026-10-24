@@ -6,8 +6,8 @@ import type { ToolActivity } from './tools'
  * PRD-260 D6 — Auto's states and the events that move him, ported from
  * Automatos Play's lib/mascot/types.ts. The stream events the reducer reads
  * are re-declared below (Play's TYPES only: its stream parser is not ported,
- * D5); lib/mascot/data-events.ts makes them from the core chat's onData parts
- * and lib/mascot/events.ts from its status and newest reply. A receipt is the
+ * D5); Play's lib/mascot/data-events.ts makes them from the core chat's onData
+ * parts and events.ts from its status and newest reply. A receipt is the
  * host's (the SDK's HostReceipt, the core's types/chat.ts Receipt read-only).
  */
 
@@ -85,7 +85,7 @@ export type MascotState = {
 
 /**
  * Events from the page, not the stream. app-open means the first open in this
- * browser session (the caller checks, lib/mascot/session.ts). clip-ended names
+ * browser session (the caller checks, Play's lib/mascot/session.ts). clip-ended names
  * the clip that ended, so a stale one can't end a newer one-shot. request-failed
  * is a failed call; request-ok, a call that answered (the shelf loading after
  * Try again), ends that oops outside a turn. stop: the owner stopped the turn,

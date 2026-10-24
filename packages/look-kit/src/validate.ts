@@ -58,7 +58,7 @@ const DEFAULT_LIST_NAME = 'its choices'
 /** A schema id ends in its version: 'automatos-interface-look/v1' → 'v1'. */
 const SCHEMA_VERSION = /\/(v\d+)$/
 
-/** Every character that doesn't belong in a one-line name (lib/text/plain-line.ts). */
+/** Every character that doesn't belong in a one-line name (plain-line.ts, core's lib/text/plain-line.ts). */
 const UNSAFE_TEXT_ALL = new RegExp(UNSAFE_TEXT.source, 'gu')
 /** Blank to the eye: spaces, format characters and the Hangul fillers. */
 const INVISIBLE = /[\p{Z}\p{Cf}\u115F\u1160\u3164\uFFA0]/gu

@@ -54,7 +54,7 @@ export function clipUrls(state: MascotName, format: VideoFormat): ClipUrls {
 /**
  * How bright the page glow behind everything is (Ember style sheet, motion): the
  * accent at rest, brighter while he works, brightest for hello and a finished
- * Deliverable, coral for a snag, and out while he sleeps. app/play-theme.css
+ * Deliverable, coral for a snag, and out while he sleeps. Play's app/play-theme.css
  * crossfades between them, read from data-glow on his stage.
  */
 export type PageGlow = 'calm' | 'busy' | 'bright' | 'snag' | 'off'

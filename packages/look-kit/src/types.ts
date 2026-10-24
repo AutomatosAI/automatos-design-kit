@@ -4,7 +4,7 @@
  * The runtime holds no catalogue, no variable prefix and no look format of its own: a theme hands
  * it a LookCatalogue (its grounds, accents, type styles, shells and lights, its error colour, its
  * glow range and the prefix its CSS reads), and a look's picks, one key per section plus a glow.
- * lib/look-kit/css.ts turns those into the theme's custom properties, studio-tokens.ts into
+ * css.ts turns those into the theme's custom properties, studio-tokens.ts into
  * Studio's tokens. Colours are #rrggbb, except a ground's line, chip and panel: rgba() over the bg.
  */
 
