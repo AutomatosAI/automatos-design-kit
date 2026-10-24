@@ -1,0 +1,134 @@
+{
+  "schema": "automatos-theme-template/v1",
+  "name": "full",
+  "description": "Play de-branded: every slot, page and route Play has, under the new theme's names, made from themes/play each time a theme is made, so it never drifts from Play.",
+  "from": "themes/play",
+  "copy": [
+    "src",
+    "assets/fonts",
+    "assets/mascot",
+    "design",
+    "types",
+    "theme.json",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "eslint.config.js"
+  ],
+  "code": "code",
+  "files": "files",
+  "placeholders": [
+    "id",
+    "publisher",
+    "slug",
+    "name",
+    "htmlClass",
+    "playVersion",
+    "mascot"
+  ],
+  "keep": [
+    "Play Auto's states",
+    "Play the motion",
+    "PLAY_STATES",
+    "PLAY_MOTION"
+  ],
+  "renames": [
+    {
+      "pattern": "automatos/play",
+      "to": "{{id}}"
+    },
+    {
+      "pattern": "automatos\\.play",
+      "to": "{{publisher}}.{{slug}}"
+    },
+    {
+      "pattern": "@automatos/theme-play",
+      "to": "@{{publisher}}/theme-{{slug}}"
+    },
+    {
+      "pattern": "automatos-play-tone",
+      "to": "{{htmlClass}}-tone"
+    },
+    {
+      "pattern": "automatos-interface-look",
+      "to": "{{htmlClass}}-look"
+    },
+    {
+      "pattern": "nav-play-",
+      "to": "nav-"
+    },
+    {
+      "pattern": "wordmarkPlay",
+      "to": "wordmarkName",
+      "identifier": true
+    },
+    {
+      "pattern": "html\\.play(?![A-Za-z0-9_-])",
+      "to": "html.{{htmlClass}}"
+    },
+    {
+      "pattern": "--pl-",
+      "to": "--{{htmlClass}}-"
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_-])play-",
+      "to": "{{htmlClass}}-"
+    },
+    {
+      "pattern": "(?<=[a-z0-9]-)play(?![A-Za-z0-9_])",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<=[/'\"`])play(?=/)",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<=['\"`])play(?=['\"`])",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9])PLAY(?![A-Za-z0-9])",
+      "to": "{{constant}}",
+      "identifier": true
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_$])play(?=[A-Z])",
+      "to": "{{camel}}",
+      "identifier": true
+    },
+    {
+      "pattern": "Play(?=[A-Z])",
+      "to": "{{pascal}}",
+      "identifier": true
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_$-])Play(?![A-Za-z0-9_$])",
+      "to": "{{name}}"
+    }
+  ],
+  "patches": [],
+  "pages": {},
+  "uses": [],
+  "noMascot": {
+    "drop": [
+      "assets/mascot",
+      "NOTICE"
+    ],
+    "code": "no-mascot",
+    "package": "@automatos/mascot",
+    "vendor": {
+      "from": "packages/mascot/src",
+      "to": "src/lib/auto",
+      "modules": [
+        "events",
+        "media",
+        "player",
+        "reducer",
+        "ring",
+        "tools",
+        "types"
+      ]
+    }
+  }
+}

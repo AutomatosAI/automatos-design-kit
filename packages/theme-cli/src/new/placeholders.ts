@@ -23,6 +23,8 @@ export const TEMPLATE_FILE = 'template.json'
 const NEVER_COPIED: ReadonlySet<string> = new Set([TEMPLATE_FILE, '.DS_Store'])
 /** The files whose text is filled in; anything else (fonts, clips, images) is copied as it is. */
 const TEXT_SUFFIXES: readonly string[] = ['.ts', '.tsx', '.js', '.mjs', '.cjs', '.css', '.json', '.md', '.txt', '.gitignore']
+/** Text files with no suffix, by their name. */
+const TEXT_NAMES: ReadonlySet<string> = new Set(['NOTICE', 'LICENSE'])
 const WORD_SEPARATOR = '-'
 
 export type PlaceholderValues = Readonly<Record<string, string>>
@@ -92,7 +94,7 @@ export function fillPlaceholders(text: string, values: PlaceholderValues, where:
 
 /** True for a file whose text a template fills in. */
 export function isTextFile(path: string): boolean {
-  return TEXT_SUFFIXES.some((suffix) => path.endsWith(suffix))
+  return TEXT_SUFFIXES.some((suffix) => path.endsWith(suffix)) || TEXT_NAMES.has(path.slice(path.lastIndexOf('/') + 1))
 }
 
 /** Every file under `root`, depth first in name order, but NEVER_COPIED; a link (to a file or a folder) throws. */

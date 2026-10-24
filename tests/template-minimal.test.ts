@@ -1,7 +1,8 @@
-// PRD-261 B-01e: templates/minimal is a theme that already packs and passes check. The template is copied into a
-// temporary kit layout (themes/sample/) with its placeholders filled for acme/sample, built with the kit's preset
-// (scripts/review/rebuild.ts buildThemeFolder: the preset alone, from the theme folder), packed as `pack` packs it,
-// and checked: `check` reports no error, and `check design` passes all three of its lines. The template itself
+// PRD-261 B-01e and B-03f: templates/minimal is a theme that already packs and passes check. `automatos-theme new
+// acme/sample --template minimal` writes it into a temporary kit layout (themes/sample/), its placeholders filled; it
+// is built with the kit's preset (scripts/review/rebuild.ts buildThemeFolder: the preset alone, from the theme
+// folder), packed as `pack` packs it, and checked: `check` reports no error, and `check design` passes all three of
+// its lines. The template itself
 // registers the frame, the look editor and the style sheet (PA-14), ships its look schema and presets, imports nothing
 // of core, keeps its source within 1,000 to 1,600 lines, and fills every placeholder it names. Its own tests (the
 // look data, the screens) run on the harness: packages/theme-harness/test/template-minimal.test.tsx.
@@ -14,8 +15,9 @@ import { runCheck } from "../packages/theme-cli/src/check/index.ts";
 import { checkDesign } from "../packages/theme-cli/src/check/design.ts";
 import { verdictOf } from "../packages/theme-cli/src/check/report.ts";
 import { packTheme } from "../packages/theme-cli/src/pack.ts";
+import { runNew } from "../packages/theme-cli/src/new/index.ts";
 import {
-  copyTemplate, placeholdersIn, placeholderValues, readFolder, TEMPLATE_FILE, themeNames,
+  placeholdersIn, placeholderValues, readFolder, TEMPLATE_FILE, themeNames,
 } from "../packages/theme-cli/src/new/placeholders.ts";
 import { buildThemeFolder } from "../scripts/review/rebuild.ts";
 
@@ -36,6 +38,7 @@ interface Ran {
 
 interface Made {
   readonly themeDir: string;
+  readonly made: Ran;
   readonly packed: ReturnType<typeof packTheme>;
   readonly check: Ran;
   readonly checkJson: Ran;
@@ -51,15 +54,19 @@ async function ranCheck(argv: readonly string[]): Promise<Ran> {
   return { code, out, err };
 }
 
-/** The template copied for acme/sample, built, packed and checked. */
+/** `new acme/sample --template minimal`, run from a temporary folder, then built, packed and checked. */
 async function makeSample(): Promise<Made> {
   const root = mkdtempSync(join(tmpdir(), "automatos-template-minimal-"));
   folders.push(root);
+  const out: string[] = [];
+  const err: string[] = [];
+  const code = runNew(["new", THEME_ID, "--template", "minimal"], { out: (line) => out.push(line), err: (line) => err.push(line) }, root);
   const themeDir = join(root, "themes", "sample");
-  copyTemplate(TEMPLATE, themeDir, placeholderValues(themeNames(THEME_ID)));
+  if (code !== 0) return { themeDir, made: { code, out, err }, packed: { ok: false, errors: [] }, check: { code, out, err }, checkJson: { code, out, err } };
   await buildThemeFolder(themeDir, ENTRY);
   const packed = packTheme(themeDir, join(root, "out"));
-  return { themeDir, packed, check: await ranCheck(["check", themeDir]), checkJson: await ranCheck(["check", themeDir, "--json"]) };
+  const check = await ranCheck(["check", themeDir]);
+  return { themeDir, made: { code, out, err }, packed, check, checkJson: await ranCheck(["check", themeDir, "--json"]) };
 }
 
 const templateText = (path: string): string => readFileSync(join(TEMPLATE, path), "utf8");
@@ -73,6 +80,11 @@ afterAll(() => {
 });
 
 describe("the minimal template, made into acme/sample", () => {
+  it("is written by `new`, which says so", () => {
+    expect([made.made.code, made.made.err]).toEqual([0, []]);
+    expect(made.made.out[0]).toBe(`${made.themeDir}: ${THEME_ID} from the minimal template, ${readFolder(TEMPLATE).length} files.`);
+  });
+
   it("builds and packs as acme.sample-0.1.0.autotheme", () => {
     const packed = made.packed;
     if (!packed.ok) throw new Error(packed.errors.map((error) => `${error.code} ${error.path}: ${error.message}`).join("\n"));
