@@ -1,0 +1,135 @@
+/*
+ * The top bar ("Automatos Command HUD.dc.html"): 56 px, a hairline under it, the mark and the wordmark on the
+ * left, the clock in the middle, the status, search, LOOK and the host's utilities on the right. Labels are
+ * Geist Mono capitals; the wordmark is the look's display face.
+ */
+
+.bar {
+  position: relative;
+  height: var(--hud-topbar-height);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--hud-space-4);
+  padding: 0 var(--hud-space-5);
+  border-bottom: 1px solid var(--hud-line);
+}
+
+.brand {
+  min-height: var(--hud-tap-min);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--hud-text);
+  text-decoration: none;
+}
+
+/* The diamond: a 10 px square turned 45 degrees, a 1.5 px accent border and its glow. */
+.mark {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  transform: rotate(45deg);
+  border: 1.5px solid var(--hud-accent);
+  box-shadow: 0 0 10px var(--hud-accent);
+}
+
+.wordmark {
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-title-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-brand);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.slashes {
+  color: var(--hud-accent-text);
+}
+
+.clock {
+  margin: 0 auto;
+  color: var(--hud-text-2);
+  font: 500 13px/1 var(--hud-font-mono);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--hud-space-3);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  color: var(--hud-text-2);
+  font: 500 12px/1 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.glyph {
+  color: var(--hud-accent-text);
+}
+
+.status[data-connection="down"] .glyph {
+  color: var(--hud-error-text);
+}
+
+.search,
+.look {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 14px;
+  border-radius: 0;
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.search {
+  border: 1px solid var(--hud-line);
+  background: transparent;
+  color: var(--hud-text-2);
+}
+
+.search:hover {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-text);
+}
+
+/* Studio's kbd chip reaches this one too: each of its properties is set here. */
+.kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 500 11px/1.2 var(--hud-font-mono);
+}
+
+/* LOOK: an accent outline, filled with the accent while the look editor is open. */
+.look {
+  border: 1px solid var(--hud-accent);
+  background: transparent;
+  color: var(--hud-accent-text);
+  text-decoration: none;
+}
+
+.look[aria-current="page"] {
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.utilities {
+  display: flex;
+  align-items: center;
+}

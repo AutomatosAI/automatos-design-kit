@@ -82,7 +82,8 @@ jobs:
   # running: Play's build writes its look data, `automatos-theme shots` builds the harness, serves it on
   # 127.0.0.1:4318 and shoots every slot, page and route Play serves, for each preset at 1440 and 1024 px and
   # once below its minWidth, on Chromium and WebKit, with an axe scan of each shot. It fails on a missing shot,
-  # a request to any other origin, or a critical axe violation; the shots and axe.json files are uploaded either way.
+  # a request to any other origin, or a critical axe violation. Then PRD-261 B-02i's dev smoke: `automatos-theme dev`
+  # serves Play's harness and /chat renders. The shots, axe.json files and the smoke's shot are uploaded either way.
   harness:
     name: Harness shots and axe
     runs-on: ubuntu-latest
@@ -114,6 +115,12 @@ jobs:
 
       - name: Shots
         run: npx automatos-theme shots themes/play --out packages/theme-harness/dist/shots
+
+      # PRD-261 B-02i: `automatos-theme dev themes/play` (the smoke config's web server) builds the harness, serves it
+      # on 127.0.0.1:4319, and /chat renders there on Chromium; its shot and any trace go to
+      # packages/theme-harness/dist/shots/dev-smoke/, so the upload below carries them.
+      - name: Dev smoke
+        run: npx playwright test --config packages/theme-harness/shots/dev-smoke.config.ts
 
       - name: Upload shots
         if: always()

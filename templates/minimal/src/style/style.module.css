@@ -1,0 +1,115 @@
+/*
+ * The style sheet's own parts: the swatches, the type specimens and the components. Its page, sections and
+ * buttons are the look editor's (looks/looks.module.css), so the two screens read as one.
+ */
+
+.swatches {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--{{htmlClass}}-space-3);
+}
+
+.swatch {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: var(--{{htmlClass}}-space-3);
+  row-gap: 2px;
+  align-items: center;
+}
+
+.chip {
+  grid-row: span 3;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+}
+
+.swatchName {
+  font-weight: 600;
+}
+
+.swatchUse {
+  font: var(--{{htmlClass}}-text-small);
+  color: var(--{{htmlClass}}-text-2);
+}
+
+/* html.{{htmlClass}} outranks the host's own code chip (its base's .studio code). */
+:global(html.{{htmlClass}}) .code {
+  padding: 0;
+  background: transparent;
+  font: var(--{{htmlClass}}-text-mono);
+  color: var(--{{htmlClass}}-text-2);
+  overflow-wrap: anywhere;
+}
+
+.specimens {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-3);
+}
+
+.specimen {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--{{htmlClass}}-space-4);
+  align-items: baseline;
+}
+
+.sample {
+  margin: 0;
+  color: var(--{{htmlClass}}-text);
+}
+
+.components {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--{{htmlClass}}-space-4);
+  align-items: start;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-1);
+  font: var(--{{htmlClass}}-text-small);
+}
+
+.input {
+  min-height: var(--{{htmlClass}}-control-height);
+  padding: 0 var(--{{htmlClass}}-space-3);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-bg);
+  color: var(--{{htmlClass}}-text);
+  font: var(--{{htmlClass}}-text-body);
+}
+
+.input::placeholder {
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-2);
+  padding: var(--{{htmlClass}}-space-4);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-bg);
+}
+
+:global(html.{{htmlClass}}) .cardTitle {
+  margin: 0;
+  font: var(--{{htmlClass}}-text-title);
+  color: var(--{{htmlClass}}-text);
+}
+
+.cardText {
+  margin: 0;
+  color: var(--{{htmlClass}}-text-2);
+}

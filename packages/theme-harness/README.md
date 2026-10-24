@@ -54,6 +54,11 @@ it('shows the asleep screen while the backend is down', () => {
 For the jest-dom matcher types, a theme's setup file starts with
 `/// <reference types="@testing-library/jest-dom/vitest" />`.
 
+The kit's templates (`templates/minimal`, `templates/full`, which `automatos-theme new` starts a theme from) are no
+workspaces, so this package runs their tests on this preset: `test/template-minimal.test.tsx` and
+`test/template-full.test.tsx` import each template's test files, the full template's `/agents` clone reading the
+fixture agents in `fixtures/agents/`.
+
 ## The fake SDK
 
 `src/sdk/<area>.ts` fakes one area of `packages/theme-sdk/areas/*.d.ts` each, every name declared `satisfies` its
@@ -111,6 +116,9 @@ workspace does (`tests/workspace-deps.test.ts`).
 `app/` is a mock host page that draws a theme in a browser, with no Automatos running: a local design tool, and what
 `automatos-theme shots` photographs. `vite.harness.config.ts` builds it for one theme folder
 (`AUTOMATOS_HARNESS_THEME`, default `themes/play`) and serves the build on `http://127.0.0.1:4318` (`vite preview`).
+`automatos-theme dev <theme folder>` (the theme CLI's README says how) is the same page as a local app: it builds the
+harness for the folder into a folder of its own (Vite's `--outDir`), serves only that build on `http://127.0.0.1:4319`
+with Node's own `http`, and builds again after each change under the theme's `src/`.
 
 - **The theme's own entry.** The build bundles the folder's `src/entry.ts` with the page. Its bare imports go through
   the harness's import map (`src/host/import-map.ts`), the same specifiers core's import map serves: React from the
@@ -155,3 +163,8 @@ file name, so no two views share one); when the page's presets are not the folde
 request to another origin than `http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a
 default look that `looks/presets/` lacks stops the shots before they start. It proves a theme draws, not that core
 draws it the same way: core's browser lane does that.
+
+`shots/dev-smoke.config.ts` is the smoke of `automatos-theme dev` (kit CI's `harness` job, after the shots): its web
+server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium and checks
+that Play started, that its own `/chat` page is on the stage with Auto saying hello over the message box, and that
+every request stayed on `http://127.0.0.1:4319`. Its shot and a failed test's trace go to `dist/shots/dev-smoke/`.

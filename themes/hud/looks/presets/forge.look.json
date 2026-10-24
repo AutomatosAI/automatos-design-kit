@@ -1,0 +1,15 @@
+{
+  "schema": "automatos-interface-look/v1",
+  "interface": "command",
+  "id": "forge",
+  "name": "FORGE",
+  "sub": "",
+  "ground": "ember",
+  "accent": "forge",
+  "font": "chakra",
+  "grid": 8,
+  "glow": 26,
+  "scan": "off",
+  "auto": "on",
+  "motion": "on"
+}

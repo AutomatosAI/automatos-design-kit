@@ -1,0 +1,6 @@
+{
+  "schema": "automatos-theme-template/v1",
+  "name": "minimal",
+  "description": "The frame only, with the host's own pages inside it, a look editor and a style sheet, on three choice knobs and two presets. Its look data is written by hand.",
+  "placeholders": ["id", "publisher", "slug", "name", "htmlClass"]
+}

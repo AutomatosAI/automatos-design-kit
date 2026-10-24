@@ -9,14 +9,15 @@
  * src/ packed as source/, and writes `<publisher>.<slug>-<version>.autotheme` and its `.sha256.json`
  * manifest to `--out` (default: the current folder). Exit code 0 when written (a warning, such as no
  * src/, is printed to stderr as `warning: ...`, one line each), 1 when the theme was refused (every
- * reason is printed, one per line), 2 for a usage error.
+ * reason is printed, one per line), 2 for a usage error. With `--watch` (PRD-261 B-02i) it builds and
+ * packs again after each change under src/ until stopped (pack-watch.ts, loaded only then).
  */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import type { Output } from './output.ts'
-import { packTheme } from './pack.ts'
+import { packTheme, type PackResult } from './pack.ts'
 import { submitCommand, SUBMIT_USAGE, type SubmitDeps } from './submit.ts'
 
 export type { Output } from './output.ts'
@@ -41,7 +42,9 @@ const EXIT_OK = 0
 const EXIT_REFUSED = 1
 const EXIT_USAGE = 2
 export const WARNING_PREFIX = 'warning: '
-const PACK_USAGE = 'usage: automatos-theme pack <theme folder> [--out <folder>]'
+export const PACK_USAGE = 'usage: automatos-theme pack <theme folder> [--out <folder>] [--watch]'
+/** `pack`'s flag that keeps it watching (pack-watch.ts). */
+export const WATCH_FLAG = '--watch'
 
 /**
  * The loader of a command another module runs: null while `modulePath` (relative to this file) isn't
@@ -111,16 +114,10 @@ function parsePack(argv: readonly string[], cwd: string): Command | null {
   }
 }
 
-/** Runs `pack`, the one command main takes (any other argument list prints the usage); returns the exit code. */
-export function main(argv: readonly string[], output: Output, cwd: string = process.cwd()): number {
-  const command = parsePack(argv, cwd)
-  if (command === null) {
-    output.err(USAGE)
-    return EXIT_USAGE
-  }
-  const result = packTheme(command.themeDir, command.outDir)
+/** Prints what one pack of `themeDir` did, as `pack` prints it; returns its exit code. */
+export function reportPack(themeDir: string, result: PackResult, output: Output): number {
   if (!result.ok) {
-    output.err(`${command.themeDir} can't be packed: the Automatos server would refuse it.`)
+    output.err(`${themeDir} can't be packed: the Automatos server would refuse it.`)
     result.errors.forEach((error) => output.err(`  ${error.code} ${error.path}: ${error.message}`))
     return EXIT_REFUSED
   }
@@ -130,8 +127,21 @@ export function main(argv: readonly string[], output: Output, cwd: string = proc
   return EXIT_OK
 }
 
-function packRunner(argv: readonly string[], output: Output, deps: CommandDeps): number {
-  return main(argv, output, deps.cwd)
+/** Runs `pack` once, the one command main takes (any other argument list prints the usage); returns the exit code. */
+export function main(argv: readonly string[], output: Output, cwd: string = process.cwd()): number {
+  const command = parsePack(argv, cwd)
+  if (command === null) {
+    output.err(USAGE)
+    return EXIT_USAGE
+  }
+  return reportPack(command.themeDir, packTheme(command.themeDir, command.outDir), output)
+}
+
+/** `pack`, or `pack --watch` when the flag is given: pack-watch.ts, loaded only for it. */
+async function packRunner(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
+  if (!argv.slice(1).includes(WATCH_FLAG)) return main(argv, output, deps.cwd)
+  const { packWatchCommand } = await import('./pack-watch.ts')
+  return packWatchCommand(argv, output, deps)
 }
 
 /** The environment, network and folder the real command uses. */
