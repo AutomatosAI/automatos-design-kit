@@ -1,0 +1,22 @@
+Automatos HUD
+Copyright 2026 Automatos AI
+
+The source code of this theme is licensed under the Apache License, Version 2.0
+(see LICENSE at the repository root).
+
+Auto mascot assets
+------------------
+
+(c) Automatos AI; not covered by the code licence.
+
+The Auto mascot's animations and images in assets/mascot/ (the 36 clips and
+stills HUD's package ships, the same files as Play's) are (c) Automatos AI and
+are not covered by the code licence: the Apache License, Version 2.0 does not
+apply to them. They are in this repository so that HUD's package can be built
+and reviewed from it.
+
+Fonts
+-----
+
+The display faces in assets/fonts/ (Rajdhani and Chakra Petch) are under the
+SIL Open Font License 1.1; each licence file sits beside its font.
