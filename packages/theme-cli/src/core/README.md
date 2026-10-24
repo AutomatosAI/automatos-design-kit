@@ -25,6 +25,16 @@ runs the CLI with type stripping, which needs the extension).
 The test corpus `test/fixtures/core/cases.json` and the hello theme `test/fixtures/core/hello/` are copied from
 `orchestrator/tests/fixtures/themes/` at the same commit, byte for byte.
 
+So is the shared review corpus (PRD-261 B-03e), `test/fixtures/core/review-cases.json`: core's
+`orchestrator/tests/test_prd261_review_corpus.py` runs each case through the server's review stage, and
+`test/review-corpus.test.ts` runs it through `check`, which must give the level the case expects at each check it
+names (sizes, cssScope, looks, uses and clonedFrom). Core keeps the file in one canonical form, so its sha256 moves
+only when a case does; the test holds the copy to this row:
+
+| File here | Core file | sha256 |
+|---|---|---|
+| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `26dc0ce566b64b60c3056f7994295bd6ea8a3e8b4115ab20a438cffc35461ae5` |
+
 `check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
 edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
 commit above:
@@ -106,9 +116,10 @@ every other code `check design` prints is core's.
 
 When core changes one of these files, copy it again from core `main`, redo the import edits above, update the
 commit here, read every comment in the copy (this repo is public: reword any that names a person or an internal
-decision log), and copy `cases.json`, `hello/` and the two `data/` files from the same commit (their sha256 rows and
-`CORE_SHA` move with it), and write `data/contract.json` again with the lines above (its sha256 row moves too; when its
-lists change, the guides change with them). `test/core-corpus.test.ts` then holds the copy to the core corpus. Read `boot.ts`'s
+decision log), and copy `cases.json`, `review-cases.json`, `hello/` and the two `data/` files from the same commit
+(their sha256 rows and `CORE_SHA` move with it), and write `data/contract.json` again with the lines above (its sha256
+row moves too; when its lists change, the guides change with them). `test/core-corpus.test.ts` then holds the copy to
+the core corpus, and `test/review-corpus.test.ts` holds `check` to the review corpus. Read `boot.ts`'s
 `THEME_BOOT_SCRIPT` and `boot-sanitize.ts`'s `sanitizePrepaint` and `lookFitsPrepaint` at the new commit too: port a
 change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFits`) and a change to the paint into
 `src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite.
