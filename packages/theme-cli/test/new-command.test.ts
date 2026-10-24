@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { COMMANDS, run, type CommandDeps } from '../src/cli-main.ts'
 import { KIT_FOLDERS_KEPT, KIT_ROOT, NEW_USAGE, parseNew, runNew } from '../src/new/index.ts'
 import { placeholdersIn, readFolder, themeNames } from '../src/new/placeholders.ts'
+import { BASE_TSCONFIG, standaloneTsconfig } from '../src/new/tsconfig.ts'
 
 const folders: string[] = []
 
@@ -113,6 +114,21 @@ describe('new --template minimal', () => {
     const manifest = JSON.parse(readFileSync(join(target, 'theme.json'), 'utf8')) as Record<string, unknown>
     expect([manifest.id, manifest.name, manifest.htmlClass]).toEqual(['acme/night-owl', 'Night Owl', 'night-owl'])
     expect(readFileSync(join(target, 'src', 'app', 'theme.css'), 'utf8')).toContain('--night-owl-accent-text')
+  })
+
+  it("writes a tsconfig.json that holds the kit's compiler options itself, so the theme builds outside the kit", () => {
+    const cwd = tempFolder()
+    expect(ranNew(['new', 'acme/night-owl', '--template', 'minimal', '--to', 'owl'], cwd).code).toBe(0)
+    const written = JSON.parse(readFileSync(join(cwd, 'owl', 'tsconfig.json'), 'utf8')) as Record<string, unknown>
+    const base = JSON.parse(readFileSync(join(KIT_ROOT, BASE_TSCONFIG), 'utf8')) as Record<string, unknown>
+    const template = JSON.parse(readFileSync(join(KIT_ROOT, 'templates', 'minimal', 'tsconfig.json'), 'utf8')) as Record<string, unknown>
+    expect(written).toEqual({ compilerOptions: base.compilerOptions, include: template.include })
+  })
+
+  it("lets the theme's own compiler options win over the kit's, and drops the extends", () => {
+    const base = { compilerOptions: { strict: true, jsx: 'react-jsx' } }
+    const theme = { extends: '../../tsconfig.base.json', compilerOptions: { jsx: 'preserve' }, include: ['src'] }
+    expect(standaloneTsconfig(theme, base)).toEqual({ compilerOptions: { strict: true, jsx: 'preserve' }, include: ['src'] })
   })
 
   it("runs through the command table's row", async () => {

@@ -149,8 +149,9 @@ const renamedVars = (value: unknown): unknown => JSON.parse(JSON.stringify(value
 
 /**
  * The theme's own look code, run from its folder: its src/lib/looks/style.ts and its default look. The kit packages
- * they import by name resolve as in the kit, through node_modules links to kitLayout's copies, and the theme's
- * tsconfig.json finds the base it extends. Made after the build, pack and check, which ran with neither.
+ * they import by name resolve as in the kit, through node_modules links to kitLayout's copies (the theme's
+ * tsconfig.json holds the kit's compiler options itself, as new writes it; the base is copied beside it all the
+ * same). Made after the build, pack and check, which ran without the links.
  */
 async function themeLooks(made: Made): Promise<{ readonly style: StyleModule; readonly look: Look }> {
   const root = join(made.themeDir, "..", "..");

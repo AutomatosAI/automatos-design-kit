@@ -31,6 +31,7 @@ import { within } from '../dev-server.ts'
 import type { Output } from '../output.ts'
 import { fullTheme } from './full.ts'
 import { copyTemplate, placeholderValues, themeNames, writeFolder, type ThemeNames } from './placeholders.ts'
+import { writeStandaloneTsconfig } from './tsconfig.ts'
 
 export const NEW_USAGE = 'usage: automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]'
 export const TEMPLATES = ['minimal', 'full'] as const
@@ -107,11 +108,14 @@ export function refusals(command: NewCommand, kitRoot: string): string[] {
 /** Writes the theme `command` asks for; the paths written, or the reasons it can't be. */
 function writeTheme(command: NewCommand, names: ThemeNames, kitRoot: string): { readonly written: number } | { readonly problems: readonly string[] } {
   if (command.template === 'minimal') {
-    return { written: copyTemplate(join(kitRoot, 'templates', 'minimal'), command.target, placeholderValues(names)).length }
+    const written = copyTemplate(join(kitRoot, 'templates', 'minimal'), command.target, placeholderValues(names)).length
+    writeStandaloneTsconfig(command.target, kitRoot)
+    return { written }
   }
   const made = fullTheme({ names, mascot: command.mascot, kitRoot })
   if (!made.ok) return { problems: made.problems }
   writeFolder(command.target, made.files)
+  writeStandaloneTsconfig(command.target, kitRoot)
   return { written: made.files.length }
 }
 
