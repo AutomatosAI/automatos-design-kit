@@ -71,7 +71,8 @@ function patched(files: Map<string, FolderFile>, patch: Patch): Map<string, Fold
     throw new Error(`templates/full's patch of ${patch.path} needs its text there exactly once: Play has changed, so change the patch.`)
   }
   const end = at + patch.after.length
-  return new Map([...files, [patch.path, withText(file, `${text.slice(0, end)}${patch.insert}${text.slice(end)}`)]])
+  const entry: [string, FolderFile] = [patch.path, withText(file, `${text.slice(0, end)}${patch.insert}${text.slice(end)}`)]
+  return new Map([...files, entry])
 }
 
 /** Play's files, the mascot left out when asked, with the template's code and patches. */

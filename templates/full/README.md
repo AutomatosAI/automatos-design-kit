@@ -7,7 +7,7 @@ folder holds only what the theme gets beside Play's own files:
 | Path | What it is |
 |---|---|
 | `template.json` | What is taken from Play (`copy`), the renames (`keep`, `renames`), the text put into Play's files (`patches`), the `theme.json` entries added (`pages`, `uses`) and what `--mascot none` changes (`noMascot`) |
-| `code/` | Files in Play's own words (its `--pl-*` variables, its component names), added to Play's before the renames and renamed with them |
+| `code/` | Files in Play's own words (its `--pl-*` variables, its component names), added to Play's before the renames and renamed with them: the `/agents` clone (`src/components/agents/`, cloned from core's `components/agents/studio/agent-management-studio.tsx`) and its test on the harness, and the tests' setup |
 | `files/` | The new theme's own files: its README, CHANGELOG, the clips' NOTICE and its `.gitignore`, with their placeholders filled and never renamed |
 | `no-mascot/` | The code `--mascot none` puts in place of Auto's drawing: his caption alone, and no mascot section in the style sheet |
 

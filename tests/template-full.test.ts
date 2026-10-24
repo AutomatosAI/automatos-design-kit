@@ -4,9 +4,12 @@
 // packed and checked: no error. Nothing of Play's brand is left where it would show or clash: no html.play rule, no
 // play- keyframe, font or class, no automatos/play, in the files or the built stylesheet. With --mascot none there is
 // no clip, no mascot block and no @automatos/mascot, and the theme still builds. themes/play is as it was.
+// PRD-261 B-01f: both declare /agents a clone, at the vendored core-pages.json's sha of the core file it copies, and
+// check passes it at clonedFrom; one hex digit off, it is a warning there. The clone's own test, on the harness, is
+// templates/full/code/test/agents-page.test.tsx (run by packages/theme-harness/test/template-full.test.tsx).
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,6 +27,8 @@ const KIT_PACKAGES = ["look-kit", "mascot"];
 const MASCOT_PACKAGE = "@automatos/mascot";
 /** Play's brand where it would show or clash: its class's rules, a name under its class's prefix, its id. */
 const BRAND = [/html\.play(?![a-z0-9-])/, /(?<![A-Za-z0-9_-])play-/, /automatos\/play/, /@automatos\/theme-play/];
+const CORE_PAGES = fileURLToPath(new URL("../packages/theme-cli/src/core/data/core-pages.json", import.meta.url));
+const AGENTS_ROUTE = "/agents";
 const MASCOT_IMPORT = /\bfrom\s*['"]@automatos\/mascot|\bimport\s*\(\s*['"]@automatos\/mascot/;
 /** Two builds of a Play-sized theme with Vite on a cold runner, each packed and checked. */
 const BUILD_TIMEOUT_MS = 300_000;
@@ -107,9 +112,23 @@ function brandLeft(made: Made): string[] {
   });
 }
 
+interface Report {
+  readonly verdict: string;
+  readonly checks: Record<string, { level: string; [field: string]: unknown }>;
+}
+
+interface ClonePage {
+  readonly mode: string;
+  readonly keepCorePage: readonly string[];
+  readonly clonedFrom: { readonly path: string; readonly sha: string };
+}
+
+type Manifest = { pages: Record<string, ClonePage> } & Record<string, unknown>;
+
+const reportOf = (ran: Ran): Report => JSON.parse(ran.out.join("\n")) as Report;
+
 function checkLevels(made: Made): Record<string, string> {
-  const report = JSON.parse(made.check.out.join("\n")) as { checks: Record<string, { level: string }> };
-  return Object.fromEntries(Object.entries(report.checks).map(([name, entry]) => [name, entry.level]));
+  return Object.fromEntries(Object.entries(reportOf(made.check).checks).map(([name, entry]) => [name, entry.level]));
 }
 
 beforeAll(async () => {
@@ -122,10 +141,13 @@ afterAll(() => {
   folders.splice(0).forEach((folder) => rmSync(folder, { recursive: true, force: true }));
 });
 
-describe.each([
+/** Each theme the tests made, read once beforeAll has made it. */
+const VARIANTS: Array<[string, () => Made]> = [
   ["with Auto", () => withMascot],
   ["with --mascot none", () => noMascot],
-])("new acme/bright --template full, %s", (_label, madeOf) => {
+];
+
+describe.each(VARIANTS)("new acme/bright --template full, %s", (_label, madeOf) => {
   it("is written by new, and builds and packs as acme.bright-0.1.0.autotheme", () => {
     const made = madeOf();
     expect([made.made.code, made.made.err]).toEqual([0, []]);
@@ -175,6 +197,43 @@ describe("the mascot", () => {
     const packed = noMascot.packed;
     if (!packed.ok) throw new Error("the theme with no mascot must pack");
     expect(Object.keys(packed.manifest.files).filter((path) => path.startsWith("source/packages/mascot/"))).toEqual([]);
+  });
+});
+
+describe("the /agents clone", () => {
+  const core = JSON.parse(readFileSync(CORE_PAGES, "utf8")) as { files: Record<string, string> };
+
+  it.each(VARIANTS)("%s: is a clone at the vendored core-pages.json's sha, read through pages/agents, and check passes it", (_label, madeOf) => {
+    const made = madeOf();
+    const page = jsonOf<Manifest>(made, "theme.json").pages[AGENTS_ROUTE];
+    expect([page.mode, page.keepCorePage]).toEqual(["clone", ["tab", "agent", "panel"]]);
+    expect(page.clonedFrom.sha).toBe(core.files[page.clonedFrom.path]);
+    const report = reportOf(made.check);
+    expect(report.checks.clonedFrom).toMatchObject({ level: "pass", clones: [AGENTS_ROUTE], stale: [] });
+    expect(report.checks.uses.usedAreas).toEqual(expect.arrayContaining(["pages-agents"]));
+    expect(textOf(made, "src/entry.ts")).toContain(`host.registerPage('${AGENTS_ROUTE}', BrightAgents)`);
+  });
+
+  it("is a warning at clonedFrom once its sha is one hex digit off, naming the core file's sha", async () => {
+    const path = join(noMascot.themeDir, "theme.json");
+    const original = readFileSync(path, "utf8");
+    const manifest = JSON.parse(original) as Manifest;
+    const page = manifest.pages[AGENTS_ROUTE];
+    const off = `${page.clonedFrom.sha.slice(0, -1)}${page.clonedFrom.sha.endsWith("0") ? "1" : "0"}`;
+    const changed = { ...manifest, pages: { ...manifest.pages, [AGENTS_ROUTE]: { ...page, clonedFrom: { ...page.clonedFrom, sha: off } } } };
+    writeFileSync(path, `${JSON.stringify(changed, null, 2)}\n`);
+    try {
+      const ran = await ranCheck(noMascot.themeDir);
+      const report = reportOf(ran);
+      expect(report.checks.clonedFrom).toMatchObject({
+        level: "warning",
+        clones: [AGENTS_ROUTE],
+        stale: [{ route: AGENTS_ROUTE, path: page.clonedFrom.path, sha: off, releaseSha: page.clonedFrom.sha }],
+      });
+      expect([ran.code, report.verdict]).toEqual([0, "review_required"]);
+    } finally {
+      writeFileSync(path, original);
+    }
   });
 });
 

@@ -4,4 +4,4 @@
 
 ## 0.1.0
 
-- Made from the design kit's Play {{playVersion}}, de-branded.
+- Made from the design kit's Play {{playVersion}}, de-branded, with the core Agents page cloned (`/agents`).

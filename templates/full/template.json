@@ -107,9 +107,40 @@
       "to": "{{name}}"
     }
   ],
-  "patches": [],
-  "pages": {},
-  "uses": [],
+  "patches": [
+    {
+      "path": "src/play-slots.tsx",
+      "after": "export const LostScreen = lazyScreen(\n  () => import('./components/play/edges/lost-screen').then((m) => ({ default: m.LostScreen })),\n  'LostScreen',\n)\n",
+      "insert": "\n/** The /agents page, a clone of the core page (the full template's): its own chunk, as Play's other pages have. */\nexport const PlayAgents = lazyScreen(\n  () => import('./components/agents/agents-page').then((m) => ({ default: m.AgentsPage })),\n  'PlayAgents',\n)\n"
+    },
+    {
+      "path": "src/entry.ts",
+      "after": "  PLAY_CONVERSATIONS_ROUTE,\n",
+      "insert": "  PlayAgents,\n"
+    },
+    {
+      "path": "src/entry.ts",
+      "after": "    host.registerPage('/deliverables', PlayShelf)\n",
+      "insert": "    host.registerPage('/agents', PlayAgents)\n"
+    }
+  ],
+  "pages": {
+    "/agents": {
+      "mode": "clone",
+      "keepCorePage": [
+        "tab",
+        "agent",
+        "panel"
+      ],
+      "clonedFrom": {
+        "path": "components/agents/studio/agent-management-studio.tsx",
+        "sha": "4bbcef4e09158bc526623c85574771867895efa3007b55cd537b98379be3427b"
+      }
+    }
+  },
+  "uses": [
+    "pages-agents"
+  ],
   "noMascot": {
     "drop": [
       "assets/mascot",

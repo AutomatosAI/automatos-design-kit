@@ -2,14 +2,19 @@
 
 {{name}} (`{{id}}`) is an installable Automatos theme made from the design kit's Play {{playVersion}}, de-branded
 (`automatos-theme new {{id}} --template full`): Play's frame and sidebar, its chat with Auto, its shelf of
-Deliverables, its Conversations page, its look editor and style sheet, and its 404, under this theme's names.
-{{mascot}}
+Deliverables, its Conversations page, its look editor and style sheet, and its 404, under this theme's names, with
+the core Agents page cloned (`/agents`). {{mascot}}
 
 ## What it registers
 
 `src/entry.ts` registers what `theme.json` declares: `frame@1`, `lookEditor@1`, `styleSheet@1` and `notFound@1`;
-the `/chat` and `/deliverables` pages; and the route `conversations` (`/x/conversations`). The frame draws
+the `/chat`, `/deliverables` and `/agents` pages; and the route `conversations` (`/x/conversations`). The frame draws
 the asleep screen itself, so `theme.json` lists `asleep@1` too.
+
+`/agents` is a clone of a core page (`"mode": "clone"`, `src/components/agents/`): `clonedFrom` names the core file it
+was copied from and that file's sha256. When a later host changes that file, `automatos-theme check` warns at
+`clonedFrom` that the clone may miss what the core page has now: read the core page again, bring the clone up to it,
+and set the new sha. The core page's other tabs and an agent's details stay the host's (`keepCorePage`).
 
 ## Looks
 
