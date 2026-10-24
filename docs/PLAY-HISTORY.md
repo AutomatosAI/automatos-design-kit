@@ -15,8 +15,12 @@ and where Play lives now. It sits outside Play's package, so it can change witho
   the same commit, byte for byte. So is the builder of the first-paint table (`scripts/looks/play-prepaint.ts`, core's
   `frontend/lib/theme-host/builtin/play-prepaint.ts`), with only its imports changed.
 - **The storage port.** From Play 1.1.0 the package keeps its state through the host's storage area, not browser
-  storage (PRD-261 E3g; the README's table lists the files). Its tests run on a port of core's storage area at
-  `0dd8b846e41772c8dd7ef159e4373bcb9419b06a` (`themes/play/test/storage-port.ts`).
+  storage (PRD-261 E3g; the README's table lists the files). Its tests first ran on a port of core's storage area at
+  `0dd8b846e41772c8dd7ef159e4373bcb9419b06a` (E3g's `themes/play/test/storage-port.ts`, since removed). Since
+  PRD-261 B-02b they run on the theme harness's storage area, core's ported at
+  `101a0bf33f64fb4f89af81b4293415be60b661ac` (`packages/theme-harness/src/sdk/storage.ts` over
+  `packages/theme-harness/src/internal/theme-state-rules.ts`), and `themes/play/test/storage-port.test.ts` holds it
+  to core's rules.
 - **The tests.** Play's tests moved from core into `themes/play/test/`, read at core commit
   `101a0bf33f64fb4f89af81b4293415be60b661ac`, and the tests of the storage port's files at
   `0dd8b846e41772c8dd7ef159e4373bcb9419b06a`. Each move is a row in `themes/play/test/moved-from-core/<area>.json`:
@@ -42,4 +46,5 @@ Since that merge Play lives only in this kit:
 
 `themes/play/README.md` is packed into Play's package, so it changes only with a new Play version. Until then its
 "Until A-19" section still describes the rule that kept core's copy and this one in step. That rule ended with the
-merge above.
+merge above. Its Build section still says the storage tests run on `test/storage-port.ts`; they run on the theme
+harness's storage area now (above).
