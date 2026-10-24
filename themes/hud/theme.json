@@ -1,0 +1,42 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "automatos/hud",
+  "name": "HUD",
+  "version": "1.0.0",
+  "description": "Automatos as a command deck: bracketed panels, mono labels, one accent, a grid and scan-line backdrop, and Auto at the core.",
+  "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
+  "base": "studio",
+  "htmlClass": "hud",
+  "minWidth": 1024,
+  "tone": "from-look",
+  "slots": ["frame@1", "lookEditor@1", "styleSheet@1"],
+  "nav": [
+    { "id": "nav-hud-looks", "label": "Look", "path": "/looks" },
+    { "id": "nav-hud-style-sheet", "label": "Style sheet", "path": "/looks/style" }
+  ],
+  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "storage", "theme"],
+  "look": "arc",
+  "fonts": ["assets/fonts/chakra-petch-latin-600-normal.woff2", "assets/fonts/rajdhani-latin-700-normal.woff2"],
+  "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },
+  "mobile": {
+    "tokens": {
+      "light": {
+        "--background": "#030507", "--foreground": "#E6F1F5", "--card": "#15181A", "--card-foreground": "#E6F1F5",
+        "--popover": "#15181A", "--popover-foreground": "#E6F1F5", "--primary": "#3FE0FF", "--primary-foreground": "#021116",
+        "--secondary": "#15181A", "--secondary-foreground": "#E6F1F5", "--muted": "#26292C", "--muted-foreground": "#93A6AF",
+        "--accent": "#FF6B6B", "--accent-foreground": "#030507", "--destructive": "#FF6B6B", "--destructive-foreground": "#030507",
+        "--border": "#1A1D1F", "--input": "#1A1D1F", "--ring": "#3FE0FF", "--background-gradient-from": "#030507",
+        "--background-gradient-to": "#030507", "--glass-border-hover": "#393D3F", "--cc-hover": "#26292C", "--cc-hover-border": "#393D3F"
+      },
+      "dark": {
+        "--background": "#030507", "--foreground": "#E6F1F5", "--card": "#15181A", "--card-foreground": "#E6F1F5",
+        "--popover": "#15181A", "--popover-foreground": "#E6F1F5", "--primary": "#3FE0FF", "--primary-foreground": "#021116",
+        "--secondary": "#15181A", "--secondary-foreground": "#E6F1F5", "--muted": "#26292C", "--muted-foreground": "#93A6AF",
+        "--accent": "#FF6B6B", "--accent-foreground": "#030507", "--destructive": "#FF6B6B", "--destructive-foreground": "#030507",
+        "--border": "#1A1D1F", "--input": "#1A1D1F", "--ring": "#3FE0FF", "--background-gradient-from": "#030507",
+        "--background-gradient-to": "#030507", "--glass-border-hover": "#393D3F", "--cc-hover": "#26292C", "--cc-hover-border": "#393D3F"
+      }
+    },
+    "mascot": "none"
+  }
+}
