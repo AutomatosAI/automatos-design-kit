@@ -71,11 +71,14 @@ reported like the call. Say what the code does in other words.
 
 **Imports the host doesn't serve.** `@/…` is core's alias and `next/*` is Next.js: neither exists for a theme. React
 and the SDK come from the host's import map and must not be bundled. A library from `node_modules` is refused by the
-preset's source guard: copy it into `src/vendor/` as source, with its licence.
+preset's source guard: copy it into `src/vendor/` as source, with its licence. The kit's own libraries
+(`@automatos/look-kit`, `@automatos/mascot`) are the exception: name one at its version under `dependencies` in the
+theme's `package.json` and the preset bundles its `src/` with yours.
 
 **A build that needs its own config.** The review rebuilds `source/` with the kit's preset alone, with no
 `tsconfig.json`, `package.json` or `vite.config.*`, and its `dist/` must match the package byte for byte. No path
-aliases, no extra plugins, nothing from outside `src/`. Never write `source/` yourself: `pack` writes it from `src/`.
+aliases, no extra plugins, nothing from outside `src/` but the kit libraries it names. Never write `source/` yourself:
+`pack` writes it from `src/`, and each bundled kit library's `src/` as `source/packages/<name>/src/`.
 
 **Untrusted text as HTML.** Chat replies, Deliverables and imported files are untrusted. Render Markdown through
 `cards.MarkdownView` and everything else as text; never set HTML from them.

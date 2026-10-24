@@ -18,7 +18,7 @@ import { host } from '@automatos/theme-harness/host'
 
 const CHROME =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
-/** Where the host serves the package's files from; Auto's sit under assets/mascot/ (lib/mascot/media.ts). */
+/** Where the host serves the package's files from; Auto's sit under assets/mascot/ (@automatos/mascot's media.ts). */
 const FILES_ROOT = '/api/themes/files/0123abcd/'
 const MASCOT = `${FILES_ROOT}assets/mascot/`
 

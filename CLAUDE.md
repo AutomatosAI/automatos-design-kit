@@ -14,10 +14,9 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
   Hosted CLI auth — a credential `submit` could use against a hosted API without a browser sign-in — is parked
   for now; that is the maintainer's call, not a gap. Until it lands, `submit` against a hosted API will usually
   print the server's 401 or 403.
-- `themes/play`: Play, copied from core at one pinned commit (its own README names the commit and what changed).
-  Core no longer has builtin Play (its A-19 merge removed it), so Play lives only here: a Play change is made in this
-  kit alone. `docs/PLAY-HISTORY.md` records where the code came from. Play's README still has its old "Until A-19"
-  section, which no longer applies; the README is packed, so it changes only with Play's next version.
+- `themes/play`: Play, copied from core at one pinned commit (`docs/PLAY-HISTORY.md` names the commit and what
+  changed; Play's README points there). Core no longer has builtin Play (its A-19 merge removed it), so Play lives
+  only here: a Play change is made in this kit alone. Play's `CHANGELOG.md` lists what each version changed.
   The original pilot plan for Play, superseded by PRD-261, is kept at `docs/prd/PRD-001-FUN-UI-PILOT.md` for
   history.
 

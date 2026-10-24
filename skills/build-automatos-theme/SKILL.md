@@ -87,8 +87,10 @@ When it is ready for others, follow [pass-marketplace-review](../pass-marketplac
   `notify`, small state through the `storage` area, files through `assetUrl`. No network calls, no cookies, no
   browser storage, no `@/` imports, no `next/*`, no `eval`: the review refuses each one, and the theme's `lint`
   fails on it first.
-- **Bundle only your own `src/`.** React and the SDK come from the host. A library you need is copied into
-  `src/vendor/` as source with its licence; the preset refuses `node_modules`.
+- **Bundle only your own `src/`**, and the kit libraries you name. React and the SDK come from the host. A library
+  you need is copied into `src/vendor/` as source with its licence; the preset refuses `node_modules`. The kit's
+  `@automatos/look-kit` and `@automatos/mascot` are bundled from their `src/` when the theme's `package.json` names
+  them under `dependencies`, at their version (`guides/pitfalls.md`).
 - **A new theme folder is a new workspace.** It changes `package-lock.json`, which is never edited by hand: the
   `kit-lockfile.yml` dispatch writes it (`AGENTS.md`, "Adding a dependency"). Pin every dependency exactly, and add
   none without the maintainer's OK.

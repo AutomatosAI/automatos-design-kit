@@ -13,7 +13,7 @@ import type { MascotEvent, MascotName, MascotState } from '@automatos/mascot/typ
 
 /** Where the fake host serves the package's files from (host.setFilesRoot), as core's host names them. */
 export const FILES_ROOT = '/api/themes/files/0123abcd/'
-/** Where Auto's clips and stills sit under it: the package's assets/mascot/ (lib/mascot/media.ts). */
+/** Where Auto's clips and stills sit under it: the package's assets/mascot/ (@automatos/mascot's media.ts). */
 export const MASCOT_FILES = `${FILES_ROOT}assets/mascot/`
 
 export function replay(events: readonly MascotEvent[], from: MascotState = INITIAL_MASCOT): MascotState {

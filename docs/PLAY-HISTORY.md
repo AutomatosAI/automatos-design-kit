@@ -50,7 +50,8 @@ Core's tests were not copied with the code (they moved later, above).
 ### The lines the package changes from core's text
 
 The copied files are core's text, except for these lines. Each row names the file where it was copied to, under
-`themes/play/src/`; the look kit's files and Auto's player have lived in the kit packages since Play 1.1.1 (above).
+`themes/play/src/`; the look kit's files and Auto's core have lived in the kit packages since Play 1.1.1 (above), and
+the B-01i rows name where each one is now.
 
 | File | Change | Why |
 |---|---|---|
@@ -72,6 +73,12 @@ The copied files are core's text, except for these lines. Each row names the fil
 | `app/play-theme.css` | the header names `src/entry.ts` and `app/play-fonts.css`; the 6 `!important` are gone and the forced-colours rings name the wrap twice (Play's README, "Styles and assets") | a theme's CSS may hold no `!important`, and the wrap must not change which rule wins |
 | `app/play-theme.css` | the motion stop's second rule matches `[data-theme-motion="reduce"]`, the host's generic marker, in place of builtin Play's `[data-pl-motion="reduce"]`; `--pl-motion-scale` is `var(--theme-motion, 1)` (Play 1.1.0 read both markers and fell back to `--pl-motion`) | PRD-261 K-19c and K-21: under an installed theme the host's look runtime marks `<html>` with `data-theme-motion` and `--theme-motion`; builtin Play's LookProvider, which set `data-pl-motion` and `--pl-motion`, left core with A-19, and Play 1.1.1 dropped them |
 | `components/looks/screen-heading.ts` | `PLAY_ONLY_HEADING` is `data-theme-heading` in place of builtin Play's `data-play-only-heading` (Play 1.1.0 carried both); the header comment says why | PRD-261 K-19c and K-21: `data-theme-heading` is the mark core's ThemeSlotPage hands the focus to under any installed theme; only builtin Play's host looked for the other, and it left core with A-19 |
+| `lib/look-kit/css.ts`, `hsl.ts`, `studio-tokens.ts` (now `packages/look-kit/src/`) | their imports of each other gain the `.ts` extension | PRD-261 B-01i: the theme CLI's `check design` and `scripts/compile-looks.mjs` load the look kit with plain Node, which needs the extension |
+| `lib/look-kit/validate.ts` (now `packages/look-kit/src/validate.ts`) | `'../text/plain-line'` becomes `'./plain-line.ts'`, the package's own copy of core's `lib/text/plain-line.ts`, byte for byte | the same; a kit package reads nothing from a theme's `src/` |
+| `lib/mascot/ring.ts` (now `packages/mascot/src/ring.ts`) | `ringColour` takes the look's custom properties (`vars`) in place of the look, whose properties it made with Play's `lookToCssVars`; the header comment says why | PRD-261 B-01i: the package needs no theme's look engine |
+| `components/mascot/mascot-pause-button.tsx` (now `packages/mascot/src/mascot-pause-button.tsx`) | takes `className` and `iconClassName` in place of importing `auto-mascot.module.css`; the header comment says so | the same: the package brings no stylesheet, and the theme styles the control |
+| `lib/looks/style.ts`, `components/mascot/auto-mascot.tsx` | the style sheet passes `lookToCssVars(look)` to `ringColour`; Auto passes `styles.pause` and `styles.pauseIcon` to the Pause Auto control | the callers of the two rows above |
+| Play's importers of the moved files (under `components/`, `hooks/` and `lib/`) | each relative import of a moved file becomes `@automatos/look-kit/<module>` or `@automatos/mascot/<module>` | PRD-261 B-01i: Play names both packages under `dependencies`, and the preset bundles their `src/` |
 
 ## Builtin Play leaves core
 

@@ -6,7 +6,7 @@
     "kitPath": "test/looks/copied-helpers.test.tsx",
     "kitIts": 4,
     "rehomed": [],
-    "rewritten": "Core's helpers are not in the kit, so Play's copies are held to what core's do at 101a0bf33f64fb4f89af81b4293415be60b661ac, written down: downloadText's record (the Blob's type, the link clicked and taken away, the URL let go after DOWNLOAD_REVOKE_AFTER_MS, 1000), copyToClipboard's answers and its 'Failed to copy to clipboard:' log, KIND_WORDS.document ('Document') and SCREEN_HEADING_SELECTOR ('[data-play-only-heading]'), where core's test ran its own helpers beside Play's; the heading's mark is also held to '[data-theme-heading]', the one the host's look runtime looks for under an installed theme (K-19c)."
+    "rewritten": "Core's helpers are not in the kit, so Play's copies are held to what core's do at 101a0bf33f64fb4f89af81b4293415be60b661ac, written down: downloadText's record (the Blob's type, the link clicked and taken away, the URL let go after DOWNLOAD_REVOKE_AFTER_MS, 1000), copyToClipboard's answers and its 'Failed to copy to clipboard:' log, KIND_WORDS.document ('Document') and the heading's mark, where core's test ran its own helpers beside Play's. Core's test held the mark to builtin Play's SCREEN_HEADING_SELECTOR ('[data-play-only-heading]'); since Play 1.1.1 (K-21) the heading carries only '[data-theme-heading]', the mark the host looks for under an installed theme (K-19c), and the kit test holds it to that mark alone."
   },
   {
     "corePath": "frontend/components/looks/__tests__/look-manage.test.tsx",
@@ -84,7 +84,7 @@
         "corePath": "frontend/lib/theme-host/__tests__/switch-focus.test.tsx"
       },
       {
-        "assertion": "After Switch to Play the host hands focus to the screen's marked heading, never <body> (M21, G3): ThemeSlotPage. The kit asserts the heading's tabindex and both marks.",
+        "assertion": "After Switch to Play the host hands focus to the screen's marked heading, never <body> (M21, G3): ThemeSlotPage. The kit asserts the heading's tabindex and the host's mark, data-theme-heading, alone (K-21).",
         "corePath": "frontend/components/theme-host/__tests__/theme-slot-page-switch.test.tsx"
       },
       {
@@ -118,7 +118,7 @@
         "corePath": "frontend/lib/theme-host/__tests__/switch-focus.test.tsx"
       },
       {
-        "assertion": "After Switch to Play the host hands focus to the sheet's marked heading, never <body> (M21, G3): ThemeSlotPage. The kit asserts the heading's tabindex and both marks.",
+        "assertion": "After Switch to Play the host hands focus to the sheet's marked heading, never <body> (M21, G3): ThemeSlotPage. The kit asserts the heading's tabindex and the host's mark, data-theme-heading, alone (K-21).",
         "corePath": "frontend/components/theme-host/__tests__/theme-slot-page-switch.test.tsx"
       },
       {

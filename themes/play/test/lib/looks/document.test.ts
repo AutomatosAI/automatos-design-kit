@@ -3,9 +3,9 @@
  * Studio's tokens; clearing it takes off exactly what the look owns and
  * leaves every other inline style alone.
  *
- * Moved from core's lib/looks/__tests__/document.test.ts as it was, but for its imports: the theme's own look
- * runtime (src/lib/look-kit) and looks (src/lib/looks), and the helpers of test/lib/looks/helpers.ts. The
- * <html> is jsdom's.
+ * Moved from core's lib/looks/__tests__/document.test.ts as it was, but for its imports: the look runtime
+ * (@automatos/look-kit, Play's own src/lib/look-kit before PRD-261 B-01i), Play's looks (src/lib/looks), and the
+ * helpers of test/lib/looks/helpers.ts. The <html> is jsdom's.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 
