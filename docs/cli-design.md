@@ -1,8 +1,9 @@
 # `automatos-theme`: the design commands
 
-The commands that start a theme's design before any code: `brief` turns a brand kit into a theme brief, and `clone`
-copies a core page's source as a read-only reference to redraw. The rest of the command line (running it, the
-commands table, the environment) is in [cli.md](cli.md).
+The design commands. Two start a theme's design before any code: `brief` turns a brand kit into a theme brief, and
+`clone` copies a core page's source as a read-only reference to redraw. `skin` writes a phone skin, designed in the
+browser harness's phone view, into `theme.json`. The rest of the command line (running it, the commands table, the
+environment) is in [cli.md](cli.md).
 
 ## `brief`
 
@@ -91,5 +92,47 @@ It refuses, writing nothing and printing every reason: a host-owned route or a p
 is not a key of `PAGE_SOURCES` (both before anything is sent), a folder with no `theme.json` object, a file with no
 answer or an answer that isn't a success, and a file whose sha256 isn't `core-pages.json`'s. Once the kit vendors a
 host release that changed a cloned file, `check` warns at `clonedFrom`; `clone` again fetches it and moves the sha.
+
+Exit codes: 0 written; 1 refused (nothing written); 2 usage error.
+
+## `skin`
+
+```text
+usage:    automatos-theme skin <theme folder> --from <skin.json>
+example:  npx automatos-theme skin themes/harbour --from skin.json
+```
+
+Writes a skin, the theme's `mobile` block ([guides/contract.md](../guides/contract.md)), into its `theme.json` as the
+`mobile` field (`src/skin.ts`). `skin.json` holds exactly the block, as the harness's skin designer downloads it
+(`/phone` under [`dev`](cli-harness.md#dev); `packages/theme-harness/README.md`, "The phone view"). The old block is
+replaced where it stands, or the field is added after the last one, and every other line of `theme.json` stays as it
+was; a layout the edit can't follow (the field on one line with another) has the whole file written again as JSON
+with two-space indents. It reads the folder and the skin file, writes only `theme.json` and sends nothing.
+
+| Argument | Meaning |
+|---|---|
+| `<theme folder>` | The folder holding the theme's `theme.json`. Exactly one. |
+| `--from <skin.json>` | Required. The block to write, as JSON. |
+
+Nothing is written unless every check passes (`src/skin-check.ts`, which the designer runs too, so it offers a file
+only when this command would take it), in two passes, the second only once the first passed:
+
+1. the vendored validator (`src/core/mobile-manifest.ts`) on `theme.json` with the block in place of its own, the
+   theme's top-level `mascot` and `engines` read with it: `BAD_MOBILE` or `UNKNOWN_FIELD`, each naming the field. A
+   theme whose `engines.automatos` admits a host below 1.1.0 is refused here;
+2. each font the block names, and under `clips` or `stills` each state's files (the `.mp4` and the `.png`, or the
+   `.png`), must be a regular file in the folder (`MISSING_FILE`; a link is not one, as `pack` refuses links); and
+   `check`'s own contrast measure (`src/check/mobile-contrast.ts`) must find no pair under its minimum and no colour
+   set without `--background` and `--foreground` (`MOBILE_CONTRAST`, in `check`'s words). For each failing pair of a
+   `tokens` block it also prints the nearest passing value of the pair's first token (`src/phone/nearest-passing.ts`:
+   its lightness moved the least, hue and saturation kept). No flag writes a failing pair.
+
+It refuses a released theme too: a folder inside the kit's `themes/play` or `themes/hud`, followed through links,
+whose packed files change only with a new version and which Automatos Go draws in its own built-in layout, reading
+none of the block; and a theme of the reserved `automatos` publisher. So are a folder with no `theme.json` that is a
+JSON object and a `--from` that is not a file or not JSON.
+
+A refusal prints `automatos-theme skin: nothing was written to <folder>, because:` and then every reason, one a line.
+On success it prints the `theme.json` it wrote and the contrast measure's reason.
 
 Exit codes: 0 written; 1 refused (nothing written); 2 usage error.

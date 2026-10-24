@@ -23,7 +23,7 @@ guide and core disagree, core wins and the guide is fixed.
 - `automatos-theme`, the kit's command line (`packages/theme-cli`), starts a theme and checks it as the server would:
   `automatos-theme new` to start one from a template (`templates/minimal`, or `templates/full`: Play de-branded),
   `automatos-theme check design` for the look data, `automatos-theme check` for the whole package, and
-  `automatos-theme pack` to write the `.autotheme` file. [docs/cli.md](../docs/cli.md) (with [docs/cli-design.md](../docs/cli-design.md) for `brief` and `clone`, and [docs/cli-harness.md](../docs/cli-harness.md) for `dev`, `shots` and `previews`) documents every command, its
+  `automatos-theme pack` to write the `.autotheme` file. [docs/cli.md](../docs/cli.md) (with [docs/cli-design.md](../docs/cli-design.md) for `brief`, `clone` and `skin`, and [docs/cli-harness.md](../docs/cli-harness.md) for `dev`, `shots` and `previews`) documents every command, its
   flags, what it refuses and its exit codes; its [README](../packages/theme-cli/README.md) has more on `pack`,
   `source/` and each command's internals.
 - The kit's own reference sits in [`docs/`](../docs/): [architecture.md](../docs/architecture.md) (how the packages,

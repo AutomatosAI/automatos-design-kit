@@ -178,7 +178,8 @@ go to `dist/shots/dev-smoke/`.
 `/phone` (`app/phone/`) is what Automatos Go, the Automatos phone app, draws for the theme, at an iPhone's 390 × 844
 points, a point a pixel, beside the contrast `automatos-theme check` measures for it. Both servers answer it with the
 same page (`PAGE_PATHS` in `src/host/router.ts`), and its settings are in the address (`src/phone/settings.ts`): the
-screen (Chat, the Command Centre, First open), the user's Light / Dark, the member's look and reduced motion. It reads
+screen (Chat, the Command Centre, First open), the user's Light / Dark, the member's look, reduced motion and the skin
+designer's draft (below). It reads
 the theme's `mobile` block as the phone gets it: theme-cli's `mobile-answer` builds the server's answer from the
 folder's files (`GET /api/themes/mobile/{install_id}`; a font or Auto's file only for a file the folder holds, which
 the build lists from `assets/`), and theme-cli's `phone` paints it as the app does. What it draws follows the app's
@@ -202,3 +203,28 @@ The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src
 reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its
 result. `test/phone-*.test.tsx` hold the view to the app's paint and the panel to `check` (the hello fixture, Play and
 HUD), and the dev smoke opens `/phone` on Play in Chromium.
+
+**The skin designer** (`app/phone/designer/`; its model is `src/phone/designer.ts` and `src/phone/skin-export.ts`)
+sits beside the phone for any theme but `automatos/play` and `automatos/hud`, which the phone draws in its own layouts:
+for those two it is never offered, whatever the address says. It edits a draft of the `mobile` block, starting from
+theme.json's own block, or, with none, from Studio's own colours or from one of the theme's looks turned into its
+tokens (the look's colours in the scheme of its tone, Studio's in the other). Once there is a draft, the phone, the
+token panel and the contrast panel show the theme with the draft in place of theme.json's block, at every change. Its
+controls, each within what the vendored validator takes:
+
+- where the colours come from: the draft's own `tokens`, or `fromLooks` (which needs the theme's `boot/prepaint.json`);
+- the schemes: Light alone (the phone then draws Light's colours under Dark too) or Light and Dark;
+- each of the 24 tokens of the scheme on screen: a colour picker, and a text field that takes exactly `H S% L%` or
+  `#rrggbb` (a value the validator would refuse is marked and not used; an empty field leaves the token to Studio);
+- a font for each of `sans`, `serif` and `mono`: Studio's face, or one of the theme's `.ttf` or `.otf` files in
+  `assets/fonts/mobile/`, each file for one role;
+- Auto: none, stills or clips, with each state's files the mode needs and whether the theme holds each.
+
+The contrast panel marks each failing pair and, for the draft's own colours, offers its fix in one click: the nearest
+passing value of the pair's first token (theme-cli's `src/phone/nearest-passing.ts`). The export checks the draft's
+block as `automatos-theme skin` checks it (theme-cli's `skin-check`: the validator, then the theme's files and the
+contrast). A block the command would write gets **Download skin.json** (a `data:` URL of exactly the block, so nothing
+is sent), **Copy** and the text; any other block gets every reason, and no file. `automatos-theme skin <theme folder>
+--from skin.json` then writes it into theme.json (`docs/cli-design.md`). The draft is in the address (`skin`, as JSON),
+so a reload opens it again, and **Start from theme.json's block** drops it. `test/phone-designer*.test.ts(x)` hold the
+designer to the paint, the panel, the export and the address.

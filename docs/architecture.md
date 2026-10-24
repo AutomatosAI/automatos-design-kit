@@ -10,7 +10,7 @@ says how the parts connect; [cli.md](cli.md) has every command, and each package
 | Package | Role | Kit packages it uses |
 |---|---|---|
 | `@automatos/vite-preset` (`packages/vite-preset`) | The Vite plugin every theme builds with, `automatosTheme()`: the ES library output, the import map's modules left external, one stylesheet scoped under the theme's class, and the source guard | none (`postcss`; `vite` as a peer) |
-| `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `brief`, `clone`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
+| `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `brief`, `clone`, `skin`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
 | `@automatos/theme-harness` (`packages/theme-harness`) | The vitest preset a theme's tests run on (jsdom, React, Testing Library, a fake SDK, a fake host) and the browser harness, a mock host page in `app/` | theme-cli (core's manifest validator), theme-sdk, vite-preset |
 | `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.1.0, vendored from core; types only | none |
 | `@automatos/theme-rules` (`packages/theme-rules`) | The Marketplace review's JS rules, as one table of data | vite-preset (its import refusals) |
@@ -196,7 +196,9 @@ scheme (`tokens`) or the member's look painted through `boot/prepaint.json` (`fr
 (`src/core/mobile-manifest.ts`, and `src/check-package.ts` for the files it names and the first paint `fromLooks`
 needs), and `check` measures its colour pairs as the review does. Core turns the block into the answer of
 `GET /api/themes/mobile/{install_id}` (core's `docs/theme-host/mobile.md`). [guides/contract.md](../guides/contract.md)
-has the block field by field.
+has the block field by field. The harness's phone view draws the block as Automatos Go does, and its skin designer
+edits it and downloads it as `skin.json`, which `automatos-theme skin` checks as `pack` and `check` would and writes
+into `theme.json` ([cli-design.md](cli-design.md#skin)).
 
 ## Review, signing and CI
 

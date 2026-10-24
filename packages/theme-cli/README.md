@@ -3,8 +3,9 @@
 The `automatos-theme` command. `pack` comes first, with `source/` and `pack --watch`; then a section each for
 `submit`, `install`, `new` (a theme from a template), `shots`, `previews` and `dev` (the browser harness as a local
 app), and last the phone's model, the modules the harness's phone view draws from. `brief` (a theme brief from a
-brand kit file) and `clone` (a core page's source as a read-only reference) are described at the top of `src/brief.ts`
-and `src/clone.ts`, and in `docs/cli-design.md`. `check` and `check design` are described at the top of
+brand kit file), `clone` (a core page's source as a read-only reference) and `skin` (a phone skin, `skin.json`,
+checked and written into `theme.json`) are described at the top of `src/brief.ts`, `src/clone.ts` and `src/skin.ts`,
+and in `docs/cli-design.md`. `check` and `check design` are described at the top of
 `src/check/index.ts` and `src/check/design.ts`.
 `src/cli-main.ts` holds the table of every command.
 
@@ -250,7 +251,7 @@ yet, or the port can't be served; 2 for a usage error.
 ## The phone's model
 
 What Automatos Go draws for a theme's `mobile` block, as pure modules with none of Node's, so the harness's phone view
-(`/phone`, the harness's README) draws in a browser what a later command can print:
+(`/phone`, the harness's README) draws in a browser what a command prints:
 
 - `@automatos/theme-cli/mobile-answer` (`src/mobile-answer.ts`): what the server answers the phone,
   `GET /api/themes/mobile/{install_id}`'s `mobile` field, from the theme's own files and a look (core's
@@ -258,9 +259,14 @@ What Automatos Go draws for a theme's `mobile` block, as pure modules with none 
   (`mobile_tokens.py` `look_tone`).
 - `@automatos/theme-cli/phone` (`src/phone/`): Studio's colours as the app draws them, and an installed theme's
   painting over them, from that answer, with the chat thread's boxes, as the app's `src/styles/themes/paint.ts` and
-  `src/styles/tokens/` paint them.
+  `src/styles/tokens/` paint them; and the nearest passing colour for a failing contrast pair
+  (`src/phone/nearest-passing.ts`: the pair's first token with its lightness moved the least, hue and saturation
+  kept, measured as `check` measures it).
 - `@automatos/theme-cli/mobile-contrast` (`src/check/mobile-contrast.ts`): `check`'s own AA measure of the block,
   which the phone view's contrast panel shows, so the two never disagree.
+- `@automatos/theme-cli/skin-check` (`src/skin-check.ts`): a skin checked as `automatos-theme skin` checks it, the
+  vendored validator and then the files it names and the contrast, with each failing pair's nearest passing value,
+  so the harness's skin designer offers `skin.json` only when the command would write it.
 
 The phone side is ported from Automatos Go (`AutomatosAI/automatos-go`) at one commit; each module's comment names
 the app's files and lines it follows:
