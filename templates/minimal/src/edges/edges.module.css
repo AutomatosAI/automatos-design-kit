@@ -1,0 +1,53 @@
+/* The 404: the whole window, the theme's name at the top, the message in the middle. */
+
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--{{htmlClass}}-space-5) var(--{{htmlClass}}-space-6);
+  background: var(--{{htmlClass}}-bg);
+  color: var(--{{htmlClass}}-text);
+}
+
+.wordmark {
+  margin: 0;
+  font: var(--{{htmlClass}}-text-title);
+  color: var(--{{htmlClass}}-accent-text);
+}
+
+.lost {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--{{htmlClass}}-space-3);
+  text-align: center;
+}
+
+.code {
+  margin: 0;
+  font: 700 6rem/1 var(--{{htmlClass}}-font);
+  color: var(--{{htmlClass}}-line);
+}
+
+:global(html.{{htmlClass}}) .title {
+  margin: 0;
+  font: var(--{{htmlClass}}-text-hero);
+  color: var(--{{htmlClass}}-text);
+}
+
+.line {
+  margin: 0;
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.back {
+  margin-top: var(--{{htmlClass}}-space-3);
+  padding: var(--{{htmlClass}}-space-2) var(--{{htmlClass}}-space-4);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-accent);
+  color: var(--{{htmlClass}}-accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}

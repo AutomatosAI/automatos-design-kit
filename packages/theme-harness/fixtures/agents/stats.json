@@ -1,0 +1,12 @@
+{
+  "total_agents": 4,
+  "active_agents": 2,
+  "inactive_agents": 1,
+  "agents_by_type": {
+    "research": 1,
+    "content": 1,
+    "analysis": 1,
+    "code": 1
+  },
+  "timestamp": "2026-10-14T09:05:00+00:00"
+}

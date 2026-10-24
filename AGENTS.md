@@ -29,11 +29,12 @@ core wins and the kit is fixed.
 ## Layout
 
 - `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli` (the
-  `automatos-theme` command: `pack`, `submit`, `install`, `check`, `check design` and `shots`), `theme-sdk` (the
-  vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest preset a theme's own tests run on:
-  jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a mock host page in `app/` that
-  draws a theme from its folder with nothing of Automatos running, which `automatos-theme shots` photographs on
-  Chromium and WebKit with Playwright and scans with axe), `theme-rules` (the one table of JS rules the
+  `automatos-theme` command: `pack` and `pack --watch`, `submit`, `install`, `check`, `check design`, `new`, `shots`,
+  `previews` and `dev`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest
+  preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a
+  mock host page in `app/` that draws a theme from its folder with nothing of Automatos running, which
+  `automatos-theme shots` photographs on Chromium and WebKit with Playwright and scans with axe, and
+  `automatos-theme dev` serves on 127.0.0.1 as a local app), `theme-rules` (the one table of JS rules the
   Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
   reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
   theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i; each `package.json`
@@ -58,6 +59,12 @@ core wins and the kit is fixed.
 - `guides/`: how to build a theme — the host contract (slots, routes, the `mobile` block), the page inventory, the
   SDK, looks, where the mascot goes and the pitfalls. `skills/`: Claude Code skills for building a theme, writing
   a look schema and passing the Marketplace review (`skills/README.md` is their index).
+- `templates/minimal/` and `templates/full/`: the templates `automatos-theme new <publisher/name>` starts a theme
+  from (PRD-261 B-01e, B-03f, B-01f). `minimal` is the frame alone with the host's pages inside it, a look editor, a
+  style sheet and two presets, its `{{...}}` placeholders filled with the theme's names. `full` is Play de-branded,
+  made from `themes/play` itself each time `new` runs (with `--mascot none`, without Auto): `templates/full/` holds
+  only the renames and what it adds, the `/agents` page cloned from core among them. Neither is a workspace; their
+  tests run on the harness through `packages/theme-harness/test/template-*.test.tsx`.
 - `templates/ralph/`: a template for running a theme wave with Ralph (an explicit model id, a terminal start, CI as
   the test). `references/designs/`: design references (Ember and Command) to read, never to build from.
 
@@ -77,11 +84,14 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   too (`--max-warnings 0`).
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
 - `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the release, review
-  and sign scripts under `scripts/`.
+  and sign scripts under `scripts/`. It also runs `automatos-theme new` on each template, `full` with and without
+  its mascot, in a temporary folder, and builds, packs and checks each theme it writes (`tests/template-*.test.ts`).
 - Its `harness` job installs and builds as the `kit` job does (the released-Play check is the `kit` job's alone),
   then installs the two browsers, and runs `automatos-theme shots`
   over `themes/play` in `theme-harness`'s browser harness. It fails on a missing shot, a request to any other
-  origin or a critical axe violation, and uploads the shots and their `axe.json` files as `kit-harness`.
+  origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
+  `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium. The job
+  uploads the shots, their `axe.json` files and the smoke's shot as `kit-harness`.
 
 ## Adding a dependency
 

@@ -3,10 +3,11 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `1699a4f95d496be0c2e14102bbff5aaa8f3fb020` (main, 24 Oct 2026: host contract and SDK
+Source: `AutomatosAI/automatos-ai` at `99fb70ff5c837e9b7a1da40b8234d364b34b19d4` (main, 24 Oct 2026: host contract and SDK
 1.1.0, with the theme format's optional `mobile` block, after builtin Play left core and `play` stopped being a reserved
-`htmlClass`. Since `101a0bf33` only `package-manifest.ts` (no theme id keeps a reserved class) and `css-value.ts` (its
-`var()` example) changed; the other files are unchanged since `7ae677b52`).
+`htmlClass`, and after the listing's previews kept theme.json's order. Every file here is the same as at `1699a4f95`;
+since `101a0bf33` only `package-manifest.ts` (no theme id keeps a reserved class) and `css-value.ts` (its `var()` example)
+changed, and the other files are unchanged since `7ae677b52`).
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -56,7 +57,7 @@ to the copies of the same lists in `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `9bcbbc9854e0dc3e9b8d428ae05bd72e2f4a7385e1765496a419cf3566272fa4` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `2e0e39ecf508285cd7638c0894dbdd84c37a59ed81de80969301f128f7f716f2` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
