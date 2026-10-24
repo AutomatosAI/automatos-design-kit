@@ -1,0 +1,2 @@
+# Pack output (CI uploads it as an artifact). HUD's look data in looks/ and boot/ is committed: keep it.
+/out/
