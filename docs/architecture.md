@@ -10,7 +10,7 @@ says how the parts connect; [cli.md](cli.md) has every command, and each package
 | Package | Role | Kit packages it uses |
 |---|---|---|
 | `@automatos/vite-preset` (`packages/vite-preset`) | The Vite plugin every theme builds with, `automatosTheme()`: the ES library output, the import map's modules left external, one stylesheet scoped under the theme's class, and the source guard | none (`postcss`; `vite` as a peer) |
-| `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
+| `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `brief`, `clone`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
 | `@automatos/theme-harness` (`packages/theme-harness`) | The vitest preset a theme's tests run on (jsdom, React, Testing Library, a fake SDK, a fake host) and the browser harness, a mock host page in `app/` | theme-cli (core's manifest validator), theme-sdk, vite-preset |
 | `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.1.0, vendored from core; types only | none |
 | `@automatos/theme-rules` (`packages/theme-rules`) | The Marketplace review's JS rules, as one table of data | vite-preset (its import refusals) |

@@ -28,7 +28,7 @@ the local edition. It has no sign-in of its own, so against a hosted API `submit
 
 | Path | What it is |
 |---|---|
-| [`packages/theme-cli`](packages/theme-cli/README.md) | `automatos-theme`, the command line: `pack`, `check`, `check design`, `new`, `dev`, `shots`, `previews`, `install`, `submit` ([docs/cli.md](docs/cli.md)) |
+| [`packages/theme-cli`](packages/theme-cli/README.md) | `automatos-theme`, the command line: `pack`, `check`, `check design`, `new`, `brief`, `clone`, `dev`, `shots`, `previews`, `install`, `submit` ([docs/cli.md](docs/cli.md)) |
 | [`packages/vite-preset`](packages/vite-preset/README.md) | `@automatos/vite-preset`: the Vite build every theme uses, with the source guard that keeps a build to the theme's own `src/` |
 | [`packages/theme-harness`](packages/theme-harness/README.md) | `@automatos/theme-harness`: the vitest preset a theme's tests run on (a fake SDK and a fake host), and the browser harness `dev` and `shots` serve |
 | [`packages/theme-sdk`](packages/theme-sdk/README.md) | The type declarations of `@automatos/theme-sdk` 1.1.0, vendored from core; the host serves the real module |
@@ -75,7 +75,9 @@ edited by hand: the `kit-lockfile.yml` dispatch writes it (`AGENTS.md`, "Adding 
 
 The kit's reference:
 
-- [docs/cli.md](docs/cli.md): every `automatos-theme` command, its flags, what it refuses and its exit codes.
+- [docs/cli.md](docs/cli.md): every `automatos-theme` command, its flags, what it refuses and its exit codes;
+  [docs/cli-design.md](docs/cli-design.md) has the design commands, `brief` and `clone`, and
+  [docs/cli-harness.md](docs/cli-harness.md) the browser harness's, `dev`, `shots` and `previews`.
 - [docs/architecture.md](docs/architecture.md): how the packages fit, the source guard, the package layout, what the
   kit takes from core and at which commit, and the harness's mock host.
 - [docs/releasing.md](docs/releasing.md): how a theme version is released, reviewed and signed, and how a dependency
