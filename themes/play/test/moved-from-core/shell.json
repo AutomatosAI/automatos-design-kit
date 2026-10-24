@@ -145,8 +145,8 @@
         "corePath": "frontend/components/theme-host/__tests__/theme-frame-below-min-width.test.tsx"
       },
       {
-        "assertion": "Next's own 404 title for every style (metadata.title is NOT_FOUND_TITLE, M68): host code with no core test of its own once this test goes (flagged).",
-        "corePath": "frontend/app/not-found.tsx"
+        "assertion": "Next's own 404 title for every style (M68): app/not-found.tsx's metadata.title is NOT_FOUND_TITLE, Next's own 404 title word for word.",
+        "corePath": "frontend/app/__tests__/not-found-metadata.test.ts"
       },
       {
         "assertion": "A recheck's retries finish before the next automatic recheck asks: the host's retries and their waits fit one poll period (the kit asserts Play's countdown holds while a check is in flight, M94; Play's ASLEEP_RECHECK_MS and the host's retry budget are no longer compared in one test).",

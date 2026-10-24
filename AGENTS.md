@@ -39,8 +39,10 @@ core wins and the kit is fixed.
   theme's `lint` runs over its `src/`).
 - `themes/*`: theme packages. A theme bundles only its own `src/` (the preset's source guard refuses `node_modules`),
   so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
-- `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Until
-  PRD-261 A-19 removes builtin Play from core, a Play change in core is made here too, each pull request naming the other.
+- `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Core's
+  PRD-261 A-19 merge removed builtin Play from core, so Play lives only in this kit and a Play change is made here
+  alone. `docs/PLAY-HISTORY.md` records where the code came from; Play's README is packed, so its old "Until A-19"
+  section stays until Play's next version.
 - `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
   rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
   `vite build`; the files are generated, not committed.
