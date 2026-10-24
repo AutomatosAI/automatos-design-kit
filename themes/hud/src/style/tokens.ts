@@ -11,7 +11,7 @@ import { shownGlow } from '../looks/editing'
  * as boot/prepaint.json (src/lib/looks/vars.ts), so the sheet shows exactly what the host puts on <html> for this
  * look. Each knob with the variable it drives; every colour of HUD's own with what it is for; Studio's tokens, which
  * recolour the host's own pages inside the frame; and the live contrast of the pairs design/contrast.json holds the
- * presets to, the first ten of them (HUD's own colours; the rest are Studio's, which look-kit keeps readable).
+ * presets to whose text is one of HUD's own colours (the rest are Studio's, which look-kit keeps readable).
  */
 
 export interface Token {
@@ -130,6 +130,9 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   { label: 'Error text on a card', text: '--hud-error-text', ground: '--hud-surface', min: AA_TEXT },
   { label: 'Ink on the accent', text: '--hud-accent-ink', ground: '--hud-accent', min: AA_TEXT },
   { label: 'The accent on the page, as a ring', text: '--hud-accent', ground: '--hud-bg', min: AA_NON_TEXT },
+  { label: "Auto's ring when he needs help", text: '--hud-ring-oops', ground: '--hud-bg', min: AA_NON_TEXT },
+  { label: "Auto's ring asleep or lost", text: '--hud-ring-dusk', ground: '--hud-bg', min: AA_NON_TEXT },
+  { label: "Auto's ring while he loads", text: '--hud-ring-loading', ground: '--hud-bg', min: AA_NON_TEXT },
 ]
 
 export interface ContrastCheck extends ContrastPair {
