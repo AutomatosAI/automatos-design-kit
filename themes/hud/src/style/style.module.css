@@ -1,0 +1,290 @@
+/*
+ * The style sheet (/looks/style): its heading, then HUD's panels in one column and pairs of columns where the page
+ * is wide enough. Every colour is a look variable; a swatch's chip is drawn in the variable it names, which its
+ * markup sets as --hud-swatch. Studio's element rules (.studio h1, .studio code) sit in the host's layers, so these
+ * rules, unlayered under html.hud, outrank them: the type and the code keep HUD's own.
+ */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-5);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--hud-space-4);
+}
+
+.headingText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}
+
+.heading {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 40px;
+  font-weight: var(--hud-display-weight);
+  line-height: 1;
+  letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
+}
+
+/* The heading takes focus only from script, when the host hands it over: a transparent outline. */
+.heading:focus {
+  outline: 2px solid transparent;
+}
+
+.lead {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 14px/1.5 var(--hud-font-text);
+}
+
+/* A secondary button: an accent-line outline. */
+.link {
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--hud-space-4);
+  border: 1px solid var(--hud-accent-line);
+  color: var(--hud-accent-text);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.link:hover {
+  border-color: var(--hud-accent);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--hud-space-4);
+  align-items: start;
+}
+
+.note {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 13px/1.5 var(--hud-font-text);
+}
+
+/* Tables: row headers in the secondary text, values in mono; a line between rows. */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--hud-text);
+  font: 400 13px/1.4 var(--hud-font-text);
+}
+
+.table th,
+.table td {
+  padding: var(--hud-space-2) var(--hud-space-3) var(--hud-space-2) 0;
+  border-bottom: 1px solid var(--hud-line);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.table thead th {
+  color: var(--hud-text-2);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.table tbody th {
+  color: var(--hud-text-2);
+  font-weight: 500;
+}
+
+.code,
+.value {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 500 12px/1.4 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.value {
+  color: var(--hud-text-2);
+}
+
+.verdict {
+  white-space: nowrap;
+  font: 500 12px/1.4 var(--hud-font-mono);
+  text-transform: uppercase;
+}
+
+.verdict[data-passes="true"] {
+  color: var(--hud-accent-text);
+}
+
+.verdict[data-passes="false"] {
+  color: var(--hud-error-text);
+}
+
+/* Swatches: a chip in the variable itself, then its name, its value and what it is for. */
+.swatches {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.swatch {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "chip name value"
+    "chip role role";
+  column-gap: var(--hud-space-3);
+  row-gap: 2px;
+  align-items: center;
+  padding: var(--hud-space-2) 0;
+  border-bottom: 1px solid var(--hud-line);
+}
+
+.chip {
+  grid-area: chip;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--hud-line);
+  background: var(--hud-swatch);
+}
+
+.swatch > .code {
+  grid-area: name;
+}
+
+.swatch > .value {
+  grid-area: value;
+}
+
+.role {
+  grid-area: role;
+  color: var(--hud-text-2);
+  font: 400 12px/1.4 var(--hud-font-text);
+}
+
+/* Type: each specimen in the face it shows. */
+.specimens {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}
+
+.specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-1);
+}
+
+.specimen dd {
+  margin: 0;
+}
+
+.display {
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: calc(var(--hud-title-size) * 2);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-brand);
+  text-transform: uppercase;
+}
+
+.displayLabel {
+  color: var(--hud-text-2);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
+}
+
+.body {
+  color: var(--hud-text);
+  font: 400 15px/1.5 var(--hud-font-text);
+}
+
+.mono {
+  color: var(--hud-accent-text);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+/* Components: two panels, the buttons and the status words. */
+.components {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--hud-space-3);
+}
+
+.sampleText {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 13px/1.5 var(--hud-font-text);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.primary,
+.secondary {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--hud-space-4);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.primary {
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.secondary {
+  border: 1px solid var(--hud-accent-line);
+  color: var(--hud-text);
+}
+
+.statuses {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2) var(--hud-space-4);
+}
+
+.status {
+  color: var(--hud-text-2);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
