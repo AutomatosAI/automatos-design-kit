@@ -1,0 +1,115 @@
+{
+  "name": "Automatos",
+  "tagline": "The open-source AI Operating System",
+  "logo_url": "",
+  "logo_path": "00000000-0000-0000-0000-000000000000/brand/logo.png",
+  "primary_color": "#e96235",
+  "secondary_color": "#1a1714",
+  "text_color": "#f0e8db",
+  "font_family": "Geist, ui-sans-serif, system-ui, sans-serif",
+  "company": {
+    "name": "Automatos",
+    "address": "",
+    "email": "",
+    "phone": "",
+    "website": ""
+  },
+  "heading_font": "Newsreader, Charter, Georgia, serif",
+  "font_files": [],
+  "logo_mark_url": "",
+  "logo_mark_path": "00000000-0000-0000-0000-000000000000/brand/logo-mark.png",
+  "social_handles": {},
+  "voice": {
+    "tone": [
+      {
+        "word": "plain",
+        "meaning": "Short words that say what a thing does."
+      },
+      {
+        "word": "exact",
+        "meaning": "Numbers and names a reader can check."
+      },
+      {
+        "word": "calm",
+        "meaning": "No hype and no exclamation marks."
+      }
+    ],
+    "banned_phrases": [
+      "revolutionary",
+      "game-changing",
+      "seamless"
+    ],
+    "sign_off": "The Automatos team"
+  },
+  "palette": {
+    "ink": "#2c2a28",
+    "heading": "#2c2a28",
+    "paper": "#f0e8db",
+    "surface": "#e7e0d3",
+    "surface_2": "#dfd7cb",
+    "accent": "#994023",
+    "muted": "#45433f",
+    "rule": "#d0c9be"
+  },
+  "accent_use": "sparing",
+  "type_scale": {
+    "display": {
+      "size_pt": 32.0,
+      "line_pt": 38.0,
+      "weight": 600
+    },
+    "h1": {
+      "size_pt": 22.0,
+      "line_pt": 28.0,
+      "weight": 600
+    },
+    "h2": {
+      "size_pt": 15.0,
+      "line_pt": 20.0,
+      "weight": 600
+    },
+    "h3": {
+      "size_pt": 12.0,
+      "line_pt": 16.0,
+      "weight": 600
+    },
+    "body": {
+      "size_pt": 10.0,
+      "line_pt": 15.0,
+      "weight": 400
+    },
+    "small": {
+      "size_pt": 8.5,
+      "line_pt": 12.0,
+      "weight": 400
+    },
+    "caption": {
+      "size_pt": 7.5,
+      "line_pt": 10.0,
+      "weight": 400
+    }
+  },
+  "spacing_unit_pt": 4.0,
+  "page_margin_mm": 18.0,
+  "logo_rules": {
+    "letterhead_mm": 16.0,
+    "clear_space": 0.5,
+    "min_mm": 8.0
+  },
+  "logo_dark_path": "00000000-0000-0000-0000-000000000000/brand/logo-dark.png",
+  "logo_mono_path": "",
+  "currency": "",
+  "date_style": "",
+  "country": "",
+  "updated_at": "",
+  "palette_source": {
+    "ink": "derived",
+    "heading": "derived",
+    "paper": "derived",
+    "surface": "derived",
+    "surface_2": "derived",
+    "accent": "derived",
+    "muted": "derived",
+    "rule": "derived"
+  }
+}
