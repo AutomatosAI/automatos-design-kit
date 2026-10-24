@@ -43,7 +43,7 @@ export function runningToolInput(reply: HostChatMessage | undefined): unknown {
 }
 
 /**
- * The reply being written, for Auto (lib/mascot/events.ts): the newest message
+ * The reply being written, for Auto (@automatos/mascot's events.ts): the newest message
  * when it is a reply, whether its words have started, whether one of its tool
  * calls still runs, how long the model's reasoning on it is and whether a cap
  * ended its turn. A turn still awaiting its reply has none.

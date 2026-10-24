@@ -38,9 +38,9 @@
   font: var(--pl-text-mono-sm);
 }
 
-/* The ring's colour by tone (lib/mascot/ring.ts, the Ember rule): Auto's light when calm, the
-   accent when busy, coral when he needs help, dusk asleep or lost, the ground's secondary text
-   while loading. lib/mascot/__tests__/ring.test.ts checks these match RING_VARS. */
+/* The ring's colour by tone (@automatos/mascot's ring.ts, the Ember rule): Auto's light when calm,
+   the accent when busy, coral when he needs help, dusk asleep or lost, the ground's secondary text
+   while loading. The kit's packages/mascot/test/ring.test.ts checks these match RING_VARS. */
 .stage {
   --pl-auto-ring: var(--pl-color-light);
   position: relative;
@@ -161,8 +161,9 @@
   background: var(--pl-tint-selected);
 }
 
-/* PRD-261 E3g: disabled until the host knows whether Auto is paused (mascot-pause-button.tsx), and it
-   looks it, as the shelf's Load more does while the next page is on its way. */
+/* PRD-261 E3g: disabled until the host knows whether Auto is paused (@automatos/mascot's
+   mascot-pause-button.tsx), and it looks it, as the shelf's Load more does while the next page is
+   on its way. */
 .pause:disabled {
   cursor: progress;
   color: var(--pl-color-text-2);

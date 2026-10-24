@@ -13,12 +13,12 @@ import type { Look } from './types'
  * contrast, its type, the spacing and radii, the motion notes and Auto's 12
  * states. Pure: every value is computed from the catalogue and the look it is
  * given, so the sheet redraws whenever the active look changes. The names are
- * the core's --pl-* variables (K2): lib/look-kit/css.ts sets them, and
- * app/play-theme.css holds the tokens the type and scale are read from.
+ * the core's --pl-* variables (K2): @automatos/look-kit's css.ts sets them,
+ * and app/play-theme.css holds the tokens the type and scale are read from.
  */
 
 export interface ColourToken {
-  /** A look variable from lib/look-kit/css.ts. */
+  /** A look variable from @automatos/look-kit's css.ts. */
   readonly name: string
   readonly role: string
 }
@@ -238,7 +238,7 @@ export interface MascotSlot {
   readonly state: MascotName
   readonly when: string
   readonly tone: RingTone
-  /** The ring's #rrggbb colour under this look (lib/mascot/ring.ts). */
+  /** The ring's #rrggbb colour under this look (@automatos/mascot's ring.ts). */
   readonly ring: string
 }
 

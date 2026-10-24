@@ -11,7 +11,7 @@ import { type MascotName, ONE_SHOTS } from '@automatos/mascot/types'
  * clip boundary, restarts loops, and reports when a one-shot's clip ends. With
  * no video (reduced motion, a clip that won't play) it shows the target at once
  * and ends one-shots on a CLIP_MS timer instead. The queue rules are
- * lib/mascot/player.ts. The <video>'s handlers say which clip they belong to,
+ * @automatos/mascot's player.ts. The <video>'s handlers say which clip they belong to,
  * so each clip's boundary is taken once (P260-FX-15, M27).
  */
 

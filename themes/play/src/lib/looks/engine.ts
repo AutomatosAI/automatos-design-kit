@@ -25,10 +25,10 @@ import { DEFAULT_LOOK } from './presets'
 import { GLOW_MAX, GLOW_MIN, LOOK_INTERFACE, LOOK_SCHEMA, type Look, type ValidationResult } from './types'
 
 /**
- * PRD-261 A-13a — Play's look engine: the core look runtime (lib/look-kit, PA-9) with Play's
- * catalogue, look format and --pl- prefix bound in, under the names Play's code has always
- * called. The runtime knows no theme; this file is where Play tells it which one. It moves to
- * the Play package with the rest of lib/looks (A-16b).
+ * PRD-261 A-13a — Play's look engine: the core look runtime (PA-9; @automatos/look-kit since
+ * PRD-261 B-01i) with Play's catalogue, look format and --pl- prefix bound in, under the names
+ * Play's code has always called. The runtime knows no theme; this file is where Play tells it
+ * which one. It moves to the Play package with the rest of lib/looks (A-16b).
  */
 
 /** Play's variables are --pl-* (K2): Play's own --accent and --ring would clobber Studio's tokens. */

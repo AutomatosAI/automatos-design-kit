@@ -16,7 +16,7 @@ import { useMascotMotion } from './use-mascot-motion'
  * PRD-260 D6 — Auto: the clip for the reducer's state, the light ring under him
  * and a caption that says what he is doing, ported from Automatos Play's
  * components/mascot/AutoMascot.tsx. Safari and iOS play the .mp4, everything
- * else the .webm (lib/mascot/media.ts videoFormat); under reduced motion, on the
+ * else the .webm (@automatos/mascot's media.ts videoFormat); under reduced motion, on the
  * server and after a clip that won't play, the state's PNG shows instead. The
  * stage is an image named by the caption; the caption itself is a polite live
  * region, so a screen reader hears what he is doing whenever it changes. A
@@ -210,7 +210,7 @@ function startClip(video: HTMLVideoElement, onBlocked: () => void): void {
 }
 
 /**
- * No `loop`: the player restarts loops itself, at the boundary (lib/mascot/player.ts).
+ * No `loop`: the player restarts loops itself, at the boundary (@automatos/mascot's player.ts).
  * Each handler carries the clip it belongs to (`state`), so a boundary counts once
  * per clip even when timeupdate and ended both land before React re-renders.
  */
