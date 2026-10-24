@@ -8,6 +8,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { readdirSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { AGENTS_HEADING, AgentsPage, LOAD_FAILED, RETRY, TABS_LABEL } from '../src/components/agents/agents-page.tsx'
 import { LOADING, NO_MATCH, ROSTER_LABEL, SEARCH_LABEL } from '../src/components/agents/agents-roster.tsx'
@@ -17,7 +18,8 @@ const HARNESS = dirname(createRequire(import.meta.url).resolve('@automatos/theme
 const fixture = <T,>(name: string): T => JSON.parse(readFileSync(join(HARNESS, 'fixtures', 'agents', name), 'utf8')) as T
 const ROSTER = fixture<RosterAgent[]>('roster.json')
 const STATS = fixture<AgentStatistics>('stats.json')
-const PAGE_DIR = new URL('../src/components/agents/', import.meta.url)
+// From the string import.meta.url: under jsdom, a `new URL(..., import.meta.url)` is no file URL fs can read.
+const PAGE_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'components', 'agents')
 const CORE_IMPORT = /\bfrom\s*['"](?:@\/|next\/)|\bimport\s*\(\s*['"](?:@\/|next\/)/
 
 function showAgents(): void {
@@ -83,6 +85,6 @@ describe('the /agents clone', () => {
   it('imports nothing of core', () => {
     const files = readdirSync(PAGE_DIR).filter((name) => /\.tsx?$/.test(name))
     expect(files.length).toBeGreaterThan(0)
-    expect(files.filter((name) => CORE_IMPORT.test(readFileSync(new URL(name, PAGE_DIR), 'utf8')))).toEqual([])
+    expect(files.filter((name) => CORE_IMPORT.test(readFileSync(join(PAGE_DIR, name), 'utf8')))).toEqual([])
   })
 })
