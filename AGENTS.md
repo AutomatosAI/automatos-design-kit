@@ -101,8 +101,11 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   the shots' `hud/` folder), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
   other origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
   `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium, and so
-  does the phone view on `/phone`. The job uploads the shots, their `axe.json` files and the smoke's shots as
-  `kit-harness`.
+  does the phone view on `/phone`. Then the phone shots (`packages/theme-harness/shots/phone-shots.config.ts`):
+  `automatos-theme dev` over the harness's made-up phone skin (`packages/theme-harness/fixtures/phone-skin`), its
+  `/phone` shot on Chromium on Chat, the Command Centre and First open in Light and Dark, and with the skin designer
+  showing a failing pair, each with an axe scan of the phone, into the shots' `phone/` folder. The job uploads the
+  shots, their `axe.json` files and the smoke's shots as `kit-harness`.
 
 ## Adding a dependency
 

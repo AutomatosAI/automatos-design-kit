@@ -18,4 +18,5 @@ browser's storage.
 | [brand-a-theme](brand-a-theme/SKILL.md) | Give a theme a brand's real colours, fonts, logo and voice: save its brand kit as a file, write a brief with `automatos-theme brief`, then turn the brief into the look data |
 | [white-label-from-a-brand-kit](white-label-from-a-brand-kit/SKILL.md) | Make a white-label theme for one business from its brand kit, without Auto's clips |
 | [design-a-mascot](design-a-mascot/SKILL.md) | Design a theme's mascot as the kit and the host accept it: its states, its clips and stills with their caps, and where it can go |
+| [design-a-skin](design-a-skin/SKILL.md) | Give a theme a phone skin, `theme.json`'s `mobile` block: design it in the phone view's skin designer, fix every contrast pair, write it with `automatos-theme skin`, then check and pack |
 | [clone-and-redesign-a-page](clone-and-redesign-a-page/SKILL.md) | Redesign a core page a theme may replace, starting from its core source fetched with `automatos-theme clone` as a read-only reference |

@@ -243,7 +243,8 @@ The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own 
 `pack --watch` running beside `dev`), and the next change under `src/` draws them. `/phone` is the harness's phone
 view (what Automatos Go draws for the theme, and its contrast; the harness's README), the same page. Kit CI's `harness`
 job runs `automatos-theme dev themes/play` and opens `/chat` and `/phone` on it (`shots/dev-smoke.spec.ts` in the
-harness).
+harness), then `automatos-theme dev` over the harness's made-up phone skin and shoots `/phone`
+(`shots/phone-shots.spec.ts`).
 
 Exit code 0 once stopped (Ctrl-C), 1 when the folder has no `theme.json` or `src/entry.ts`, its presets are not built
 yet, or the port can't be served; 2 for a usage error.

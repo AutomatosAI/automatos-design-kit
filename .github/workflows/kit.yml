@@ -85,8 +85,10 @@ jobs:
   # route the theme serves, for each preset at 1440 and 1024 px and once below its minWidth, on Chromium and WebKit,
   # with an axe scan of each shot. It fails on a missing shot, a request to any other origin, or a critical axe
   # violation. HUD's shots go to their own folder, hud/, beside Play's. Then PRD-261 B-02i's dev smoke:
-  # `automatos-theme dev` serves Play's harness and /chat renders. The shots, axe.json files and the smoke's shot are
-  # uploaded either way.
+  # `automatos-theme dev` serves Play's harness and /chat renders. Then the phone view's shots: `automatos-theme dev`
+  # over a made-up theme with a `mobile` block, its /phone on three screens, Light and Dark, and the skin designer with
+  # a failing pair, each with an axe scan of the phone. The shots, axe.json files and the smoke's shot are uploaded
+  # either way.
   harness:
     name: Harness shots and axe
     runs-on: ubuntu-latest
@@ -128,6 +130,14 @@ jobs:
       # packages/theme-harness/dist/shots/dev-smoke/, so the upload below carries them.
       - name: Dev smoke
         run: npx playwright test --config packages/theme-harness/shots/dev-smoke.config.ts
+
+      # The phone view's shots: `automatos-theme dev packages/theme-harness/fixtures/phone-skin` (the config's web server,
+      # on 127.0.0.1:4319 once the smoke's server has stopped), then /phone's Chat, Command Centre and First open in Light
+      # and Dark, and the skin designer holding a draft with a failing pair, on Chromium, each with an axe scan of the
+      # phone; a critical violation fails it. The shots, axe.json files and any trace go to
+      # packages/theme-harness/dist/shots/phone/, so the upload below carries them.
+      - name: Phone shots
+        run: npx playwright test --config packages/theme-harness/shots/phone-shots.config.ts
 
       - name: Upload shots
         if: always()

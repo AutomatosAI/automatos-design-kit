@@ -11,11 +11,11 @@
  * (AUTOMATOS_HARNESS_OUT, default dist/shots), so the job's kit-harness artefact carries it, and Playwright empties
  * only that one folder of it.
  */
-import { createRequire } from 'node:module'
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
 import { DEV_ORIGIN, OUT_ENV } from '../src/host/router.ts'
+import { themeCli } from './theme-cli.ts'
 
 const HARNESS_DIR = fileURLToPath(new URL('..', import.meta.url))
 const PLAY_DIR = resolve(HARNESS_DIR, '../../themes/play')
@@ -29,14 +29,6 @@ const EXPECT_TIMEOUT_MS = 30_000
 const SERVER_TIMEOUT_MS = 300_000
 
 const OUT_DIR = join(resolve(process.env[OUT_ENV] ?? DEFAULT_OUT_DIR), SMOKE_FOLDER)
-
-/** The theme CLI's executable, from the kit's install (its package.json `bin`). */
-function themeCli(): string {
-  const require = createRequire(import.meta.url)
-  const manifest = require.resolve('@automatos/theme-cli/package.json')
-  const { bin } = require('@automatos/theme-cli/package.json') as { readonly bin: { readonly 'automatos-theme': string } }
-  return join(dirname(manifest), bin['automatos-theme'])
-}
 
 const serve = [process.execPath, themeCli(), 'dev', PLAY_DIR].map((part) => JSON.stringify(part)).join(' ')
 

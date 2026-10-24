@@ -5,7 +5,9 @@
 // /deliverables?...) are not URLs. Play's tests (themes/play/test/**) are scanned the same way: they were moved from
 // core, and hold recorded turns, Deliverables and links of their own. So are the tests that moved on from Play's with
 // the look runtime and the mascot into the kit packages Play bundles (PRD-261 B-01i), and HUD's tests
-// (themes/hud/test/**), whose chat, card and look fixtures are made up in the same way.
+// (themes/hud/test/**), whose chat, card and look fixtures are made up in the same way. The harness's fixtures also
+// hold the made-up theme the phone view's shots draw (phone-skin/: its theme.json, its entry and its two stills), so
+// the same scan covers it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,6 +22,10 @@ const PACKAGE_TESTS = ["packages/look-kit/test", "packages/mascot/test"];
 /** The folders the harness's fixtures live in (plan §2.6 B-02c), and the files a fake reads by name. */
 const FOLDERS = ["streams", "deliverables", "cards", "health", "errors", "conversations"];
 const NAMED_FILES = ["README.md", "health/up.json", "health/down.json", "errors/404.json"];
+/** The phone view's made-up theme (packages/theme-harness/shots/phone-shots.config.ts serves it). */
+const PHONE_SKIN_FILES = [
+  "phone-skin/theme.json", "phone-skin/src/entry.ts", "phone-skin/assets/mascot/hello.png", "phone-skin/assets/mascot/idle.png",
+];
 /**
  * The hosts a scanned file's URL may name (and their subdomains). Beside example.com and localhost, Play's tests use
  * example.org and the top-level names example and invalid: RFC 2606 reserves all of them, so none is a real site.
@@ -113,6 +119,10 @@ describe("packages/theme-harness/fixtures", () => {
   it("has the folders and the files the fakes read", () => {
     FOLDERS.forEach((folder) => expect(files.some((file) => file.startsWith(`${folder}/`))).toBe(true));
     expect(files).toEqual(expect.arrayContaining(NAMED_FILES));
+  });
+
+  it("has the phone view's made-up theme, so the scan below reads it", () => {
+    expect(files).toEqual(expect.arrayContaining(PHONE_SKIN_FILES));
   });
 
   it.each(files.filter((file) => file.endsWith(".json")))("%s parses", (file) => {

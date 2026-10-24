@@ -1,0 +1,61 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "example/phone-skin",
+  "name": "Phone skin sample",
+  "version": "1.0.0",
+  "description": "A made-up theme for the phone view's shots: a frame, a look editor, a style sheet and a mobile block.",
+  "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
+  "base": "studio",
+  "htmlClass": "phoneskin",
+  "minWidth": 1024,
+  "tone": "user",
+  "slots": ["frame@1", "lookEditor@1", "styleSheet@1"],
+  "mascot": { "states": ["hello", "idle"] },
+  "mobile": {
+    "tokens": {
+      "light": {
+        "--background": "40 33% 97%",
+        "--foreground": "215 40% 14%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "215 40% 14%",
+        "--popover": "0 0% 100%",
+        "--popover-foreground": "215 40% 14%",
+        "--primary": "186 72% 28%",
+        "--primary-foreground": "0 0% 100%",
+        "--secondary": "40 24% 92%",
+        "--secondary-foreground": "215 40% 14%",
+        "--muted": "40 20% 90%",
+        "--muted-foreground": "215 16% 34%",
+        "--accent": "24 90% 92%",
+        "--accent-foreground": "20 70% 26%",
+        "--destructive": "0 70% 42%",
+        "--destructive-foreground": "0 0% 100%",
+        "--border": "40 14% 80%",
+        "--input": "40 14% 80%",
+        "--ring": "186 72% 28%"
+      },
+      "dark": {
+        "--background": "#0f1720",
+        "--foreground": "#e8edf2",
+        "--card": "#16212c",
+        "--card-foreground": "#e8edf2",
+        "--popover": "#16212c",
+        "--popover-foreground": "#e8edf2",
+        "--primary": "#3cc4cf",
+        "--primary-foreground": "#062126",
+        "--secondary": "#1d2a36",
+        "--secondary-foreground": "#e8edf2",
+        "--muted": "#1d2a36",
+        "--muted-foreground": "#a3b1bf",
+        "--accent": "#3a2a1c",
+        "--accent-foreground": "#f6c89f",
+        "--destructive": "#f07167",
+        "--destructive-foreground": "#2a0705",
+        "--border": "#2a3947",
+        "--input": "#2a3947",
+        "--ring": "#3cc4cf"
+      }
+    },
+    "mascot": "stills"
+  }
+}
