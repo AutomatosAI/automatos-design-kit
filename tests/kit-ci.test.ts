@@ -103,9 +103,9 @@ function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>):
 
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
-// PRD-261 C-06r (PB-4): a released Play version never changes. The check runs right after the npm pin
-// (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
-const RELEASED_STEP = "Check a released Play is unchanged";
+// PRD-261 C-06r (PB-4): a released theme version (Play's, HUD's) never changes. The check runs right after the npm
+// pin (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
+const RELEASED_STEP = "Check released themes are unchanged";
 const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
 const RELEASED_CHECK = `node ${RELEASED_SCRIPT}`;
 /** Where the install runs: after the npm pin and the released-bytes check. */
@@ -304,7 +304,7 @@ describe("kit workflow", () => {
     expect(uses.filter((line) => !PINNED_ACTION.test(line))).toEqual([]);
   });
 
-  it("pins npm, checks a released Play is unchanged, installs, then runs every root script", () => {
+  it("pins npm, checks released themes are unchanged, installs, then runs every root script", () => {
     const expected = ["npm run build", "npm run lint", "npm run typecheck", "npm test", "npm run pack"];
     expect(runs.slice(0, INSTALL_AT)).toEqual([PIN_NPM, RELEASED_CHECK]);
     expect(runs.slice(INSTALL_AT + 1)).toEqual(expected);
@@ -319,9 +319,9 @@ describe("kit workflow", () => {
     expect(text).toMatch(/name: kit-lockfile\n\s+path: package-lock\.json\n\s+if-no-files-found: error/);
   });
 
-  // PRD-261 C-06r: the script lists origin's play-v* tags and fetches the matching one itself, anonymously
-  // (tests/released-unchanged.test.ts runs it against git repositories).
-  it("checks a released Play is unchanged after a credential-free checkout, with Node alone and no secret or token", () => {
+  // PRD-261 C-06r: the script lists origin's play-v* and hud-v* tags and fetches the matching one itself,
+  // anonymously (tests/released-unchanged.test.ts runs it against git repositories).
+  it("checks released themes are unchanged after a credential-free checkout, with Node alone and no secret or token", () => {
     const step = stepLines(text, RELEASED_STEP);
     const lines = text.split("\n");
     const checkout = lines.findIndex((line) => /^\s*uses: actions\/checkout@/.test(line));
