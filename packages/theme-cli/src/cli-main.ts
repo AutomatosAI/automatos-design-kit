@@ -45,6 +45,8 @@ export const WARNING_PREFIX = 'warning: '
 export const PACK_USAGE = 'usage: automatos-theme pack <theme folder> [--out <folder>] [--watch]'
 /** `pack`'s flag that keeps it watching (pack-watch.ts). */
 export const WATCH_FLAG = '--watch'
+/** The work that builds `skin` (the harness's skin designer and its command) has no lettered story id. */
+export const SKIN_DESIGNER_STORY = 'PRD-261 skin designer'
 
 /**
  * The loader of a command another module runs: null while `modulePath` (relative to this file) isn't
@@ -84,6 +86,7 @@ export const COMMANDS: readonly PlannedCommand[] = Object.freeze([
   planned('shots', './shots.ts', 'PRD-261 B-02f', 'shotsCommand'),
   planned('previews', './previews.ts', 'PRD-261 B-02g', 'previewsCommand'),
   planned('dev', './dev.ts', 'PRD-261 B-02i', 'devCommand'),
+  planned('skin', './skin.ts', SKIN_DESIGNER_STORY, 'skinCommand'),
 ])
 
 export const USAGE = [PACK_USAGE, SUBMIT_USAGE, `commands: ${COMMANDS.map((item) => item.name).join(', ')}`].join('\n')
