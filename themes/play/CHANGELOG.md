@@ -7,7 +7,8 @@ Play's versions, newest first. A released version's files never change: a change
 - **The old markers are gone.** Play's motion stop now reads only the host's generic marker,
   `data-theme-motion="reduce"` on `<html>`, and its motion factor `--pl-motion-scale` only the host's
   `--theme-motion` (1 when the host sets none). The `data-pl-motion` selector and the `--pl-motion` fallback, which
-  only builtin Play's own look code set, are removed. The heading of Make it yours and of the style sheet carries only
+  only builtin Play's own look code set, are removed, and so is that code (`lib/looks/document.ts`'s motion mark,
+  which nothing called). The heading of Make it yours and of the style sheet carries only
   `data-theme-heading`, the mark the host hands the focus to; `data-play-only-heading` is removed. Under core's host,
   which writes only the generic markers since builtin Play left core, nothing changes.
 - **The look kit and Auto's player are kit packages.** `@automatos/look-kit` (the kit's `packages/look-kit`: the

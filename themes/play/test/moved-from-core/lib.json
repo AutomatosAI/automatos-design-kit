@@ -97,7 +97,7 @@
     "kitPath": "test/lib/looks/document.test.ts",
     "kitIts": 3,
     "rehomed": [],
-    "rewritten": null
+    "rewritten": "Since Play 1.1.1 (PRD-261 K-21) the look owns no motion mark: core's MOTION_ATTRIBUTE (data-pl-motion), MOTION_VAR (--pl-motion) and applyMotion are gone from src/lib/looks/document.ts, so the first case no longer lists the motion variable, the second applies and clears the look alone, and the third, which marked full motion, now holds that the look writes no motion mark and leaves the host's data-theme-motion alone."
   },
   {
     "corePath": "frontend/lib/looks/__tests__/editor.test.ts",

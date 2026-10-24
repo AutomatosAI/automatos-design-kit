@@ -1,7 +1,7 @@
 /// <reference types="@testing-library/jest-dom/vitest" />
 // Play's own setup, run after the harness's (packages/theme-harness/src/setup.ts, which adds the jest-dom
-// matchers the reference above types). Play's look and motion code writes onto <html> (inline custom
-// properties and data attributes, src/lib/looks/document.ts), which Testing Library's cleanup leaves alone:
+// matchers the reference above types). Play's look code writes onto <html> (inline custom properties,
+// src/lib/looks/document.ts) and tests set the host's data attributes, which Testing Library's cleanup leaves alone:
 // each test gets back the <html> attributes it started with. A test file that runs in node has no document.
 import { afterEach, beforeEach } from 'vitest'
 

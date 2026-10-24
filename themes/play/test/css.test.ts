@@ -236,12 +236,14 @@ describe("play-theme.css's rewritten rules", () => {
     })
   })
 
-  it(`name builtin Play's ${OLD_MOTION_MARKER} and --pl-motion in no stylesheet, comments included (K-21)`, () => {
+  it(`name builtin Play's ${OLD_MOTION_MARKER} and --pl-motion nowhere under src/, comments included (K-21)`, () => {
     expect(OLD_MOTION_VAR.test('var(--pl-motion, 1)')).toBe(true)
     expect(OLD_MOTION_VAR.test('--pl-motion-scale: 1')).toBe(false)
-    const naming = stylesheets().filter((rel) => {
-      const css = readSource(rel)
-      return css.includes(OLD_MOTION_MARKER) || OLD_MOTION_VAR.test(css)
+    const files = [...sourceScripts(), ...stylesheets()]
+    expect(files.length).toBeGreaterThan(STYLESHEET_COUNT)
+    const naming = files.filter((rel) => {
+      const text = readSource(rel)
+      return text.includes(OLD_MOTION_MARKER) || OLD_MOTION_VAR.test(text)
     })
     expect(naming).toEqual([])
   })
