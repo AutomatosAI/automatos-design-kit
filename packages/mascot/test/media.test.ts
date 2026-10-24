@@ -10,14 +10,17 @@
  * SDK's assetUrl (the harness's fake here, served from the folder a test sets with
  * host.setFilesRoot), where core served them from /auto/; while the host names no package the
  * URLs are undefined, so nothing loads. The rest as it was, but for its imports.
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with media.ts, which is this
+ * package's src/ now; where the files sit is still Play's test helper (themes/play/test/mascot/helpers.ts).
  */
 import { host } from '@automatos/theme-harness/host'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, videoFormat } from '../../src/lib/mascot/media.ts'
-import { MASCOT_STATES } from '../../src/lib/mascot/types.ts'
+import { captionFor, clipUrls, MASCOT_DIR, pageGlow, posterUrl, videoFormat } from '../src/media.ts'
+import { MASCOT_STATES } from '../src/types.ts'
 
-import { FILES_ROOT, MASCOT_FILES } from './helpers.ts'
+import { FILES_ROOT, MASCOT_FILES } from '../../../themes/play/test/mascot/helpers.ts'
 
 /** iPadOS reports five touch points; a Mac reports none. */
 const IPAD_TOUCH_POINTS = 5

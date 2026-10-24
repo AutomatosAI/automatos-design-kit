@@ -1,6 +1,6 @@
 import { liveReceiptsOf } from '@automatos/theme-sdk'
 
-import type { JsonObject, MascotEvent } from './types'
+import type { JsonObject, MascotEvent } from '@automatos/mascot/types'
 
 /**
  * PRD-260 D5, D6 — the core chat's data parts as Auto's events. Pure.

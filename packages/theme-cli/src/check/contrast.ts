@@ -18,28 +18,24 @@
  * - The tone rule paints no variable, so bootTable leaves it out. At that commit boot.ts reads the kept
  *   rule only to decide whether an installed theme's first paint takes its tone from the look runtime's
  *   tone cookie (`keepsLookTone`, `withLookTone`): a class on <html>, not a variable the table paints.
- * - The ratio is the look runtime's own math, never a copy: `contrastRatio` of look-kit contrast.ts,
- *   in Play's copy of core's frontend/lib/look-kit. A painted value is read as the browser draws it:
- *   `#rrggbb` as it is, and a Studio triplet `H S% L%` (or the triplet wrapped as `hsl(...)`, as
- *   Studio's aliases are) back to #RRGGBB with look-kit hsl.ts `tripletToHex`, as Play's own
- *   contrast.test.ts measures them. Anything else (`rgba()`, `var()`, a word) is not a colour this reads.
- *   check/mobile-contrast.ts reads a phone token instead, as the server's `parse_colour` does, with
- *   hsl.ts's `hslToHex` ported so `check` registers no hook; the corpus's contrast cases hold both.
+ * - The ratio is the look runtime's own math, never a copy: `contrastRatio` of @automatos/look-kit's
+ *   contrast.ts (packages/look-kit, which starts from Play's copy of core's frontend/lib/look-kit). A
+ *   painted value is read as the browser draws it: `#rrggbb` as it is, and a Studio triplet `H S% L%`
+ *   (or the triplet wrapped as `hsl(...)`, as Studio's aliases are) back to #RRGGBB with look-kit hsl.ts
+ *   `tripletToHex`, as look-kit's own contrast.test.ts measures them. Anything else (`rgba()`, `var()`, a
+ *   word) is not a colour this reads. check/mobile-contrast.ts reads a phone token instead, as the
+ *   server's `parse_colour` does, with hsl.ts's `hslToHex` ported; the corpus's contrast cases hold both.
  *
- * Play's look-kit modules import each other without a file extension, as a bundler allows. Node, which
- * runs this command, needs the extension, so hsl.ts is loaded once through a resolve hook that adds
- * `.ts` to an extensionless `./name` import made from inside the look-kit folder, and nowhere else
- * (scripts/compile-looks.mjs does the same for Play's build). contrast.ts imports nothing, so it is
- * imported directly.
+ * look-kit's modules import each other with the `.ts` extension, so Node, which runs this command, loads
+ * them as they are. hsl.ts is loaded the first time a meter is made, so `check` loads contrast.ts alone.
  *
  * `check design` measures a theme's declared pairs (design/contrast.json) on each preset with these.
  */
-import { registerHooks, type ResolveHookSync } from 'node:module'
-import { AA_TEXT, contrastRatio } from '../../../../themes/play/src/lib/look-kit/contrast.ts'
+import { AA_TEXT, contrastRatio } from '@automatos/look-kit/contrast'
 import { own, type JsonRecord } from '../core/css-value.ts'
 import { lookFits, type BootRule, type BootTable } from '../mobile-paint.ts'
 
-type LookKitHsl = typeof import('../../../../themes/play/src/lib/look-kit/hsl.ts')
+type LookKitHsl = typeof import('@automatos/look-kit/hsl')
 
 /** A pair's minimum when it names none: WCAG AA for body text (look-kit contrast.ts AA_TEXT). */
 export const DEFAULT_PAIR_MIN = AA_TEXT
@@ -73,31 +69,14 @@ export interface ContrastMeter {
   readonly colourOf: (value: string | undefined) => string | null
 }
 
-const LOOK_KIT = new URL('../../../../themes/play/src/lib/look-kit/', import.meta.url)
-const TS_EXTENSION = '.ts'
-const SIBLING_PREFIX = './'
-const HAS_EXTENSION = /\.[A-Za-z0-9]+$/
 const HEX_COLOUR = /^#[0-9a-f]{6}$/i
 const WRAPPED_TRIPLET = /^hsl\((.+)\)$/
 
-/** True for `./name` with no extension, from a module inside the look-kit folder. */
-function isLookKitSibling(specifier: string, parentURL: string | undefined): boolean {
-  if (parentURL === undefined || !parentURL.startsWith(LOOK_KIT.href) || !specifier.startsWith(SIBLING_PREFIX)) return false
-  return !HAS_EXTENSION.test(specifier.slice(specifier.lastIndexOf('/') + 1))
-}
-
-const resolveLookKit: ResolveHookSync = (specifier, context, nextResolve) => (
-  nextResolve(isLookKitSibling(specifier, context.parentURL) ? `${specifier}${TS_EXTENSION}` : specifier, context)
-)
-
 let hslModule: Promise<LookKitHsl> | null = null
 
-/** look-kit hsl.ts, loaded once, the resolve hook registered first (Node 22.15 and later; the CLI needs 22.18). */
+/** look-kit hsl.ts, loaded once, when the first meter is made. */
 function lookKitHsl(): Promise<LookKitHsl> {
-  if (hslModule === null) {
-    registerHooks({ resolve: resolveLookKit })
-    hslModule = import('../../../../themes/play/src/lib/look-kit/hsl.ts')
-  }
+  if (hslModule === null) hslModule = import('@automatos/look-kit/hsl')
   return hslModule
 }
 

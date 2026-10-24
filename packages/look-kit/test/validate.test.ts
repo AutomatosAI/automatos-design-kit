@@ -5,11 +5,14 @@
  * Moved from core's lib/looks/__tests__/validate.test.ts as it was, but for its imports: the theme's own look
  * runtime (src/lib/look-kit) and looks (src/lib/looks), and the hidden-character text of
  * test/lib/text/helpers.ts (core's lib/text/__tests__/helpers.ts, copied byte for byte).
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/look-kit's with the look runtime, whose validator it holds
+ * through Play's validateLook: Play's looks and that helper are read from themes/play, the kit's reference theme.
  */
 import { describe, expect, it } from 'vitest'
 
-import { PRESETS } from '../../../src/lib/looks/presets.ts'
-import { validateLook } from '../../../src/lib/looks/engine.ts'
+import { PRESETS } from '../../../themes/play/src/lib/looks/presets.ts'
+import { validateLook } from '../../../themes/play/src/lib/looks/engine.ts'
 import {
   ANNOTATION_ANCHOR,
   FAMILY_EMOJI,
@@ -18,7 +21,7 @@ import {
   SOFT_HYPHEN,
   VS17,
   VS256,
-} from '../text/helpers.ts'
+} from '../../../themes/play/test/lib/text/helpers.ts'
 
 const VALID = {
   schema: 'automatos-interface-look/v1',

@@ -1,0 +1,24 @@
+{
+  "name": "@automatos/look-kit",
+  "version": "0.1.0",
+  "description": "The look runtime a theme with looks bundles: a look's custom properties and Studio's tokens from the theme's own catalogue, the WCAG contrast math that keeps them readable, Studio's HSL triplets and the schema-driven look validator.",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    "./contrast": "./src/contrast.ts",
+    "./css": "./src/css.ts",
+    "./hsl": "./src/hsl.ts",
+    "./studio-tokens": "./src/studio-tokens.ts",
+    "./types": "./src/types.ts",
+    "./validate": "./src/validate.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

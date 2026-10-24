@@ -4,10 +4,11 @@
 // checks read files and ask git only; nothing is installed. (Moved out of tests/kit-ci.test.ts, which holds
 // the kit's own contract, to keep each file under the 400-line cap.)
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { bundledPackages } from "@automatos/vite-preset";
 import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
 import { SOURCE_DIR } from "../packages/theme-cli/src/source.ts";
 
@@ -144,5 +145,12 @@ describe("released-unchanged.mjs guards everything pack collects for Play", () =
     expect(PACKED_TOP_FILES.length).toBeGreaterThan(0);
     expect(committedFolders).toContain("assets");
     [...PACKED_TOP_FILES, ...committedFolders, SOURCE_DIR].forEach((name) => expect(packedPaths).toContain(`${PLAY_DIR}/${name}`));
+  });
+
+  it("guards the src/ of each kit package Play bundles, which pack writes under source/packages/ (B-01i)", () => {
+    const root = realpathSync(ROOT);
+    const bundled = bundledPackages(join(root, PLAY_DIR)).map((item) => relative(root, join(item.dir, SOURCE_DIR)).split(sep).join("/"));
+    expect(bundled).toEqual(["packages/look-kit/src", "packages/mascot/src"]);
+    bundled.forEach((path) => expect(packedPaths).toContain(path));
   });
 });

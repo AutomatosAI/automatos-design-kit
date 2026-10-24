@@ -21,14 +21,22 @@
  * composed file's CSS with no source file on it), and nothing here reads a Sass, Less or Stylus
  * file's own imports (the preprocessor merges them before PostCSS sees the result).
  * Author builds run the same guard, so a theme that builds for its author builds in the review.
+ *
+ * The source tree is the theme's src/ and the src/ of each kit workspace package the theme bundles
+ * (workspace-packages.ts, PRD-261 B-01i): the guard resolves such a package's name to a file of its src/
+ * itself, so the build never reads the package from node_modules, and the review's rebuild resolves it to the
+ * same file of the package's source/packages/<name>/src/.
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import type { Plugin } from 'vite'
 import { bundleProblems } from './output-check.ts'
-import { isInsideSource, moduleProblem, QUERY_OR_HASH, shown, sourceTree, SOURCE_DIR, VIRTUAL_PREFIX, type SourceTree } from './source-tree.ts'
+import {
+  isInsideSource, moduleProblem, QUERY_OR_HASH, shown, sourceTree, SOURCE_DIR, VIRTUAL_PREFIX, type BundledPackage, type SourceTree,
+} from './source-tree.ts'
+import { bundledPackages, packageModule } from './workspace-packages.ts'
 
-export { isInsideSource, moduleProblem, sourceTree, SOURCE_DIR, type SourceTree } from './source-tree.ts'
+export { isInsideSource, moduleProblem, sourceTree, SOURCE_DIR, type BundledPackage, type SourceTree } from './source-tree.ts'
 
 const STYLE_ID = /\.(?:css|pcss|postcss|sss)$/
 const SCRIPT_ID = /\.(?:[cm]?[jt]sx?)$/
@@ -102,8 +110,11 @@ function report(problems: readonly string[]): string {
   return Array.from(new Set(problems)).join('\n')
 }
 
-/** The plugin that fails the build on anything from outside the theme's src/. */
-export function sourceGuard(): Plugin {
+/**
+ * The plugin that fails the build on anything from outside the source tree, and resolves the bundled packages'
+ * names in it. `packages` are the workspace packages to bundle; left out, the ones the theme's package.json names.
+ */
+export function sourceGuard(packages?: readonly BundledPackage[]): Plugin {
   let tree: SourceTree | null = null
   const current = (): SourceTree => {
     if (tree === null) throw new Error('automatosTheme(): the source guard ran before the config was resolved.')
@@ -113,7 +124,13 @@ export function sourceGuard(): Plugin {
     name: 'automatos-theme:source',
     enforce: 'pre',
     configResolved(config) {
-      tree = sourceTree(config.root)
+      tree = sourceTree(config.root, packages ?? bundledPackages(config.root))
+    },
+    resolveId(source) {
+      const found = packageModule(source, current().packages)
+      if (found === null) return null
+      if ('problem' in found) return this.error(found.problem)
+      return found.file
     },
     load(id) {
       const problem = moduleProblem(id, current())

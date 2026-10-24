@@ -44,7 +44,7 @@ import {
   rootBlock,
   variantNote,
 } from '../../../src/lib/looks/style.ts'
-import { MASCOT_STATES } from '../../../src/lib/mascot/types.ts'
+import { MASCOT_STATES } from '@automatos/mascot/types'
 import { SOURCE_ROOT } from '../../source-files.ts'
 
 const PLAY_THEME_CSS = 'app/play-theme.css'

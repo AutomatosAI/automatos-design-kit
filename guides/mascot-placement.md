@@ -69,8 +69,8 @@ reaches it, and a theme never draws a second copy. A theme that hides it pauses 
 
 Play ships twelve states: `hello`, `idle`, `listening`, `thinking`, `working`, `searching`, `reading`, `celebrate`,
 `oops`, `sleeping`, `lost` and `loading`, each as `.webm`, `.mp4` and `.png`. Its reducer picks the state from the
-chat's events (`themes/play/src/lib/mascot/`), and every Auto carries a caption, a polite live region saying what he
-is doing.
+chat's events (`@automatos/mascot`, `packages/mascot/src/`, which Play bundles), and every Auto carries a caption, a
+polite live region saying what he is doing.
 
 | Where | State | Size | Caption |
 |---|---|---|---|

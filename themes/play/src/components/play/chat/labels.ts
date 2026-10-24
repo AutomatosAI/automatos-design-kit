@@ -1,6 +1,6 @@
 import type { HostToolCall } from '@automatos/theme-sdk'
 
-import { toolActivity, type ToolActivity } from '../../../lib/mascot/tools'
+import { toolActivity, type ToolActivity } from '@automatos/mascot/tools'
 
 /**
  * PRD-260 §4 — a tool call in words, ported from Automatos Play's

@@ -95,15 +95,15 @@ the server's `paint_look` (`mobile_tokens.py`), which keeps only the triplet Stu
 numeric rules out. The table's tone rule paints no variable, so `bootTable` leaves it out: boot.ts reads it only to
 decide whether an installed theme's first paint takes its tone from the look runtime's tone cookie.
 
-The ratio is the look runtime's own: Play's copy of `frontend/lib/look-kit/contrast.ts`, imported from
-`themes/play/src/lib/look-kit/`, never copied, and `check design` reads a triplet with Play's copy of `hsl.ts`, loaded
-through a resolve hook (hsl.ts imports `./contrast` with no extension). The review's mobile measure,
-`src/check/mobile-contrast.ts`, imports the same `contrast.ts` but ports `hsl.ts`'s `hslToHex`, as the server's
-`parse_colour` reads a phone token, so `check` registers no hook; the corpus's `contrast` cases hold both readings.
-That folder is named in `src/check/contrast.ts` (its imports and the `LOOK_KIT` URL its hook matches) and in
-`src/check/mobile-contrast.ts`'s import; a move of Play's look-kit moves them all. `check` loads look-kit's
-`contrast.ts` alone (it imports nothing); only `check design` registers the hook and loads `hsl.ts`:
-`check/index.ts` imports `design.ts` when that command runs.
+The ratio is the look runtime's own: `contrast.ts` of `@automatos/look-kit` (`packages/look-kit`, which starts from
+Play's copy of `frontend/lib/look-kit`, PRD-261 B-01i), imported by name, never copied, and `check design` reads a
+triplet with look-kit's `hsl.ts`. look-kit's modules import each other with the `.ts` extension, so plain Node loads
+them with no resolve hook. The review's mobile measure, `src/check/mobile-contrast.ts`, imports the same `contrast.ts`
+but ports `hsl.ts`'s `hslToHex`, as the server's `parse_colour` reads a phone token; the corpus's `contrast` cases
+hold both readings. The package is named in `src/check/contrast.ts` (its import and the `import()` of `hsl.ts`), in
+`src/check/mobile-contrast.ts`'s import and in this package's `package.json` `dependencies`. `check` loads look-kit's
+`contrast.ts` alone (it imports nothing); only `check design` loads `hsl.ts`: `check/index.ts` imports `design.ts`
+when that command runs.
 
 `design/contrast.json` is kit-only. `pack` never packs `design/` (it is not one of the package's folders) and the
 server never reads it, so its pairs are measured by the kit alone: the server measures only the `mobile` block's ten
@@ -133,8 +133,8 @@ and fit check, shared with `check design`, and the server's `paint_look`), the f
 to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
 the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
 `src/check/` ports it over the two data files, the contrast check included (`src/check/mobile-contrast.ts`, which paints
-`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, Play's copy of core's
-`frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
+`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, `@automatos/look-kit`'s
+copy of core's `frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
 `check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
 and `check-mobile-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases
 among them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

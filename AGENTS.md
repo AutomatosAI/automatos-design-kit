@@ -36,9 +36,16 @@ core wins and the kit is fixed.
   Chromium and WebKit with Playwright and scans with axe), `theme-rules` (the one table of JS rules the
   Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
   reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
-  theme's `lint` runs over its `src/`).
-- `themes/*`: theme packages. A theme bundles only its own `src/` (the preset's source guard refuses `node_modules`),
-  so an outside library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
+  theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i): `look-kit`
+  (`@automatos/look-kit`: a look's custom properties and Studio's tokens, the WCAG contrast math with the AA
+  proofs of Play's 24 ground and accent pairs, Studio's HSL triplets and the schema-driven look validator, from
+  Play's copy of core's look runtime) and
+  `mascot` (`@automatos/mascot`: Auto's state machine, the clip player, the media chooser and captions, the ring's
+  tones, the chat's events and the Pause Auto control).
+- `themes/*`: theme packages. A theme bundles its own `src/` and the `src/` of each kit library it names, at the
+  library's version, under `dependencies` in its `package.json` (Play names `@automatos/look-kit` and
+  `@automatos/mascot`). The preset's source guard refuses anything else, `node_modules` included, so an outside
+  library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (its README names it and the lines changed). Core's
   PRD-261 A-19 merge removed builtin Play from core, so Play lives only in this kit and a Play change is made here
   alone. `docs/PLAY-HISTORY.md` records where the code came from; Play's README is packed, so its old "Until A-19"
@@ -59,7 +66,8 @@ core wins and the kit is fixed.
 `.github/workflows/kit.yml`'s `kit` job first runs `scripts/release/released-unchanged.mjs`: once `play-v<version>`
 is tagged, a change to anything the kit's pack collects for Play — `theme.json`, its top docs (`README.md`,
 `CHANGELOG.md`, every `LICENSE` spelling), `assets/` and `src/` (the source of the package's generated
-`dist/`, `boot/` and `looks/` too) — fails until the version moves on.
+`dist/`, `boot/` and `looks/` too), and `packages/look-kit/src/` and `packages/mascot/src/`, which Play bundles
+— fails until the version moves on.
 It then installs and runs the root scripts `build`, `lint`, `typecheck`, `test` and `pack`. Each one runs
 the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
@@ -91,8 +99,9 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   package checks, the digest, the JS rules on `source/` and the reproducible build. The job summary
   holds the text the reviewer pastes into the admin queue's report note, with its outcome.
 - A Marketplace package ships `source/`: the theme's `src/` exactly as built (`source/entry.ts` is
-  `src/entry.ts`). The review rebuilds it with this kit's preset and lockfile, from the theme folder,
-  and the dist/ must match byte for byte.
+  `src/entry.ts`), and the `src/` of each kit library it bundles as `source/packages/<name>/src/`. The
+  review rebuilds it with this kit's preset and lockfile, from the theme folder, each library's `src/`
+  laid out beside it as the kit lays them out, and the dist/ must match byte for byte.
 - `theme-sign.yml` (input: the whole signature request JSON from the admin queue, `requestId` included):
   installs nothing; its one `Sign` step reads the `THEME_SIGNING_KEY` secret (Ed25519, PKCS#8 PEM) and
   prints the request id and the base64 signature over the canonical JSON of `{id, version, digest,
@@ -102,8 +111,9 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   `theme-signing` environment allows main only and has required reviewers, the named signers: either one may
   approve a run, and "Prevent self-review" is off for now. No other workflow may name that secret; the root tests
   enforce both workflows' shape.
-- The vite-preset builds only from the theme's `src/` (its source guard), and the JS rules refuse paths
-  that leave `source/`, so the reproducible build can't pull in files from outside the package.
+- The vite-preset builds only from the theme's `src/` and its bundled kit libraries' `src/` (its source
+  guard), and the JS rules refuse paths that leave `source/`, so the reproducible build can't pull in files
+  from outside the package.
 
 ## Rules
 

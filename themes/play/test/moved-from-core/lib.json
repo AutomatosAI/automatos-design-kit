@@ -76,7 +76,7 @@
     "corePath": "frontend/lib/looks/__tests__/contrast.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 19,
-    "kitPath": "test/lib/looks/contrast.test.ts",
+    "kitPath": "packages/look-kit/test/contrast.test.ts",
     "kitIts": 19,
     "rehomed": [],
     "rewritten": null
@@ -85,7 +85,7 @@
     "corePath": "frontend/lib/looks/__tests__/css.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 13,
-    "kitPath": "test/lib/looks/css.test.ts",
+    "kitPath": "packages/look-kit/test/css.test.ts",
     "kitIts": 13,
     "rehomed": [],
     "rewritten": null
@@ -121,7 +121,7 @@
     "corePath": "frontend/lib/looks/__tests__/studio-tokens.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 13,
-    "kitPath": "test/lib/looks/studio-tokens.test.ts",
+    "kitPath": "packages/look-kit/test/studio-tokens.test.ts",
     "kitIts": 13,
     "rehomed": [],
     "rewritten": null
@@ -139,7 +139,7 @@
     "corePath": "frontend/lib/looks/__tests__/validate.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 20,
-    "kitPath": "test/lib/looks/validate.test.ts",
+    "kitPath": "packages/look-kit/test/validate.test.ts",
     "kitIts": 20,
     "rehomed": [],
     "rewritten": null

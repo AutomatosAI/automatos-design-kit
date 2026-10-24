@@ -1,4 +1,4 @@
-import { AA_TEXT, contrastRatio, mixHex, readableOn, readableOnAll, relativeLuminance } from './contrast'
+import { AA_TEXT, contrastRatio, mixHex, readableOn, readableOnAll, relativeLuminance } from './contrast.ts'
 import {
   entryOf,
   keysOf,
@@ -6,7 +6,7 @@ import {
   type LookCatalogue,
   type LookGround,
   type LookPicks,
-} from './types'
+} from './types.ts'
 
 /**
  * PRD-260 — a look as a theme's CSS custom properties, set on <html> only while

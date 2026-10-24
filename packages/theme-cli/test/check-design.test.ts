@@ -39,10 +39,12 @@ const PLAY_TIMEOUT_MS = 60_000
 const CLI = fileURLToPath(new URL('../src/cli.ts', import.meta.url))
 /** Node starting the CLI from its TypeScript source on a cold runner. */
 const NODE_TIMEOUT_MS = 60_000
-/** What the test's resolve hook throws for a module under themes/play/. */
-const NO_PLAY = 'refused by the test: a module under themes/play/'
-/** The one module of Play's that `check` loads: look-kit's contrast.ts, for the mobile block's measure. */
-const LOOK_KIT_CONTRAST = 'src/lib/look-kit/contrast.ts'
+/** What the test's resolve hook throws for a module it refuses, before the module's URL. */
+const REFUSED = 'refused by the test:'
+/** The look runtime the CLI loads (packages/look-kit, @automatos/look-kit), never Play's folder. */
+const LOOK_KIT = fileURLToPath(new URL('../../look-kit/', import.meta.url))
+/** The one look-kit module `check` loads: contrast.ts, for the mobile block's measure. */
+const LOOK_KIT_CONTRAST = 'src/contrast.ts'
 interface CorpusCase {
   readonly name: string
   readonly code: string | null
@@ -287,7 +289,7 @@ describe('Play', () => {
   it("declares the pairs of its own contrast proof, measured on each of its 5 presets", () => {
     type Declared = { readonly pairs: ReadonlyArray<{ text: string; ground: string; min?: number }> }
     const declared = JSON.parse(readFileSync(join(PLAY, DESIGN_CONTRAST_PATH), 'utf8')) as Declared
-    // themes/play/test/lib/looks/contrast.test.ts: 11 pairs of Play's own variables, Studio's 21 TEXT_PAIRS, and --ring at 3:1.
+    // packages/look-kit/test/contrast.test.ts: 11 pairs of Play's own variables, Studio's 21 TEXT_PAIRS, and --ring at 3:1.
     expect(declared.pairs.filter((pair) => pair.text.startsWith('--pl-'))).toHaveLength(11)
     expect(declared.pairs).toHaveLength(33)
     expect(declared.pairs.filter((pair) => pair.min !== undefined)).toEqual([{ text: '--ring', ground: '--background', min: 3 }])
@@ -325,15 +327,15 @@ describe('pack never packs design/', () => {
   })
 })
 
-/** A Node --import module whose resolve hook refuses every module under `playUrl` but `allowed`. */
-function noPlayHook(playUrl: string, allowed: string): string {
+/** A Node --import module whose resolve hook refuses every module under `refusedUrl` but `allowed`. */
+function refusingHook(refusedUrl: string, allowed: string | null = null): string {
   return [
     "import { registerHooks } from 'node:module'",
-    `const PLAY = ${JSON.stringify(playUrl)}`,
+    `const REFUSED_URL = ${JSON.stringify(refusedUrl)}`,
     `const ALLOWED = ${JSON.stringify(allowed)}`,
     'registerHooks({ resolve(specifier, context, nextResolve) {',
     '  const resolved = nextResolve(specifier, context)',
-    `  if (resolved.url.startsWith(PLAY) && resolved.url !== ALLOWED) throw new Error(${JSON.stringify(NO_PLAY)} + ' ' + resolved.url)`,
+    `  if (resolved.url.startsWith(REFUSED_URL) && resolved.url !== ALLOWED) throw new Error(${JSON.stringify(REFUSED)} + ' ' + resolved.url)`,
     '  return resolved',
     '} })',
     '',
@@ -346,7 +348,7 @@ function runNode(args: readonly string[]): { readonly status: number | null; rea
 }
 
 describe('under plain Node, as the automatos-theme executable runs', () => {
-  it("check design loads Play's look-kit through its resolve hook: exit 0 with three pass lines, exit 1 under a minimum", () => {
+  it('check design loads @automatos/look-kit as plain Node does: exit 0 with three pass lines, exit 1 under a minimum', () => {
     const passed = runNode([CLI, 'check', 'design', designFolder()])
     expect(passed.status, passed.stderr).toBe(0)
     const lines = passed.stdout.split('\n').slice(1, 4).map((line) => line.split(/\s+/).slice(0, 2).join(' '))
@@ -356,15 +358,20 @@ describe('under plain Node, as the automatos-theme executable runs', () => {
     expect(failed.stdout).toContain(`    CONTRAST_UNDER_MIN ${DESIGN_CONTRAST_PATH}#pairs[0]: Preset "night": --hello-accent on --hello-bg`)
   }, NODE_TIMEOUT_MS)
 
-  it("check loads no Play module but look-kit's contrast.ts; only check design loads the rest of look-kit (hsl.ts)", () => {
-    const hook = join(tempFolder(), 'no-play.mjs')
-    const play = `${pathToFileURL(realpathSync(PLAY)).href}/`
-    writeFileSync(hook, noPlayHook(play, `${play}${LOOK_KIT_CONTRAST}`))
-    const check = runNode(['--import', pathToFileURL(hook).href, CLI, 'check'])
-    expect(check.stderr).not.toContain(NO_PLAY)
-    expect([check.status, check.stderr.includes(CHECK_USAGE)]).toEqual([2, true])
-    const design = runNode(['--import', pathToFileURL(hook).href, CLI, 'check', 'design', designFolder()])
-    expect(design.status).not.toBe(0)
-    expect(design.stderr).toContain(NO_PLAY)
+  it("check and check design load no Play module; check loads look-kit's contrast.ts alone, check design hsl.ts too", () => {
+    const hookFile = (name: string, text: string): string => {
+      const path = join(tempFolder(), name)
+      writeFileSync(path, text)
+      return pathToFileURL(path).href
+    }
+    const noPlay = hookFile('no-play.mjs', refusingHook(`${pathToFileURL(realpathSync(PLAY)).href}/`))
+    const lookKit = `${pathToFileURL(realpathSync(LOOK_KIT)).href}/`
+    const contrastOnly = hookFile('contrast-only.mjs', refusingHook(lookKit, `${lookKit}${LOOK_KIT_CONTRAST}`))
+    const checks = [noPlay, contrastOnly].map((hook) => runNode(['--import', hook, CLI, 'check']))
+    expect(checks.map((ran) => [ran.status, ran.stderr.includes(CHECK_USAGE), ran.stderr.includes(REFUSED)])).toEqual([[2, true, false], [2, true, false]])
+    const design = runNode(['--import', noPlay, CLI, 'check', 'design', designFolder()])
+    expect([design.status, design.stderr.includes(REFUSED)]).toEqual([0, false])
+    const withoutHsl = runNode(['--import', contrastOnly, CLI, 'check', 'design', designFolder()])
+    expect([withoutHsl.status === 0, withoutHsl.stderr.includes(`${REFUSED} ${lookKit}src/hsl.ts`)]).toEqual([false, true])
   }, NODE_TIMEOUT_MS)
 })

@@ -1,7 +1,8 @@
 /**
  * `pack` writes source/ from the theme's src/ (PRD-261 C-06p1): byte for byte, covered by the digest,
  * and refused, writing nothing, when the review could not rebuild it or core would not take it as
- * source. Play, packed with its source, stays within the server's caps.
+ * source. The src/ of each kit workspace package the theme bundles goes to source/packages/<name>/src/
+ * under the same rules (B-01i). Play, packed with its source and its two packages, stays within the server's caps.
  */
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -13,7 +14,7 @@ import { PACKED_FOLDERS } from '../src/collect.ts'
 import { packageDigest, sha256Hex, type FileRow } from '../src/digest.ts'
 import { CAPS, fileKind, MAX_MEMBERS } from '../src/files.ts'
 import { packTheme, type PackManifest } from '../src/pack.ts'
-import { SOURCE_ENTRY_CANDIDATES, SOURCE_FOLDER, SOURCE_MAX_DEPTH } from '../src/source.ts'
+import { SOURCE_ENTRY_CANDIDATES, SOURCE_FOLDER, SOURCE_MAX_DEPTH, SOURCE_PACKAGES_DIR } from '../src/source.ts'
 import { readZip } from '../src/zip.ts'
 
 const HELLO_DIR = fileURLToPath(new URL('./fixtures/core/hello/', import.meta.url))
@@ -29,6 +30,14 @@ const SRC_FILES: Readonly<Record<string, string>> = {
   'lib/mount.ts': 'export function mount(): void {}\n',
   'lib/data/names.json': '{"hello": "Hello"}\n',
 }
+
+/** A kit package's files, beside the dotfile pack skips and a README outside its src/. */
+const GREET_FILES: Readonly<Record<string, string>> = {
+  'src/index.ts': "export const mark = '!'\n",
+  'src/words/greet.ts': "export const greet = 'hello'\n",
+}
+/** Where pack writes the bundled package's src/. */
+const GREET_SOURCE = `${SOURCE_FOLDER}/${SOURCE_PACKAGES_DIR}/greet/src`
 
 const folders: string[] = []
 
@@ -208,6 +217,73 @@ describe('pack refuses a src/ the review could not rebuild, and writes nothing',
   })
 })
 
+/** A kit in the temp folder: hello at themes/hello/ with a src/, naming @automatos/greet, which sits at packages/greet/. */
+function kitWithPackage(version = '0.1.0'): { readonly theme: string; readonly greet: string } {
+  const kit = tempFolder()
+  const theme = join(kit, 'themes', 'hello')
+  cpSync(HELLO_DIR, theme, { recursive: true })
+  Object.entries(SRC_FILES).forEach(([path, text]) => writeFile(join(theme, 'src', path), text))
+  const dependencies = { '@automatos/greet': version, 'left-pad': '1.3.0' }
+  writeFile(join(theme, 'package.json'), JSON.stringify({ name: '@automatos/theme-hello', version: '1.0.0', dependencies }))
+  const greet = join(kit, 'packages', 'greet')
+  writeFile(join(greet, 'package.json'), JSON.stringify({ name: '@automatos/greet', version: '0.1.0' }))
+  Object.entries(GREET_FILES).forEach(([path, text]) => writeFile(join(greet, path), text))
+  writeFile(join(greet, 'src', '.cache', 'note.ts'), 'export {}\n')
+  writeFile(join(greet, 'README.md'), '# greet\n')
+  return { theme, greet }
+}
+
+/** The refusals of `theme`'s pack, which must have written nothing. */
+function refused(theme: string): readonly { readonly code: string; readonly message: string }[] {
+  const out = tempFolder()
+  const result = packTheme(theme, out)
+  if (result.ok) throw new Error('expected a refusal, the theme packed')
+  expect(readdirSync(out)).toEqual([])
+  return result.errors
+}
+
+type PackageSeed = (greet: string) => void
+
+const PACKAGE_REFUSALS: ReadonlyArray<readonly [string, PackageSeed, string, readonly string[]]> = [
+  ['a file of a kind source/ can not hold', (greet) => writeFile(join(greet, 'src', 'logo.png'), 'png'), 'SOURCE_NOT_ALLOWED', ['logo.png']],
+  ['a file more than 8 levels deep under source/', (greet) => writeFile(join(greet, 'src', 'a/b/c/d/e/deep.ts'), 'export {}\n'), 'SOURCE_NOT_ALLOWED', ['a/b/c/d/e/deep.ts', '9 levels']],
+  ['a file that is not UTF-8', (greet) => writeFile(join(greet, 'src', 'bad.ts'), new Uint8Array([0xff, 0xfe, 0x00])), 'SOURCE_NOT_ALLOWED', ['bad.ts', 'UTF-8']],
+  ['a symbolic link', (greet) => symlinkSync(join(greet, 'README.md'), join(greet, 'src', 'linked.md')), 'SOURCE_LINK', ['linked.md']],
+]
+
+describe('pack writes each kit package the theme bundles as source/packages/<name>/src/ (B-01i)', () => {
+  it("packs every non-dot file of the package's src/, byte for byte, and nothing else of the package", () => {
+    const result = packTheme(kitWithPackage().theme, tempFolder())
+    if (!result.ok) throw new Error(result.errors.map((error) => error.message).join('\n'))
+    const bundled = readZip(readFileSync(result.file)).filter((entry) => entry.path.startsWith(`${SOURCE_FOLDER}/${SOURCE_PACKAGES_DIR}/`))
+    expect(bundled.map((entry) => entry.path)).toEqual(['index.ts', 'words/greet.ts'].map((path) => `${GREET_SOURCE}/${path}`))
+    bundled.forEach((entry) => expect(Buffer.from(entry.data).toString('utf8')).toBe(GREET_FILES[`src/${entry.path.slice(GREET_SOURCE.length + 1)}`]))
+    expect(Object.keys(result.manifest.files)).toEqual(expect.arrayContaining(Object.keys(SRC_FILES).map((path) => `${SOURCE_FOLDER}/${path}`)))
+  })
+
+  it.each(PACKAGE_REFUSALS)("refuses %s in a bundled package's src/, naming both paths", (_name, seed, code, named) => {
+    const { theme, greet } = kitWithPackage()
+    seed(greet)
+    const refusal = refused(theme).find((error) => error.code === code)
+    expect(refusal?.message).toMatch(new RegExp(`greet/src/\\S+ can't be packed as ${GREET_SOURCE}/`))
+    named.forEach((text) => expect(refusal?.message).toContain(text))
+  })
+
+  it('refuses a theme whose own src/ has a packages/ folder: source/packages/ is the bundled packages\' alone', () => {
+    const { theme } = kitWithPackage()
+    writeFile(join(theme, 'src', SOURCE_PACKAGES_DIR, 'x.ts'), 'export {}\n')
+    expect(refused(theme).map((error) => [error.code, error.message.includes(`${SOURCE_FOLDER}/${SOURCE_PACKAGES_DIR}/`)])).toEqual([['SOURCE_RESERVED', true]])
+  })
+
+  it("refuses a bundled package with no src/, and a version the kit's package is not at", () => {
+    const { theme, greet } = kitWithPackage()
+    rmSync(join(greet, 'src'), { recursive: true })
+    expect(refused(theme).map((error) => error.code)).toEqual(['SOURCE_PACKAGE'])
+    const wrong = kitWithPackage('0.2.0').theme
+    expect(refused(wrong).map((error) => [error.code, error.message.includes('0.2.0')])).toEqual([['SOURCE_PACKAGE', true]])
+  })
+})
+
 describe("Play, packed with its source/, stays within the server's caps", () => {
   it('members, package size and each source file', () => {
     if (!existsSync(join(PLAY_DIR, PLAY_ENTRY))) {
@@ -220,6 +296,8 @@ describe("Play, packed with its source/, stays within the server's caps", () => 
     expect(entries.length).toBeLessThanOrEqual(MAX_MEMBERS)
     expect(result.bytes).toBeLessThanOrEqual(CAPS.package)
     expect(source.map((entry) => entry.path)).toContain(`${SOURCE_FOLDER}/entry.ts`)
+    const bundled = ['look-kit/src/contrast.ts', 'mascot/src/reducer.ts'].map((path) => `${SOURCE_FOLDER}/${SOURCE_PACKAGES_DIR}/${path}`)
+    expect(source.map((entry) => entry.path)).toEqual(expect.arrayContaining(bundled))
     source.forEach((entry) => expect(entry.data.length).toBeLessThanOrEqual(fileKind(entry.path)?.cap ?? 0))
     expect(result.warnings).toEqual([])
   }, PLAY_PACK_TIMEOUT_MS)

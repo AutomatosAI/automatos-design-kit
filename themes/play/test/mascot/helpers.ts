@@ -8,8 +8,8 @@
  */
 import type { HostReceipt } from '@automatos/theme-sdk'
 
-import { INITIAL_MASCOT, mascotReducer } from '../../src/lib/mascot/reducer.ts'
-import type { MascotEvent, MascotName, MascotState } from '../../src/lib/mascot/types.ts'
+import { INITIAL_MASCOT, mascotReducer } from '@automatos/mascot/reducer'
+import type { MascotEvent, MascotName, MascotState } from '@automatos/mascot/types'
 
 /** Where the fake host serves the package's files from (host.setFilesRoot), as core's host names them. */
 export const FILES_ROOT = '/api/themes/files/0123abcd/'

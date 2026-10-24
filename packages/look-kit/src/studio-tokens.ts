@@ -8,10 +8,10 @@ import {
   readableOnTinted,
   readsOnAll,
   toHex,
-} from './contrast'
-import { isDarkGround, type CssVars } from './css'
-import { hexToTriplet } from './hsl'
-import { entryOf, type LookCatalogue, type LookGround, type LookPicks } from './types'
+} from './contrast.ts'
+import { isDarkGround, type CssVars } from './css.ts'
+import { hexToTriplet } from './hsl.ts'
+import { entryOf, type LookCatalogue, type LookGround, type LookPicks } from './types.ts'
 
 /**
  * PRD-260 D3 — a look as Studio's tokens, so every Studio page under a theme takes

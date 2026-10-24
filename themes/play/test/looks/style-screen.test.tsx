@@ -35,8 +35,8 @@ import { ACCENTS, GROUNDS, LIGHTS } from '../../src/lib/looks/catalogue.ts'
 import { lookToCssVars } from '../../src/lib/looks/engine.ts'
 import { AURORA, DAYLIGHT, EMBER } from '../../src/lib/looks/presets.ts'
 import { RADII, SPACING_STEPS, radiusToken, rootBlock } from '../../src/lib/looks/style.ts'
-import { ringTone } from '../../src/lib/mascot/ring.ts'
-import { MASCOT_STATES } from '../../src/lib/mascot/types.ts'
+import { ringTone } from '@automatos/mascot/ring'
+import { MASCOT_STATES } from '@automatos/mascot/types'
 import { MASCOT_FILES } from '../mascot/helpers.ts'
 
 import {

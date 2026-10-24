@@ -13,12 +13,15 @@
  * frame's tool-data key and the code of a request refused for used-up credits come from
  * the fake host (LIVE_KEY and CREDITS_EXHAUSTED_CODE, core's lib/chat/receipts.ts and
  * lib/credits.ts), and a receipt is in the SDK's shape (HostReceipt).
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with events.ts, which is this
+ * package's src/ now; data-events.ts stays Play's (themes/play/src/lib/mascot), as do the replay helpers.
  */
 import type { HostReceipt } from '@automatos/theme-sdk'
 import { CREDITS_EXHAUSTED_CODE, LIVE_KEY } from '@automatos/theme-harness/host'
 import { describe, expect, it } from 'vitest'
 
-import { mascotEventsFromData } from '../../src/lib/mascot/data-events.ts'
+import { mascotEventsFromData } from '../../../themes/play/src/lib/mascot/data-events.ts'
 import {
   BLOCKED_TURN,
   type ChatStatus,
@@ -27,10 +30,10 @@ import {
   mascotEventsFromStatus,
   NO_REPLY,
   type ReplyProgress,
-} from '../../src/lib/mascot/events.ts'
-import type { MascotEvent } from '../../src/lib/mascot/types.ts'
+} from '../src/events.ts'
+import type { MascotEvent } from '../src/types.ts'
 
-import { receipt, replay, sequence } from './helpers.ts'
+import { receipt, replay, sequence } from '../../../themes/play/test/mascot/helpers.ts'
 
 const toolStart = (toolCallId: string, toolName: string) => ({ type: 'tool-start', data: { toolCallId, toolName, input: { q: 'laptops' } } })
 const toolEnd = (toolCallId: string, fields: Record<string, unknown> = {}) => ({

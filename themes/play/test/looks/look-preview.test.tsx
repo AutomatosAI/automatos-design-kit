@@ -16,7 +16,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { LookPreview, PREVIEW_CAPTION } from '../../src/components/looks/look-preview.tsx'
-import { PAUSE_AUTO } from '../../src/components/mascot/mascot-pause-button.tsx'
+import { PAUSE_AUTO } from '@automatos/mascot/mascot-pause-button'
 import { PAUSE_KEY, PAUSE_STATE } from '../../src/lib/mascot/pause.ts'
 import { FILES_ROOT, MASCOT_FILES } from '../mascot/helpers.ts'
 

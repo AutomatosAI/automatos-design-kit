@@ -1,4 +1,4 @@
-import { parseHex, toHex, type Rgb } from './contrast'
+import { parseHex, toHex, type Rgb } from './contrast.ts'
 
 /**
  * PRD-260 — #rrggbb to and from Studio's HSL triplet 'H S% L%' (no hsl()

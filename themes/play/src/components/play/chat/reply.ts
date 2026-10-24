@@ -1,6 +1,6 @@
 import type { HostChatMessage, HostDeliverable, MissionSuggestionMessage } from '@automatos/theme-sdk'
 
-import { NO_REPLY, type ReplyProgress } from '../../../lib/mascot/events'
+import { NO_REPLY, type ReplyProgress } from '@automatos/mascot/events'
 
 /**
  * PRD-260 §4, PRD-261 A-14a — the conversation as Play's chat reads it, on the

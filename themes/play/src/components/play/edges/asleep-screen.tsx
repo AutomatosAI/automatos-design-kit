@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useOnline } from '@automatos/theme-sdk'
 
 import { useRecheckCountdown } from '../../../hooks/use-recheck-countdown'
-import type { MascotName } from '../../../lib/mascot/types'
+import type { MascotName } from '@automatos/mascot/types'
 import { refocus } from '../../../lib/play/focus'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import styles from './edges.module.css'
