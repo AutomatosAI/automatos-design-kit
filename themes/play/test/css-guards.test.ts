@@ -19,11 +19,11 @@
  * they were but for these. The files are the theme's: every stylesheet under src/ and the components under
  * src/components/{play,looks,mascot}, read by test/support/play-css.ts (the guards' readers, moved with them)
  * over core's css-cascade, css-colours and module-references (test/support/, byte for byte). (b): Play reads
- * the host's motion factor --theme-motion (PRD-261 K-19c, the README's table), the one host variable it may
+ * the host's motion factor --theme-motion (PRD-261 K-19c, docs/PLAY-HISTORY.md's table), the one host variable it may
  * read and never define. (d) compares with core's globals.css rules as test/fixtures/core/
  * studio-element-rules.css holds them (core at 101a0bf33; core's app/__tests__/studio-element-rules-contract
  * .test.ts is the host's side). Make it yours: play-theme.css's forced-colours rings name the wrap twice in
- * the kit (html.play:is(html.play), the README's table). Sections (a) (Play is ported, never imported) and (e)
+ * the kit (html.play:is(html.play), the same table). Sections (a) (Play is ported, never imported) and (e)
  * (the core's seams load Play's screens on demand) stay core's: its A-19f2 guard,
  * lib/__tests__/prd261-no-theme-in-core.test.ts, replaces them (test/moved-from-core/css.json).
  */
@@ -308,7 +308,7 @@ const WIDENED_IN_FORCED_COLOURS: Readonly<Record<string, readonly string[]>> = {
   [LOOKS_CSS]: ['.card[aria-pressed="true"]'],
 }
 const PRESSED_EDGE_MIN_PX = 2
-/** play-theme.css's forced-colours ring on a pressed control: the kit names the wrap twice (README's table). */
+/** play-theme.css's forced-colours ring on a pressed control: the kit names the wrap twice (docs/PLAY-HISTORY.md's table). */
 const PRESSED_ANYWHERE = 'html.play:is(html.play) [aria-pressed="true"]'
 
 function hidesOutline(body: string): boolean {
