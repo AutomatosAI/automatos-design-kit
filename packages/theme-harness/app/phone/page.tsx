@@ -8,20 +8,28 @@
  * - A theme with no painting: the same layout in Studio's own colours, saying why the phone offers it no painting.
  * - automatos/play and automatos/hud: the phone's built-in layout, which is part of the app and which the harness
  *   can't draw (built-in.tsx): the phone says so, beside the contrast.
+ *
+ * For any theme but those two, the skin designer (designer/) sits beside them: once it has a draft of the `mobile`
+ * block (in the address, src/phone/settings.ts), the phone, the token panel and the contrast panel show the theme with
+ * the draft in place of theme.json's block, and the contrast panel offers each failing pair's nearest passing fix.
  */
 import { paintScheme, STUDIO_COLOURS, type StudioColours } from '@automatos/theme-cli/phone'
+import type { SkinFix } from '@automatos/theme-cli/skin-check'
 import type { HostLook } from '@automatos/theme-sdk'
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import type { HarnessTheme } from '../../src/host/register.ts'
 import { measurePhone, shownSubject } from '../../src/phone/contrast.ts'
-import type { PhoneScheme, PhoneSettings } from '../../src/phone/settings.ts'
+import { designedSource, draftFromBlock, type SkinDraft } from '../../src/phone/designer.ts'
+import { withSkin, type PhoneScheme, type PhoneSettings } from '../../src/phone/settings.ts'
 import {
-  memberLook, paintsFromLooks, phoneMode, phoneSourceOf, type PhoneMode, type PhoneSource,
+  builtInStyleOf, memberLook, paintsFromLooks, phoneMode, phoneSourceOf, type PhoneMode, type PhoneSource,
 } from '../../src/phone/skin.ts'
+import { draftFixes, withFix } from '../../src/phone/skin-export.ts'
 import { presetOf, themeTone } from '../host.tsx'
 import { BUILT_IN_NAMES, BuiltInPhone } from './built-in.tsx'
 import { ContrastPanel } from './contrast-panel.tsx'
 import { PhoneControls } from './controls.tsx'
+import { SkinDesigner } from './designer/designer.tsx'
 import { PHONE, PhoneFrame } from './frame.tsx'
 import { StudioPhone } from './studio/studio-phone.tsx'
 import { TokenPanel } from './token-panel.tsx'
@@ -67,6 +75,13 @@ function shownColoursOf(mode: PhoneMode, scheme: PhoneScheme): StudioColours {
   return mode.kind === 'skin' ? mode.paint.colours[paintScheme(mode.paint, scheme)] : STUDIO_COLOURS[scheme]
 }
 
+/** The designer's draft: the address's, else theme.json's own block; null with neither. */
+function draftOf(own: PhoneSource, edited: SkinDraft | null): SkinDraft | null {
+  if (edited !== null) return edited
+  const block = own.manifest.mobile
+  return typeof block === 'object' && block !== null ? draftFromBlock(block) : null
+}
+
 function PhoneScreenOf({ mode, settings, scheme }: ScreenProps) {
   const label = `Automatos Go, ${PHONE.width} × ${PHONE.height}`
   if (mode.kind === 'built-in') {
@@ -98,8 +113,12 @@ export interface PhonePageProps {
 }
 
 export function PhonePage({ theme, assets, initial, onSettings }: PhonePageProps) {
-  const source = useMemo(() => phoneSourceOf(theme, assets), [theme, assets])
+  const own = useMemo(() => phoneSourceOf(theme, assets), [theme, assets])
   const [settings, setSettings] = useState(initial)
+  const designs = builtInStyleOf(own.manifest.id) === null
+  const edited = designs ? settings.skin ?? null : null
+  const source = useMemo(() => (edited === null ? own : designedSource(own, edited)), [own, edited])
+  const draft = useMemo(() => (designs ? draftOf(own, edited) : null), [designs, own, edited])
   const mode = useMemo(() => phoneMode(source, settings.look), [source, settings.look])
   const measure = useMemo(() => measurePhone(source), [source])
   const forced = forcedSchemeOf(theme, mode, settings)
@@ -108,6 +127,8 @@ export function PhonePage({ theme, assets, initial, onSettings }: PhonePageProps
     onSettings?.(settings)
   }, [settings, onSettings])
   const themed = mode.kind === 'skin' ? mode.paint.themed[paintScheme(mode.paint, scheme)] : null
+  const setDraft = (next: SkinDraft | null): void => setSettings((current) => withSkin(current, next))
+  const fixing = draft === null ? {} : { fixes: draftFixes(draft, measure), onFix: (fix: SkinFix) => setDraft(withFix(draft, fix)) }
   return (
     <main data-phone-mode={mode.kind} style={PAGE_STYLE}>
       <PhoneControls settings={settings} forcedScheme={forced} looks={lookChoices(source, mode)}
@@ -116,9 +137,13 @@ export function PhonePage({ theme, assets, initial, onSettings }: PhonePageProps
         <PhoneScreenOf mode={mode} settings={settings} scheme={scheme} />
         <div style={SIDE_STYLE}>
           <p role="status" data-phone-notice={mode.kind} style={NOTICE_STYLE}>{noticeOf(theme, mode)}</p>
-          <ContrastPanel measure={measure} shown={shownSubject(source, measure, { scheme, look: settings.look })} />
+          <ContrastPanel measure={measure} shown={shownSubject(source, measure, { scheme, look: settings.look })} {...fixing} />
           {mode.kind === 'built-in' ? null : <TokenPanel colours={shownColoursOf(mode, scheme)} themed={themed} />}
         </div>
+        {designs ? (
+          <SkinDesigner source={own} draft={draft} edited={edited !== null} scheme={scheme} look={settings.look}
+            colours={shownColoursOf(mode, scheme)} onDraft={setDraft} />
+        ) : null}
       </div>
     </main>
   )
