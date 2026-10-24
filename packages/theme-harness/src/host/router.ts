@@ -2,7 +2,8 @@
  * PRD-261 B-02e: the browser harness's addresses, with no DOM and no React, so the app, its build config and the
  * shots spec (Node) read the same ones.
  *
- * - Where the harness serves (HARNESS_ORIGIN), and the global the app publishes what it drew on (HARNESS_GLOBAL).
+ * - Where the harness serves (HARNESS_ORIGIN; `automatos-theme dev` on DEV_ORIGIN, PRD-261 B-02i), and the global the
+ *   app publishes what it drew on (HARNESS_GLOBAL).
  * - The views: every slot, page and route the theme both declares in theme.json and registers, each at the path
  *   the host draws it on (core: lookEditor@1 on /looks, styleSheet@1 on /looks/style, a page on its own route, a
  *   route under /x/; frame@1's own view on /, or on a harness path of its own when the theme owns /), and the view a
@@ -15,6 +16,9 @@
 export const HARNESS_HOST = '127.0.0.1'
 export const HARNESS_PORT = 4318
 export const HARNESS_ORIGIN = `http://${HARNESS_HOST}:${HARNESS_PORT}`
+/** Where `automatos-theme dev` serves the harness unless --port names another: beside the shots' port, so both can run. */
+export const DEV_PORT = 4319
+export const DEV_ORIGIN = `http://${HARNESS_HOST}:${DEV_PORT}`
 /** The global the app sets once the theme has loaded: HarnessReport. */
 export const HARNESS_GLOBAL = '__AUTOMATOS_HARNESS__'
 /** The folder the harness serves the theme folder's assets/ under, which the SDK's assetUrl names (host.setFilesRoot). */
