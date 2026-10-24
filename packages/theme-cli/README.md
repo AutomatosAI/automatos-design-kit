@@ -2,8 +2,10 @@
 
 The `automatos-theme` command. `pack` comes first, with `source/` and `pack --watch`; then a section each for
 `submit`, `install`, `new` (a theme from a template), `shots`, `previews` and `dev` (the browser harness as a local
-app). `brief` (a theme brief from a brand kit file) and `clone` (a core page's source as a read-only reference) are
-described at the top of `src/brief.ts` and `src/clone.ts`, and in `docs/cli-design.md`. `check` and `check design` are described at the top of `src/check/index.ts` and `src/check/design.ts`.
+app), and last the phone's model, the modules the harness's phone view draws from. `brief` (a theme brief from a
+brand kit file) and `clone` (a core page's source as a read-only reference) are described at the top of `src/brief.ts`
+and `src/clone.ts`, and in `docs/cli-design.md`. `check` and `check design` are described at the top of
+`src/check/index.ts` and `src/check/design.ts`.
 `src/cli-main.ts` holds the table of every command.
 
 `automatos-theme pack <theme folder> [--out <folder>] [--watch]` turns a built theme into the package the Automatos
@@ -237,8 +239,32 @@ Automatos running: the toolbar switches the view, preset, width, tone, reduced m
 
 The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own build last wrote it, so a theme whose
 `theme.json` names a default look needs that build once first; after changing the looks, run it again (or keep
-`pack --watch` running beside `dev`), and the next change under `src/` draws them. Kit CI's `harness` job runs
-`automatos-theme dev themes/play` and opens `/chat` on it (`shots/dev-smoke.spec.ts` in the harness).
+`pack --watch` running beside `dev`), and the next change under `src/` draws them. `/phone` is the harness's phone
+view (what Automatos Go draws for the theme, and its contrast; the harness's README), the same page. Kit CI's `harness`
+job runs `automatos-theme dev themes/play` and opens `/chat` and `/phone` on it (`shots/dev-smoke.spec.ts` in the
+harness).
 
 Exit code 0 once stopped (Ctrl-C), 1 when the folder has no `theme.json` or `src/entry.ts`, its presets are not built
 yet, or the port can't be served; 2 for a usage error.
+
+## The phone's model
+
+What Automatos Go draws for a theme's `mobile` block, as pure modules with none of Node's, so the harness's phone view
+(`/phone`, the harness's README) draws in a browser what a later command can print:
+
+- `@automatos/theme-cli/mobile-answer` (`src/mobile-answer.ts`): what the server answers the phone,
+  `GET /api/themes/mobile/{install_id}`'s `mobile` field, from the theme's own files and a look (core's
+  `services/themes/mobile.py`, with no database); its tone is `@automatos/theme-cli/mobile-paint`'s `lookTone`
+  (`mobile_tokens.py` `look_tone`).
+- `@automatos/theme-cli/phone` (`src/phone/`): Studio's colours as the app draws them, and an installed theme's
+  painting over them, from that answer, with the chat thread's boxes, as the app's `src/styles/themes/paint.ts` and
+  `src/styles/tokens/` paint them.
+- `@automatos/theme-cli/mobile-contrast` (`src/check/mobile-contrast.ts`): `check`'s own AA measure of the block,
+  which the phone view's contrast panel shows, so the two never disagree.
+
+The phone side is ported from Automatos Go (`AutomatosAI/automatos-go`) at one commit; each module's comment names
+the app's files and lines it follows:
+
+| Repository | Commit |
+|---|---|
+| `AutomatosAI/automatos-go` | `fe8003d72c4a58b5aa62443069857138ac624add` |

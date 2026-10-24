@@ -22,20 +22,24 @@
  *
  * The ratio is look-kit's `contrastRatio`, from @automatos/look-kit's contrast.ts (packages/look-kit, which
  * starts from Play's copy of core's frontend/lib/look-kit/contrast.ts, the same file at CORE_SHA). A token's
- * colour is mobile_tokens.py `parse_colour`: a #rrggbb upper-cased, or a triplet through look-kit hsl.ts
- * `hslToHex`, ported here step for step, so `check` loads look-kit's contrast.ts alone (`check design`'s
- * meter, check/contrast.ts, loads hsl.ts itself). test/check-mobile-contrast.test.ts holds both to the
- * corpus's `contrast` cases. Nothing here throws on a table or preset of the wrong shape: it paints nothing.
+ * colour is mobile_tokens.py `parse_colour` (src/mobile-paint.ts `parseColour`, re-exported here): a #rrggbb
+ * upper-cased, or a triplet through look-kit hsl.ts `hslToHex`, ported step for step, so `check` loads
+ * look-kit's contrast.ts alone (`check design`'s meter, check/contrast.ts, loads hsl.ts itself).
+ * test/check-mobile-contrast.test.ts holds both to the corpus's `contrast` cases. Nothing here reads a file
+ * system, so the harness's phone view measures with it in a browser too. Nothing here throws on a table or
+ * preset of the wrong shape: it paints nothing.
  */
-import { contrastRatio, toHex, type Rgb } from '@automatos/look-kit/contrast'
+import { contrastRatio } from '@automatos/look-kit/contrast'
 import { hasOwn, isRecord, own, PREPAINT_PATH, type JsonRecord } from '../core/css-value.ts'
 import {
-  isMobileColour, MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS, type MobileContrastKind, type MobileContrastPair,
+  MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS, type MobileContrastKind, type MobileContrastPair,
 } from '../core/mobile-manifest.ts'
 import { parseJson } from '../json.ts'
 import { presetFiles } from '../looks.ts'
-import { missingTokens, paintLook } from '../mobile-paint.ts'
+import { missingTokens, paintLook, parseColour } from '../mobile-paint.ts'
 import type { CheckEntry, CheckText, Files, Manifest } from './report.ts'
+
+export { parseColour } from '../mobile-paint.ts'
 
 export const OUTCOME_PASS = 'pass'
 export const OUTCOME_FAIL = 'fail'
@@ -63,12 +67,6 @@ const MOBILE_FIELD = 'mobile'
 const MOBILE_SCHEMES = ['light', 'dark'] as const
 const MINIMUMS: Readonly<Record<MobileContrastKind, number>> = { text: MOBILE_AA_TEXT, ui: MOBILE_AA_UI }
 const KIND_WORDS: Readonly<Record<MobileContrastKind, string>> = { text: 'text', ui: 'UI marks' }
-const HEX_MARK = '#'
-// hsl.ts: degrees and percents, the channel scale and hslToHex's twelve hue steps.
-const FULL_TURN = 360
-const PERCENT = 100
-const CHANNEL_MAX = 255
-const HUE_STEPS = 12
 
 const AA_MINIMUMS = `WCAG AA (${MOBILE_AA_TEXT}:1 for text, ${MOBILE_AA_UI}:1 for UI marks)`
 export const CONTRAST_REASONS: Readonly<Record<MobileOutcome, string>> = {
@@ -120,27 +118,6 @@ interface Subject {
   readonly id: string
   readonly kind: SubjectKind
   readonly tokens: unknown
-}
-
-/** hsl.ts `hslToHex` (mobile_tokens.py `_hsl_to_hex`), step for step, so both give the same channels. */
-function hslToHex(hue: number, saturation: number, lightness: number): string {
-  const sat = saturation / PERCENT
-  const light = lightness / PERCENT
-  const chroma = (1 - Math.abs(2 * light - 1)) * sat
-  const channel = (offset: number): number => {
-    const k = (offset + hue / (FULL_TURN / HUE_STEPS)) % HUE_STEPS
-    return Math.round((light - chroma / 2 * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * CHANNEL_MAX)
-  }
-  const rgb: Rgb = [channel(0), channel(8), channel(4)]
-  return toHex(rgb)
-}
-
-/** mobile_tokens.py `parse_colour`: a mobile token value as #RRGGBB when it is a triplet or a #rrggbb, else null. */
-export function parseColour(value: unknown): string | null {
-  if (!isMobileColour(value)) return null
-  if (value.startsWith(HEX_MARK)) return value.toUpperCase()
-  const [hue, saturation, lightness] = value.replaceAll('%', '').split(' ').map(Number)
-  return hslToHex(hue, saturation, lightness)
 }
 
 /** A ratio as the report writes it: to two decimals, from the double's exact value (Python's `round`). */

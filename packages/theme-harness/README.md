@@ -154,6 +154,8 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   The shots ask the browser itself for reduced motion; forced colours is the toolbar's preview only, and no shot
   draws it. Each setting is in the address, so a reload opens the same view.
 
+- **The phone view** (`/phone`, the toolbar's Phone view link; below).
+
 `shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one
 test per preset and width, each waiting on the host's status, the network, the fonts and the images (never a fixed
 sleep), with reduced motion on and animations off. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`);
@@ -167,4 +169,36 @@ draws it the same way: core's browser lane does that.
 `shots/dev-smoke.config.ts` is the smoke of `automatos-theme dev` (kit CI's `harness` job, after the shots): its web
 server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium and checks
 that Play started, that its own `/chat` page is on the stage with Auto saying hello over the message box, and that
-every request stayed on `http://127.0.0.1:4319`. Its shot and a failed test's trace go to `dist/shots/dev-smoke/`.
+every request stayed on `http://127.0.0.1:4319`; then it opens `/phone` and checks the phone view says Play is the
+phone's built-in layout and draws Play's `/chat` there, beside the contrast panel. Its shots and a failed test's trace
+go to `dist/shots/dev-smoke/`.
+
+## The phone view
+
+`/phone` (`app/phone/`) is what Automatos Go, the Automatos phone app, draws for the theme, at an iPhone's 390 × 844
+points, a point a pixel, beside the contrast `automatos-theme check` measures for it. Both servers answer it with the
+same page (`PAGE_PATHS` in `src/host/router.ts`), and its settings are in the address (`src/phone/settings.ts`): the
+screen (Chat, the Command Centre, First open), the user's Light / Dark, the member's look and reduced motion. It reads
+the theme's `mobile` block as the phone gets it: theme-cli's `mobile-answer` builds the server's answer from the
+folder's files (`GET /api/themes/mobile/{install_id}`; a font or Auto's file only for a file the folder holds, which
+the build lists from `assets/`), and theme-cli's `phone` paints it as the app does. What it draws follows the app's
+own rule (`src/phone/skin.ts`):
+
+- **A theme with a phone painting**: the app's Studio layout as DOM, painted from it. Each part's colours, the table
+  `src/phone/parts.ts` holds with the app file and lines each follows, are the theme's for the 21 tokens the layout
+  has a colour for and Studio's for the rest; the thread's boxes mix from them; a pressed card or button takes the
+  hover look and the focused message box the ring. The theme's fonts are `@font-face` rules on their role's text.
+  Auto shows on First open only (as on the phone): his clip under `clips`, his still under `stills` or reduced
+  motion, nothing under `none`. A painting from looks follows the look switch and sets Light / Dark itself. Beside it,
+  where each of the 24 tokens lands: its colour, whether the theme set it, and the parts that draw it.
+- **A theme with no painting** (no block, or a block that paints no ground and text): the same layout in Studio's own
+  colours, saying why the phone offers it none.
+- **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
+  member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
+  phone says so. The theme's own web screens are no stand-in: their `minWidth` (1024) keeps them off a phone-width
+  browser, where the host draws its own pages. The contrast panel still measures the block, look by look.
+
+The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src/phone/contrast.ts`): the outcome and
+reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its
+result. `test/phone-*.test.tsx` hold the view to the app's paint and the panel to `check` (the hello fixture, Play and
+HUD), and the dev smoke opens `/phone` on Play in Chromium.

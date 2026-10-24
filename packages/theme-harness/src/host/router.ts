@@ -11,6 +11,8 @@
  *   MainLayout draws a core page under a theme.
  * - The shots' plan: the groups, each view's file name, and the files a group must hold, read from the theme folder.
  * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
+ * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
+ *   own settings are src/phone/settings.ts's.
  */
 
 export const HARNESS_HOST = '127.0.0.1'
@@ -23,6 +25,10 @@ export const DEV_ORIGIN = `http://${HARNESS_HOST}:${DEV_PORT}`
 export const HARNESS_GLOBAL = '__AUTOMATOS_HARNESS__'
 /** The folder the harness serves the theme folder's assets/ under, which the SDK's assetUrl names (host.setFilesRoot). */
 export const FILES_ROOT = '/'
+/** The phone view's address (app/phone/page.tsx): Automatos Go's screens for the theme, beside its contrast. */
+export const PHONE_PATH = '/phone'
+/** Every address the harness page answers on: the mock host on `/`, the phone view on PHONE_PATH. */
+export const PAGE_PATHS: readonly string[] = Object.freeze(['/', PHONE_PATH])
 /** The element the theme draws in; what the shots' axe scan reads. */
 export const STAGE_ID = 'harness-stage'
 /** The theme folder the build and the shots draw (`automatos-theme shots` sets both). */
