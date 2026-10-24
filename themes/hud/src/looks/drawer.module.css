@@ -1,0 +1,305 @@
+/*
+ * The LOOK drawer ("Automatos Command HUD.dc.html": 372 px wide, 22 px in, 18 px between its parts, glass over the
+ * page and an accent-line edge) and the Share panel beside it, which uses its labels, buttons and messages. Square
+ * everywhere but the accent swatches and the look cards' rings, which the design draws round. A selected option
+ * has a 1.5 px accent border, an unselected one the line, so the state is never the colour alone: each is a toggle
+ * (aria-pressed). Every target is 44 px at least. The colours are the look's variables, but a swatch's own colour,
+ * which its markup sets as --hud-swatch (a look card's as --hud-card-ground and --hud-card-accent), from the
+ * catalogue.
+ */
+
+.drawer {
+  flex: 0 1 372px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--hud-accent-line);
+  background: var(--hud-drawer);
+  backdrop-filter: blur(16px);
+  color: var(--hud-text);
+}
+
+.section {
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}
+
+/* A part's label: Geist Mono 11 px capitals, tracked .16em. Unlayered under html.hud, it outranks Studio's h2. */
+.label {
+  margin: 0;
+  padding: 0;
+  color: var(--hud-text-2);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+}
+
+.hint {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 12px/1.4 var(--hud-font-text);
+}
+
+/* The looks row: 96 px cards, scrolling sideways. */
+.row {
+  margin: 0;
+  padding: 0 0 6px;
+  list-style: none;
+  display: flex;
+  gap: var(--hud-space-2);
+  overflow-x: auto;
+}
+
+.rowItem {
+  flex: none;
+}
+
+.card {
+  width: 96px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardTop {
+  position: relative;
+  height: 58px;
+  overflow: hidden;
+  background: var(--hud-card-ground);
+}
+
+.cardRing {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--hud-card-accent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 12px var(--hud-card-accent),
+    inset 0 0 8px var(--hud-card-accent);
+}
+
+.cardName {
+  padding: 6px 8px;
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+/* The accent swatches: a 44 px target around a 36 px dot, ringed in the text colour when picked. */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-1);
+}
+
+.swatch {
+  width: var(--hud-tap-min);
+  height: var(--hud-tap-min);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.swatchDot {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--hud-bg);
+  border-radius: 50%;
+  background: var(--hud-swatch);
+}
+
+.swatch[aria-pressed="true"] .swatchDot {
+  box-shadow: 0 0 0 2px var(--hud-text);
+}
+
+/* The backgrounds: two by two, each with a chip of its colour. */
+.grounds {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.option,
+.typeOption,
+.switch {
+  min-width: 0;
+  min-height: var(--hud-tap-min);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  cursor: pointer;
+}
+
+.option[aria-pressed="true"],
+.typeOption[aria-pressed="true"],
+.switch[aria-pressed="true"],
+.card[aria-pressed="true"] {
+  border: 1.5px solid var(--hud-accent);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 10px;
+  font: 500 12px/1 var(--hud-font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.groundChip {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid color-mix(in srgb, var(--hud-text) 25%, transparent);
+  background: var(--hud-swatch);
+}
+
+/* The type styles: each button is set in its own face and weight (its markup sets both). */
+.types {
+  display: flex;
+  gap: 6px;
+}
+
+.typeOption {
+  flex: 1;
+  padding: 0 var(--hud-space-1);
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.1em;
+}
+
+.slider {
+  width: 100%;
+  min-height: var(--hud-tap-min);
+  margin: 0;
+  accent-color: var(--hud-accent);
+  cursor: pointer;
+}
+
+/* Scan, Auto and Motion: an on switch takes the accent's fill and its text. */
+.switches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.switch {
+  padding: 0 var(--hud-space-1);
+  color: var(--hud-text-2);
+  font: 600 11px/1 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.switch[aria-pressed="true"] {
+  background: var(--hud-accent-fill);
+  color: var(--hud-accent-text);
+}
+
+.switchState {
+  white-space: nowrap;
+}
+
+/* Save as new look, the one primary (the accent with its ink), then the secondaries (a line outline). */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.drawer > .actions {
+  margin-top: auto;
+}
+
+.primary,
+.secondary {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 0;
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.primary {
+  flex: 1 1 auto;
+  border: 0;
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.secondary {
+  border: 1px solid var(--hud-line);
+  background: transparent;
+  color: var(--hud-text);
+}
+
+.secondary:hover {
+  border-color: var(--hud-accent-line);
+}
+
+/* What the host refused, in its words: an error-coloured edge and title, the reasons in the text colour. */
+.errors {
+  padding: var(--hud-space-3);
+  border: 1px solid var(--hud-error-text);
+  color: var(--hud-text);
+  font: 400 13px/1.4 var(--hud-font-text);
+}
+
+.errorTitle {
+  margin: 0 0 var(--hud-space-1);
+  color: var(--hud-error-text);
+  font-weight: 600;
+}
+
+.errorList {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.said {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 13px/1.4 var(--hud-font-text);
+}
+
+.paste {
+  width: 100%;
+  min-height: 96px;
+  padding: var(--hud-space-2);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: var(--hud-surface);
+  color: var(--hud-text);
+  font: 400 12px/1.5 var(--hud-font-mono);
+  resize: vertical;
+}
