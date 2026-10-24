@@ -20,10 +20,11 @@ look is checked against the theme's own schema.
 }
 ```
 
-- `look.schema` names the theme's look documents (lower-case letters, digits, `.` and `-`, then `/v<n>`); `look.interface` is
-  optional (1 to 32 lower-case letters, digits and dashes) and, when given, every look carries it too.
-- `knobs`: 1 to 32 knobs. A knob's name is a letter, then up to 31 letters and digits, and is none of the look's own
-  fields (`schema`, `interface`, `id`, `name`, `sub`).
+- `look.schema` names the theme's look documents (a lower-case letter, then lower-case letters, digits, `.` and `-`,
+  then `/v<n>`); `look.interface` is optional (a lower-case letter, then up to 31 lower-case letters, digits and
+  dashes) and, when given, every look carries it too.
+- `knobs`: 1 to 32 knobs. A knob's name is a lower-case letter, then up to 31 letters and digits, and is none of the
+  look's own fields (`schema`, `interface`, `id`, `name`, `sub`).
 
 A knob has one of two kinds:
 
