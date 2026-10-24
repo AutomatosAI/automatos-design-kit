@@ -3,8 +3,9 @@
  * size-checks, parses and validates (a look file is untrusted input), and gives
  * the look a fresh id. (jsdom, for File and FileReader.)
  *
- * Moved from core's lib/looks/__tests__/transfer.test.ts as it was, but for its imports: the theme's own look
- * runtime (src/lib/look-kit) and looks (src/lib/looks), and the helpers of test/lib/looks/helpers.ts.
+ * Moved from core's lib/looks/__tests__/transfer.test.ts as it was, but for its imports: the look runtime
+ * (@automatos/look-kit, Play's own src/lib/look-kit before PRD-261 B-01i), Play's looks (src/lib/looks), and the
+ * helpers of test/lib/looks/helpers.ts.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

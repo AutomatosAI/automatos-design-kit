@@ -62,7 +62,9 @@ end with the last line `RALPH_BLOCKED <story id> <reason in under 60 characters>
 - **SDK only.** Everything the theme reads or does goes through `@automatos/theme-sdk` (`guides/sdk.md`): no network
   calls, no cookies, no browser storage, no `@/` imports, no `next/*`, no `eval`. The Marketplace review refuses each
   one, and the theme's `lint` fails on it first.
-- **Bundle only `{{THEME_DIR}}/src/`.** An outside library is copied into `src/vendor/` as source, with its licence.
+- **Bundle only `{{THEME_DIR}}/src/`**, and the kit libraries the theme names under `dependencies`
+  (`@automatos/look-kit`, `@automatos/mascot`). An outside library is copied into `src/vendor/` as source, with its
+  licence.
 - **CSS** under `html.<htmlClass>`, every variable under the theme's own prefix, every colour from the look, no
   `!important` (`guides/pitfalls.md`).
 - **Protected surfaces stay the host's**: place the host's approval cards and keep the AI label visible; a composer

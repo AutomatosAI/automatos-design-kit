@@ -3,9 +3,11 @@
  *
  * A package holds theme.json, the top-level docs (README.md, CHANGELOG.md, LICENSE), and everything
  * under dist/, boot/, looks/, assets/ and source/ (PRD-261 §4.2). This file reads all of them but
- * source/ from the theme folder as they are; pack writes source/ from the folder's src/ (source.ts)
- * and never reads a source/ folder from disk. The rest of the folder (package.json, vite.config.ts,
- * node_modules) is the theme's build, not its package, and is left out. Inside the packed folders
+ * source/ from the theme folder as they are; pack writes source/ from the folder's src/ and the src/
+ * of each kit workspace package the theme bundles (source.ts, B-01i) and never reads a source/ folder
+ * from disk. The rest of the folder (package.json, vite.config.ts, node_modules) is the theme's build,
+ * not its package, and is left out: source.ts reads package.json's dependencies only to find the
+ * bundled packages, as the vite-preset does. Inside the packed folders
  * nothing is skipped but dotfiles (a Finder .DS_Store), so a file
  * the server would refuse, a source map say, is reported rather than dropped. A symbolic link is
  * reported as one (the server refuses links) and never followed.

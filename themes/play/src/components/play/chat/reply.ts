@@ -1,6 +1,6 @@
 import type { HostChatMessage, HostDeliverable, MissionSuggestionMessage } from '@automatos/theme-sdk'
 
-import { NO_REPLY, type ReplyProgress } from '../../../lib/mascot/events'
+import { NO_REPLY, type ReplyProgress } from '@automatos/mascot/events'
 
 /**
  * PRD-260 §4, PRD-261 A-14a — the conversation as Play's chat reads it, on the
@@ -43,7 +43,7 @@ export function runningToolInput(reply: HostChatMessage | undefined): unknown {
 }
 
 /**
- * The reply being written, for Auto (lib/mascot/events.ts): the newest message
+ * The reply being written, for Auto (@automatos/mascot's events.ts): the newest message
  * when it is a reply, whether its words have started, whether one of its tool
  * calls still runs, how long the model's reasoning on it is and whether a cap
  * ended its turn. A turn still awaiting its reply has none.

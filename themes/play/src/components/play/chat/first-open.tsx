@@ -1,6 +1,6 @@
 'use client'
 
-import type { MascotName } from '../../../lib/mascot/types'
+import type { MascotName } from '@automatos/mascot/types'
 import { AutoMascot } from '../../mascot/auto-mascot'
 
 import styles from './first-open.module.css'

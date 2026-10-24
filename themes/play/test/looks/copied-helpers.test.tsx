@@ -12,9 +12,11 @@
  *   false, logged as console.error('Failed to copy to clipboard:', error), when it refuses;
  * - the sample card's kind word (core's lib/chat/deliverables.ts KIND_WORDS.document, 'Document' → the style
  *   sheet's SAMPLE_KIND);
- * - the mark on a Play-only screen's h1 (components/looks/screen-heading.ts): builtin Play's host finds it by
- *   SCREEN_HEADING_SELECTOR ('[data-play-only-heading]', core's lib/theme-host/builtin/play-only-route.tsx), and the
- *   host's look runtime under an installed theme by '[data-theme-heading]' (PRD-261 K-19c).
+ * - the mark on a Play-only screen's h1 (components/looks/screen-heading.ts): the host's ThemeSlotPage finds it by
+ *   THEME_HEADING_SELECTOR ('[data-theme-heading]', core's components/theme-host/no-look-editor-note.tsx at
+ *   1699a4f95d496be0c2e14102bbff5aaa8f3fb020). Builtin Play's own mark, which only its host in core looked for
+ *   (SCREEN_HEADING_SELECTOR, '[data-play-only-heading]', at 101a0bf33), left with builtin Play: since Play 1.1.1
+ *   the heading carries the host's mark alone (PRD-261 K-21).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -31,9 +33,9 @@ const CORE_REVOKE_AFTER_MS = 1000
 const CORE_COPY_REFUSED = 'Failed to copy to clipboard:'
 /** Core's lib/chat/deliverables.ts KIND_WORDS.document. */
 const CORE_DOCUMENT_WORD = 'Document'
-/** Core's lib/theme-host/builtin/play-only-route.tsx SCREEN_HEADING_SELECTOR. */
-const CORE_SCREEN_HEADING_SELECTOR = '[data-play-only-heading]'
-/** The heading the host's look runtime looks for under an installed theme (PRD-261 K-19c). */
+/** Builtin Play's SCREEN_HEADING_SELECTOR (core's lib/theme-host/builtin/play-only-route.tsx until A-19). */
+const BUILTIN_SCREEN_HEADING_SELECTOR = '[data-play-only-heading]'
+/** Core's components/theme-host/no-look-editor-note.tsx THEME_HEADING_SELECTOR: the heading ThemeSlotPage focuses. */
 const THEME_HEADING_SELECTOR = '[data-theme-heading]'
 
 interface DownloadRecord {
@@ -126,10 +128,11 @@ describe("Play's copies of core's helpers", () => {
     expect(SAMPLE_KIND).toBe(CORE_DOCUMENT_WORD)
   })
 
-  it("marks a Play-only screen's heading where builtin Play's host and the installed theme's look runtime look for it", () => {
+  it("marks a Play-only screen's heading where the host looks for it, with the host's mark alone (K-21)", () => {
     const heading = document.createElement('h1')
     for (const [name, value] of Object.entries(PLAY_ONLY_HEADING)) heading.setAttribute(name, String(value))
-    expect(heading.matches(CORE_SCREEN_HEADING_SELECTOR)).toBe(true)
     expect(heading.matches(THEME_HEADING_SELECTOR)).toBe(true)
+    expect(heading.matches(BUILTIN_SCREEN_HEADING_SELECTOR)).toBe(false)
+    expect(heading.getAttributeNames()).toEqual(['data-theme-heading'])
   })
 })

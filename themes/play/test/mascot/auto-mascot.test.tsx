@@ -21,7 +21,7 @@ import { host } from '@automatos/theme-harness/host'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AutoMascot } from '../../src/components/mascot/auto-mascot.tsx'
-import { CLIP_MS } from '../../src/lib/mascot/player.ts'
+import { CLIP_MS } from '@automatos/mascot/player'
 
 import { FILES_ROOT, MASCOT_FILES } from './helpers.ts'
 

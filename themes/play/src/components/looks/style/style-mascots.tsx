@@ -14,7 +14,7 @@ import styles from './style.module.css'
 /**
  * PRD-260 §4 — the style sheet's mascot slots, ported from Automatos Play's
  * components/looks/style/StyleMascots.tsx: Auto's 12 states, each with the
- * ring he takes in this look (lib/mascot/ring.ts) and its colour in words.
+ * ring he takes in this look (@automatos/mascot's ring.ts) and its colour in words.
  * Play drew stand-ins; here each slot is the real AutoMascot (T-003). He is a
  * specimen, not the page's Auto, so his stages leave the page glow alone
  * (lightsPage={false}) and no caption speaks: the slot names the state, so he

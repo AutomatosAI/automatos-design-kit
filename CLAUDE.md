@@ -14,10 +14,9 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
   Hosted CLI auth — a credential `submit` could use against a hosted API without a browser sign-in — is parked
   for now; that is the maintainer's call, not a gap. Until it lands, `submit` against a hosted API will usually
   print the server's 401 or 403.
-- `themes/play`: Play, copied from core at one pinned commit (its own README names the commit and what changed).
-  Core no longer has builtin Play (its A-19 merge removed it), so Play lives only here: a Play change is made in this
-  kit alone. `docs/PLAY-HISTORY.md` records where the code came from. Play's README still has its old "Until A-19"
-  section, which no longer applies; the README is packed, so it changes only with Play's next version.
+- `themes/play`: Play, copied from core at one pinned commit (`docs/PLAY-HISTORY.md` names the commit and what
+  changed; Play's README points there). Core no longer has builtin Play (its A-19 merge removed it), so Play lives
+  only here: a Play change is made in this kit alone. Play's `CHANGELOG.md` lists what each version changed.
   The original pilot plan for Play, superseded by PRD-261, is kept at `docs/prd/PRD-001-FUN-UI-PILOT.md` for
   history.
 
@@ -30,9 +29,10 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 ## Traps
 
 - Nothing runs on the maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test.
-- A theme's build may read only its own `src/` (the vite preset's source guard refuses `node_modules` and
-  anything outside `src/`); an outside library it needs is vendored into `src/vendor/` as source, at the
-  version core pins.
+- A theme's build may read only its own `src/` and the `src/` of the kit libraries it names under
+  `dependencies` (`packages/look-kit`, `packages/mascot`; the vite preset's source guard refuses `node_modules`
+  and anything else); an outside library it needs is vendored into `src/vendor/` as source, at the version core
+  pins. `pack` writes each bundled library's `src/` as `source/packages/<name>/src/`.
 - `package-lock.json` is committed and installed with `npm ci`. Never hand-edit it — a new dependency goes
   through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency").
 - `theme-review.yml` and `theme-sign.yml` are person-run `workflow_dispatch` jobs; core never calls GitHub.

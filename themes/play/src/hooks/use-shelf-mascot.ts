@@ -4,9 +4,9 @@ import { useCallback, useEffect, useReducer } from 'react'
 
 import { useHealth } from '@automatos/theme-sdk'
 
-import { captionFor } from '../lib/mascot/media'
-import { INITIAL_MASCOT, mascotReducer } from '../lib/mascot/reducer'
-import type { MascotName } from '../lib/mascot/types'
+import { captionFor } from '@automatos/mascot/media'
+import { INITIAL_MASCOT, mascotReducer } from '@automatos/mascot/reducer'
+import type { MascotName } from '@automatos/mascot/types'
 import { kindOf, shelfCaption, type ShelfView } from '../lib/play/shelf'
 import { useCelebrateNew } from './use-celebrate-new'
 

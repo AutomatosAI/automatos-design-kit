@@ -2,12 +2,14 @@
 // Play's theme.json, entry and build config agree with each other, with core's manifest validator
 // (vendored in the theme CLI) and with what core's builtin Play declares. Files are read, not built.
 // PRD-261 M-07: theme.json names Auto's states (`mascot`) and the phone's block (`mobile`); the files and
-// colours the block needs are test/mobile.test.ts's.
+// colours the block needs are test/mobile.test.ts's. PRD-261 B-01i: `uses` covers the SDK areas of the kit
+// packages Play bundles too, since the package carries their src/ under source/packages/ and the review reads it.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
+import { bundledPackages } from '@automatos/vite-preset'
 import { describe, expect, it } from 'vitest'
-import { MASCOT_STATES } from '../src/lib/mascot/types.ts'
+import { MASCOT_STATES } from '@automatos/mascot/types'
 import { readSource, readThemeFile, SOURCE_ROOT, sourceScripts, THEME_ROOT } from './source-files.ts'
 
 const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
@@ -15,6 +17,9 @@ const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
 const A19_MERGE = 'fd993980e319172ea442491217249000ed85a5e7'
 /** The kit's record of where Play's code came from, outside the package: Play's README is packed. */
 const PLAY_HISTORY = join(THEME_ROOT, '..', '..', 'docs', 'PLAY-HISTORY.md')
+/** The README's section that points at the history, and the head of the history's table of changed lines. */
+const WHERE_FROM = 'Where the code comes from'
+const CHANGED_LINES_HEADER = '| File | Change | Why |'
 /** Slots Play's frame draws itself, so theme.json declares them but the entry registers none. */
 const DRAWN_BY_FRAME = ['asleep@1']
 /** The vendored SDK types, one file per area, named as `uses` writes the area ('pages-command-center'). */
@@ -24,6 +29,8 @@ const SDK = String.raw`['"]@automatos/theme-sdk['"]`
 const NAMED_SDK_IMPORT = new RegExp(String.raw`\b(?:import|export)\s+(type\s+)?\{([^{}]*)\}\s*from\s*` + SDK, 'g')
 /** A namespace or dynamic import of the SDK: it names no list, so `uses` could not be checked against it. */
 const WIDE_SDK_IMPORT = new RegExp(String.raw`\bimport\s*\*\s*as\s+\w+\s+from\s*${SDK}|\bimport\s*\(\s*${SDK}`)
+/** A script file, as test/source-files.ts reads Play's. */
+const SCRIPT_FILE = /\.(?:ts|tsx|js|jsx|mjs|cjs)$/
 
 interface PageEntry { readonly mode: string; readonly keepCorePage?: readonly string[] }
 interface Manifest {
@@ -39,6 +46,16 @@ const entry = readSource('entry.ts')
 /** The first arguments of every `host.<method>('…', …)` call in the entry, in order. */
 function registered(method: string): string[] {
   return Array.from(entry.matchAll(new RegExp(String.raw`host\.${method}\(\s*'([^']+)'`, 'g')), (m) => m[1])
+}
+
+/** The lines of one `## <heading>` section of the README, up to the next `## ` heading, blank lines left out. */
+function readmeSection(heading: string): string[] {
+  const lines = readThemeFile('README.md').split('\n')
+  const start = lines.indexOf(`## ${heading}`)
+  if (start < 0) throw new Error(`README.md has no "## ${heading}" section`)
+  const rest = lines.slice(start + 1)
+  const end = rest.findIndex((line) => line.startsWith('## '))
+  return (end < 0 ? rest : rest.slice(0, end)).filter((line) => line.trim() !== '')
 }
 
 /** The routes the entry registers: by literal, or by the PLAY_CONVERSATIONS_ROUTE constant. */
@@ -61,10 +78,22 @@ function sdkAreaOfName(): Map<string, string> {
   return owner
 }
 
-/** The value names Play's source imports from the SDK; `type` imports are left out, as the build drops them. */
+/** Every script the package carries as source/: Play's src/ and each bundled kit package's src/, by path, as text. */
+function packedScripts(): { readonly rel: string; readonly text: string }[] {
+  const own = sourceScripts().map((rel) => ({ rel, text: readSource(rel) }))
+  const bundled = bundledPackages(THEME_ROOT).flatMap((item) => {
+    const src = join(item.dir, 'src')
+    return readdirSync(src, { encoding: 'utf8', recursive: true })
+      .filter((rel) => SCRIPT_FILE.test(rel))
+      .map((rel) => ({ rel: `${item.name}/${rel}`, text: readFileSync(join(src, rel), 'utf8') }))
+  })
+  return [...own, ...bundled]
+}
+
+/** The value names the packed source imports from the SDK; `type` imports are left out, as the build drops them. */
 function sdkValueImports(): string[] {
-  const names = sourceScripts().flatMap((rel) =>
-    Array.from(readSource(rel).matchAll(NAMED_SDK_IMPORT)).flatMap((match) => (match[1] ? [] : match[2].split(','))),
+  const names = packedScripts().flatMap(({ text }) =>
+    Array.from(text.matchAll(NAMED_SDK_IMPORT)).flatMap((match) => (match[1] ? [] : match[2].split(','))),
   )
   return names
     .map((part) => part.trim())
@@ -81,7 +110,7 @@ describe('theme.json', () => {
     expect(manifest).toMatchObject({
       schema: 'automatos-theme/v1',
       id: 'automatos/play',
-      version: '1.1.0',
+      version: '1.1.1',
       htmlClass: 'play',
       minWidth: 1024,
       base: 'studio',
@@ -107,7 +136,7 @@ describe('theme.json', () => {
   })
 
   it("declares in uses exactly the SDK areas the code imports, as core's review check reads them", () => {
-    expect(sourceScripts().filter((rel) => WIDE_SDK_IMPORT.test(readSource(rel)))).toEqual([])
+    expect(packedScripts().filter(({ text }) => WIDE_SDK_IMPORT.test(text)).map(({ rel }) => rel)).toEqual([])
     const owner = sdkAreaOfName()
     const imported = sdkValueImports()
     expect(imported.filter((name) => !owner.has(name))).toEqual([])
@@ -146,13 +175,17 @@ describe('the build', () => {
 })
 
 describe('where the code comes from', () => {
-  it("names the core commit Play's code was copied from", () => {
-    expect(readThemeFile('README.md')).toContain(CORE_SHA)
+  it("points in one line at the kit's history (K-21), and keeps no rule from before A-19", () => {
+    const section = readmeSection(WHERE_FROM)
+    expect(section).toHaveLength(1)
+    expect(section[0]).toContain('docs/PLAY-HISTORY.md')
+    expect(readThemeFile('README.md')).not.toContain('Until A-19')
   })
 
-  it("the kit's history names that commit and the A-19 merge that removed builtin Play from core", () => {
+  it("the kit's history names the core commit Play's code was copied from, the lines changed and the A-19 merge", () => {
     const history = readFileSync(PLAY_HISTORY, 'utf8')
     expect(history).toContain(CORE_SHA)
+    expect(history).toContain(CHANGED_LINES_HEADER)
     expect(history).toContain(A19_MERGE)
   })
 

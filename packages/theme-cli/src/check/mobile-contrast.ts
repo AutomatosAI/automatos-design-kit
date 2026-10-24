@@ -20,15 +20,14 @@
  * - the outcome is `fail` when any subject fails, `pass` when one was measured and none failed, else
  *   `not_measured`. A manifest without the block gives null, and the review keeps its unmeasured entry.
  *
- * The ratio is look-kit's `contrastRatio`, from Play's copy of core's frontend/lib/look-kit/contrast.ts
- * (the same file at CORE_SHA). A token's colour is mobile_tokens.py `parse_colour`: a #rrggbb upper-cased,
- * or a triplet through look-kit hsl.ts `hslToHex`, ported here step for step because hsl.ts imports
- * './contrast' with no extension, which plain Node doesn't resolve (compile-looks.mjs and `check design`'s
- * meter, check/contrast.ts, load it through a resolve hook, so `check` registers none; contrast.ts imports
- * nothing). test/check-mobile-contrast.test.ts holds both to the corpus's
- * `contrast` cases. Nothing here throws on a table or preset of the wrong shape: it paints nothing.
+ * The ratio is look-kit's `contrastRatio`, from @automatos/look-kit's contrast.ts (packages/look-kit, which
+ * starts from Play's copy of core's frontend/lib/look-kit/contrast.ts, the same file at CORE_SHA). A token's
+ * colour is mobile_tokens.py `parse_colour`: a #rrggbb upper-cased, or a triplet through look-kit hsl.ts
+ * `hslToHex`, ported here step for step, so `check` loads look-kit's contrast.ts alone (`check design`'s
+ * meter, check/contrast.ts, loads hsl.ts itself). test/check-mobile-contrast.test.ts holds both to the
+ * corpus's `contrast` cases. Nothing here throws on a table or preset of the wrong shape: it paints nothing.
  */
-import { contrastRatio, toHex, type Rgb } from '../../../../themes/play/src/lib/look-kit/contrast.ts'
+import { contrastRatio, toHex, type Rgb } from '@automatos/look-kit/contrast'
 import { hasOwn, isRecord, own, PREPAINT_PATH, type JsonRecord } from '../core/css-value.ts'
 import {
   isMobileColour, MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS, type MobileContrastKind, type MobileContrastPair,

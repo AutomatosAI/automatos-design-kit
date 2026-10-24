@@ -10,18 +10,31 @@
  * source/ from src/ and refuses a src/ without exactly one). Never the package's own config: no
  * config file, no .env, PostCSS options set inline (empty, so no postcss.config is searched for),
  * and only the preset's plugins.
+ *
+ * PRD-261 B-01i: a theme that bundles kit workspace packages carries each one's src/ as
+ * source/packages/<name>/src/ (theme-cli's pack). The review lays the folder out as the kit does, the
+ * theme at themes/theme/ and each package at packages/<name>/ beside it, so every bundled module sits at
+ * the same path from the theme folder as in the author's build, and names the packages to the preset
+ * itself (`@automatos/<name>`, each package's folder): the rebuilt folder has no package.json.
  */
-import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { build } from 'vite'
 import { SOURCE_PREFIX } from '@automatos/theme-rules'
-import { automatosTheme, OUT_DIR } from '@automatos/vite-preset'
-import { SOURCE_DIR, SOURCE_ENTRY_CANDIDATES } from '../../packages/theme-cli/src/source.ts'
+import { automatosTheme, KIT_SCOPE, kitPackageFolder, OUT_DIR, type BundledPackage } from '@automatos/vite-preset'
+import { SOURCE_DIR, SOURCE_ENTRY_CANDIDATES, SOURCE_PACKAGES_DIR } from '../../packages/theme-cli/src/source.ts'
 
 export const BUILD_SOURCE_DIR = `${SOURCE_DIR}/`
 export const ENTRY_CANDIDATES: readonly string[] = SOURCE_ENTRY_CANDIDATES.map((name) => `${BUILD_SOURCE_DIR}${name}`)
 export const DIST_PREFIX = `${OUT_DIR}/`
+/** source/packages/: the bundled workspace packages, each as <name>/src/. */
+export const PACKAGES_PREFIX = `${SOURCE_PREFIX}${SOURCE_PACKAGES_DIR}/`
+/** Where the rebuild writes the theme folder and the packages it bundles, in the work folder (the kit's layout). */
+export const REBUILD_THEME_DIR = 'themes/theme'
+export const REBUILD_PACKAGES_DIR = 'packages'
 const BUILD_ERROR_MAX = 1_500
+/** A bundled package's file under source/packages/: its folder name, and its path under that package's src/. */
+const PACKAGE_FILE = /^([^/]+)\/src\/(.+)$/
 
 export type Files = ReadonlyMap<string, Uint8Array>
 
@@ -38,15 +51,42 @@ export interface DistComparison {
   readonly onlyInBuild: readonly string[]
 }
 
-/** The theme folder a package's files rebuild in: no dist/, and source/ as src/. */
+/** The theme folder a package's files rebuild in: no dist/, source/ as src/, and source/packages/ left to packageFolders. */
 export function themeFolderFiles(files: Files): Map<string, Uint8Array> {
   const folder = new Map<string, Uint8Array>()
   files.forEach((data, path) => {
-    if (path.startsWith(DIST_PREFIX)) return
+    if (path.startsWith(DIST_PREFIX) || path.startsWith(PACKAGES_PREFIX)) return
     const target = path.startsWith(SOURCE_PREFIX) ? `${BUILD_SOURCE_DIR}${path.slice(SOURCE_PREFIX.length)}` : path
     folder.set(target, data)
   })
   return folder
+}
+
+/** The bundled packages' files, by path in the packages folder (<name>/src/...), and their names. */
+export interface PackageFolders {
+  readonly files: ReadonlyMap<string, Uint8Array>
+  readonly names: readonly string[]
+}
+
+/** source/packages/<name>/src/** laid out as <name>/src/** of the packages folder, or why source/packages/ holds something else. */
+export function packageFolders(files: Files): PackageFolders | { readonly error: string } {
+  const laid = new Map<string, Uint8Array>()
+  const names = new Set<string>()
+  const stray: string[] = []
+  files.forEach((data, path) => {
+    if (!path.startsWith(PACKAGES_PREFIX)) return
+    const match = PACKAGE_FILE.exec(path.slice(PACKAGES_PREFIX.length))
+    if (match === null || kitPackageFolder(`${KIT_SCOPE}${match[1]}`) === null) {
+      stray.push(path)
+      return
+    }
+    names.add(match[1])
+    laid.set(`${match[1]}/${BUILD_SOURCE_DIR}${match[2]}`, data)
+  })
+  if (stray.length > 0) {
+    return { error: `${PACKAGES_PREFIX} holds only <package>/${BUILD_SOURCE_DIR} folders of kit packages (pack writes them), not ${stray.join(', ')}.` }
+  }
+  return { files: laid, names: Array.from(names).sort() }
 }
 
 /** The one entry the folder has, or why there isn't one. */
@@ -66,6 +106,12 @@ function writeFolder(root: string, folder: ReadonlyMap<string, Uint8Array>): voi
   })
 }
 
+/** The work folder, through symlinks, so the theme and its packages are read at the paths the build reports. */
+function workFolder(workDir: string): string {
+  mkdirSync(workDir, { recursive: true })
+  return realpathSync(workDir)
+}
+
 /** Every file under `dir`, keyed by `prefix` + its path relative to `dir`. */
 export function readTree(dir: string, prefix: string): Map<string, Uint8Array> {
   const tree = new Map<string, Uint8Array>()
@@ -82,9 +128,10 @@ export function readTree(dir: string, prefix: string): Map<string, Uint8Array> {
 
 /**
  * `vite build` of a theme folder with the kit's preset alone, run from the folder as a kit theme's
- * build is (CSS module names hash the file's path from the working folder).
+ * build is (CSS module names hash the file's path from the working folder). `packages` are the
+ * workspace packages it bundles; left out, the preset reads them from the folder's package.json.
  */
-export async function buildThemeFolder(root: string, entry: string): Promise<void> {
+export async function buildThemeFolder(root: string, entry: string, packages?: readonly BundledPackage[]): Promise<void> {
   const previous = process.cwd()
   process.chdir(root)
   try {
@@ -94,7 +141,7 @@ export async function buildThemeFolder(root: string, entry: string): Promise<voi
       envDir: false,
       logLevel: 'silent',
       css: { postcss: {} },
-      plugins: [automatosTheme({ entry })],
+      plugins: [automatosTheme({ entry, packages })],
     })
   } finally {
     process.chdir(previous)
@@ -106,15 +153,20 @@ function buildErrorText(error: unknown): string {
   return text.length > BUILD_ERROR_MAX ? `${text.slice(0, BUILD_ERROR_MAX)}…` : text
 }
 
-/** Rebuilds the package's source/ in `workDir` and reads the dist/ it wrote. */
+/** Rebuilds the package's source/ in `workDir` (the theme at themes/theme/, its packages beside it) and reads the dist/ it wrote. */
 export async function rebuildDist(files: Files, workDir: string): Promise<RebuildResult> {
   const folder = themeFolderFiles(files)
   const found = entryOf(folder)
   if ('error' in found) return { ok: false, error: found.error }
-  const root = join(workDir, 'theme')
+  const bundled = packageFolders(files)
+  if ('error' in bundled) return { ok: false, error: bundled.error }
+  const work = workFolder(workDir)
+  const root = join(work, REBUILD_THEME_DIR)
   writeFolder(root, folder)
+  writeFolder(join(work, REBUILD_PACKAGES_DIR), bundled.files)
+  const packages = bundled.names.map((name) => ({ name: `${KIT_SCOPE}${name}`, dir: join(work, REBUILD_PACKAGES_DIR, name) }))
   try {
-    await buildThemeFolder(root, found.entry)
+    await buildThemeFolder(root, found.entry, packages)
   } catch (error) {
     return { ok: false, error: `The kit's build of source/ failed: ${buildErrorText(error)}` }
   }

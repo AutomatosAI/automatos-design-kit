@@ -8,8 +8,9 @@
  * with the ring each takes.
  *
  * Moved from core's lib/looks/__tests__/style.test.ts as it was, but for its imports and where it reads
- * app/play-theme.css: the theme's own look runtime (src/lib/look-kit) and looks (src/lib/looks), Auto's
- * states from src/lib/mascot/types.ts, and the tokens from the theme's src/app/play-theme.css.
+ * app/play-theme.css: the look runtime (@automatos/look-kit, Play's own src/lib/look-kit before PRD-261 B-01i)
+ * and Play's looks (src/lib/looks), Auto's states from @automatos/mascot's types.ts (src/lib/mascot/types.ts
+ * before B-01i), and the tokens from the theme's src/app/play-theme.css.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -44,7 +45,7 @@ import {
   rootBlock,
   variantNote,
 } from '../../../src/lib/looks/style.ts'
-import { MASCOT_STATES } from '../../../src/lib/mascot/types.ts'
+import { MASCOT_STATES } from '@automatos/mascot/types'
 import { SOURCE_ROOT } from '../../source-files.ts'
 
 const PLAY_THEME_CSS = 'app/play-theme.css'

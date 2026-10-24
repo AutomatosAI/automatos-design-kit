@@ -20,8 +20,8 @@ import { describe, expect, it } from 'vitest'
 import { chatCaption, NAPPING, ON_THE_SHELF, WAKE_HINT } from '../../src/components/play/chat/caption.ts'
 import { clip, SECONDS_DECIMALS, toolDetail, toolSeconds } from '../../src/components/play/chat/labels.ts'
 import { latestReply, replyProgress, runningToolInput } from '../../src/components/play/chat/reply.ts'
-import { NO_REPLY } from '../../src/lib/mascot/events.ts'
-import { captionFor } from '../../src/lib/mascot/media.ts'
+import { NO_REPLY } from '@automatos/mascot/events'
+import { captionFor } from '@automatos/mascot/media'
 
 /** A message as the SDK hands it to a theme, with only what the case sets. */
 function message(fields: Partial<HostChatMessage>): HostChatMessage {

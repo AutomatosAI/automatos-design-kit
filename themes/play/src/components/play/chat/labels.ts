@@ -1,6 +1,6 @@
 import type { HostToolCall } from '@automatos/theme-sdk'
 
-import { toolActivity, type ToolActivity } from '../../../lib/mascot/tools'
+import { toolActivity, type ToolActivity } from '@automatos/mascot/tools'
 
 /**
  * PRD-260 §4 — a tool call in words, ported from Automatos Play's
@@ -8,7 +8,7 @@ import { toolActivity, type ToolActivity } from '../../../lib/mascot/tools'
  * query, the page, the title), and its line in the reply (mocks 01 and 02):
  * "Searching the web: '…'" while it runs, "Searched the web · 3 results ·
  * 2.1 s" when it is done. The caption under Auto shows the detail beside
- * "Searching." while the call runs. Tool names stay in lib/mascot/tools.ts: a
+ * "Searching." while the call runs. Tool names stay in @automatos/mascot's tools.ts: a
  * label comes from the tool's activity, or from its name made readable, so a
  * tool the backend adds tomorrow still gets a sensible line. Pure.
  */

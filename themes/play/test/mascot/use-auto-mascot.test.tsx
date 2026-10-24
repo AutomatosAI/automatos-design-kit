@@ -19,7 +19,7 @@ import { CREDITS_EXHAUSTED_CODE, host, LIVE_KEY } from '@automatos/theme-harness
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type AutoMascotOptions, useAutoMascot } from '../../src/hooks/use-auto-mascot.ts'
-import { NO_REPLY, type ReplyProgress } from '../../src/lib/mascot/events.ts'
+import { NO_REPLY, type ReplyProgress } from '@automatos/mascot/events'
 import { HELLO_KEY, HELLO_STATE } from '../../src/lib/mascot/session.ts'
 
 import { receipt } from './helpers.ts'

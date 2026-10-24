@@ -5,11 +5,12 @@
  * would clobber Studio's HSL tokens of the same names), so Classic and
  * Studio never see any of it. Imported once, by src/entry.ts (the kit).
  *
- * The colour and display-type values are the look's variables
- * (lib/look-kit/css.ts), set on <html> by the pre-paint script and the
- * LookProvider. No literal colour lives here: lib/looks/catalogue.ts is the
- * only home for those (the PRD-260 guard test); the forced-colours block names
- * CSS system colours, which the OS sets, not the look. Spacing, radii and motion
+ * The colour and display-type values are the look's variables (the look
+ * kit's css.ts), set on <html> by the host: its boot script before the first
+ * paint, then its look runtime. No literal colour lives here:
+ * lib/looks/catalogue.ts is the only home for those (the PRD-260 guard
+ * test); the forced-colours block names CSS system colours, which the OS
+ * sets, not the look. Spacing, radii and motion
  * stay static (the Ember README and style sheet). Body and mono text use the
  * core's Geist variables; Play's display faces come from app/play-fonts.css (the kit).
  */
@@ -35,7 +36,7 @@ html.play {
   --pl-color-light: var(--pl-auto-light); /* the light: his ring and the "connected" dot (the eyes are part of the clips) */
   --pl-color-shell: var(--pl-auto-shell); /* his stand-in's outline while the clips are missing */
   --pl-filter-shell: var(--pl-auto-shell-filter); /* tints his clip and still to the look's shell */
-  --pl-color-dusk: var(--pl-auto-dusk); /* his ring asleep and lost: text2 45% into bg (lib/look-kit/css.ts duskOf) */
+  --pl-color-dusk: var(--pl-auto-dusk); /* his ring asleep and lost: text2 45% into bg (the look kit's css.ts duskOf) */
 
   /* Colour: a Deliverable's page, printed on a sheet (Ember mock 05) */
   --pl-color-sheet: var(--pl-sheet-bg);
@@ -50,7 +51,7 @@ html.play {
   --pl-line-button: color-mix(in srgb, var(--pl-ground-text) 24%, transparent); /* outlined buttons */
 
   /* Colour: tints. The accent text reads on the fill, the halo and the faint tint: their alphas are
-     lib/look-kit/css.ts ACCENT_TEXT_TINTS (contrast.test.ts holds these literals to them). */
+     the look kit's css.ts ACCENT_TEXT_TINTS (contrast.test.ts holds these literals to them). */
   --pl-tint-hover: var(--pl-ground-chip);
   --pl-tint-panel: var(--pl-ground-panel);
   --pl-tint-tool: var(--pl-ground-chip); /* a finished tool line */
@@ -70,7 +71,7 @@ html.play {
 
   /* Page ground and its glow (the base rules below). --pl-glow is the look's accent at its glow level and
      --pl-glow-snag the coral at the ground's snag level, each capped where the page's text still reads at AA
-     (lib/look-kit/css.ts safeGlow, snagGlowAlpha). */
+     (the look kit's css.ts safeGlow, snagGlowAlpha). */
   --pl-page-background: var(--pl-color-bg);
   --pl-page-glow: radial-gradient(760px 520px at 82% 62%, var(--pl-glow), transparent 65%);
   --pl-page-glow-snag: radial-gradient(760px 520px at 82% 62%, var(--pl-glow-snag), transparent 65%);
@@ -161,8 +162,8 @@ html.play {
   --pl-duration-ring: 2.4s; /* the ring pulses */
   --pl-duration-glow: 600ms; /* the page glow crossfades with Auto's state */
   /* The host's motion factor for calc(): 1, or 0 when the user asks for reduced motion. The host's look
-     runtime sets --theme-motion on <html> (PRD-261 A-19d2); builtin Play's LookProvider sets --pl-motion. */
-  --pl-motion-scale: var(--theme-motion, var(--pl-motion, 1));
+     runtime sets --theme-motion on <html> (PRD-261 A-19d2); with none set, motion runs at 1. */
+  --pl-motion-scale: var(--theme-motion, 1);
 
   /* Layout */
   --pl-sidebar-width: 232px;
@@ -305,12 +306,9 @@ html.play {
   }
 }
 
-/* The same stop, set by the host on <html>: data-theme-motion by its look runtime (PRD-261 A-19d2, with
-   --theme-motion: 0 for calc()), data-pl-motion by builtin Play's LookProvider (with --pl-motion: 0).
+/* The same stop, set by the host on <html>: data-theme-motion="reduce" by its look runtime (PRD-261
+   A-19d2, with --theme-motion: 0 for calc()), the host's generic marker and the only one Play reads.
    Kit: the same three declarations, no longer marked important; (1,2,1) and (1,2,2) by the same id. */
-html.play:not(#play-none)[data-pl-motion="reduce"] *,
-html.play:not(#play-none)[data-pl-motion="reduce"] *::before,
-html.play:not(#play-none)[data-pl-motion="reduce"] *::after,
 html.play:not(#play-none)[data-theme-motion="reduce"] *,
 html.play:not(#play-none)[data-theme-motion="reduce"] *::before,
 html.play:not(#play-none)[data-theme-motion="reduce"] *::after {

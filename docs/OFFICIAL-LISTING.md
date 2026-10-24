@@ -2,7 +2,7 @@
 
 How a Play version reaches each Automatos edition, and the run that lists it as the official theme on the
 hosted edition. Every step is done by a person; kit CI checks the workflows, not the run. `<v>` is Play's
-version as `themes/play/theme.json` gives it (for example `1.1.0`).
+version as `themes/play/theme.json` gives it (for example `1.1.1`).
 
 - **Local and open-source editions** install Play from its GitHub release: the `automatos.play-<v>.autotheme`
   asset, and its `<v>.sig.json` once the version is signed, through Settings › Appearance › Themes › Install

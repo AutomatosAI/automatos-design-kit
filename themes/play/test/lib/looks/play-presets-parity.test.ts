@@ -7,9 +7,9 @@
  * exactly those names, in the same order, with exactly those values.
  *
  * Moved from core's lib/look-kit/__tests__/play-presets-parity.test.ts as it was, but for its imports and the
- * fixture's place: the theme's own look runtime (src/lib/look-kit) with Play's catalogue bound in by
- * src/lib/looks/engine.ts must paint what fixtures/play-presets-pre-move.json (core's fixture, copied byte
- * for byte) holds.
+ * fixture's place: the look runtime (@automatos/look-kit, Play's own src/lib/look-kit before PRD-261 B-01i)
+ * with Play's catalogue bound in by src/lib/looks/engine.ts must paint what fixtures/play-presets-pre-move.json
+ * (core's fixture, copied byte for byte) holds.
  */
 import { readFileSync } from 'fs'
 import path from 'path'

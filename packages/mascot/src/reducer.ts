@@ -19,7 +19,7 @@ import {
  * PRD-260 D6 — Auto's state machine, ported from Automatos Play's
  * lib/mascot/reducer.ts: a pure (state, event) => state with no timers and no
  * DOM. The rules (the state table, the priority order, the one-shots) are
- * Play's mascot spec. hooks/use-mascot-player.ts owns the clip boundary, the
+ * Play's mascot spec. Play's hooks/use-mascot-player.ts owns the clip boundary, the
  * hold time and reduced motion, and reports clip-ended when a one-shot's clip
  * ends. Unchanged input returns the same object. While an approval card waits
  * for the owner (Play's chat, T-005c), Auto rests on listening where he would
@@ -81,7 +81,7 @@ function show(state: MascotState, next: Pose): MascotState {
 /**
  * What plays when the current one-shot ends. The one-shot on screen never
  * queues behind itself: its finished clip would never end again, and Auto
- * would freeze on it (lib/mascot/player.ts retarget).
+ * would freeze on it (player.ts retarget).
  */
 function enqueue(state: MascotState, next: Pose): MascotState {
   if (ONE_SHOTS.has(next.mascot) && next.mascot === state.mascot) return state

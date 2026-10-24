@@ -10,8 +10,8 @@ import {
   useChatController,
 } from '@automatos/theme-sdk'
 
-import { FAILED_TURN } from '../lib/mascot/events'
-import type { MascotEvent } from '../lib/mascot/types'
+import { FAILED_TURN } from '@automatos/mascot/events'
+import type { MascotEvent } from '@automatos/mascot/types'
 
 /**
  * PRD-260 §4, PRD-261 A-11a (M28), A-14a — Play's chat on one conversation:

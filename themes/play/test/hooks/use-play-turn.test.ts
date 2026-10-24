@@ -4,13 +4,13 @@
  * (FAILED_TURN, with the reply's code), every other event goes as it is.
  *
  * Moved from core's hooks/__tests__/use-play-turn.test.ts as it was, but for its imports: the hook and Auto's
- * events are the theme's own (src/hooks/use-play-turn.ts, src/lib/mascot/events.ts), and the turn events are
- * the SDK's HostChatTurnEvent.
+ * events are the theme's own (src/hooks/use-play-turn.ts, and @automatos/mascot's events.ts, Play's
+ * src/lib/mascot/events.ts before PRD-261 B-01i), and the turn events are the SDK's HostChatTurnEvent.
  */
 import { describe, expect, it } from 'vitest'
 
 import { mascotEventOf } from '../../src/hooks/use-play-turn.ts'
-import { FAILED_TURN } from '../../src/lib/mascot/events.ts'
+import { FAILED_TURN } from '@automatos/mascot/events'
 
 describe("Play's turn events, as Auto plays them", () => {
   it("makes a reply that failed in words Auto's error, with its code", () => {

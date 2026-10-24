@@ -10,16 +10,16 @@ import {
   mascotEventsFromStatus,
   NO_REPLY,
   type ReplyProgress,
-} from '../lib/mascot/events'
-import { INITIAL_MASCOT, mascotReducer } from '../lib/mascot/reducer'
+} from '@automatos/mascot/events'
+import { INITIAL_MASCOT, mascotReducer } from '@automatos/mascot/reducer'
 import { claimFirstOpen, helloReady, subscribeHello } from '../lib/mascot/session'
-import type { MascotEvent, MascotName, MascotState } from '../lib/mascot/types'
+import type { MascotEvent, MascotName, MascotState } from '@automatos/mascot/types'
 
 /**
- * PRD-260 D5, D6 — Auto driven by the core chat. Play's reducer
- * (lib/mascot/reducer.ts) is fed from useChatWithReceipts' data callback, its
+ * PRD-260 D5, D6 — Auto driven by the core chat. His reducer
+ * (@automatos/mascot's reducer.ts) is fed from useChatWithReceipts' data callback, its
  * status and its newest reply (the model's reasoning, the words starting, a cap)
- * through lib/mascot/data-events.ts and lib/mascot/events.ts, from the page's
+ * through lib/mascot/data-events.ts and @automatos/mascot's events.ts, from the page's
  * own events through dispatch, and from the idle nap. The screen hands
  * `mascot` and `onClipEnded` to <AutoMascot>.
  */

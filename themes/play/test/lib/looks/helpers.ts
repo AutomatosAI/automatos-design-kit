@@ -5,7 +5,6 @@
 // Core's memoryStorage and blockedStorage are not moved: only core's storage and store tests (host
 // runtime, which stay in core) used them, and a theme's state goes through the SDK's storage area
 // (test/support/memory-storage.ts).
-import { MOTION_ATTRIBUTE } from '../../../src/lib/looks/document.ts'
 import { LOOK_VAR_NAMES, STUDIO_TOKEN_NAMES } from '../../../src/lib/looks/engine.ts'
 import { EMBER } from '../../../src/lib/looks/presets.ts'
 import type { Look } from '../../../src/lib/looks/types.ts'
@@ -45,6 +44,6 @@ export function lookNamesLeft(): readonly string[] {
 export function clearRoot(): void {
   const root = document.documentElement
   root.removeAttribute('style')
-  root.removeAttribute(MOTION_ATTRIBUTE)
+  root.removeAttribute('data-theme-motion')
   root.classList.remove(PLAY_HTML_CLASS, STUDIO_HTML_CLASS, 'light', 'dark')
 }

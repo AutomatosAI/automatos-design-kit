@@ -24,8 +24,8 @@ const HOSTED_AUTH_DEFERRED_FACT = /hosted\s+CLI\s+auth[^.]*(?:parked|deferred)/i
 const FORBIDDEN_DOC_REFS = ["docs/prd/core", "scripts/ralph/prd-261.json", ".claude/"];
 
 // PRD-261 K-20: core's A-19 merge removed builtin Play, so Play lives only in this kit. The old rule, a Play change
-// made in core and here with each pull request naming the other, must not come back in any doc. Play's own README
-// still has it: the README is packed, so it changes only with Play's next version.
+// made in core and here with each pull request naming the other, must not come back in any doc. Play's own README,
+// which is packed and so changes only with a new Play version, dropped it in Play 1.1.1 (K-21): it is read too.
 const MIRROR_RULE = [
   /\bmade\s+here\s+too\b/i,
   /\bboth\s+repositories\b/i,
@@ -132,13 +132,13 @@ describe("no tracked doc names a planning-only path", () => {
 });
 
 describe("no doc keeps the rule that mirrored Play into core (K-20)", () => {
-  const files = trackedMarkdown().filter((file) => file !== PACKED_PLAY_README);
+  const files = trackedMarkdown();
 
   it("finds the old rule in its own text", () => {
     expect(mirrorRuleIn(OLD_MIRROR_RULE)).not.toEqual([]);
   });
 
-  it.each(["AGENTS.md", "CLAUDE.md", "docs/PLAY-HISTORY.md"])("%s is among the docs read", (file) => {
+  it.each(["AGENTS.md", "CLAUDE.md", "docs/PLAY-HISTORY.md", PACKED_PLAY_README])("%s is among the docs read", (file) => {
     expect(files).toContain(file);
   });
 

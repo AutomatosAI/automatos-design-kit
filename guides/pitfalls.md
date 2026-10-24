@@ -8,10 +8,10 @@ Each entry says what happens, what catches it, and what to do instead.
 **The accent as text on a light ground.** An accent that reads well as a fill can fail as text. Play's Molten accent
 (`#FF6A1F`) is 2.49:1 on its Paper ground (`#F4EEE8`), and its error coral (`#FF6B6B`) 2.41:1: both under the 4.5:1
 that text needs. Give every colour that shows as text its own text variable per ground, derived from the raw colour
-until it reads (Play's `readableOn` in `themes/play/src/lib/look-kit/contrast.ts` mixes it toward the ground's text in
-small steps until it reaches 4.8:1), and keep the raw colour for fills, rings and icons. Paint the pair from the
-prepaint table and declare it in `design/contrast.json`: `automatos-theme check design` measures it on every preset
-([looks.md](looks.md)).
+until it reads (`readableOn` in `@automatos/look-kit`'s `contrast.ts`, `packages/look-kit/src/`, which Play bundles,
+mixes it toward the ground's text in small steps until it reaches 4.8:1), and keep the raw colour for fills, rings
+and icons. Paint the pair from the prepaint table and declare it in `design/contrast.json`:
+`automatos-theme check design` measures it on every preset ([looks.md](looks.md)).
 
 **A focus ring under 3:1.** The same accent drawn as a focus outline is 2.49:1 on Paper, under the 3:1 a focus
 indicator needs. Draw outlines and input rings in the readable text variable; a soft halo may stay the raw accent.
@@ -71,11 +71,14 @@ reported like the call. Say what the code does in other words.
 
 **Imports the host doesn't serve.** `@/…` is core's alias and `next/*` is Next.js: neither exists for a theme. React
 and the SDK come from the host's import map and must not be bundled. A library from `node_modules` is refused by the
-preset's source guard: copy it into `src/vendor/` as source, with its licence.
+preset's source guard: copy it into `src/vendor/` as source, with its licence. The kit's own libraries
+(`@automatos/look-kit`, `@automatos/mascot`) are the exception: name one at its version under `dependencies` in the
+theme's `package.json` and the preset bundles its `src/` with yours.
 
 **A build that needs its own config.** The review rebuilds `source/` with the kit's preset alone, with no
 `tsconfig.json`, `package.json` or `vite.config.*`, and its `dist/` must match the package byte for byte. No path
-aliases, no extra plugins, nothing from outside `src/`. Never write `source/` yourself: `pack` writes it from `src/`.
+aliases, no extra plugins, nothing from outside `src/` but the kit libraries it names. Never write `source/` yourself:
+`pack` writes it from `src/`, and each bundled kit library's `src/` as `source/packages/<name>/src/`.
 
 **Untrusted text as HTML.** Chat replies, Deliverables and imported files are untrusted. Render Markdown through
 `cards.MarkdownView` and everything else as text; never set HTML from them.

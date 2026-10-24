@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-import { videoFormat, type VideoFormat } from '../lib/mascot/media'
+import { videoFormat, type VideoFormat } from '@automatos/mascot/media'
 
 /**
  * PRD-260 — browser preferences Play's theme and Auto follow. They read as
@@ -35,7 +35,7 @@ const formatNow = (): VideoFormat => videoFormat(navigator.userAgent, navigator.
 
 const formatOnServer = (): VideoFormat | null => null
 
-/** The clip format for this browser (lib/mascot/media.ts); null on the server. */
+/** The clip format for this browser (@automatos/mascot's media.ts); null on the server. */
 export function useVideoFormat(): VideoFormat | null {
   return useSyncExternalStore(noSubscription, formatNow, formatOnServer)
 }

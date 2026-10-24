@@ -1,6 +1,6 @@
 import { liveReceiptsOf } from '@automatos/theme-sdk'
 
-import type { JsonObject, MascotEvent } from './types'
+import type { JsonObject, MascotEvent } from '@automatos/mascot/types'
 
 /**
  * PRD-260 D5, D6 — the core chat's data parts as Auto's events. Pure.
@@ -13,7 +13,7 @@ import type { JsonObject, MascotEvent } from './types'
  * chat.useChatController). These parts come off the wire, so every field is
  * checked here: a part that isn't what it says maps to nothing. The turn's
  * receipts are read by the SDK (chat.liveReceiptsOf) exactly as the reply
- * reads them. The status and the newest reply are lib/mascot/events.ts.
+ * reads them. The status and the newest reply are @automatos/mascot's events.ts.
  */
 
 /** useChat's own name for a tool-start without one. */

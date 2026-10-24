@@ -38,8 +38,9 @@ jobs:
         run: npm install -g npm@11.21.1
 
       # PRD-261 C-06r (PB-4): a released Play version never changes. While themes/play/theme.json names a
-      # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md under
-      # themes/play) must be as the tag has them; a change needs a version above every release. The
+      # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md, CHANGELOG.md
+      # and every LICENSE spelling under themes/play, and packages/look-kit/src and packages/mascot/src, which
+      # Play bundles) must be as the tag has them; a change needs a version above every release. The
       # checkout above fetches no tags, so the script lists origin's play-v* tags (git ls-remote) and
       # fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing
       # installed: it runs before the install, so a change to a released Play fails first.

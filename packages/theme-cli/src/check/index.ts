@@ -22,9 +22,9 @@
  * `check design <theme folder>` (PRD-261 B-03d) checks the design before any code: the look schema,
  * the presets, the prepaint table and design/contrast.json's pairs (design.ts, which has its own usage).
  * A theme folder that is itself named design is checked as `check ./design`. design.ts is loaded only
- * for `check design`: it registers a resolve hook to load Play's look-kit hsl.ts
- * (themes/play/src/lib/look-kit), which `check` never needs. `check` loads look-kit's contrast.ts alone,
- * which imports nothing, for the mobile block's measure (mobile-contrast.ts).
+ * for `check design`: its meter loads @automatos/look-kit's hsl.ts (packages/look-kit), which `check` never
+ * needs. `check` loads look-kit's contrast.ts alone, which imports nothing, for the mobile block's measure
+ * (mobile-contrast.ts).
  */
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'

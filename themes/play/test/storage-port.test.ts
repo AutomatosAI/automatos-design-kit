@@ -15,7 +15,7 @@ import userEvent from '@testing-library/user-event'
 import { createElement, useEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AutoMascot } from '../src/components/mascot/auto-mascot.tsx'
-import { PAUSE_AUTO } from '../src/components/mascot/mascot-pause-button.tsx'
+import { PAUSE_AUTO } from '@automatos/mascot/mascot-pause-button'
 import { useMascotMotion } from '../src/components/mascot/use-mascot-motion.ts'
 import { useAutoMascot } from '../src/hooks/use-auto-mascot.ts'
 import { useCelebrateNew } from '../src/hooks/use-celebrate-new.ts'
@@ -112,9 +112,9 @@ describe("Play's own state", () => {
     expect(readSource('hooks/use-celebrate-new.ts')).not.toMatch(/\buseLookScope\b/)
   })
 
-  it('is declared: theme.json uses storage, at version 1.1.0 for SDK and host 1.1.0', () => {
+  it('is declared: theme.json uses storage, Play 1.1.1 on SDK and host 1.1.0', () => {
     const manifest = JSON.parse(readThemeFile('theme.json')) as { readonly uses: readonly string[] }
-    expect(manifest).toMatchObject({ version: '1.1.0', engines: { automatos: '^1.1.0', sdk: '^1.1.0' } })
+    expect(manifest).toMatchObject({ version: '1.1.1', engines: { automatos: '^1.1.0', sdk: '^1.1.0' } })
     expect(manifest.uses).toContain('storage')
   })
 })

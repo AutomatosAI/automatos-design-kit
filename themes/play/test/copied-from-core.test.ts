@@ -31,7 +31,7 @@ import {
   replyProgress,
   runningToolInput,
 } from '../src/components/play/chat/reply.ts'
-import type { ReplyProgress } from '../src/lib/mascot/events.ts'
+import type { ReplyProgress } from '@automatos/mascot/events'
 import { MADE_ELSEWHERE_WORDS, UNTITLED_DELIVERABLE } from '../src/lib/play/detail.ts'
 import { cutDraft } from '../src/lib/play/draft.ts'
 import * as shelf from '../src/lib/play/shelf.ts'

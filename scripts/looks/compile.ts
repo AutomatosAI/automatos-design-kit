@@ -20,7 +20,7 @@ import { PLAY_LOOK_SPEC } from '../../themes/play/src/lib/looks/engine.ts'
 import { DEFAULT_LOOK, PRESETS } from '../../themes/play/src/lib/looks/presets.ts'
 import { toneOfGround } from '../../themes/play/src/lib/looks/tone.ts'
 import type { Look } from '../../themes/play/src/lib/looks/types.ts'
-import type { LookKnobSpec } from '../../themes/play/src/lib/look-kit/validate.ts'
+import type { LookKnobSpec } from '../../packages/look-kit/src/validate.ts'
 import type { PrepaintTable, PrepaintToneRule, ThemeTone } from './boot-types.ts'
 import { lookPrepaintTable } from './play-prepaint.ts'
 

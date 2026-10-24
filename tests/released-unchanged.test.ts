@@ -20,9 +20,12 @@ const ASSET = "themes/play/assets/previews/home.png";
 const README = "themes/play/README.md";
 const CHANGELOG = "themes/play/CHANGELOG.md";
 const LICENSE = "themes/play/LICENSE";
+/** A file of a kit package Play bundles (PRD-261 B-01i): its src/ is packed as source/packages/mascot/src/. */
+const BUNDLED_SOURCE = "packages/mascot/src/player.ts";
 /** One file under each of Play's packed paths but theme.json, which manifest() writes. */
 const PACKED_FILES = {
   [SOURCE]: "export const entry = 1;\n",
+  [BUNDLED_SOURCE]: "export const player = 1;\n",
   [ASSET]: "home preview\n",
   [README]: "# Play\n",
   [CHANGELOG]: "## 1.1.0\n\n- Release.\n",
@@ -32,6 +35,7 @@ const OUTSIDE_FILES = {
   "themes/play/package.json": '{ "name": "@automatos/theme-play", "version": "1.1.0" }\n',
   "themes/play/test/entry.test.ts": "// a test\n",
   "themes/play/vite.config.ts": "export default {};\n",
+  "packages/mascot/README.md": "# mascot\n",
   "README.md": "# kit\n",
 };
 const OUTSIDE_CHANGES = {
@@ -39,6 +43,7 @@ const OUTSIDE_CHANGES = {
   "themes/play/test/entry.test.ts": "// a test, reworded\n",
   "themes/play/vite.config.ts": "export default { base: './' };\n",
   "themes/play/signatures/1.1.0.sig.json": "{}\n",
+  "packages/mascot/README.md": "# mascot, reworded\n",
   "README.md": "# kit, reworded\n",
 };
 const GUARDED_CHANGES: ReadonlyArray<readonly [string, Readonly<Record<string, string>>]> = [
@@ -48,6 +53,7 @@ const GUARDED_CHANGES: ReadonlyArray<readonly [string, Readonly<Record<string, s
   ["theme.json at the same version", { [MANIFEST]: manifest(RELEASED, { name: "Play, renamed" }) }],
   ["a new LICENSE", { [LICENSE]: "MIT\n" }],
   ["a CHANGELOG.md edit", { [CHANGELOG]: "## 1.1.0\n\n- Release.\n- Reworded.\n" }],
+  ["a bundled kit package's source", { [BUNDLED_SOURCE]: "export const player = 2;\n" }],
 ];
 const BAD_VERSIONS: readonly unknown[] = ["1.1", "v1.1.0", "1.1.0-rc.1", "1.1.0\n", " 1.1.0", 110, null];
 

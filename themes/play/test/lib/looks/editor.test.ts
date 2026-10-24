@@ -2,12 +2,13 @@
 /**
  * PRD-260 — the Looks page's rules: edited or not, Save as new look, Duplicate, rename, delete.
  *
- * Moved from core's lib/looks/__tests__/editor.test.ts as it was, but for its imports: the theme's own look
- * runtime (src/lib/look-kit) and looks (src/lib/looks), and the helpers of test/lib/looks/helpers.ts.
+ * Moved from core's lib/looks/__tests__/editor.test.ts as it was, but for its imports: the look runtime
+ * (@automatos/look-kit, Play's own src/lib/look-kit before PRD-261 B-01i), Play's looks (src/lib/looks), and the
+ * helpers of test/lib/looks/helpers.ts.
  */
 import { describe, expect, it } from 'vitest'
 
-import { LOOK_ID_PATTERN, LOOK_TEXT_MAX } from '../../../src/lib/look-kit/validate.ts'
+import { LOOK_ID_PATTERN, LOOK_TEXT_MAX } from '@automatos/look-kit/validate'
 import {
   SAVED_SUB,
   asDuplicate,

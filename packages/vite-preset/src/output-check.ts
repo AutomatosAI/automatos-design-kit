@@ -87,9 +87,9 @@ function literalForms(text: string): string[] {
   return [text, ...LITERAL_ENDS.map((end) => text.split(end)[0] ?? '')]
 }
 
-/** The payloads the theme at `tree` may inline. */
+/** The payloads the theme at `tree` may inline: its src/ files and its bundled packages' (tree.sources). */
 export function inlinableData(tree: SourceTree): Inlinable {
-  const files = sourceFiles(tree.dirs[0] ?? resolve(tree.root, SOURCE_DIR)).map((file) => ({ file, bytes: readFileSync(file) }))
+  const files = tree.sources.flatMap(sourceFiles).map((file) => ({ file, bytes: readFileSync(file) }))
   const literals = files.flatMap(({ bytes }) => dataPayloads(bytes.toString()))
   const base64 = [
     ...files.map(({ bytes }) => bytes.toString('base64')),

@@ -5,8 +5,8 @@
  * current look's JSON; Import goes through lib/looks/transfer.ts and shows its messages (look-manage.test.tsx has
  * the rest of 'This look' and 'Import a look'). Until the looks are read (on the server, and in the first moments
  * in the browser) the screen is only its heading, aria-busy, never Ember standing in for the user's look (M72).
- * Its heading is where the host hands focus after Switch to Play (P260-FX-22, M21): tabindex -1, and both marks,
- * data-play-only-heading and data-theme-heading (PRD-261 K-19c).
+ * Its heading is where the host hands focus after Switch to Play (P260-FX-22, M21): tabindex -1, and the host's
+ * mark, data-theme-heading, alone (PRD-261 K-19c; builtin Play's own mark went in Play 1.1.1, K-21).
  *
  * Moved from core's components/looks/__tests__/looks-screen.test.tsx and rewritten for the kit (PRD-261 B-05e): the
  * screen runs on the harness's look runtime (looks-harness.tsx), and what the host draws around it moved to core's
@@ -20,7 +20,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { exportStarted } from '../../src/components/looks/look-manager.tsx'
-import { GLOW_SCALE, rgba } from '../../src/lib/look-kit/css.ts'
+import { GLOW_SCALE, rgba } from '@automatos/look-kit/css'
 import { ACCENTS, GROUNDS, LIGHTS, SHELLS, TYPE_STYLES } from '../../src/lib/looks/catalogue.ts'
 import { SAVED_SUB } from '../../src/lib/looks/editor.ts'
 import { safeGlow } from '../../src/lib/looks/engine.ts'
@@ -308,11 +308,12 @@ describe('Make it yours without a look runtime', () => {
 })
 
 describe("Make it yours' heading, where the host hands focus after Switch to Play (P260-FX-22, M21)", () => {
-  it('takes focus by script (tabindex -1) and carries both marks the host looks for, busy or not (K-19c)', async () => {
+  it("takes focus by script (tabindex -1) and carries the host's mark alone, busy or not (K-19c, K-21)", async () => {
     renderLooks({ loaded: false })
     expect(heading()).toHaveAttribute('tabindex', '-1')
     expect(document.querySelector('[data-theme-heading]')).toBe(heading())
-    expect(document.querySelector('[data-play-only-heading]')).toBe(heading())
+    expect(heading().getAttributeNames().filter((name) => name.startsWith('data-'))).toEqual(['data-theme-heading'])
+    expect(document.querySelector('[data-play-only-heading]')).toBeNull()
 
     act(() => mountLooks())
     await lookHeld(EMBER)

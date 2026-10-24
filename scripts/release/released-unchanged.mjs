@@ -7,9 +7,10 @@
 // Play is released by its tag, play-v<version> (theme-release.yml). While themes/play/theme.json names a
 // released version, everything the kit's pack collects for Play (PACKED_PATHS below: theme.json, its
 // top docs — README.md, CHANGELOG.md and every LICENSE spelling — assets/ and src/, the source of the
-// package's generated dist/, boot/ and looks/ too) must be as that tag has them: a change to any of it
-// needs a new version (a new release, such as 1.1.1). An untagged version passes only when it is above
-// every release tag, so with no release tag yet nothing is released and the check passes.
+// package's generated dist/, boot/ and looks/ too, and the src/ of each kit package Play bundles) must be
+// as that tag has them: a change to any of it needs a new version (a new release, such as 1.1.1). An
+// untagged version passes only when it is above every release tag, so with no release tag yet nothing is
+// released and the check passes.
 //
 // It lists origin's play-v* tags with git ls-remote (kit CI's checkout fetches no tags), fetches the
 // tag the version names (at depth 1 in a shallow checkout such as kit CI's) and lists the packed paths
@@ -29,7 +30,10 @@ const PLAY_PACKAGE_JSON = 'themes/play/package.json'
  * CHANGELOG.md and every LICENSE spelling it names) and its one PACKED_FOLDERS member the theme
  * folder commits, assets/ — collect.ts's other folders (dist, boot, looks) are gitignored
  * (themes/play/.gitignore) and built from src/ at pack time, never committed, so they need no path
- * of their own. src/ is source.ts's SOURCE_DIR, packed as source/. This script is plain Node with no
+ * of their own. src/ is source.ts's SOURCE_DIR, packed as source/. packages/look-kit/src and
+ * packages/mascot/src are the src/ of the two kit workspace packages Play bundles (the @automatos/
+ * packages themes/play/package.json names under dependencies, PRD-261 B-01i): pack writes each one as
+ * source/packages/<name>/src/, and the build bundles it into dist/. This script is plain Node with no
  * TypeScript loader, so it cannot read those two files' constants at run time; the paths below are
  * spelled out in full (no shared prefix constant, no template literal) so
  * tests/play-package-ci.test.ts can read this list back as plain text and assert it stays a superset
@@ -44,6 +48,8 @@ export const PACKED_PATHS = [
   'themes/play/LICENSE.txt',
   'themes/play/assets',
   'themes/play/src',
+  'packages/look-kit/src',
+  'packages/mascot/src',
 ]
 const TAG_REF_PREFIX = 'refs/tags/play-v'
 /** A release tag, as theme-release.yml's TAG_PATTERN has it: play-v<major>.<minor>.<patch>. */
@@ -175,8 +181,8 @@ function check() {
 
 /**
  * The lines to print: the verdict (a ::error:: line on a failure), then each changed path, indented.
- * Every path starts with themes/play/ (git quotes an unusual name on one line), so none of them can be
- * read as a workflow command.
+ * Every path starts with themes/play/ or packages/ (git quotes an unusual name on one line), so none of
+ * them can be read as a workflow command.
  */
 function report(verdict) {
   const head = verdict.ok ? `${NAME}: ${verdict.message}` : `::error::${NAME}: ${verdict.message}`

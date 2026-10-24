@@ -9,7 +9,7 @@ import type { MascotEvent } from './types'
  * words, the model's reasoning and a cap that ended the turn never reach its
  * data callback: useChat writes them onto the newest reply, so they are read
  * from it (mascotEventsFromReply). The data callback's parts are Auto's events
- * through lib/mascot/data-events.ts.
+ * through Play's lib/mascot/data-events.ts.
  */
 
 export type ChatStatus = 'idle' | 'streaming' | 'error'

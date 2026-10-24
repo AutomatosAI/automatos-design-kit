@@ -8,7 +8,9 @@
 //
 // Plain Node, no dependencies. Node strips the TypeScript types itself (Node 22.18 or later). Play's
 // modules import each other without a file extension, as a bundler allows, so a resolve hook adds
-// ".ts" to such an import, and only for modules under themes/play/src/.
+// ".ts" to such an import, and only for modules under themes/play/src/. The look runtime Play imports by
+// name, @automatos/look-kit (packages/look-kit, PRD-261 B-01i), names its own modules with the extension
+// and resolves through its workspace link, so it needs no hook.
 import * as nodeModule from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'

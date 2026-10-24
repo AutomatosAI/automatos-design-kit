@@ -3,8 +3,9 @@
 // (D2-c: html.play, specificity 0,1,1) keeps Play's cascade: the FX-01 rules keep core's specificity,
 // every other module rule gains exactly (0,1,1), and the rules rewritten from core's play-theme.css
 // still win where they won in core. A static check: the files are read and transformed, nothing is built.
-// PRD-261 K-19c (host 1.1.0): motion stops under the host's look runtime's marker as under builtin Play's,
-// with no !important, and the screen heading carries the host's heading mark beside Play's own.
+// PRD-261 K-19c (host 1.1.0): motion stops under the host's look runtime's marker, with no !important.
+// PRD-261 K-21 (Play 1.1.1): that marker, data-theme-motion, is the only one; builtin Play's own motion marker
+// and motion variable are gone, and the screen heading carries only the host's mark, data-theme-heading.
 // PRD-261 E3g: the Pause Auto control, disabled until the host knows the pause flag, looks disabled.
 import { readdirSync } from 'node:fs'
 import { dirname, join, normalize, relative } from 'node:path'
@@ -34,11 +35,16 @@ const FORCED_COLOURS_MEDIA = '@media (forced-colors: active)'
 /** The forced-colours rings set outline, outline-offset and outline-width. */
 const OUTLINE = 'outline'
 const MOTION_STOP_ID = ':not(#play-none)'
-/** The OS setting's three, then three for each host marker. */
-const MOTION_STOP_SELECTORS = 9
+/** The OS setting's three, then the host marker's three. */
+const MOTION_STOP_SELECTORS = 6
 const REDUCED_MOTION_MEDIA = '@media (prefers-reduced-motion: reduce)'
-/** The marker on <html> that asks for reduced motion: the host's look runtime's (A-19d2), then builtin Play's. */
-const MOTION_MARKERS = ['data-theme-motion', 'data-pl-motion']
+/** The one marker on <html> that asks for reduced motion: the host's generic one, set by its look runtime (A-19d2). */
+const MOTION_MARKER = 'data-theme-motion'
+/** Builtin Play's motion marker and variable, set only by its LookProvider in core: gone from Play's CSS (K-21). */
+const OLD_MOTION_MARKER = 'data-pl-motion'
+const OLD_MOTION_VAR = /--pl-motion(?![\w-])/
+/** Builtin Play's heading mark, which only its host in core looked for: gone from Play's source (K-21). */
+const OLD_HEADING_MARK = 'data-play-only-heading'
 /** What each stop selector reaches under html.play. */
 const MOTION_TARGETS = ['*', '*::before', '*::after']
 /** The stop's declarations, the OS setting's and each marker's alike. */
@@ -52,8 +58,8 @@ const MASCOT_CSS = 'components/mascot/auto-mascot.module.css'
 const SHELF_CSS = 'components/play/deliverables/shelf.module.css'
 /** A disabled button while Play waits: a waiting cursor and the second text colour. */
 const WAITING_DISABLED: Readonly<Record<string, string>> = { cursor: 'progress', color: 'var(--pl-color-text-2)' }
-/** Play's motion factor for calc(): the host's look runtime's variable first, builtin Play's as the fallback. */
-const MOTION_SCALE = /--pl-motion-scale:\s*var\(--theme-motion,\s*var\(--pl-motion,\s*1\)\)\s*;/
+/** Play's motion factor for calc(): the host's look runtime's variable, 1 when the host sets none. */
+const MOTION_SCALE = /--pl-motion-scale:\s*var\(--theme-motion,\s*1\)\s*;/
 
 /** Every stylesheet under src/, relative to src/ with forward slashes. */
 function stylesheets(): string[] {
@@ -220,18 +226,29 @@ describe("play-theme.css's rewritten rules", () => {
     os.forEach((selector) => expect(declarationsOf(selector), selector).toEqual(MOTION_STOP))
   })
 
-  it.each(MOTION_MARKERS)('stop motion when the host sets %s="reduce" on <html>, at any width and setting', (marker) => {
-    const stop = THEME_SELECTORS.filter((s) => s.written.includes(`[${marker}="reduce"]`))
-    const expected = MOTION_TARGETS.map((target) => `html.play${MOTION_STOP_ID}[${marker}="reduce"] ${target}`)
-    expect(stop.map((s) => s.written)).toEqual(expected)
-    stop.forEach((s) => {
-      expect(s.within, s.written).toEqual([])
+  it(`stop motion when the host sets ${MOTION_MARKER}="reduce" on <html>, and on no other marker, at any width`, () => {
+    const marked = THEME_SELECTORS.filter((s) => s.written.includes(MOTION_STOP_ID) && s.within.length === 0)
+    const expected = MOTION_TARGETS.map((target) => `html.play${MOTION_STOP_ID}[${MOTION_MARKER}="reduce"] ${target}`)
+    expect(marked.map((s) => s.written)).toEqual(expected)
+    marked.forEach((s) => {
       expect(specificity(s.written)[0], s.written).toBe(1)
       expect(declarationsOf(s.written), s.written).toEqual(MOTION_STOP)
     })
   })
 
-  it("give Play's motion factor for calc() from the host's --theme-motion, falling back to --pl-motion", () => {
+  it(`name builtin Play's ${OLD_MOTION_MARKER} and --pl-motion nowhere under src/, comments included (K-21)`, () => {
+    expect(OLD_MOTION_VAR.test('var(--pl-motion, 1)')).toBe(true)
+    expect(OLD_MOTION_VAR.test('--pl-motion-scale: 1')).toBe(false)
+    const files = [...sourceScripts(), ...stylesheets()]
+    expect(files.length).toBeGreaterThan(STYLESHEET_COUNT)
+    const naming = files.filter((rel) => {
+      const text = readSource(rel)
+      return text.includes(OLD_MOTION_MARKER) || OLD_MOTION_VAR.test(text)
+    })
+    expect(naming).toEqual([])
+  })
+
+  it("give Play's motion factor for calc() from the host's --theme-motion alone, 1 when the host sets none", () => {
     expect(stripComments(readSource(THEME_CSS))).toMatch(MOTION_SCALE)
   })
 
@@ -243,8 +260,14 @@ describe("play-theme.css's rewritten rules", () => {
 })
 
 describe("the heading mark on Play's own screens", () => {
-  it("carries the host's data-theme-heading beside builtin Play's data-play-only-heading", () => {
-    expect(PLAY_ONLY_HEADING).toEqual({ 'data-play-only-heading': true, 'data-theme-heading': true })
+  it("is the host's data-theme-heading alone", () => {
+    expect(PLAY_ONLY_HEADING).toEqual({ 'data-theme-heading': true })
+  })
+
+  it(`leaves builtin Play's ${OLD_HEADING_MARK} nowhere under src/ (K-21)`, () => {
+    const files = [...sourceScripts(), ...stylesheets()]
+    expect(files.length).toBeGreaterThan(STYLESHEET_COUNT)
+    expect(files.filter((rel) => readSource(rel).includes(OLD_HEADING_MARK))).toEqual([])
   })
 })
 

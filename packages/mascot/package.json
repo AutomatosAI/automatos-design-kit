@@ -1,0 +1,39 @@
+{
+  "name": "@automatos/mascot",
+  "version": "0.1.0",
+  "description": "Auto, the mascot a theme bundles: his state machine, the clip player's queue, the media chooser and captions, the light ring's tones, the chat's events as his, and the Pause Auto control (WCAG 2.2.2).",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "kitLibrary": true,
+  "exports": {
+    "./events": "./src/events.ts",
+    "./mascot-pause-button": "./src/mascot-pause-button.tsx",
+    "./media": "./src/media.ts",
+    "./player": "./src/player.ts",
+    "./reducer": "./src/reducer.ts",
+    "./ring": "./src/ring.ts",
+    "./tools": "./src/tools.ts",
+    "./types": "./src/types.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "devDependencies": {
+    "@automatos/theme-harness": "0.1.0"
+  },
+  "peerDependencies": {
+    "@automatos/theme-sdk": "1.1.0",
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

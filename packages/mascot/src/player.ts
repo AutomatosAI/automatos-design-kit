@@ -3,7 +3,7 @@ import { type MascotName, ONE_SHOTS, URGENT } from './types'
 /**
  * PRD-260 D6 — the mascot player's queue, ported from Automatos Play's
  * lib/mascot/player.ts: which clip is on screen and which waits for the clip
- * boundary. Pure; hooks/use-mascot-player.ts owns the <video> and the timers.
+ * boundary. Pure; Play's hooks/use-mascot-player.ts owns the <video> and the timers.
  *
  * Loops play without the `loop` attribute and restart on the boundary: a
  * looping clip never fires `ended`, and timeupdate can come as rarely as every
@@ -51,7 +51,7 @@ export function atClipBoundary(currentTime: number, duration: number): boolean {
  * back to the clip on screen cancels the queue, so a 200 ms tool call never shows.
  * A finished one-shot re-targeted to itself stays finished and never reports its
  * end again: the player relies on the reducer never re-targeting the one-shot on
- * screen (lib/mascot/reducer.ts enqueue).
+ * screen (reducer.ts enqueue).
  */
 export function retarget(player: PlayerState, target: MascotName): PlayerState {
   if (target === player.showing) {
