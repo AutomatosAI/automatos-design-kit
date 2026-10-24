@@ -114,8 +114,9 @@ with two-space indents. It reads the folder and the skin file, writes only `them
 | `<theme folder>` | The folder holding the theme's `theme.json`. Exactly one. |
 | `--from <skin.json>` | Required. The block to write, as JSON. |
 
-Nothing is written unless every check passes (`src/skin-check.ts`, which the designer runs too, so it offers a file
-only when this command would take it), in two passes, the second only once the first passed:
+Nothing is written unless every check passes (`src/skin-check.ts`, which the designer runs too, so the designer and
+this command agree on the block itself; the released-theme and publisher refusals below are this command's alone,
+since the browser can't see the folder), in two passes, the second only once the first passed:
 
 1. the vendored validator (`src/core/mobile-manifest.ts`) on `theme.json` with the block in place of its own, the
    theme's top-level `mascot` and `engines` read with it: `BAD_MOBILE` or `UNKNOWN_FIELD`, each naming the field. A
