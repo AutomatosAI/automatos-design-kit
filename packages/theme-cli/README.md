@@ -120,6 +120,39 @@ Limits:
 - A core without `/automatos-host.json` (PRD-261 B-03j) answers neither form for the web app's URL, so `--to` with it
   exits 2 with the sentence above; there, give the API's URL (`--to http://localhost:8000`).
 
+## new
+
+`automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]` starts a theme from one of
+the kit's templates, in a folder that builds, packs and passes `check` as it is. The folder is `--to`, or
+`themes/<name>` from the folder the command runs in (the kit's root, for a theme in the kit).
+
+- `--template minimal` (`templates/minimal`): the frame only, with the host's own pages inside it, a look editor and a
+  style sheet, the 404, three choice knobs and two presets. Its look data (`looks/`, `boot/prepaint.json`,
+  `design/contrast.json`) is written by hand, and its look editor keeps a copy of the knobs and presets that its own
+  test holds to the files. The template's `{{id}}`, `{{publisher}}`, `{{slug}}`, `{{name}}` and `{{htmlClass}}` are
+  filled with the theme's.
+- `--template full` (`templates/full`): Play de-branded, made from `themes/play` itself when the theme is made, so it
+  never drifts from Play: every slot, page and route Play has, with every name of Play's in the theme's (its class,
+  its `--pl-*` variables, its keyframes and font families, its file names, components, hooks and constants, its id,
+  and its name in words), and one core page cloned: `/agents`, in `"mode": "clone"` with the `clonedFrom` sha of the
+  core file it copies (the vendored `core-pages.json`'s), on the SDK's `pages/agents` area.
+  `templates/full/template.json` lists the renames and what the template adds. Play's look
+  data is written once, by the kit's `scripts/compile-looks.mjs`, and is the theme's own from then on. Play's listing
+  previews are not copied, and Play itself is only read.
+- `--mascot none` (full only): no clips, no `mascot` block, no `@automatos/mascot`. The chat still says what Auto is
+  doing, from the package's state machine and words, copied into the theme's `src/lib/auto/`.
+
+The name is also the theme's class on `<html>` and its folder's name: 3 to 32 lower-case letters and digits, in words
+joined by single dashes, starting with a letter. The command refuses, writing nothing, a folder that is there already,
+the `automatos` publisher (Automatos's own themes), a class core keeps on `<html>` (`studio`, `classic`, `dark`, `light`,
+`system`), and a name whose renames would merge two of Play's names into one.
+
+A theme folder under `themes/` is a new npm workspace, so it changes `package-lock.json`: push the branch and run
+`kit-lockfile.yml` (the kit's `AGENTS.md`, "Adding a dependency").
+
+Exit code 0 when the folder is written, 1 when the theme was refused (every reason is printed), 2 for a usage error.
+The command reads the kit's own folders, writes only the new one, and sends nothing anywhere.
+
 ## shots
 
 `automatos-theme shots <theme folder> [--out <folder>]` draws the theme in the kit's browser harness

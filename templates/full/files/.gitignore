@@ -1,0 +1,2 @@
+# Pack output (CI uploads it as an artifact). The look data in looks/ and boot/ is the theme's own: keep it.
+/out/

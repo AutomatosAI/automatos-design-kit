@@ -1,0 +1,200 @@
+/*
+ * The look editor and the parts the style sheet shares with it. Every colour comes from the look; the corners
+ * follow its Corners knob (--{{htmlClass}}-radius).
+ */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-5);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-2);
+}
+
+/* html.{{htmlClass}} outranks the host's own heading rules (its base's .studio h1), so the screen keeps its type. */
+:global(html.{{htmlClass}}) .heading {
+  margin: 0;
+  font: var(--{{htmlClass}}-text-hero);
+  color: var(--{{htmlClass}}-text);
+}
+
+.lead {
+  margin: 0;
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.link {
+  align-self: flex-start;
+  color: var(--{{htmlClass}}-accent-text);
+  font: var(--{{htmlClass}}-text-small);
+  font-weight: 600;
+}
+
+.note {
+  margin: 0;
+  padding: var(--{{htmlClass}}-space-3) var(--{{htmlClass}}-space-4);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-chip);
+  color: var(--{{htmlClass}}-text);
+  font: var(--{{htmlClass}}-text-small);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--{{htmlClass}}-space-5);
+  align-items: start;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-5);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-3);
+  padding: var(--{{htmlClass}}-space-4);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-surface);
+}
+
+:global(html.{{htmlClass}}) .label {
+  margin: 0;
+  padding: 0;
+  font: var(--{{htmlClass}}-text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.looks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--{{htmlClass}}-space-3);
+}
+
+.look {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--{{htmlClass}}-space-3);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-bg);
+  color: var(--{{htmlClass}}-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.look[aria-pressed="true"] {
+  border-color: var(--{{htmlClass}}-accent-text);
+  box-shadow: inset 0 0 0 1px var(--{{htmlClass}}-accent-text);
+}
+
+.lookName {
+  font-weight: 600;
+}
+
+.lookSub {
+  font: var(--{{htmlClass}}-text-small);
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.knob {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-2);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--{{htmlClass}}-space-2);
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--{{htmlClass}}-space-2);
+  padding: var(--{{htmlClass}}-space-1) var(--{{htmlClass}}-space-3);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  cursor: pointer;
+}
+
+.choice input {
+  accent-color: var(--{{htmlClass}}-accent-text);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--{{htmlClass}}-space-2);
+}
+
+.primary,
+.secondary {
+  min-height: var(--{{htmlClass}}-control-height);
+  padding: 0 var(--{{htmlClass}}-space-4);
+  border-radius: var(--{{htmlClass}}-radius);
+  font: var(--{{htmlClass}}-text-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--{{htmlClass}}-accent);
+  background: var(--{{htmlClass}}-accent);
+  color: var(--{{htmlClass}}-accent-ink);
+}
+
+.secondary {
+  border: 1px solid var(--{{htmlClass}}-line);
+  background: transparent;
+  color: var(--{{htmlClass}}-text);
+}
+
+.paste {
+  width: 100%;
+  padding: var(--{{htmlClass}}-space-2);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-bg);
+  color: var(--{{htmlClass}}-text);
+  font: var(--{{htmlClass}}-text-mono);
+}
+
+.status {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--{{htmlClass}}-text-2);
+  font: var(--{{htmlClass}}-text-small);
+}
+
+.alert {
+  padding: var(--{{htmlClass}}-space-3) var(--{{htmlClass}}-space-4);
+  border: 1px solid var(--{{htmlClass}}-error);
+  border-radius: var(--{{htmlClass}}-radius);
+  color: var(--{{htmlClass}}-error);
+}
+
+.alertTitle {
+  margin: 0;
+  font-weight: 600;
+}

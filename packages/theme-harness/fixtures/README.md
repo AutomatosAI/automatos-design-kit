@@ -13,6 +13,7 @@ inside the app (`/api/...`, `/deliverables?...`) are not URLs and are fine.
 | `health/` | The host's health as `useHealth` reports it: up and down | `host.setHealth(health.connection, health)` |
 | `errors/` | The backend's error bodies (`404.json`: a Deliverable the workspace doesn't hold) | the Deliverables fake |
 | `conversations/` | The conversations the backend holds, newest activity by `updatedAt`, each with its messages (a stored reply may name who wrote it, `provenance`, or be a failure the server saved, `savedError`) | `host.conversationsOf(json)`, then `host.setConversations` |
+| `agents/` | The workspace's agents as `useAgents` gives them (`roster.json`: active, inactive and failing ones, with and without a team or tags) and their counts as `useAgentStats` gives them (`stats.json`) | `host.setPageQuery('useAgents', { data })`, `host.setPageQuery('useAgentStats', { data })` |
 
 ## The stream format
 
