@@ -44,9 +44,13 @@ Work one surface at a time, and finish each before the next.
 2. **Design data.** The look schema, the presets, the first-paint table and the colour pairs, with
    [write-a-look-schema-and-presets](../write-a-look-schema-and-presets/SKILL.md). Done when
    `automatos-theme check design themes/<slug>` passes with no error.
-3. **The folder.** Copy the layout in [references/theme-folder.md](references/theme-folder.md): `package.json`,
-   `theme.json`, `vite.config.ts`, `tsconfig.json`, `eslint.config.js`, `vitest.config.ts`, `src/entry.ts`. Done when
-   the entry registers a frame, a look editor and a style sheet, even as placeholders.
+3. **The folder.** Start it with `automatos-theme new <publisher>/<slug> --template minimal` (the frame, the look
+   editor, the style sheet and two presets, already passing `check`) or `--template full` (Play de-branded, every
+   page and route Play has; add `--mascot none` for no Auto), then make it the brief's. Run `new` before step 2, so
+   the design data starts from the template's and lives in the folder. Or copy the layout in
+   [references/theme-folder.md](references/theme-folder.md): `package.json`, `theme.json`, `vite.config.ts`,
+   `tsconfig.json`, `eslint.config.js`, `vitest.config.ts`, `src/entry.ts`. Done when the entry registers a frame, a
+   look editor and a style sheet, even as placeholders.
 4. **The frame** (`frame@1`). It draws around every page, so it renders `children` and the host's `HeaderUtilities`,
    and navigates with `HostLink` and `useHostRouter`. If it draws its own asleep screen, list `asleep@1` and read
    `useHealth({ poll: true })`. Done when its test shows the page, the header utilities and the menu.
@@ -72,7 +76,10 @@ your setup lets you run commands, the same checks are:
   verdict. Add `--rebuild` to rebuild `source/` with the kit's preset and compare it with `dist/` byte for byte, as the
   Marketplace review does.
 - `automatos-theme pack themes/<slug> --out out`: writes `<publisher>.<slug>-<version>.autotheme` and its
-  `.sha256.json`, or prints every reason the server would refuse it.
+  `.sha256.json`, or prints every reason the server would refuse it. Add `--watch` to build and pack again after each
+  change under `src/`.
+- `automatos-theme dev themes/<slug>`: the kit's browser harness as a local app on `http://127.0.0.1:4319/`, built
+  again after each change under `src/`; reload the page to see it.
 - `automatos-theme shots themes/<slug>`: each slot, page and route on Chromium and WebKit in the kit's browser
   harness, for every preset, with an axe scan.
 - `automatos-theme previews themes/<slug> --from shots --pick <preset>=<shot>`: the shots you pick become the

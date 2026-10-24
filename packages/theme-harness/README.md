@@ -54,6 +54,11 @@ it('shows the asleep screen while the backend is down', () => {
 For the jest-dom matcher types, a theme's setup file starts with
 `/// <reference types="@testing-library/jest-dom/vitest" />`.
 
+The kit's templates (`templates/minimal`, `templates/full`, which `automatos-theme new` starts a theme from) are no
+workspaces, so this package runs their tests on this preset: `test/template-minimal.test.tsx` and
+`test/template-full.test.tsx` import each template's test files, the full template's `/agents` clone reading the
+fixture agents in `fixtures/agents/`.
+
 ## The fake SDK
 
 `src/sdk/<area>.ts` fakes one area of `packages/theme-sdk/areas/*.d.ts` each, every name declared `satisfies` its

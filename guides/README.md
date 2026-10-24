@@ -20,9 +20,10 @@ guide and core disagree, core wins and the guide is fixed.
 ## How they fit with the rest of the kit
 
 - The skills in [`skills/`](../skills/README.md) are the work order an agent follows; they point here for the facts.
-- `automatos-theme`, the kit's command line (`packages/theme-cli`), checks a theme as the server would:
+- `automatos-theme`, the kit's command line (`packages/theme-cli`), starts a theme and checks it as the server would:
+  `automatos-theme new` to start one from a template (`templates/minimal`, or `templates/full`: Play de-branded),
   `automatos-theme check design` for the look data, `automatos-theme check` for the whole package, and
   `automatos-theme pack` to write the `.autotheme` file. Its [README](../packages/theme-cli/README.md) documents
-  `pack`, `submit`, `install`, `shots` and `previews`; `check` and `check design` are described at the top of
-  `packages/theme-cli/src/check/index.ts` and `design.ts`.
+  `pack` and `pack --watch`, `submit`, `install`, `new`, `shots`, `previews` and `dev`; `check` and `check design` are
+  described at the top of `packages/theme-cli/src/check/index.ts` and `design.ts`.
 - `themes/play` is a complete theme built on this contract: when a guide is not enough, read how Play does it.

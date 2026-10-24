@@ -1,5 +1,10 @@
 # @automatos/theme-cli
 
+The `automatos-theme` command. `pack` comes first, with `source/` and `pack --watch`; then a section each for
+`submit`, `install`, `new` (a theme from a template), `shots`, `previews` and `dev` (the browser harness as a local
+app). `check` and `check design` are described at the top of `src/check/index.ts` and `src/check/design.ts`.
+`src/cli-main.ts` holds the table of every command.
+
 `automatos-theme pack <theme folder> [--out <folder>] [--watch]` turns a built theme into the package the Automatos
 server installs (`--watch`: again after each change, below).
 

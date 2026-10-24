@@ -1,5 +1,6 @@
 // The kit's own contract: npm workspaces, exact pins, and a CI workflow that runs
-// every workspace's scripts. These checks read files only; nothing is installed.
+// every workspace's scripts. These checks read files only; nothing is installed. The harness job's own checks
+// are in tests/harness-ci.test.ts, to keep each file under the 400-line cap.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -123,11 +124,6 @@ function jobBlock(text: string, job: string): string {
   if (start < 0) return "";
   const end = lines.findIndex((line, index) => index > start && /^ {2}[A-Za-z0-9_-]+:$/.test(line));
   return lines.slice(start, end < 0 ? lines.length : end).join("\n");
-}
-
-// The `uses:` lines of a block, as written.
-function usesLines(text: string): string[] {
-  return text.split("\n").filter((line) => /^\s*(?:-\s+)?uses:/.test(line)).map((line) => line.trim());
 }
 
 // The `run:` commands of the workflow, in file order.
@@ -336,62 +332,6 @@ describe("kit workflow", () => {
     expect(lines.slice(checkout, checkout + 3).join("\n")).toMatch(/\n\s+with:\n\s+persist-credentials: false$/);
     expect(text).not.toMatch(/\bsecrets\.|GITHUB_TOKEN|github\.token/);
     expect(existsSync(join(ROOT, RELEASED_SCRIPT))).toBe(true);
-  });
-});
-
-// PRD-261 B-02f: the harness job installs and builds as the kit job does, installs the two browsers the shots run
-// on, runs `automatos-theme shots` over Play and uploads its PNGs and axe.json files as kit-harness.
-const SHOTS_OUT = "packages/theme-harness/dist/shots";
-const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
-// PRD-261 B-02i: the run lines of the harness job's dev smoke (`automatos-theme dev themes/play` serves the harness and
-// /chat renders), after the shots and before the upload, in kit.yml's order. Empty until B-02i's step lands with them.
-const DEV_SMOKE_RUNS: readonly string[] = [];
-const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
-
-describe("kit workflow, harness job (PRD-261 B-02f)", () => {
-  const text = readText(WORKFLOW);
-  const kit = jobBlock(text, "kit");
-  const harness = jobBlock(text, "harness");
-
-  it("installs and builds as the kit job does, then installs Chromium and WebKit and runs the shots over Play", () => {
-    expect(workflowRuns(harness)).toEqual([
-      PIN_NPM,
-      workflowRuns(kit)[INSTALL_AT],
-      "npm run build",
-      "npx playwright install --with-deps chromium webkit",
-      `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
-      ...DEV_SMOKE_RUNS,
-    ]);
-  });
-
-  it("runs the dev smoke (PRD-261 B-02i) after the shots and before the upload, when it has a step", () => {
-    const steps = Array.from(harness.matchAll(/^ {6}- name: (.+)$/gm), (match) => match[1]);
-    const shots = steps.indexOf("Shots");
-    const upload = steps.indexOf("Upload shots");
-    expect(shots).toBeGreaterThanOrEqual(0);
-    expect(steps.slice(shots + 1, upload)).toEqual(DEV_SMOKE_RUNS.length === 0 ? [] : ["Dev smoke"]);
-  });
-
-  it("uses only the actions the kit job uses, at the same pins, with no checkout credentials and the same Node", () => {
-    const kitUses = usesLines(kit);
-    expect(usesLines(harness).length).toBeGreaterThan(0);
-    expect(usesLines(harness).filter((line) => !kitUses.includes(line))).toEqual([]);
-    expect(harness).toMatch(/actions\/checkout@[0-9a-f]{40}[^\n]*\n\s+with:\n\s+persist-credentials: false/);
-    expect(/node-version: "(\d+)"/.exec(harness)?.[1]).toBe(/node-version: "(\d+)"/.exec(kit)?.[1]);
-  });
-
-  it("uploads the shots as kit-harness whatever they did, and fails when there are none", () => {
-    const upload = new RegExp(
-      `- name: Upload shots\\n\\s+if: always\\(\\)\\n\\s+uses: actions/upload-artifact@[0-9a-f]{40}[^\\n]*\\n` +
-        `\\s+with:\\n\\s+name: kit-harness\\n\\s+path: ${escapedPath(SHOTS_OUT)}/\\n\\s+if-no-files-found: error`,
-    );
-    expect(harness).toMatch(upload);
-  });
-
-  it("shoots on Chromium and WebKit, with no retry", () => {
-    const config = readText(SHOTS_CONFIG);
-    expect(Array.from(config.matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).toEqual(["chromium", "webkit"]);
-    expect(config).toMatch(/^\s+retries: 0,$/m);
   });
 });
 
