@@ -1,8 +1,9 @@
 // PRD-261 B-02f and B-02i: kit.yml's harness job. It installs and builds as the kit job does, installs the two
-// browsers the shots run on, runs `automatos-theme shots` over Play, then the dev smoke (`automatos-theme dev
-// themes/play` serves the harness and /chat renders, on Chromium), and uploads the shots, their axe.json files and
-// the smoke's shot as kit-harness. These checks read files only; nothing is installed. (Moved out of
-// tests/kit-ci.test.ts, which holds the kit's own contract, to keep each file under the 400-line cap.)
+// browsers the shots run on, runs `automatos-theme shots` over Play, then over HUD into a folder of its own, then the
+// dev smoke (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), and uploads the
+// shots, their axe.json files and the smoke's shot as kit-harness. These checks read files only; nothing is
+// installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each file under the
+// 400-line cap.)
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +16,9 @@ const PIN_NPM = "npm install -g npm@11.21.1";
 /** Where the kit job's install runs: after the npm pin and the released-bytes check (tests/kit-ci.test.ts). */
 const KIT_INSTALL_AT = 2;
 const SHOTS_OUT = "packages/theme-harness/dist/shots";
+/** HUD's shots, in a folder of their own inside the upload, so no group of HUD's can stand in for one of Play's. */
+const HUD_SHOTS_OUT = `${SHOTS_OUT}/hud`;
+const HUD_SHOTS_STEP = "HUD shots";
 const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
 // PRD-261 B-02i: the dev smoke's own Playwright config, whose web server is `automatos-theme dev themes/play`, and the
 // spec it runs, which opens /chat there.
@@ -60,24 +64,33 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
   const kit = jobBlock(text, "kit");
   const harness = jobBlock(text, "harness");
 
-  it("installs and builds as the kit job does, installs Chromium and WebKit, runs the shots, then the dev smoke", () => {
+  it("installs and builds as the kit job does, installs Chromium and WebKit, shoots Play then HUD, then the dev smoke", () => {
     expect(workflowRuns(harness)).toEqual([
       PIN_NPM,
       workflowRuns(kit)[KIT_INSTALL_AT],
       "npm run build",
       "npx playwright install --with-deps chromium webkit",
       `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
+      `npx automatos-theme shots themes/hud --out ${HUD_SHOTS_OUT}`,
       DEV_SMOKE_RUN,
     ]);
   });
 
-  it("runs the dev smoke (PRD-261 B-02i) after the shots and before the upload", () => {
+  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), all before the upload", () => {
     const steps = stepNames(harness);
     const shots = steps.indexOf("Shots");
     const upload = steps.indexOf("Upload shots");
     expect(shots).toBeGreaterThanOrEqual(0);
     expect(upload).toBeGreaterThan(shots);
-    expect(steps.slice(shots + 1, upload)).toEqual([DEV_SMOKE_STEP]);
+    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP]);
+  });
+
+  it("shoots HUD into a folder of the upload that none of Play's groups or the smoke's folder takes", () => {
+    const config = readText(DEV_SMOKE_CONFIG);
+    expect(HUD_SHOTS_OUT.startsWith(`${SHOTS_OUT}/`)).toBe(true);
+    const folder = HUD_SHOTS_OUT.slice(SHOTS_OUT.length + 1);
+    expect(config).not.toContain(`const SMOKE_FOLDER = '${folder}'`);
+    expect(Array.from(readText(SHOTS_CONFIG).matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).not.toContain(folder);
   });
 
   it("uses only the actions the kit job uses, at the same pins, with no checkout credentials and the same Node", () => {

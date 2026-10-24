@@ -19,6 +19,9 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
   only here: a Play change is made in this kit alone. Play's `CHANGELOG.md` lists what each version changed.
   The original pilot plan for Play, superseded by PRD-261, is kept at `docs/prd/PRD-001-FUN-UI-PILOT.md` for
   history.
+- `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference. Its look
+  data (`looks/`, `boot/prepaint.json`) is committed and held to its catalogue by its tests; `scripts/compile-looks.mjs`
+  is Play's alone. A `hud-v<version>` tag releases it as a `play-v<version>` tag releases Play.
 
 ## Stack
 

@@ -1,6 +1,7 @@
 # The theme folder
 
-A theme in this kit is one npm workspace under `themes/<slug>/`, laid out as Play's (`themes/play`). The example below
+A theme in this kit is one npm workspace under `themes/<slug>/`, laid out as Play's (`themes/play`) and HUD's
+(`themes/hud`, which commits its look data instead of building it). The example below
 is a theme `acme/harbour` with the class `harbour`; replace both. Every file here is one Play has, cut down.
 
 ```
