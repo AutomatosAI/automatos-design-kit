@@ -43,7 +43,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `version` | yes | `MAJOR.MINOR.PATCH`. A version once submitted is spent: the same version with other bytes, or a lower one, is refused. |
 | `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and so is the SDK. |
 | `base` | yes | `studio` or `classic`: the design the host draws wherever the theme has none of its own |
-| `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes. `studio`, `classic`, `play`, `dark`, `light` and `system` are the host's. |
+| `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
 | `minWidth` | yes | Pixels, 0 to 3840. Below it the host draws its own pages and chrome. |
 | `tone` | yes | `from-look`, `user`, `light` or `dark`: who sets light or dark under the theme |
 | `slots` | yes | The slots below that the theme fills |
