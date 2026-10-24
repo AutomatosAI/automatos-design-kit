@@ -24,10 +24,11 @@ reads, for `validate`'s one-line rule); `test/plain-line.test.ts` holds it to co
 ## Bundling it
 
 A theme names the package, at this version, under `dependencies` in its `package.json`
-(`"@automatos/look-kit": "0.1.0"`) and imports its modules by name. The kit's vite-preset then bundles this folder's
-`src/` with the theme's own (and nothing else of it), and `automatos-theme pack` writes it into the package as
+(`"@automatos/look-kit": "0.1.0"`) and imports its modules by name. This package's `package.json` sets
+`"kitLibrary": true`, the field that makes a kit package one a theme bundles, so the kit's vite-preset bundles this
+folder's `src/` with the theme's own (and nothing else of it), and `automatos-theme pack` writes it into the package as
 `source/packages/look-kit/src/`, where the Marketplace review rebuilds it. The review has no `package.json` of this
-package, so it sets no `sideEffects` and nothing else the build would read.
+package, so it sets no `sideEffects` and nothing else that would change the built bytes.
 
 ## Tests
 

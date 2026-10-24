@@ -5,6 +5,7 @@
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
+  "kitLibrary": true,
   "exports": {
     "./contrast": "./src/contrast.ts",
     "./css": "./src/css.ts",

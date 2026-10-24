@@ -28,7 +28,8 @@ export {
   isInsideSource, moduleProblem, referenceProblem, sourceGuard, sourceTree, SOURCE_DIR, type BundledPackage, type SourceTree,
 } from './source-guard.ts'
 export {
-  bundledPackages, KIT_PACKAGES_DIR, KIT_SCOPE, kitPackageFolder, MODULE_EXTENSIONS, packageModule, type PackageModule,
+  bundledPackages, KIT_LIBRARY_FIELD, KIT_PACKAGES_DIR, KIT_SCOPE, kitPackageFolder, MODULE_EXTENSIONS, packageModule,
+  type PackageModule,
 } from './workspace-packages.ts'
 export { themeCssPlugin, transformThemeCss, wrapSelector, type ThemeCssOptions, type WrapForm } from './theme-css.ts'
 

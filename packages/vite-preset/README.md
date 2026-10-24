@@ -40,9 +40,11 @@ The build is a production build whatever `NODE_ENV` or `--mode` it runs under: `
 writes the bytes the Marketplace review's rebuild writes (`test/preset-env.test.ts`).
 
 Only the theme's own `src/` goes into the build, and the `src/` of each kit workspace package it bundles. A theme
-bundles a kit package by naming it, at the package's own version, under `dependencies` in its `package.json`:
-`@automatos/<name>`, the kit's `packages/<name>/` two folders up from the theme (`themes/<theme>/`), such as
-`@automatos/look-kit` and `@automatos/mascot` for Play (`src/workspace-packages.ts`). The preset resolves the name
+bundles a kit library by naming it, at the library's own version, under `dependencies` in its `package.json`:
+`@automatos/<name>`, the kit's `packages/<name>/` two folders up from the theme (`themes/<theme>/`), whose
+`package.json` sets `"kitLibrary": true`, such as `@automatos/look-kit` and `@automatos/mascot` for Play
+(`src/workspace-packages.ts`). No other kit package is bundled, even named under `dependencies`: the SDK stays the
+host's, and a build tool's files are refused like any outside `src/`. The preset resolves the name
 itself, never through `node_modules`: `@automatos/<name>` is the package's `src/index` and `@automatos/<name>/<module>`
 its `src/<module>`, each `.ts`, `.tsx`, `.js` or `.jsx`, as the package's `exports` map says for tsc and vitest. The
 theme CLI packs such a package's `src/` as `source/packages/<name>/src/`, and the Marketplace review rebuilds it there

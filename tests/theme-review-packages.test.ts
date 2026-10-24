@@ -19,7 +19,7 @@ const HELLO_ENTRY = readFileSync(join(HELLO, "dist/entry.js"), "utf8");
 const HELLO_CSS = ".hello-frame { min-height: 100vh; }\n";
 const GREETING = "hello from a bundled package";
 const GREET_FILES: Readonly<Record<string, string>> = {
-  "package.json": `${JSON.stringify({ name: "@automatos/greet", version: "0.1.0", type: "module" })}\n`,
+  "package.json": `${JSON.stringify({ name: "@automatos/greet", version: "0.1.0", type: "module", kitLibrary: true })}\n`,
   "src/index.ts": "export const mark: string = '!'\n",
   "src/words.ts": `import { mark } from './index.ts'\n\nexport const greeting: string = '${GREETING}' + mark\n`,
 };

@@ -1,9 +1,11 @@
 /**
- * The kit's workspace packages a theme bundles (PRD-261 B-01i): the `@automatos/<name>` packages its package.json
- * names under `dependencies` that are the kit's own. The kit lays a theme out as themes/<theme>/ and its packages as
- * packages/<name>/, so such a package is the folder two levels up, at packages/<name>/, whose package.json has that
- * name and the version the theme names (or `*`). Nothing in node_modules is read for it: npm's workspace link there
- * is for tsc and vitest, not for the build.
+ * The kit's workspace packages a theme bundles (PRD-261 B-01i): the kit libraries its package.json names under
+ * `dependencies`, such as look-kit and mascot. The kit lays a theme out as themes/<theme>/ and its packages as
+ * packages/<name>/, so `@automatos/<name>` is the folder two levels up, at packages/<name>/, whose package.json has
+ * that name, the version the theme names (or `*`) and `"kitLibrary": true`. A kit package without that field is never
+ * bundled, even named under `dependencies`: the SDK stays the host's, and the guard refuses a build tool's files as it
+ * refuses any outside the theme's src/. Nothing in node_modules is read for a library: npm's workspace link there is
+ * for tsc and vitest, not for the build.
  *
  * The build reads a bundled package's src/ as it reads the theme's own (source-tree.ts) and resolves the package's
  * name there itself: `@automatos/<name>` is src/index and `@automatos/<name>/<module>` is src/<module>, each the
@@ -17,6 +19,8 @@ import { QUERY_OR_HASH, realOr, SOURCE_DIR, type BundledPackage } from './source
 
 /** The scope of the kit's own packages. */
 export const KIT_SCOPE = '@automatos/'
+/** The package.json field, set to true, that makes a kit package a library a theme bundles. */
+export const KIT_LIBRARY_FIELD = 'kitLibrary'
 /** Where the kit keeps its packages, from a theme folder: themes/<theme>/ to packages/. */
 export const KIT_PACKAGES_DIR = join('..', '..', 'packages')
 /** A bundled module's extensions, in the order they are tried (the theme CLI's entry candidates' order). */
@@ -68,14 +72,14 @@ export function kitPackageFolder(name: string): string | null {
   return FOLDER_NAME.test(folder) ? folder : null
 }
 
-/** The kit package `name` at `version`, from packages/ two folders up from `root`; null when the kit has none of that name. */
+/** The kit library `name` at `version`, from packages/ two folders up from `root`; null when the kit has no such library. */
 function kitPackage(root: string, name: string, version: unknown): BundledPackage | null {
   const folder = kitPackageFolder(name)
   if (folder === null) return null
   const dir = realOr(resolve(root, KIT_PACKAGES_DIR, folder))
   if (dir.split(sep).includes(NODE_MODULES)) return null
   const manifest = readManifest(dir)
-  if (manifest === null || manifest.name !== name) return null
+  if (manifest === null || manifest.name !== name || manifest[KIT_LIBRARY_FIELD] !== true) return null
   if (version !== ANY_VERSION && manifest.version !== version) {
     throw new Error(
       `automatosTheme(): the theme depends on ${name} ${String(version)}, but ${dir} is ${name} ${String(manifest.version)}: `
@@ -91,7 +95,7 @@ function kitPackage(root: string, name: string, version: unknown): BundledPackag
   return { name, dir }
 }
 
-/** The kit's workspace packages the theme at `root` bundles: the kit packages its package.json `dependencies` name. */
+/** The kit's workspace packages the theme at `root` bundles: the kit libraries its package.json `dependencies` name. */
 export function bundledPackages(root: string): BundledPackage[] {
   const dependencies = readManifest(root)?.dependencies
   if (!isRecord(dependencies)) return []

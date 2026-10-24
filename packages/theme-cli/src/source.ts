@@ -11,7 +11,7 @@
  * Marketplace submission needs source/.
  *
  * PRD-261 B-01i: the src/ of each kit workspace package the theme bundles (the vite-preset's
- * bundledPackages, the ones its package.json names under dependencies) is packed as
+ * bundledPackages, the kit libraries its package.json names under dependencies) is packed as
  * `source/packages/<name>/src/<same path>`, under the same rules, so the review rebuilds every byte the
  * build read. source/packages/ is the packages' alone: a theme's own src/packages/ is refused.
  */

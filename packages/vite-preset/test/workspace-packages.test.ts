@@ -1,8 +1,9 @@
 /**
  * PRD-261 B-01i: the kit workspace packages a theme bundles, on a kit laid out in the system temp folder
- * (themes/<theme>/ beside packages/<name>/). The theme's package.json names the packages it bundles; the guard
- * reads their src/ beside the theme's and nothing else of theirs; the preset resolves their names there itself,
- * never through node_modules; and a real Vite build bundles them, or refuses a package that reaches outside its src/.
+ * (themes/<theme>/ beside packages/<name>/). The theme's package.json names the packages it bundles, and only a kit
+ * library (`"kitLibrary": true`) is one; the guard reads their src/ beside the theme's and nothing else of theirs;
+ * the preset resolves their names there itself, never through node_modules; and a real Vite build bundles them, or
+ * refuses a package that reaches outside its src/.
  */
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -11,7 +12,7 @@ import { build } from 'vite'
 import { afterAll, describe, expect, it } from 'vitest'
 import { automatosTheme, type ThemePresetOptions } from '../src/index.ts'
 import { moduleProblem, sourceTree } from '../src/source-tree.ts'
-import { bundledPackages, kitPackageFolder, packageModule } from '../src/workspace-packages.ts'
+import { bundledPackages, KIT_LIBRARY_FIELD, kitPackageFolder, packageModule } from '../src/workspace-packages.ts'
 
 type Files = Readonly<Record<string, string>>
 
@@ -21,6 +22,8 @@ const GREET = join(KIT, 'packages', 'greet')
 const GREETING = 'hello from greet'
 
 const manifest = (fields: Readonly<Record<string, unknown>>): string => `${JSON.stringify(fields, null, 2)}\n`
+/** A kit library's package.json: a package a theme may bundle. */
+const library = (fields: Readonly<Record<string, unknown>>): string => manifest({ ...fields, [KIT_LIBRARY_FIELD]: true })
 
 /** Writes `files` under the kit, by kit-relative path. */
 function write(files: Files): void {
@@ -31,17 +34,19 @@ function write(files: Files): void {
 }
 
 write({
-  'packages/greet/package.json': manifest({ name: '@automatos/greet', version: '0.1.0' }),
+  'packages/greet/package.json': library({ name: '@automatos/greet', version: '0.1.0' }),
   'packages/greet/src/index.ts': "export const mark: string = '!'\n",
   'packages/greet/src/words.ts': `export function greet(): string {\n  return '${GREETING}'\n}\n`,
   'packages/greet/secret.ts': "export const secret = 'beside src/'\n",
-  'packages/leaky/package.json': manifest({ name: '@automatos/leaky', version: '0.1.0' }),
+  'packages/leaky/package.json': library({ name: '@automatos/leaky', version: '0.1.0' }),
   'packages/leaky/src/index.ts': "export { secret } from '../secret.ts'\n",
   'packages/leaky/secret.ts': "export const secret = 'beside src/'\n",
   'packages/tool/package.json': manifest({ name: '@automatos/tool', version: '0.1.0', exports: { '.': './src/index.ts' } }),
   'packages/tool/src/index.ts': "export const tool = 'a build tool'\n",
-  'packages/effects/package.json': manifest({ name: '@automatos/effects', version: '0.1.0', sideEffects: false }),
+  'packages/effects/package.json': library({ name: '@automatos/effects', version: '0.1.0', sideEffects: false }),
   'packages/effects/src/index.ts': 'export const effects = 1\n',
+  // The SDK as the kit vendors it: no kit library, and it sets sideEffects.
+  'packages/theme-sdk/package.json': manifest({ name: '@automatos/theme-sdk', version: '1.1.0', sideEffects: false }),
 })
 
 /** A theme folder in the kit's themes/, bundling `dependencies`, with `entry` as src/entry.js. */
@@ -82,6 +87,13 @@ describe('the packages a theme bundles', () => {
     expect(() => bundledPackages(theme('effects', 'export {}\n', { '@automatos/effects': '0.1.0' }))).toThrow(/sideEffects/)
   })
 
+  it('leave out a kit package that is no kit library, such as the SDK the host serves or a build tool', () => {
+    const tools = theme('tools', 'export {}\n', { '@automatos/theme-sdk': '1.1.0', '@automatos/tool': '0.1.0', '@automatos/greet': '0.1.0' })
+    expect(bundledPackages(tools)).toEqual([{ name: '@automatos/greet', dir: GREET }])
+    const tree = sourceTree(tools, bundledPackages(tools))
+    expect(moduleProblem(join(KIT, 'packages', 'tool', 'src', 'index.ts'), tree)).toMatch(/outside the theme's src\//)
+  })
+
   it("resolve by name to a file of the package's src/, or say why the name is none of its modules", () => {
     const packages = bundledPackages(HELLO)
     expect(packageModule('@automatos/greet', packages)).toEqual({ file: join(GREET, 'src', 'index.ts') })
@@ -105,6 +117,12 @@ describe('a theme built with the packages it bundles', () => {
     const code = await built(HELLO)
     expect(code).toContain(GREETING)
     expect(code).not.toMatch(/from\s*["']@automatos\/greet/)
+  })
+
+  it('builds when the theme names the SDK under dependencies, and keeps the SDK external', async () => {
+    const entry = "import { defineTheme } from '@automatos/theme-sdk'\nexport const define = defineTheme\n"
+    const code = await built(theme('sdk', entry, { '@automatos/theme-sdk': '1.1.0' }))
+    expect(code).toMatch(/from\s*["']@automatos\/theme-sdk["']/)
   })
 
   it('builds with the packages it is given, as the review rebuilds a folder with no package.json', async () => {

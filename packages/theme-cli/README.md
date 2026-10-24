@@ -30,11 +30,11 @@ UTF-8; a symbolic link; and a `src/` without exactly one entry module (`entry.ts
 `src/` still packs, with one warning, and its package has no `source/`: it installs privately, but the Marketplace
 review fails it at Source.
 
-A theme that bundles kit workspace packages (the `@automatos/<name>` packages its `package.json` names under
-`dependencies`, as the vite-preset reads them) gets each one's `src/` as `source/packages/<name>/src/<same path>`,
-under the same rules; the package's other files are not packed. `source/packages/` is theirs alone, so a theme's own
-`src/packages/` is refused (`SOURCE_RESERVED`), as is a bundled package with no `src/` folder or at another version
-than the theme names (`SOURCE_PACKAGE`).
+A theme that bundles kit workspace packages (the kit libraries, whose `package.json` sets `"kitLibrary": true`, that
+its own `package.json` names under `dependencies`, as the vite-preset reads them) gets each one's `src/` as
+`source/packages/<name>/src/<same path>`, under the same rules; the package's other files are not packed.
+`source/packages/` is theirs alone, so a theme's own `src/packages/` is refused (`SOURCE_RESERVED`), as is a bundled
+package with no `src/` folder or at another version than the theme names (`SOURCE_PACKAGE`).
 
 The review (`scripts/review/rebuild.ts`) writes the package back out with `source/` as `src/`, and each
 `source/packages/<name>/src/` as `packages/<name>/src/` beside it, the theme at `themes/theme/`, as the kit lays them

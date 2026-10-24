@@ -217,7 +217,7 @@ describe('pack refuses a src/ the review could not rebuild, and writes nothing',
   })
 })
 
-/** A kit in the temp folder: hello at themes/hello/ with a src/, naming @automatos/greet, which sits at packages/greet/. */
+/** A kit in the temp folder: hello at themes/hello/ with a src/, naming @automatos/greet, a kit library at packages/greet/. */
 function kitWithPackage(version = '0.1.0'): { readonly theme: string; readonly greet: string } {
   const kit = tempFolder()
   const theme = join(kit, 'themes', 'hello')
@@ -226,7 +226,7 @@ function kitWithPackage(version = '0.1.0'): { readonly theme: string; readonly g
   const dependencies = { '@automatos/greet': version, 'left-pad': '1.3.0' }
   writeFile(join(theme, 'package.json'), JSON.stringify({ name: '@automatos/theme-hello', version: '1.0.0', dependencies }))
   const greet = join(kit, 'packages', 'greet')
-  writeFile(join(greet, 'package.json'), JSON.stringify({ name: '@automatos/greet', version: '0.1.0' }))
+  writeFile(join(greet, 'package.json'), JSON.stringify({ name: '@automatos/greet', version: '0.1.0', kitLibrary: true }))
   Object.entries(GREET_FILES).forEach(([path, text]) => writeFile(join(greet, path), text))
   writeFile(join(greet, 'src', '.cache', 'note.ts'), 'export {}\n')
   writeFile(join(greet, 'README.md'), '# greet\n')

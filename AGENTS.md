@@ -36,7 +36,8 @@ core wins and the kit is fixed.
   Chromium and WebKit with Playwright and scans with axe), `theme-rules` (the one table of JS rules the
   Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
   reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
-  theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i): `look-kit`
+  theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i; each `package.json`
+  sets `"kitLibrary": true`, the mark the preset bundles by): `look-kit`
   (`@automatos/look-kit`: a look's custom properties and Studio's tokens, the WCAG contrast math with the AA
   proofs of Play's 24 ground and accent pairs, Studio's HSL triplets and the schema-driven look validator, from
   Play's copy of core's look runtime) and
