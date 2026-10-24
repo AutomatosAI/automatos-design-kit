@@ -4,7 +4,7 @@
 // to, which looks can be deleted, and the glow the page paints, capped where its background and accent need it.
 import { describe, expect, it } from 'vitest'
 import { safeGlow } from '../../src/lib/looks/engine.ts'
-import { ARC, FORGE, NOVA, PRESETS } from '../../src/lib/looks/presets.ts'
+import { ARC, FORGE, GHOST, NOVA, PRESETS } from '../../src/lib/looks/presets.ts'
 import { validateHudLook } from '../../src/lib/looks/spec.ts'
 import type { HudLook } from '../../src/lib/looks/types.ts'
 import {
@@ -73,7 +73,7 @@ describe('the numbers and the switches', () => {
 
   it("paints the look's glow, or its background and accent's cap where that is lower", () => {
     expect(glowCap(NOVA)).toBe(safeGlow('navy', 'nova'))
-    expect(shownGlow(ARC)).toBe(ARC.glow)
+    expect(shownGlow(GHOST)).toBe(GHOST.glow)
     expect(shownGlow(NOVA)).toBe(Math.min(NOVA.glow, glowCap(NOVA)))
     expect(shownGlow(NOVA)).toBeLessThan(NOVA.glow)
   })

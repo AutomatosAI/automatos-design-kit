@@ -1,14 +1,15 @@
+import { AA_TEXT, contrastRatio, mixHex } from '@automatos/look-kit/contrast'
 import * as kitCss from '@automatos/look-kit/css'
 import * as kitStudio from '@automatos/look-kit/studio-tokens'
 import type { LookCatalogue, LookGround } from '@automatos/look-kit/types'
 
 import { ACCENTS, FIXED, GROUNDS, GROUND_KEYS, type AccentKey, type GroundKey } from './catalogue'
-import { GLOW_MAX, GLOW_MIN, type HudLook } from './types'
+import { GLOW_MAX, GLOW_MIN, GLOW_SCALE, type HudLook } from './types'
 
 /**
  * HUD's catalogue as the look runtime (@automatos/look-kit) reads one, and the runtime's answers HUD paints:
- * the accent and the error colour made readable as text, the glow's AA cap, and Studio's tokens, so the
- * host's own pages inside HUD's frame take the look's colours, as under Play.
+ * the accent and the error colour made readable as text, and Studio's tokens, so the host's own pages inside
+ * HUD's frame take the look's colours, as under Play; and the glow's AA cap, HUD's own (safeGlow, below).
  *
  * look-kit's ground has a surface, a chip, a line and a panel besides its bg and texts; the Command design
  * names only the bg, and fixes the texts, the line (text at 10%) and the track (text at 8%). So a HUD ground
@@ -19,6 +20,9 @@ import { GLOW_MAX, GLOW_MIN, type HudLook } from './types'
 
 /** HUD's variables are --hud-*: its own --accent and --ring would clobber Studio's tokens of those names. */
 export const HUD_VAR_PREFIX = 'hud'
+
+/** A panel's own fill: the accent at this alpha (vars.ts paints it as --hud-panel-fill). */
+export const PANEL_FILL_ALPHA = 0.035
 
 /** The track (an rgba() of the text) over a ground's bg, as one #RRGGBB colour. */
 export function surfaceOf(bg: string): string {
@@ -75,13 +79,31 @@ export function accentTextOf(ground: GroundKey, accent: AccentKey): string {
   return kitCss.accentTextOf(CATALOGUE, ground, accent)
 }
 
-/** The largest whole glow at which the page's texts still read at AA over it. */
+/** What text sits on at a glow: the glow over the bg, and a panel's fill over that glow. */
+function glowFills(bg: string, hex: string, glow: number): readonly string[] {
+  const glowed = mixHex(bg, hex, glow / GLOW_SCALE)
+  return [glowed, mixHex(glowed, hex, PANEL_FILL_ALPHA)]
+}
+
+/**
+ * The largest whole glow, GLOW_MIN to GLOW_MAX, at which the texts HUD sets on the page and in its panels (the text,
+ * the second text, the error and the accent as text) still read at AA, at it and at every glow below it. look-kit's
+ * cap (kitCss.safeGlow) measures the glow over the bg alone; a panel's fill lies over the glow too and tints it
+ * further, so HUD's cap measures both and stops where the panel's text would drop under AA.
+ */
 export function safeGlow(ground: GroundKey, accent: AccentKey): number {
-  return kitCss.safeGlow(CATALOGUE, ground, accent)
+  const { bg } = groundOf(ground)
+  const { hex } = ACCENTS[accent]
+  const texts = [FIXED.text, FIXED.text2, errorTextOf(ground), accentTextOf(ground, accent)]
+  const reads = (glow: number): boolean =>
+    glowFills(bg, hex, glow).every((fill) => texts.every((text) => contrastRatio(text, fill) >= AA_TEXT))
+  let glow = GLOW_MIN
+  while (glow < GLOW_MAX && reads(glow + 1)) glow += 1
+  return glow
 }
 
 export function safeGlowAlpha(ground: GroundKey, accent: AccentKey): number {
-  return kitCss.safeGlowAlpha(CATALOGUE, ground, accent)
+  return safeGlow(ground, accent) / GLOW_SCALE
 }
 
 export function rgbList(hex: string): string {

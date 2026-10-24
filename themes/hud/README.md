@@ -35,8 +35,8 @@ The host keeps the looks and paints the active one before HUD's code runs, from 
 `--hud-*` variables and Studio's colour tokens, so the host's pages inside HUD's frame take the look's colours too.
 The table is built from HUD's catalogue (`src/lib/looks/`), whose values are the design's (`looks.json`), and the
 tests hold the committed file to it. Every look is dark. The text colours are fixed so they read at WCAG AA on every
-background; the accent and the error colour have readable text forms; the glow stops where the text on it would
-drop under AA.
+background; the accent and the error colour have readable text forms; the glow stops where the text on it, or in a
+panel over it, would drop under AA.
 
 ## Fonts
 

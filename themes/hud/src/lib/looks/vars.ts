@@ -4,6 +4,7 @@ import {
   errorTextOf,
   groundOf,
   kitAccentVars,
+  PANEL_FILL_ALPHA,
   rgba,
   safeGlowAlpha,
   studioAccentTokens,
@@ -25,8 +26,7 @@ import { GLOW_SCALE, GRID_SCALE, type HudLook, type Switch, type SwitchKnobName 
 
 export type CssVars = Readonly<Record<string, string>>
 
-/** The panel's own fill, its border and its corner brackets: the accent at these alphas. */
-export const PANEL_FILL_ALPHA = 0.035
+/** The panel's border and its corner brackets: the accent at these alphas (its fill's, engine.ts's PANEL_FILL_ALPHA). */
 export const PANEL_LINE_ALPHA = 0.16
 export const BRACKET_ALPHA = 0.7
 

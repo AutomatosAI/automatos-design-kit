@@ -5,7 +5,7 @@
 // variable it drives with the value painted, the glow's cap included.
 import { describe, expect, it } from 'vitest'
 import { ACCENTS, ACCENT_KEYS, FONTS, GROUNDS, GROUND_KEYS } from '../../src/lib/looks/catalogue.ts'
-import { ARC, NOVA, PRESETS } from '../../src/lib/looks/presets.ts'
+import { ARC, GHOST, NOVA, PRESETS } from '../../src/lib/looks/presets.ts'
 import { KNOB_NAMES } from '../../src/lib/looks/types.ts'
 import { lookToCssVars } from '../../src/lib/looks/vars.ts'
 import { glowCap } from '../../src/looks/editing.ts'
@@ -79,6 +79,6 @@ describe("the style sheet's knobs", () => {
 
   it('say when the glow is painted below its own number, and not otherwise', () => {
     expect(glowWords(NOVA)).toBe(`${NOVA.glow}, painted at ${glowCap(NOVA)}`)
-    expect(glowWords(ARC)).toBe(String(ARC.glow))
+    expect(glowWords(GHOST)).toBe(String(GHOST.glow))
   })
 })

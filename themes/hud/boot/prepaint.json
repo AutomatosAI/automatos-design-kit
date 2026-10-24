@@ -475,36 +475,36 @@
       ],
       "caps": {
         "void": {
-          "arc": 0.23,
-          "forge": 0.29,
-          "ghost": 0.2,
-          "nova": 0.31,
-          "signal": 0.21,
-          "gold": 0.23
-        },
-        "carbon": {
-          "arc": 0.21,
-          "forge": 0.26,
-          "ghost": 0.18,
-          "nova": 0.28,
-          "signal": 0.19,
-          "gold": 0.2
-        },
-        "navy": {
           "arc": 0.2,
           "forge": 0.26,
-          "ghost": 0.18,
+          "ghost": 0.17,
           "nova": 0.29,
-          "signal": 0.19,
-          "gold": 0.21
+          "signal": 0.18,
+          "gold": 0.2
+        },
+        "carbon": {
+          "arc": 0.18,
+          "forge": 0.23,
+          "ghost": 0.15,
+          "nova": 0.26,
+          "signal": 0.16,
+          "gold": 0.18
+        },
+        "navy": {
+          "arc": 0.18,
+          "forge": 0.24,
+          "ghost": 0.15,
+          "nova": 0.26,
+          "signal": 0.16,
+          "gold": 0.18
         },
         "ember": {
-          "arc": 0.22,
-          "forge": 0.27,
-          "ghost": 0.19,
-          "nova": 0.29,
-          "signal": 0.2,
-          "gold": 0.21
+          "arc": 0.19,
+          "forge": 0.24,
+          "ghost": 0.16,
+          "nova": 0.27,
+          "signal": 0.17,
+          "gold": 0.18
         }
       },
       "color": {
