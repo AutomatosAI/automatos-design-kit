@@ -1,0 +1,10 @@
+/* Auto's dock: the panel at the rail's foot, Auto centred in it. */
+
+.dock {
+  padding: var(--hud-space-3);
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+}
