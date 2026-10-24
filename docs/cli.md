@@ -40,14 +40,15 @@ commands) to stderr and exits 2.
 | [`check`](#check) | The server's review checks on the folder, packed as `pack` packs it | none |
 | [`check design`](#check-design) | The look schema, presets, first-paint table and declared colour pairs, before any code | none |
 | [`new`](#new) | A new theme folder from `templates/minimal`, or from Play without its brand | none |
+| [`clone`](#clone) | A core page's source, checked by its hash, as a read-only reference, and the page made a clone in `theme.json` | the public core repo on GitHub |
 | [`dev`](#dev) | The browser harness for one theme, served on `127.0.0.1`, rebuilt after each change | `127.0.0.1` only |
 | [`shots`](#shots) | Every slot, page and route the theme serves, shot on Chromium and WebKit with an axe scan | `127.0.0.1` only |
 | [`previews`](#previews) | Picked shots copied into `assets/previews/`, and `theme.json` `previews` set to them | none |
 | [`install`](#install) | A package installed privately in a local Automatos, opted in to and optionally chosen | the address given |
 | [`submit`](#submit) | A package sent to the Automatos Marketplace for review | `AUTOMATOS_API_URL` |
 
-The table also names `clone` and `brief`, whose modules are not in the kit (`src/clone.ts`, `src/brief.ts`). Each
-prints one line saying it is not built yet, and exits 2.
+The table also names `brief`, whose module is not in the kit (`src/brief.ts`). It prints one line saying it is not
+built yet, and exits 2.
 
 ## `pack`
 
@@ -72,9 +73,9 @@ What goes in the package (`src/collect.ts`, `src/source.ts`):
   each kit library the theme names under `dependencies` (`@automatos/look-kit`, `@automatos/mascot`) at
   `source/packages/<name>/src/<same path>`.
 
-Nothing else of the folder is packed: not `package.json`, `vite.config.ts`, `node_modules`, `design/` or
-`signatures/`. A file inside a packed folder is never dropped: one the server would refuse (a source map, say) is
-reported.
+Nothing else of the folder is packed: not `package.json`, `vite.config.ts`, `node_modules`, `design/`, `reference/`
+(what [`clone`](#clone) writes) or `signatures/`. A file inside a packed folder is never dropped: one the server
+would refuse (a source map, say) is reported.
 
 The files are then checked as core's package reader checks them (`src/check-package.ts`, `src/members.ts`,
 `src/files.ts`), pass by pass, stopping after a pass that refused anything, as the server does:
@@ -238,6 +239,43 @@ On success it prints the folder, the template and the file count, then what to d
 folder under `themes/` being a new workspace) get `package-lock.json` from the `kit-lockfile.yml` dispatch.
 
 Exit codes: 0 written; 1 refused; 2 usage error (including `--mascot` with anything but `none`, or with `minimal`).
+
+## `clone`
+
+```text
+usage:    automatos-theme clone <route> [<theme folder>]
+example:  npx automatos-theme clone /agents themes/harbour
+example:  npx automatos-theme clone '/missions/[id]' themes/harbour
+```
+
+Fetches the core source of a page a theme may replace, as a reading reference for a theme that redraws the page, and
+makes the page a clone in `theme.json` (`src/clone.ts`; the skill is `skills/clone-and-redesign-a-page`).
+
+| Argument | Meaning |
+|---|---|
+| `<route>` | A page a theme may replace, a key of core's `PAGE_SOURCES`: `/chat`, `/deliverables`, `/assignments`, `/missions/[id]`, `/agents`, `/documents`, `/playbooks`, `/command-center` or `/`. Quote one with brackets. |
+| `<theme folder>` | The folder holding the theme's `theme.json`. Default: the folder the command runs in. |
+
+Each of the route's core files ([guides/page-inventory.md](../guides/page-inventory.md)) is fetched from the public
+core repo at the commit the kit vendors (`CORE_SHA` in `src/check/report.ts`, the Source line of
+`src/core/README.md`), at `https://github.com/AutomatosAI/automatos-ai/raw/<sha>/frontend/<path>`, following GitHub's
+redirect to the file and waiting up to 30 seconds for each. The address is not what is trusted: each file's sha256,
+CRLF read as LF as core hashes it, must be the one the vendored `core-pages.json` holds for its path. Only when every
+file matches is anything written:
+
+- each file, as fetched and read-only, at `reference/core/<path>` in the theme folder, never under `src/` (a copy from
+  an earlier clone is replaced). `pack` never packs `reference/`: it packs only the files [`pack`](#pack) lists;
+- `theme.json` `pages["<route>"]` as `{"mode": "clone", "clonedFrom": {"path", "sha"}}`: the route's last core file
+  (the component that draws the page) and its sha256, with the page's `keepCorePage` list kept if it had one. With no
+  `pages` yet, the field is added after the last one and the rest of the file stays as it was; otherwise the file is
+  written again as JSON with two-space indents.
+
+It refuses, writing nothing and printing every reason: a host-owned route or a page under one, any other route that
+is not a key of `PAGE_SOURCES` (both before anything is sent), a folder with no `theme.json` object, a file with no
+answer or an answer that isn't a success, and a file whose sha256 isn't `core-pages.json`'s. Once the kit vendors a
+host release that changed a cloned file, `check` warns at `clonedFrom`; `clone` again fetches it and moves the sha.
+
+Exit codes: 0 written; 1 refused (nothing written); 2 usage error.
 
 ## `dev`
 
