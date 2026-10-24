@@ -122,7 +122,7 @@ function cannotPaint(table: unknown, missing: readonly string[]): string {
 
 /**
  * `fromLooks`: the prepaint table's `defaults` look, painted as the web paints it with no stored look
- * (boot.ts :173), gives the phone's ground and its text (package.py `_paint_errors`). A table that isn't
+ * (boot.ts :145), gives the phone's ground and its text (package.py `_paint_errors`). A table that isn't
  * a JSON object is refused once, by prepaintFileErrors.
  */
 function paintErrors(block: Manifest, files: ReadonlyMap<string, CheckedFile>): ThemeError[] {
