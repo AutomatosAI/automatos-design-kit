@@ -26,6 +26,12 @@ and where Play lives now. It sits outside Play's package, so it can change witho
   `0dd8b846e41772c8dd7ef159e4373bcb9419b06a`. Each move is a row in `themes/play/test/moved-from-core/<area>.json`:
   the core test, the kit test that replaces it, and the core tests that now hold any assertion the kit test does not
   (`rehomed`). `themes/play/test/moved-from-core.test.ts` holds the ledger to the files.
+- **The look runtime and Auto's core.** From Play 1.1.1 (PRD-261 B-01i), Play's copy of core's look runtime
+  (`src/lib/look-kit/`) is the kit package `packages/look-kit` (`@automatos/look-kit`), and Auto's reducer, player,
+  media, ring, types, events and tool names (`src/lib/mascot/`) with the Pause Auto control
+  (`src/components/mascot/mascot-pause-button.tsx`) are `packages/mascot` (`@automatos/mascot`). Play names both
+  under `dependencies`, imports them by name and bundles their `src/`, which its package carries under
+  `source/packages/`. Their tests moved with them, and the ledger's rows name the tests there.
 
 ## Builtin Play leaves core
 

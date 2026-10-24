@@ -30,9 +30,10 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 ## Traps
 
 - Nothing runs on the maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test.
-- A theme's build may read only its own `src/` (the vite preset's source guard refuses `node_modules` and
-  anything outside `src/`); an outside library it needs is vendored into `src/vendor/` as source, at the
-  version core pins.
+- A theme's build may read only its own `src/` and the `src/` of the kit libraries it names under
+  `dependencies` (`packages/look-kit`, `packages/mascot`; the vite preset's source guard refuses `node_modules`
+  and anything else); an outside library it needs is vendored into `src/vendor/` as source, at the version core
+  pins. `pack` writes each bundled library's `src/` as `source/packages/<name>/src/`.
 - `package-lock.json` is committed and installed with `npm ci`. Never hand-edit it — a new dependency goes
   through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency").
 - `theme-review.yml` and `theme-sign.yml` are person-run `workflow_dispatch` jobs; core never calls GitHub.

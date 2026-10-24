@@ -8,10 +8,10 @@ Each entry says what happens, what catches it, and what to do instead.
 **The accent as text on a light ground.** An accent that reads well as a fill can fail as text. Play's Molten accent
 (`#FF6A1F`) is 2.49:1 on its Paper ground (`#F4EEE8`), and its error coral (`#FF6B6B`) 2.41:1: both under the 4.5:1
 that text needs. Give every colour that shows as text its own text variable per ground, derived from the raw colour
-until it reads (Play's `readableOn` in `themes/play/src/lib/look-kit/contrast.ts` mixes it toward the ground's text in
-small steps until it reaches 4.8:1), and keep the raw colour for fills, rings and icons. Paint the pair from the
-prepaint table and declare it in `design/contrast.json`: `automatos-theme check design` measures it on every preset
-([looks.md](looks.md)).
+until it reads (`readableOn` in `@automatos/look-kit`'s `contrast.ts`, `packages/look-kit/src/`, which Play bundles,
+mixes it toward the ground's text in small steps until it reaches 4.8:1), and keep the raw colour for fills, rings
+and icons. Paint the pair from the prepaint table and declare it in `design/contrast.json`:
+`automatos-theme check design` measures it on every preset ([looks.md](looks.md)).
 
 **A focus ring under 3:1.** The same accent drawn as a focus outline is 2.49:1 on Paper, under the 3:1 a focus
 indicator needs. Draw outlines and input rings in the readable text variable; a soft halo may stay the raw accent.
