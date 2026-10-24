@@ -100,7 +100,7 @@ Play's original pilot plan, superseded by installable themes, is kept at
 ## Install Play
 
 - **A local or open-source edition:** download `automatos.play-<version>.autotheme` from [Play's releases](https://github.com/AutomatosAI/automatos-design-kit/releases) (its `.sha256` is next to it), then Settings › Appearance › Themes › Install theme. A signed version's release also carries `<version>.sig.json`: upload it with the package once your Automatos accepts signed theme uploads; until then the package installs on its own.
-- **The hosted edition:** Play comes from the Marketplace (Marketplace › Themes), listed as the official theme. There is nothing to download.
+- **The hosted edition:** Play installs from the Marketplace (Marketplace › Themes) once it is listed there, with nothing to download. It shows as **Official** when the listed version carries an Automatos signature ([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
 
 How a Play version is released, reviewed, signed and listed: [docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md).
 
