@@ -11,7 +11,8 @@
  *   gives no --background or --foreground fails, naming what it lacks; any other pair whose two tokens are not
  *   both set is not measured; a manifest without the block is left to the review (null).
  *
- * Core's luminance case (black to white, a non-hex refused) is look-kit's own, which Play's tests hold.
+ * Core's luminance case (black to white, a non-hex refused) is look-kit's own, which its tests hold
+ * (packages/look-kit/test/contrast.test.ts).
  * The level and the verdict the review gives these outcomes are check-report.test.ts's.
  */
 import { readFileSync } from 'node:fs'

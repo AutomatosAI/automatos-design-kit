@@ -8,14 +8,17 @@
  * Moved from core's lib/mascot/__tests__/reducer.test.ts as it was, but for its imports:
  * the reducer from the theme's source, and a receipt in the SDK's shape (HostReceipt,
  * the shape of core's Receipt).
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with the reducer, which is this
+ * package's src/ now; the replay helpers are still Play's (themes/play/test/mascot/helpers.ts).
  */
 import type { HostReceipt } from '@automatos/theme-sdk'
 import { describe, expect, it } from 'vitest'
 
-import { INITIAL_MASCOT, mascotReducer, pendingPose } from '../../src/lib/mascot/reducer.ts'
-import type { MascotEvent, ToolEndEvent } from '../../src/lib/mascot/types.ts'
+import { INITIAL_MASCOT, mascotReducer, pendingPose } from '../src/reducer.ts'
+import type { MascotEvent, ToolEndEvent } from '../src/types.ts'
 
-import { receipt, replay, sequence } from './helpers.ts'
+import { receipt, replay, sequence } from '../../../themes/play/test/mascot/helpers.ts'
 
 const SEND: MascotEvent = { type: 'send' }
 const FINISH: MascotEvent = { type: 'finish', finishReason: 'stop' }

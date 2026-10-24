@@ -1,4 +1,4 @@
-import { UNSAFE_TEXT } from '../text/plain-line'
+import { UNSAFE_TEXT } from './plain-line.ts'
 
 /**
  * PRD-260 — the one gate for a look from anywhere outside the code: storage, an

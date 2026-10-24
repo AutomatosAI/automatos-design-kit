@@ -15,6 +15,10 @@
   "engines": {
     "node": ">=22.18.0"
   },
+  "dependencies": {
+    "@automatos/look-kit": "0.1.0",
+    "@automatos/mascot": "0.1.0"
+  },
   "devDependencies": {
     "@automatos/eslint-plugin": "0.1.0",
     "@automatos/theme-cli": "0.1.0",

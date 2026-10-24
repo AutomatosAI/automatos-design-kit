@@ -4,8 +4,8 @@ import { useCallback, useEffect, useReducer } from 'react'
 
 import type { HostHealth } from '@automatos/theme-sdk'
 
-import { INITIAL_MASCOT, mascotReducer } from '../lib/mascot/reducer'
-import type { MascotName, MascotState } from '../lib/mascot/types'
+import { INITIAL_MASCOT, mascotReducer } from '@automatos/mascot/reducer'
+import type { MascotName, MascotState } from '@automatos/mascot/types'
 
 /**
  * PRD-260 §4, D6 — Auto on the asleep screen, driven by Play's reducer from the

@@ -1,7 +1,7 @@
-import { AA_TEXT, contrastRatio, relativeLuminance } from '../look-kit/contrast'
-import type { CssVars } from '../look-kit/css'
-import { ringColour, ringTone, type RingTone } from '../mascot/ring'
-import { MASCOT_STATES, type MascotName } from '../mascot/types'
+import { AA_TEXT, contrastRatio, relativeLuminance } from '@automatos/look-kit/contrast'
+import type { CssVars } from '@automatos/look-kit/css'
+import { ringColour, ringTone, type RingTone } from '@automatos/mascot/ring'
+import { MASCOT_STATES, type MascotName } from '@automatos/mascot/types'
 
 import { ACCENTS, ERROR_COLOUR, GROUNDS, TYPE_STYLES } from './catalogue'
 import { lookToCssVars } from './engine'
@@ -248,6 +248,6 @@ export function mascotSlots(look: Look): readonly MascotSlot[] {
     state,
     when: MASCOT_WHEN[state],
     tone: ringTone(state),
-    ring: ringColour(state, look),
+    ring: ringColour(state, lookToCssVars(look)),
   }))
 }

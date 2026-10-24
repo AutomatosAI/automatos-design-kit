@@ -5,12 +5,15 @@
  *
  * Moved from core's lib/looks/__tests__/css.test.ts as it was, but for its imports: the theme's own look
  * runtime (src/lib/look-kit) and looks (src/lib/looks).
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/look-kit's with the look runtime: the runtime is this
+ * package's src/, and Play's looks are read from themes/play, the kit's reference theme.
  */
 import { describe, expect, it } from 'vitest'
 
-import { AA_TEXT, READABLE_TARGET, contrastRatio } from '../../../src/lib/look-kit/contrast.ts'
-import { rgbList, rgba } from '../../../src/lib/look-kit/css.ts'
-import { ACCENT_KEYS, GROUNDS, GROUND_KEYS, TYPE_STYLES, TYPE_STYLE_KEYS } from '../../../src/lib/looks/catalogue.ts'
+import { AA_TEXT, READABLE_TARGET, contrastRatio } from '../src/contrast.ts'
+import { rgbList, rgba } from '../src/css.ts'
+import { ACCENT_KEYS, GROUNDS, GROUND_KEYS, TYPE_STYLES, TYPE_STYLE_KEYS } from '../../../themes/play/src/lib/looks/catalogue.ts'
 import {
   GLOW_VAR,
   LOOK_VAR_NAMES,
@@ -19,8 +22,8 @@ import {
   safeGlow,
   sheetOf,
   snagGlowAlpha,
-} from '../../../src/lib/looks/engine.ts'
-import { DAYLIGHT, EMBER, PRESETS } from '../../../src/lib/looks/presets.ts'
+} from '../../../themes/play/src/lib/looks/engine.ts'
+import { DAYLIGHT, EMBER, PRESETS } from '../../../themes/play/src/lib/looks/presets.ts'
 
 describe('lookToCssVars', () => {
   it("gives Ember's variables", () => {

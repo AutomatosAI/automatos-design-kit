@@ -6,10 +6,13 @@
  *
  * Moved from core's lib/mascot/__tests__/tools.test.ts as it was, but for its import:
  * the tool lists from the theme's source.
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with tools.ts, which the reducer
+ * reads and which is this package's src/ now.
  */
 import { describe, expect, it } from 'vitest'
 
-import { READING_TOOLS, SEARCHING_TOOLS, toolActivity, WORKING_TOOLS } from '../../src/lib/mascot/tools.ts'
+import { READING_TOOLS, SEARCHING_TOOLS, toolActivity, WORKING_TOOLS } from '../src/tools.ts'
 
 describe('toolActivity', () => {
   it('matches every listed name exactly', () => {

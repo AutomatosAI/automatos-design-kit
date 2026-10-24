@@ -7,7 +7,7 @@
 // tone rides its own cookie. The package's table also carries the tone rule (host 1.1.0), which
 // compile.ts adds beside this table from lib/looks/tone.ts, so the host's look runtime gives an installed
 // look the same tone.
-import { GLOW_SCALE, rgbList } from '../../themes/play/src/lib/look-kit/css.ts'
+import { GLOW_SCALE, rgbList } from '../../packages/look-kit/src/css.ts'
 import {
   ACCENTS,
   ACCENT_KEYS,

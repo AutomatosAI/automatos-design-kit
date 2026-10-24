@@ -1,6 +1,3 @@
-import { lookToCssVars } from '../looks/engine'
-import type { Look } from '../looks/types'
-
 import type { MascotName } from './types'
 
 /**
@@ -11,6 +8,10 @@ import type { MascotName } from './types'
  * text while loading. components/mascot/auto-mascot.module.css draws the same
  * mapping from data-ring, through app/play-theme.css's --pl-color-* tokens;
  * lib/mascot/__tests__/ring.test.ts holds the two together.
+ *
+ * PRD-261 B-01i: in @automatos/mascot, ringColour reads the colour from the
+ * look's custom properties, which the theme makes (Play's lookToCssVars), so
+ * the package needs no theme's look engine.
  */
 
 /** light: calm; accent: busy; error: oops; dusk: asleep or lost; quiet: loading. */
@@ -44,10 +45,10 @@ export function ringTone(state: MascotName): RingTone {
   return RING_TONES[state]
 }
 
-/** The ring's #rrggbb colour for a state under a look. */
-export function ringColour(state: MascotName, look: Look): string {
+/** The ring's #rrggbb colour for a state under a look, from the look's custom properties (`vars`). */
+export function ringColour(state: MascotName, vars: Readonly<Record<string, string>>): string {
   const name = RING_VARS[ringTone(state)]
-  const colour = lookToCssVars(look)[name]
+  const colour = vars[name]
   if (colour === undefined) throw new Error(`A look sets no ${name}`)
   return colour
 }

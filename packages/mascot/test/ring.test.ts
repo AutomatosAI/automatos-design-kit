@@ -8,17 +8,21 @@
  * Moved from core's lib/mascot/__tests__/ring.test.ts as it was, but for its imports:
  * the looks and the ring from the theme's source, and the two stylesheets read from
  * the theme's src/ (test/source-files.ts) instead of core's frontend/.
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with ring.ts, which is this
+ * package's src/ now and reads a look's colours from the look's custom properties: each case passes
+ * Play's lookToCssVars of the look. Play's looks and stylesheets are read from themes/play.
  */
 import { describe, expect, it } from 'vitest'
 
-import { ACCENTS, ERROR_COLOUR, GROUNDS, LIGHTS } from '../../src/lib/looks/catalogue.ts'
-import { duskOf } from '../../src/lib/looks/engine.ts'
-import { AURORA, EMBER } from '../../src/lib/looks/presets.ts'
-import type { Look } from '../../src/lib/looks/types.ts'
-import { RING_VARS, ringColour, ringTone, type RingTone } from '../../src/lib/mascot/ring.ts'
-import { MASCOT_STATES, type MascotName } from '../../src/lib/mascot/types.ts'
+import { ACCENTS, ERROR_COLOUR, GROUNDS, LIGHTS } from '../../../themes/play/src/lib/looks/catalogue.ts'
+import { duskOf, lookToCssVars } from '../../../themes/play/src/lib/looks/engine.ts'
+import { AURORA, EMBER } from '../../../themes/play/src/lib/looks/presets.ts'
+import type { Look } from '../../../themes/play/src/lib/looks/types.ts'
+import { RING_VARS, ringColour, ringTone, type RingTone } from '../src/ring.ts'
+import { MASCOT_STATES, type MascotName } from '../src/types.ts'
 
-import { readSource } from '../source-files.ts'
+import { readSource } from '../../../themes/play/test/source-files.ts'
 
 const MODULE_CSS = 'components/mascot/auto-mascot.module.css'
 const PLAY_THEME_CSS = 'app/play-theme.css'
@@ -31,7 +35,7 @@ const DUSK: readonly MascotName[] = ['sleeping', 'lost']
 const TONES = Object.keys(RING_VARS) as RingTone[]
 
 function coloursOf(states: readonly MascotName[], look: Look): readonly string[] {
-  return Array.from(new Set(states.map((state) => ringColour(state, look))))
+  return Array.from(new Set(states.map((state) => ringColour(state, lookToCssVars(look)))))
 }
 
 function readCss(file: string): string {
@@ -72,22 +76,22 @@ describe('ringColour', () => {
   it("under Ember: his light calm, the accent busy, the coral oops, the ground's dusk asleep and lost", () => {
     expect(coloursOf(CALM, EMBER)).toEqual([LIGHTS[EMBER.light].hex])
     expect(coloursOf(BUSY, EMBER)).toEqual([ACCENTS[EMBER.accent].hex])
-    expect(ringColour('oops', EMBER)).toBe(ERROR_COLOUR)
+    expect(ringColour('oops', lookToCssVars(EMBER))).toBe(ERROR_COLOUR)
     expect(coloursOf(DUSK, EMBER)).toEqual([duskOf(EMBER.ground)])
-    expect(ringColour('loading', EMBER)).toBe(GROUNDS[EMBER.ground].text2)
+    expect(ringColour('loading', lookToCssVars(EMBER))).toBe(GROUNDS[EMBER.ground].text2)
   })
 
   it('follows the look: Aurora takes its own light, accent and dusk, and the same coral', () => {
     expect(coloursOf(CALM, AURORA)).toEqual([LIGHTS[AURORA.light].hex])
     expect(coloursOf(BUSY, AURORA)).toEqual([ACCENTS[AURORA.accent].hex])
-    expect(ringColour('oops', AURORA)).toBe(ERROR_COLOUR)
+    expect(ringColour('oops', lookToCssVars(AURORA))).toBe(ERROR_COLOUR)
     expect(coloursOf(DUSK, AURORA)).toEqual([duskOf(AURORA.ground)])
   })
 
   it('makes dusk from the ground only, never the light or the accent', () => {
     const changed: Look = { ...EMBER, accent: 'rose', light: 'amber', shell: 'cobalt' }
-    expect(ringColour('sleeping', changed)).toBe(duskOf(EMBER.ground))
-    expect(ringColour('lost', { ...EMBER, ground: 'paper' })).toBe(duskOf('paper'))
+    expect(ringColour('sleeping', lookToCssVars(changed))).toBe(duskOf(EMBER.ground))
+    expect(ringColour('lost', lookToCssVars({ ...EMBER, ground: 'paper' }))).toBe(duskOf('paper'))
   })
 })
 

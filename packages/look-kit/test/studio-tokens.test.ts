@@ -8,21 +8,24 @@
  *
  * Moved from core's lib/looks/__tests__/studio-tokens.test.ts as it was, but for its imports: the theme's own
  * look runtime (src/lib/look-kit) and looks (src/lib/looks).
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/look-kit's with the look runtime: the runtime is this
+ * package's src/, and Play's looks are read from themes/play, the kit's reference theme.
  */
 import { describe, expect, it } from 'vitest'
 
-import { readableOn } from '../../../src/lib/look-kit/contrast.ts'
-import { formatNumber, hexToTriplet, tripletToHex } from '../../../src/lib/look-kit/hsl.ts'
-import { ACCENT_TINT_ALPHA_DARK, ACCENT_TINT_ALPHA_LIGHT, overGround } from '../../../src/lib/look-kit/studio-tokens.ts'
-import { ACCENTS, ACCENT_KEYS, ERROR_COLOUR, GROUNDS, GROUND_KEYS, LIGHTS, SHELLS } from '../../../src/lib/looks/catalogue.ts'
+import { readableOn } from '../src/contrast.ts'
+import { formatNumber, hexToTriplet, tripletToHex } from '../src/hsl.ts'
+import { ACCENT_TINT_ALPHA_DARK, ACCENT_TINT_ALPHA_LIGHT, overGround } from '../src/studio-tokens.ts'
+import { ACCENTS, ACCENT_KEYS, ERROR_COLOUR, GROUNDS, GROUND_KEYS, LIGHTS, SHELLS } from '../../../themes/play/src/lib/looks/catalogue.ts'
 import {
   LOOK_VAR_NAMES,
   STUDIO_TOKEN_NAMES,
   isDarkGround,
   lookToStudioTokens,
   studioAccent,
-} from '../../../src/lib/looks/engine.ts'
-import { DAYLIGHT, EMBER, PRESETS } from '../../../src/lib/looks/presets.ts'
+} from '../../../themes/play/src/lib/looks/engine.ts'
+import { DAYLIGHT, EMBER, PRESETS } from '../../../themes/play/src/lib/looks/presets.ts'
 
 const TRIPLET = /^\d{1,3}(\.\d{1,2})? \d{1,3}(\.\d{1,2})?% \d{1,3}(\.\d{1,2})?%$/
 const WRAPPED = /^hsl\((.+?)( \/ 0\.\d{2})?\)$/

@@ -2,12 +2,14 @@
 // Play's theme.json, entry and build config agree with each other, with core's manifest validator
 // (vendored in the theme CLI) and with what core's builtin Play declares. Files are read, not built.
 // PRD-261 M-07: theme.json names Auto's states (`mascot`) and the phone's block (`mobile`); the files and
-// colours the block needs are test/mobile.test.ts's.
+// colours the block needs are test/mobile.test.ts's. PRD-261 B-01i: `uses` covers the SDK areas of the kit
+// packages Play bundles too, since the package carries their src/ under source/packages/ and the review reads it.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
+import { bundledPackages } from '@automatos/vite-preset'
 import { describe, expect, it } from 'vitest'
-import { MASCOT_STATES } from '../src/lib/mascot/types.ts'
+import { MASCOT_STATES } from '@automatos/mascot/types'
 import { readSource, readThemeFile, SOURCE_ROOT, sourceScripts, THEME_ROOT } from './source-files.ts'
 
 const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
@@ -24,6 +26,8 @@ const SDK = String.raw`['"]@automatos/theme-sdk['"]`
 const NAMED_SDK_IMPORT = new RegExp(String.raw`\b(?:import|export)\s+(type\s+)?\{([^{}]*)\}\s*from\s*` + SDK, 'g')
 /** A namespace or dynamic import of the SDK: it names no list, so `uses` could not be checked against it. */
 const WIDE_SDK_IMPORT = new RegExp(String.raw`\bimport\s*\*\s*as\s+\w+\s+from\s*${SDK}|\bimport\s*\(\s*${SDK}`)
+/** A script file, as test/source-files.ts reads Play's. */
+const SCRIPT_FILE = /\.(?:ts|tsx|js|jsx|mjs|cjs)$/
 
 interface PageEntry { readonly mode: string; readonly keepCorePage?: readonly string[] }
 interface Manifest {
@@ -61,10 +65,22 @@ function sdkAreaOfName(): Map<string, string> {
   return owner
 }
 
-/** The value names Play's source imports from the SDK; `type` imports are left out, as the build drops them. */
+/** Every script the package carries as source/: Play's src/ and each bundled kit package's src/, by path, as text. */
+function packedScripts(): { readonly rel: string; readonly text: string }[] {
+  const own = sourceScripts().map((rel) => ({ rel, text: readSource(rel) }))
+  const bundled = bundledPackages(THEME_ROOT).flatMap((item) => {
+    const src = join(item.dir, 'src')
+    return readdirSync(src, { encoding: 'utf8', recursive: true })
+      .filter((rel) => SCRIPT_FILE.test(rel))
+      .map((rel) => ({ rel: `${item.name}/${rel}`, text: readFileSync(join(src, rel), 'utf8') }))
+  })
+  return [...own, ...bundled]
+}
+
+/** The value names the packed source imports from the SDK; `type` imports are left out, as the build drops them. */
 function sdkValueImports(): string[] {
-  const names = sourceScripts().flatMap((rel) =>
-    Array.from(readSource(rel).matchAll(NAMED_SDK_IMPORT)).flatMap((match) => (match[1] ? [] : match[2].split(','))),
+  const names = packedScripts().flatMap(({ text }) =>
+    Array.from(text.matchAll(NAMED_SDK_IMPORT)).flatMap((match) => (match[1] ? [] : match[2].split(','))),
   )
   return names
     .map((part) => part.trim())
@@ -107,7 +123,7 @@ describe('theme.json', () => {
   })
 
   it("declares in uses exactly the SDK areas the code imports, as core's review check reads them", () => {
-    expect(sourceScripts().filter((rel) => WIDE_SDK_IMPORT.test(readSource(rel)))).toEqual([])
+    expect(packedScripts().filter(({ text }) => WIDE_SDK_IMPORT.test(text)).map(({ rel }) => rel)).toEqual([])
     const owner = sdkAreaOfName()
     const imported = sdkValueImports()
     expect(imported.filter((name) => !owner.has(name))).toEqual([])

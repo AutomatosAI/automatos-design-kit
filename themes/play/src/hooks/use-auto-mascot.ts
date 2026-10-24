@@ -10,10 +10,10 @@ import {
   mascotEventsFromStatus,
   NO_REPLY,
   type ReplyProgress,
-} from '../lib/mascot/events'
-import { INITIAL_MASCOT, mascotReducer } from '../lib/mascot/reducer'
+} from '@automatos/mascot/events'
+import { INITIAL_MASCOT, mascotReducer } from '@automatos/mascot/reducer'
 import { claimFirstOpen, helloReady, subscribeHello } from '../lib/mascot/session'
-import type { MascotEvent, MascotName, MascotState } from '../lib/mascot/types'
+import type { MascotEvent, MascotName, MascotState } from '@automatos/mascot/types'
 
 /**
  * PRD-260 D5, D6 — Auto driven by the core chat. Play's reducer

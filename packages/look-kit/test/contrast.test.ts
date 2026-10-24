@@ -9,6 +9,9 @@
  * app/play-theme.css: the 24 pairs' AA proofs run on the theme's own copy of the look runtime
  * (src/lib/look-kit) and its catalogue (src/lib/looks/catalogue.ts), and the tints are read from the theme's
  * src/app/play-theme.css.
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/look-kit's with the look runtime: the runtime is this
+ * package's src/, and Play's catalogue, presets and stylesheet are read from themes/play, the kit's reference theme.
  */
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -25,15 +28,15 @@ import {
   readableOnTinted,
   readsOnAll,
   relativeLuminance,
-} from '../../../src/lib/look-kit/contrast.ts'
-import { ACCENT_FAINT_ALPHA, ACCENT_HALO_ALPHA, ACCENT_TEXT_TINTS, GLOW_SCALE, SNAG_GLOW, rgba } from '../../../src/lib/look-kit/css.ts'
-import { tripletToHex } from '../../../src/lib/look-kit/hsl.ts'
-import { PRIMARY_TINT_MAX } from '../../../src/lib/look-kit/studio-tokens.ts'
-import { ACCENTS, ACCENT_KEYS, ERROR_COLOUR, GROUNDS, GROUND_KEYS } from '../../../src/lib/looks/catalogue.ts'
-import { GLOW_SNAG_VAR, GLOW_VAR, lookToCssVars, lookToStudioTokens, safeGlow, textFills } from '../../../src/lib/looks/engine.ts'
-import { EMBER } from '../../../src/lib/looks/presets.ts'
-import { GLOW_MAX, GLOW_MIN } from '../../../src/lib/looks/types.ts'
-import { SOURCE_ROOT } from '../../source-files.ts'
+} from '../src/contrast.ts'
+import { ACCENT_FAINT_ALPHA, ACCENT_HALO_ALPHA, ACCENT_TEXT_TINTS, GLOW_SCALE, SNAG_GLOW, rgba } from '../src/css.ts'
+import { tripletToHex } from '../src/hsl.ts'
+import { PRIMARY_TINT_MAX } from '../src/studio-tokens.ts'
+import { ACCENTS, ACCENT_KEYS, ERROR_COLOUR, GROUNDS, GROUND_KEYS } from '../../../themes/play/src/lib/looks/catalogue.ts'
+import { GLOW_SNAG_VAR, GLOW_VAR, lookToCssVars, lookToStudioTokens, safeGlow, textFills } from '../../../themes/play/src/lib/looks/engine.ts'
+import { EMBER } from '../../../themes/play/src/lib/looks/presets.ts'
+import { GLOW_MAX, GLOW_MIN } from '../../../themes/play/src/lib/looks/types.ts'
+import { SOURCE_ROOT } from '../../../themes/play/test/source-files.ts'
 
 const PAIRS = GROUND_KEYS.flatMap((ground) => ACCENT_KEYS.map((accent) => ({ ground, accent })))
 const CHANNEL_TOLERANCE = 4

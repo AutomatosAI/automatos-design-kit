@@ -5,13 +5,16 @@
  *
  * Moved from core's lib/mascot/__tests__/player.test.ts as it was, but for its imports:
  * the player from the theme's source.
+ *
+ * PRD-261 B-01i moved it from Play's tests into @automatos/mascot's with the player, which is this
+ * package's src/ now; deepFreeze is still Play's test helper (themes/play/test/mascot/helpers.ts).
  */
 import { describe, expect, it } from 'vitest'
 
-import { atClipBoundary, clipBoundary, jumpTo, type PlayerState, retarget, startPlayer } from '../../src/lib/mascot/player.ts'
-import type { MascotName } from '../../src/lib/mascot/types.ts'
+import { atClipBoundary, clipBoundary, jumpTo, type PlayerState, retarget, startPlayer } from '../src/player.ts'
+import type { MascotName } from '../src/types.ts'
 
-import { deepFreeze } from './helpers.ts'
+import { deepFreeze } from '../../../themes/play/test/mascot/helpers.ts'
 
 const playing = (showing: MascotName, queued: MascotName | null = null): PlayerState =>
   deepFreeze({ showing, queued, finished: false })

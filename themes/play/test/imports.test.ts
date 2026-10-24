@@ -1,15 +1,19 @@
 // @vitest-environment node
-// Play's source imports only what a theme can: its own files by relative path and the host's shared
-// modules (React and the SDK). Core-only modules are refused by name: the app's '@/' alias, Next.js,
-// React Query, sonner and the API client. Play's tests, the ones moved from core included, refuse the
-// same names: they run on the kit's harness (its fake SDK), never on core's modules. A static scan; nothing is built.
+// Play's source imports only what a theme can: its own files by relative path, the host's shared
+// modules (React and the SDK), and the modules of the kit packages it bundles (PRD-261 B-01i: the ones its
+// package.json names under dependencies, @automatos/look-kit and @automatos/mascot, as the vite-preset resolves
+// them). Core-only modules are refused by name: the app's '@/' alias, Next.js, React Query, sonner and the API
+// client. Play's tests, the ones moved from core included, refuse the same names: they run on the kit's harness
+// (its fake SDK), never on core's modules. A static scan; nothing is built.
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { isSharedModule } from '@automatos/vite-preset'
+import { bundledPackages, isSharedModule, packageModule } from '@automatos/vite-preset'
 import { describe, expect, it } from 'vitest'
 import { importSpecifiers, isRelative, readSource, sourceScripts, THEME_ROOT } from './source-files.ts'
 
 const TEST_ROOT = join(THEME_ROOT, 'test')
+/** The kit packages Play bundles, as its build finds them. */
+const BUNDLED = bundledPackages(THEME_ROOT)
 const SCRIPT_FILE = /\.(?:ts|tsx|js|jsx|mjs|cjs)$/
 /** Tests moved from core (test/moved-from-core/*.json names them), so the scan of test/ reads them too. */
 const MOVED_TESTS: readonly string[] = [
@@ -29,12 +33,17 @@ const BANNED: readonly { readonly name: string; readonly test: (specifier: strin
   { name: 'the API client', test: (s) => /(?:^|[/-])api-client(?:\.[cm]?[jt]sx?)?$/.test(s) },
 ]
 
-/** Each reason a specifier is refused: a banned module, or a bare import the host doesn't share. */
+/**
+ * Each reason a specifier is refused: a banned module, a bare import the host doesn't share and no bundled package
+ * has, or a module a bundled package doesn't have.
+ */
 function problems(specifier: string): string[] {
   const banned = BANNED.filter((rule) => rule.test(specifier)).map((rule) => `imports ${rule.name} ("${specifier}")`)
   if (banned.length > 0) return banned
   if (isRelative(specifier) || isSharedModule(specifier)) return []
-  return [`imports "${specifier}", which is neither a file under src/ nor one of the host's shared modules`]
+  const bundled = packageModule(specifier, BUNDLED)
+  if (bundled !== null) return 'problem' in bundled ? [bundled.problem] : []
+  return [`imports "${specifier}", which is neither a file under src/, one of the host's shared modules nor a bundled kit package's`]
 }
 
 function fileProblems(rel: string): string[] {
@@ -79,11 +88,22 @@ describe('the import scan', () => {
     'lucide-react',
     'zustand',
     'react-dom/server',
+    '@automatos/vite-preset',
+    '@automatos/look-kit/nope',
   ])('refuses %s', (specifier) => {
     expect(problems(specifier)).not.toEqual([])
   })
 
-  it.each(['react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@automatos/theme-sdk', './x.module.css'])(
+  it.each([
+    'react',
+    'react/jsx-runtime',
+    'react-dom',
+    'react-dom/client',
+    '@automatos/theme-sdk',
+    './x.module.css',
+    '@automatos/look-kit/contrast',
+    '@automatos/mascot/mascot-pause-button',
+  ])(
     'allows %s',
     (specifier) => {
       expect(problems(specifier)).toEqual([])
@@ -94,14 +114,15 @@ describe('the import scan', () => {
 describe("Play's source", () => {
   const scripts = sourceScripts()
 
-  it('has the entry and the copied areas', () => {
+  it('has the entry and the copied areas, the look runtime and the mascot core in the kit packages it bundles', () => {
     expect(scripts).toContain('entry.ts')
-    const areas = ['components/play/', 'components/looks/', 'components/mascot/', 'lib/play/', 'lib/looks/', 'lib/mascot/',
-      'lib/look-kit/', 'hooks/', 'stores/']
+    const areas = ['components/play/', 'components/looks/', 'components/mascot/', 'lib/play/', 'lib/looks/', 'lib/mascot/', 'hooks/', 'stores/']
     areas.forEach((area) => expect(scripts.some((rel) => rel.startsWith(area))).toBe(true))
+    expect(scripts.filter((rel) => rel.startsWith('lib/look-kit/'))).toEqual([])
+    expect(BUNDLED.map((item) => item.name)).toEqual(['@automatos/look-kit', '@automatos/mascot'])
   })
 
-  it('imports nothing outside its own files and the host shared modules', () => {
+  it("imports nothing but its own files, the host's shared modules and its bundled kit packages' modules", () => {
     expect(scripts.flatMap(fileProblems)).toEqual([])
   })
 

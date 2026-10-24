@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { LOOK_ID_PATTERN, LOOK_TEXT_MAX } from '../../../src/lib/look-kit/validate.ts'
+import { LOOK_ID_PATTERN, LOOK_TEXT_MAX } from '@automatos/look-kit/validate'
 import {
   SAVED_SUB,
   asDuplicate,

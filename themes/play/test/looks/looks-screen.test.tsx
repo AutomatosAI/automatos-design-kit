@@ -20,7 +20,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { exportStarted } from '../../src/components/looks/look-manager.tsx'
-import { GLOW_SCALE, rgba } from '../../src/lib/look-kit/css.ts'
+import { GLOW_SCALE, rgba } from '@automatos/look-kit/css'
 import { ACCENTS, GROUNDS, LIGHTS, SHELLS, TYPE_STYLES } from '../../src/lib/looks/catalogue.ts'
 import { SAVED_SUB } from '../../src/lib/looks/editor.ts'
 import { safeGlow } from '../../src/lib/looks/engine.ts'

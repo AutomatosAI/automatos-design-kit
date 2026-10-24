@@ -10,7 +10,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { mascotEventOf } from '../../src/hooks/use-play-turn.ts'
-import { FAILED_TURN } from '../../src/lib/mascot/events.ts'
+import { FAILED_TURN } from '@automatos/mascot/events'
 
 describe("Play's turn events, as Auto plays them", () => {
   it("makes a reply that failed in words Auto's error, with its code", () => {
