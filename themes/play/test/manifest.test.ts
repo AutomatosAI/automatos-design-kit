@@ -15,6 +15,9 @@ const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
 const A19_MERGE = 'fd993980e319172ea442491217249000ed85a5e7'
 /** The kit's record of where Play's code came from, outside the package: Play's README is packed. */
 const PLAY_HISTORY = join(THEME_ROOT, '..', '..', 'docs', 'PLAY-HISTORY.md')
+/** The README's section that points at the history, and the head of the history's table of changed lines. */
+const WHERE_FROM = 'Where the code comes from'
+const CHANGED_LINES_HEADER = '| File | Change | Why |'
 /** Slots Play's frame draws itself, so theme.json declares them but the entry registers none. */
 const DRAWN_BY_FRAME = ['asleep@1']
 /** The vendored SDK types, one file per area, named as `uses` writes the area ('pages-command-center'). */
@@ -39,6 +42,16 @@ const entry = readSource('entry.ts')
 /** The first arguments of every `host.<method>('…', …)` call in the entry, in order. */
 function registered(method: string): string[] {
   return Array.from(entry.matchAll(new RegExp(String.raw`host\.${method}\(\s*'([^']+)'`, 'g')), (m) => m[1])
+}
+
+/** The lines of one `## <heading>` section of the README, up to the next `## ` heading, blank lines left out. */
+function readmeSection(heading: string): string[] {
+  const lines = readThemeFile('README.md').split('\n')
+  const start = lines.indexOf(`## ${heading}`)
+  if (start < 0) throw new Error(`README.md has no "## ${heading}" section`)
+  const rest = lines.slice(start + 1)
+  const end = rest.findIndex((line) => line.startsWith('## '))
+  return (end < 0 ? rest : rest.slice(0, end)).filter((line) => line.trim() !== '')
 }
 
 /** The routes the entry registers: by literal, or by the PLAY_CONVERSATIONS_ROUTE constant. */
@@ -146,13 +159,17 @@ describe('the build', () => {
 })
 
 describe('where the code comes from', () => {
-  it("names the core commit Play's code was copied from", () => {
-    expect(readThemeFile('README.md')).toContain(CORE_SHA)
+  it("points in one line at the kit's history (K-21), and keeps no rule from before A-19", () => {
+    const section = readmeSection(WHERE_FROM)
+    expect(section).toHaveLength(1)
+    expect(section[0]).toContain('docs/PLAY-HISTORY.md')
+    expect(readThemeFile('README.md')).not.toContain('Until A-19')
   })
 
-  it("the kit's history names that commit and the A-19 merge that removed builtin Play from core", () => {
+  it("the kit's history names the core commit Play's code was copied from, the lines changed and the A-19 merge", () => {
     const history = readFileSync(PLAY_HISTORY, 'utf8')
     expect(history).toContain(CORE_SHA)
+    expect(history).toContain(CHANGED_LINES_HEADER)
     expect(history).toContain(A19_MERGE)
   })
 
