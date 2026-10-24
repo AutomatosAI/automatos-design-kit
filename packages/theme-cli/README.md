@@ -137,3 +137,25 @@ Exit code 0 when every shot passed; the failing step's own exit code when one fa
 PNG, on any request to another origin than the harness's, and on a critical axe violation); 1 when the folder has no
 `theme.json` or `src/entry.ts`, or its presets are not built yet; 2 for a usage error. Kit CI's `harness` job runs it
 over Play and uploads the folder as the `kit-harness` artifact.
+
+## previews
+
+`automatos-theme previews <theme folder> --from <shots folder> [--pick <name>=<shot>]...` copies the harness shots you
+picked into the theme's Marketplace previews and sets `theme.json` `previews` to them, in the order given. The listing
+keeps `theme.json`'s order and its cover is the first preview listed, so the first pick is the cover.
+
+A pick names a preview and the shot it is: `--pick ember=chromium/ember/1440/page-chat.png` writes
+`assets/previews/ember.png`, and `--pick ember-looks=chromium/ember/1440/slot-lookEditor-1.png` writes
+`assets/previews/ember-looks.png`, from the folder `shots` wrote (`<browser>/<preset>/<width>/<view>.png`). The listing
+shows `<preset>.png` and `<preset>-<screen>.png` under that preset (the longest preset id that matches wins), so a name
+no preset claims is refused. With no `--pick`, each preset gets `<preset>.png`: its first view (slots, then pages,
+then routes, as the harness orders them) on Chromium at 1440 px, the default look first.
+
+Every pick is checked before anything is written, and every reason is printed: a name the server's reader would not
+take as `assets/previews/<name>.png`, a name no preset claims or picked twice, a shot outside the shots folder,
+missing, over 512 KB or not a PNG, and more than 16 previews. `theme.json` keeps its own layout: only `previews` is
+written. A file in `assets/previews/` the new list doesn't name is left in place, with a warning, since `pack` still
+packs it. `check` then lists each preview under its preset and names the cover.
+
+The previews are yours to pick and commit: a package's digest covers them, so they are never written by a build.
+Exit code 0 when written, 1 when refused (nothing written), 2 for a usage error.
