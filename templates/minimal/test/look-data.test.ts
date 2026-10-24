@@ -4,6 +4,8 @@
 // each the preset; theme.json's look, the default; and boot/prepaint.json, an entry for every choice of every knob,
 // a cell for every ground and accent, the default preset's choices as its defaults and a tone for every ground.
 import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_LOOK, KNOBS, LOOK_SCHEMA, PRESETS, type ThemeLook } from '../src/looks/spec.ts'
 
@@ -19,10 +21,13 @@ interface PrepaintFile {
   readonly tone: { readonly knob: string; readonly values: Readonly<Record<string, string>> }
 }
 
-const PRESETS_DIR = new URL('../looks/presets/', import.meta.url)
+// From the string import.meta.url: the harness runs this file under jsdom (its header names the environment only when
+// vitest runs the file itself), where a `new URL(..., import.meta.url)` is no file URL fs can read.
+const THEME_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const PRESETS_DIR = join(THEME_DIR, 'looks', 'presets')
 const PRESET_SUFFIX = '.look.json'
 
-const readJson = <T>(path: string): T => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')) as T
+const readJson = <T>(path: string): T => JSON.parse(readFileSync(join(THEME_DIR, path), 'utf8')) as T
 const choicesOf = (name: string): string[] => KNOBS.find((knob) => knob.name === name)?.choices.map((choice) => choice.key) ?? []
 const picks = (look: ThemeLook): Record<string, string> => Object.fromEntries(KNOBS.map((knob) => [knob.name, look[knob.name]]))
 

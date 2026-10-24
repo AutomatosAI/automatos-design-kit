@@ -7,6 +7,8 @@ import { listLooks, SDK_VERSION, type HostLookResult, type ThemeRegistrationHost
 import { host } from '@automatos/theme-harness/host'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { beforeEach, describe, expect, it } from 'vitest'
 import theme from '../src/entry.ts'
 import { NotFound } from '../src/edges/not-found.tsx'
@@ -17,7 +19,9 @@ import { StyleSheet, activeLookLine } from '../src/style/style-sheet.tsx'
 import { COLOURS } from '../src/style/tokens.ts'
 import { THEME_NAME } from '../src/theme.ts'
 
-const manifest = JSON.parse(readFileSync(new URL('../theme.json', import.meta.url), 'utf8')) as { readonly slots: string[] }
+// From the string import.meta.url: under jsdom, a `new URL(..., import.meta.url)` is no file URL fs can read.
+const THEME_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const manifest = JSON.parse(readFileSync(join(THEME_DIR, 'theme.json'), 'utf8')) as { readonly slots: string[] }
 const NOT_A_LOOK = 'That is not a look of this theme.'
 
 /** The host's look runtime check, as the host makes it from looks/schema.json: the schema and a choice per knob. */
