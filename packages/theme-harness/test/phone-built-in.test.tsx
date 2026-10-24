@@ -31,7 +31,8 @@ const entry = (): Promise<unknown> => Promise.resolve({
   }),
 })
 
-const BUILT_IN = [['automatos/play', PLAY_DIR, 'Play'], ['automatos/hud', HUD_DIR, 'HUD']] as const
+/** Each built-in theme: its id, its folder and the layout's name. */
+const BUILT_IN: [string, string, string][] = [['automatos/play', PLAY_DIR, 'Play'], ['automatos/hud', HUD_DIR, 'HUD']]
 
 beforeEach(() => {
   host.reset()
