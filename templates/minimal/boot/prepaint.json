@@ -1,0 +1,166 @@
+{
+  "knobs": {
+    "ground": {
+      "paper": {
+        "--{{htmlClass}}-bg": "#F6F4EF",
+        "--{{htmlClass}}-surface": "#FFFFFF",
+        "--{{htmlClass}}-text": "#1D1C1A",
+        "--{{htmlClass}}-text-2": "#5A5751",
+        "--{{htmlClass}}-line": "#D9D5CC",
+        "--{{htmlClass}}-chip": "#ECE9E2",
+        "--{{htmlClass}}-error": "#B42318",
+        "--background": "42.86 28% 95.1%",
+        "--background-gradient-from": "42.86 28% 95.1%",
+        "--background-gradient-to": "42.86 28% 95.1%",
+        "--card": "0 0% 100%",
+        "--popover": "0 0% 100%",
+        "--secondary": "42 20.83% 90.59%",
+        "--muted": "42 20.83% 90.59%",
+        "--cc-hover": "42 20.83% 90.59%",
+        "--border": "41.54 14.61% 82.55%",
+        "--input": "41.54 14.61% 82.55%",
+        "--glass-border-hover": "40 5.26% 33.53%",
+        "--cc-hover-border": "40 5.26% 33.53%",
+        "--foreground": "40 5.45% 10.78%",
+        "--card-foreground": "40 5.45% 10.78%",
+        "--popover-foreground": "40 5.45% 10.78%",
+        "--secondary-foreground": "40 5.45% 10.78%",
+        "--muted-foreground": "40 5.26% 33.53%",
+        "--accent": "4.23 76.47% 40%",
+        "--accent-foreground": "0 0% 100%",
+        "--destructive": "4.23 76.47% 40%",
+        "--destructive-foreground": "0 0% 100%",
+        "--paper": "hsl(0 0% 100%)",
+        "--bg-1": "hsl(42.86 28% 95.1%)",
+        "--bg-2": "hsl(42 20.83% 90.59%)",
+        "--fg": "hsl(40 5.45% 10.78%)",
+        "--fg-2": "hsl(40 5.26% 33.53%)",
+        "--fg-3": "hsl(40 5.26% 33.53%)",
+        "--border-2": "hsl(40 5.26% 33.53%)"
+      },
+      "ink": {
+        "--{{htmlClass}}-bg": "#14171B",
+        "--{{htmlClass}}-surface": "#1D2126",
+        "--{{htmlClass}}-text": "#EEF0F2",
+        "--{{htmlClass}}-text-2": "#A9AEB5",
+        "--{{htmlClass}}-line": "#363B42",
+        "--{{htmlClass}}-chip": "#272B31",
+        "--{{htmlClass}}-error": "#FF8A80",
+        "--background": "214.29 14.89% 9.22%",
+        "--background-gradient-from": "214.29 14.89% 9.22%",
+        "--background-gradient-to": "214.29 14.89% 9.22%",
+        "--card": "213.33 13.43% 13.14%",
+        "--popover": "213.33 13.43% 13.14%",
+        "--secondary": "216 11.36% 17.25%",
+        "--muted": "216 11.36% 17.25%",
+        "--cc-hover": "216 11.36% 17.25%",
+        "--border": "215 10% 23.53%",
+        "--input": "215 10% 23.53%",
+        "--glass-border-hover": "215 7.5% 68.63%",
+        "--cc-hover-border": "215 7.5% 68.63%",
+        "--foreground": "210 13.33% 94.12%",
+        "--card-foreground": "210 13.33% 94.12%",
+        "--popover-foreground": "210 13.33% 94.12%",
+        "--secondary-foreground": "210 13.33% 94.12%",
+        "--muted-foreground": "215 7.5% 68.63%",
+        "--accent": "4.72 100% 75.1%",
+        "--accent-foreground": "214.29 14.89% 9.22%",
+        "--destructive": "4.72 100% 75.1%",
+        "--destructive-foreground": "214.29 14.89% 9.22%",
+        "--paper": "hsl(213.33 13.43% 13.14%)",
+        "--bg-1": "hsl(214.29 14.89% 9.22%)",
+        "--bg-2": "hsl(216 11.36% 17.25%)",
+        "--fg": "hsl(210 13.33% 94.12%)",
+        "--fg-2": "hsl(215 7.5% 68.63%)",
+        "--fg-3": "hsl(215 7.5% 68.63%)",
+        "--border-2": "hsl(215 7.5% 68.63%)"
+      }
+    },
+    "accent": {
+      "blue": {
+        "--{{htmlClass}}-accent": "#2A62D6",
+        "--{{htmlClass}}-accent-ink": "#FFFFFF"
+      },
+      "green": {
+        "--{{htmlClass}}-accent": "#1F9D63",
+        "--{{htmlClass}}-accent-ink": "#04140C"
+      },
+      "amber": {
+        "--{{htmlClass}}-accent": "#E8A317",
+        "--{{htmlClass}}-accent-ink": "#1C1302"
+      }
+    },
+    "corners": {
+      "square": {
+        "--{{htmlClass}}-radius": "2px"
+      },
+      "soft": {
+        "--{{htmlClass}}-radius": "8px"
+      },
+      "round": {
+        "--{{htmlClass}}-radius": "16px"
+      }
+    }
+  },
+  "pairs": [
+    {
+      "a": "ground",
+      "b": "accent",
+      "table": {
+        "paper": {
+          "blue": {
+            "--{{htmlClass}}-accent-text": "#2458C7",
+            "--primary": "220.86 69.36% 46.08%",
+            "--primary-foreground": "0 0% 100%",
+            "--ring": "220.86 69.36% 46.08%"
+          },
+          "green": {
+            "--{{htmlClass}}-accent-text": "#137145",
+            "--primary": "151.91 71.21% 25.88%",
+            "--primary-foreground": "0 0% 100%",
+            "--ring": "151.91 71.21% 25.88%"
+          },
+          "amber": {
+            "--{{htmlClass}}-accent-text": "#875A00",
+            "--primary": "40 100% 26.47%",
+            "--primary-foreground": "0 0% 100%",
+            "--ring": "40 100% 26.47%"
+          }
+        },
+        "ink": {
+          "blue": {
+            "--{{htmlClass}}-accent-text": "#86AAF5",
+            "--primary": "220.54 84.73% 74.31%",
+            "--primary-foreground": "214.29 14.89% 9.22%",
+            "--ring": "220.54 84.73% 74.31%"
+          },
+          "green": {
+            "--{{htmlClass}}-accent-text": "#5ACB95",
+            "--primary": "151.33 52.07% 57.45%",
+            "--primary-foreground": "214.29 14.89% 9.22%",
+            "--ring": "151.33 52.07% 57.45%"
+          },
+          "amber": {
+            "--{{htmlClass}}-accent-text": "#EDB646",
+            "--primary": "40.24 82.27% 60.2%",
+            "--primary-foreground": "214.29 14.89% 9.22%",
+            "--ring": "40.24 82.27% 60.2%"
+          }
+        }
+      }
+    }
+  ],
+  "numeric": [],
+  "defaults": {
+    "ground": "paper",
+    "accent": "blue",
+    "corners": "soft"
+  },
+  "tone": {
+    "knob": "ground",
+    "values": {
+      "paper": "light",
+      "ink": "dark"
+    }
+  }
+}

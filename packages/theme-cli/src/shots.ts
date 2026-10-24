@@ -50,8 +50,8 @@ export interface ShotsTools {
 
 type Require = ReturnType<typeof createRequire>
 
-/** A package's command, by its package.json `bin`. */
-function binOf(require: Require, pkg: string, command: string): string {
+/** A package's command, by its package.json `bin` (`dev` finds Vite so too). */
+export function binOf(require: Require, pkg: string, command: string): string {
   const manifest = require.resolve(`${pkg}/package.json`)
   const { bin } = require(`${pkg}/package.json`) as { readonly bin?: string | Readonly<Record<string, string>> }
   const relative = typeof bin === 'string' ? bin : bin?.[command]
@@ -93,10 +93,10 @@ function parseShots(argv: readonly string[], cwd: string): ShotsArgs | null {
   }
 }
 
-/** Why the harness can't draw `themeDir`, or null when it can. */
-export function themeFolderProblem(themeDir: string): string | null {
+/** Why the harness can't draw `themeDir`, or null when it can; `command` is the one that asks (`shots`, `dev`). */
+export function themeFolderProblem(themeDir: string, command = 'shots'): string | null {
   const manifestPath = join(themeDir, MANIFEST_FILE)
-  if (!existsSync(manifestPath)) return `${themeDir} has no ${MANIFEST_FILE}: shots draws a theme folder.`
+  if (!existsSync(manifestPath)) return `${themeDir} has no ${MANIFEST_FILE}: ${command} draws a theme folder.`
   if (!existsSync(join(themeDir, ENTRY_FILE))) return `${themeDir} has no ${ENTRY_FILE}: the harness draws a theme from its entry.`
   let manifest: unknown
   try {

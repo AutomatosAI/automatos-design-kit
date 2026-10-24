@@ -1,0 +1,34 @@
+{
+  "name": "@{{publisher}}/theme-{{slug}}",
+  "version": "0.1.0",
+  "description": "{{name}}, an installable Automatos theme ({{id}}).",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "pack": "automatos-theme check design . && automatos-theme pack . --out out"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "devDependencies": {
+    "@automatos/eslint-plugin": "0.1.0",
+    "@automatos/theme-cli": "0.1.0",
+    "@automatos/theme-harness": "0.1.0",
+    "@automatos/vite-preset": "0.1.0",
+    "eslint": "9.39.5"
+  },
+  "peerDependencies": {
+    "@automatos/theme-sdk": "1.1.0",
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

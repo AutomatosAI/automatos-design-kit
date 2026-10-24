@@ -1,0 +1,9 @@
+{
+  "schema": "{{htmlClass}}-look/v1",
+  "id": "night",
+  "name": "Night",
+  "sub": "Green on ink",
+  "ground": "ink",
+  "accent": "green",
+  "corners": "soft"
+}
