@@ -143,8 +143,8 @@ function readRoles(palette: JsonObject): Record<MeasuredRole, string> | string[]
 
 function readSources(value: unknown): Record<string, string> {
   if (!isObject(value)) return {}
-  return Object.fromEntries(Object.entries(value).filter(([, source]) => typeof source === 'string' && ROLE_SOURCES.includes(source)))
-    as Record<string, string>
+  const kept = Object.entries(value).filter(([, source]) => typeof source === 'string' && ROLE_SOURCES.includes(source))
+  return Object.fromEntries(kept) as Record<string, string>
 }
 
 function logoState(kit: JsonObject, variant: LogoVariant): LogoState {
