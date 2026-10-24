@@ -23,7 +23,7 @@ const LIST_OPEN = '['
 const LIST_CLOSE = ']'
 const QUOTE = '"'
 const ESCAPE = '\\'
-const BOM = '﻿'
+const BOM = '\uFEFF'
 const REGEX_SPECIALS = /[.*+?^${}()|[\]\\]/g
 
 type JsonObject = Readonly<Record<string, unknown>>

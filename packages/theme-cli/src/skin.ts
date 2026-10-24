@@ -42,7 +42,7 @@ const EXIT_OK = 0
 const EXIT_REFUSED = 1
 const EXIT_USAGE = 2
 const MANIFEST_FILE = 'theme.json'
-const BOM = '﻿'
+const BOM = '\uFEFF'
 
 interface SkinArgs {
   readonly themeDir: string
