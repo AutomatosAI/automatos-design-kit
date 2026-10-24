@@ -69,7 +69,8 @@ Not for the ring's and the glow's colours: they come from the look
 6. **The places.** Inside the theme's own surfaces, or in core's three placement slots
    ([placement.md](references/placement.md)).
 7. **The phone** (optional). `mobile.mascot` is `clips`, `stills` or `none`: `clips` needs every state's `.mp4` and
-   `.png`, `stills` every state's `.png` ([clip-specs.md](references/clip-specs.md), "The phone").
+   `.png`, `stills` every state's `.png` ([clip-specs.md](references/clip-specs.md), "The phone"). The rest of the
+   block, its colours and fonts, is [design-a-skin](../design-a-skin/SKILL.md).
 8. **The proof.** A theme test that holds every state to its three files, their byte signatures and their caps (Play's
    `test/assets.test.ts` holds each file to the sha256 and size in `test/fixtures/mascot-files.json`), then
    `automatos-theme check <theme folder>` and `automatos-theme shots <theme folder>`.

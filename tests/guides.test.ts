@@ -3,14 +3,17 @@
 // them (packages/theme-cli/src/core/data/contract.json, itself held to the vendored validator and its README's
 // sha256); it documents the theme.json `mobile` block field by field. page-inventory.md names every core page file of
 // core-pages.json, sdk.md every name of sdk-surface.json (storage included), and looks.md both knob kinds of core's
-// look validator and no other. Every relative link resolves, every `automatos-theme <command>` named is a command
-// the CLI has built, and no guide names a local path, a planning file or a person.
+// look validator and no other. mobile-skins.md, the phone skin's guide, names every field, scheme, font role, mascot
+// mode and token of the block, and its contrast table is the vendored validator's ten pairs, each at its minimum.
+// Every relative link resolves, every `automatos-theme <command>` named is a command the CLI has built, and no guide
+// names a local path, a planning file or a person.
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { COMMANDS } from "../packages/theme-cli/src/cli-main.ts";
+import { MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS } from "../packages/theme-cli/src/core/mobile-manifest.ts";
 import {
   HOST_OWNED_ROUTES, KNOWN_SLOTS, PAGE_SOURCES, REQUIRED_SLOTS, RESERVED_HTML_CLASSES,
 } from "../packages/theme-cli/src/core/package-manifest.ts";
@@ -18,7 +21,8 @@ import {
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const GUIDES = "guides";
 const GUIDE_FILES = [
-  "README.md", "contract.md", "page-inventory.md", "mascot-placement.md", "looks.md", "sdk.md", "pitfalls.md",
+  "README.md", "contract.md", "page-inventory.md", "mascot-placement.md", "mobile-skins.md", "looks.md", "sdk.md",
+  "pitfalls.md",
 ];
 const CORE_DIR = "packages/theme-cli/src/core";
 const CONTRACT_JSON = `${CORE_DIR}/data/contract.json`;
@@ -49,6 +53,9 @@ const MOBILE_HEADING = "## The `mobile` block";
 const HTML_CLASS_ROW = "| `htmlClass` |";
 const HOST_KEEPS = /The host keeps ([^;|]+);/;
 const MOBILE_PREDATES = /vendored reader predates the `mobile` block/;
+// mobile-skins.md's contrast table: one row per pair, `| \`<text>\` on \`<ground>\` | <kind> | <minimum>:1 |`.
+const PAIR_ROW = /^\| `(--[a-z-]+)` on `(--[a-z-]+)` \| (text|UI mark) \| ([0-9.]+):1 \|$/;
+const PAIR_KIND_WORDS: Readonly<Record<string, string>> = { text: "text", ui: "UI mark" };
 
 // Local paths, planning files and people a public guide must never name (docs.test.ts holds the same paths for every
 // tracked doc; these add the local and planning ones a guide written from the plans could pick up).
@@ -170,6 +177,24 @@ describe("contract.md documents the theme.json mobile block", () => {
   });
 });
 
+describe("mobile-skins.md teaches the block and its contrast pairs as the vendored validator holds them", () => {
+  const text = guide("mobile-skins.md");
+  const names = [...MOBILE_FIELDS, ...MOBILE_SCHEMES, ...MOBILE_FONT_ROLES, ...MOBILE_MASCOT_MODES, ...MOBILE_TOKEN_NAMES];
+  const rows = text.split("\n").flatMap((line) => {
+    const row = PAIR_ROW.exec(line);
+    return row === null ? [] : [[row[1], row[2], row[3], Number(row[4])] as const];
+  });
+  const expected = MOBILE_CONTRAST_PAIRS.map(([foreground, background, kind]) => (
+    [foreground, background, PAIR_KIND_WORDS[kind], kind === "text" ? MOBILE_AA_TEXT : MOBILE_AA_UI] as const
+  ));
+
+  it.each(names)("names %s", (name) => expect(named(text, name)).toBe(true));
+  it("its contrast table is the ten pairs, in the validator's order, each with its kind and minimum", () => {
+    expect(MOBILE_CONTRAST_PAIRS).toHaveLength(10);
+    expect(rows).toEqual(expected);
+  });
+});
+
 describe("page-inventory.md names every core page file and route", () => {
   const text = guide("page-inventory.md");
   const pageFiles = Object.keys(readJson<{ files: Record<string, string> }>(CORE_PAGES_JSON).files);
@@ -208,7 +233,7 @@ describe("looks.md teaches both knob kinds and no other", () => {
 describe("every guide links only to files that exist, names only built commands, and names no one", () => {
   const built = builtCommands();
 
-  it("the guides folder holds the seven guides", () => {
+  it("the guides folder holds the eight guides", () => {
     expect(readdirSync(join(ROOT, GUIDES)).filter((name) => name.endsWith(".md")).sort()).toEqual([...GUIDE_FILES].sort());
   });
   it.each(GUIDE_FILES)("%s: every relative link resolves", (name) => expect(brokenLinks(`${GUIDES}/${name}`)).toEqual([]));

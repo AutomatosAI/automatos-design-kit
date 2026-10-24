@@ -64,7 +64,9 @@ Work one surface at a time, and finish each before the next.
 7. **The edges.** `notFound@1`, and the asleep screen if the frame draws one. Done when both have tests.
 8. **The mascot** (if any): files in `assets/mascot/`, `mascot.states` in `theme.json`, URLs from `assetUrl`, a pause
    control, the still under reduced motion ([mascot-placement.md](../../guides/mascot-placement.md)).
-9. **Copy.** The words below, buttons that say what they do, every text from the theme's own strings.
+9. **The phone skin** (if any): `theme.json`'s `mobile` block, the data Automatos Go paints the theme with, with
+   [design-a-skin](../design-a-skin/SKILL.md).
+10. **Copy.** The words below, buttons that say what they do, every text from the theme's own strings.
 
 ## Check, pack and try
 

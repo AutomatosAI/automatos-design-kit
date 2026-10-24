@@ -39,7 +39,7 @@ the local edition. It has no sign-in of its own, so against a hosted API `submit
 | [`themes/play`](themes/play/README.md) | Play (`automatos/play`): Automatos with Auto the mascot ([docs/themes/play.md](docs/themes/play.md)) |
 | [`themes/hud`](themes/hud/README.md) | HUD (`automatos/hud`): Automatos as a command deck ([docs/themes/hud.md](docs/themes/hud.md)) |
 | [`templates/`](templates/) | What `automatos-theme new` starts a theme from: `minimal` (a frame, a look editor, a style sheet, two presets) and `full` (Play without its brand); [`templates/ralph`](templates/ralph/README.md), a template for running a theme wave with an agent loop |
-| [`guides/`](guides/README.md) | The host contract, the page inventory, the SDK, looks, where the mascot goes, and the pitfalls |
+| [`guides/`](guides/README.md) | The host contract, the page inventory, the SDK, looks, where the mascot goes, phone skins, and the pitfalls |
 | [`skills/`](skills/README.md) | Agent skills for building a theme, writing its looks and passing the Marketplace review |
 | [`references/`](references/README.md) | Two design references (Ember, which Play came from, and Command, which HUD came from), to read, never to build from |
 | [`scripts/`](scripts/) | Play's look compiler (`compile-looks.mjs`), the released-themes guard (`release/`), the Marketplace review job (`review/`) and the signing scripts (`sign/`) |
@@ -94,6 +94,8 @@ The guides, for a theme author ([guides/README.md](guides/README.md) is their in
 - [guides/sdk.md](guides/sdk.md): every name of `@automatos/theme-sdk`.
 - [guides/looks.md](guides/looks.md): the look schema, presets, the first-paint table and `check design`.
 - [guides/mascot-placement.md](guides/mascot-placement.md): where a mascot can go.
+- [guides/mobile-skins.md](guides/mobile-skins.md): the phone skin, `theme.json`'s `mobile` block, from the skin
+  designer to a packed theme.
 - [guides/pitfalls.md](guides/pitfalls.md): what went wrong building Play, and what now catches it.
 
 Play's original pilot plan, superseded by installable themes, is kept at

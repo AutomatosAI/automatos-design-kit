@@ -173,6 +173,19 @@ every request stayed on `http://127.0.0.1:4319`; then it opens `/phone` and chec
 phone's built-in layout and draws Play's `/chat` there, beside the contrast panel. Its shots and a failed test's trace
 go to `dist/shots/dev-smoke/`.
 
+`shots/phone-shots.config.ts` shoots the phone view (kit CI's `harness` job, after the dev smoke): its web server is
+`automatos-theme dev fixtures/phone-skin`, a made-up theme with a `mobile` block (`fixtures/README.md`), on the same
+`http://127.0.0.1:4319`, and `shots/phone-shots.spec.ts` opens `/phone` there on Chromium with reduced motion. For
+Light and for Dark it shoots the phone on Chat, the Command Centre and First open (`<scheme>/<screen>.png`), checking
+that the phone paints the skin, that the contrast panel passes the scheme's pairs, that the designer offers the
+theme's own block as `skin.json` and that First open shows the theme's still of Auto. Then the skin designer, with a
+draft in the address whose muted text fails its pair: the panel marks the pair and offers its nearest passing colour,
+the export gives no file, and the whole page is shot (`designer/failing-pair.png`). Each shot gets an axe scan of the
+phone's screen (`[data-phone-frame]`: the panels beside it are the harness's, as the toolbar is in the theme shots)
+into its folder's `axe.json`; a critical violation, a missing shot or a request to another origin fails the test.
+Its files, and a failed test's trace, go to `dist/shots/phone/`. `test/phone-skin-fixture.test.ts` holds the fixture
+to core's validator and to `automatos-theme skin`'s own check, so the shots draw a skin that passes.
+
 ## The phone view
 
 `/phone` (`app/phone/`) is what Automatos Go, the Automatos phone app, draws for the theme, at an iPhone's 390 × 844
@@ -202,7 +215,8 @@ own rule (`src/phone/skin.ts`):
 The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src/phone/contrast.ts`): the outcome and
 reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its
 result. `test/phone-*.test.tsx` hold the view to the app's paint and the panel to `check` (the hello fixture, Play and
-HUD), and the dev smoke opens `/phone` on Play in Chromium.
+HUD), the dev smoke opens `/phone` on Play in Chromium, and the phone shots photograph it for the made-up phone skin
+(above). [guides/mobile-skins.md](../../guides/mobile-skins.md) is the skin's guide for a theme author.
 
 **The skin designer** (`app/phone/designer/`; its model is `src/phone/designer.ts` and `src/phone/skin-export.ts`)
 sits beside the phone for any theme but `automatos/play` and `automatos/hud`, which the phone draws in its own layouts:

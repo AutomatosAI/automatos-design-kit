@@ -1,9 +1,10 @@
 // PRD-261 B-02f and B-02i: kit.yml's harness job. It installs and builds as the kit job does, installs the two
 // browsers the shots run on, runs `automatos-theme shots` over Play, then over HUD into a folder of its own, then the
-// dev smoke (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), and uploads the
-// shots, their axe.json files and the smoke's shot as kit-harness. These checks read files only; nothing is
-// installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each file under the
-// 400-line cap.)
+// dev smoke (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), then the phone
+// view's shots (`automatos-theme dev` over the harness's made-up phone skin, /phone shot on Chromium into a folder of
+// its own), and uploads the shots, their axe.json files and the smoke's shot as kit-harness. These checks read files
+// only; nothing is installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each
+// file under the 400-line cap.)
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -26,6 +27,13 @@ const DEV_SMOKE_CONFIG = "packages/theme-harness/shots/dev-smoke.config.ts";
 const DEV_SMOKE_SPEC = "packages/theme-harness/shots/dev-smoke.spec.ts";
 const DEV_SMOKE_STEP = "Dev smoke";
 const DEV_SMOKE_RUN = `npx playwright test --config ${DEV_SMOKE_CONFIG}`;
+// The phone view's shots: their own Playwright config, whose web server is `automatos-theme dev` over the harness's
+// made-up theme with a `mobile` block, the spec that opens /phone there, and the folder of the upload they go to.
+const PHONE_SHOTS_CONFIG = "packages/theme-harness/shots/phone-shots.config.ts";
+const PHONE_SHOTS_SPEC = "packages/theme-harness/shots/phone-shots.spec.ts";
+const PHONE_SHOTS_STEP = "Phone shots";
+const PHONE_SHOTS_RUN = `npx playwright test --config ${PHONE_SHOTS_CONFIG}`;
+const PHONE_SKIN_THEME = "packages/theme-harness/fixtures/phone-skin/theme.json";
 const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
 
 function readText(rel: string): string {
@@ -64,7 +72,7 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
   const kit = jobBlock(text, "kit");
   const harness = jobBlock(text, "harness");
 
-  it("installs and builds as the kit job does, installs Chromium and WebKit, shoots Play then HUD, then the dev smoke", () => {
+  it("installs and builds as the kit job does, installs both browsers, shoots Play, HUD, the dev smoke, then the phone", () => {
     expect(workflowRuns(harness)).toEqual([
       PIN_NPM,
       workflowRuns(kit)[KIT_INSTALL_AT],
@@ -73,16 +81,17 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
       `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
       `npx automatos-theme shots themes/hud --out ${HUD_SHOTS_OUT}`,
       DEV_SMOKE_RUN,
+      PHONE_SHOTS_RUN,
     ]);
   });
 
-  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), all before the upload", () => {
+  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), then the phone shots, all before the upload", () => {
     const steps = stepNames(harness);
     const shots = steps.indexOf("Shots");
     const upload = steps.indexOf("Upload shots");
     expect(shots).toBeGreaterThanOrEqual(0);
     expect(upload).toBeGreaterThan(shots);
-    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP]);
+    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP]);
   });
 
   it("shoots HUD into a folder of the upload that none of Play's groups or the smoke's folder takes", () => {
@@ -123,5 +132,25 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     expect(config).toMatch(/^const PLAY_DIR = resolve\(HARNESS_DIR, '\.\.\/\.\.\/themes\/play'\)$/m);
     expect(config).toContain("[process.execPath, themeCli(), 'dev', PLAY_DIR]");
     expect(readText(DEV_SMOKE_SPEC)).toContain("const CHAT_PATH = '/chat'");
+  });
+
+  it("shoots the phone view with its own spec over the made-up phone skin, on Chromium alone, with no retry", () => {
+    const config = readText(PHONE_SHOTS_CONFIG);
+    expect(Array.from(config.matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).toEqual(["chromium"]);
+    expect(config).toMatch(/^\s+retries: 0,$/m);
+    expect(config).toMatch(/^\s+testMatch: 'phone-shots\.spec\.ts',$/m);
+    expect(config).toMatch(/^const SKIN_DIR = resolve\(HARNESS_DIR, 'fixtures\/phone-skin'\)$/m);
+    expect(config).toContain("[process.execPath, themeCli(), 'dev', SKIN_DIR]");
+    expect(config).toContain("contextOptions: { reducedMotion: 'reduce' }");
+    expect(readText(PHONE_SHOTS_SPEC)).toContain("new URL('../fixtures/phone-skin/theme.json', import.meta.url)");
+    expect(readText(PHONE_SKIN_THEME)).toContain('"mobile"');
+  });
+
+  it("puts the phone shots in a folder of the upload that no other step's shots take", () => {
+    const folder = /^const PHONE_FOLDER = '([a-z-]+)'$/m.exec(readText(PHONE_SHOTS_CONFIG))?.[1] ?? "";
+    expect(folder).not.toBe("");
+    expect(folder).not.toBe(HUD_SHOTS_OUT.slice(SHOTS_OUT.length + 1));
+    expect(readText(DEV_SMOKE_CONFIG)).not.toContain(`const SMOKE_FOLDER = '${folder}'`);
+    expect(Array.from(readText(SHOTS_CONFIG).matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).not.toContain(folder);
   });
 });
