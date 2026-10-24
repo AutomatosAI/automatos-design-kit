@@ -231,7 +231,7 @@ It refuses, writing nothing and printing every reason:
 - the `automatos` publisher, which is Automatos's own;
 - a name that isn't 3 to 32 lower-case letters and digits, in words joined by single dashes, starting with a letter;
 - a class core keeps on `<html>`: `studio`, `classic`, `dark`, `light` or `system`;
-- a `--to` that exists already, or that lies inside the kit's `themes/play`, `templates` or `packages`;
+- a `--to` that exists already, or that lies inside the kit's `themes/play`, `themes/hud`, `templates` or `packages`;
 - for `full`, a rename that would merge two of Play's names or paths into one.
 
 On success it prints the folder, the template and the file count, then what to do next: build it, check it, and (a
