@@ -4,11 +4,15 @@
  * the report the app publishes), the stage shows Play's own /chat page, and on it Auto says hello over the message
  * box, the screen Play's render-all test reads in jsdom. Every request goes to the dev server's origin. The page's
  * shot goes to the test's output folder.
+ *
+ * Then the phone view on PHONE_PATH (app/phone/page.tsx), which the dev server answers with the same page: for Play,
+ * Automatos Go's built-in Play layout, which is part of the app, so the view says so in the phone and beside it, draws
+ * no theme host, and shows the contrast panel.
  */
 import { expect, test } from '@playwright/test'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import {
-  DEFAULT_SETTINGS, DEV_ORIGIN, HARNESS_GLOBAL, offOrigin, settingsQuery, STAGE_ID, type HarnessReport,
+  DEFAULT_SETTINGS, DEV_ORIGIN, HARNESS_GLOBAL, offOrigin, PHONE_PATH, settingsQuery, STAGE_ID, type HarnessReport,
 } from '../src/host/router.ts'
 
 const CHAT_PATH = '/chat'
@@ -17,6 +21,8 @@ const SETTLED_STATUSES: readonly string[] = ['active', 'failed']
 const SAY_HELLO = 'Say hello'
 const MESSAGE_AUTO = 'Message Auto'
 const SHOT = 'page-chat.png'
+const PHONE_SHOT = 'phone.png'
+const CONTRAST_HEADING = /^Contrast, as automatos-theme check measures it/
 
 test('automatos-theme dev serves the harness, and /chat renders', async ({ page }, testInfo) => {
   const requests: string[] = []
@@ -34,5 +40,19 @@ test('automatos-theme dev serves the harness, and /chat renders', async ({ page 
   await expect(stage.getByRole('region', { name: SAY_HELLO, exact: true })).toBeVisible()
   await expect(stage.getByRole('textbox', { name: MESSAGE_AUTO, exact: true })).toBeVisible()
   await page.screenshot({ path: testInfo.outputPath(SHOT) })
+  expect(offOrigin(requests, DEV_ORIGIN), `every request went to ${DEV_ORIGIN}`).toEqual([])
+})
+
+test('automatos-theme dev serves the phone view, and Play is the built-in layout there', async ({ page }, testInfo) => {
+  const requests: string[] = []
+  page.on('request', (request) => requests.push(request.url()))
+  await page.goto(PHONE_PATH)
+  await expect(page.locator('[data-phone-mode]')).toHaveAttribute('data-phone-mode', 'built-in')
+  await expect(page.locator('[data-phone-notice]')).toContainText('built-in Play layout')
+  await expect(page.getByRole('heading', { name: CONTRAST_HEADING })).toBeVisible()
+  await expect(page.locator('[data-go-built-in]')).toHaveAttribute('data-go-built-in', 'play')
+  await expect(page.locator('[data-go-built-in]')).toContainText('built-in Play layout')
+  await expect(page.locator(`#${STAGE_ID}`)).toHaveCount(0)
+  await page.screenshot({ path: testInfo.outputPath(PHONE_SHOT) })
   expect(offOrigin(requests, DEV_ORIGIN), `every request went to ${DEV_ORIGIN}`).toEqual([])
 })

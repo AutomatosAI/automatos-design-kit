@@ -6,15 +6,16 @@
  * reaches the theme folder or the harness themselves, nor anything outside them.
  *
  * - GET and HEAD only (405 otherwise); 503 until the first build is in.
- * - `/` is the page (index.html). A path names a file under the folder after its %-escapes are decoded, so an
- *   escaped `..` or `/` can't step out: anything that resolves outside the folder, or through a link to outside it,
- *   is 404, as is a folder, a dotfile and a missing file.
+ * - `/` and `/phone` (the harness's router.ts PAGE_PATHS) are the page (index.html). Any other path names a file
+ *   under the folder after its %-escapes are decoded, so an escaped `..` or `/` can't step out: anything that
+ *   resolves outside the folder, or through a link to outside it, is 404, as is a folder, a dotfile and a missing file.
  * - Every answer is `Cache-Control: no-store`, so a reload after a rebuild gets the new build, and carries
  *   `X-Content-Type-Options: nosniff`. One byte range is answered (206 or 416): WebKit plays a video only so.
  */
 import { createReadStream, realpathSync, statSync } from 'node:fs'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { extname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { PAGE_PATHS } from '@automatos/theme-harness/router'
 
 export const INDEX_FILE = 'index.html'
 const URL_BASE = 'http://dev.invalid'
@@ -64,14 +65,15 @@ export function within(root: string, path: string): boolean {
 }
 
 /**
- * The path a request names, decoded, relative to the served folder; null for one that isn't a path from `/` (a proxy's
- * whole URL, `*`) or can't be decoded. The URL's own `.` and `..` segments are resolved first, never above `/`.
+ * The path a request names, decoded, relative to the served folder (the page for one of the harness's page paths); null
+ * for one that isn't a path from `/` (a proxy's whole URL, `*`) or can't be decoded. The URL's own `.` and `..`
+ * segments are resolved first, never above `/`.
  */
 function requestedPath(url: string): string | null {
   if (!url.startsWith('/')) return null
   try {
     const pathname = decodeURIComponent(new URL(`${URL_BASE}${url}`).pathname)
-    return pathname === '/' ? INDEX_FILE : pathname.replace(/^\/+/, '')
+    return PAGE_PATHS.includes(pathname) ? INDEX_FILE : pathname.replace(/^\/+/, '')
   } catch {
     return null
   }

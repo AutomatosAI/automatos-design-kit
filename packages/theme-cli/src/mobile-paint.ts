@@ -16,6 +16,11 @@
  *   (:146-:147); a numeric rule's variable left out, since the web paints rgba() there last (:148); kept,
  *   as the table writes them, only the MOBILE_TOKEN_NAMES whose value is an "H S% L%" triplet.
  * - `missingTokens` is mobile_tokens.py `missing_tokens` (:374-:377).
+ * - `parseColour` is mobile_tokens.py `parse_colour` (:114-:126): a token value as the #RRGGBB the phone
+ *   reads (look-kit hsl.ts `tripletToHex` for a triplet, upper-cased for a #rrggbb), or null.
+ * - `lookTone` is mobile_tokens.py `look_tone` (:389-:398), with `bootTone` (`_boot_tone` :283-:293, the
+ *   table's tone rule as boot-sanitize.ts `sanitizeToneRule` keeps it) and `groundTone` (`ground_tone`
+ *   :380-:386): the tone the phone answer places a fromLooks painting under (mobile.py `_look_colours`).
  *
  * `bootTable` and `lookFits` are the CLI's one port of boot-sanitize.ts: `check design` keeps and fits a
  * table with them too (src/check/contrast.ts), so each rule keeps its `scale`, which the phone never reads.
@@ -27,6 +32,7 @@
  * through parseJson (json.ts), which is JSON.parse, so a 310-digit literal is already Infinity (not
  * finite) and 2**53 + 1 is already 2**53. Nothing here throws on a table or look of the wrong shape.
  */
+import { relativeLuminance, toHex, type Rgb } from '@automatos/look-kit/contrast'
 import { hasOwn, isFiniteNumber, isRecord, own, type JsonRecord } from './core/css-value.ts'
 import { isMobileColour, MOBILE_REQUIRED_TOKENS, MOBILE_TOKEN_NAMES } from './core/mobile-manifest.ts'
 
@@ -249,4 +255,87 @@ export function paintLook(prepaint: unknown, look: unknown = null): BootVars {
 /** The MOBILE_REQUIRED_TOKENS that `tokens` gives no colour: a phone can't draw it without them. */
 export function missingTokens(tokens: JsonRecord): string[] {
   return MOBILE_REQUIRED_TOKENS.filter((name) => !isMobileColour(own(tokens, name)))
+}
+
+// ---- a colour as the phone reads it, and the tone a painting is drawn in ----
+
+// hsl.ts: degrees and percents, the channel scale and hslToHex's twelve hue steps.
+const FULL_TURN = 360
+const PERCENT = 100
+const CHANNEL_MAX = 255
+const HUE_STEPS = 12
+const TONE_LIGHT = 'light'
+const TONE_DARK = 'dark'
+const TONE_FROM_LOOK = 'from-look'
+const TONE_RULE_KEY = 'tone'
+
+export type PhoneTone = typeof TONE_LIGHT | typeof TONE_DARK
+/** mobile_tokens.py MOBILE_DEFAULT_TONE: a painting with no ground or no text is drawn light. */
+export const MOBILE_DEFAULT_TONE: PhoneTone = TONE_LIGHT
+
+/** hsl.ts `hslToHex` (mobile_tokens.py `_hsl_to_hex` :102-:111), step for step, so both give the same channels. */
+function hslToHex(hue: number, saturation: number, lightness: number): string {
+  const sat = saturation / PERCENT
+  const light = lightness / PERCENT
+  const chroma = (1 - Math.abs(2 * light - 1)) * sat
+  const channel = (offset: number): number => {
+    const k = (offset + hue / (FULL_TURN / HUE_STEPS)) % HUE_STEPS
+    return Math.round((light - chroma / 2 * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * CHANNEL_MAX)
+  }
+  const rgb: Rgb = [channel(0), channel(8), channel(4)]
+  return toHex(rgb)
+}
+
+/** mobile_tokens.py `parse_colour`: a mobile token value as #RRGGBB when it is a triplet or a #rrggbb, else null. */
+export function parseColour(value: unknown): string | null {
+  if (!isMobileColour(value)) return null
+  if (value.startsWith(HEX_MARK)) return value.toUpperCase()
+  const [hue, saturation, lightness] = value.replaceAll('%', '').split(' ').map(Number)
+  return hslToHex(hue, saturation, lightness)
+}
+
+/** A prepaint table's tone rule as the boot keeps it. */
+export interface BootTone {
+  readonly knob: string
+  readonly values: Readonly<Record<string, PhoneTone>>
+}
+
+const isTone = (value: unknown): value is PhoneTone => value === TONE_LIGHT || value === TONE_DARK
+
+/** `_boot_tone`: a choice knob of the kept table (no numeric rule's), every one of its choices given a tone; else null. */
+export function bootTone(raw: unknown, table: BootTable): BootTone | null {
+  const knob = isRecord(raw) ? own(raw, 'knob') : undefined
+  const values = isRecord(raw) ? own(raw, 'values') : undefined
+  if (typeof knob !== 'string' || !isRecord(values) || !hasOwn(table.knobs, knob)) return null
+  if (table.numeric.some((rule) => rule.knob === knob)) return null
+  const choices = Object.keys(table.knobs[knob])
+  const mapped = choices.flatMap((choice): [string, PhoneTone][] => {
+    const tone = hasOwn(values, choice) ? values[choice] : undefined
+    return isTone(tone) ? [[choice, tone]] : []
+  })
+  return choices.length > 0 && mapped.length === choices.length ? { knob, values: Object.fromEntries(mapped) } : null
+}
+
+/** `ground_tone` (look-kit css.ts `isDarkGround`): dark when --background is darker than --foreground, else light. */
+export function groundTone(tokens: unknown): PhoneTone {
+  const given: JsonRecord = isRecord(tokens) ? tokens : {}
+  const ground = parseColour(own(given, '--background'))
+  const text = parseColour(own(given, '--foreground'))
+  if (ground === null || text === null) return MOBILE_DEFAULT_TONE
+  return relativeLuminance(ground) < relativeLuminance(text) ? TONE_DARK : TONE_LIGHT
+}
+
+/**
+ * `look_tone`: the tone `paintLook(prepaint, look)` is drawn in. theme.json's fixed light or dark wins; under
+ * from-look the table's tone rule at the painted look's choice; else (no rule, or the user's tone policy, which a
+ * phone has no cookie for) the painted ground's; light for a table the web drops.
+ */
+export function lookTone(prepaint: unknown, look: unknown, manifestTone: unknown): PhoneTone {
+  if (isTone(manifestTone)) return manifestTone
+  const table = bootTable(prepaint)
+  if (table === null) return MOBILE_DEFAULT_TONE
+  const painted: JsonRecord = lookFits(table, look) ? (look as JsonRecord) : table.defaults
+  const rule = manifestTone === TONE_FROM_LOOK && isRecord(prepaint) ? bootTone(own(prepaint, TONE_RULE_KEY), table) : null
+  if (rule !== null) return rule.values[String(own(painted, rule.knob))]
+  return groundTone(phoneTokens(table, painted))
 }

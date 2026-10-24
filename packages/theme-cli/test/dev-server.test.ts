@@ -71,11 +71,12 @@ async function serving(root: () => string | null): Promise<number> {
 }
 
 describe('the file a request names', () => {
-  it('is the page for /, whatever the query, and a file under the folder by its path', () => {
+  it('is the page for / and the phone view, whatever the query, and a file under the folder by its path', () => {
     const { root } = buildFolder()
     const real = realpathSync(root)
     expect(servedFile(root, '/')).toBe(join(real, INDEX_FILE))
     expect(servedFile(root, '/?path=/chat&tone=dark')).toBe(join(real, INDEX_FILE))
+    expect([servedFile(root, '/phone'), servedFile(root, '/phone?scheme=dark&screen=cc')]).toEqual([join(real, INDEX_FILE), join(real, INDEX_FILE)])
     expect(servedFile(root, '/harness/app.js')).toBe(join(real, 'harness/app.js'))
     expect(servedFile(root, '/assets/mascot/idle%2Emp4')).toBe(join(real, 'assets/mascot/idle.mp4'))
   })

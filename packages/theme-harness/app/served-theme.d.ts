@@ -9,6 +9,8 @@ declare module 'virtual:automatos-harness/theme' {
     readonly presets: readonly unknown[]
     readonly prepaint: unknown
   }
+  /** Every file under the folder's assets/, as 'assets/<path>', sorted: what the phone view may give a URL for. */
+  export const assets: readonly string[]
   /** Imports the theme's src/entry.ts, with @automatos/theme-sdk mapped to the harness's fake SDK. */
   export function loadEntry(): Promise<unknown>
 }
