@@ -10,6 +10,9 @@
   "minWidth": 1024,
   "tone": "from-look",
   "slots": ["frame@1", "lookEditor@1", "styleSheet@1"],
+  "pages": {
+    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] }
+  },
   "nav": [
     { "id": "nav-hud-looks", "label": "Look", "path": "/looks" },
     { "id": "nav-hud-style-sheet", "label": "Style sheet", "path": "/looks/style" }

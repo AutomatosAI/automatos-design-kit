@@ -18,13 +18,13 @@ import { defineTheme } from '@automatos/theme-sdk'
 import { HudFrameSlot } from './slots/frame'
 import { HudLookEditor } from './slots/look-editor'
 import { HudStyleSheet } from './slots/style-sheet'
-// The chat page's import goes here: HudChat, from './pages/chat'.
+import { HudChat } from './pages/chat'
 
 export default defineTheme({
   register(host) {
     host.registerSlot('frame@1', HudFrameSlot)
     host.registerSlot('lookEditor@1', HudLookEditor)
     host.registerSlot('styleSheet@1', HudStyleSheet)
-    // The chat page's registration goes here, for the route /chat, with "pages" in theme.json.
+    host.registerPage('/chat', HudChat)
   },
 })
