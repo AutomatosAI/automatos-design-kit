@@ -1,0 +1,15 @@
+{
+  "schema": "automatos-interface-look/v1",
+  "interface": "command",
+  "id": "nova",
+  "name": "NOVA",
+  "sub": "",
+  "ground": "navy",
+  "accent": "nova",
+  "font": "chakra",
+  "grid": 16,
+  "glow": 30,
+  "scan": "on",
+  "auto": "on",
+  "motion": "on"
+}

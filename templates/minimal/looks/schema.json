@@ -1,0 +1,37 @@
+{
+  "schema": "automatos-look-schema/v1",
+  "look": {
+    "schema": "{{htmlClass}}-look/v1"
+  },
+  "knobs": {
+    "ground": {
+      "kind": "choice",
+      "label": "Ground",
+      "choices": [
+        "paper",
+        "ink"
+      ],
+      "default": "paper"
+    },
+    "accent": {
+      "kind": "choice",
+      "label": "Accent",
+      "choices": [
+        "blue",
+        "green",
+        "amber"
+      ],
+      "default": "blue"
+    },
+    "corners": {
+      "kind": "choice",
+      "label": "Corners",
+      "choices": [
+        "square",
+        "soft",
+        "round"
+      ],
+      "default": "soft"
+    }
+  }
+}

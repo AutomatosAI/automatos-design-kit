@@ -1,0 +1,148 @@
+/*
+ * The frame: the sidebar | the column (the header row, then the page). A viewport-bound row, as the host's own
+ * shell is, whose column a full-bleed page fills and a framed page scrolls inside. Every colour comes from the
+ * look (app/theme.css lists where each one is painted).
+ */
+
+.frame {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--{{htmlClass}}-bg);
+  color: var(--{{htmlClass}}-text);
+}
+
+.sidebar {
+  flex: none;
+  width: var(--{{htmlClass}}-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-5);
+  padding: var(--{{htmlClass}}-space-5) var(--{{htmlClass}}-space-4);
+  border-right: 1px solid var(--{{htmlClass}}-line);
+  background: var(--{{htmlClass}}-surface);
+  overflow-y: auto;
+}
+
+.wordmark {
+  margin: 0;
+  padding: 0 var(--{{htmlClass}}-space-2);
+  font: var(--{{htmlClass}}-text-title);
+  color: var(--{{htmlClass}}-accent-text);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-4);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--{{htmlClass}}-space-1);
+}
+
+.groupLabel {
+  margin: 0;
+  padding: 0 var(--{{htmlClass}}-space-2);
+  font: var(--{{htmlClass}}-text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--{{htmlClass}}-text-2);
+}
+
+.items,
+.footer {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: var(--{{htmlClass}}-space-4);
+  border-top: 1px solid var(--{{htmlClass}}-line);
+}
+
+.link {
+  display: block;
+  padding: var(--{{htmlClass}}-space-2);
+  border-radius: var(--{{htmlClass}}-radius);
+  color: var(--{{htmlClass}}-text);
+  font: var(--{{htmlClass}}-text-small);
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--{{htmlClass}}-chip);
+}
+
+.link[aria-current="page"] {
+  background: var(--{{htmlClass}}-chip);
+  color: var(--{{htmlClass}}-accent-text);
+  font-weight: 600;
+}
+
+.column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--{{htmlClass}}-space-4);
+  padding: var(--{{htmlClass}}-space-2) var(--{{htmlClass}}-space-5);
+  border-bottom: 1px solid var(--{{htmlClass}}-line);
+}
+
+.search {
+  min-width: 220px;
+  min-height: var(--{{htmlClass}}-control-height);
+  padding: 0 var(--{{htmlClass}}-space-3);
+  border: 1px solid var(--{{htmlClass}}-line);
+  border-radius: var(--{{htmlClass}}-radius);
+  background: var(--{{htmlClass}}-surface);
+  color: var(--{{htmlClass}}-text-2);
+  font: var(--{{htmlClass}}-text-small);
+  text-align: left;
+  cursor: pointer;
+}
+
+.utilities {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.fullBleed {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--{{htmlClass}}-space-5) var(--{{htmlClass}}-space-6);
+}
+
+.pageInner {
+  max-width: var(--{{htmlClass}}-page-max);
+  margin: 0 auto;
+}
+
+/* The page takes focus only from script: a transparent outline, never none, so forced colours still draw it. */
+.fullBleed:focus,
+.page:focus {
+  outline: 2px solid transparent;
+}

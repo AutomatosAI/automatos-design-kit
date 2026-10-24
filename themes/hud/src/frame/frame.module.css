@@ -1,0 +1,76 @@
+/*
+ * The frame: a viewport-bound column (the top bar, then the rail and the page), as the Studio shell is, so a
+ * full-bleed page fills it and a framed page scrolls inside. The backdrop and the scan lines are fixed layers
+ * under everything in the frame (it isolates its own stacking), drawn from the look's variables.
+ */
+
+.frame {
+  position: relative;
+  isolation: isolate;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--hud-bg);
+  color: var(--hud-text);
+  font-family: var(--hud-font-text);
+}
+
+.backdrop,
+.scan {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.backdrop {
+  background-image:
+    radial-gradient(var(--hud-glow-ellipse) at 50% 46%, var(--hud-glow), transparent 70%),
+    linear-gradient(var(--hud-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hud-grid) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    var(--hud-grid-size) var(--hud-grid-size),
+    var(--hud-grid-size) var(--hud-grid-size);
+}
+
+.scan {
+  opacity: var(--hud-scan);
+  background: repeating-linear-gradient(0deg, var(--hud-scan-line) 0 1px, transparent 1px 3px);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* Full bleed: the page fills the column (the chat). */
+.fullBleed {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A framed page scrolls inside the column, so the frame stays viewport-bound. */
+.page {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--hud-space-5) var(--hud-space-5) var(--hud-space-6);
+}
+
+.pageInner {
+  max-width: var(--hud-page-max);
+  margin: 0 auto;
+}
+
+/* The page's <main> takes focus only from script: a transparent outline, which forced colours still draw. */
+.fullBleed:focus,
+.page:focus {
+  outline: 2px solid transparent;
+}

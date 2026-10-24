@@ -1,0 +1,184 @@
+{
+  "schema": "automatos-theme-template/v1",
+  "name": "full",
+  "description": "Play de-branded: every slot, page and route Play has, under the new theme's names, made from themes/play each time a theme is made, so it never drifts from Play.",
+  "from": "themes/play",
+  "copy": [
+    "src",
+    "assets/fonts",
+    "assets/mascot",
+    "design",
+    "types",
+    "theme.json",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "eslint.config.js"
+  ],
+  "code": "code",
+  "files": "files",
+  "placeholders": [
+    "id",
+    "publisher",
+    "slug",
+    "name",
+    "htmlClass",
+    "playVersion",
+    "mascot"
+  ],
+  "keep": [
+    "Play Auto's states",
+    "Play the motion",
+    "PLAY_STATES",
+    "PLAY_MOTION"
+  ],
+  "renames": [
+    {
+      "pattern": "automatos/play",
+      "to": "{{id}}"
+    },
+    {
+      "pattern": "automatos\\.play",
+      "to": "{{publisher}}.{{slug}}"
+    },
+    {
+      "pattern": "@automatos/theme-play",
+      "to": "@{{publisher}}/theme-{{slug}}"
+    },
+    {
+      "pattern": "automatos-play-tone",
+      "to": "{{htmlClass}}-tone"
+    },
+    {
+      "pattern": "automatos-interface-look",
+      "to": "{{htmlClass}}-look"
+    },
+    {
+      "pattern": "nav-play-",
+      "to": "nav-"
+    },
+    {
+      "pattern": "wordmarkPlay",
+      "to": "wordmarkName",
+      "identifier": true
+    },
+    {
+      "pattern": "html\\.play(?![A-Za-z0-9_-])",
+      "to": "html.{{htmlClass}}"
+    },
+    {
+      "pattern": "--pl-",
+      "to": "--{{htmlClass}}-"
+    },
+    {
+      "pattern": "(?<=_VAR_PREFIX = ')pl(?=')",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_-])play-",
+      "to": "{{htmlClass}}-"
+    },
+    {
+      "pattern": "(?<=[a-z0-9]-)play(?![A-Za-z0-9_])",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<=[/'\"`])play(?=/)",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<=['\"`])play(?=['\"`])",
+      "to": "{{htmlClass}}"
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9])PLAY(?![A-Za-z0-9])",
+      "to": "{{constant}}",
+      "identifier": true
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_$])play(?=[A-Z])",
+      "to": "{{camel}}",
+      "identifier": true
+    },
+    {
+      "pattern": "Play(?=[A-Z])",
+      "to": "{{pascal}}",
+      "identifier": true
+    },
+    {
+      "pattern": "(?<![A-Za-z0-9_$-])Play(?![A-Za-z0-9_$])",
+      "to": "{{name}}"
+    }
+  ],
+  "patches": [
+    {
+      "path": "src/play-slots.tsx",
+      "after": "export const LostScreen = lazyScreen(\n  () => import('./components/play/edges/lost-screen').then((m) => ({ default: m.LostScreen })),\n  'LostScreen',\n)\n",
+      "insert": "\n/** The /agents page, a clone of the core page (the full template's): its own chunk, as Play's other pages have. */\nexport const PlayAgents = lazyScreen(\n  () => import('./components/agents/agents-page').then((m) => ({ default: m.AgentsPage })),\n  'PlayAgents',\n)\n"
+    },
+    {
+      "path": "src/entry.ts",
+      "after": "  PLAY_CONVERSATIONS_ROUTE,\n",
+      "insert": "  PlayAgents,\n"
+    },
+    {
+      "path": "src/entry.ts",
+      "after": "    host.registerPage('/deliverables', PlayShelf)\n",
+      "insert": "    host.registerPage('/agents', PlayAgents)\n"
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "import { lookToCssVars } from './engine'\n",
+      "insert": "import { ringVars } from './ring-vars'\n"
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "    ring: ringColour(state, ",
+      "insert": "ringVars("
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "    ring: ringColour(state, ringVars(lookToCssVars(look)",
+      "insert": ")"
+    }
+  ],
+  "pages": {
+    "/agents": {
+      "mode": "clone",
+      "keepCorePage": [
+        "tab",
+        "agent",
+        "panel"
+      ],
+      "clonedFrom": {
+        "path": "components/agents/studio/agent-management-studio.tsx",
+        "sha": "4bbcef4e09158bc526623c85574771867895efa3007b55cd537b98379be3427b"
+      }
+    }
+  },
+  "uses": [
+    "pages-agents"
+  ],
+  "noMascot": {
+    "drop": [
+      "assets/mascot",
+      "NOTICE"
+    ],
+    "code": "no-mascot",
+    "package": "@automatos/mascot",
+    "vendor": {
+      "from": "packages/mascot/src",
+      "to": "src/lib/auto",
+      "modules": [
+        "events",
+        "media",
+        "player",
+        "reducer",
+        "ring",
+        "tools",
+        "types"
+      ]
+    }
+  }
+}

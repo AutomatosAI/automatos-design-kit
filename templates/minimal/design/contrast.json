@@ -1,0 +1,33 @@
+{
+  "schema": "automatos-theme-contrast/v1",
+  "pairs": [
+    {"text": "--{{htmlClass}}-text", "ground": "--{{htmlClass}}-bg"},
+    {"text": "--{{htmlClass}}-text", "ground": "--{{htmlClass}}-surface"},
+    {"text": "--{{htmlClass}}-text", "ground": "--{{htmlClass}}-chip"},
+    {"text": "--{{htmlClass}}-text-2", "ground": "--{{htmlClass}}-bg"},
+    {"text": "--{{htmlClass}}-text-2", "ground": "--{{htmlClass}}-surface"},
+    {"text": "--{{htmlClass}}-text-2", "ground": "--{{htmlClass}}-chip"},
+    {"text": "--{{htmlClass}}-accent-ink", "ground": "--{{htmlClass}}-accent"},
+    {"text": "--{{htmlClass}}-accent-text", "ground": "--{{htmlClass}}-bg"},
+    {"text": "--{{htmlClass}}-accent-text", "ground": "--{{htmlClass}}-surface"},
+    {"text": "--{{htmlClass}}-error", "ground": "--{{htmlClass}}-bg"},
+    {"text": "--{{htmlClass}}-error", "ground": "--{{htmlClass}}-surface"},
+    {"text": "--foreground", "ground": "--background"},
+    {"text": "--card-foreground", "ground": "--card"},
+    {"text": "--popover-foreground", "ground": "--popover"},
+    {"text": "--primary-foreground", "ground": "--primary"},
+    {"text": "--secondary-foreground", "ground": "--secondary"},
+    {"text": "--muted-foreground", "ground": "--background"},
+    {"text": "--muted-foreground", "ground": "--card"},
+    {"text": "--muted-foreground", "ground": "--muted"},
+    {"text": "--accent-foreground", "ground": "--accent"},
+    {"text": "--destructive-foreground", "ground": "--destructive"},
+    {"text": "--primary", "ground": "--background"},
+    {"text": "--primary", "ground": "--card"},
+    {"text": "--destructive", "ground": "--background"},
+    {"text": "--destructive", "ground": "--card"},
+    {"text": "--fg-3", "ground": "--bg-1"},
+    {"text": "--fg-3", "ground": "--paper"},
+    {"text": "--ring", "ground": "--background", "min": 3}
+  ]
+}

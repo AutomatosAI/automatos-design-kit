@@ -1,0 +1,54 @@
+/*
+ * The panel (the Command design's README, "Panel"): the corner brackets are background gradients,
+ * 14 by 1.5 px L-shapes on the top left and the bottom right, over the accent's 3.5% fill.
+ */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-3);
+  min-width: 0;
+  padding: var(--hud-space-4) 18px;
+  border: 1px solid var(--hud-panel-line);
+  border-radius: 0;
+  background:
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) top left / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-length) var(--hud-bracket-width) no-repeat,
+    linear-gradient(var(--hud-bracket), var(--hud-bracket)) bottom right / var(--hud-bracket-width) var(--hud-bracket-length) no-repeat,
+    var(--hud-panel-fill);
+  color: var(--hud-text);
+}
+
+/* Selected or live: a 1.5 px accent border and a soft accent glow. */
+.panel[data-live="true"] {
+  border: 1.5px solid var(--hud-accent);
+  box-shadow: 0 0 30px -8px var(--hud-accent-line);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+}
+
+/* Unlayered and under html.hud, so it outranks Studio's heading rules, which reach every h2 on the page. */
+.title {
+  margin: 0;
+  color: var(--hud-text-2);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  line-height: 1.2;
+  letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
+}
+
+.value {
+  color: var(--hud-accent-text);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-panel);
+}
