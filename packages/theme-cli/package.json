@@ -14,6 +14,10 @@
     "./zip": "./src/zip.ts",
     "./manifest": "./src/core/package-manifest.ts",
     "./mobile": "./src/core/mobile-manifest.ts",
+    "./mobile-paint": "./src/mobile-paint.ts",
+    "./mobile-answer": "./src/mobile-answer.ts",
+    "./mobile-contrast": "./src/check/mobile-contrast.ts",
+    "./phone": "./src/phone/index.ts",
     "./package.json": "./package.json"
   },
   "scripts": {
