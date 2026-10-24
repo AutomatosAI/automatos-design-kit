@@ -1,7 +1,7 @@
 # @automatos/theme-cli
 
-`automatos-theme pack <theme folder> [--out <folder>]` turns a built theme into the package the Automatos server
-installs.
+`automatos-theme pack <theme folder> [--out <folder>] [--watch]` turns a built theme into the package the Automatos
+server installs (`--watch`: again after each change, below).
 
 It reads the folder's package files (`theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, and everything under
 `dist/`, `boot/`, `looks/` and `assets/`), adds the theme's `src/` as `source/` (below), checks them as core's
@@ -46,6 +46,22 @@ refuses that in the author's build too).
 
 Node 22.18 or later runs the TypeScript sources directly (type stripping): `npm run pack` packs core's hello
 test theme into `out/`.
+
+## pack --watch
+
+`automatos-theme pack <theme folder> [--out <folder>] --watch` runs the theme's own build (`npm run build` in the theme
+folder) and packs the folder, now and again after each change under its `src/`, until Ctrl-C. Upload the fresh
+package again to try it (`install`, or Install theme in Settings): a live link from a host to your machine is not
+part of the kit.
+
+- A burst of saves is one change: the cycle starts once `src/` has been quiet for 200 ms, and a change made while a
+  cycle runs starts one more after it, never two at once. Dotfiles (an editor's swap file) are no change, as they are
+  no part of `source/`. Each folder under `src/` is watched with Node's own `fs.watch`, folders added later too.
+- Only `src/` is watched: the build writes the rest of the package (`dist/`, and Play's `looks/` and `boot/`).
+- A failed build packs nothing; a refused pack prints every reason, as `pack` does. Either way the watch goes on and
+  the next change tries again.
+
+Exit code 0 once stopped, 1 when the folder has no `src/` to watch, 2 for a usage error.
 
 ## submit
 
@@ -192,3 +208,28 @@ packs it. `check` then lists each preview under its preset and names the cover.
 
 The previews are yours to pick and commit: a package's digest covers them, so they are never written by a build.
 Exit code 0 when written, 1 when refused (nothing written), 2 for a usage error.
+
+## dev
+
+`automatos-theme dev <theme folder> [--port <n>]` serves the kit's browser harness (the mock host page `shots`
+photographs) for the theme on `http://127.0.0.1:4319/`, as a local app to build the theme in, with nothing of
+Automatos running: the toolbar switches the view, preset, width, tone, reduced motion and forced colours.
+
+1. It listens first, on `127.0.0.1` only and the port (`--port`, default 4319, beside the shots' 4318; `0` picks a
+   free one). A port in use is refused in one sentence, before anything is built.
+2. It builds the harness for the folder as `shots` does (`vite build --config vite.harness.config.ts`), each build into
+   a fresh folder under the harness's `dist/`, and answers 503 until the first build passed.
+3. It serves the last build that passed and nothing else: the page, its scripts and stylesheet (the theme's `src/`
+   bundled into them) and the folder's `assets/`. No path reaches the theme folder, the harness or anything outside
+   them: an escaped `..` or `/`, a link out of the build, a folder and a dotfile are all 404, and only GET and HEAD
+   are answered. Every answer is `no-store`.
+4. Each change under `src/` builds again, as `pack --watch` takes changes; a failed build is printed and the last good
+   one stays served. Reload the page to see a new build.
+
+The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own build last wrote it, so a theme whose
+`theme.json` names a default look needs that build once first; after changing the looks, run it again (or keep
+`pack --watch` running beside `dev`), and the next change under `src/` draws them. Kit CI's `harness` job runs
+`automatos-theme dev themes/play` and opens `/chat` on it (`shots/dev-smoke.spec.ts` in the harness).
+
+Exit code 0 once stopped (Ctrl-C), 1 when the folder has no `theme.json` or `src/entry.ts`, its presets are not built
+yet, or the port can't be served; 2 for a usage error.

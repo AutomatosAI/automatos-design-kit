@@ -5,6 +5,10 @@
  *   node <vite>/bin/vite.js build   --config packages/theme-harness/vite.harness.config.ts
  *   node <vite>/bin/vite.js preview --config packages/theme-harness/vite.harness.config.ts   (http://127.0.0.1:4318)
  *
+ * `automatos-theme dev` (PRD-261 B-02i) runs the same build with `--outDir <a folder of its own>` after each change
+ * and serves that folder itself (packages/theme-cli/src/dev-server.ts); every plugin here writes to the build's own
+ * output folder, so the build is the same wherever it goes.
+ *
  * - The theme's src/entry.ts is bundled with the app, its bare imports resolved by the harness's import map
  *   (src/host/import-map.ts): @automatos/theme-sdk is the fake SDK, React the app's own copy.
  * - The theme folder's theme.json, looks/presets/*.look.json and boot/prepaint.json reach the app through one
