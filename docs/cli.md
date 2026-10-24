@@ -268,7 +268,7 @@ draws the theme's skin, its `theme.json` `mobile` block, on Automatos Go's Studi
 Command Centre, First open), light or dark, or through each look preset under `fromLooks`. Beside it are the
 `mobile` block's contrast pairs, measured exactly as `check` measures them, and where each token lands. A theme
 without a skin is drawn in Studio's own colours. For Play and HUD, which Automatos Go draws with its built-in Play
-and HUD layouts and none of the block, it says so and draws the theme's own web screens at 390 px
+and HUD layouts and none of the block, it says so: those layouts are part of the app
 (`packages/theme-harness/README.md`, "The phone view").
 
 Exit codes: 0 once stopped (Ctrl-C); 1 no `theme.json` (or not JSON) or no `src/entry.ts`, a default look with no

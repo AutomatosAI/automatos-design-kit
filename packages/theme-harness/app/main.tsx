@@ -15,7 +15,7 @@ import { readServedTheme, type HarnessTheme } from '../src/host/register.ts'
 import { FILES_ROOT, PHONE_PATH, readSettings, settingsQuery, type HarnessSettings } from '../src/host/router.ts'
 import { phoneQuery, readPhoneSettings, type PhoneSettings } from '../src/phone/settings.ts'
 import { HarnessHost, prepareHost } from './host.tsx'
-import { PhonePage, preparePhone } from './phone/page.tsx'
+import { PhonePage } from './phone/page.tsx'
 import { markRefused, Refused } from './refused.tsx'
 
 const ROOT_ID = 'harness'
@@ -31,7 +31,6 @@ const writePhoneAddress = (settings: PhoneSettings): void => writeQuery(phoneQue
 
 function drawPhone(root: Root, theme: HarnessTheme): void {
   const settings = readPhoneSettings(window.location.search)
-  preparePhone(theme, settings)
   root.render(<PhonePage theme={theme} assets={assets} initial={settings} onSettings={writePhoneAddress} />)
 }
 

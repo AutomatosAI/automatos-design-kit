@@ -10,7 +10,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ReactNode } from 'react'
-import { PhonePage, preparePhone } from '../app/phone/page.tsx'
+import { PhonePage } from '../app/phone/page.tsx'
 import { readServedTheme, type HarnessTheme, type ServedFiles } from '../src/host/register.ts'
 import { PREPAINT_PATH, PRESETS_DIR, PRESET_SUFFIX } from '../src/phone/contrast.ts'
 import type { PaintSlot } from '../src/phone/parts.ts'
@@ -81,7 +81,6 @@ export function readFolder(dir: string): ThemeFolder {
 /** The phone view as app/main.tsx starts it on PHONE_PATH. */
 export function renderPhone(theme: HarnessTheme, assets: readonly string[] = [], changes: Partial<PhoneSettings> = {}) {
   const settings: PhoneSettings = { ...DEFAULT_PHONE_SETTINGS, ...changes }
-  preparePhone(theme, settings)
   return render(<PhonePage theme={theme} assets={assets} initial={settings} />)
 }
 

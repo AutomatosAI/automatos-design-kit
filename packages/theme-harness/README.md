@@ -194,9 +194,9 @@ own rule (`src/phone/skin.ts`):
 - **A theme with no painting** (no block, or a block that paints no ground and text): the same layout in Studio's own
   colours, saying why the phone offers it none.
 - **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
-  member's looks, and reads none of the block. The harness has no native layout, so the view says so and draws the
-  theme's own web screens at the phone's width instead, through the mock host (Chat on `/chat`, the Command Centre on
-  `/command-center`, First open on `/`), with the look switch as its preset.
+  member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
+  phone says so. The theme's own web screens are no stand-in: their `minWidth` (1024) keeps them off a phone-width
+  browser, where the host draws its own pages. The contrast panel still measures the block, look by look.
 
 The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src/phone/contrast.ts`): the outcome and
 reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its

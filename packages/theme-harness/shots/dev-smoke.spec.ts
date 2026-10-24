@@ -6,8 +6,8 @@
  * shot goes to the test's output folder.
  *
  * Then the phone view on PHONE_PATH (app/phone/page.tsx), which the dev server answers with the same page: for Play,
- * Automatos Go's built-in Play layout, so the view says so, draws Play's own /chat at the phone's width, and shows the
- * contrast panel beside it.
+ * Automatos Go's built-in Play layout, which is part of the app, so the view says so in the phone and beside it, draws
+ * no theme host, and shows the contrast panel.
  */
 import { expect, test } from '@playwright/test'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
@@ -50,9 +50,9 @@ test('automatos-theme dev serves the phone view, and Play is the built-in layout
   await expect(page.locator('[data-phone-mode]')).toHaveAttribute('data-phone-mode', 'built-in')
   await expect(page.locator('[data-phone-notice]')).toContainText('built-in Play layout')
   await expect(page.getByRole('heading', { name: CONTRAST_HEADING })).toBeVisible()
-  const stage = page.locator(`#${STAGE_ID}`)
-  await expect(stage).toHaveAttribute('data-harness-view', `page:${CHAT_PATH}`)
-  await expect(stage.getByRole('textbox', { name: MESSAGE_AUTO, exact: true })).toBeVisible()
+  await expect(page.locator('[data-go-built-in]')).toHaveAttribute('data-go-built-in', 'play')
+  await expect(page.locator('[data-go-built-in]')).toContainText('built-in Play layout')
+  await expect(page.locator(`#${STAGE_ID}`)).toHaveCount(0)
   await page.screenshot({ path: testInfo.outputPath(PHONE_SHOT) })
   expect(offOrigin(requests, DEV_ORIGIN), `every request went to ${DEV_ORIGIN}`).toEqual([])
 })

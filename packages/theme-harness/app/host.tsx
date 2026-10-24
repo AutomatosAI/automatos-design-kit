@@ -11,9 +11,6 @@
  * and the one the theme forces (useTone), reduced motion (useMediaPreferences), and the look runtime mounted on the
  * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too.
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
- *
- * The phone view (app/phone/built-in.tsx) draws a theme the phone shows in its own built-in layout through this host
- * too, holding the settings itself (`settings`).
  */
 import type { HostLook } from '@automatos/theme-sdk'
 import { Component, useEffect, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
@@ -25,9 +22,7 @@ import {
   applyHtml, forcedTone, htmlClasses, installPreviewStyle, lookTone, paintLook, paintNames, STUDIO_CLASS, TONE_CLASSES,
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
-import {
-  declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type RegisterReport, type ThemeLoad,
-} from '../src/host/register.ts'
+import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
 } from '../src/host/router.ts'
@@ -203,38 +198,6 @@ function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, setting
   }, [theme, base, htmlClass, status, reason, tone, look, reducedMotion, forcedColors])
 }
 
-/** What the host serves (declared and registered) and what it left out, once the theme is active. */
-function useServed(theme: HarnessTheme, load: ThemeLoad | null): { readonly served: Served; readonly report: RegisterReport | null } {
-  const declared = useMemo(() => declaredOf(theme.manifest), [theme])
-  const active = load?.status === 'active' ? load : null
-  const served = useMemo(() => (active === null ? EMPTY_SERVED : servedOf(active.registrations, declared)), [active, declared])
-  const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
-  return { served, report }
-}
-
-interface HostInputs {
-  readonly settings: HarnessSettings
-  readonly windowWidth: number
-  readonly forced: ThemeTone | null
-  readonly path: string
-  readonly onSettings: ((settings: HarnessSettings) => void) | undefined
-}
-
-/** The fake host follows the settings and the forced tone; the caller hears every change with the path. */
-function useHostInputs(theme: HarnessTheme, { settings, windowWidth, forced, path, onSettings }: HostInputs): void {
-  // Block bodies: an effect may return only its cleanup, and these calls return values (a cell's set, a caller's
-  // onSettings) that React would try to call as one.
-  useEffect(() => {
-    applySettings(theme, settings, windowWidth)
-  }, [theme, settings, windowWidth])
-  useEffect(() => {
-    setForcedTone(forced)
-  }, [forced])
-  useEffect(() => {
-    onSettings?.({ ...settings, path })
-  }, [settings, path, onSettings])
-}
-
 /** What the shots read once the theme loaded or failed (HARNESS_GLOBAL): the views it drew, and what it left out. */
 function usePublishedReport(theme: HarnessTheme, status: HostStatus, served: Served, missing: Served): void {
   useEffect(() => {
@@ -252,23 +215,34 @@ export interface HarnessHostProps {
   readonly initial: HarnessSettings
   /** Every change, with the fake host's path, for the address bar. */
   readonly onSettings?: (settings: HarnessSettings) => void
-  /** Settings the caller holds (the phone view's); left out, the toolbar's own, from `initial`. */
-  readonly settings?: HarnessSettings
 }
 
-export function HarnessHost({ theme, initial, onSettings, settings: held }: HarnessHostProps) {
-  const [own, setSettings] = useState(initial)
-  const settings = held ?? own
+export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
+  const [settings, setSettings] = useState(initial)
   const [renderFailure, setRenderFailure] = useState<Failure | null>(null)
   const load = useThemeLoad(theme)
   const path = useHostPathname()
   const windowWidth = useWindowWidth()
-  const look = useLook().look ?? presetOf(theme, settings.preset)
+  const runtime = useLook()
+  const look = runtime.look ?? presetOf(theme, settings.preset)
   const forced = themeTone(theme, look)
-  const { served, report } = useServed(theme, load)
+  const declared = useMemo(() => declaredOf(theme.manifest), [theme])
+  const active = load?.status === 'active' ? load : null
+  const served = useMemo(() => (active === null ? EMPTY_SERVED : servedOf(active.registrations, declared)), [active, declared])
+  const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
   const failure = renderFailure ?? (load?.status === 'failed' ? { reason: load.reason, message: load.message } : null)
   const status: HostStatus = load === null ? 'loading' : failure === null ? 'active' : 'failed'
-  useHostInputs(theme, { settings, windowWidth, forced, path, onSettings })
+  // Block bodies: an effect may return only its cleanup, and these calls return values (a cell's set, a caller's
+  // onSettings) that React would try to call as one.
+  useEffect(() => {
+    applySettings(theme, settings, windowWidth)
+  }, [theme, settings, windowWidth])
+  useEffect(() => {
+    setForcedTone(forced)
+  }, [forced])
+  useEffect(() => {
+    onSettings?.({ ...settings, path })
+  }, [settings, path, onSettings])
   useHtmlPaint(theme, { status, reason: failure?.reason ?? null, tone: forced ?? settings.tone, look, settings })
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
@@ -280,7 +254,6 @@ export function HarnessHost({ theme, initial, onSettings, settings: held }: Harn
   }
   const view = viewOfPath(path, served)
   const width = settings.width ?? windowWidth
-  const stage = <Stage theme={theme} load={load} failure={failure} view={view} width={width} onRenderError={onRenderError} />
   return (
     <>
       {settings.toolbar ? (
@@ -298,7 +271,7 @@ export function HarnessHost({ theme, initial, onSettings, settings: held }: Harn
       ) : null}
       {failure === null ? null : <FailureNotice failure={failure} />}
       <div id={STAGE_ID} data-harness-view={`${view.kind}:${view.key}`} style={stageStyle(settings.width)}>
-        {stage}
+        <Stage theme={theme} load={load} failure={failure} view={view} width={width} onRenderError={onRenderError} />
       </div>
     </>
   )
