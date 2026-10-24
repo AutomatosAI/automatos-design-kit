@@ -1,0 +1,543 @@
+{
+  "knobs": {
+    "accent": {
+      "arc": {
+        "--hud-accent": "#3FE0FF",
+        "--hud-accent-ink": "#021116",
+        "--hud-accent-line": "rgba(63,224,255,0.45)",
+        "--hud-accent-fill": "rgba(63,224,255,0.12)",
+        "--hud-panel-fill": "rgba(63,224,255,0.035)",
+        "--hud-panel-line": "rgba(63,224,255,0.16)",
+        "--hud-bracket": "rgba(63,224,255,0.7)"
+      },
+      "forge": {
+        "--hud-accent": "#FF8A3D",
+        "--hud-accent-ink": "#1A0A02",
+        "--hud-accent-line": "rgba(255,138,61,0.45)",
+        "--hud-accent-fill": "rgba(255,138,61,0.12)",
+        "--hud-panel-fill": "rgba(255,138,61,0.035)",
+        "--hud-panel-line": "rgba(255,138,61,0.16)",
+        "--hud-bracket": "rgba(255,138,61,0.7)"
+      },
+      "ghost": {
+        "--hud-accent": "#E3ECF0",
+        "--hud-accent-ink": "#06090B",
+        "--hud-accent-line": "rgba(227,236,240,0.45)",
+        "--hud-accent-fill": "rgba(227,236,240,0.12)",
+        "--hud-panel-fill": "rgba(227,236,240,0.035)",
+        "--hud-panel-line": "rgba(227,236,240,0.16)",
+        "--hud-bracket": "rgba(227,236,240,0.7)"
+      },
+      "nova": {
+        "--hud-accent": "#FF5CDB",
+        "--hud-accent-ink": "#1F0219",
+        "--hud-accent-line": "rgba(255,92,219,0.45)",
+        "--hud-accent-fill": "rgba(255,92,219,0.12)",
+        "--hud-panel-fill": "rgba(255,92,219,0.035)",
+        "--hud-panel-line": "rgba(255,92,219,0.16)",
+        "--hud-bracket": "rgba(255,92,219,0.7)"
+      },
+      "signal": {
+        "--hud-accent": "#5CFF9A",
+        "--hud-accent-ink": "#021208",
+        "--hud-accent-line": "rgba(92,255,154,0.45)",
+        "--hud-accent-fill": "rgba(92,255,154,0.12)",
+        "--hud-panel-fill": "rgba(92,255,154,0.035)",
+        "--hud-panel-line": "rgba(92,255,154,0.16)",
+        "--hud-bracket": "rgba(92,255,154,0.7)"
+      },
+      "gold": {
+        "--hud-accent": "#FFC94A",
+        "--hud-accent-ink": "#1C1400",
+        "--hud-accent-line": "rgba(255,201,74,0.45)",
+        "--hud-accent-fill": "rgba(255,201,74,0.12)",
+        "--hud-panel-fill": "rgba(255,201,74,0.035)",
+        "--hud-panel-line": "rgba(255,201,74,0.16)",
+        "--hud-bracket": "rgba(255,201,74,0.7)"
+      }
+    },
+    "ground": {
+      "void": {
+        "--hud-bg": "#030507",
+        "--hud-surface": "#15181A",
+        "--hud-text": "#E6F1F5",
+        "--hud-text-2": "#93A6AF",
+        "--hud-line": "rgba(230,241,245,.10)",
+        "--hud-track": "rgba(230,241,245,.08)",
+        "--hud-error": "#FF6B6B",
+        "--hud-error-text": "#FF6B6B",
+        "--hud-scan-line": "rgba(0,0,0,.18)",
+        "--hud-drawer": "rgba(5,8,10,.82)",
+        "--hud-ring-oops": "#FF6B7A",
+        "--hud-ring-dusk": "#5E578F",
+        "--hud-ring-loading": "#8B7CFF",
+        "--background": "210 40% 1.96%",
+        "--background-gradient-from": "210 40% 1.96%",
+        "--background-gradient-to": "210 40% 1.96%",
+        "--card": "204 10.64% 9.22%",
+        "--popover": "204 10.64% 9.22%",
+        "--secondary": "204 10.64% 9.22%",
+        "--muted": "210 7.32% 16.08%",
+        "--cc-hover": "210 7.32% 16.08%",
+        "--border": "204 8.77% 11.18%",
+        "--input": "204 8.77% 11.18%",
+        "--glass-border-hover": "200 5% 23.53%",
+        "--cc-hover-border": "200 5% 23.53%",
+        "--foreground": "196 42.86% 93.14%",
+        "--card-foreground": "196 42.86% 93.14%",
+        "--popover-foreground": "196 42.86% 93.14%",
+        "--secondary-foreground": "196 42.86% 93.14%",
+        "--muted-foreground": "199.29 14.89% 63.14%",
+        "--paper": "hsl(204 10.64% 9.22%)",
+        "--bg-1": "hsl(210 40% 1.96%)",
+        "--bg-2": "hsl(204 10.64% 9.22%)",
+        "--fg": "hsl(196 42.86% 93.14%)",
+        "--fg-2": "hsl(199.29 14.89% 63.14%)",
+        "--fg-3": "hsl(200 12.68% 58.24%)",
+        "--border-2": "hsl(200 5% 23.53%)",
+        "--accent": "0 100% 70.98%",
+        "--accent-foreground": "210 40% 1.96%",
+        "--destructive": "0 100% 70.98%",
+        "--destructive-foreground": "210 40% 1.96%",
+        "--accent-2": "hsl(0 100% 70.98% / 0.14)"
+      },
+      "carbon": {
+        "--hud-bg": "#0B0B0D",
+        "--hud-surface": "#1D1D20",
+        "--hud-text": "#E6F1F5",
+        "--hud-text-2": "#93A6AF",
+        "--hud-line": "rgba(230,241,245,.10)",
+        "--hud-track": "rgba(230,241,245,.08)",
+        "--hud-error": "#FF6B6B",
+        "--hud-error-text": "#FF6B6B",
+        "--hud-scan-line": "rgba(0,0,0,.18)",
+        "--hud-drawer": "rgba(5,8,10,.82)",
+        "--hud-ring-oops": "#FF6B7A",
+        "--hud-ring-dusk": "#5E578F",
+        "--hud-ring-loading": "#8B7CFF",
+        "--background": "240 8.33% 4.71%",
+        "--background-gradient-from": "240 8.33% 4.71%",
+        "--background-gradient-to": "240 8.33% 4.71%",
+        "--card": "240 4.92% 11.96%",
+        "--popover": "240 4.92% 11.96%",
+        "--secondary": "240 4.92% 11.96%",
+        "--muted": "225 4.26% 18.43%",
+        "--cc-hover": "225 4.26% 18.43%",
+        "--border": "220 4.35% 13.53%",
+        "--input": "220 4.35% 13.53%",
+        "--glass-border-hover": "210 3.08% 25.49%",
+        "--cc-hover-border": "210 3.08% 25.49%",
+        "--foreground": "196 42.86% 93.14%",
+        "--card-foreground": "196 42.86% 93.14%",
+        "--popover-foreground": "196 42.86% 93.14%",
+        "--secondary-foreground": "196 42.86% 93.14%",
+        "--muted-foreground": "199.29 14.89% 63.14%",
+        "--paper": "hsl(240 4.92% 11.96%)",
+        "--bg-1": "hsl(240 8.33% 4.71%)",
+        "--bg-2": "hsl(240 4.92% 11.96%)",
+        "--fg": "hsl(196 42.86% 93.14%)",
+        "--fg-2": "hsl(199.29 14.89% 63.14%)",
+        "--fg-3": "hsl(198.46 12.62% 59.61%)",
+        "--border-2": "hsl(210 3.08% 25.49%)",
+        "--accent": "0 100% 70.98%",
+        "--accent-foreground": "240 8.33% 4.71%",
+        "--destructive": "0 100% 70.98%",
+        "--destructive-foreground": "240 8.33% 4.71%",
+        "--accent-2": "hsl(0 100% 70.98% / 0.14)"
+      },
+      "navy": {
+        "--hud-bg": "#050B18",
+        "--hud-surface": "#171D2A",
+        "--hud-text": "#E6F1F5",
+        "--hud-text-2": "#93A6AF",
+        "--hud-line": "rgba(230,241,245,.10)",
+        "--hud-track": "rgba(230,241,245,.08)",
+        "--hud-error": "#FF6B6B",
+        "--hud-error-text": "#FF6B6B",
+        "--hud-scan-line": "rgba(0,0,0,.18)",
+        "--hud-drawer": "rgba(5,8,10,.82)",
+        "--hud-ring-oops": "#FF6B7A",
+        "--hud-ring-dusk": "#5E578F",
+        "--hud-ring-loading": "#8B7CFF",
+        "--background": "221.05 65.52% 5.69%",
+        "--background-gradient-from": "221.05 65.52% 5.69%",
+        "--background-gradient-to": "221.05 65.52% 5.69%",
+        "--card": "221.05 29.23% 12.75%",
+        "--popover": "221.05 29.23% 12.75%",
+        "--secondary": "221.05 29.23% 12.75%",
+        "--muted": "220 18.37% 19.22%",
+        "--cc-hover": "220 18.37% 19.22%",
+        "--border": "220 24.32% 14.51%",
+        "--input": "220 24.32% 14.51%",
+        "--glass-border-hover": "216.67 13.43% 26.27%",
+        "--cc-hover-border": "216.67 13.43% 26.27%",
+        "--foreground": "196 42.86% 93.14%",
+        "--card-foreground": "196 42.86% 93.14%",
+        "--popover-foreground": "196 42.86% 93.14%",
+        "--secondary-foreground": "196 42.86% 93.14%",
+        "--muted-foreground": "199.29 14.89% 63.14%",
+        "--paper": "hsl(221.05 29.23% 12.75%)",
+        "--bg-1": "hsl(221.05 65.52% 5.69%)",
+        "--bg-2": "hsl(221.05 29.23% 12.75%)",
+        "--fg": "hsl(196 42.86% 93.14%)",
+        "--fg-2": "hsl(199.29 14.89% 63.14%)",
+        "--fg-3": "hsl(199.29 13.59% 59.61%)",
+        "--border-2": "hsl(216.67 13.43% 26.27%)",
+        "--accent": "0 100% 70.98%",
+        "--accent-foreground": "221.05 65.52% 5.69%",
+        "--destructive": "0 100% 70.98%",
+        "--destructive-foreground": "221.05 65.52% 5.69%",
+        "--accent-2": "hsl(0 100% 70.98% / 0.14)"
+      },
+      "ember": {
+        "--hud-bg": "#0C0806",
+        "--hud-surface": "#1D1B19",
+        "--hud-text": "#E6F1F5",
+        "--hud-text-2": "#93A6AF",
+        "--hud-line": "rgba(230,241,245,.10)",
+        "--hud-track": "rgba(230,241,245,.08)",
+        "--hud-error": "#FF6B6B",
+        "--hud-error-text": "#FF6B6B",
+        "--hud-scan-line": "rgba(0,0,0,.18)",
+        "--hud-drawer": "rgba(5,8,10,.82)",
+        "--hud-ring-oops": "#FF6B7A",
+        "--hud-ring-dusk": "#5E578F",
+        "--hud-ring-loading": "#8B7CFF",
+        "--background": "20 33.33% 3.53%",
+        "--background-gradient-from": "20 33.33% 3.53%",
+        "--background-gradient-to": "20 33.33% 3.53%",
+        "--card": "30 7.41% 10.59%",
+        "--popover": "30 7.41% 10.59%",
+        "--secondary": "30 7.41% 10.59%",
+        "--muted": "30 2.27% 17.25%",
+        "--cc-hover": "30 2.27% 17.25%",
+        "--border": "15 6.25% 12.55%",
+        "--input": "15 6.25% 12.55%",
+        "--glass-border-hover": "60 0.8% 24.51%",
+        "--cc-hover-border": "60 0.8% 24.51%",
+        "--foreground": "196 42.86% 93.14%",
+        "--card-foreground": "196 42.86% 93.14%",
+        "--popover-foreground": "196 42.86% 93.14%",
+        "--secondary-foreground": "196 42.86% 93.14%",
+        "--muted-foreground": "199.29 14.89% 63.14%",
+        "--paper": "hsl(30 7.41% 10.59%)",
+        "--bg-1": "hsl(20 33.33% 3.53%)",
+        "--bg-2": "hsl(30 7.41% 10.59%)",
+        "--fg": "hsl(196 42.86% 93.14%)",
+        "--fg-2": "hsl(199.29 14.89% 63.14%)",
+        "--fg-3": "hsl(198.46 12.62% 59.61%)",
+        "--border-2": "hsl(60 0.8% 24.51%)",
+        "--accent": "0 100% 70.98%",
+        "--accent-foreground": "20 33.33% 3.53%",
+        "--destructive": "0 100% 70.98%",
+        "--destructive-foreground": "20 33.33% 3.53%",
+        "--accent-2": "hsl(0 100% 70.98% / 0.14)"
+      }
+    },
+    "font": {
+      "raj": {
+        "--hud-display-family": "hud-rajdhani,sans-serif",
+        "--hud-display-weight": "700",
+        "--hud-title-size": "18px",
+        "--hud-label-size": "13px"
+      },
+      "chakra": {
+        "--hud-display-family": "hud-chakra-petch,sans-serif",
+        "--hud-display-weight": "600",
+        "--hud-title-size": "15px",
+        "--hud-label-size": "12px"
+      },
+      "mono": {
+        "--hud-display-family": "var(--font-geist-mono),ui-monospace,monospace",
+        "--hud-display-weight": "500",
+        "--hud-title-size": "14px",
+        "--hud-label-size": "11px"
+      }
+    },
+    "scan": {
+      "on": {
+        "--hud-scan": "1"
+      },
+      "off": {
+        "--hud-scan": "0"
+      }
+    },
+    "auto": {
+      "on": {
+        "--hud-auto-display": "block"
+      },
+      "off": {
+        "--hud-auto-display": "none"
+      }
+    },
+    "motion": {
+      "on": {
+        "--hud-motion": "running"
+      },
+      "off": {
+        "--hud-motion": "paused"
+      }
+    }
+  },
+  "pairs": [
+    {
+      "a": "ground",
+      "b": "accent",
+      "table": {
+        "void": {
+          "arc": {
+            "--hud-accent-text": "#3FE0FF",
+            "--primary": "189.69 100% 62.35%",
+            "--primary-foreground": "195 83.33% 4.71%",
+            "--ring": "189.69 100% 62.35%"
+          },
+          "forge": {
+            "--hud-accent-text": "#FF8A3D",
+            "--primary": "24.16 93.71% 68.82%",
+            "--primary-foreground": "210 40% 1.96%",
+            "--ring": "24.16 93.71% 68.82%"
+          },
+          "ghost": {
+            "--hud-accent-text": "#E3ECF0",
+            "--primary": "198.46 30.23% 91.57%",
+            "--primary-foreground": "204 29.41% 3.33%",
+            "--ring": "198.46 30.23% 91.57%"
+          },
+          "nova": {
+            "--hud-accent-text": "#FF5CDB",
+            "--primary": "310.32 82.3% 77.84%",
+            "--primary-foreground": "210 40% 1.96%",
+            "--ring": "310.32 82.3% 77.84%"
+          },
+          "signal": {
+            "--hud-accent-text": "#5CFF9A",
+            "--primary": "142.82 100% 68.04%",
+            "--primary-foreground": "142.5 80% 3.92%",
+            "--ring": "142.82 100% 68.04%"
+          },
+          "gold": {
+            "--hud-accent-text": "#FFC94A",
+            "--primary": "42.1 100% 64.51%",
+            "--primary-foreground": "42.86 100% 5.49%",
+            "--ring": "42.1 100% 64.51%"
+          }
+        },
+        "carbon": {
+          "arc": {
+            "--hud-accent-text": "#3FE0FF",
+            "--primary": "189.69 100% 62.35%",
+            "--primary-foreground": "195 83.33% 4.71%",
+            "--ring": "189.69 100% 62.35%"
+          },
+          "forge": {
+            "--hud-accent-text": "#FF8A3D",
+            "--primary": "24 86.47% 73.92%",
+            "--primary-foreground": "240 8.33% 4.71%",
+            "--ring": "24 86.47% 73.92%"
+          },
+          "ghost": {
+            "--hud-accent-text": "#E3ECF0",
+            "--primary": "198.46 30.23% 91.57%",
+            "--primary-foreground": "204 29.41% 3.33%",
+            "--ring": "198.46 30.23% 91.57%"
+          },
+          "nova": {
+            "--hud-accent-text": "#FF5CDB",
+            "--primary": "307.4 73.74% 80.59%",
+            "--primary-foreground": "240 8.33% 4.71%",
+            "--ring": "307.4 73.74% 80.59%"
+          },
+          "signal": {
+            "--hud-accent-text": "#5CFF9A",
+            "--primary": "142.82 100% 68.04%",
+            "--primary-foreground": "142.5 80% 3.92%",
+            "--ring": "142.82 100% 68.04%"
+          },
+          "gold": {
+            "--hud-accent-text": "#FFC94A",
+            "--primary": "42.1 100% 64.51%",
+            "--primary-foreground": "42.86 100% 5.49%",
+            "--ring": "42.1 100% 64.51%"
+          }
+        },
+        "navy": {
+          "arc": {
+            "--hud-accent-text": "#3FE0FF",
+            "--primary": "189.69 100% 62.35%",
+            "--primary-foreground": "195 83.33% 4.71%",
+            "--ring": "189.69 100% 62.35%"
+          },
+          "forge": {
+            "--hud-accent-text": "#FF8A3D",
+            "--primary": "24 86.47% 73.92%",
+            "--primary-foreground": "221.05 65.52% 5.69%",
+            "--ring": "24 86.47% 73.92%"
+          },
+          "ghost": {
+            "--hud-accent-text": "#E3ECF0",
+            "--primary": "198.46 30.23% 91.57%",
+            "--primary-foreground": "204 29.41% 3.33%",
+            "--ring": "198.46 30.23% 91.57%"
+          },
+          "nova": {
+            "--hud-accent-text": "#FF5CDB",
+            "--primary": "308.68 76% 80.39%",
+            "--primary-foreground": "221.05 65.52% 5.69%",
+            "--ring": "308.68 76% 80.39%"
+          },
+          "signal": {
+            "--hud-accent-text": "#5CFF9A",
+            "--primary": "142.82 100% 68.04%",
+            "--primary-foreground": "142.5 80% 3.92%",
+            "--ring": "142.82 100% 68.04%"
+          },
+          "gold": {
+            "--hud-accent-text": "#FFC94A",
+            "--primary": "42.1 100% 64.51%",
+            "--primary-foreground": "42.86 100% 5.49%",
+            "--ring": "42.1 100% 64.51%"
+          }
+        },
+        "ember": {
+          "arc": {
+            "--hud-accent-text": "#3FE0FF",
+            "--primary": "189.69 100% 62.35%",
+            "--primary-foreground": "195 83.33% 4.71%",
+            "--ring": "189.69 100% 62.35%"
+          },
+          "forge": {
+            "--hud-accent-text": "#FF8A3D",
+            "--primary": "24.09 88.81% 71.96%",
+            "--primary-foreground": "20 33.33% 3.53%",
+            "--ring": "24.09 88.81% 71.96%"
+          },
+          "ghost": {
+            "--hud-accent-text": "#E3ECF0",
+            "--primary": "198.46 30.23% 91.57%",
+            "--primary-foreground": "204 29.41% 3.33%",
+            "--ring": "198.46 30.23% 91.57%"
+          },
+          "nova": {
+            "--hud-accent-text": "#FF5CDB",
+            "--primary": "309.4 79.05% 79.41%",
+            "--primary-foreground": "20 33.33% 3.53%",
+            "--ring": "309.4 79.05% 79.41%"
+          },
+          "signal": {
+            "--hud-accent-text": "#5CFF9A",
+            "--primary": "142.82 100% 68.04%",
+            "--primary-foreground": "142.5 80% 3.92%",
+            "--ring": "142.82 100% 68.04%"
+          },
+          "gold": {
+            "--hud-accent-text": "#FFC94A",
+            "--primary": "42.1 100% 64.51%",
+            "--primary-foreground": "42.86 100% 5.49%",
+            "--ring": "42.1 100% 64.51%"
+          }
+        }
+      }
+    }
+  ],
+  "numeric": [
+    {
+      "var": "--hud-grid",
+      "knob": "grid",
+      "min": 0,
+      "max": 30,
+      "integer": true,
+      "scale": 300,
+      "capTable": null,
+      "caps": null,
+      "color": {
+        "knob": "accent",
+        "rgb": {
+          "arc": "63,224,255",
+          "forge": "255,138,61",
+          "ghost": "227,236,240",
+          "nova": "255,92,219",
+          "signal": "92,255,154",
+          "gold": "255,201,74"
+        }
+      },
+      "template": "rgba-alpha"
+    },
+    {
+      "var": "--hud-glow",
+      "knob": "glow",
+      "min": 0,
+      "max": 40,
+      "integer": true,
+      "scale": 100,
+      "capTable": [
+        "ground",
+        "accent"
+      ],
+      "caps": {
+        "void": {
+          "arc": 0.2,
+          "forge": 0.26,
+          "ghost": 0.17,
+          "nova": 0.29,
+          "signal": 0.18,
+          "gold": 0.2
+        },
+        "carbon": {
+          "arc": 0.18,
+          "forge": 0.23,
+          "ghost": 0.15,
+          "nova": 0.26,
+          "signal": 0.16,
+          "gold": 0.18
+        },
+        "navy": {
+          "arc": 0.18,
+          "forge": 0.24,
+          "ghost": 0.15,
+          "nova": 0.26,
+          "signal": 0.16,
+          "gold": 0.18
+        },
+        "ember": {
+          "arc": 0.19,
+          "forge": 0.24,
+          "ghost": 0.16,
+          "nova": 0.27,
+          "signal": 0.17,
+          "gold": 0.18
+        }
+      },
+      "color": {
+        "knob": "accent",
+        "rgb": {
+          "arc": "63,224,255",
+          "forge": "255,138,61",
+          "ghost": "227,236,240",
+          "nova": "255,92,219",
+          "signal": "92,255,154",
+          "gold": "255,201,74"
+        }
+      },
+      "template": "rgba-alpha"
+    }
+  ],
+  "defaults": {
+    "accent": "arc",
+    "ground": "void",
+    "font": "raj",
+    "grid": 14,
+    "glow": 22,
+    "scan": "on",
+    "auto": "on",
+    "motion": "on"
+  },
+  "tone": {
+    "knob": "ground",
+    "values": {
+      "void": "dark",
+      "carbon": "dark",
+      "navy": "dark",
+      "ember": "dark"
+    }
+  }
+}

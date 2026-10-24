@@ -125,14 +125,14 @@ describe("Play's package in CI", () => {
   });
 });
 
-// PRD-261 C-06r (PB-4): released-unchanged.mjs keeps its own PACKED_PATHS (plain Node, no TypeScript
+// PRD-261 C-06r (PB-4): released-unchanged.mjs keeps its own PLAY_PACKED_PATHS (plain Node, no TypeScript
 // loader to read collect.ts/source.ts at run time); read back here as text, it must stay a superset of
 // what pack actually collects for Play, so the two guarded sets can't silently drift apart. A folder
 // collect.ts packs but Play never commits (dist/, boot/, looks/: generated from src/, gitignored) needs
-// no path of its own, until the day one of them is tracked.
+// no path of its own, until the day one of them is tracked. (HUD's list: tests/hud-package-ci.test.ts.)
 function releasedUnchangedPackedPaths(): string[] {
-  const match = /PACKED_PATHS\s*=\s*\[([^\]]*)\]/.exec(readText(RELEASED_SCRIPT));
-  if (match === null) throw new Error(`can't find PACKED_PATHS in ${RELEASED_SCRIPT}`);
+  const match = /\bPLAY_PACKED_PATHS\s*=\s*\[([^\]]*)\]/.exec(readText(RELEASED_SCRIPT));
+  if (match === null) throw new Error(`can't find PLAY_PACKED_PATHS in ${RELEASED_SCRIPT}`);
   return [...match[1].matchAll(/'([^']*)'/g)].map(([, path]) => path);
 }
 

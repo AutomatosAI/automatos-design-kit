@@ -37,14 +37,15 @@ jobs:
       - name: Pin npm
         run: npm install -g npm@11.21.1
 
-      # PRD-261 C-06r (PB-4): a released Play version never changes. While themes/play/theme.json names a
+      # PRD-261 C-06r (PB-4): a released theme version never changes. While themes/play/theme.json names a
       # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md, CHANGELOG.md
       # and every LICENSE spelling under themes/play, and packages/look-kit/src and packages/mascot/src, which
-      # Play bundles) must be as the tag has them; a change needs a version above every release. The
-      # checkout above fetches no tags, so the script lists origin's play-v* tags (git ls-remote) and
-      # fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing
-      # installed: it runs before the install, so a change to a released Play fails first.
-      - name: Check a released Play is unchanged
+      # Play bundles) must be as the tag has them; a change needs a version above every release. HUD is held
+      # the same way by its hud-v<version> tags, its committed boot and looks among its packed paths. The
+      # checkout above fetches no tags, so the script lists origin's play-v* and hud-v* tags (git ls-remote)
+      # and fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing
+      # installed: it runs before the install, so a change to a released theme fails first.
+      - name: Check released themes are unchanged
         run: node scripts/release/released-unchanged.mjs
 
       # Install exactly what package-lock.json records (committed in A-15b from the lockfile the
@@ -78,12 +79,14 @@ jobs:
             !**/node_modules/**
           if-no-files-found: error
 
-  # PRD-261 B-02f: the theme drawn in the browser harness (packages/theme-harness), with nothing of Automatos
-  # running: Play's build writes its look data, `automatos-theme shots` builds the harness, serves it on
-  # 127.0.0.1:4318 and shoots every slot, page and route Play serves, for each preset at 1440 and 1024 px and
-  # once below its minWidth, on Chromium and WebKit, with an axe scan of each shot. It fails on a missing shot,
-  # a request to any other origin, or a critical axe violation. Then PRD-261 B-02i's dev smoke: `automatos-theme dev`
-  # serves Play's harness and /chat renders. The shots, axe.json files and the smoke's shot are uploaded either way.
+  # PRD-261 B-02f: each theme drawn in the browser harness (packages/theme-harness), with nothing of Automatos
+  # running: Play's build writes its look data (HUD's is committed), then `automatos-theme shots`, once for Play and
+  # once for HUD, builds the harness for that theme, serves it on 127.0.0.1:4318 and shoots every slot, page and
+  # route the theme serves, for each preset at 1440 and 1024 px and once below its minWidth, on Chromium and WebKit,
+  # with an axe scan of each shot. It fails on a missing shot, a request to any other origin, or a critical axe
+  # violation. HUD's shots go to their own folder, hud/, beside Play's. Then PRD-261 B-02i's dev smoke:
+  # `automatos-theme dev` serves Play's harness and /chat renders. The shots, axe.json files and the smoke's shot are
+  # uploaded either way.
   harness:
     name: Harness shots and axe
     runs-on: ubuntu-latest
@@ -115,6 +118,10 @@ jobs:
 
       - name: Shots
         run: npx automatos-theme shots themes/play --out packages/theme-harness/dist/shots
+
+      # HUD's, in their own folder of the upload: the harness is rebuilt for HUD (its dist/app only).
+      - name: HUD shots
+        run: npx automatos-theme shots themes/hud --out packages/theme-harness/dist/shots/hud
 
       # PRD-261 B-02i: `automatos-theme dev themes/play` (the smoke config's web server) builds the harness, serves it
       # on 127.0.0.1:4319, and /chat renders there on Chromium; its shot and any trace go to

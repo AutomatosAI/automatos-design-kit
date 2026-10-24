@@ -1,0 +1,155 @@
+/*
+ * The side panels' rows ("Automatos Command HUD.dc.html": AGENTS, MISSION, DELIVERABLES), inside HUD's Panel: rows
+ * split by the look's line, names in Geist, status words and details in mono, a status's glyph and word in its
+ * tone (live: the readable accent; failed: the error colour; quiet: the secondary text).
+ */
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--hud-space-2) 0;
+  border-top: 1px solid var(--hud-line);
+}
+
+.rowHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+}
+
+.name {
+  min-width: 0;
+  color: var(--hud-text);
+  font: 600 15px/1.3 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+.status {
+  flex: none;
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status[data-tone="live"] {
+  color: var(--hud-accent-text);
+}
+
+.status[data-tone="failed"] {
+  color: var(--hud-error-text);
+}
+
+.detail {
+  color: var(--hud-text-2);
+  font: 12px/1.4 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.note {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 12px/1.5 var(--hud-font-mono);
+}
+
+/* The running Mission: its name in the display face, then its steps. */
+.missionName {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 22px;
+  font-weight: var(--hud-display-weight);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.missionName a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.missionName a:hover {
+  text-decoration: underline;
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}
+
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: var(--hud-space-3);
+  color: var(--hud-text-2);
+  font: 13px/1.4 var(--hud-font-mono);
+}
+
+.step[data-status="running"] {
+  color: var(--hud-accent-text);
+}
+
+.step[data-status="failed"] {
+  color: var(--hud-error-text);
+}
+
+.stepMark {
+  flex: none;
+  width: 18px;
+  text-align: center;
+}
+
+/* A Deliverable: its title on the left, its type and day on the right. */
+.deliverable {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+  padding: 6px 0;
+}
+
+.deliverableTitle {
+  min-width: 0;
+  color: var(--hud-text);
+  font: 13px/1.4 var(--hud-font-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.deliverableTitle:hover {
+  text-decoration: underline;
+}
+
+.tag {
+  flex: none;
+  color: var(--hud-text-2);
+  font: 11px/1.4 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.headerLink {
+  color: var(--hud-accent-text);
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+}
+
+.headerLink:hover {
+  text-decoration: underline;
+}

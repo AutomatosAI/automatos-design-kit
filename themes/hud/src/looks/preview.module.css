@@ -1,0 +1,186 @@
+/*
+ * The LOOK page's preview (look-preview.tsx): a small voice core after "Automatos Command HUD.dc.html" (an outer
+ * ring, an arc turning in 7 s, a dashed ring in 30 s, an inner arc back in 5 s and a pulse every 2.4 s), Auto in
+ * the middle, the state chip, three agents and the two buttons. Every colour is a look variable.
+ *
+ * The rings and the pulse animate only under data-motion="on", which the markup sets while neither the user's
+ * reduced-motion setting nor the look's motion stops them. Each also carries data-hud-loop, so HUD's motion rule
+ * (src/app/hud-theme.css) pauses it with the look's motion off and ends it under the host's
+ * data-theme-motion="reduce", whatever this file says.
+ */
+
+.preview {
+  min-width: 0;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hud-space-3);
+  padding: var(--hud-space-2) 0;
+}
+
+.core {
+  position: relative;
+  width: 220px;
+  max-width: 100%;
+  aspect-ratio: 1;
+}
+
+.ringOuter,
+.ring,
+.pulse {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.ringOuter {
+  inset: 0;
+  border: 1px solid var(--hud-accent-line);
+}
+
+.arc {
+  inset: 8%;
+  border: 2px solid transparent;
+  border-top-color: var(--hud-accent);
+  border-right-color: var(--hud-accent-line);
+  filter: drop-shadow(0 0 6px var(--hud-accent));
+}
+
+.dashed {
+  inset: 20%;
+  border: 1px dashed var(--hud-accent-line);
+}
+
+.inner {
+  inset: 27%;
+  border: 1.5px solid transparent;
+  border-bottom-color: var(--hud-accent);
+  border-left-color: var(--hud-accent-line);
+}
+
+.pulse {
+  inset: 30%;
+  background: radial-gradient(circle, var(--hud-accent-fill), transparent 70%);
+}
+
+.core[data-motion="on"] .arc {
+  animation: hud-preview-spin 7s linear infinite;
+}
+
+.core[data-motion="on"] .dashed {
+  animation: hud-preview-spin 30s linear infinite;
+}
+
+.core[data-motion="on"] .inner {
+  animation: hud-preview-spin-back 5s linear infinite;
+}
+
+.core[data-motion="on"] .pulse {
+  animation: hud-preview-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hud-preview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hud-preview-spin-back {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes hud-preview-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+.auto {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -54%);
+}
+
+/* The state in words, under the core ("SEARCHING THE WEB"). */
+.chip {
+  margin: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--hud-accent-line);
+  color: var(--hud-accent-text);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.agents {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+  padding: var(--hud-space-2) 0;
+  border-top: 1px solid var(--hud-line);
+  color: var(--hud-text);
+  font: 400 13px/1.4 var(--hud-font-text);
+}
+
+.agentName {
+  min-width: 0;
+}
+
+.agentStatus {
+  color: var(--hud-text-2);
+  font: 500 11px/1.4 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.agent[data-live="true"] .agentStatus {
+  color: var(--hud-accent-text);
+}
+
+.samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.samplePrimary,
+.sampleSecondary {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--hud-space-4);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.samplePrimary {
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+}
+
+.sampleSecondary {
+  border: 1px solid var(--hud-accent-line);
+  color: var(--hud-text);
+}

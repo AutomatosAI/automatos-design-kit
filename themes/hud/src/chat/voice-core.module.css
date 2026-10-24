@@ -1,0 +1,171 @@
+/*
+ * The core ("Automatos Command HUD.dc.html"'s voice core): its rings as the design draws them, each a circle inset
+ * into the core by the design's percentage, in the look's accent at the design's alphas. A thin ring is a gradient
+ * shown through a radial mask band; the mask's colour is only its opacity, so it is the look's opaque text. Every
+ * loop is marked data-hud-loop in the markup, so the look's motion knob pauses it (app/hud-theme.css).
+ */
+
+.core {
+  --hud-core-size: 420px;
+  --hud-core-chip-bottom: 22px;
+  --hud-core-faint: color-mix(in srgb, var(--hud-accent) 22%, transparent);
+  --hud-core-cross: color-mix(in srgb, var(--hud-accent) 25%, transparent);
+  --hud-core-pulse: color-mix(in srgb, var(--hud-accent) 28%, transparent);
+  --hud-core-trail: color-mix(in srgb, var(--hud-accent) 30%, transparent);
+  --hud-core-soft: color-mix(in srgb, var(--hud-accent) 35%, transparent);
+  --hud-core-dash: color-mix(in srgb, var(--hud-accent) 40%, transparent);
+  --hud-core-half: color-mix(in srgb, var(--hud-accent) 50%, transparent);
+  --hud-core-tick: color-mix(in srgb, var(--hud-accent) 70%, transparent);
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: var(--hud-core-size);
+  height: var(--hud-core-size);
+}
+
+.core[data-size="small"] {
+  --hud-core-size: 290px;
+  --hud-core-chip-bottom: 12px;
+}
+
+.rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.outer {
+  inset: 0;
+  border: 1px solid var(--hud-core-faint);
+}
+
+@keyframes hud-core-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hud-core-spin-back {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes hud-core-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* The tick ring: a tick every 5 degrees, shown through a band from 66% to 69% of the radius. */
+.ticks {
+  inset: 3%;
+  background: repeating-conic-gradient(var(--hud-core-tick) 0 0.8deg, transparent 0.8deg 5deg);
+  -webkit-mask: radial-gradient(circle, transparent 66%, var(--hud-text) 66.5%, var(--hud-text) 69%, transparent 69.5%);
+  mask: radial-gradient(circle, transparent 66%, var(--hud-text) 66.5%, var(--hud-text) 69%, transparent 69.5%);
+  animation: hud-core-spin 60s linear infinite;
+}
+
+.arc {
+  inset: 8%;
+  border: 2px solid transparent;
+  border-top-color: var(--hud-accent);
+  border-right-color: var(--hud-core-soft);
+  filter: drop-shadow(0 0 6px var(--hud-accent));
+  animation: hud-core-spin 7s linear infinite;
+}
+
+/* The segmented ring: three accent runs and a half-tone one, through a band from 68% to 71%. */
+.segments {
+  inset: 15%;
+  background: conic-gradient(
+    var(--hud-accent) 0 64deg,
+    transparent 64deg 96deg,
+    var(--hud-core-half) 96deg 210deg,
+    transparent 210deg 236deg,
+    var(--hud-accent) 236deg 300deg,
+    transparent 300deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 68%, var(--hud-text) 68.5%, var(--hud-text) 71%, transparent 71.5%);
+  mask: radial-gradient(circle, transparent 68%, var(--hud-text) 68.5%, var(--hud-text) 71%, transparent 71.5%);
+  animation: hud-core-spin-back 16s linear infinite;
+}
+
+.dashes {
+  inset: 22%;
+  border: 1px dashed var(--hud-core-dash);
+  animation: hud-core-spin 30s linear infinite;
+}
+
+.innerArc {
+  inset: 27%;
+  border: 1.5px solid transparent;
+  border-bottom-color: var(--hud-accent);
+  border-left-color: var(--hud-core-trail);
+  animation: hud-core-spin-back 5s linear infinite;
+}
+
+.pulse {
+  inset: 30%;
+  background: radial-gradient(circle, var(--hud-core-pulse), transparent 70%);
+  animation: hud-core-pulse 2.4s ease-in-out infinite;
+}
+
+/* The cross hairs: a vertical and a horizontal line, fading out at both ends. */
+.crossX {
+  left: 50%;
+  top: 4%;
+  bottom: 4%;
+  width: 1px;
+  border-radius: 0;
+  background: linear-gradient(transparent, var(--hud-core-cross), transparent);
+}
+
+.crossY {
+  top: 50%;
+  left: 4%;
+  right: 4%;
+  height: 1px;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, var(--hud-core-cross), transparent);
+}
+
+/* Auto stands a little above the middle, as the design's translate(-50%, -46%) puts him. */
+.auto {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - var(--hud-core-mascot) * 0.54);
+  transform: translateX(-50%);
+}
+
+/* The state chip ("SEARCHING THE WEB"): mono capitals on the ground, in an accent-line box, over the ring's foot. */
+.chip {
+  position: absolute;
+  left: 50%;
+  bottom: var(--hud-core-chip-bottom);
+  max-width: calc(100% - var(--hud-space-6));
+  margin: 0;
+  padding: 5px 12px;
+  overflow: hidden;
+  transform: translateX(-50%);
+  border: 1px solid var(--hud-accent-line);
+  background: var(--hud-bg);
+  color: var(--hud-accent-text);
+  font: 500 11px/1.4 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

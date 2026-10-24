@@ -27,3 +27,5 @@ guide and core disagree, core wins and the guide is fixed.
   `pack` and `pack --watch`, `submit`, `install`, `new`, `shots`, `previews` and `dev`; `check` and `check design` are
   described at the top of `packages/theme-cli/src/check/index.ts` and `design.ts`.
 - `themes/play` is a complete theme built on this contract: when a guide is not enough, read how Play does it.
+  `themes/hud` is a second one, HUD: its frame around the host's own pages, with its look data committed rather
+  than generated (its catalogue in `src/lib/looks/`, its `design/contrast.json` and its tests).

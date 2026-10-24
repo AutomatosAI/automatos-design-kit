@@ -1,0 +1,116 @@
+/*
+ * HUD's tokens and base rules. Every rule is under html.hud, so Classic, Studio and every other theme never see
+ * any of it, and every variable is --hud-*, but one: Studio's --radius, set on purpose (below). Imported once,
+ * by src/entry.ts.
+ *
+ * The colours, the display face and the switches are the look's variables (src/lib/looks/vars.ts), set on
+ * <html> by the host: its boot script before the first paint, from boot/prepaint.json, then its look runtime.
+ * No colour lives in a stylesheet: src/lib/looks/catalogue.ts is their one home; the forced-colours block names
+ * a system colour, which the OS sets. Spacing, tracking and sizes are static (the design's layout system).
+ */
+
+html.hud {
+  /* Type: Geist for reading, Geist Mono for labels, and the look's display face (brand, panel labels, numbers). */
+  --hud-font-text: var(--font-geist-sans), system-ui, sans-serif;
+  --hud-font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --hud-font-display: var(--hud-display-family);
+
+  /* Tracking: mono labels .14em, the state chip .16em, the brand .18em, panel headers .2em. */
+  --hud-tracking-label: 0.14em;
+  --hud-tracking-chip: 0.16em;
+  --hud-tracking-brand: 0.18em;
+  --hud-tracking-panel: 0.2em;
+
+  /* Spacing: a 4 px base; the content area's 20 to 24 px padding and 16 to 20 px gaps are space-5 and space-4. */
+  --hud-space-1: 4px;
+  --hud-space-2: 8px;
+  --hud-space-3: 12px;
+  --hud-space-4: 16px;
+  --hud-space-5: 24px;
+  --hud-space-6: 40px;
+
+  /* Layout */
+  --hud-topbar-height: 56px;
+  --hud-rail-width: 232px;
+  --hud-page-max: 1720px; /* a host page inside the frame: the Studio shell's own cap */
+  --hud-tap-min: 44px; /* the smallest tap target */
+  --hud-bracket-length: 14px; /* a panel's corner brackets: 14 by 1.5 px */
+  --hud-bracket-width: 1.5px;
+  --hud-grid-size: 40px; /* the backdrop's grid squares */
+  --hud-glow-ellipse: 640px 520px; /* the glow behind the core, at 50% 46% */
+
+  /* The host's motion factor for calc(): 1, or 0 when the user asks for reduced motion (--theme-motion). */
+  --hud-motion-scale: var(--theme-motion, 1);
+
+  /* Studio's corner token: HUD is square ("Radii: 0 everywhere"), the host's own pages inside its frame too. */
+  --radius: 0px;
+}
+
+/*
+ * Base rules. :where(html.hud) keeps each at an element selector's weight, so a host page's own classes still
+ * win under HUD. The page takes the look's ground and text, not a font, so a host page is recoloured, never
+ * re-typeset.
+ */
+:where(html.hud) body {
+  min-height: 100dvh;
+  background: var(--hud-bg);
+  color: var(--hud-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The keyboard focus ring wherever nothing draws its own: a 2 px outline in the readable accent, offset 2 px. */
+:where(html.hud :focus-visible) {
+  outline: 2px solid var(--hud-accent-text);
+  outline-offset: 2px;
+}
+
+/*
+ * The look's motion: an element of HUD's that loops carries data-hud-loop, and stands still while the look's
+ * motion is off (--hud-motion is running or paused). `#hud-none` is an id no element carries: `:not(#hud-none)`
+ * matches every <html> and outranks every rule made of classes, so a module's `animation` shorthand, which
+ * resets the play state, can't start the loop again.
+ */
+html.hud:not(#hud-none) [data-hud-loop],
+html.hud:not(#hud-none) [data-hud-loop]::before,
+html.hud:not(#hud-none) [data-hud-loop]::after {
+  animation-play-state: var(--hud-motion, running);
+}
+
+/* The motion stop under the OS setting: every animation ends at once and every transition is instant. */
+@media (prefers-reduced-motion: reduce) {
+  html.hud:not(#hud-none) *,
+  html.hud:not(#hud-none) *::before,
+  html.hud:not(#hud-none) *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+}
+
+/* The same stop, set by the host on <html> (data-theme-motion="reduce", with --theme-motion: 0). */
+html.hud:not(#hud-none)[data-theme-motion="reduce"] *,
+html.hud:not(#hud-none)[data-theme-motion="reduce"] *::before,
+html.hud:not(#hud-none)[data-theme-motion="reduce"] *::after {
+  animation-duration: 0.01ms;
+  animation-iteration-count: 1;
+  transition-duration: 0.01ms;
+}
+
+/*
+ * Forced colours drop box-shadows and fills, so the current page and a pressed control get an outline. That rule
+ * outranks the focus ring above, so one with the keyboard focus gets a wider ring outside it, after Play's
+ * (themes/play/src/app/play-theme.css): the focus still shows on it. (0,4,2) beats the (0,3,2) of the rule before it.
+ */
+@media (forced-colors: active) {
+  html.hud:is(html.hud) [aria-current="page"],
+  html.hud:is(html.hud) [aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  html.hud:is(html.hud) [aria-current="page"]:focus-visible,
+  html.hud:is(html.hud) [aria-pressed="true"]:focus-visible {
+    outline-width: 4px;
+    outline-offset: 2px;
+  }
+}

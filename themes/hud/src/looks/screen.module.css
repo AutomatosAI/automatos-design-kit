@@ -1,0 +1,107 @@
+/*
+ * The /looks page (look-screen.tsx): its heading and the active look's status, then two columns, the preview with
+ * Share on the left and the LOOK drawer on the right, which wraps under them where the page is too narrow for both.
+ * Every colour is a look variable (src/lib/looks/vars.ts).
+ */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-5);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--hud-space-4);
+}
+
+.headingText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}
+
+/* Unlayered and under html.hud, so it outranks Studio's h1 rule. */
+.heading {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 40px;
+  font-weight: var(--hud-display-weight);
+  line-height: 1;
+  letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
+}
+
+/* The heading takes focus only from script, when the host hands it over: a transparent outline. */
+.heading:focus {
+  outline: 2px solid transparent;
+}
+
+.lead {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 14px/1.5 var(--hud-font-text);
+}
+
+.headerSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--hud-space-2);
+}
+
+/* 'ARC · edited', as the drawer's header has it: mono, tracked, in the secondary text. */
+.status {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 500 11px/1.2 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* A secondary button: an accent-line outline. */
+.link {
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--hud-space-4);
+  border: 1px solid var(--hud-accent-line);
+  color: var(--hud-accent-text);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.link:hover {
+  border-color: var(--hud-accent);
+}
+
+.note {
+  margin: 0;
+  padding: var(--hud-space-3) var(--hud-space-4);
+  border: 1px solid var(--hud-line);
+  background: var(--hud-panel-fill);
+  color: var(--hud-text);
+  font: 400 13px/1.5 var(--hud-font-text);
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--hud-space-5);
+}
+
+.main {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}

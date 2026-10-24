@@ -1,0 +1,15 @@
+{
+  "schema": "automatos-interface-look/v1",
+  "interface": "command",
+  "id": "signal",
+  "name": "SIGNAL",
+  "sub": "",
+  "ground": "void",
+  "accent": "signal",
+  "font": "mono",
+  "grid": 22,
+  "glow": 18,
+  "scan": "on",
+  "auto": "off",
+  "motion": "on"
+}

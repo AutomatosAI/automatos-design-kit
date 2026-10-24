@@ -1,0 +1,70 @@
+/*
+ * The core screen's layout ("Automatos Command HUD.dc.html"): the frame's full-bleed column, padded 20 by 24 px,
+ * the conversation's column between side columns of panels with 20 px between them (layout.ts picks how many).
+ * The conversation's column is viewport-bound: the core and the box keep their size, the transcript scrolls.
+ */
+
+.screen {
+  --hud-chat-side: 320px;
+  --hud-chat-column: 620px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 20px;
+  padding: 20px var(--hud-space-5) var(--hud-space-5);
+}
+
+.screen[data-columns="three"] {
+  grid-template-columns: var(--hud-chat-side) minmax(0, 1fr) var(--hud-chat-side);
+}
+
+.screen[data-columns="two"] {
+  grid-template-columns: minmax(0, 1fr) var(--hud-chat-side);
+}
+
+/* A side column: its panels one under another, scrolling on its own when they outgrow it. */
+.side {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+  overflow-y: auto;
+}
+
+.centre {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* The conversation's title: a mono label over the core, in the secondary text. */
+.title {
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--hud-text-2);
+  font: 500 12px/1.4 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* The title takes focus only from the host's script: a transparent outline, which forced colours still draw. */
+.title:focus {
+  outline: 2px solid transparent;
+}
+
+.footer {
+  flex: none;
+  width: 100%;
+  max-width: var(--hud-chat-column);
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}

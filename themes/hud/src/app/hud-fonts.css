@@ -1,0 +1,28 @@
+/*
+ * HUD's display faces, self-hosted in the package (assets/fonts, SIL OFL 1.1; the licences sit beside the files
+ * and assets/fonts/README.md names where each file came from). Each face is an @font-face rule whose family
+ * starts with `hud-` (a theme's font families start with its htmlClass); the look paints the family by name
+ * (src/lib/looks/catalogue.ts FONTS). Geist and Geist Mono (body text, labels, and the MONO type style) are the
+ * host's own: --font-geist-sans and --font-geist-mono.
+ *
+ * A browser downloads a face only when a rule uses its family, so a look that never picks RAJDHANI or CHAKRA
+ * fetches neither. The URLs are relative to the stylesheet as the host serves it, dist/theme.css in the
+ * package's files folder, so ../assets/fonts/ is the package's assets/fonts/. From this file they name
+ * src/assets/fonts/, which does not exist, so the build leaves them as written (test/assets.test.ts holds both).
+ */
+
+@font-face {
+  font-family: hud-rajdhani;
+  src: url("../assets/fonts/rajdhani-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: hud-chakra-petch;
+  src: url("../assets/fonts/chakra-petch-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
