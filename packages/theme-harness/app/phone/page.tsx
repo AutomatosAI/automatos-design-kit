@@ -21,7 +21,7 @@ import {
   builtInStyleOf, memberLook, paintsFromLooks, phoneMode, phoneSourceOf, type PhoneMode, type PhoneSource,
 } from '../../src/phone/skin.ts'
 import { mountLooks, prepareHost, presetOf, themeTone } from '../host.tsx'
-import { BUILT_IN_NAMES, BuiltInPhone, hostSettingsOf } from './built-in.tsx'
+import { atPhoneWidth, BUILT_IN_NAMES, BuiltInPhone, hostSettingsOf } from './built-in.tsx'
 import { ContrastPanel } from './contrast-panel.tsx'
 import { PhoneControls } from './controls.tsx'
 import { PHONE, PhoneFrame } from './frame.tsx'
@@ -41,7 +41,7 @@ const NOTICE_STYLE: CSSProperties = Object.freeze({ margin: 0, padding: '12px 16
 
 /** The fake host before the first render: a built-in theme is drawn through the harness's host at the phone's settings. */
 export function preparePhone(theme: HarnessTheme, settings: PhoneSettings): void {
-  if (builtInStyleOf(theme.manifest.id) !== null) prepareHost(theme, hostSettingsOf(theme, settings), PHONE.width)
+  if (builtInStyleOf(theme.manifest.id) !== null) prepareHost(atPhoneWidth(theme), hostSettingsOf(theme, settings), PHONE.width)
 }
 
 /** The tone the painting or the theme sets over the user's Light / Dark; null while theirs holds. */

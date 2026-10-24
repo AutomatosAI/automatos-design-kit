@@ -13,8 +13,7 @@
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  *
  * The phone view (app/phone/built-in.tsx) draws a theme the phone shows in its own built-in layout through this host
- * too: it holds the settings itself (`settings`), and `phone` draws the theme at the phone's width whatever its
- * minWidth, since no web host is drawing it there.
+ * too, holding the settings itself (`settings`).
  */
 import type { HostLook } from '@automatos/theme-sdk'
 import { Component, useEffect, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
@@ -140,17 +139,15 @@ interface StageProps {
   readonly failure: Failure | null
   readonly view: View
   readonly width: number
-  /** True draws the theme at any width (the phone view), else the host's page below its minWidth. */
-  readonly anyWidth: boolean
   readonly onRenderError: (error: unknown) => void
 }
 
 /** The view: nothing while loading, the host's page once the theme failed or below its minWidth, else the theme's. */
-function Stage({ theme, load, failure, view, width, anyWidth, onRenderError }: StageProps) {
+function Stage({ theme, load, failure, view, width, onRenderError }: StageProps) {
   const { base, minWidth } = theme.manifest
   if (load === null) return null
   if (failure !== null || load.status !== 'active') return <BasePage base={base} path={view.path} reason="failed" minWidth={minWidth} />
-  if (!anyWidth && width < minWidth) return <BasePage base={base} path={view.path} reason="narrow" minWidth={minWidth} />
+  if (width < minWidth) return <BasePage base={base} path={view.path} reason="narrow" minWidth={minWidth} />
   const basePage = (path: string) => <BasePage base={base} path={path} reason="in-frame" minWidth={minWidth} />
   const autoWidget = view.path.startsWith(CHAT_PATH) ? undefined : AUTO_WIDGET
   return <ThemeBoundary onError={onRenderError}>{drawView(view, load.registrations, { basePage, autoWidget })}</ThemeBoundary>
@@ -257,11 +254,9 @@ export interface HarnessHostProps {
   readonly onSettings?: (settings: HarnessSettings) => void
   /** Settings the caller holds (the phone view's); left out, the toolbar's own, from `initial`. */
   readonly settings?: HarnessSettings
-  /** The phone view: the theme drawn at the stage's width whatever its minWidth. */
-  readonly phone?: boolean
 }
 
-export function HarnessHost({ theme, initial, onSettings, settings: held, phone = false }: HarnessHostProps) {
+export function HarnessHost({ theme, initial, onSettings, settings: held }: HarnessHostProps) {
   const [own, setSettings] = useState(initial)
   const settings = held ?? own
   const [renderFailure, setRenderFailure] = useState<Failure | null>(null)
@@ -285,7 +280,7 @@ export function HarnessHost({ theme, initial, onSettings, settings: held, phone 
   }
   const view = viewOfPath(path, served)
   const width = settings.width ?? windowWidth
-  const stage = <Stage theme={theme} load={load} failure={failure} view={view} width={width} anyWidth={phone} onRenderError={onRenderError} />
+  const stage = <Stage theme={theme} load={load} failure={failure} view={view} width={width} onRenderError={onRenderError} />
   return (
     <>
       {settings.toolbar ? (

@@ -237,8 +237,10 @@ Automatos running: the toolbar switches the view, preset, width, tone, reduced m
 
 The harness draws the folder's look data (`looks/`, `boot/`) as the theme's own build last wrote it, so a theme whose
 `theme.json` names a default look needs that build once first; after changing the looks, run it again (or keep
-`pack --watch` running beside `dev`), and the next change under `src/` draws them. Kit CI's `harness` job runs
-`automatos-theme dev themes/play` and opens `/chat` on it (`shots/dev-smoke.spec.ts` in the harness).
+`pack --watch` running beside `dev`), and the next change under `src/` draws them. `/phone` is the harness's phone
+view (what Automatos Go draws for the theme, and its contrast; the harness's README), the same page. Kit CI's `harness`
+job runs `automatos-theme dev themes/play` and opens `/chat` and `/phone` on it (`shots/dev-smoke.spec.ts` in the
+harness).
 
 Exit code 0 once stopped (Ctrl-C), 1 when the folder has no `theme.json` or `src/entry.ts`, its presets are not built
 yet, or the port can't be served; 2 for a usage error.

@@ -34,7 +34,9 @@ core wins and the kit is fixed.
   preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a
   mock host page in `app/` that draws a theme from its folder with nothing of Automatos running, which
   `automatos-theme shots` photographs on Chromium and WebKit with Playwright and scans with axe, and
-  `automatos-theme dev` serves on 127.0.0.1 as a local app), `theme-rules` (the one table of JS rules the
+  `automatos-theme dev` serves on 127.0.0.1 as a local app, with a phone view on `/phone` that draws the theme as
+  Automatos Go draws its `mobile` block, beside the block's contrast as `check` measures it; theme-cli holds the pure
+  model it draws from, `mobile-answer` and `phone`), `theme-rules` (the one table of JS rules the
   Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
   reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
   theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i; each `package.json`
@@ -97,8 +99,9 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   then installs the two browsers, and runs `automatos-theme shots` over `themes/play`, then over `themes/hud` (into
   the shots' `hud/` folder), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
   other origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
-  `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium. The job
-  uploads the shots, their `axe.json` files and the smoke's shot as `kit-harness`.
+  `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium, and so
+  does the phone view on `/phone`. The job uploads the shots, their `axe.json` files and the smoke's shots as
+  `kit-harness`.
 
 ## Adding a dependency
 
