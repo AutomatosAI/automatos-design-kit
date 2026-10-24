@@ -96,11 +96,21 @@ html.hud:not(#hud-none)[data-theme-motion="reduce"] *::after {
   transition-duration: 0.01ms;
 }
 
-/* Forced colours drop box-shadows and fills, so the current page and a pressed control get an outline. */
+/*
+ * Forced colours drop box-shadows and fills, so the current page and a pressed control get an outline. That rule
+ * outranks the focus ring above, so one with the keyboard focus gets a wider ring outside it, after Play's
+ * (themes/play/src/app/play-theme.css): the focus still shows on it. (0,4,2) beats the (0,3,2) of the rule before it.
+ */
 @media (forced-colors: active) {
   html.hud:is(html.hud) [aria-current="page"],
   html.hud:is(html.hud) [aria-pressed="true"] {
     outline: 2px solid Highlight;
     outline-offset: -2px;
+  }
+
+  html.hud:is(html.hud) [aria-current="page"]:focus-visible,
+  html.hud:is(html.hud) [aria-pressed="true"]:focus-visible {
+    outline-width: 4px;
+    outline-offset: 2px;
   }
 }
