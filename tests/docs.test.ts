@@ -23,6 +23,22 @@ const HOSTED_AUTH_DEFERRED_FACT = /hosted\s+CLI\s+auth[^.]*(?:parked|deferred)/i
 // Names of planning artifacts a public doc must never point at.
 const FORBIDDEN_DOC_REFS = ["docs/prd/core", "scripts/ralph/prd-261.json", ".claude/"];
 
+// PRD-261 K-20: core's A-19 merge removed builtin Play, so Play lives only in this kit. The old rule, a Play change
+// made in core and here with each pull request naming the other, must not come back in any doc. Play's own README
+// still has it: the README is packed, so it changes only with Play's next version.
+const MIRROR_RULE = [
+  /\bmade\s+here\s+too\b/i,
+  /\bboth\s+repositories\b/i,
+  /\bnaming\s+the\s+other\b/i,
+  /\bmirror(?:s|ed|ing)?\s+(?:a\s+)?Play\b/i,
+];
+const PACKED_PLAY_README = "themes/play/README.md";
+// The rule as AGENTS.md had it, so the check is shown to find it.
+const OLD_MIRROR_RULE =
+  "Until PRD-261 A-19 removes builtin Play from core, a Play change in core is made here too, each pull request naming the other.";
+
+const mirrorRuleIn = (text: string): RegExp[] => MIRROR_RULE.filter((pattern) => pattern.test(text));
+
 function readText(rel: string): string {
   return readFileSync(join(ROOT, rel), "utf8");
 }
@@ -112,6 +128,22 @@ describe("no tracked doc names a planning-only path", () => {
     for (const forbidden of FORBIDDEN_DOC_REFS) {
       expect(text).not.toContain(forbidden);
     }
+  });
+});
+
+describe("no doc keeps the rule that mirrored Play into core (K-20)", () => {
+  const files = trackedMarkdown().filter((file) => file !== PACKED_PLAY_README);
+
+  it("finds the old rule in its own text", () => {
+    expect(mirrorRuleIn(OLD_MIRROR_RULE)).not.toEqual([]);
+  });
+
+  it.each(["AGENTS.md", "CLAUDE.md", "docs/PLAY-HISTORY.md"])("%s is among the docs read", (file) => {
+    expect(files).toContain(file);
+  });
+
+  it.each(files)("%s has no mirror rule", (file) => {
+    expect(mirrorRuleIn(readText(file))).toEqual([]);
   });
 });
 

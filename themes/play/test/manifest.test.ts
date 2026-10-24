@@ -11,6 +11,10 @@ import { MASCOT_STATES } from '../src/lib/mascot/types.ts'
 import { readSource, readThemeFile, SOURCE_ROOT, sourceScripts, THEME_ROOT } from './source-files.ts'
 
 const CORE_SHA = 'ebedc7eb8d7f7f9d032706728a7f420a9e833392'
+/** Core's A-19 merge (AutomatosAI/automatos-ai#1282): builtin Play left core, so Play lives only in the kit. */
+const A19_MERGE = 'fd993980e319172ea442491217249000ed85a5e7'
+/** The kit's record of where Play's code came from, outside the package: Play's README is packed. */
+const PLAY_HISTORY = join(THEME_ROOT, '..', '..', 'docs', 'PLAY-HISTORY.md')
 /** Slots Play's frame draws itself, so theme.json declares them but the entry registers none. */
 const DRAWN_BY_FRAME = ['asleep@1']
 /** The vendored SDK types, one file per area, named as `uses` writes the area ('pages-command-center'). */
@@ -142,10 +146,14 @@ describe('the build', () => {
 })
 
 describe('where the code comes from', () => {
-  it('names the core commit and the rule until A-19', () => {
-    const readme = readThemeFile('README.md')
-    expect(readme).toContain(CORE_SHA)
-    expect(readme).toMatch(/A-19/)
+  it("names the core commit Play's code was copied from", () => {
+    expect(readThemeFile('README.md')).toContain(CORE_SHA)
+  })
+
+  it("the kit's history names that commit and the A-19 merge that removed builtin Play from core", () => {
+    const history = readFileSync(PLAY_HISTORY, 'utf8')
+    expect(history).toContain(CORE_SHA)
+    expect(history).toContain(A19_MERGE)
   })
 
   it.each(['lucide-react', 'zustand', 'use-sync-external-store'])('vendors %s with its licence', (name) => {
