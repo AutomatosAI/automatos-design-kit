@@ -176,7 +176,8 @@ jobs:
         if: steps.signature.outputs.found == 'true'
         run: node scripts/sign/verify.ts "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$SIGNATURE" "$KEYS"
 
-      # The title is theme.json's name and the version: "Play 1.1.1", "HUD 1.0.0".
+      # The title is theme.json's name and the version: "Play 1.1.1", "HUD 1.0.0". The notes end with the pictures
+      # theme.json lists under previews, each shown from the tag (scripts/release/preview-notes.ts).
       - name: Publish the release
         shell: bash
         env:
@@ -188,6 +189,8 @@ jobs:
           if [ -n "${SIGNATURE:-}" ]; then assets+=("$SIGNATURE"); fi
           title="$(node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).name' "$THEME_DIR/theme.json") $VERSION"
           notes="$title. A local edition installs it with Settings › Appearance › Themes › Install theme. Package digest (the one an admin queue shows): $PACKAGE_DIGEST. sha256 of the .autotheme file: $PACKAGE_SHA256."
+          previews="$(node scripts/release/preview-notes.ts "$THEME_DIR" "$TAG" "$GH_REPO")"
+          if [ -n "$previews" ]; then notes="$notes"$'\n\n'"$previews"; fi
           gh release create "$TAG" "${assets[@]}" --verify-tag --title "$title" --notes "$notes"
 
   signature:

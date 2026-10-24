@@ -80,7 +80,8 @@ job (permissions: `contents: write` and nothing else; no secrets). In order, it:
    the envelope against the package just built; when there is none, the release goes out unsigned;
 7. publishes the release with `gh release create <tag> --verify-tag`: the `.autotheme`, its `.autotheme.sha256` and
    any signature, titled with `theme.json`'s `name` and the version ("Play 1.1.1", "HUD 1.0.0"), and notes giving
-   the package digest (the one an admin queue shows) and the file's sha256.
+   the package digest (the one an admin queue shows) and the file's sha256, then the pictures `theme.json` lists
+   under `previews`, each shown from the tag (`scripts/release/preview-notes.ts`; a theme that lists none shows none).
 
 A local or open-source edition installs the release asset with Settings › Appearance › Themes › Install theme.
 
