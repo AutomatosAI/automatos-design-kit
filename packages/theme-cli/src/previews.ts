@@ -196,11 +196,13 @@ function listProblems(document: JsonObject, paths: readonly string[]): string[] 
 
 /** Every pick checked: the previews to write, in order, or every reason one is refused. */
 function plannedPreviews(picks: readonly PreviewPick[], theme: Theme, fromDir: string): { previews: Preview[]; problems: string[] } {
+  const kind = previewKind()
   const checked = picks.map((pick) => checkedPick(pick, theme.presets, fromDir))
   const twice = picks
     .filter((pick, index) => picks.findIndex((other) => other.name === pick.name) !== index)
     .map((pick) => `"${pick.name}" is picked twice: each preview is one shot.`)
-  const paths = picks.map((pick) => `${PREVIEW_DIR}${pick.name}${PREVIEW_SUFFIX}`)
+  // A path the name check refused stays out of the list rule, which would only say the same in fewer words.
+  const paths = picks.map((pick) => `${PREVIEW_DIR}${pick.name}${PREVIEW_SUFFIX}`).filter((path) => kind.pattern.test(path))
   const problems = [...checked.flatMap((item) => (Array.isArray(item) ? item : [])), ...twice, ...listProblems(theme.document, paths)]
   return { previews: checked.filter((item): item is Preview => !Array.isArray(item)), problems }
 }
