@@ -1,7 +1,10 @@
 /*
  * The top bar ("Automatos Command HUD.dc.html"): 56 px, a hairline under it, the mark and the wordmark on the
  * left, the clock in the middle, the status, search, LOOK and the host's utilities on the right. Labels are
- * Geist Mono capitals; the wordmark is the look's display face.
+ * Geist Mono capitals; the wordmark is the look's display face. The brand and the right-hand group never shrink,
+ * so the host's utilities are never clipped by the frame: on a narrow window the clock gives way instead, its date
+ * dropped below 1200 px and the time cut short with an ellipsis as a last resort. Search and LOOK are the design's
+ * 44 px tap targets.
  */
 
 .bar {
@@ -16,6 +19,7 @@
 }
 
 .brand {
+  flex: none;
   min-height: var(--hud-tap-min);
   display: flex;
   align-items: center;
@@ -48,14 +52,25 @@
 }
 
 .clock {
+  min-width: 0;
   margin: 0 auto;
+  overflow: hidden;
   color: var(--hud-text-2);
   font: 500 13px/1 var(--hud-font-mono);
   letter-spacing: 0.12em;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The bar's widest part: at 1024 px it would push the host's utilities past the frame's edge. */
+@media (max-width: 1199px) {
+  .date {
+    display: none;
+  }
 }
 
 .end {
+  flex: none;
   display: flex;
   align-items: center;
   gap: var(--hud-space-3);
@@ -82,7 +97,7 @@
 
 .search,
 .look {
-  min-height: 34px;
+  min-height: var(--hud-tap-min);
   display: inline-flex;
   align-items: center;
   gap: var(--hud-space-2);
