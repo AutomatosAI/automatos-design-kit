@@ -40,7 +40,7 @@
     "corePath": "frontend/lib/mascot/__tests__/events.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 31,
-    "kitPath": "test/mascot/events.test.ts",
+    "kitPath": "packages/mascot/test/events.test.ts",
     "kitIts": 31,
     "rehomed": [],
     "rewritten": null
@@ -49,7 +49,7 @@
     "corePath": "frontend/lib/mascot/__tests__/media.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 8,
-    "kitPath": "test/mascot/media.test.ts",
+    "kitPath": "packages/mascot/test/media.test.ts",
     "kitIts": 9,
     "rehomed": [],
     "rewritten": "The kit's media.ts names Auto's files through the SDK's assetUrl, from the package's assets/mascot/ (core served them from /auto/): the clip files case reads them from the folder the fake host serves the package from (host.setFilesRoot), with the paths asked for, and a new case holds that no file is named while the host names no package."
@@ -58,7 +58,7 @@
     "corePath": "frontend/lib/mascot/__tests__/player.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 16,
-    "kitPath": "test/mascot/player.test.ts",
+    "kitPath": "packages/mascot/test/player.test.ts",
     "kitIts": 16,
     "rehomed": [],
     "rewritten": null
@@ -67,7 +67,7 @@
     "corePath": "frontend/lib/mascot/__tests__/reducer.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 41,
-    "kitPath": "test/mascot/reducer.test.ts",
+    "kitPath": "packages/mascot/test/reducer.test.ts",
     "kitIts": 41,
     "rehomed": [],
     "rewritten": null
@@ -76,7 +76,7 @@
     "corePath": "frontend/lib/mascot/__tests__/ring.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 7,
-    "kitPath": "test/mascot/ring.test.ts",
+    "kitPath": "packages/mascot/test/ring.test.ts",
     "kitIts": 7,
     "rehomed": [],
     "rewritten": null
@@ -85,7 +85,7 @@
     "corePath": "frontend/lib/mascot/__tests__/tools.test.ts",
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 4,
-    "kitPath": "test/mascot/tools.test.ts",
+    "kitPath": "packages/mascot/test/tools.test.ts",
     "kitIts": 4,
     "rehomed": [],
     "rewritten": null

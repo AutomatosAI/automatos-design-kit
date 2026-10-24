@@ -9,7 +9,9 @@
 // gap not listed in rehomed, fails it. Several rows name one kit test only where core's ledger moved several
 // core tests into it (SHARED_KIT_TESTS): each row's kitIts counts the cases that replace its own core test's,
 // and the rows' kitIts add up to the kit test's cases. CI checks out the kit alone, so coreIts is counted from
-// core's git objects when the row is written.
+// core's git objects when the row is written. A kitPath is a path in Play's folder (test/...), or, for a test that
+// moved with its module into a kit package Play bundles (PRD-261 B-01i: @automatos/look-kit, @automatos/mascot), a
+// path in the kit from its root (packages/<name>/test/...), as core's own ledger names every kit path.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -49,7 +51,11 @@ const SKIPPED_OR_FOCUSED = /\b(?:it|test|describe)\.(?:skip|only|todo)\b/
 const COMMIT_SHA = /^[0-9a-f]{40}$/
 const CORE_TEST = /^frontend\/(?:[\w.-]+\/)*__tests__\/[\w.-]+\.test\.tsx?$/
 const CORE_FILE = /^(?:frontend|orchestrator)\/[\w./-]+\.[a-z]+$/
-const KIT_TEST = /^test\/(?:[\w-]+\/)*[\w.-]+\.test\.tsx?$/
+/** A kit test: under Play's test/, or under a kit package's test/ (from the kit's root). */
+const KIT_TEST = /^(?:test|packages\/[a-z0-9][a-z0-9-]*\/test)\/(?:[\w-]+\/)*[\w.-]+\.test\.tsx?$/
+/** Where a kitPath under a kit package starts, and the kit's root it is read from: two folders up from Play's. */
+const PACKAGE_TEST_PREFIX = 'packages/'
+const KIT_ROOT = join(THEME_ROOT, '..', '..')
 /** The ledgers B-05p started, one per area of Play's tests. */
 const FIRST_LEDGERS: readonly string[] = ['deliverables.json', 'lib.json', 'mascot.json']
 /** Core's merge of the SDK and host 1.1.0, where B-05p read the tests it moved. */
@@ -103,6 +109,11 @@ function isRow(value: unknown): value is LedgerRow {
   )
 }
 
+/** The file a kitPath names: in Play's folder, or in the kit's root for a kit package's test. */
+function kitFileOf(kitPath: string): string {
+  return kitPath.startsWith(PACKAGE_TEST_PREFIX) ? join(KIT_ROOT, kitPath) : join(THEME_ROOT, kitPath)
+}
+
 /** The cases a test file declares: it(), test() and it.each() (CASE_CALL), as core's count is made. */
 function countCases(code: string): number {
   return Array.from(code.matchAll(CASE_CALL)).length
@@ -139,7 +150,7 @@ function ledgerRows(): Located[] {
  */
 function rowProblems({ file, row }: Located, shared = 0): string[] {
   const where = `${file} ${row.corePath}`
-  const kitFile = join(THEME_ROOT, row.kitPath)
+  const kitFile = kitFileOf(row.kitPath)
   if (!existsSync(kitFile)) return [`${where}: its kitPath ${row.kitPath} is missing`]
   const code = readFileSync(kitFile, 'utf8')
   const cases = countCases(code)
@@ -260,5 +271,13 @@ describe("the ledger's own checks", () => {
     const { row } = pause()
     const missing = Object.fromEntries(Object.entries(row).filter(([field]) => field !== 'rewritten'))
     expect([isRow(row), isRow(missing), isRow({ ...row, note: 'x' }), isRow({ ...row, coreSha: 'abc1234' })]).toEqual([true, false, false, false])
+  })
+
+  it("reads a kit package's test from the kit's root, and takes no other path outside Play's test/", () => {
+    const { file, row } = pause()
+    const kitPaths = ['packages/mascot/test/x.test.ts', 'packages/mascot/src/x.test.ts', '../../packages/mascot/test/x.test.ts', 'themes/play/test/x.test.ts']
+    expect(kitPaths.map((kitPath) => isRow({ ...row, kitPath }))).toEqual([true, false, false, false])
+    expect(kitFileOf('packages/mascot/test/reducer.test.ts')).toBe(join(KIT_ROOT, 'packages', 'mascot', 'test', 'reducer.test.ts'))
+    expect(rowProblems({ file, row: { ...row, kitPath: 'packages/mascot/test/missing.test.ts' } })).toEqual([expect.stringContaining('is missing')])
   })
 })
