@@ -292,11 +292,12 @@ describe('Motion', () => {
 })
 
 describe("the sheet's heading, where the host hands focus after Switch to Play (P260-FX-22, M21)", () => {
-  it('takes focus by script (tabindex -1) and carries both marks the host looks for, busy or not (K-19c)', async () => {
+  it("takes focus by script (tabindex -1) and carries the host's mark alone, busy or not (K-19c, K-21)", async () => {
     renderSheet({ loaded: false })
     expect(heading()).toHaveAttribute('tabindex', '-1')
     expect(document.querySelector('[data-theme-heading]')).toBe(heading())
-    expect(document.querySelector('[data-play-only-heading]')).toBe(heading())
+    expect(heading().getAttributeNames().filter((name) => name.startsWith('data-'))).toEqual(['data-theme-heading'])
+    expect(document.querySelector('[data-play-only-heading]')).toBeNull()
 
     act(() => mountLooks())
     expect(await screen.findByRole('region', { name: 'Colour' })).toBeInTheDocument()
