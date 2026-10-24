@@ -230,4 +230,11 @@ describe("docs/OFFICIAL-LISTING.md, the owner's run that lists Play (C-06b)", ()
     expect(doc).not.toMatch(/[A-Za-z0-9+/]{43,}/);
     [doc, readText("README.md")].forEach((text) => expect(text).not.toMatch(/second signer|two signers/i));
   });
+
+  it("stays Play's run, and says HUD follows the same steps with its own tag, asset and signatures folder", () => {
+    expect(doc).toMatch(/^# Listing Play as the official theme$/m);
+    ["**HUD**", "follows the same steps", "`hud-v<v>`", "`automatos.hud-<v>.autotheme`", "`themes/hud/signatures/<v>.sig.json`",
+      "`--ref hud-v<v>`", "`tag` set to `hud-v<v>`"].forEach((part) => expect(doc).toContain(part));
+    ["## Install HUD", "`hud-v<version>`", "`automatos.hud-<version>.autotheme`"].forEach((part) => expect(readText("README.md")).toContain(part));
+  });
 });

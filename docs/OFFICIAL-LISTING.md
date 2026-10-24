@@ -14,11 +14,17 @@ A theme is Official when its publisher is the reserved `automatos` publisher **a
 a signature that verifies with an active key of the Automatos keys file. So on the hosted edition Play turns
 Official at step 5, when its signature is pasted, not at approval.
 
+**HUD** (`automatos/hud`, `themes/hud`) follows the same steps, with its own names in place of Play's: the tag
+`hud-v<v>` (on a commit of `main`, naming `themes/hud/theme.json`'s version), the release asset
+`automatos.hud-<v>.autotheme` and its `.sha256`, the envelope `themes/hud/signatures/<v>.sig.json`, the review run
+`--ref hud-v<v>` with that asset's URL, and `tag` set to `hud-v<v>` to attach a signature again. Theme release reads
+the theme from the tag, so the same workflow releases both.
+
 ## The workflows
 
 | Workflow (Actions tab) | File | Started by | Inputs |
 |---|---|---|---|
-| Theme release | `theme-release.yml` | a pushed tag `play-v<v>` on a commit of `main` (the release); a push to `main` that adds `themes/play/signatures/<v>.sig.json`, or Run workflow on `main` (the signature) | `tag`, by hand only |
+| Theme release | `theme-release.yml` | a pushed tag `play-v<v>` (or `hud-v<v>`) on a commit of `main` (the release); a push to `main` that adds `themes/play/signatures/<v>.sig.json` (or HUD's), or Run workflow on `main` (the signature) | `tag`, by hand only |
 | Theme review | `theme-review.yml` | Run workflow at the tag: `--ref play-v<v>` | `package_url`, `expected_digest` |
 | Theme sign | `theme-sign.yml` | Run workflow on `main`; it waits for a required reviewer of the `theme-signing` environment | `request` |
 

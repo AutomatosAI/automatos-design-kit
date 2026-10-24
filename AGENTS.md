@@ -45,12 +45,18 @@ core wins and the kit is fixed.
   `mascot` (`@automatos/mascot`: Auto's state machine, the clip player, the media chooser and captions, the ring's
   tones, the chat's events and the Pause Auto control).
 - `themes/*`: theme packages. A theme bundles its own `src/` and the `src/` of each kit library it names, at the
-  library's version, under `dependencies` in its `package.json` (Play names `@automatos/look-kit` and
+  library's version, under `dependencies` in its `package.json` (Play and HUD both name `@automatos/look-kit` and
   `@automatos/mascot`). The preset's source guard refuses anything else, `node_modules` included, so an outside
   library it needs is copied into `src/vendor/` as source with its licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (`docs/PLAY-HISTORY.md` names it and the lines changed;
   Play's README points there). Core's PRD-261 A-19 merge removed builtin Play from core, so Play lives only in this
   kit and a Play change is made here alone. Play's `CHANGELOG.md` lists what each version changed.
+- `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference: a command
+  deck frame (a top bar, a side rail, bracketed panels) around the host's pages, five presets and Auto. Its look data
+  (`looks/` and `boot/prepaint.json`) is committed, made from its catalogue (`src/lib/looks/`) and held to it by its
+  own tests, not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first. Both themes
+  are released the same way, Play from a `play-v<version>` tag and HUD from a `hud-v<version>` tag
+  (`theme-release.yml`, `docs/OFFICIAL-LISTING.md`).
 - `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
   rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
   `vite build`; the files are generated, not committed.
@@ -74,22 +80,23 @@ core wins and the kit is fixed.
 is tagged, a change to anything the kit's pack collects for Play — `theme.json`, its top docs (`README.md`,
 `CHANGELOG.md`, every `LICENSE` spelling), `assets/` and `src/` (the source of the package's generated
 `dist/`, `boot/` and `looks/` too), and `packages/look-kit/src/` and `packages/mascot/src/`, which Play bundles
-— fails until the version moves on.
+— fails until the version moves on. HUD is held the same way once `hud-v<version>` is tagged, its committed
+`boot/` and `looks/` among its packed paths; each theme is checked against its own tags only.
 It then installs and runs the root scripts `build`, `lint`, `typecheck`, `test` and `pack`. Each one runs
 the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
 - A workspace with `*.test.ts` files defines `test` (vitest); one with a `tsconfig.json` defines `typecheck`.
 - A theme defines `lint`: eslint over its `src/` with `@automatos/eslint-plugin`'s recommended config (its
-  `eslint.config.js`), so a pattern the Marketplace review would report fails CI first. Play's fails on a warning
-  too (`--max-warnings 0`).
+  `eslint.config.js`), so a pattern the Marketplace review would report fails CI first. Play's and HUD's fail on a
+  warning too (`--max-warnings 0`).
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
 - `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the release, review
   and sign scripts under `scripts/`. It also runs `automatos-theme new` on each template, `full` with and without
   its mascot, in a temporary folder, and builds, packs and checks each theme it writes (`tests/template-*.test.ts`).
-- Its `harness` job installs and builds as the `kit` job does (the released-Play check is the `kit` job's alone),
-  then installs the two browsers, and runs `automatos-theme shots`
-  over `themes/play` in `theme-harness`'s browser harness. It fails on a missing shot, a request to any other
-  origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
+- Its `harness` job installs and builds as the `kit` job does (the released-themes check is the `kit` job's alone),
+  then installs the two browsers, and runs `automatos-theme shots` over `themes/play`, then over `themes/hud` (into
+  the shots' `hud/` folder), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
+  other origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
   `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium. The job
   uploads the shots, their `axe.json` files and the smoke's shot as `kit-harness`.
 

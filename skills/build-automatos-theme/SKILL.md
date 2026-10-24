@@ -12,7 +12,7 @@ A theme has no server, no proxy and no backend calls of its own.
 
 ## When to use
 
-- Making a new theme in this kit (`themes/<slug>/`), or changing one (Play is `themes/play`).
+- Making a new theme in this kit (`themes/<slug>/`), or changing one (Play is `themes/play`, HUD is `themes/hud`).
 - Adding a page, a slot, a route, a look or a mascot to a theme.
 - Fixing a theme that `automatos-theme check` or the Marketplace review refuses.
 
@@ -31,7 +31,8 @@ The guides are the facts; this skill is the order of work.
    [mascot-placement.md](../../guides/mascot-placement.md).
 5. [references/theme-folder.md](references/theme-folder.md): the folder, its files and the entry, to copy.
 
-`themes/play` is a complete theme on the same contract. When a guide doesn't answer, read how Play does it, then the
+`themes/play` is a complete theme on the same contract, and `themes/hud` a second one (its frame around the host's
+pages, its look data committed). When a guide doesn't answer, read how Play or HUD does it, then the
 core source if you have it. Core wins over this kit: if the two disagree, say so; don't work around it.
 
 ## The order of work
