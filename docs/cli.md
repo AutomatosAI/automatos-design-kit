@@ -3,8 +3,8 @@
 `automatos-theme` is the kit's command line (`packages/theme-cli`). It starts a theme from a template, serves it in
 the browser harness, checks it as the Automatos server would, packs it into an `.autotheme` file, and installs or
 submits that file. Every fact here is read from `packages/theme-cli/src/`; the command table is `COMMANDS` in
-`src/cli-main.ts`. The design commands, `brief` and `clone`, are in [cli-design.md](cli-design.md); the browser harness's, `dev`,
-`shots` and `previews`, in [cli-harness.md](cli-harness.md).
+`src/cli-main.ts`. The design commands, `brief`, `clone` and `skin`, are in [cli-design.md](cli-design.md); the
+browser harness's, `dev`, `shots` and `previews`, in [cli-harness.md](cli-harness.md).
 
 ## Running it
 
@@ -43,6 +43,7 @@ commands) to stderr and exits 2.
 | [`brief`](cli-design.md#brief) | A theme's brief from a brand kit file: grounds, accents and text pairs with their AA ratios, fonts, logos, voice | none |
 | [`new`](#new) | A new theme folder from `templates/minimal`, or from Play without its brand | none |
 | [`clone`](cli-design.md#clone) | A core page's source, checked by its hash, as a read-only reference, and the page made a clone in `theme.json` | the public core repo on GitHub |
+| [`skin`](cli-design.md#skin) | A phone skin (`skin.json`, the `mobile` block the harness's skin designer exports), checked as `pack` and `check` would and written into `theme.json` | none |
 | [`dev`](cli-harness.md#dev) | The browser harness for one theme, served on `127.0.0.1`, rebuilt after each change | `127.0.0.1` only |
 | [`shots`](cli-harness.md#shots) | Every slot, page and route the theme serves, shot on Chromium and WebKit with an axe scan | `127.0.0.1` only |
 | [`previews`](cli-harness.md#previews) | Picked shots copied into `assets/previews/`, and `theme.json` `previews` set to them | none |

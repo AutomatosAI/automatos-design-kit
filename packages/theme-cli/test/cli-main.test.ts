@@ -9,8 +9,9 @@ import { describe, expect, it } from 'vitest'
 import { COMMANDS, moduleRunner, run, USAGE, type CommandDeps, type CommandRunner, type PlannedCommand } from '../src/cli-main.ts'
 
 const SRC = new URL('../src/', import.meta.url)
-const PLANNED = ['pack', 'submit', 'check', 'install', 'new', 'clone', 'brief', 'shots', 'previews', 'dev']
-const STORY = /^PRD-261 [A-C]-\d{2}[a-z0-9]*$/
+const PLANNED = ['pack', 'submit', 'check', 'install', 'new', 'clone', 'brief', 'shots', 'previews', 'dev', 'skin']
+/** A lettered story of PRD-261, or the skin designer's work, which has none (cli-main.ts SKIN_DESIGNER_STORY). */
+const STORY = /^PRD-261 (?:[A-C]-\d{2}[a-z0-9]*|skin designer)$/
 const RUNNER_EXIT = 7
 
 interface Ran {

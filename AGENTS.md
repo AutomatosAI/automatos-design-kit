@@ -30,13 +30,14 @@ core wins and the kit is fixed.
 
 - `packages/*`: build tools — `vite-preset` (the Vite build preset and its source guard), `theme-cli` (the
   `automatos-theme` command: `pack` and `pack --watch`, `submit`, `install`, `check`, `check design`, `new`, `brief`,
-  `clone`, `shots`, `previews` and `dev`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest
+  `clone`, `skin`, `shots`, `previews` and `dev`), `theme-sdk` (the vendored `@automatos/theme-sdk` declarations), `theme-harness` (the vitest
   preset a theme's own tests run on: jsdom, React, Testing Library and an SDK stand-in; and the browser harness, a
   mock host page in `app/` that draws a theme from its folder with nothing of Automatos running, which
   `automatos-theme shots` photographs on Chromium and WebKit with Playwright and scans with axe, and
   `automatos-theme dev` serves on 127.0.0.1 as a local app, with a phone view on `/phone` that draws the theme as
-  Automatos Go draws its `mobile` block, beside the block's contrast as `check` measures it; theme-cli holds the pure
-  model it draws from, `mobile-answer` and `phone`), `theme-rules` (the one table of JS rules the
+  Automatos Go draws its `mobile` block, beside the block's contrast as `check` measures it, and a skin designer that
+  edits the block and exports it as `skin.json` for `automatos-theme skin`; theme-cli holds the pure model it draws
+  from, `mobile-answer`, `phone` and `skin-check`), `theme-rules` (the one table of JS rules the
   Marketplace review runs on a package's `source/`: an error refuses the package, a warning is listed for the
   reviewer) and `eslint-plugin` (`@automatos/eslint-plugin`: those rules as ESLint rules, one per code, which a
   theme's `lint` runs over its `src/`). Two are libraries a theme bundles (PRD-261 B-01i; each `package.json`
