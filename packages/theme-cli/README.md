@@ -2,7 +2,8 @@
 
 The `automatos-theme` command. `pack` comes first, with `source/` and `pack --watch`; then a section each for
 `submit`, `install`, `new` (a theme from a template), `shots`, `previews` and `dev` (the browser harness as a local
-app). `check` and `check design` are described at the top of `src/check/index.ts` and `src/check/design.ts`.
+app). `brief` (a theme brief from a brand kit file) and `clone` (a core page's source as a read-only reference) are
+described at the top of `src/brief.ts` and `src/clone.ts`, and in `docs/cli-design.md`. `check` and `check design` are described at the top of `src/check/index.ts` and `src/check/design.ts`.
 `src/cli-main.ts` holds the table of every command.
 
 `automatos-theme pack <theme folder> [--out <folder>] [--watch]` turns a built theme into the package the Automatos

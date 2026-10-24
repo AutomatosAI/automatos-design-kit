@@ -15,3 +15,7 @@ browser's storage.
 | [build-automatos-theme](build-automatos-theme/SKILL.md) | Build or change a theme: the brief, the folder, the frame, the look editor, pages, routes, the mascot, then check, pack and try it |
 | [write-a-look-schema-and-presets](write-a-look-schema-and-presets/SKILL.md) | Write the look data (schema, presets, first-paint table, tone rule, colour pairs) and prove every preset readable before any code |
 | [pass-marketplace-review](pass-marketplace-review/SKILL.md) | Run the server's review checks in the kit, fix what they refuse, and submit the package |
+| [brand-a-theme](brand-a-theme/SKILL.md) | Give a theme a brand's real colours, fonts, logo and voice: save its brand kit as a file, write a brief with `automatos-theme brief`, then turn the brief into the look data |
+| [white-label-from-a-brand-kit](white-label-from-a-brand-kit/SKILL.md) | Make a white-label theme for one business from its brand kit, without Auto's clips |
+| [design-a-mascot](design-a-mascot/SKILL.md) | Design a theme's mascot as the kit and the host accept it: its states, its clips and stills with their caps, and where it can go |
+| [clone-and-redesign-a-page](clone-and-redesign-a-page/SKILL.md) | Redesign a core page a theme may replace, starting from its core source fetched with `automatos-theme clone` as a read-only reference |
