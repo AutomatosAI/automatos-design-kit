@@ -4,8 +4,9 @@
  * old block), and each refusal prints its reasons, exits 1 and leaves theme.json exactly as it was: a block the
  * vendored validator refuses, a theme whose engines admit a host below 1.1.0, a pair under its contrast minimum (with
  * the nearest passing value), a colour set from the looks with no ground, a font or mascot file the theme doesn't
- * have, a released theme of the kit (by folder, through a link too) or of Automatos's own publisher, an unreadable
- * skin file. A command it can't parse is a usage error.
+ * have, a released theme of the kit (by folder, through a link too, and the kit's own Play and HUD) or of Automatos's
+ * own publisher, an unreadable skin file; and every reason at once when there are several. A command it can't parse
+ * is a usage error.
  */
 import { mkdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -196,6 +197,31 @@ describe('automatos-theme skin refuses, and writes nothing', () => {
     expect([ran.code, readFileSync(join(play, MANIFEST)).equals(before)]).toEqual([1, true])
     expect(ran.err).toContainEqual(expect.stringContaining("inside the kit's themes/play/, a released theme"))
     expect(ran.err).toContainEqual(expect.stringContaining('"automatos/play" is one of Automatos\'s own themes'))
+  })
+
+  it("the kit's own HUD, whose theme.json stays byte for byte, with a skin file that reads", () => {
+    const hud = join(KIT_ROOT, 'themes/hud')
+    const before = readFileSync(join(hud, MANIFEST))
+    const ran = ranSkin([hud, '--from', skinFile(BLOCK)])
+    expect([ran.code, ran.out, readFileSync(join(hud, MANIFEST)).equals(before)]).toEqual([1, [], true])
+    expect(ran.err).toContainEqual(expect.stringContaining("inside the kit's themes/hud/, a released theme"))
+    expect(ran.err).toContainEqual(expect.stringContaining('"automatos/hud" is one of Automatos\'s own themes'))
+  })
+
+  it('every reason at once: a pair under its minimum beside a mascot file the theme lacks', () => {
+    const theme = themeFolder()
+    const block = { tokens: { light: { '--background': WHITE, '--foreground': '0 0% 60%' } }, mascot: 'clips' }
+    expectRefused(theme, ranSkin([theme, '--from', skinFile(block)]), [
+      'MISSING_FILE assets/mascot/idle.mp4', 'MOBILE_CONTRAST mobile: mobile.tokens.light: --foreground on --background',
+    ])
+  })
+
+  it("every reason at once: a released theme's beside the validator's", () => {
+    const kit = tempFolder()
+    const theme = themeFolder(MANIFEST_TEXT, FILES, join(kit, 'themes/play'))
+    expectRefused(theme, ranSkin([theme, '--from', skinFile({ fromLooks: false })], kit), [
+      "inside the kit's themes/play/, a released theme", 'BAD_MOBILE mobile.fromLooks',
+    ])
   })
 
   it("a theme of Automatos's own publisher", () => {
