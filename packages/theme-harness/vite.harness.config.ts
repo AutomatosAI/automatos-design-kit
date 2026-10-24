@@ -12,7 +12,9 @@
  * - The theme's src/entry.ts is bundled with the app, its bare imports resolved by the harness's import map
  *   (src/host/import-map.ts): @automatos/theme-sdk is the fake SDK, React the app's own copy.
  * - The theme folder's theme.json, looks/presets/*.look.json and boot/prepaint.json reach the app through one
- *   module (app/served-theme.d.ts), read when the build asks for it; the app checks them.
+ *   module (app/served-theme.d.ts), read when the build asks for it; the app checks them. The module also lists the
+ *   folder's files under assets/, which the phone view gives URLs for only as core's answer does (for a file the
+ *   package holds).
  * - Its CSS is made as the theme's own build makes dist/theme.css: CSS modules name the classes first, with the
  *   preset's pattern (<htmlClass>-[local]-[hash]); the build writes one stylesheet (cssCodeSplit off, unminified, as
  *   the preset's); then, on the written file as the preset's styleScope works, the vite-preset's theme-css step wraps
@@ -29,8 +31,8 @@
  *   <style> in the page, out of the one stylesheet, so the theme's wrap never reaches it, and emits each url()'s
  *   file under harness/, on the harness's origin.
  */
-import { cpSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { cpSync, existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { checkedOptions, themeCssPlugin } from '@automatos/vite-preset/theme-css'
 import postcss, { type AtRule, type Plugin as PostcssPlugin, type Rule } from 'postcss'
@@ -75,7 +77,17 @@ function htmlClassOf(themeDir: string): string {
   return checkedOptions({ htmlClass: manifest.htmlClass }).htmlClass
 }
 
-/** The served module: the folder's files as data, and the entry as a dynamic import. */
+/** Every file under the theme folder's assets/, as 'assets/<path>' with '/' between folders, sorted. */
+export function assetPaths(themeDir: string): string[] {
+  const dir = join(themeDir, ASSETS_DIR)
+  if (!existsSync(dir)) return []
+  return readdirSync(dir, { encoding: 'utf8', recursive: true })
+    .filter((rel) => statSync(join(dir, rel)).isFile())
+    .map((rel) => `${ASSETS_DIR}/${rel.split(sep).join('/')}`)
+    .sort()
+}
+
+/** The served module: the folder's files as data, its assets' paths, and the entry as a dynamic import. */
 export function servedThemeCode(themeDir: string): string {
   const entry = join(themeDir, ENTRY_FILE)
   if (!existsSync(entry)) throw new Error(`${themeDir} has no ${ENTRY_FILE}: the harness draws a theme folder's entry.`)
@@ -87,7 +99,11 @@ export function servedThemeCode(themeDir: string): string {
     presets: names.map((name) => readJson(join(presetsDir, name))),
     prepaint: existsSync(prepaintPath) ? readJson(prepaintPath) : null,
   }
-  return [`export const files = ${JSON.stringify(files)}`, `export function loadEntry() { return import(${JSON.stringify(entry)}) }`].join('\n')
+  return [
+    `export const files = ${JSON.stringify(files)}`,
+    `export const assets = ${JSON.stringify(assetPaths(themeDir))}`,
+    `export function loadEntry() { return import(${JSON.stringify(entry)}) }`,
+  ].join('\n')
 }
 
 function servedTheme(themeDir: string): Plugin {
