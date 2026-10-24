@@ -4,7 +4,8 @@
 // at run time so this file holds none of them, and the scan must name it. Paths inside the app (/api/...,
 // /deliverables?...) are not URLs. Play's tests (themes/play/test/**) are scanned the same way: they were moved from
 // core, and hold recorded turns, Deliverables and links of their own. So are the tests that moved on from Play's with
-// the look runtime and the mascot into the kit packages Play bundles (PRD-261 B-01i).
+// the look runtime and the mascot into the kit packages Play bundles (PRD-261 B-01i), and HUD's tests
+// (themes/hud/test/**), whose chat, card and look fixtures are made up in the same way.
 import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,6 +14,7 @@ import { describe, expect, it } from "vitest";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const FIXTURES = "packages/theme-harness/fixtures";
 const PLAY_TESTS = "themes/play/test";
+const HUD_TESTS = "themes/hud/test";
 /** The kit packages' tests that moved from Play's (packages/look-kit, packages/mascot). */
 const PACKAGE_TESTS = ["packages/look-kit/test", "packages/mascot/test"];
 /** The folders the harness's fixtures live in (plan §2.6 B-02c), and the files a fake reads by name. */
@@ -131,6 +133,18 @@ describe("themes/play/test", () => {
 
   it.each(files)("%s holds fake data only", (file) => {
     expect(realDataIn(readFileSync(join(ROOT, PLAY_TESTS, file), "utf8"))).toEqual([]);
+  });
+});
+
+describe("themes/hud/test", () => {
+  const files = filesUnder(HUD_TESTS);
+
+  it("has HUD's tests and its fixtures", () => {
+    expect(files).toEqual(expect.arrayContaining(["manifest.test.ts", "fixtures/mascot-files.json", "chat/support.tsx"]));
+  });
+
+  it.each(files)("%s holds fake data only", (file) => {
+    expect(realDataIn(readFileSync(join(ROOT, HUD_TESTS, file), "utf8"))).toEqual([]);
   });
 });
 

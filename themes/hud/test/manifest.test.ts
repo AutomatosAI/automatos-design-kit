@@ -1,9 +1,8 @@
 // @vitest-environment node
 // HUD's theme.json, entry, package.json and build config agree with each other and with core's manifest validator
-// (vendored in the theme CLI). `uses` declares every SDK area the packed source imports (HUD's src/ and the src/ of
-// each kit library it bundles, which the package carries under source/packages/), and only real areas; it names
-// the chat's areas ahead of the chat page, and core's review reports a declared area the code doesn't touch, never
-// warns. Files are read, not built.
+// (vendored in the theme CLI). `uses` declares exactly the SDK areas the packed source imports (HUD's src/ and the
+// src/ of each kit library it bundles, which the package carries under source/packages/): every one, so core's
+// review warns of none undeclared, and only those, so it reports none declared and unused. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
@@ -147,13 +146,14 @@ describe('theme.json', () => {
     expect(fonts.filter((path) => !existsSync(join(THEME_ROOT, path)))).toEqual([])
   })
 
-  it('declares in uses every SDK area the packed source imports, and only SDK areas', () => {
+  it('declares in uses exactly the SDK areas the packed source imports, each a real SDK area', () => {
     expect(packedScripts().filter(({ text }) => WIDE_SDK_IMPORT.test(text)).map(({ rel }) => rel)).toEqual([])
     const owner = sdkAreaOfName()
     const imported = sdkValueImports()
     expect(imported.filter((name) => !owner.has(name))).toEqual([])
     const used = new Set(imported.map((name) => owner.get(name) as string))
     expect([...used].filter((area) => !manifest.uses.includes(area))).toEqual([])
+    expect(manifest.uses.filter((area) => !used.has(area))).toEqual([])
     expect(manifest.uses.filter((area) => !sdkAreas().includes(area))).toEqual([])
   })
 

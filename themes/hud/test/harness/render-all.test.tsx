@@ -3,15 +3,18 @@
 // Play 1.1.1). src/entry.ts is the module the host imports: its default export, made by the harness's defineTheme,
 // registers against a host shaped as core's loader hands one over (one component per key, the SDK's version and the
 // host contract's). The views are read from what it registered, so a page or route added later is rendered here too,
-// and they are exactly what theme.json declares. Each renders as core's theme host renders it: inside the frame,
-// full bleed, behind a boundary that draws nothing until a lazy chunk has loaded (the 404 alone, the whole window).
-// Each is awaited with findBy* or waitFor, never a timer: a slot shows its h1 with the host's focus mark
-// (data-theme-heading), any other view draws something in the frame's main. The look runtime holds each preset in
+// and they are exactly what theme.json declares. Each renders as core's theme host renders it: at its own path,
+// inside the frame, full bleed, behind a boundary that draws nothing until a lazy chunk has loaded (the 404 alone,
+// the whole window). Each is awaited with findBy*, never a timer: it shows one h1 with the host's focus mark
+// (data-theme-heading) in the frame's main, then what a member sees there, named here as the screen draws it, so
+// the test never imports a chunk's module itself: the LOOK drawer with the look's name as its status, the style
+// sheet naming the active look, and the core screen with Auto's core and the message box, the rail's dock stepping
+// aside so Auto shows once. A view registered with nothing named here fails. The look runtime holds each preset in
 // turn, checked by HUD's own look spec and its ground's tone forced from boot/prepaint.json's tone rule, as core's
 // does for HUD; under each the frame carries the preset and draws its top bar, rail and the page. After every test
 // the harness's network refusal has refused nothing. Screenshots and axe are the harness job's (kit.yml).
-import { SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { LOOK_STYLE_HREF, LOOKS_HREF, SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
+import { render, screen, within } from '@testing-library/react'
 import { Suspense, type ComponentType } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
@@ -54,8 +57,25 @@ const HOST_VERSION = manifest.engines.automatos.replace(/^\^/, '')
 const CHUNK_WAIT = Object.freeze({ timeout: 4_000 })
 const PAGE_TEXT = 'The page the host hands the frame'
 const WIDGET_TEXT = "Auto's floating widget"
-/** The frame's landmarks, as a member sees them. */
-const SEEN = Object.freeze({ sidebar: 'Sidebar', mainNav: 'Main', brand: 'Automatos HUD', search: 'Open search (⌘K)' })
+/** The frame's landmarks and each screen's, as a member sees them. */
+const SEEN = Object.freeze({
+  sidebar: 'Sidebar',
+  mainNav: 'Main',
+  brand: 'Automatos HUD',
+  search: 'Open search (⌘K)',
+  dock: 'Auto',
+  lookEditor: 'Look',
+  styleSheet: 'Style sheet',
+  core: "Auto's core",
+  messageAuto: 'Message Auto',
+})
+/** The host's page for each slot HUD draws inside the frame; a page is drawn at its own path. */
+const SLOT_PATHS: Readonly<Record<string, string>> = { 'lookEditor@1': LOOKS_HREF, 'styleSheet@1': LOOK_STYLE_HREF }
+/** The route prefix the host serves a theme's own routes under. */
+const ROUTE_PREFIX = '/x/'
+
+/** The style sheet's line naming the active look, as HUD's style sheet reads it from the look runtime. */
+const activeLookLine = (look: HudLook): string => `Every value here comes from ${look.name}, the active look.`
 
 /** loader.ts: a function (or class), or an exotic component such as lazy, memo or forwardRef. */
 function isComponent(value: unknown): boolean {
@@ -104,8 +124,19 @@ function registration<Props extends object>(kind: Kind, key: string): ComponentT
 
 const Frame = registration<FrameSlotProps>('slot', FRAME)
 
-/** A view as the host renders it: full bleed in the frame, or the 404 alone, behind a boundary that draws nothing meanwhile. */
-function renderView({ kind, key }: View) {
+/** Where the host draws a view: a page at its path, a route under /x/, a slot at the host's page for it. */
+function pathOf({ kind, key }: View): string {
+  if (kind === 'page') return key
+  return kind === 'route' ? `${ROUTE_PREFIX}${key}` : (SLOT_PATHS[key] ?? '/')
+}
+
+/**
+ * A view as the host renders it: at its path, full bleed in the frame (the 404 alone), behind a boundary that draws
+ * nothing meanwhile.
+ */
+function renderView(view: View) {
+  const { kind, key } = view
+  host.setPathname(pathOf(view))
   const Screen = registration<object>(kind, key)
   const content = (
     <Suspense fallback={null}>
@@ -120,15 +151,34 @@ function mountLook(look: HudLook): void {
   host.setLooks({ look, tone: toneRule.values[look.ground] ?? null, check: validateHudLook })
 }
 
-/** What the view draws once it has loaded: a slot its marked h1, any other view something in the frame's main. */
-async function expectDrawn(view: View): Promise<void> {
+/** What a member sees on one of HUD's screens once it has loaded, in the frame's main (`stage`), under `look`. */
+type Seen = (stage: HTMLElement, look: HudLook) => Promise<void>
+
+const SEEN_ON: Readonly<Record<string, Seen>> = {
+  'lookEditor@1': async (stage, look) => {
+    expect(within(stage).getByRole('heading', { level: 1, name: SEEN.lookEditor })).toBeInTheDocument()
+    expect(await within(stage).findByText(look.name, { selector: '[role="status"]' }, CHUNK_WAIT)).toBeInTheDocument()
+  },
+  'styleSheet@1': async (stage, look) => {
+    expect(within(stage).getByRole('heading', { level: 1, name: SEEN.styleSheet })).toBeInTheDocument()
+    expect(await within(stage).findByText(activeLookLine(look), {}, CHUNK_WAIT)).toBeInTheDocument()
+  },
+  '/chat': async (stage) => {
+    expect(await within(stage).findByRole('group', { name: SEEN.core }, CHUNK_WAIT)).toBeInTheDocument()
+    expect(within(stage).getByRole('textbox', { name: SEEN.messageAuto })).toBeInTheDocument()
+    const rail = screen.getByRole('complementary', { name: SEEN.sidebar })
+    expect(within(rail).queryByRole('heading', { name: SEEN.dock })).toBeNull()
+  },
+}
+
+/** What the view draws once it has loaded: one marked h1 in the frame's main, then what a member sees there. */
+async function expectDrawn(view: View, look: HudLook): Promise<void> {
   const stage = screen.getByRole('main')
-  if (view.kind !== 'slot') {
-    await waitFor(() => expect(stage).not.toBeEmptyDOMElement(), CHUNK_WAIT)
-    return
-  }
   const headings = await within(stage).findAllByRole('heading', { level: 1 }, CHUNK_WAIT)
   expect(headings.filter((heading) => heading.getAttribute('data-theme-heading') === 'true')).toHaveLength(1)
+  const seen = SEEN_ON[view.key]
+  if (seen === undefined) throw new Error(`render-all names nothing HUD's ${view.kind} "${view.key}" draws`)
+  await seen(stage, look)
 }
 
 /** The frame's own landmarks under `look`: the look on the frame, the top bar's brand and search, the rail's nav. */
@@ -164,6 +214,10 @@ describe("HUD's views", () => {
     expect(VIEWS.length).toBeGreaterThan(0)
   })
 
+  it('each have what a member sees on them named here', () => {
+    expect(VIEWS.filter((view) => !ON_ITS_OWN.includes(view.key) && SEEN_ON[view.key] === undefined)).toEqual([])
+  })
+
   it('force the tone the first-paint table gives each preset ground: dark, every one', () => {
     expect(toneRule.knob).toBe('ground')
     expect(PRESETS.map((look) => toneRule.values[look.ground])).toEqual(PRESETS.map(() => 'dark'))
@@ -190,7 +244,7 @@ describe.each(PRESETS.map((look): [string, HudLook] => [look.id, look]))('under 
       expect(await screen.findByRole('heading', { level: 1 }, CHUNK_WAIT)).toBeInTheDocument()
       return
     }
-    await expectDrawn(view)
+    await expectDrawn(view, look)
     expectFrame(look)
   })
 })

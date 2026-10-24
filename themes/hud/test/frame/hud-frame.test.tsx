@@ -1,13 +1,14 @@
 // HUD's frame (frame@1) around a page, rendered on the kit's harness as the host renders it: the page, fullBleed and
 // Auto's widget as props, the look runtime holding each of HUD's five presets in turn. Under every preset it draws
 // the AUTOMATOS // HUD top bar with the host's utilities, search and LOOK, the side rail from the core nav, the
-// backdrop, the page in its main and the widget beside it; Auto's dock shows exactly while the preset's auto is on.
+// backdrop, the page in its main and the widget beside it; Auto's dock shows exactly while the preset's auto is on,
+// and steps aside on HUD's core screen (/chat), whose voice core shows him, but not on the host's own chat there.
 // Roles, names and attributes only: the colours are the host's painted variables, which jsdom never paints.
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { captionFor } from '@automatos/mascot/media'
 import { host } from '@automatos/theme-harness/host'
-import { PRESETS } from '../../src/lib/looks/presets.ts'
+import { ARC, PRESETS } from '../../src/lib/looks/presets.ts'
 import type { HudLook } from '../../src/lib/looks/types.ts'
 import { HudFrameSlot } from '../../src/slots/frame.tsx'
 
@@ -59,6 +60,32 @@ describe.each(PRESETS.map((look): [string, HudLook] => [look.id, look]))('the fr
       expect(auto).toBeNull()
       expect(within(rail).queryByRole('heading', { name: 'Auto' })).toBeNull()
     }
+  })
+})
+
+describe("Auto's dock on the chat", () => {
+  const dockIn = (): HTMLElement | null =>
+    within(screen.getByRole('complementary', { name: 'Sidebar' })).queryByRole('heading', { name: 'Auto' })
+
+  beforeEach(() => lookUp(ARC))
+
+  it("steps aside on HUD's core screen, which shows Auto in its voice core", () => {
+    host.setPathname('/chat')
+    host.setSearchParams('chatId=c-1')
+    renderFrame({ fullBleed: true })
+    expect(dockIn()).toBeNull()
+  })
+
+  it('stays where the host draws its own chat at /chat (a keepCorePage link), and on every other page', () => {
+    host.setPathname('/chat')
+    host.setSearchParams('repo=r-1')
+    const { unmount } = renderFrame({ fullBleed: true })
+    expect(dockIn()).toBeInTheDocument()
+    unmount()
+    host.setPathname('/looks')
+    host.setSearchParams('')
+    renderFrame()
+    expect(dockIn()).toBeInTheDocument()
   })
 })
 

@@ -1,6 +1,6 @@
 // HUD's /chat as the host gets it: the entry registers HudChat for /chat, the page theme.json declares as its own
-// (with Play's keepCorePage list), and HudChat loads the core screen in its own chunk and draws it: the core with
-// Auto, the transcript, the message box and the side panels.
+// (with Play's keepCorePage list, the one the frame reads to know where the core screen is drawn), and HudChat loads
+// the core screen in its own chunk and draws it: the core with Auto, the transcript, the message box and the panels.
 import { SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -13,6 +13,7 @@ import { CONVERSATION_LABEL } from '../../src/chat/transcript.tsx'
 import { CORE_LABEL } from '../../src/chat/voice-core.tsx'
 import hud from '../../src/entry.ts'
 import { HudChat } from '../../src/pages/chat.tsx'
+import { CHAT_KEEPS_CORE_PAGE } from '../../src/pages/core-screen.ts'
 import { readThemeJson } from '../support/files.ts'
 import { stubClips } from './support.tsx'
 
@@ -45,6 +46,10 @@ beforeEach(() => {
 describe('/chat', () => {
   it('is a page HUD owns, keeping the core page for the links Play keeps it for', () => {
     expect(manifest.pages).toEqual({ '/chat': { mode: 'own', keepCorePage: ['repo', 'runtime', 'mode'] } })
+  })
+
+  it("keeps the core page for exactly the links the frame reads as the host's own chat", () => {
+    expect(manifest.pages?.['/chat']).toEqual({ mode: 'own', keepCorePage: [...CHAT_KEEPS_CORE_PAGE] })
   })
 
   it('is registered with HudChat', () => {
