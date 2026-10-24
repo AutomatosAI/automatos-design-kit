@@ -1,4 +1,4 @@
-# CLAUDE.md: automatos-play
+# CLAUDE.md: automatos-design-kit
 
 The Automatos design kit: it builds installable theme packages (`.autotheme`) for Automatos, under PRD-261
 (installable themes). `AGENTS.md` is the current, maintained contract — read it first. This file adds a few

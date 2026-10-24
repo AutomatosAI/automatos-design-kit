@@ -1,4 +1,4 @@
-# AGENTS.md: automatos-play, the Automatos design kit
+# AGENTS.md: automatos-design-kit, the Automatos design kit
 
 This repo is the design kit that builds installable theme packages (`.autotheme`) for Automatos, under
 PRD-261 (installable themes). `README.md` and `CLAUDE.md` describe the same kit from a different angle
