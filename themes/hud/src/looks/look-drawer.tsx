@@ -1,5 +1,8 @@
+import { useRef } from 'react'
+
 import { PRESETS } from '../lib/looks/presets'
 import type { HudLook } from '../lib/looks/types'
+import { DeleteConfirm, useDeleteQuestion } from './delete-confirm'
 import styles from './drawer.module.css'
 import type { KnobValues } from './editing'
 import { AccentOptions, GroundOptions, NumberKnobs, SwitchKnobs, TypeOptions } from './look-knobs'
@@ -7,9 +10,10 @@ import { LooksRow } from './looks-row'
 
 /**
  * The LOOK drawer of "Automatos Command HUD.dc.html", as the right-hand column of the /looks page: the looks row,
- * the eight knobs, then Save as new look and Reset (and Delete, for one of the user's own looks). Every control
- * changes the active look at once, through the host, so the whole app follows, not only this page. Why the host
- * refused a change is said in its own words under the knobs.
+ * the eight knobs, then Save as new look and Reset (and Delete, for one of the user's own looks, which asks first).
+ * Every control changes the active look at once, through the host, so the whole app follows, not only this page. Why
+ * the host refused a change is said in its own words under the knobs. Once a look is deleted the focus goes to Save as
+ * new look, which every look has, so it never drops to the page as Delete goes.
  */
 
 export const DRAWER_LABEL = 'Edit the look'
@@ -47,21 +51,39 @@ function Refusal({ errors }: { readonly errors: readonly string[] }) {
   )
 }
 
-function DrawerActions({ deletable, onSaveAs, onReset, onDelete }: Pick<LookDrawerProps, 'deletable' | 'onSaveAs' | 'onReset' | 'onDelete'>) {
+type ActionsProps = Pick<LookDrawerProps, 'look' | 'deletable' | 'onSaveAs' | 'onReset' | 'onDelete'>
+
+function DrawerActions({ look, deletable, onSaveAs, onReset, onDelete }: ActionsProps) {
+  const saveAs = useRef<HTMLButtonElement>(null)
+  const deleteButton = useRef<HTMLButtonElement>(null)
+  const question = useDeleteQuestion(look.id)
+  const asking = deletable && question.open
+  const keep = () => {
+    question.close()
+    deleteButton.current?.focus()
+  }
+  const remove = () => {
+    question.close()
+    saveAs.current?.focus()
+    onDelete()
+  }
   return (
-    <div className={styles.actions}>
-      <button type="button" className={styles.primary} onClick={onSaveAs}>
-        {SAVE_AS_LABEL}
-      </button>
-      <button type="button" className={styles.secondary} onClick={onReset}>
-        {RESET_LABEL}
-      </button>
-      {deletable && (
-        <button type="button" className={styles.secondary} onClick={onDelete}>
-          {DELETE_LABEL}
+    <>
+      <div className={styles.actions}>
+        <button ref={saveAs} type="button" className={styles.primary} onClick={onSaveAs}>
+          {SAVE_AS_LABEL}
         </button>
-      )}
-    </div>
+        <button type="button" className={styles.secondary} onClick={onReset}>
+          {RESET_LABEL}
+        </button>
+        {deletable && (
+          <button ref={deleteButton} type="button" className={styles.secondary} aria-expanded={asking} onClick={question.ask}>
+            {DELETE_LABEL}
+          </button>
+        )}
+      </div>
+      {asking && <DeleteConfirm name={look.name} onDelete={remove} onKeep={keep} />}
+    </>
   )
 }
 
@@ -76,7 +98,13 @@ export function LookDrawer(props: LookDrawerProps) {
       <NumberKnobs look={look} onChange={onChange} />
       <SwitchKnobs look={look} onChange={onChange} reducedMotion={reducedMotion} />
       <Refusal errors={errors} />
-      <DrawerActions deletable={props.deletable} onSaveAs={props.onSaveAs} onReset={props.onReset} onDelete={props.onDelete} />
+      <DrawerActions
+        look={look}
+        deletable={props.deletable}
+        onSaveAs={props.onSaveAs}
+        onReset={props.onReset}
+        onDelete={props.onDelete}
+      />
     </aside>
   )
 }

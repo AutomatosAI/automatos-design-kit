@@ -240,7 +240,8 @@
 }
 
 .primary,
-.secondary {
+.secondary,
+.danger {
   min-height: 46px;
   padding: 0 14px;
   border-radius: 0;
@@ -265,6 +266,28 @@
 
 .secondary:hover {
   border-color: var(--hud-accent-line);
+}
+
+/* Delete look: a line outline in the error colour, its words in the error as text. */
+.danger {
+  border: 1px solid var(--hud-error-text);
+  background: transparent;
+  color: var(--hud-error-text);
+}
+
+/* The question Delete asks: the error-coloured edge of a refusal, the question in the text colour, then its buttons. */
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-3);
+  padding: var(--hud-space-3);
+  border: 1px solid var(--hud-error-text);
+}
+
+.confirmText {
+  margin: 0;
+  color: var(--hud-text);
+  font: 400 13px/1.4 var(--hud-font-text);
 }
 
 /* What the host refused, in its words: an error-coloured edge and title, the reasons in the text colour. */

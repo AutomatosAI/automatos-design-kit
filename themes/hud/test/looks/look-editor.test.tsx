@@ -2,9 +2,10 @@
 // its preview. Every control goes through the SDK's looks area, so the look the runtime holds changes at once (the
 // host paints it on <html>, HUD's variables and Studio's tokens, and every page follows): each knob changes what
 // is painted, a preset applies, Save as new look keeps the look and a reload reads it back, Reset goes back to the
-// look's preset or saved values, and Delete drops a saved one. Until the looks are read the page is its heading
-// alone, busy; outside a look runtime it says nothing is kept and shows the host's words. Roles, attributes and
-// text only: CSS modules are proxies here (test/looks/motion-css.test.ts reads the stylesheets).
+// look's preset or saved values, and Delete shows on a saved one (test/looks/look-delete.test.tsx asks and deletes).
+// Until the looks are read the page is its heading alone, busy; outside a look runtime it says nothing is kept and
+// shows the host's words. Roles, attributes and text only: CSS modules are proxies here (test/looks/motion-css.test.ts
+// reads the stylesheets).
 import { renderToString } from 'react-dom/server'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -235,16 +236,6 @@ describe('Save as new look, Reset and Delete', () => {
     await lookHeld(ARC)
   })
 
-  it("Delete drops one of the user's looks, and the host goes back to ARC", async () => {
-    const user = userEvent.setup()
-    renderEditor({ look: myLook(), saved: [myLook(), myLook({ id: 'mine-2', name: 'MINE 2' })] })
-    await lookHeld(myLook())
-    await user.click(actionButton(DELETE_LABEL))
-    expect(savedLooks().map((look) => look.id)).toEqual(['mine-2'])
-    await lookHeld(ARC)
-    expect(looksRow().queryByRole('button', { name: 'MINE 1' })).toBeNull()
-    expect(drawer().queryByRole('button', { name: DELETE_LABEL })).toBeNull()
-  })
 })
 
 describe('before the looks are read, and without a look runtime', () => {
