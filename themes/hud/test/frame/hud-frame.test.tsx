@@ -13,6 +13,8 @@ import type { HudLook } from '../../src/lib/looks/types.ts'
 import { HudFrameSlot } from '../../src/slots/frame.tsx'
 
 const PAGE_TEXT = 'The page the host hands the frame'
+/** The top bar's name: Testing Library reads every <header> as a banner, so the bar is found by it. */
+const TOP_BAR = 'Top bar'
 const BRAND = 'Automatos HUD'
 const SEARCH = 'Open search (⌘K)'
 const UTILITIES = 'Header utilities'
@@ -40,7 +42,7 @@ describe.each(PRESETS.map((look): [string, HudLook] => [look.id, look]))('the fr
 
   it('draws the top bar, the rail, the backdrop and the page in its main, carrying the look', () => {
     const { container } = renderFrame()
-    const bar = screen.getByRole('banner')
+    const bar = screen.getByRole('banner', { name: TOP_BAR })
     expect(within(bar).getByRole('link', { name: BRAND })).toHaveAttribute('href', '/chat')
     expect(screen.getByRole('complementary', { name: 'Sidebar' })).toBeInTheDocument()
     expect(within(screen.getByRole('main')).getByTestId('page')).toHaveTextContent(PAGE_TEXT)
@@ -92,7 +94,7 @@ describe("Auto's dock on the chat", () => {
 describe('the top bar', () => {
   it("keeps the host's header utilities in it, untouched", () => {
     renderFrame()
-    const utilities = within(screen.getByRole('banner')).getByRole('group', { name: UTILITIES })
+    const utilities = within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('group', { name: UTILITIES })
     expect(utilities).toHaveAttribute('data-protected-surface', 'header-utilities')
     fireEvent.click(within(utilities).getByRole('button', { name: 'Notifications' }))
     expect(host.cardActions()).toEqual([{ card: 'header-utilities', id: 'Notifications', action: 'opened' }])
@@ -100,20 +102,20 @@ describe('the top bar', () => {
 
   it("opens the host's search", () => {
     renderFrame()
-    fireEvent.click(within(screen.getByRole('banner')).getByRole('button', { name: SEARCH }))
+    fireEvent.click(within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('button', { name: SEARCH }))
     expect(host.globalSearchOpens()).toBe(1)
   })
 
   it('links LOOK to the look editor, current while it is open', () => {
     host.setPathname('/looks/style')
     renderFrame()
-    expect(within(screen.getByRole('banner')).getByRole('link', { name: 'Look' })).toHaveAttribute('aria-current', 'page')
+    expect(within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('link', { name: 'Look' })).toHaveAttribute('aria-current', 'page')
   })
 
   it("says where Automatos runs and whether it answers, in words", () => {
     host.setHealth('down')
     renderFrame()
-    expect(within(screen.getByRole('banner')).getByRole('status')).toHaveTextContent('Local · offline')
+    expect(within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('status')).toHaveTextContent('Local · offline')
   })
 
   it('shows the time', () => {

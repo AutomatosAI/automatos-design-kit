@@ -18,9 +18,12 @@ import styles from './top-bar.module.css'
  * The top bar (the design's 56 px bar): the diamond mark and AUTOMATOS // HUD, which goes to the chat; the
  * clock in the middle; then where Automatos runs and whether it answers, as a glyph and a word (never colour
  * alone); the host's search; LOOK, the look editor, lit while it is open; and the host's own header
- * utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account).
+ * utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account). The bar is the page's
+ * one banner, and it is named: a browser gives the banner role to this <header> alone, but Testing Library gives it
+ * to every <header>, a panel's head and a screen's heading row too, so a test finds the bar by its name.
  */
 
+export const TOP_BAR_LABEL = 'Top bar'
 export const BRAND_LABEL = 'Automatos HUD'
 export const SEARCH_LABEL = 'Open search (⌘K)'
 export const LOOK_LABEL = 'Look'
@@ -82,7 +85,7 @@ function LookLink() {
 
 export function TopBar() {
   return (
-    <header className={styles.bar}>
+    <header className={styles.bar} aria-label={TOP_BAR_LABEL}>
       <Brand />
       <Clock />
       <div className={styles.end}>

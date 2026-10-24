@@ -59,6 +59,7 @@ const PAGE_TEXT = 'The page the host hands the frame'
 const WIDGET_TEXT = "Auto's floating widget"
 /** The frame's landmarks and each screen's, as a member sees them. */
 const SEEN = Object.freeze({
+  topBar: 'Top bar',
   sidebar: 'Sidebar',
   mainNav: 'Main',
   brand: 'Automatos HUD',
@@ -184,7 +185,7 @@ async function expectDrawn(view: View, look: HudLook): Promise<void> {
 /** The frame's own landmarks under `look`: the look on the frame, the top bar's brand and search, the rail's nav. */
 function expectFrame(look: HudLook): void {
   expect(document.querySelector('[data-look]')).toHaveAttribute('data-look', look.id)
-  const bar = screen.getByRole('banner')
+  const bar = screen.getByRole('banner', { name: SEEN.topBar })
   expect(within(bar).getByRole('link', { name: SEEN.brand })).toBeInTheDocument()
   expect(within(bar).getByRole('button', { name: SEEN.search })).toBeInTheDocument()
   const rail = screen.getByRole('complementary', { name: SEEN.sidebar })
