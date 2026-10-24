@@ -49,6 +49,11 @@ export const STUDIO_PARTS = {
   },
   divider: { paints: { backgroundColor: 'border' }, app: 'src/ui/Divider.tsx:20-28' },
   composer: { paints: { backgroundColor: 'card', borderTopColor: 'border' }, app: 'src/chat/composer/Composer.tsx:91-101' },
+  attachButton: {
+    paints: { backgroundColor: 'card', borderColor: 'border', color: 'foreground' },
+    pressed: CARD_PRESSED,
+    app: 'src/ui/variants.ts:121-125',
+  },
   composerInset: { paints: { backgroundColor: 'card' }, app: 'src/chat/screens/ChatFrame.tsx:33' },
   pillInput: {
     paints: { backgroundColor: 'background', borderColor: 'border', color: 'foreground' },

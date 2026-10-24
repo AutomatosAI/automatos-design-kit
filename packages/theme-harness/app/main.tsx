@@ -4,22 +4,41 @@
  * answers), checks the theme folder's files (src/host/register.ts readServedTheme), reads the settings from the
  * address (src/host/router.ts), and draws the mock host (app/host.tsx). Each change goes back into the address, so a
  * reload, or a shot, opens the same view. Files core would refuse are listed instead of drawn (app/refused.tsx).
+ *
+ * On PHONE_PATH it draws the phone view instead (app/phone/page.tsx): what Automatos Go draws for the theme, with its
+ * own settings in the address (src/phone/settings.ts).
  */
-import { createRoot } from 'react-dom/client'
-import { files, loadEntry } from 'virtual:automatos-harness/theme'
+import { createRoot, type Root } from 'react-dom/client'
+import { assets, files, loadEntry } from 'virtual:automatos-harness/theme'
 import { host } from '../src/host.ts'
-import { readServedTheme } from '../src/host/register.ts'
-import { FILES_ROOT, readSettings, settingsQuery, type HarnessSettings } from '../src/host/router.ts'
+import { readServedTheme, type HarnessTheme } from '../src/host/register.ts'
+import { FILES_ROOT, PHONE_PATH, readSettings, settingsQuery, type HarnessSettings } from '../src/host/router.ts'
+import { phoneQuery, readPhoneSettings, type PhoneSettings } from '../src/phone/settings.ts'
 import { HarnessHost, prepareHost } from './host.tsx'
+import { PhonePage, preparePhone } from './phone/page.tsx'
 import { markRefused, Refused } from './refused.tsx'
 
 const ROOT_ID = 'harness'
 
-/** The address for the settings, replacing the current entry (the back button stays the browser's). */
-function writeAddress(settings: HarnessSettings): void {
+/** The address for a query, replacing the current entry (the back button stays the browser's). */
+function writeQuery(query: string): void {
   const { pathname, search } = window.location
-  const query = settingsQuery(settings)
   if (query !== search) window.history.replaceState(null, '', `${pathname}${query}`)
+}
+
+const writeAddress = (settings: HarnessSettings): void => writeQuery(settingsQuery(settings))
+const writePhoneAddress = (settings: PhoneSettings): void => writeQuery(phoneQuery(settings))
+
+function drawPhone(root: Root, theme: HarnessTheme): void {
+  const settings = readPhoneSettings(window.location.search)
+  preparePhone(theme, settings)
+  root.render(<PhonePage theme={theme} assets={assets} initial={settings} onSettings={writePhoneAddress} />)
+}
+
+function drawHost(root: Root, theme: HarnessTheme): void {
+  const settings = readSettings(window.location.search)
+  prepareHost(theme, settings, window.innerWidth)
+  root.render(<HarnessHost theme={theme} initial={settings} onSettings={writeAddress} />)
 }
 
 function boot(): void {
@@ -34,9 +53,8 @@ function boot(): void {
     root.render(<Refused errors={served.errors} />)
     return
   }
-  const settings = readSettings(window.location.search)
-  prepareHost(served.theme, settings, window.innerWidth)
-  root.render(<HarnessHost theme={served.theme} initial={settings} onSettings={writeAddress} />)
+  if (window.location.pathname === PHONE_PATH) drawPhone(root, served.theme)
+  else drawHost(root, served.theme)
 }
 
 boot()

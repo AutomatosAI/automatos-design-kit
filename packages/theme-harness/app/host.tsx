@@ -11,6 +11,10 @@
  * and the one the theme forces (useTone), reduced motion (useMediaPreferences), and the look runtime mounted on the
  * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too.
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
+ *
+ * The phone view (app/phone/built-in.tsx) draws a theme the phone shows in its own built-in layout through this host
+ * too: it holds the settings itself (`settings`), and `phone` draws the theme at the phone's width whatever its
+ * minWidth, since no web host is drawing it there.
  */
 import type { HostLook } from '@automatos/theme-sdk'
 import { Component, useEffect, useLayoutEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
@@ -22,7 +26,9 @@ import {
   applyHtml, forcedTone, htmlClasses, installPreviewStyle, lookTone, paintLook, paintNames, STUDIO_CLASS, TONE_CLASSES,
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
-import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
+import {
+  declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type RegisterReport, type ThemeLoad,
+} from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
 } from '../src/host/router.ts'
@@ -134,15 +140,17 @@ interface StageProps {
   readonly failure: Failure | null
   readonly view: View
   readonly width: number
+  /** True draws the theme at any width (the phone view), else the host's page below its minWidth. */
+  readonly anyWidth: boolean
   readonly onRenderError: (error: unknown) => void
 }
 
 /** The view: nothing while loading, the host's page once the theme failed or below its minWidth, else the theme's. */
-function Stage({ theme, load, failure, view, width, onRenderError }: StageProps) {
+function Stage({ theme, load, failure, view, width, anyWidth, onRenderError }: StageProps) {
   const { base, minWidth } = theme.manifest
   if (load === null) return null
   if (failure !== null || load.status !== 'active') return <BasePage base={base} path={view.path} reason="failed" minWidth={minWidth} />
-  if (width < minWidth) return <BasePage base={base} path={view.path} reason="narrow" minWidth={minWidth} />
+  if (!anyWidth && width < minWidth) return <BasePage base={base} path={view.path} reason="narrow" minWidth={minWidth} />
   const basePage = (path: string) => <BasePage base={base} path={path} reason="in-frame" minWidth={minWidth} />
   const autoWidget = view.path.startsWith(CHAT_PATH) ? undefined : AUTO_WIDGET
   return <ThemeBoundary onError={onRenderError}>{drawView(view, load.registrations, { basePage, autoWidget })}</ThemeBoundary>
@@ -198,6 +206,38 @@ function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, setting
   }, [theme, base, htmlClass, status, reason, tone, look, reducedMotion, forcedColors])
 }
 
+/** What the host serves (declared and registered) and what it left out, once the theme is active. */
+function useServed(theme: HarnessTheme, load: ThemeLoad | null): { readonly served: Served; readonly report: RegisterReport | null } {
+  const declared = useMemo(() => declaredOf(theme.manifest), [theme])
+  const active = load?.status === 'active' ? load : null
+  const served = useMemo(() => (active === null ? EMPTY_SERVED : servedOf(active.registrations, declared)), [active, declared])
+  const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
+  return { served, report }
+}
+
+interface HostInputs {
+  readonly settings: HarnessSettings
+  readonly windowWidth: number
+  readonly forced: ThemeTone | null
+  readonly path: string
+  readonly onSettings: ((settings: HarnessSettings) => void) | undefined
+}
+
+/** The fake host follows the settings and the forced tone; the caller hears every change with the path. */
+function useHostInputs(theme: HarnessTheme, { settings, windowWidth, forced, path, onSettings }: HostInputs): void {
+  // Block bodies: an effect may return only its cleanup, and these calls return values (a cell's set, a caller's
+  // onSettings) that React would try to call as one.
+  useEffect(() => {
+    applySettings(theme, settings, windowWidth)
+  }, [theme, settings, windowWidth])
+  useEffect(() => {
+    setForcedTone(forced)
+  }, [forced])
+  useEffect(() => {
+    onSettings?.({ ...settings, path })
+  }, [settings, path, onSettings])
+}
+
 /** What the shots read once the theme loaded or failed (HARNESS_GLOBAL): the views it drew, and what it left out. */
 function usePublishedReport(theme: HarnessTheme, status: HostStatus, served: Served, missing: Served): void {
   useEffect(() => {
@@ -215,34 +255,25 @@ export interface HarnessHostProps {
   readonly initial: HarnessSettings
   /** Every change, with the fake host's path, for the address bar. */
   readonly onSettings?: (settings: HarnessSettings) => void
+  /** Settings the caller holds (the phone view's); left out, the toolbar's own, from `initial`. */
+  readonly settings?: HarnessSettings
+  /** The phone view: the theme drawn at the stage's width whatever its minWidth. */
+  readonly phone?: boolean
 }
 
-export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
-  const [settings, setSettings] = useState(initial)
+export function HarnessHost({ theme, initial, onSettings, settings: held, phone = false }: HarnessHostProps) {
+  const [own, setSettings] = useState(initial)
+  const settings = held ?? own
   const [renderFailure, setRenderFailure] = useState<Failure | null>(null)
   const load = useThemeLoad(theme)
   const path = useHostPathname()
   const windowWidth = useWindowWidth()
-  const runtime = useLook()
-  const look = runtime.look ?? presetOf(theme, settings.preset)
+  const look = useLook().look ?? presetOf(theme, settings.preset)
   const forced = themeTone(theme, look)
-  const declared = useMemo(() => declaredOf(theme.manifest), [theme])
-  const active = load?.status === 'active' ? load : null
-  const served = useMemo(() => (active === null ? EMPTY_SERVED : servedOf(active.registrations, declared)), [active, declared])
-  const report = useMemo(() => (active === null ? null : reportOf(active.registrations, declared)), [active, declared])
+  const { served, report } = useServed(theme, load)
   const failure = renderFailure ?? (load?.status === 'failed' ? { reason: load.reason, message: load.message } : null)
   const status: HostStatus = load === null ? 'loading' : failure === null ? 'active' : 'failed'
-  // Block bodies: an effect may return only its cleanup, and these calls return values (a cell's set, a caller's
-  // onSettings) that React would try to call as one.
-  useEffect(() => {
-    applySettings(theme, settings, windowWidth)
-  }, [theme, settings, windowWidth])
-  useEffect(() => {
-    setForcedTone(forced)
-  }, [forced])
-  useEffect(() => {
-    onSettings?.({ ...settings, path })
-  }, [settings, path, onSettings])
+  useHostInputs(theme, { settings, windowWidth, forced, path, onSettings })
   useHtmlPaint(theme, { status, reason: failure?.reason ?? null, tone: forced ?? settings.tone, look, settings })
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
@@ -254,6 +285,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   }
   const view = viewOfPath(path, served)
   const width = settings.width ?? windowWidth
+  const stage = <Stage theme={theme} load={load} failure={failure} view={view} width={width} anyWidth={phone} onRenderError={onRenderError} />
   return (
     <>
       {settings.toolbar ? (
@@ -271,7 +303,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
       ) : null}
       {failure === null ? null : <FailureNotice failure={failure} />}
       <div id={STAGE_ID} data-harness-view={`${view.kind}:${view.key}`} style={stageStyle(settings.width)}>
-        <Stage theme={theme} load={load} failure={failure} view={view} width={width} onRenderError={onRenderError} />
+        {stage}
       </div>
     </>
   )
