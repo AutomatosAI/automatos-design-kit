@@ -5,7 +5,8 @@
  * The build is an ES library: `dist/entry.js` (plus `dist/chunks/*.js` for lazy imports) with the
  * import map's modules left as imports, and one stylesheet, `dist/theme.css`, wrapped under the
  * theme's class and checked as the server checks it. `htmlClass` comes from the theme's
- * `theme.json` unless given. Only files under the theme's `src/` go into the build (source-guard.ts,
+ * `theme.json` unless given. Only files under the theme's `src/`, and under the `src/` of each kit
+ * workspace package it bundles (workspace-packages.ts), go into the build (source-guard.ts,
  * css-origin.ts and output-check.ts).
  * Then `automatos-theme pack` (packages/theme-cli) zips the package.
  */
@@ -15,14 +16,20 @@ import type { Plugin, UserConfig } from 'vite'
 import { cssScopeErrors, STYLE_PATH, type ThemeError } from './css-scope.ts'
 import { importRefusal, isSharedModule } from './imports.ts'
 import { cssOriginGuard } from './css-origin.ts'
-import { sourceGuard, sourceTree } from './source-guard.ts'
+import { sourceGuard, sourceTree, type BundledPackage } from './source-guard.ts'
 import { checkedOptions, transformThemeCss, type WrapForm } from './theme-css.ts'
+import { bundledPackages } from './workspace-packages.ts'
 
 export { cssScopeErrors, CSS_ERROR_CODES, STYLE_PATH, type ThemeError } from './css-scope.ts'
 export { importRefusal, isSharedModule, SHARED_MODULES } from './imports.ts'
 export { cssOriginGuard } from './css-origin.ts'
 export { bundleProblems } from './output-check.ts'
-export { isInsideSource, moduleProblem, referenceProblem, sourceGuard, sourceTree, SOURCE_DIR, type SourceTree } from './source-guard.ts'
+export {
+  isInsideSource, moduleProblem, referenceProblem, sourceGuard, sourceTree, SOURCE_DIR, type BundledPackage, type SourceTree,
+} from './source-guard.ts'
+export {
+  bundledPackages, KIT_PACKAGES_DIR, KIT_SCOPE, kitPackageFolder, MODULE_EXTENSIONS, packageModule, type PackageModule,
+} from './workspace-packages.ts'
 export { themeCssPlugin, transformThemeCss, wrapSelector, type ThemeCssOptions, type WrapForm } from './theme-css.ts'
 
 export interface ThemePresetOptions {
@@ -34,6 +41,11 @@ export interface ThemePresetOptions {
   readonly wrap?: WrapForm
   /** Minify dist/theme.css (Vite's own CSS minifier). Default false: the scope check reads the output either way. */
   readonly cssMinify?: boolean
+  /**
+   * The kit workspace packages the build bundles, each `{name, dir}`. Default: the ones the theme's package.json
+   * names under `dependencies` (bundledPackages). The review's rebuild names the ones the package's source/packages/ holds.
+   */
+  readonly packages?: readonly BundledPackage[]
 }
 
 interface Settings {
@@ -93,7 +105,7 @@ export function presetConfig(options: ThemePresetOptions, root: string, htmlClas
     css: {
       transformer: 'postcss',
       // Given here, so Vite reads no postcss.config.* from beside src/ (the review rebuilds without one).
-      postcss: { plugins: [cssOriginGuard(sourceTree(root))] },
+      postcss: { plugins: [cssOriginGuard(sourceTree(root, options.packages ?? bundledPackages(root)))] },
       modules: { generateScopedName: `${htmlClass}-[local]-[hash:base64:5]` },
     },
     build: {
@@ -189,9 +201,10 @@ export function automatosTheme(options: ThemePresetOptions = {}): Plugin[] {
       const settings = settingsFor(options, root)
       state.settings = settings
       // A worker is bundled on its own: give it the same guards on imports and on the source tree.
-      return { ...presetConfig(options, root, settings.htmlClass), worker: { plugins: () => [importGuard(), sourceGuard()] } }
+      const worker = { plugins: () => [importGuard(), sourceGuard(options.packages)] }
+      return { ...presetConfig(options, root, settings.htmlClass), worker }
     },
   }
-  return [config, importGuard(), sourceGuard(), styleScope(state)]
+  return [config, importGuard(), sourceGuard(options.packages), styleScope(state)]
 }
 
