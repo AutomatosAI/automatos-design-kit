@@ -7,9 +7,11 @@
 // PRD-261 B-01f: both declare /agents a clone, at the vendored core-pages.json's sha of the core file it copies, and
 // check passes it at clonedFrom; one hex digit off, it is a warning there. The clone's own test, on the harness, is
 // templates/full/code/test/agents-page.test.tsx (run by packages/theme-harness/test/template-full.test.tsx).
+// Each theme's own style sheet data runs too, from its folder: its look code names every variable it makes with the
+// theme's prefix, so the colours, contrast lines, Copy tokens block and Auto's ring colours are Play's, renamed.
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +20,12 @@ import { runCheck } from "../packages/theme-cli/src/check/index.ts";
 import { runNew } from "../packages/theme-cli/src/new/index.ts";
 import { readFolder, type FolderFile } from "../packages/theme-cli/src/new/placeholders.ts";
 import { packTheme } from "../packages/theme-cli/src/pack.ts";
+import { RING_VARS } from "../packages/mascot/src/ring.ts";
 import { buildThemeFolder } from "../scripts/review/rebuild.ts";
+import { RING_LOOK_VARS } from "../templates/full/code/src/lib/looks/ring-vars.ts";
+import { DEFAULT_LOOK as PLAY_LOOK } from "../themes/play/src/lib/looks/presets.ts";
+import * as playStyle from "../themes/play/src/lib/looks/style.ts";
+import type { Look } from "../themes/play/src/lib/looks/types.ts";
 
 const KIT = fileURLToPath(new URL("..", import.meta.url));
 const THEME_ID = "acme/bright";
@@ -30,6 +37,9 @@ const BRAND = [/html\.play(?![a-z0-9-])/, /(?<![A-Za-z0-9_-])play-/, /automatos\
 const CORE_PAGES = fileURLToPath(new URL("../packages/theme-cli/src/core/data/core-pages.json", import.meta.url));
 const AGENTS_ROUTE = "/agents";
 const MASCOT_IMPORT = /\bfrom\s*['"]@automatos\/mascot|\bimport\s*\(\s*['"]@automatos\/mascot/;
+/** Play's look variables' prefix, and the theme's. */
+const PLAY_VARS = /--pl-/g;
+const THEME_VARS = "--bright-";
 /** Two builds of a Play-sized theme with Vite on a cold runner, each packed and checked. */
 const BUILD_TIMEOUT_MS = 300_000;
 
@@ -127,6 +137,34 @@ type Manifest = { pages: Record<string, ClonePage> } & Record<string, unknown>;
 
 const reportOf = (ran: Ran): Report => JSON.parse(ran.out.join("\n")) as Report;
 
+type StyleModule = Pick<typeof playStyle, "colourSwatches" | "contrastChecks" | "rootBlock" | "mascotSlots">;
+
+/** What a style sheet draws for a look: its colours, its contrast lines, its Copy tokens block and Auto's rings. */
+function styleData(style: StyleModule, look: Look): unknown[] {
+  return [style.colourSwatches(look), style.contrastChecks(look), style.rootBlock(look), style.mascotSlots(look)];
+}
+
+/** `value` with each of Play's variables named as the theme's. */
+const renamedVars = (value: unknown): unknown => JSON.parse(JSON.stringify(value).replace(PLAY_VARS, THEME_VARS)) as unknown;
+
+/**
+ * The theme's own look code, run from its folder: its src/lib/looks/style.ts and its default look. The kit packages
+ * they import by name resolve as in the kit, through node_modules links to kitLayout's copies, and the theme's
+ * tsconfig.json finds the base it extends. Made after the build, pack and check, which ran with neither.
+ */
+async function themeLooks(made: Made): Promise<{ readonly style: StyleModule; readonly look: Look }> {
+  const root = join(made.themeDir, "..", "..");
+  const scope = join(root, "node_modules", "@automatos");
+  mkdirSync(scope, { recursive: true });
+  KIT_PACKAGES.filter((name) => !existsSync(join(scope, name)))
+    .forEach((name) => symlinkSync(join(root, "packages", name), join(scope, name), "dir"));
+  cpSync(join(KIT, "tsconfig.base.json"), join(root, "tsconfig.base.json"));
+  const looks = join(made.themeDir, "src", "lib", "looks");
+  const style = (await import(join(looks, "style.ts"))) as StyleModule;
+  const { DEFAULT_LOOK } = (await import(join(looks, "presets.ts"))) as { readonly DEFAULT_LOOK: Look };
+  return { style, look: DEFAULT_LOOK };
+}
+
 function checkLevels(made: Made): Record<string, string> {
   return Object.fromEntries(Object.entries(reportOf(made.check).checks).map(([name, entry]) => [name, entry.level]));
 }
@@ -177,9 +215,20 @@ describe.each(VARIANTS)("new acme/bright --template full, %s", (_label, madeOf) 
     const pkg = jsonOf<{ name: string; scripts: Record<string, string> }>(made, "package.json");
     expect([pkg.name, pkg.scripts.build]).toEqual(["@acme/theme-bright", "vite build"]);
   });
+
+  it("draws its style sheet from the variables its own look code makes: Play's data, renamed, Auto's rings too", async () => {
+    const made = madeOf();
+    expect(textOf(made, "src/lib/looks/engine.ts")).toContain("const BRIGHT_VAR_PREFIX = 'bright'");
+    const theme = await themeLooks(made);
+    expect(styleData(theme.style, theme.look)).toEqual(renamedVars(styleData(playStyle, PLAY_LOOK)));
+  });
 });
 
 describe("the mascot", () => {
+  it("has, in Play's words, the ring's look variable for each tone that @automatos/mascot names, renamed with the rest", () => {
+    expect(RING_LOOK_VARS).toEqual(RING_VARS);
+  });
+
   it("is Auto's, clips and all, unless --mascot none", () => {
     const manifest = jsonOf<{ mascot?: unknown; mobile: Record<string, unknown> }>(withMascot, "theme.json");
     expect([manifest.mascot !== undefined, manifest.mobile.mascot]).toEqual([true, "clips"]);

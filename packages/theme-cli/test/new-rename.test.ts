@@ -35,6 +35,7 @@ describe('the renames, for acme/bright', () => {
     ["htmlClass: 'play'", "htmlClass: 'bright'"],
     ['html.play .x, :global(html.play) .y, html.play:is(html.play)', 'html.bright .x, :global(html.bright) .y, html.bright:is(html.bright)'],
     ['var(--pl-ground-bg)', 'var(--bright-ground-bg)'],
+    ["const PLAY_VAR_PREFIX = 'pl'", "const BRIGHT_VAR_PREFIX = 'bright'"],
     ["font-family: 'play-instrument-serif'", "font-family: 'bright-instrument-serif'"],
     [':not(#play-none)', ':not(#bright-none)'],
     ["import './app/play-theme.css'", "import './app/bright-theme.css'"],
@@ -77,8 +78,8 @@ describe('the renames, for acme/bright', () => {
 describe('the renames, for other names', () => {
   it('give a name of two words each form code needs', () => {
     const owl = renamer(template, themeNames('acme/night-owl'))
-    expect(owl.text('PlayFrame PLAY_TONES playLook html.play --pl-x Play')).toBe(
-      'NightOwlFrame NIGHT_OWL_TONES nightOwlLook html.night-owl --night-owl-x Night Owl',
+    expect(owl.text("PlayFrame PLAY_TONES playLook html.play --pl-x Play PLAY_VAR_PREFIX = 'pl'")).toBe(
+      "NightOwlFrame NIGHT_OWL_TONES nightOwlLook html.night-owl --night-owl-x Night Owl NIGHT_OWL_VAR_PREFIX = 'night-owl'",
     )
   })
 

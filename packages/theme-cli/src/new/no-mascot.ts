@@ -1,6 +1,6 @@
 /**
- * `new --template full --mascot none` (PRD-261 B-03f): the full template with no mascot. Applied to Play's files
- * before the renames, so every path and name here is Play's.
+ * `new --template full --mascot none` (PRD-261 B-03f): the full template with no mascot. Applied to Play's files and
+ * the template's code, before the patches and the renames, so every path and name here is Play's.
  *
  * - The clips and stills (`assets/mascot/`) and the clips' notice are left out, with theme.json's `mascot` block and
  *   the `mobile` block's `mascot`, and the `@automatos/mascot` dependency.

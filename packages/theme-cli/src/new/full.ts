@@ -3,14 +3,16 @@
  * so the template never drifts from Play and never needs a copy of its own.
  *
  * In order, on Play's own files (template.json's `copy`, read from the kit, which this command never writes to):
- * 1. `--mascot none` (no-mascot.ts), when asked;
- * 2. the template's `code`, in Play's own words, and its `patches`;
- * 3. the renames (rename.ts), over every path and every text, refused when two of Play's names or paths would merge;
- * 4. theme.json and package.json made the new theme's: its id, name, first version and class, no previews (they are
+ * 1. the template's `code`, in Play's own words;
+ * 2. `--mascot none` (no-mascot.ts), when asked, over Play's files and that code, so the code's own imports of the
+ *    mascot package point at the theme's copies too;
+ * 3. the template's `patches`;
+ * 4. the renames (rename.ts), over every path and every text, refused when two of Play's names or paths would merge;
+ * 5. theme.json and package.json made the new theme's: its id, name, first version and class, no previews (they are
  *    Play's pictures), the template's pages and SDK areas added, a build with no look compiler (the look data is the
  *    theme's own from now on);
- * 5. Play's look data as Play's build writes it (look-data.ts), renamed;
- * 6. the template's `files` (the README, the CHANGELOG, the clips' NOTICE), their placeholders filled.
+ * 6. Play's look data as Play's build writes it (look-data.ts), renamed;
+ * 7. the template's `files` (the README, the CHANGELOG, the clips' NOTICE), their placeholders filled.
  */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -75,13 +77,13 @@ function patched(files: Map<string, FolderFile>, patch: Patch): Map<string, Fold
   return new Map([...files, entry])
 }
 
-/** Play's files, the mascot left out when asked, with the template's code and patches. */
+/** Play's files with the template's code, the mascot left out when asked, and the template's patches. */
 function sourceFiles(template: FullTemplate, options: FullOptions, templateDir: string): Map<string, FolderFile> {
   const play = playFiles(join(options.kitRoot, template.from), template.copy)
-  const base = options.mascot ? play : withoutMascot(play, template.noMascot, options.kitRoot, templateDir)
   const code = readFolder(join(templateDir, template.code))
-  const added = new Map([...base, ...code.map((file): [string, FolderFile] => [file.path, file])])
-  return template.patches.reduce(patched, added)
+  const added = new Map([...play, ...code.map((file): [string, FolderFile] => [file.path, file])])
+  const base = options.mascot ? added : withoutMascot(added, template.noMascot, options.kitRoot, templateDir)
+  return template.patches.reduce(patched, base)
 }
 
 function renamed(file: FolderFile, rename: Renamer): FolderFile {

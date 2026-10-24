@@ -154,9 +154,10 @@ the kit's templates, in a folder that builds, packs and passes `check` as it is.
   filled with the theme's.
 - `--template full` (`templates/full`): Play de-branded, made from `themes/play` itself when the theme is made, so it
   never drifts from Play: every slot, page and route Play has, with every name of Play's in the theme's (its class,
-  its `--pl-*` variables, its keyframes and font families, its file names, components, hooks and constants, its id,
-  and its name in words), and one core page cloned: `/agents`, in `"mode": "clone"` with the `clonedFrom` sha of the
-  core file it copies (the vendored `core-pages.json`'s), on the SDK's `pages/agents` area.
+  its `--pl-*` variables, in its stylesheets and as its look code makes them, its keyframes and font families, its
+  file names, components, hooks and constants, its id, and its name in words), and one core page cloned: `/agents`,
+  in `"mode": "clone"` with the `clonedFrom` sha of the core file it copies (the vendored `core-pages.json`'s), on
+  the SDK's `pages/agents` area.
   `templates/full/template.json` lists the renames and what the template adds. Play's look
   data is written once, by the kit's `scripts/compile-looks.mjs`, and is the theme's own from then on. Play's listing
   previews are not copied, and Play itself is only read.

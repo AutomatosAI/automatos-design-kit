@@ -72,6 +72,10 @@
       "to": "--{{htmlClass}}-"
     },
     {
+      "pattern": "(?<=_VAR_PREFIX = ')pl(?=')",
+      "to": "{{htmlClass}}"
+    },
+    {
       "pattern": "(?<![A-Za-z0-9_-])play-",
       "to": "{{htmlClass}}-"
     },
@@ -122,6 +126,21 @@
       "path": "src/entry.ts",
       "after": "    host.registerPage('/deliverables', PlayShelf)\n",
       "insert": "    host.registerPage('/agents', PlayAgents)\n"
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "import { lookToCssVars } from './engine'\n",
+      "insert": "import { ringVars } from './ring-vars'\n"
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "    ring: ringColour(state, ",
+      "insert": "ringVars("
+    },
+    {
+      "path": "src/lib/looks/style.ts",
+      "after": "    ring: ringColour(state, ringVars(lookToCssVars(look)",
+      "insert": ")"
     }
   ],
   "pages": {
