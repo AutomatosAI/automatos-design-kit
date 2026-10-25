@@ -141,7 +141,8 @@
   animation: none;
 }
 
-/* The Pause Auto control under him: the style sheet's toggle (components/looks/style). */
+/* The Pause Auto control under him: the style sheet's toggle (components/looks/style). At the large size it
+   moves to the top right of his stage (below). */
 .pause {
   min-height: var(--pl-tap-min);
   display: inline-flex;
@@ -159,6 +160,37 @@
 .pause[aria-pressed="true"] {
   border-color: var(--pl-color-text);
   background: var(--pl-tint-selected);
+}
+
+/* At the large size (the first open, the asleep screen) the control is a quiet ghost button at the top right of
+   Auto's stage, beside his head: never between his ring and the headline under him, and out of the column's
+   height, but still on the page (WCAG 2.2.2). The stage is centred in .auto, so its right edge sits 0.45 of his
+   size right of the middle, however wide a caption makes .auto. */
+.auto[data-size="large"] {
+  position: relative;
+}
+
+.auto[data-size="large"] .pause {
+  position: absolute;
+  top: 0;
+  left: calc(50% + var(--pl-auto-size) * 0.45 + var(--pl-space-2));
+  padding: 0 var(--pl-space-3);
+  border-color: transparent;
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-meta);
+  white-space: nowrap;
+}
+
+.auto[data-size="large"] .pause:hover:not(:disabled) {
+  background: var(--pl-tint-hover);
+  color: var(--pl-color-text);
+}
+
+/* Paused, the ghost button shows its edge, so the pressed state still reads. */
+.auto[data-size="large"] .pause[aria-pressed="true"] {
+  border-color: var(--pl-line-button);
+  background: var(--pl-tint-selected);
+  color: var(--pl-color-text);
 }
 
 /* PRD-261 E3g: disabled until the host knows whether Auto is paused (@automatos/mascot's

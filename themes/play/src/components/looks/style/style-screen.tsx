@@ -36,7 +36,8 @@ import styles from './style.module.css'
 /** The sheet's heading, and the title of the note /looks/style shows outside Play (PlayOnlyRoute). */
 export const STYLE_HEADING = 'Style sheet'
 export const COPY_TOKENS = 'Copy tokens'
-export const BACK_TO_LOOKS = 'Back to Looks'
+/** Back to the Look page, by its name (Play 1.1.1). */
+export const BACK_TO_LOOKS = 'Back to Look'
 export const COPY_FAILED = "The tokens weren't copied. The browser blocked the clipboard."
 /** What /looks/style says under Classic or Studio, beside Switch to Play (K9). */
 export const STYLE_SHEET_NOTE = 'The style sheet is part of the Play theme.'

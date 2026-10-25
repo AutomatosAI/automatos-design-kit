@@ -32,7 +32,7 @@ export interface PlayNav {
 
 /** Play's conversation list (T-006): right after Chat, at its theme route (/conversations only redirects there). */
 export const PLAY_CONVERSATIONS_ITEM: PlayNavItem = { id: 'conversations', label: 'Conversations', href: PLAY_CONVERSATIONS_HREF }
-/** Make it yours (T-008a): last, on its own. */
+/** The Look page (T-008a): last, on its own, by the name it has everywhere (theme.json's nav, its heading). */
 export const PLAY_LOOK_ITEM: PlayNavItem = { id: 'looks', label: 'Look', href: LOOKS_HREF }
 const CONVERSATIONS_FOLLOW = 'chat'
 const LOOK_GROUP_ID = 'look'

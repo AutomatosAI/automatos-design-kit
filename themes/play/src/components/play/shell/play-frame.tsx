@@ -4,6 +4,7 @@ import { type ReactNode, type RefObject, useRef } from 'react'
 import { Search } from '../../../vendor/lucide-react/index.js'
 import { HeaderUtilities, openGlobalSearch } from '@automatos/theme-sdk'
 
+import { useAccentLikeText } from '../../looks/use-accent-like-text'
 import { AsleepGate } from '../edges/asleep-gate'
 import { PlaySidebar } from './play-sidebar'
 import styles from './play-frame.module.css'
@@ -18,6 +19,9 @@ import styles from './play-frame.module.css'
  * PRD-261 A-14f: the utilities are the SDK's HeaderUtilities (the Studio header's
  * cluster, PRD §4.4) and search is the SDK's openGlobalSearch.
  */
+
+/** The global search's shortcut, as aria-keyshortcuts names it. */
+export const SEARCH_SHORTCUT = 'Meta+K'
 
 export interface PlayFrameProps {
   readonly children: ReactNode
@@ -48,10 +52,12 @@ interface FrameLayoutProps extends PlayFrameProps {
 }
 
 function FrameLayout({ children, fullBleed = false, autoWidget, mainRef }: FrameLayoutProps) {
+  // Play 1.1.1: on a look whose accent reads as its text colour, the secondary buttons are outlines (play-theme.css).
+  const accentLikeText = useAccentLikeText()
   // `safe-bottom` (the one safe-area helper, globals.css) keeps the frame's
   // bottom edge clear of a home bar, as the Studio shell does.
   return (
-    <div className={`${styles.frame} safe-bottom`}>
+    <div className={`${styles.frame} safe-bottom`} data-accent-like-text={accentLikeText || undefined}>
       <PlaySidebar />
       <div className={styles.column}>
         <PlayHeader />
@@ -70,13 +76,17 @@ function FrameLayout({ children, fullBleed = false, autoWidget, mainRef }: Frame
   )
 }
 
-/** The header row: search (the ⌘K dialog) and the host's header utilities (the Studio header's cluster). */
+/**
+ * The header row: search (the ⌘K dialog) and the host's header utilities (the Studio header's cluster). The search
+ * button is named by what it shows, "Search ⌘K" (a label that differed from it failed axe's label-in-name check, WCAG
+ * 2.5.3), and announces its shortcut through aria-keyshortcuts (Play 1.1.1).
+ */
 function PlayHeader() {
   return (
     <header className={styles.header}>
-      <button type="button" className={styles.search} onClick={openGlobalSearch} aria-label="Open search (⌘K)">
+      <button type="button" className={styles.search} onClick={openGlobalSearch} aria-keyshortcuts={SEARCH_SHORTCUT}>
         <Search className={styles.searchIcon} aria-hidden="true" />
-        <span>Search</span>
+        <span>Search</span>{' '}
         <kbd className={styles.kbd}>⌘K</kbd>
       </button>
       <div className={styles.utilities}>

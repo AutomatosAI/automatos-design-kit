@@ -11,7 +11,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 0 var(--pl-space-7);
+  padding: 0 var(--pl-space-6);
 }
 
 /* The list sits at the bottom of a short conversation, as Play's does. */

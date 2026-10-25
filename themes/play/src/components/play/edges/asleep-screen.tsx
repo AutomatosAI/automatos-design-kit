@@ -2,11 +2,12 @@
 
 import { useEffect, useRef } from 'react'
 
-import { useOnline } from '@automatos/theme-sdk'
+import { HeaderUtilities, useOnline } from '@automatos/theme-sdk'
 
 import { useRecheckCountdown } from '../../../hooks/use-recheck-countdown'
 import type { MascotName } from '@automatos/mascot/types'
 import { refocus } from '../../../lib/play/focus'
+import { useAccentLikeText } from '../../looks/use-accent-like-text'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import styles from './edges.module.css'
 import { StartCommand } from './start-command'
@@ -21,7 +22,10 @@ import { EdgeWordmark } from './wordmark'
  * command that starts Automatos; the hosted edition has none to offer. While a
  * check is in flight it says Checking… (M94); while the browser is offline it
  * says so, in place of either (M83, P260-FX-21). It focuses its heading as it
- * opens, since the swap took focus away with the page (P260-FX-22, M21).
+ * opens, since the swap took focus away with the page (P260-FX-22, M21). Its
+ * top row keeps the host's header utilities (the SDK's HeaderUtilities: Help,
+ * notifications, the theme menu and the account), so the theme menu and the
+ * profile stay in reach while the frame is away (Play 1.1.1).
  * PRD-261 A-14f: online comes through '@automatos/theme-sdk' (useOnline); Auto,
  * the mascot library, the recheck and the focus helper are Play's own.
  */
@@ -69,17 +73,21 @@ function WayBack({ local }: { readonly local: boolean }) {
 
 export function AsleepScreen({ mascot, onClipEnded, detail, onCheck, checking, recheckSeconds, local }: AsleepScreenProps) {
   const { remaining, checkNow } = useRecheckCountdown(recheckSeconds, onCheck, checking)
+  const accentLikeText = useAccentLikeText()
   const title = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
     refocus(title.current)
   }, [])
   return (
-    <div className={styles.screen}>
+    <div className={styles.screen} data-accent-like-text={accentLikeText || undefined}>
       <header className={styles.top}>
         <EdgeWordmark quiet />
-        <span className={styles.status} role="status">
-          {NOT_CONNECTED}
-        </span>
+        <div className={styles.topEnd}>
+          <span className={styles.status} role="status">
+            {NOT_CONNECTED}
+          </span>
+          <HeaderUtilities />
+        </div>
       </header>
       <main className={styles.body}>
         <AutoMascot state={mascot} onClipEnded={onClipEnded} size="large" showCaption={false} />

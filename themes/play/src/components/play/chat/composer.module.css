@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--pl-space-2);
-  padding: var(--pl-space-2) var(--pl-space-7) var(--pl-space-6);
+  padding: var(--pl-space-2) var(--pl-space-6) var(--pl-space-6);
 }
 
 .box {
@@ -69,6 +69,8 @@
   color: var(--pl-color-text-3);
 }
 
+/* A 1px edge in the fill's colour, so the disabled Send's outline (below) takes no more room than the fill, and an
+   outline where the look's accent reads as the text colour (play-theme.css's --pl-button-2-*). */
 .send,
 .stop {
   flex: none;
@@ -77,10 +79,10 @@
   align-items: center;
   gap: var(--pl-space-2);
   padding: 0 var(--pl-space-5);
-  border: 0;
+  border: 1px solid var(--pl-button-2-edge);
   border-radius: var(--pl-radius-button);
-  background: var(--pl-color-text);
-  color: var(--pl-color-bg);
+  background: var(--pl-button-2-fill);
+  color: var(--pl-button-2-ink);
   font: var(--pl-text-button-sm);
   cursor: pointer;
 }
@@ -88,13 +90,20 @@
 /* Send and Stop are the secondary (cream) button in a conversation; on the empty chat
    (first open) Send is the screen's one primary, in the accent. */
 .chat[data-empty] .send {
+  border-color: transparent;
   background: var(--pl-color-accent);
   color: var(--pl-color-accent-ink);
   box-shadow: var(--pl-shadow-primary);
 }
 
-.send:disabled {
-  opacity: 0.55;
+/* Nothing to send yet: an outline in the third text colour, not a faded fill (the accent at 55% was muddy, and
+   2.4:1 on Daylight), on the empty chat too (Play 1.1.1). */
+.send:disabled,
+.chat[data-empty] .send:disabled {
+  border-color: var(--pl-line-button);
+  background: transparent;
+  color: var(--pl-color-text-3);
+  box-shadow: none;
   cursor: default;
 }
 
@@ -102,5 +111,5 @@
   width: 10px;
   height: 10px;
   border-radius: var(--pl-radius-icon);
-  background: var(--pl-color-bg);
+  background: currentcolor; /* Stop's ink, filled or outlined */
 }

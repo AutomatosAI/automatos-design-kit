@@ -19,7 +19,8 @@ vi.mock('../../src/components/play/shell/play-sidebar.tsx', async () => {
   return { PlaySidebar: () => createElement('aside', { 'data-testid': 'play-sidebar' }) }
 })
 
-const SEARCH = 'Open search (⌘K)'
+/** The search button's name is what it shows (Play 1.1.1: no aria-label of its own, test/shell/search-button.test.tsx). */
+const SEARCH = 'Search ⌘K'
 const UTILITIES = 'Header utilities'
 
 function renderFrame(props: { readonly fullBleed?: boolean } = {}) {

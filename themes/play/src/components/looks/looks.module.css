@@ -10,6 +10,10 @@
  * M18, M19, M73: the active look's card is marked in the accent as text (the raw
  * accents fall below 3:1 on Paper); a card's swatch keeps its own colours in forced
  * colours; a long look name wraps instead of squeezing the heading or being clipped.
+ *
+ * Play 1.1.1: the look's name breaks between words (break-word, never anywhere), the
+ * style sheet link never wraps, and in a column under 560px (a 1024 to 1280 px window,
+ * beside the editor) the header stacks: the heading, then the name and the link.
  */
 
 .screen {
@@ -22,6 +26,7 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
+  container-type: inline-size;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -47,7 +52,7 @@
 /* html.play outranks Studio's element rules (globals.css .studio h1/h2): <html> carries both. */
 :global(html.play) .heading {
   margin: 0;
-  font: var(--pl-text-hero);
+  font: var(--pl-text-status);
   letter-spacing: var(--pl-display-letter-spacing);
   color: var(--pl-color-text);
 }
@@ -69,22 +74,39 @@
   gap: var(--pl-space-1);
 }
 
-/* "Ember", or "Ember · edited"; a name with no spaces still wraps. */
+/* "Ember", or "Ember · edited": it wraps between words, and a name with no spaces still wraps. */
 .status {
   margin: 0;
   font: var(--pl-text-mono-sm);
   color: var(--pl-color-text-2);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   text-align: right;
 }
 
-/* "See the style sheet": a quiet link to the live style sheet (/looks/style). */
+/* "See the style sheet": a quiet link to the live style sheet (/looks/style), on one line. */
 .styleLink {
   min-height: var(--pl-tap-min);
   display: inline-flex;
   align-items: center;
   font: var(--pl-text-meta);
   color: var(--pl-color-accent-text);
+  white-space: nowrap;
+}
+
+/* A narrow column: the heading, then the look's name and the link under it, on the left. */
+@container (max-width: 560px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerSide {
+    align-items: flex-start;
+  }
+
+  .status {
+    text-align: left;
+  }
 }
 
 /* The live preview: Auto on the left, a slice of the chat on the right. */
@@ -101,10 +123,12 @@
   background: var(--pl-tint-panel);
 }
 
+/* Centred on its own line once the chat slice wraps under him. */
 .previewAuto {
   flex: none;
   display: flex;
   justify-content: center;
+  margin-inline: auto;
 }
 
 /* Beside Auto while there is room; under him in a narrow window. */
@@ -176,12 +200,14 @@
   padding-left: var(--pl-space-4);
 }
 
-/* A printed sheet: two lines of text and an accent bar. */
+/* A printed sheet: two lines of text and an accent bar. Its 1px edge in the ground's line keeps a white sheet
+   apart from a white card (Daylight, Play 1.1.1). */
 .previewTile {
   width: 48px;
   height: 60px;
   flex: none;
   border-radius: var(--pl-radius-paper);
+  box-shadow: inset 0 0 0 1px var(--pl-line);
   background:
     linear-gradient(var(--pl-color-sheet-text), var(--pl-color-sheet-text)) 7px 9px / 60% 4px no-repeat,
     linear-gradient(var(--pl-tint-sheet-line), var(--pl-tint-sheet-line)) 7px 17px / 70% 2px no-repeat,
@@ -248,17 +274,24 @@
   color: var(--pl-color-text-2);
 }
 
+/* Each card snaps to the row's start, and the row's end fades, so a card the edge cuts reads as "more this way";
+   the end's padding keeps the last card clear of the fade once it is scrolled to (Play 1.1.1). The mask reads only
+   the gradient's alpha: currentcolor is opaque, whatever the look. */
 .row {
   list-style: none;
   margin: 0;
-  padding: var(--pl-space-1);
+  padding: var(--pl-space-1) var(--pl-space-6) var(--pl-space-1) var(--pl-space-1);
   display: flex;
   gap: var(--pl-space-3);
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--pl-space-1);
+  mask-image: linear-gradient(to right, currentcolor calc(100% - var(--pl-space-6)), transparent);
 }
 
 .rowItem {
   flex: none;
+  scroll-snap-align: start;
 }
 
 .card {
