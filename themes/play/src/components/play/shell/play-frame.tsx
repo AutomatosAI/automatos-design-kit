@@ -19,6 +19,9 @@ import styles from './play-frame.module.css'
  * cluster, PRD §4.4) and search is the SDK's openGlobalSearch.
  */
 
+/** The global search's shortcut, as aria-keyshortcuts names it. */
+export const SEARCH_SHORTCUT = 'Meta+K'
+
 export interface PlayFrameProps {
   readonly children: ReactNode
   /** As in the Studio shell: no padding and no width cap, a column the page fills (the chat). */
@@ -70,13 +73,17 @@ function FrameLayout({ children, fullBleed = false, autoWidget, mainRef }: Frame
   )
 }
 
-/** The header row: search (the ⌘K dialog) and the host's header utilities (the Studio header's cluster). */
+/**
+ * The header row: search (the ⌘K dialog) and the host's header utilities (the Studio header's cluster). The search
+ * button is named by what it shows, "Search ⌘K" (a label that differed from it failed axe's label-in-name check, WCAG
+ * 2.5.3), and announces its shortcut through aria-keyshortcuts (Play 1.1.1).
+ */
 function PlayHeader() {
   return (
     <header className={styles.header}>
-      <button type="button" className={styles.search} onClick={openGlobalSearch} aria-label="Open search (⌘K)">
+      <button type="button" className={styles.search} onClick={openGlobalSearch} aria-keyshortcuts={SEARCH_SHORTCUT}>
         <Search className={styles.searchIcon} aria-hidden="true" />
-        <span>Search</span>
+        <span>Search</span>{' '}
         <kbd className={styles.kbd}>⌘K</kbd>
       </button>
       <div className={styles.utilities}>

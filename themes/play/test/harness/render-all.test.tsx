@@ -52,7 +52,7 @@ const WIDGET_TEXT = "Auto's floating widget"
 const SEEN = Object.freeze({
   sidebar: 'Sidebar',
   mainNav: 'Main',
-  search: 'Open search (⌘K)',
+  search: 'Search ⌘K',
   asleep: 'Automatos is asleep',
   checkAgain: 'Check again',
   lookEditor: 'Make it yours.',
