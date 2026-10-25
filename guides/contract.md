@@ -102,8 +102,22 @@ A page entry is `{"mode": "own" | "clone", "keepCorePage": [...], "clonedFrom": 
 - `clone`: a copy of the core page, redesigned. `clonedFrom` names the core file it copied (one of the route's files
   above) and that file's sha256 when it was copied. When a later host changes that file, the review warns that the
   clone may miss what the core page has now.
-- `keepCorePage`: up to 16 link parameters (such as `tab`) for which the host draws its own page instead, because
-  the theme's page doesn't have that part.
+- `keepCorePage`: up to 16 link parameter names (such as `tab`). The host checks the list's shape and nothing more;
+  the list doesn't decide which links keep the core page. Each route's layout in core holds a fixed list of its own
+  (`app/<route>/layout.tsx`, handed to `components/theme-host/theme-slot.tsx`), whatever the theme's list says: a link
+  carrying one of those parameters draws the host's own page instead of the theme's, unless its value is one the
+  theme's page still serves. A theme may still name the route's list (Play's `theme.json` names core's), so the
+  package says which links leave its page; it changes nothing the host draws.
+
+  | Route | Links that keep the core page | Values the theme's page still serves |
+  |---|---|---|
+  | `/chat` | `repo`, `runtime`, `mode` | |
+  | `/deliverables` | `tab`, `post`, `artifact_type` | `tab=outputs` |
+  | `/agents` | `tab`, `agent`, `panel` | `tab=roster` |
+  | `/assignments` | `tab`, `id` | `tab=missions` |
+  | `/command-center` | `tab`, `openExecution`, `recipeId`, `task_id` | `tab=summary` |
+  | `/playbooks` | `id` | |
+  | `/missions/[id]`, `/documents`, `/` | none | |
 
 Any other route is `PAGE_OUT_OF_SCOPE`; a host-owned one is `HOST_OWNED_PAGE`.
 

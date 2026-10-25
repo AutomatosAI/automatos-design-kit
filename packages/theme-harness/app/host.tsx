@@ -3,13 +3,15 @@
  * register(host) as core's loader does, and draws the view the fake host's path names: the theme's frame around
  * the slot, page or route there (src/host/slots.ts), the host's own page alone below the theme's minWidth, and the
  * host's own page with core's notice once the entry failed to load, its register threw, or something it drew threw
- * (a boundary around the theme, as core's provider falls back on 'render'). Before the theme draws, <html> gets
- * what core's boot puts there (src/host/prepaint.ts): the base's and the theme's classes, the active look's
- * variables, the tone, and the host's status.
+ * (a boundary around the theme, as core's provider falls back on 'render'). Before the theme draws, the page gets
+ * core's base layer (src/host/core-base.ts: Tailwind's preflight and globals.css's base), and <html> gets what core's
+ * boot puts there (src/host/prepaint.ts): the base's and the theme's classes, the active look's variables, the tone,
+ * and the host's status.
  *
  * The toolbar's settings drive the fake host (src/host.ts): the width and minWidth (useThemeLayout), the chosen tone
- * and the one the theme forces (useTone), reduced motion (useMediaPreferences), and the look runtime mounted on the
- * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too.
+ * and the one the theme forces (useTone), reduced motion (useMediaPreferences), the look runtime mounted on the
+ * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too,
+ * and the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat).
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  */
 import type { HostLook } from '@automatos/theme-sdk'
@@ -22,11 +24,13 @@ import {
   applyHtml, forcedTone, htmlClasses, installPreviewStyle, lookTone, paintLook, paintNames, STUDIO_CLASS, TONE_CLASSES,
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
+import { installCoreBase } from '../src/host/core-base.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
 } from '../src/host/router.ts'
 import { drawView } from '../src/host/slots.ts'
+import { showTranscript } from '../src/host/transcript.ts'
 import { BasePage } from './base-page.tsx'
 import { Toolbar } from './toolbar.tsx'
 
@@ -96,11 +100,15 @@ export function applySettings(theme: HarnessTheme, settings: HarnessSettings, wi
   host.setReducedMotion(settings.reducedMotion)
 }
 
-/** The fake host as the settings start it, before the first render: the settings, the look runtime and the path. */
+/**
+ * The fake host as the settings start it, before the first render: the settings, the look runtime, the path, and the
+ * chat's conversation (the transcript, or a new chat).
+ */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
+  showTranscript(settings.transcript)
 }
 
 /** Catches what the theme throws while drawing, so the host can fall back. */
@@ -185,7 +193,9 @@ interface Painted {
 function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, settings }: Painted): void {
   const { base, htmlClass } = theme.manifest
   const { reducedMotion, forcedColors } = settings
-  useEffect(() => {
+  // Core's base layer first in <head>, before the theme's stylesheet, and before the theme draws (src/host/core-base.ts).
+  useLayoutEffect(() => {
+    installCoreBase(document)
     installPreviewStyle(document)
   }, [])
   useLayoutEffect(() => {
@@ -247,6 +257,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
+    if (next.transcript !== settings.transcript) showTranscript(next.transcript)
     setSettings(next)
   }
   const onRenderError = (error: unknown): void => {

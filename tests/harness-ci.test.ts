@@ -21,6 +21,10 @@ const SHOTS_OUT = "packages/theme-harness/dist/shots";
 const HUD_SHOTS_OUT = `${SHOTS_OUT}/hud`;
 const HUD_SHOTS_STEP = "HUD shots";
 const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
+// The shots' spec and their groups: one group shoots the chat page with motion allowed, so the Pause Auto control
+// (which reduced motion never draws) is in the upload; every other group keeps the config's reduced motion.
+const SHOTS_SPEC = "packages/theme-harness/shots/shots.spec.ts";
+const SHOT_GROUPS = "packages/theme-harness/src/host/shot-groups.ts";
 // PRD-261 B-02i: the dev smoke's own Playwright config, whose web server is `automatos-theme dev themes/play`, and the
 // spec it runs, which opens /chat there.
 const DEV_SMOKE_CONFIG = "packages/theme-harness/shots/dev-smoke.config.ts";
@@ -122,6 +126,16 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     const config = readText(SHOTS_CONFIG);
     expect(Array.from(config.matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).toEqual(["chromium", "webkit"]);
     expect(config).toMatch(/^\s+retries: 0,$/m);
+  });
+
+  it("asks every shot context for reduced motion, but the motion group's page, which asks the browser for none", () => {
+    expect(readText(SHOTS_CONFIG)).toContain("contextOptions: { reducedMotion: 'reduce' }");
+    const spec = readText(SHOTS_SPEC);
+    expect(spec).toContain("if (!group.reducedMotion) await page.emulateMedia({ reducedMotion: 'no-preference' })");
+    expect(spec).toContain("shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages)");
+    const groups = readText(SHOT_GROUPS);
+    expect(groups).toContain("export const CHAT_PAGE = '/chat'");
+    expect(groups).toContain("export const MOTION_SUFFIX = '-motion'");
   });
 
   it("smokes `automatos-theme dev` over Play with its own spec, on Chromium alone, with no retry, at /chat", () => {
