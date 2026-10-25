@@ -33,6 +33,7 @@
   color: var(--hud-text-2);
   font: 500 11px/1.4 var(--hud-font-mono);
   letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
 }
 
 .list {
@@ -71,6 +72,35 @@
 .external {
   flex: none;
   color: var(--hud-text-2);
+}
+
+/* A recent conversation: its title in mono, in its own words (sentence case), cut to one line. */
+.recent {
+  min-height: var(--hud-tap-min);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--hud-space-3);
+  color: var(--hud-text-2);
+  font: 400 12px/1.3 var(--hud-font-mono);
+  text-decoration: none;
+}
+
+.recent:hover {
+  color: var(--hud-text);
+  background: var(--hud-panel-fill);
+}
+
+.recent[aria-current="true"] {
+  color: var(--hud-accent-text);
+  background: var(--hud-accent-fill);
+  box-shadow: inset 2px 0 0 var(--hud-accent);
+}
+
+.recentTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Docs, Settings and Auto's dock, at the foot. */

@@ -1,7 +1,8 @@
 import { useId, useMemo } from 'react'
 
-import { HostLink, useCoreNav, useHostPathname } from '@automatos/theme-sdk'
+import { CHAT_HREF, chatHref, HostLink, useCoreNav, useHostPathname, useRecentChats } from '@automatos/theme-sdk'
 
+import { conversationTitle } from '../conversations/conversations'
 import { AutoDock } from './auto-dock'
 import { buildRailNav, resolveRailActiveId, type RailGroup, type RailItem } from './rail-nav'
 import styles from './side-rail.module.css'
@@ -9,13 +10,18 @@ import styles from './side-rail.module.css'
 /**
  * The side rail: every core page, grouped as the Studio menu groups them, and HUD's Conversations after Chat
  * (rail-nav.ts), in Geist Mono capitals; the current one in the accent with a 2 px bar on its edge, and
- * aria-current, so the state is never the colour alone. Docs and Settings sit at its foot, above Auto's dock. Every
- * link is the SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab.
+ * aria-current, so the state is never the colour alone. Under the nav, RECENT lists the latest conversations (the
+ * SDK's useRecentChats), each opening in the chat, the one on screen marked; nothing until there is one. Docs and
+ * Settings sit at its foot, above Auto's dock. Every link is the SDK's HostLink: a path inside the app moves the
+ * host's router, Docs opens in a new tab.
  */
 
 export const RAIL_LABEL = 'Sidebar'
 export const NAV_LABEL = 'Main'
 export const MORE_LABEL = 'More'
+export const RECENT_LABEL = 'Recent'
+/** How many conversations RECENT lists. */
+export const RECENT_SHOWN = 5
 
 function RailLink({ item, active }: { readonly item: RailItem; readonly active: boolean }) {
   return (
@@ -54,6 +60,34 @@ function RailGroupList({ group, activeId }: { readonly group: RailGroup; readonl
   )
 }
 
+/** RECENT: the latest conversations, each opening in the chat, the one the chat shows marked. */
+function RecentList() {
+  const labelId = useId()
+  const { chats, activeChatId } = useRecentChats(RECENT_SHOWN)
+  const onChat = useHostPathname() === CHAT_HREF
+  if (chats.length === 0) return null
+  return (
+    <div role="group" aria-labelledby={labelId} className={styles.group}>
+      <span id={labelId} className={styles.groupLabel}>
+        {RECENT_LABEL}
+      </span>
+      <ul className={styles.list}>
+        {chats.map((chat) => (
+          <li key={chat.id}>
+            <HostLink
+              href={chatHref(chat.id)}
+              className={styles.recent}
+              aria-current={onChat && chat.id === activeChatId ? 'true' : undefined}
+            >
+              <span className={styles.recentTitle}>{conversationTitle(chat)}</span>
+            </HostLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 export function SideRail() {
   const coreNav = useCoreNav()
   const nav = useMemo(() => buildRailNav(coreNav), [coreNav])
@@ -65,6 +99,7 @@ export function SideRail() {
           <RailGroupList key={group.id} group={group} activeId={activeId} />
         ))}
       </nav>
+      <RecentList />
       <div className={styles.foot}>
         {nav.footer.length > 0 && <RailList items={nav.footer} activeId={activeId} label={MORE_LABEL} />}
         <AutoDock />

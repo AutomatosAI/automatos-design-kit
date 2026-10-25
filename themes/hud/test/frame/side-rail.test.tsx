@@ -1,13 +1,14 @@
 // HUD's side rail: the core nav (the SDK's useCoreNav: the Studio menu after its edition, role and plan filters) in
 // its groups and order with HUD's Conversations after Chat, the current page marked by aria-current as well as by
-// colour, Docs and Settings at the foot, and every link the SDK's HostLink. buildRailNav is pure; the rail is drawn
-// on the kit's harness.
+// colour, RECENT's latest conversations under the nav, Docs and Settings at the foot, and every link the SDK's
+// HostLink. buildRailNav is pure; the rail is drawn on the kit's harness. Every chat is made up.
 import type { CoreNav } from '@automatos/theme-sdk'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { buildRailNav, CONVERSATIONS_ITEM, resolveRailActiveId } from '../../src/frame/rail-nav.ts'
-import { SideRail } from '../../src/frame/side-rail.tsx'
+import { HudChatPage } from '../../src/chat/hud-chat.tsx'
+import { RECENT_LABEL, RECENT_SHOWN, SideRail } from '../../src/frame/side-rail.tsx'
 
 const NAV: CoreNav = {
   primary: [
@@ -83,5 +84,39 @@ describe('the rail', () => {
     render(<SideRail />)
     expect(screen.getByRole('link', { name: 'Team Management' })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Workspace Admin' })).toBeNull()
+  })
+})
+
+describe('RECENT', () => {
+  const UPDATED = '2026-10-14T09:00:00+00:00'
+  const chats = Array.from({ length: RECENT_SHOWN + 2 }, (_, index) => ({
+    id: `c${index + 1}`, title: index === 1 ? '  ' : `Chat number ${index + 1}`, updatedAt: UPDATED, preview: null,
+  }))
+  const recent = () => within(screen.getByRole('group', { name: RECENT_LABEL }))
+
+  it('lists the latest conversations under the nav, each opening in the chat, an untitled one as New chat', async () => {
+    host.setConversations(chats)
+    render(<SideRail />)
+    await waitFor(() => expect(recent().getAllByRole('link')).toHaveLength(RECENT_SHOWN))
+    expect(host.conversationsAsked()).toContainEqual({ limit: RECENT_SHOWN })
+    const links = recent().getAllByRole('link')
+    expect(links[0]).toHaveTextContent('Chat number 1')
+    expect(links[0]).toHaveAttribute('href', '/chat?chatId=c1')
+    expect(links[1]).toHaveTextContent('New chat')
+  })
+
+  it('marks the conversation the chat shows', async () => {
+    host.setConversations(chats)
+    host.setPathname('/chat')
+    host.setSearchParams('chatId=c3')
+    render(<><SideRail /><HudChatPage /></>)
+    await waitFor(() => expect(recent().getByRole('link', { name: 'Chat number 3' })).toHaveAttribute('aria-current', 'true'))
+    expect(recent().getAllByRole('link').filter((link) => link.hasAttribute('aria-current'))).toHaveLength(1)
+  })
+
+  it('is not drawn until there is a conversation', async () => {
+    render(<SideRail />)
+    await waitFor(() => expect(host.conversationsAsked().length).toBeGreaterThan(0))
+    expect(screen.queryByRole('group', { name: RECENT_LABEL })).toBeNull()
   })
 })
