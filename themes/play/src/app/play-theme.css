@@ -169,7 +169,7 @@ html.play {
   --pl-sidebar-width: 232px;
   --pl-mascot-column-width: 340px;
   --pl-mascot-size: 220px; /* Auto's stage height in the mascot column */
-  --pl-mascot-size-large: 380px; /* first open (mock 06) */
+  --pl-mascot-size-large: clamp(200px, 36dvh, 380px); /* first open (mock 06): 380px on a tall window, less on a laptop's */
   --pl-mascot-size-small: 84px; /* beside the caption above the message box on phones */
   --pl-bubble-max: 480px; /* your messages */
   --pl-deliverable-card-max: 520px; /* the Deliverable card in a reply */

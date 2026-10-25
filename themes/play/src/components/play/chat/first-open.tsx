@@ -9,7 +9,8 @@ import styles from './first-open.module.css'
  * PRD-260 §4 — the empty chat (mock 06), ported from Automatos Play's
  * components/chat/FirstOpen.tsx: Auto big (playing hello on the first open in
  * a browser session), "Hi, I'm Auto." and three examples that fill the
- * message box.
+ * message box. The empty chat draws no page header (play-chat-view.tsx), so the
+ * headline is the page's h1.
  */
 
 export const HELLO_TITLE = "Hi, I'm Auto."
@@ -41,7 +42,7 @@ export function FirstOpenHero({ state, onClipEnded, caption, detail }: FirstOpen
         size="large"
         showCaption={!SAID_BY_HEADLINE.has(state)}
       />
-      <h2 className={styles.title}>{HELLO_TITLE}</h2>
+      <h1 className={styles.title}>{HELLO_TITLE}</h1>
       <p className={styles.line}>{HELLO_LINE}</p>
     </section>
   )

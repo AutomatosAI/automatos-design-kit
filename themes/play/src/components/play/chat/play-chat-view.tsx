@@ -37,7 +37,8 @@ import styles from './composer.module.css'
  * parts, its status and the reply being written (his thinking ends when the
  * words start), and plays the turn's events. The page lays out the
  * conversation and the message box, with Auto in the mascot column and his
- * caption saying what he is doing; an empty chat is the first open. Stop tells
+ * caption saying what he is doing; an empty chat is the first open, with no
+ * page header over it (the hero's headline is its h1). Stop tells
  * Auto first (no celebration for a stopped turn), then stops the chat. A spent
  * trial shows the core's banner above the box. A card whose reply left the
  * conversation (Try again, a request failing mid-turn, the conversation shown
@@ -164,7 +165,8 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
 
   return (
     <PageColumns mascot={mascot}>
-      <PageHeader title={chat.title} />
+      {/* An empty chat has no page header: "Hi, I'm Auto." is its heading, so the first open fits a laptop window. */}
+      {!empty && <PageHeader title={chat.title} />}
       <div className={styles.chat} data-empty={empty || undefined}>
         {empty ? (
           <FirstOpenHero state={auto.mascot} onClipEnded={auto.onClipEnded} {...caption} />
