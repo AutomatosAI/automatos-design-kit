@@ -29,13 +29,17 @@
   gap: var(--hud-space-4);
 }
 
-/* Unlayered and under html.hud, so it outranks Studio's h1 rule. */
+/*
+ * Unlayered and under html.hud, so it outranks Studio's h1 rule. 40 px wherever the window is 572 px or more (the
+ * desktop always), 7% of the window under that, never under 28 px: CONVERSATIONS is one word, and a phone's 360 px
+ * window holds it at 28 px.
+ */
 .heading {
   margin: 0;
   min-width: 0;
   color: var(--hud-text);
   font-family: var(--hud-font-display);
-  font-size: 40px;
+  font-size: clamp(28px, 7vw, 40px);
   font-weight: var(--hud-display-weight);
   line-height: 1;
   letter-spacing: var(--hud-tracking-panel);

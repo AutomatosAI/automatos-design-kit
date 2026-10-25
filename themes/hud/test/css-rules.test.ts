@@ -89,6 +89,12 @@ describe('the phone core screen', () => {
   })
 })
 
+describe('the Conversations page', () => {
+  it("sets its one-word heading at 40 px on the desktop and no larger than a 360 px phone's window holds", () => {
+    expect(ruleBody('conversations/conversations.module.css', '.heading')).toContain('font-size: clamp(28px, 7vw, 40px);')
+  })
+})
+
 describe('Pause Auto', () => {
   it('stands on the opaque ground, pressed or not, so no ring shows through it', () => {
     expect(ruleBody('mascot/hud-auto.module.css', '.pause')).toContain('background: var(--hud-bg);')
