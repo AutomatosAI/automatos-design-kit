@@ -69,6 +69,7 @@
   color: var(--pl-color-text-3);
 }
 
+/* A transparent 1px edge, so the disabled Send's outline (below) takes no more room than the fill. */
 .send,
 .stop {
   flex: none;
@@ -77,7 +78,7 @@
   align-items: center;
   gap: var(--pl-space-2);
   padding: 0 var(--pl-space-5);
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--pl-radius-button);
   background: var(--pl-color-text);
   color: var(--pl-color-bg);
@@ -93,8 +94,14 @@
   box-shadow: var(--pl-shadow-primary);
 }
 
-.send:disabled {
-  opacity: 0.55;
+/* Nothing to send yet: an outline in the third text colour, not a faded fill (the accent at 55% was muddy, and
+   2.4:1 on Daylight), on the empty chat too (Play 1.1.1). */
+.send:disabled,
+.chat[data-empty] .send:disabled {
+  border-color: var(--pl-line-button);
+  background: transparent;
+  color: var(--pl-color-text-3);
+  box-shadow: none;
   cursor: default;
 }
 
