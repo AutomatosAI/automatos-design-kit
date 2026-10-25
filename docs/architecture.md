@@ -176,16 +176,22 @@ builds it for one theme folder (`AUTOMATOS_HARNESS_THEME`):
 - its CSS is made as the preset makes `dist/theme.css`, then wrapped under `html.<htmlClass>`;
 - `theme.json` is checked with core's own validator, and the entry's `register(host)` runs as core's loader runs it
   (`src/host/register.ts`): an unknown slot, page or route, a second registration or a missing frame stops the theme;
-- before the theme draws, `<html>` gets the base's class, the theme's class and the active look painted from
-  `boot/prepaint.json` (`src/host/prepaint.ts`);
-- the host draws what `theme.json` declares and the theme registers (`src/host/router.ts`): `lookEditor@1` on
-  `/looks`, `styleSheet@1` on `/looks/style`, a page on its route, a route under `/x/`, and the host's own page for
-  any other path, inside the theme's frame;
-- a toolbar switches the view, preset, width, tone, reduced motion and forced colours, each kept in the address.
+- before the theme draws, the page gets core's base layer (`src/host/core-base.ts`: Tailwind's preflight with core's
+  theme values, then core's `globals.css` base), and `<html>` gets the base's class, the theme's class and the active
+  look painted from `boot/prepaint.json` (`src/host/prepaint.ts`);
+- the host draws what `theme.json` declares and the theme registers (`src/host/router.ts`, `src/host/slots.ts`):
+  `lookEditor@1` on `/looks` and `styleSheet@1` on `/looks/style` (full bleed, as core's page slots), a page on its
+  route, a route under `/x/`, and the host's own page for any other path, inside the theme's frame; the 404 alone,
+  with no frame, as core draws it;
+- the host's cards are stand-ins that take the room core's take (the header utilities, the first-run nudge's pill),
+  and the page areas' reads answer with made-up data (`src/host/sample-data.ts`);
+- a toolbar switches the view, preset, width, tone, reduced motion, forced colours and the transcript (the chat on a
+  made-up exchange), each kept in the address.
 
 `automatos-theme dev` serves that build on `127.0.0.1:4319` with Node's own `http`, rebuilt after each change under
 `src/`. `automatos-theme shots` previews it on `127.0.0.1:4318` and shoots it with Playwright on Chromium and WebKit,
-with an axe scan of each shot; a shot fails on any request to another origin. The harness shows that a theme draws;
+with an axe scan of each shot (`src/host/shot-groups.ts`: every view per preset and width with reduced motion, then
+the chat page with motion allowed and on the transcript); a shot fails on any request to another origin. The harness shows that a theme draws;
 it does not show that core draws it the same way.
 
 ## The phone
