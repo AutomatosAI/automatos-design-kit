@@ -1,6 +1,8 @@
 // The views as the mock host draws them under a theme (src/host/slots.ts), held to core: the 404 (notFound@1) alone,
 // with no frame, as core's frontend/app/not-found.tsx draws it through ThemeSlot (components/theme-host/theme-slot.tsx,
-// ThemeNamedSlot, unframed); every other view inside the theme's frame@1. Made-up components, registered here.
+// ThemeNamedSlot, unframed); every other view inside the theme's frame@1, full bleed for a page, a route and the looks
+// pages (lookEditor@1, styleSheet@1: core's theme-slot-page.tsx draws them in <MainLayout fullBleed>), in the frame's
+// own layout for its own view and the host's pages. Made-up components, registered here.
 import { render, screen } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { describe, expect, it } from 'vitest'
@@ -52,5 +54,24 @@ describe('the 404', () => {
     expect(VIEWS.filter((view) => !isFramed(view)).map((view) => view.key)).toEqual(['notFound@1'])
     draw('/chat')
     expect(screen.getByTestId('frame')).toContainElement(screen.getByTestId('chat'))
+  })
+})
+
+describe('full bleed', () => {
+  it.each(['lookEditor@1', 'styleSheet@1'])("draws %s full bleed in the frame, as core's ThemeSlotPage does", (key) => {
+    draw(key)
+    expect(screen.getByTestId('frame')).toHaveAttribute('data-full-bleed', 'true')
+  })
+
+  it("draws a page and a route full bleed, the frame's own view and a host page in the frame's own layout", () => {
+    const bleed = (view: View): string => {
+      const { unmount } = render(drawView(view, REGISTRATIONS, { basePage }))
+      const value = screen.getByTestId('frame').getAttribute('data-full-bleed') ?? ''
+      unmount()
+      return value
+    }
+    expect([bleed(viewOf('/chat')), bleed(viewOf('notes'))]).toEqual(['true', 'true'])
+    expect(bleed(viewOf('frame@1'))).toBe('false')
+    expect(bleed({ kind: 'base', key: '/agents', path: '/agents' })).toBe('false')
   })
 })
