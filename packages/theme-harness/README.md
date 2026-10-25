@@ -70,7 +70,13 @@ The fakes keep the SDK's rules where a theme depends on them: the href checks, t
 names, the asset path rule, the page areas' id checks, and the storage area, which is core's runtime ported. They
 answer from the fake host's state, not a backend. Chat plays recorded turns from `fixtures/streams/`, Deliverables
 answer from `fixtures/deliverables/` (or rows a test sets), and the host cards are stand-ins with the cards' props
-(`fixtures/README.md` says what each fixture holds; every fixture is made-up data).
+(`fixtures/README.md` says what each fixture holds; every fixture is made-up data). A stored reply of a conversation may
+carry its turn's frames (`frames`, in the stream format), read onto it as the stream reads them, so a conversation
+opens with its tool lines and Deliverables. The chrome stand-ins (`src/sdk/cards/chrome.tsx`) take the room core's cards
+take, in plain colours: `HeaderUtilities` is core's cluster on the local edition (Help at 30 × 30, the bell at 40 × 40
+with a made-up unread badge, a separator, the theme menu at 40 × 40, the account's 36-pixel avatar), each button named
+as before; `FirstRunNudge` is core's zero-height anchor with its pill placed over the top of the chat column, so it
+takes no room from the chat, with core's words and the link to Settings (a kept click).
 
 ## The fake host
 
@@ -109,7 +115,8 @@ this package names none of its own; so are the shots' Playwright (`@playwright/t
 lane pins) and `@axe-core/playwright`. `tests/kit-ci.test.ts` holds each pin exact, React DOM at React's version, and
 every outside package on the kit's approved list. The package does name the kit's own packages it loads
 (`@automatos/theme-cli` for core's manifest check, `@automatos/theme-sdk`, `@automatos/vite-preset`), as every
-workspace does (`tests/workspace-deps.test.ts`).
+workspace does (`tests/workspace-deps.test.ts`). Tailwind's preflight, which the browser harness draws a theme on, is
+vendored as source (`src/vendor/tailwind-preflight/`, at the version core pins, with its MIT licence), not installed.
 
 ## The browser harness
 
@@ -136,10 +143,24 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   theme's own links move it too. A slot, page or route sits inside the theme's frame (`lookEditor@1` on `/looks`,
   `styleSheet@1` on `/looks/style`, a page on its route, a route on `/x/<path>`); a path the theme draws nothing for
   is the host's own page inside the frame, the frame's own view among them (on `/`, or on `/harness/slot/frame@1`
-  for a theme that owns `/`, so no two views share a path). Below `minWidth`, and after a failed load or a throw
-  while drawing, the host's own page stands alone, the latter with core's notice.
+  for a theme that owns `/`, so no two views share a path). The frame gets `fullBleed` for a page, a route and the two
+  looks pages, as core's `MainLayout fullBleed` draws them (`components/theme-host/theme-slot-page.tsx`); the 404
+  (`notFound@1`, on `/harness/not-found`) is drawn alone, with no frame and no Auto widget, as core's
+  `app/not-found.tsx` draws it. Below `minWidth`, and after a failed load or a throw while drawing, the host's own
+  page stands alone, the latter with core's notice.
 - **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
   look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+- **Core's base layer** (`src/host/core-base.ts`): the mock host puts the base every core page draws on first in the
+  page's `<head>`, before the theme's stylesheet: Tailwind 3.3.3's preflight with core's theme values
+  (`src/vendor/tailwind-preflight/`, MIT, its licence beside it: every box `border-box`, borders reset to `0 solid`, no
+  default margins, buttons and fields that inherit their text, images as blocks), then core's `globals.css` base (every
+  border in `hsl(var(--border))`, the body on `hsl(var(--background))` and `hsl(var(--foreground))`, with core's values
+  of the three for Classic and Studio under the look's own, and Studio's Geist, Newsreader and Geist Mono type). So a
+  theme's boxes measure as in core, a box's padding and border inside its width (without it, Play's 232-pixel sidebar
+  drew 264 pixels wide). The phone view draws without it.
+- **Sample data** (`src/host/sample-data.ts`): the page areas' reads answer with made-up data, as the Deliverables fake
+  does: the roster and its counts (`fixtures/agents/`) and one running Mission (`fixtures/activity/feed.json`), so a
+  theme's agent and Mission panels show rows (in a theme's tests a read stays loading until the test sets it).
 - **The host's fonts** (`app/fonts/core`, core's own files; its README names core's commit and pins each file's
   sha256): Geist, Geist Mono and Newsreader, which core supplies to every page. The page (`app/index.html`) declares
   their `@font-face` rules with the weights and styles core declares, and binds `--font-geist-sans`,
@@ -148,23 +169,32 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   from the theme's stylesheet and its wrap; the build emits the files under `harness/`.
 - **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the
   theme's editor sets paints too), the width (the window's, 1440, 1024, or just below `minWidth`), the tone (off
-  while the theme or its look forces one), reduced motion and forced colours. A page cannot turn the browser's media
-  features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors:
-  active)` rules under the toolbar's two attributes, and forced colours paints the system colours over the page.
-  The shots ask the browser itself for reduced motion; forced colours is the toolbar's preview only, and no shot
-  draws it. Each setting is in the address, so a reload opens the same view.
+  while the theme or its look forces one), reduced motion, forced colours and the transcript (the chat opened on a
+  made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool line and the Deliverable
+  it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens one). A page cannot turn
+  the browser's media features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and
+  `@media (forced-colors: active)` rules under the toolbar's two attributes, and forced colours paints the system
+  colours over the page. The shots ask the browser itself for reduced motion, or for none in the motion group; forced
+  colours is the toolbar's preview only, and no shot draws it. Each setting is in the address, so a reload opens the
+  same view.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 
 `shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one
-test per preset and width, each waiting on the host's status, the network, the fonts and the images (never a fixed
-sleep), with reduced motion on and animations off. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`);
-a set's scans go to its `axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and
-route that `theme.json` declares, less what the page reports the theme did not register (a route's `/` is `_` in its
-file name, so no two views share one); when the page's presets are not the folder's, default look first; on any
-request to another origin than `http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a
-default look that `looks/presets/` lacks stops the shots before they start. It proves a theme draws, not that core
-draws it the same way: core's browser lane does that.
+test per group (`src/host/shot-groups.ts`), each waiting on the host's status, the network, the fonts and the images
+(never a fixed sleep), with animations off. The groups: every view of each preset at 1440 and 1024 px, and of the
+default look just below `minWidth`, with reduced motion on; then, for a theme with a `/chat` page, that page twice
+more in the default look at 1440 px: with motion allowed (`<preset>/1440-motion/`: the host's reduced motion off and
+the browser asked for none, so Auto's clip and the Pause Auto control beside it are shot), and on the transcript
+(`<preset>/1440-transcript/`, with reduced motion: a chat with a conversation on it). Each PNG gets an axe scan of
+the theme's stage (`shots/axe.ts`); a set's scans go to its `axe.json`. A set fails when its folder does not hold
+exactly one PNG per slot, page and route that `theme.json` declares (a chat group: the chat page's), less what the
+page reports the theme did not register (a route's `/` is `_` in its file name, so no two views share one); when the
+page's presets are not the folder's, default look first; on any request to another origin than
+`http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a default look that `looks/presets/`
+lacks stops the shots before they start. The shots draw a theme on core's base layer, in core's frames, with
+stand-ins that take the room core's cards take; they prove a theme draws, not that core draws it the same way: core's
+browser lane does that.
 
 `shots/dev-smoke.config.ts` is the smoke of `automatos-theme dev` (kit CI's `harness` job, after the shots): its web
 server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium and checks

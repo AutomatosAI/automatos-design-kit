@@ -28,7 +28,10 @@ import {
 } from '../src/sdk/cards.ts'
 import { APPROVE_LABEL, APPROVED_LINE, DENIED_LINE, DENY_LABEL, REJECT_LABEL } from '../src/sdk/cards/approvals.tsx'
 import { CREATE_MISSION_LABEL, DISMISS_SUGGESTION_LABEL, KEEP_LABEL, KEPT_LINE, WITHDRAW_LABEL, WITHDRAWN_LINE } from '../src/sdk/cards/chat-cards.tsx'
-import { CREDITS_PAUSED_LINE, DISMISS_LABEL, NUDGE_LINE } from '../src/sdk/cards/chrome.tsx'
+import {
+  CREDITS_PAUSED_LINE, DISMISS_LABEL, HEADER_UTILITIES, HEADER_UTILITIES_LABEL, NUDGE_LINE, NUDGE_LINK_LABEL, UNREAD_SAMPLE,
+} from '../src/sdk/cards/chrome.tsx'
+import { NUDGE_PILL } from '../src/sdk/cards/chrome-styles.ts'
 import { MADE_BY_FALLBACK } from '../src/sdk/cards/content.tsx'
 import { chatControls, resetChat } from '../src/sdk/chat.ts'
 
@@ -213,6 +216,35 @@ describe('content and chrome', () => {
     inputs.edition = 'saas'
     render(<FirstRunNudge />)
     expect(surface('first-run-nudge')).toBeNull()
+  })
+
+  it("FirstRunNudge: core's zero-height anchor, its pill over the top of the chat, core's words and a kept click on Settings", () => {
+    render(<FirstRunNudge />)
+    const anchor = surface('first-run-nudge')
+    expect(anchor).toHaveStyle({ position: 'relative', height: '0px', zIndex: '30' })
+    const pill = screen.getByRole('status')
+    expect(anchor).toContainElement(pill)
+    expect(pill).toHaveStyle({ position: 'absolute', left: '50%', top: '12px', whiteSpace: 'nowrap' })
+    expect(NUDGE_PILL).toMatchObject({ transform: 'translateX(-50%)', borderRadius: '9999px', padding: '8px 16px', gap: '12px' })
+    expect(pill).toHaveTextContent(`${NUDGE_LINE}${NUDGE_LINK_LABEL}`)
+    fireEvent.click(within(pill).getByRole('link', { name: NUDGE_LINK_LABEL }))
+    expect(cardActions()).toEqual([{ card: 'first-run-nudge', id: '/settings', action: 'opened' }])
+  })
+
+  it("HeaderUtilities: core's cluster, icon-sized Help, bell with its badge and theme menu, then the account's avatar", () => {
+    render(<HeaderUtilities />)
+    const group = screen.getByRole('group', { name: HEADER_UTILITIES_LABEL })
+    expect(group).toHaveStyle({ display: 'inline-flex' })
+    const button = (name: string): HTMLElement => within(group).getByRole('button', { name })
+    const buttons = within(group).getAllByRole('button')
+    expect(buttons).toHaveLength(HEADER_UTILITIES.length)
+    HEADER_UTILITIES.forEach((name, index) => expect(buttons[index]).toBe(button(name)))
+    expect(button('Help')).toHaveStyle({ width: '30px', height: '30px' })
+    expect([button('Notifications'), button('Theme')].map((icon) => [icon.style.width, icon.style.height])).toEqual([['40px', '40px'], ['40px', '40px']])
+    const badge = button('Notifications').querySelector('[data-harness-part="badge"]')
+    expect(badge).toHaveTextContent(String(UNREAD_SAMPLE))
+    expect(badge).toHaveStyle({ position: 'absolute', top: '-4px', right: '-4px', height: '18px' })
+    expect(button('Account').querySelector('[data-harness-part="avatar"]')).toHaveStyle({ width: '36px', height: '36px' })
   })
 
   it('HeaderUtilities keeps each click; AiLabelFence leaves the composer on while the label shows; CorePage shows its children', () => {

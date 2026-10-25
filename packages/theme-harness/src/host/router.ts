@@ -9,7 +9,8 @@
  *   route under /x/; frame@1's own view on /, or on a harness path of its own when the theme owns /), and the view a
  *   path shows. A path the theme draws nothing for is the host's own page inside the theme's frame, as core's
  *   MainLayout draws a core page under a theme.
- * - The shots' plan: the groups, each view's file name, and the files a group must hold, read from the theme folder.
+ * - The shots' plan: each view's file name, and the files a set must hold, read from the theme folder (the groups, and
+ *   the address each shot opens, are src/host/shot-groups.ts's).
  * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
@@ -197,6 +198,8 @@ export interface HarnessSettings {
   readonly tone: HarnessTone
   readonly reducedMotion: boolean
   readonly forcedColors: boolean
+  /** True opens the chat on a made-up conversation (src/host/transcript.ts); false on a new chat. */
+  readonly transcript: boolean
   /** False hides the toolbar (the shots draw the theme alone). */
   readonly toolbar: boolean
 }
@@ -208,12 +211,14 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   tone: 'light',
   reducedMotion: false,
   forcedColors: false,
+  transcript: false,
   toolbar: true,
 })
 
 const PARAM = Object.freeze({
-  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', toolbar: 'toolbar',
+  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', toolbar: 'toolbar',
 })
+const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
 const ACTIVE = 'active'
 const OFF = 'off'
@@ -242,6 +247,7 @@ export function readSettings(search: string): HarnessSettings {
     tone: tone === 'dark' || tone === 'light' ? tone : DEFAULT_SETTINGS.tone,
     reducedMotion: params.get(PARAM.motion) === REDUCE,
     forcedColors: params.get(PARAM.forced) === ACTIVE,
+    transcript: params.get(PARAM.chat) === TRANSCRIPT,
     toolbar: params.get(PARAM.toolbar) !== OFF,
   })
 }
@@ -255,6 +261,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.tone !== DEFAULT_SETTINGS.tone) params.set(PARAM.tone, settings.tone)
   if (settings.reducedMotion) params.set(PARAM.motion, REDUCE)
   if (settings.forcedColors) params.set(PARAM.forced, ACTIVE)
+  if (settings.transcript) params.set(PARAM.chat, TRANSCRIPT)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
   const query = params.toString()
   return query === '' ? '' : `?${query}`
@@ -275,28 +282,6 @@ export function offOrigin(urls: readonly string[], origin: string = HARNESS_ORIG
       return true
     }
   })
-}
-
-/** One test of the shots: a preset (null for a theme with none) at one width, into its own folder. */
-export interface ShotGroup {
-  readonly folder: string
-  readonly preset: string | null
-  readonly width: number
-}
-
-const NO_PRESET_FOLDER = 'default'
-
-/** Each preset (default first) at each desktop width, then the default look just below the theme's minWidth. */
-export function shotGroups(presets: readonly string[], minWidth: number): ShotGroup[] {
-  const looks: readonly (string | null)[] = presets.length === 0 ? [null] : presets
-  const desktop = looks.flatMap((preset) => SHOT_WIDTHS.map((width) => ({ folder: `${preset ?? NO_PRESET_FOLDER}/${width}`, preset, width })))
-  const below = belowWidth(minWidth)
-  return below === null ? desktop : [...desktop, { folder: `below-${below}`, preset: looks[0], width: below }]
-}
-
-/** The address a shot opens: the view's path, the group's look and width, reduced motion, no toolbar. */
-export function shotAddress(group: ShotGroup, path: string): string {
-  return `/${settingsQuery({ ...DEFAULT_SETTINGS, path, preset: group.preset, width: group.width, reducedMotion: true, toolbar: false })}`
 }
 
 /** What the app publishes on HARNESS_GLOBAL once the theme has loaded (or failed), for the shots. */

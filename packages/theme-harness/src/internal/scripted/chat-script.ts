@@ -48,6 +48,12 @@ export interface HistoryMessage {
   readonly provenance?: string
   /** A failed turn the server saved, in its words: the reply is that failure, never an answer. */
   readonly savedError?: string
+  /**
+   * What the reply's turn streamed beside its words, in the recorded stream's format (its tool calls, the receipts, a
+   * generated document), read onto the stored reply as the stream reads them, as core's stored message keeps its
+   * tool calls, receipts and documents (types/chat.ts ChatMessage); absent for none.
+   */
+  readonly frames?: readonly RecordedFrame[]
 }
 
 /** A conversation as the lists show it, and the messages it opens with. */
@@ -149,17 +155,25 @@ function optionalTextOf(value: unknown, where: string): string | undefined {
   return value === undefined || value === null ? undefined : textOf(value, where)
 }
 
+/** A stored reply's frames, each checked; undefined when the row has none. */
+function storedFramesOf(value: unknown, where: string): readonly RecordedFrame[] | undefined {
+  if (value === undefined) return undefined
+  return Object.freeze(listOf(value, where).map((frame, index) => frameOf(frame, `${where}[${index}]`)))
+}
+
 function historyOf(value: unknown, where: string): HistoryMessage {
   const fields = fieldsOf(value, where)
   const role = textOf(fields.role, `${where}.role`)
   if (!ROLES.has(role)) throw new TypeError(`${where}.role is not a chat role.`)
   const provenance = optionalTextOf(fields.provenance, `${where}.provenance`)
   const savedError = optionalTextOf(fields.savedError, `${where}.savedError`)
+  const frames = storedFramesOf(fields.frames, `${where}.frames`)
   return Object.freeze({
     role: role as HostChatRole,
     text: textOf(fields.text, `${where}.text`),
     ...(provenance === undefined ? {} : { provenance }),
     ...(savedError === undefined ? {} : { savedError }),
+    ...(frames === undefined ? {} : { frames }),
   })
 }
 

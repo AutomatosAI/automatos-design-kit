@@ -5,7 +5,8 @@
  *
  * The web server is `vite preview` over the built harness on 127.0.0.1:4318, the one origin every request must go
  * to. Every context asks for reduced motion (the shots' first rule of determinism, with Playwright's own
- * `animations: 'disabled'`), and no test is retried: a flaky shot shows as red.
+ * `animations: 'disabled'`), but the motion group's page, which asks for none (shots.spec.ts, src/host/shot-groups.ts),
+ * and no test is retried: a flaky shot shows as red.
  */
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'

@@ -38,7 +38,7 @@ import type {
 } from '@automatos/theme-sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type ApprovalStatus, type FiledApproval, isWaitingCard } from '../internal/scripted/approvals.ts'
-import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord } from '../internal/scripted/chat-reply.ts'
+import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord, withFrame } from '../internal/scripted/chat-reply.ts'
 import {
   aiLabelShown,
   chatSent,
@@ -127,9 +127,12 @@ function isForged(value: unknown): boolean {
   return typeof value === 'object' && value !== null && 'key' in value && openedOf(value) === null
 }
 
-/** A stored message as the conversation opens with it: a background post's provenance and a saved failure kept. */
+/**
+ * A stored message as the conversation opens with it: its turn's frames read onto it (a tool line, a Deliverable), a
+ * background post's provenance and a saved failure kept.
+ */
 function storedReply(id: string, message: HistoryMessage): ReplyRecord {
-  const record = replyRecord(id, message.role, message.text)
+  const record = (message.frames ?? []).reduce(withFrame, replyRecord(id, message.role, message.text))
   return Object.freeze({ ...record, provenance: message.provenance ?? null, savedError: message.savedError ?? null })
 }
 
