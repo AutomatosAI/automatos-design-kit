@@ -242,8 +242,10 @@ own rule (`src/phone/skin.ts`):
   colours, saying why the phone offers it none.
 - **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
   member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
-  phone says so. The theme's own web screens are no stand-in: their `minWidth` (1024) keeps them off a phone-width
-  browser, where the host draws its own pages. The contrast panel still measures the block, look by look.
+  phone says so. The theme's own web screens are no stand-in, whatever Play's and HUD's own `minWidth`: Automatos Go
+  runs no theme code, and those screens are what a phone's browser draws at or above that width (the shots'
+  phone-width group photographs them for a theme whose `minWidth` fits a phone). The contrast panel still measures the
+  block, look by look.
 
 The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src/phone/contrast.ts`): the outcome and
 reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its

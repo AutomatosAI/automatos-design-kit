@@ -2,8 +2,9 @@
  * A theme the phone draws in its own built-in layout (automatos/play and automatos/hud: the app's
  * src/styles/themes/follow.ts BUILT_IN_THEME_STYLES): Automatos Go switches to its native Play or HUD layout, painted
  * from the member's looks, and reads none of the theme's `mobile` block. That layout is compiled into the app, so the
- * harness can't draw it. Nor are the theme's own web screens a stand-in: their theme.json minWidth (1024 for both)
- * keeps them off a phone-width browser, where the host draws its own pages. So the phone says so, in the look's tone.
+ * harness can't draw it. Nor are the theme's own web screens a stand-in, whatever Play's and HUD's own minWidth: they
+ * are what a phone's browser draws at or above that width, and Automatos Go runs no theme code. So the phone says so,
+ * in the look's tone.
  */
 import type { CSSProperties } from 'react'
 import type { PhoneScheme } from '../../src/phone/settings.ts'
