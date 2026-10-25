@@ -1,0 +1,76 @@
+{
+  "total": 6,
+  "counts": { "review": 2, "question": 1, "approval": 1, "stuck": 1, "failed": 1 },
+  "rows": {
+    "review": [
+      {
+        "ticket_id": 101,
+        "number": "#0101",
+        "title": "Check the three laptop reviews",
+        "agent_name": "Scout",
+        "mission_id": "harness-mission-1",
+        "mission_title": "Compare three laptops and write a shortlist",
+        "opens": "ticket",
+        "at": "2026-10-14T08:50:00+00:00"
+      },
+      {
+        "ticket_id": 98,
+        "number": "#0098",
+        "title": "Proofread the bake sale post",
+        "agent_name": "Quill",
+        "mission_id": null,
+        "opens": "ticket",
+        "at": "2026-10-14T08:15:00+00:00"
+      }
+    ],
+    "question": [
+      {
+        "source": "grant",
+        "id": "301",
+        "title": "Which budget should the laptops stay under?",
+        "ticket_id": 102,
+        "number": "#0102",
+        "agent_name": "Scout",
+        "mission_id": "harness-mission-1",
+        "mission_title": "Compare three laptops and write a shortlist",
+        "at": "2026-10-14T09:02:00+00:00"
+      }
+    ],
+    "approval": [
+      {
+        "source": "mission",
+        "id": "harness-mission-2",
+        "title": "Plan the October newsletter",
+        "ticket_id": null,
+        "number": null,
+        "agent_name": "Quill",
+        "mission_id": "harness-mission-2",
+        "mission_title": "Plan the October newsletter",
+        "at": "2026-10-14T08:30:00+00:00"
+      }
+    ],
+    "stuck": [
+      {
+        "ticket_id": 95,
+        "number": "#0095",
+        "title": "Reconcile the September invoices",
+        "agent_name": "Ledger",
+        "mission_id": null,
+        "opens": "ticket",
+        "at": "2026-10-13T17:00:00+00:00",
+        "why": "not_picked_up"
+      }
+    ],
+    "failed": [
+      {
+        "ticket_id": 97,
+        "number": "#0097",
+        "title": "Run the broken-link check",
+        "agent_name": "Patch",
+        "mission_id": null,
+        "opens": "ticket",
+        "at": "2026-10-14T07:45:00+00:00"
+      }
+    ]
+  }
+}

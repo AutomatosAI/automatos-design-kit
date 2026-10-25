@@ -1,0 +1,57 @@
+{
+  "scheduled": [
+    {
+      "id": "routine-21",
+      "name": "Post the bake sale reminder",
+      "type": "routine",
+      "next_run_at": "2026-10-14T11:00:00+00:00",
+      "frequency": "Daily at 11:00",
+      "agent_name": "Quill",
+      "agent_id": 8,
+      "recurrence": { "cron_expression": "0 11 * * *", "interval_minutes": null, "timezone": "UTC", "active_hours": null },
+      "scheduled_task_id": 21,
+      "task_type": "recurring",
+      "deliver_as": "chat",
+      "timezone": "UTC"
+    },
+    {
+      "id": "recipe-12",
+      "name": "Check the laptop prices",
+      "type": "recipe",
+      "next_run_at": "2026-10-14T13:30:00+00:00",
+      "frequency": "Every 6 hours",
+      "agent_name": "Scout",
+      "agent_id": 7,
+      "recurrence": { "cron_expression": null, "interval_minutes": 360, "timezone": "UTC", "active_hours": null },
+      "scheduled_task_id": 22,
+      "task_type": "recurring",
+      "deliver_as": "board_task",
+      "playbook_id": 12,
+      "timezone": "UTC"
+    },
+    {
+      "id": "task_due-103",
+      "name": "Send the laptop shortlist",
+      "type": "task_due",
+      "next_run_at": "2026-10-14T16:00:00+00:00",
+      "frequency": "Once",
+      "agent_name": "Scout",
+      "agent_id": 7,
+      "board_task_id": 103,
+      "status": "in_progress",
+      "priority": "high"
+    },
+    {
+      "id": "social-harness-post-1",
+      "name": "Share the newsletter teaser",
+      "type": "social",
+      "next_run_at": "2026-10-14T18:00:00+00:00",
+      "frequency": "Once",
+      "agent_name": "Quill",
+      "agent_id": 8,
+      "status": "scheduled",
+      "post_id": "harness-post-1"
+    }
+  ],
+  "scheduler_active": true
+}
