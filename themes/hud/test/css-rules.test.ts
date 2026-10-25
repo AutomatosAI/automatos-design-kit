@@ -1,9 +1,9 @@
 // @vitest-environment node
 // HUD's layout and control rules that jsdom never applies, read from the stylesheets as written: every box measured
 // with its border and padding whatever the host's reset, the phone frame's page width, menu and tap targets, 40 px
-// under the message box's keys at the core screen's foot, Pause Auto on the opaque ground beside the core's state
-// chip, and the empty chat's line and starters in the message box's hint and HUD's secondary button. A rule is found
-// by its selector, comments out and whitespace collapsed.
+// under the message box's keys at the core screen's foot, the phone core screen's controls, dock and sizes, Pause Auto
+// on the opaque ground beside the core's state chip, and the empty chat's line and starters in the message box's hint
+// and HUD's secondary button. A rule is found by its selector, comments out and whitespace collapsed.
 import { describe, expect, it } from 'vitest'
 import { readSource } from './support/files.ts'
 
@@ -58,6 +58,34 @@ describe('the core screen', () => {
   it("leaves 40 px under the message box's keys at its foot", () => {
     expect(ruleBody('chat/screen.module.css', '.screen')).toContain('padding: 20px var(--hud-space-5) var(--hud-space-6);')
     expect(ruleBody('app/hud-theme.css', 'html.hud')).toContain('--hud-space-6: 40px;')
+  })
+})
+
+describe('the phone core screen', () => {
+  it("keeps TYPE and STOP at the row's two ends at the design's 64 by 44 px, the middle the voice button's", () => {
+    const controls = ruleBody('chat/phone/phone.module.css', '.controls')
+    expect(controls).toContain('display: flex;')
+    expect(controls).toContain('justify-content: space-between;')
+    const buttons = ruleBody('chat/phone/phone.module.css', '.type, .stop')
+    expect(buttons).toContain('min-width: 64px;')
+    expect(buttons).toContain('min-height: var(--hud-tap-min);')
+  })
+
+  it('pins the dock to the foot on the opaque ground while the screen scrolls as one', () => {
+    expect(ruleBody('chat/phone/phone.module.css', '.screen')).toContain('overflow-y: auto;')
+    const dock = ruleBody('chat/phone/phone.module.css', '.dock')
+    expect(dock).toContain('position: sticky;')
+    expect(dock).toContain('bottom: 0;')
+    expect(dock).toContain('background: var(--hud-bg);')
+  })
+
+  it("sets your words at 15 px in the secondary text and Auto's reply the whole width at 19 px, AUTO for a screen reader", () => {
+    expect(ruleBody('chat/phone/phone.module.css', '.quote')).toContain('font: 400 15px/1.5 var(--hud-font-text);')
+    expect(ruleBody('chat/phone/phone.module.css', '.quote')).toContain('color: var(--hud-text-2);')
+    const reply = ruleBody('chat/transcript.module.css', '.row[data-layout="phone"]')
+    expect(reply).toContain('--hud-row-auto: 19px;')
+    expect(reply).toContain('grid-template-columns: minmax(0, 1fr);')
+    expect(ruleBody('chat/transcript.module.css', '.row[data-layout="phone"] .speaker')).toContain('clip-path: inset(50%);')
   })
 })
 

@@ -84,9 +84,11 @@ export interface AutoReplyProps {
   readonly snagHidden?: boolean
   /** The newest exchange, set at the design's large sizes. */
   readonly recent?: boolean
+  /** On the phone's last exchange: no speaker column (AUTO is said to a screen reader only), the phone's sizes. */
+  readonly phone?: boolean
 }
 
-export function AutoReply({ message, streaming, onRetry, snagHidden = false, recent = false }: AutoReplyProps) {
+export function AutoReply({ message, streaming, onRetry, snagHidden = false, recent = false, phone = false }: AutoReplyProps) {
   const { provenance, savedError, limitReached } = message
   return (
     <article
@@ -96,6 +98,7 @@ export function AutoReply({ message, streaming, onRetry, snagHidden = false, rec
       data-ai-generated="true"
       data-speaker="auto"
       data-recent={recent ? 'true' : undefined}
+      data-layout={phone ? 'phone' : undefined}
     >
       <h2 className={rows.speaker}>{SPEAKER}</h2>
       <div className={styles.body}>

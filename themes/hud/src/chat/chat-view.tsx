@@ -7,11 +7,14 @@ import {
   useHealth,
 } from '@automatos/theme-sdk'
 
-import { ChatFooter, type ChatSending } from './chat-footer'
+import { usePhoneLayout } from '../lib/phone-layout'
+import { ChatFooter } from './chat-footer'
+import type { ChatParts, Sending } from './chat-parts'
 import { chipWords } from './chip'
 import { useBoxFill } from './composer'
 import { EmptyChat } from './empty-chat'
 import { useScreenLayout } from './layout'
+import { PhoneChat } from './phone/phone-chat'
 import { latestReply, liveMessages, replyProgress, runningToolInput } from './reply'
 import { ChatScreen } from './screen'
 import { Transcript } from './transcript'
@@ -28,6 +31,9 @@ import { VoiceCore } from './voice-core'
  * when his words start, celebrating a done receipt or a new Deliverable, oops on a failure, listening while an
  * approval card waits, asleep while the backend is down or after a long while without input. Before anything is
  * said, the empty chat's starters put their words in the message box.
+ *
+ * In a window narrower than the desktop layout (src/lib/phone-layout.ts) the same chat is drawn as the design's phone
+ * (phone/phone-chat.tsx); everything above is made once for both, so a window crossing the width keeps it.
  *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,
  * whose effects (Auto reading the status and the reply) run before the turn's own (a failure, a card waiting or
@@ -67,10 +73,6 @@ function newestKind(reply: HostChatMessage | undefined): string | undefined {
   return made[made.length - 1]?.kind
 }
 
-interface Sending extends ChatSending {
-  readonly retry: () => void
-}
-
 /**
  * Send, Try again and Stop, each leaving the focus in the message box (a Send or Stop button that gives way to the
  * other would drop it to the page). Stop tells Auto first (a done receipt no longer celebrates the stopped turn),
@@ -107,10 +109,10 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
   // The conversation as the chat hook holds it: Auto, the chip and the turn's end read this one.
   const live = liveMessages(chat.messages)
   const auto = useChatAuto(turn, live, idleMs)
-  const box = useRef<HTMLTextAreaElement>(null)
-  const sending = useSending(chat, auto, box)
+  const boxRef = useRef<HTMLTextAreaElement>(null)
+  const sending = useSending(chat, auto, boxRef)
   const { fill, fillBox } = useBoxFill()
-  const { ref, layout } = useScreenLayout()
+  const phone = usePhoneLayout()
   const reply = latestReply(live)
   const chip = chipWords(auto.mascot, {
     runningInput: runningToolInput(reply),
@@ -118,8 +120,15 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
     backendDown: auto.state.backendDown,
     approvalWaiting: auto.state.approvalWaiting,
   })
+  const parts: ChatParts = { chat, live, auto, chip, sending, boxRef, fill, fillBox }
+  return phone ? <PhoneChat {...parts} /> : <DesktopChat {...parts} />
+}
+
+/** The desktop's core screen: the conversation's column between the side panels, laid out by its measured size. */
+function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
+  const { ref, layout } = useScreenLayout()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
-  const footer = <ChatFooter chat={chat} boxRef={box} sending={sending} autoFocus={chat.messages.length === 0} fill={fill} />
+  const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={chat.messages.length === 0} fill={fill} />
   const missionId = chat.planningMissionId
   return (
     <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer} missionId={missionId}>

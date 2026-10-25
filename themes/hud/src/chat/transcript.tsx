@@ -20,7 +20,8 @@ export const YOU = 'You'
 /** How close to the bottom counts as reading the newest line. */
 export const FOLLOW_SLACK_PX = 120
 
-function nearBottom(scroller: HTMLElement): boolean {
+/** The scroller shows its newest line, or near enough (the phone's screen follows the same way). */
+export function nearBottom(scroller: HTMLElement): boolean {
   return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= FOLLOW_SLACK_PX
 }
 
