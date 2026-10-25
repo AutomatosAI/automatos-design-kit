@@ -55,7 +55,8 @@
   border-color: var(--pl-line-button);
 }
 
-/* The printed sheet under the picture, all a Deliverable shows without one: a sheet on the tile's bottom edge. */
+/* The printed sheet under the picture, all a Deliverable shows without one: a sheet on the tile's bottom edge, with
+   a 1px edge in the ground's line so a white sheet stays apart from a white tile (Daylight, Play 1.1.1). */
 .thumb::before {
   content: '';
   position: absolute;
@@ -65,6 +66,7 @@
   height: 80%;
   transform: translateX(-50%);
   border-radius: var(--pl-radius-paper) var(--pl-radius-paper) 0 0;
+  box-shadow: inset 0 0 0 1px var(--pl-line);
   background:
     linear-gradient(var(--pl-tint-sheet-line), var(--pl-tint-sheet-line)) 14px 18px / 62% 3px no-repeat,
     linear-gradient(var(--pl-tint-sheet-line), var(--pl-tint-sheet-line)) 14px 30px / 48% 3px no-repeat,

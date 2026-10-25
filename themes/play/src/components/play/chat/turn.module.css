@@ -178,12 +178,14 @@
   animation: land var(--pl-duration-card) var(--pl-ease-out);
 }
 
-/* A printed sheet: two lines of text and an accent bar. */
+/* A printed sheet: two lines of text and an accent bar, with a 1px edge in the ground's line so a white sheet stays
+   apart from a light card (Daylight, Play 1.1.1). */
 .deliverableTile {
   width: 72px;
   height: 90px;
   flex: none;
   border-radius: var(--pl-radius-paper);
+  box-shadow: inset 0 0 0 1px var(--pl-line);
   background:
     linear-gradient(var(--pl-tint-sheet-line), var(--pl-tint-sheet-line)) 10px 14px / 60% 3px no-repeat,
     linear-gradient(var(--pl-tint-sheet-line), var(--pl-tint-sheet-line)) 10px 24px / 45% 3px no-repeat,
