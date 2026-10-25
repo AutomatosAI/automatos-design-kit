@@ -25,6 +25,10 @@ import styles from './play-sidebar.module.css'
  * /health). Rendered by PlayFrame, only under Play at >= 1024 px. PRD-261 A-14f:
  * each of those reaches the core through '@automatos/theme-sdk' (useStartChat,
  * useCoreNav, useRecentChats, useHealth, HostLink).
+ *
+ * Play 1.1.1: the nav and Recent scroll between New chat and the foot, Recent's
+ * own list scrolling in what the nav leaves, so Docs, Settings and the pill stay
+ * in view on a laptop's window; Recent lines up with the nav, one line a title.
  */
 
 /** A conversation the backend has not named yet. */
@@ -50,12 +54,14 @@ export function PlaySidebar() {
         </span>
       </HostLink>
       <NewChatButton />
-      <nav aria-label="Main" className={styles.navGroups}>
-        {nav.groups.map((group) => (
-          <NavGroupList key={group.id} group={group} activeId={activeId} />
-        ))}
-      </nav>
-      <RecentList onChat={pathname === CHAT_HREF} />
+      <div className={styles.scroller}>
+        <nav aria-label="Main" className={styles.navGroups}>
+          {nav.groups.map((group) => (
+            <NavGroupList key={group.id} group={group} activeId={activeId} />
+          ))}
+        </nav>
+        <RecentList onChat={pathname === CHAT_HREF} />
+      </div>
       <div className={styles.foot}>
         {nav.footer.length > 0 && (
           <ul className={styles.list} aria-label="More">
@@ -121,17 +127,17 @@ function NavGroupList({ group, activeId }: { readonly group: PlayNavGroup; reado
   )
 }
 
-/** Recent: the latest conversations, each opening in the chat. Nothing until there is one. */
+/** Recent: the latest conversations, each opening in the chat, a title on one line. Nothing until there is one. */
 function RecentList({ onChat }: { readonly onChat: boolean }) {
   const headingId = useId()
   const { chats: recent, activeChatId } = useRecentChats()
   if (recent.length === 0) return null
   return (
-    <section aria-labelledby={headingId}>
+    <section aria-labelledby={headingId} className={styles.recent}>
       <h2 id={headingId} className={styles.sectionLabel}>
         Recent
       </h2>
-      <ul className={styles.list}>
+      <ul className={`${styles.list} ${styles.recentList}`}>
         {recent.map((chat) => (
           <li key={chat.id}>
             <HostLink
@@ -139,7 +145,7 @@ function RecentList({ onChat }: { readonly onChat: boolean }) {
               className={styles.recentLink}
               aria-current={onChat && chat.id === activeChatId ? 'true' : undefined}
             >
-              {chat.title || UNTITLED_CHAT}
+              <span className={styles.recentTitle}>{chat.title || UNTITLED_CHAT}</span>
             </HostLink>
           </li>
         ))}
