@@ -5,11 +5,11 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.0.0.
+`themes/hud/theme.json` at version 1.0.1.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.0.0` |
+| `id`, `version` | `automatos/hud`, `1.0.1` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}` |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
@@ -19,19 +19,18 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 
 ## What HUD draws
 
-`src/entry.ts` registers three slots and one page, the same that `theme.json` declares.
+`src/entry.ts` registers three slots, one page and one route, the same that `theme.json` declares.
 
 | Where | What it is |
 |---|---|
 | `frame@1` | The top bar, the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words, the transcript with his replies and the host's cards, the message box, and the Agents, Mission and Deliverables panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
+| `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
-HUD fills no `notFound@1` or `asleep@1` and adds no routes of its own. Its menu entries (`nav`) are Look
-(`/looks`) and Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`,
-`context`, `deliverables`, `events`, `looks`, `navigation`, `pages-agents`, `pages-command-center`, `storage` and
-`theme`. There is no microphone: the SDK gives a theme no voice, so the message box is the way in (Enter sends,
+HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
+(`/looks`) and Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`, `context`, `deliverables`, `events`, `looks`, `navigation`, `pages-agents`, `pages-assignments`, `pages-command-center`, `storage` and `theme`. There is no microphone: the SDK gives a theme no voice, so the message box is the way in (Enter sends,
 Shift + Enter makes a new line, Esc stops).
 
 ## Looks
