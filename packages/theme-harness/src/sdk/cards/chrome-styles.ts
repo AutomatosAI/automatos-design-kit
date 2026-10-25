@@ -1,6 +1,7 @@
 /**
  * The chrome stand-ins' geometry (src/sdk/cards/chrome.tsx), each taken from the core component it stands in for, in
- * plain colours of the harness's own (high contrast, so a stand-in never fails a theme's axe scan).
+ * plain colours: the nudge's pill and the badge carry their own (high contrast on any ground), and the utilities take
+ * the text colour of the header they sit in, as core's take the theme's tokens, so they read on a light or dark look.
  *
  * The first-run nudge is core's frontend/components/local/first-run-nudge.tsx: a zero-height anchor (`relative z-30`,
  * inline `flex: 0 0 auto; height: 0`), so it takes no space from the chat, and on it an absolutely placed pill over the
@@ -60,13 +61,11 @@ export const NUDGE_DISMISS: CSSProperties = Object.freeze({
 })
 
 /** globals.css `.studio .sh-utils`. */
-export const UTILITIES: CSSProperties = Object.freeze({
-  display: 'inline-flex', alignItems: 'center', gap: '4px', fontFamily: PLAIN_FONT, color: PLAIN_MUTED,
-})
+export const UTILITIES: CSSProperties = Object.freeze({ display: 'inline-flex', alignItems: 'center', gap: '4px' })
 
 const ICON_BUTTON: CSSProperties = Object.freeze({
   position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px',
-  background: 'transparent', color: PLAIN_MUTED, cursor: 'pointer',
+  background: 'transparent', color: 'inherit', cursor: 'pointer',
 })
 
 /** globals.css `.studio .sh-utils .sh-icon-btn`: Help. */
@@ -82,12 +81,12 @@ export const BADGE: CSSProperties = Object.freeze({
 })
 
 /** globals.css `.studio .sh-utils .sh-sep`. */
-export const SEPARATOR: CSSProperties = Object.freeze({ width: '1px', height: '18px', margin: '0 6px', background: PLAIN_BORDER })
+export const SEPARATOR: CSSProperties = Object.freeze({ width: '1px', height: '18px', margin: '0 6px', background: 'currentColor', opacity: 0.3 })
 
 /** user-profile-button.tsx:57 (LocalOperatorButton): `flex items-center gap-2 rounded-full pr-2`, the name `text-sm font-medium`. */
 export const PROFILE_BUTTON: CSSProperties = Object.freeze({
   display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '9999px', paddingRight: '8px', background: 'transparent',
-  color: PLAIN_TEXT, fontSize: '14px', lineHeight: '20px', fontWeight: 500, cursor: 'pointer',
+  color: 'inherit', fontSize: '14px', lineHeight: '20px', fontWeight: 500, cursor: 'pointer',
 })
 
 /** user-profile-button.tsx:68: the initials' circle (`w-9 h-9 rounded-full text-xs font-semibold`). */

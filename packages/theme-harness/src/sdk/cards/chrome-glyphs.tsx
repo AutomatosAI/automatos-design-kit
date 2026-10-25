@@ -43,8 +43,8 @@ export function BellGlyph(): ReactElement {
 export function ToneGlyph(): ReactElement {
   return (
     <svg {...LINE}>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 1.5V4M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" />
     </svg>
   )
 }
