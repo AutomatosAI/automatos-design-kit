@@ -63,9 +63,13 @@
   font: 12px/1.5 var(--hud-font-mono);
 }
 
-/* The running Mission: its name in the display face, then its steps. */
+/* The Mission: its name in the display face, at most three lines of it, then its steps. */
 .missionName {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   color: var(--hud-text);
   font-family: var(--hud-font-display);
   font-size: 22px;

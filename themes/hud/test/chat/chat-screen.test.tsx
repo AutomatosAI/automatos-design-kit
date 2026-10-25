@@ -105,3 +105,17 @@ describe('the side columns', () => {
     expect(columnOf(TODAY_TITLE)).toEqual([TODAY_TITLE, NEEDS_YOU_TITLE, NEXT_UP_TITLE, DELIVERABLES_TITLE])
   })
 })
+
+describe("this conversation's Mission", () => {
+  it('is the one MISSION shows, once the chat plans it', async () => {
+    host.setPlanningMissionId('m-9')
+    await renderChat()
+    expect(host.pageAsks()).toContainEqual({ hook: 'useMission', args: ['m-9'] })
+  })
+
+  it("leaves MISSION on the newest running one while the chat plans none", async () => {
+    await renderChat()
+    expect(host.pageAsks().filter((ask) => ask.hook === 'useMission')).toEqual([])
+    expect(host.pageAsks().some((ask) => ask.hook === 'useActivityFeed')).toBe(true)
+  })
+})

@@ -36,22 +36,24 @@ export interface ChatScreenProps {
   readonly footer?: ReactNode
   /** The transcript. */
   readonly children?: ReactNode
+  /** The Mission this conversation plans, which MISSION shows first; null or absent for none. */
+  readonly missionId?: string | null
 }
 
-function LeftPanels() {
+function LeftPanels({ missionId }: { readonly missionId: string | null }) {
   return (
     <div className={styles.side}>
       <AgentsPanel />
-      <MissionPanel />
+      <MissionPanel missionId={missionId} />
     </div>
   )
 }
 
-function RightPanels({ all }: { readonly all: boolean }) {
+function RightPanels({ all, missionId }: { readonly all: boolean; readonly missionId: string | null }) {
   return (
     <div className={styles.side}>
       {all && <AgentsPanel />}
-      {all && <MissionPanel />}
+      {all && <MissionPanel missionId={missionId} />}
       <TodayPanel />
       <NeedsYouPanel />
       <NextUpPanel />
@@ -60,11 +62,11 @@ function RightPanels({ all }: { readonly all: boolean }) {
   )
 }
 
-export function ChatScreen({ screenRef, layout, title, core, footer, children }: ChatScreenProps) {
+export function ChatScreen({ screenRef, layout, title, core, footer, children, missionId = null }: ChatScreenProps) {
   const { columns } = layout
   return (
     <div ref={screenRef} className={styles.screen} data-columns={columns}>
-      {columns === 'three' && <LeftPanels />}
+      {columns === 'three' && <LeftPanels missionId={missionId} />}
       <div className={styles.centre}>
         <FirstRunNudge />
         <div className={styles.titleRow}>
@@ -77,7 +79,7 @@ export function ChatScreen({ screenRef, layout, title, core, footer, children }:
         {children}
         {footer !== undefined && <div className={styles.footer}>{footer}</div>}
       </div>
-      {columns !== 'one' && <RightPanels all={columns === 'two'} />}
+      {columns !== 'one' && <RightPanels all={columns === 'two'} missionId={missionId} />}
     </div>
   )
 }

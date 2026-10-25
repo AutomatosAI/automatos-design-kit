@@ -120,8 +120,9 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
   })
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
   const footer = <ChatFooter chat={chat} boxRef={box} sending={sending} autoFocus={chat.messages.length === 0} fill={fill} />
+  const missionId = chat.planningMissionId
   return (
-    <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer}>
+    <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer} missionId={missionId}>
       <Transcript
         messages={chat.messages}
         streaming={chat.streaming}

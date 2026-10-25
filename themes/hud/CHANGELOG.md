@@ -20,6 +20,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - The core screen's right column is full: TODAY (working now, completed today, needs you, in queue, as big numbers),
   NEEDS YOU (the Needs-you number and its first rows, each linked where it is answered) and NEXT UP (the week's next
   runs) over DELIVERABLES, in the places of the design's spend, latency and machine panels, which have no source.
+- MISSION shows this conversation's Mission first, once the chat plans one, and the newest running Mission
+  otherwise.
 
 ## 1.0.0
 
