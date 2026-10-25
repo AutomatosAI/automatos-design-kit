@@ -20,6 +20,35 @@ const LINE: SVGProps<SVGSVGElement> = Object.freeze({
   focusable: 'false',
 })
 
+/** Help: a circled question mark, at core's 15 pixels (studio-header.tsx's HelpCircle). */
+export function HelpGlyph(): ReactElement {
+  return (
+    <svg {...LINE} width={15} height={15}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" />
+    </svg>
+  )
+}
+
+/** Notifications: a bell, at core's 20 pixels (notification-bell.tsx's w-5 h-5). */
+export function BellGlyph(): ReactElement {
+  return (
+    <svg {...LINE} width={20} height={20}>
+      <path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0" />
+    </svg>
+  )
+}
+
+/** The theme menu: a sun, the light tone's mark (theme-toggle.tsx's h-4 w-4). */
+export function ToneGlyph(): ReactElement {
+  return (
+    <svg {...LINE}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </svg>
+  )
+}
+
 /** The first-run nudge's key. */
 export function KeyGlyph({ color }: { readonly color: string }): ReactElement {
   return (

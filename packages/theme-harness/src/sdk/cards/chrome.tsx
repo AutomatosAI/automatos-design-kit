@@ -8,14 +8,19 @@
  *
  * The nudge has the geometry of core's components/local/first-run-nudge.tsx (chrome-styles.ts): a zero-height anchor
  * that takes no space, with its pill placed over the top of the chat column, core's words in it and the link to
- * Settings (a click kept, as the other cards keep theirs), in plain colours.
+ * Settings (a click kept, as the other cards keep theirs), in plain colours. The utilities have the geometry of core's
+ * cluster on the local edition: Help, the bell with a made-up unread count, a separator, the theme menu and the
+ * account's avatar, each button named as HEADER_UTILITIES names it.
  */
 import { type MouseEvent, type ReactElement, useState } from 'react'
 import { recordCardAction } from '../../internal/scripted/cards-log.ts'
 import { CREDITS_EXHAUSTED_CODE } from '../../internal/scripted/chat-turn.ts'
 import { useEdition, useTrial } from '../../internal/scripted/host-inputs.ts'
-import { CloseGlyph, KeyGlyph } from './chrome-glyphs.tsx'
-import { NUDGE_ANCHOR, NUDGE_DISMISS, NUDGE_KEY_COLOR, NUDGE_LINK, NUDGE_PILL } from './chrome-styles.ts'
+import { BellGlyph, CloseGlyph, HelpGlyph, KeyGlyph, ToneGlyph } from './chrome-glyphs.tsx'
+import {
+  AVATAR, BADGE, HELP_BUTTON, ICON_BUTTON_40, NUDGE_ANCHOR, NUDGE_DISMISS, NUDGE_KEY_COLOR, NUDGE_LINK, NUDGE_PILL, PROFILE_BUTTON,
+  SEPARATOR, UTILITIES,
+} from './chrome-styles.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 
@@ -31,15 +36,33 @@ export const DISMISS_LABEL = 'Dismiss'
 const EXHAUSTED_TRIAL = 'exhausted'
 const LOCAL_EDITION = 'local'
 
-/** cards.HeaderUtilities: Help, notifications, the theme menu and the account. */
+/** The bell's made-up unread count. */
+export const UNREAD_SAMPLE = 3
+/** The local operator's initials on the account's avatar (made up). */
+export const OPERATOR_INITIALS = 'OP'
+
+const opened = (name: string) => (): void => recordCardAction({ card: 'header-utilities', id: name, action: 'opened' })
+
+/** cards.HeaderUtilities: Help, notifications, the theme menu and the account, at the sizes core's cluster draws. */
 export const HeaderUtilities: Sdk['HeaderUtilities'] = function HeaderUtilities() {
+  const [help, notifications, theme, account] = HEADER_UTILITIES
   return (
-    <div data-protected-surface="header-utilities" role="group" aria-label={HEADER_UTILITIES_LABEL}>
-      {HEADER_UTILITIES.map((name) => (
-        <button key={name} type="button" onClick={() => recordCardAction({ card: 'header-utilities', id: name, action: 'opened' })}>
-          {name}
-        </button>
-      ))}
+    <div data-protected-surface="header-utilities" role="group" aria-label={HEADER_UTILITIES_LABEL} style={UTILITIES}>
+      <button type="button" aria-label={help} style={HELP_BUTTON} onClick={opened(help)}>
+        <HelpGlyph />
+      </button>
+      <button type="button" aria-label={notifications} style={ICON_BUTTON_40} onClick={opened(notifications)}>
+        <BellGlyph />
+        <span aria-hidden="true" data-harness-part="badge" style={BADGE}>{UNREAD_SAMPLE}</span>
+      </button>
+      <span aria-hidden="true" style={SEPARATOR} />
+      <button type="button" aria-label={theme} style={ICON_BUTTON_40} onClick={opened(theme)}>
+        <ToneGlyph />
+      </button>
+      <button type="button" style={PROFILE_BUTTON} onClick={opened(account)}>
+        <span aria-hidden="true" data-harness-part="avatar" style={AVATAR}>{OPERATOR_INITIALS}</span>
+        {account}
+      </button>
     </div>
   )
 }
