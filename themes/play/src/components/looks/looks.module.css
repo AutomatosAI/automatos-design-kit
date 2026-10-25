@@ -272,17 +272,24 @@
   color: var(--pl-color-text-2);
 }
 
+/* Each card snaps to the row's start, and the row's end fades, so a card the edge cuts reads as "more this way";
+   the end's padding keeps the last card clear of the fade once it is scrolled to (Play 1.1.1). The mask reads only
+   the gradient's alpha: currentcolor is opaque, whatever the look. */
 .row {
   list-style: none;
   margin: 0;
-  padding: var(--pl-space-1);
+  padding: var(--pl-space-1) var(--pl-space-6) var(--pl-space-1) var(--pl-space-1);
   display: flex;
   gap: var(--pl-space-3);
   overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--pl-space-1);
+  mask-image: linear-gradient(to right, currentcolor calc(100% - var(--pl-space-6)), transparent);
 }
 
 .rowItem {
   flex: none;
+  scroll-snap-align: start;
 }
 
 .card {
