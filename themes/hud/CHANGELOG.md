@@ -6,6 +6,9 @@ HUD's versions, newest first. A version once released never changes: a change sh
 
 Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 
+- Every box is measured with its border and padding, whatever the host's own reset, so the rail, the core and the
+  panels keep their sizes; the core screen leaves 40 px under the message box's keys.
+
 ## 1.0.0
 
 The first version of HUD (`automatos/hud`), from the Command design:
