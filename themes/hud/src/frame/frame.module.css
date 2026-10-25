@@ -87,3 +87,9 @@
 .frame[data-layout="phone"] .page {
   padding: var(--hud-space-4) var(--hud-space-4) var(--hud-space-5);
 }
+
+/* On a phone the host's floating Auto widget sits in a box of its own, so it can go inert behind the menu; the box
+   draws nothing itself. */
+.widget {
+  display: contents;
+}

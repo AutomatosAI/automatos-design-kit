@@ -20,9 +20,9 @@ import { useNavDrawer } from './use-nav-drawer'
  *
  * In a window narrower than the desktop layout (src/lib/phone-layout.ts) it is the design's phone: the phone's top
  * bar (src/frame/phone-top-bar.tsx) and no rail, so the page takes the whole width; the rail's pages, search, LOOK
- * and the host's header utilities move into the menu MENU opens (src/frame/nav-drawer.tsx), and everything behind it
- * is inert while it is open. The page keeps its place in the tree either way, so a window crossing the width keeps
- * the page as it is. The frame says which layout it draws in data-layout.
+ * and the host's header utilities move into the menu MENU opens (src/frame/nav-drawer.tsx), and everything behind it,
+ * the host's floating Auto widget too, is inert while it is open. The page keeps its place in the tree either way,
+ * so a window crossing the width keeps the page as it is. The frame says which layout it draws in data-layout.
  */
 
 export interface HudFrameProps {
@@ -61,7 +61,13 @@ export function HudFrame({ children, fullBleed = false, autoWidget }: HudFramePr
         )}
       </div>
       {phone && <NavDrawer drawer={drawer} id={drawerId} />}
-      {autoWidget}
+      {phone && hasAutoWidget(autoWidget) ? (
+        <div className={styles.widget} inert={drawer.open}>
+          {autoWidget}
+        </div>
+      ) : (
+        autoWidget
+      )}
     </div>
   )
 }

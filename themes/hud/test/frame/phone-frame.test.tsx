@@ -35,9 +35,9 @@ const NAV: CoreNav = {
   ],
 }
 
-function renderFrame({ fullBleed = false }: { readonly fullBleed?: boolean } = {}) {
+function renderFrame({ fullBleed = false, widget = false }: { readonly fullBleed?: boolean; readonly widget?: boolean } = {}) {
   return render(
-    <HudFrameSlot fullBleed={fullBleed}>
+    <HudFrameSlot fullBleed={fullBleed} autoWidget={widget ? <button type="button" data-testid="auto-widget">Auto</button> : undefined}>
       <p data-testid="page">{PAGE_TEXT}</p>
     </HudFrameSlot>,
   )
@@ -211,16 +211,20 @@ describe('the menu', () => {
     shut(glass.button)
   })
 
-  it('makes the bar and the page inert while it is open, and neither once it shuts', () => {
-    renderFrame()
+  it("makes the bar, the page and the host's floating Auto widget inert while it is open, and none once it shuts", () => {
+    renderFrame({ widget: true })
     const body = screen.getByRole('main').parentElement
+    const widget = screen.getByTestId('auto-widget')
+    expect(widget.closest('[inert]')).toBeNull()
     const { button, dialog } = openMenu()
     expect(button.closest('header')).toHaveAttribute('inert')
     expect(body).toHaveAttribute('inert')
+    expect(widget.closest('[inert]')).not.toBeNull()
     expect(dialog.closest('[inert]')).toBeNull()
     fireEvent.keyDown(dialog, { key: 'Escape' })
     expect(button.closest('header')).not.toHaveAttribute('inert')
     expect(body).not.toHaveAttribute('inert')
+    expect(widget.closest('[inert]')).toBeNull()
   })
 
   it('shuts when a link in it is followed, leaving the focus to the page it opens', () => {
