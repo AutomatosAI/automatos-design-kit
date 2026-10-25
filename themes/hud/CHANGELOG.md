@@ -30,6 +30,7 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - The LOOK drawer's looks wrap in a grid instead of a row cut at the drawer's edge, and its Grid and Glow sliders
   draw their own track (the look's track colour, visible in WebKit too) and a square accent thumb.
 - Send with nothing to send is an outline in the line colour instead of a faded accent block.
+- The rail's Auto dock steps aside while the host draws its own floating Auto widget, so Auto shows once.
 
 ## 1.0.0
 

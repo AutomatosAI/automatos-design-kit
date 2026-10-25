@@ -2,7 +2,8 @@
 // Auto's widget as props, the look runtime holding each of HUD's five presets in turn. Under every preset it draws
 // the AUTOMATOS // HUD top bar with the host's utilities, search and LOOK, the side rail from the core nav, the
 // backdrop, the page in its main and the widget beside it; Auto's dock shows exactly while the preset's auto is on,
-// and steps aside on HUD's core screen (/chat), whose voice core shows him, but not on the host's own chat there.
+// and steps aside on HUD's core screen (/chat), whose voice core shows him, but not on the host's own chat there,
+// and on every page while the host draws its own floating Auto widget.
 // Roles, names and attributes only: the colours are the host's painted variables, which jsdom never paints.
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -21,9 +22,10 @@ const SEARCH = /^Search\s*⌘K$/
 const UTILITIES = 'Header utilities'
 const IDLE = captionFor('idle')
 
-function renderFrame(props: { readonly fullBleed?: boolean } = {}) {
+/** The frame around a page; `widget` hands it the host's floating Auto widget, as the host does on its pages. */
+function renderFrame({ fullBleed, widget = false }: { readonly fullBleed?: boolean; readonly widget?: boolean } = {}) {
   return render(
-    <HudFrameSlot {...props} autoWidget={<div data-testid="auto-widget" />}>
+    <HudFrameSlot fullBleed={fullBleed} autoWidget={widget ? <div data-testid="auto-widget" /> : undefined}>
       <p data-testid="page">{PAGE_TEXT}</p>
     </HudFrameSlot>,
   )
@@ -77,6 +79,14 @@ describe("Auto's dock on the chat", () => {
     host.setSearchParams('chatId=c-1')
     renderFrame({ fullBleed: true })
     expect(dockIn()).toBeNull()
+  })
+
+  it("steps aside on every page while the host draws its floating Auto widget, so Auto shows once", () => {
+    host.setPathname('/looks')
+    renderFrame({ widget: true })
+    expect(screen.getByTestId('auto-widget')).toBeInTheDocument()
+    expect(dockIn()).toBeNull()
+    expect(within(screen.getByRole('complementary', { name: 'Sidebar' })).queryByRole('img', { name: IDLE })).toBeNull()
   })
 
   it('stays where the host draws its own chat at /chat (a keepCorePage link), and on every other page', () => {
@@ -147,7 +157,7 @@ describe('the page', () => {
   })
 
   it("draws the host's floating Auto widget beside the page, outside its main", () => {
-    renderFrame()
+    renderFrame({ widget: true })
     expect(screen.getByRole('main')).not.toContainElement(screen.getByTestId('auto-widget'))
   })
 

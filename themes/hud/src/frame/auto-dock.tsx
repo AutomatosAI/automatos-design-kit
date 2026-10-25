@@ -11,7 +11,8 @@ import styles from './auto-dock.module.css'
  * Auto's dock at the foot of the rail, while the look's auto knob is on: a bracketed panel with Auto in it,
  * his state the backend's. Ready (idle) while it answers, loading while the host asks, asleep while it is
  * down. While the host draws HUD's core screen (src/pages/core-screen.ts) the dock steps aside, so the screen
- * shows Auto once, in the voice core, where he works; the dock shows him on every other page.
+ * shows Auto once, in the voice core, where he works; the dock shows him on every other page, unless the host draws
+ * its own floating Auto there (the frame then leaves the dock out, src/frame/hud-frame.tsx).
  */
 
 export const DOCK_TITLE = 'Auto'

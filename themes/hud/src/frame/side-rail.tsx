@@ -12,8 +12,8 @@ import styles from './side-rail.module.css'
  * (rail-nav.ts), in Geist Mono capitals; the current one in the accent with a 2 px bar on its edge, and
  * aria-current, so the state is never the colour alone. Under the nav, RECENT lists the latest conversations (the
  * SDK's useRecentChats), each opening in the chat, the one on screen marked; nothing until there is one. Docs and
- * Settings sit at its foot, above Auto's dock. Every link is the SDK's HostLink: a path inside the app moves the
- * host's router, Docs opens in a new tab.
+ * Settings sit at its foot, above Auto's dock (none while the host draws its own floating Auto). Every link is the
+ * SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab.
  */
 
 export const RAIL_LABEL = 'Sidebar'
@@ -88,7 +88,12 @@ function RecentList() {
   )
 }
 
-export function SideRail() {
+export interface SideRailProps {
+  /** False while the host draws its floating Auto widget: the dock steps aside, so Auto shows once. */
+  readonly dock?: boolean
+}
+
+export function SideRail({ dock = true }: SideRailProps) {
   const coreNav = useCoreNav()
   const nav = useMemo(() => buildRailNav(coreNav), [coreNav])
   const activeId = resolveRailActiveId(useHostPathname())
@@ -102,7 +107,7 @@ export function SideRail() {
       <RecentList />
       <div className={styles.foot}>
         {nav.footer.length > 0 && <RailList items={nav.footer} activeId={activeId} label={MORE_LABEL} />}
-        <AutoDock />
+        {dock && <AutoDock />}
       </div>
     </aside>
   )

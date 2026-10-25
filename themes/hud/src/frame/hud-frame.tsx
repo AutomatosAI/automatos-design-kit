@@ -10,8 +10,9 @@ import { TopBar } from './top-bar'
  * HUD's frame around every page at the theme's width: the backdrop, the top bar, the side rail and the page.
  * The host's pages render inside it as in the Studio shell, recoloured by the look's Studio tokens; a
  * full-bleed page (the chat) fills the column itself, any other scrolls inside it, capped as Studio caps it.
- * The host hands over the floating Auto widget, drawn beside the page as the Studio shell has it. The frame
- * carries the active look's id, which a test reads; every colour and switch is the look's painted variables.
+ * The host hands over the floating Auto widget, drawn beside the page as the Studio shell has it; while it does,
+ * the rail's Auto dock steps aside, so Auto shows once. The frame carries the active look's id, which a test reads;
+ * every colour and switch is the look's painted variables.
  */
 
 export interface HudFrameProps {
@@ -22,6 +23,11 @@ export interface HudFrameProps {
   readonly autoWidget?: ReactNode
 }
 
+/** True when the host handed over a widget to draw (nothing, null and false draw nothing). */
+export function hasAutoWidget(autoWidget: ReactNode): boolean {
+  return autoWidget !== undefined && autoWidget !== null && autoWidget !== false
+}
+
 export function HudFrame({ children, fullBleed = false, autoWidget }: HudFrameProps) {
   const look = useHudLook()
   // `safe-bottom` (the host's one safe-area helper) keeps the frame's bottom edge clear of a home bar.
@@ -30,7 +36,7 @@ export function HudFrame({ children, fullBleed = false, autoWidget }: HudFramePr
       <Backdrop />
       <TopBar />
       <div className={styles.body}>
-        <SideRail />
+        <SideRail dock={!hasAutoWidget(autoWidget)} />
         {fullBleed ? (
           <main className={styles.fullBleed} tabIndex={-1}>
             {children}
