@@ -47,7 +47,7 @@
 /* html.play outranks Studio's element rules (globals.css .studio h1/h2): <html> carries both. */
 :global(html.play) .heading {
   margin: 0;
-  font: var(--pl-text-hero);
+  font: var(--pl-text-status);
   letter-spacing: var(--pl-display-letter-spacing);
   color: var(--pl-color-text);
 }

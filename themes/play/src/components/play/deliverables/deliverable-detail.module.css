@@ -10,12 +10,12 @@
 
 .page {
   width: 100%;
-  max-width: calc(var(--pl-document-max) + var(--pl-detail-panel-width) + var(--pl-space-7) * 2);
+  max-width: calc(var(--pl-document-max) + var(--pl-detail-panel-width) + var(--pl-space-6) * 2);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--pl-space-5);
-  padding: var(--pl-space-5) var(--pl-space-7) var(--pl-space-6);
+  padding: var(--pl-space-5) var(--pl-space-6) var(--pl-space-6);
 }
 
 .back {
