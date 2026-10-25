@@ -159,8 +159,11 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   theme's boxes measure as in core, a box's padding and border inside its width (without it, Play's 232-pixel sidebar
   drew 264 pixels wide). The phone view draws without it.
 - **Sample data** (`src/host/sample-data.ts`): the page areas' reads answer with made-up data, as the Deliverables fake
-  does: the roster and its counts (`fixtures/agents/`) and one running Mission (`fixtures/activity/feed.json`), so a
-  theme's agent and Mission panels show rows (in a theme's tests a read stays loading until the test sets it).
+  does: the roster and its counts (`fixtures/agents/`), one running Mission (`fixtures/activity/feed.json`), the day's
+  numbers (`useActivityStats`, `stats.json`), six rows across what needs you's five kinds (`useNeedsYou`,
+  `needs-you.json`) and four runs a few hours after the fixtures' made-up morning (`useActivitySchedule`,
+  `schedule.json`), so a theme's agent, Mission and Command Center panels show rows. A read answers by its hook,
+  whatever its filter, window or range (in a theme's tests a read stays loading until the test sets it).
 - **The host's fonts** (`app/fonts/core`, core's own files; its README names core's commit and pins each file's
   sha256): Geist, Geist Mono and Newsreader, which core supplies to every page. The page (`app/index.html`) declares
   their `@font-face` rules with the weights and styles core declares, and binds `--font-geist-sans`,
