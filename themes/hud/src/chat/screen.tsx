@@ -19,8 +19,8 @@ import styles from './screen.module.css'
  * of the design's SPEND, LATENCY and THIS MACHINE, which the SDK gives a theme no source for (the design's own rule
  * is to hide a panel without one); two put them all in one column on the right; one is the design's phone, the
  * conversation alone. The title is the screen's h1, which the host focuses when the page opens, with New chat beside
- * it. The host's first-run nudge (the local edition's, until a key exists or it is dismissed) heads the
- * conversation's column: its pill floats over the top of the column from a zero-height anchor, never over the
+ * it. The host's first-run nudge (the local edition's, until a key exists or it is dismissed) sits under the title
+ * row: its pill floats from a zero-height anchor over the top of the core, never over the title, New chat or the
  * message box.
  */
 
@@ -68,13 +68,13 @@ export function ChatScreen({ screenRef, layout, title, core, footer, children, m
     <div ref={screenRef} className={styles.screen} data-columns={columns}>
       {columns === 'three' && <LeftPanels missionId={missionId} />}
       <div className={styles.centre}>
-        <FirstRunNudge />
         <div className={styles.titleRow}>
           <h1 className={styles.title} tabIndex={-1} {...THEME_HEADING}>
             {title}
           </h1>
           <NewChatButton />
         </div>
+        <FirstRunNudge />
         {core}
         {children}
         {footer !== undefined && <div className={styles.footer}>{footer}</div>}

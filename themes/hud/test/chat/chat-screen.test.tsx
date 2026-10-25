@@ -30,14 +30,16 @@ beforeEach(() => {
 })
 
 describe("the host's first-run nudge", () => {
-  it("heads the conversation's column, above its title, apart from the message box", async () => {
+  it("sits in the conversation's column under its title row, clear of the title, New chat and the message box", async () => {
     await renderChat()
     const nudge = nudgeIn()
     if (nudge === null) throw new Error('No first-run nudge on the local edition.')
     const column = nudge.parentElement
-    expect(column?.firstElementChild).toBe(nudge)
+    const titleRow = title().parentElement
     expect(column).toContainElement(title())
-    expect(nudge.compareDocumentPosition(title()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(titleRow?.parentElement).toBe(column)
+    expect(titleRow?.nextElementSibling).toBe(nudge)
+    expect(titleRow).not.toContainElement(nudge)
     const footer = column?.lastElementChild ?? null
     expect(footer).toContainElement(box())
     expect(footer).not.toContainElement(nudge)

@@ -146,6 +146,9 @@ describe('for a screen reader', () => {
     expect(within(core()).getByText('Ready when you are')).toHaveAttribute('aria-live', 'polite')
     expect(within(core()).getByRole('img', { name: 'Auto: Ready when you are' })).toBeInTheDocument()
     expect(box()).toHaveAccessibleDescription(KEYS_HINT)
+    const hint = document.getElementById(box().getAttribute('aria-describedby') ?? '')
+    const parts = [...(hint?.querySelectorAll('span') ?? [])].map((part) => part.textContent)
+    expect(parts).toEqual(KEYS_HINT.split(' · '))
     expect(screen.getByRole('heading', { level: 1, name: 'Laptop for uni' })).toHaveAttribute('data-theme-heading', 'true')
   })
 

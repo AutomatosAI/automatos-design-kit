@@ -1,4 +1,4 @@
-import { type FormEvent, type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useState } from 'react'
+import { type FormEvent, Fragment, type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useState } from 'react'
 import { AiLabelFence, type HostChatDraft } from '@automatos/theme-sdk'
 
 import styles from './composer.module.css'
@@ -18,6 +18,9 @@ export const PLACEHOLDER = 'Message Auto'
 export const SEND = 'Send'
 export const STOP = 'Stop'
 export const KEYS_HINT = 'Enter to send · Shift + Enter for a new line · Esc to stop'
+const HINT_SEPARATOR = ' · '
+/** The hint's phrases, each kept on one line, so a narrow column wraps between them, never inside one. */
+const HINT_PARTS: readonly string[] = KEYS_HINT.split(HINT_SEPARATOR)
 
 export interface ComposerProps {
   readonly boxRef: RefObject<HTMLTextAreaElement | null>
@@ -117,7 +120,12 @@ export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false,
         </form>
       </AiLabelFence>
       <p id={hintId} className={styles.hint}>
-        {KEYS_HINT}
+        {HINT_PARTS.map((part, index) => (
+          <Fragment key={part}>
+            {index > 0 ? HINT_SEPARATOR : null}
+            <span className={styles.hintPart}>{part}</span>
+          </Fragment>
+        ))}
       </p>
     </div>
   )
