@@ -23,6 +23,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - MISSION shows this conversation's Mission first, once the chat plans one, and the newest running Mission
   otherwise.
 - A panel header's value is in capitals, as its label is (DELIVERABLES' ALL).
+- Search in the top bar is named by the words it shows, with its shortcut in `aria-keyshortcuts`, so its name
+  matches its label (axe's label-content-name-mismatch).
 
 ## 1.0.0
 

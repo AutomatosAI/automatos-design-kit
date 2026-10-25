@@ -16,7 +16,8 @@ const PAGE_TEXT = 'The page the host hands the frame'
 /** The top bar's name: Testing Library reads every <header> as a banner, so the bar is found by it. */
 const TOP_BAR = 'Top bar'
 const BRAND = 'Automatos HUD'
-const SEARCH = 'Open search (⌘K)'
+/** The search button's name: its visible words, the word and the shortcut's keys. */
+const SEARCH = /^Search\s*⌘K$/
 const UTILITIES = 'Header utilities'
 const IDLE = captionFor('idle')
 
@@ -104,6 +105,14 @@ describe('the top bar', () => {
     renderFrame()
     fireEvent.click(within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('button', { name: SEARCH }))
     expect(host.globalSearchOpens()).toBe(1)
+  })
+
+  it('names search by the words it shows, and says its shortcut in aria-keyshortcuts, not in a second name', () => {
+    renderFrame()
+    const search = within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('button', { name: SEARCH })
+    expect(search).not.toHaveAttribute('aria-label')
+    expect(search).toHaveAttribute('aria-keyshortcuts', 'Meta+K')
+    expect(search.textContent?.replace(/\s+/g, ' ')).toBe('Search ⌘K')
   })
 
   it('links LOOK to the look editor, current while it is open', () => {

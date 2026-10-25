@@ -64,7 +64,7 @@ const SEEN = Object.freeze({
   sidebar: 'Sidebar',
   mainNav: 'Main',
   brand: 'Automatos HUD',
-  search: 'Open search (⌘K)',
+  search: /^Search\s*⌘K$/,
   dock: 'Auto',
   lookEditor: 'Look',
   styleSheet: 'Style sheet',
