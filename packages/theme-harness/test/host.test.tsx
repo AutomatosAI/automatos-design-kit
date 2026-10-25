@@ -21,8 +21,9 @@ import { HARNESS_IMPORT_MAP, HARNESS_SDK_ENTRY, harnessImportMap, importMapAlias
 import { HTML_ATTRS, paintLook, PREVIEW_STYLE_ID, type PrepaintTable } from '../src/host/prepaint.ts'
 import { declaredOf, loadTheme, readServedTheme, reportOf, type HarnessTheme, type ServedTheme } from '../src/host/register.ts'
 import {
-  DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, shotGroups, viewOfPath, viewSlug, type HarnessSettings,
+  DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, viewOfPath, viewSlug, type HarnessSettings,
 } from '../src/host/router.ts'
+import { shotGroups } from '../src/host/shot-groups.ts'
 
 // From the string import.meta.url: under jsdom, `new URL()` is jsdom's class, which fileURLToPath refuses.
 const PLAY_DIR = `${resolve(dirname(fileURLToPath(import.meta.url)), '../../../themes/play')}${sep}`
@@ -274,7 +275,7 @@ describe('what the build and the shots read', () => {
     const groups = shotGroups(['ember', 'aurora', 'daylight', 'obsidian', 'workshop'], 1024)
     expect(groups).toHaveLength(11)
     expect(groups.slice(0, 2).map((group) => group.folder)).toEqual(['ember/1440', 'ember/1024'])
-    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023 })
+    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023, reducedMotion: true, page: null })
     const urls = [`${HARNESS_ORIGIN}/harness/a.js`, 'data:image/png;base64,AA==', `blob:${HARNESS_ORIGIN}/id`, 'https://cdn.example.com/x.js']
     expect(offOrigin(urls)).toEqual(['https://cdn.example.com/x.js'])
   })

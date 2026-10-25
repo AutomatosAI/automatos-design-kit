@@ -3,12 +3,15 @@
 // own, frame@1's too when the theme owns the home page; each gets a file name of its own, for every slot and page
 // core knows and for routes that differ only by '/' and '-'; the files a shot group must hold come from theme.json,
 // less what the page reports missing; and the presets go default look first, the rest in file-name order, with the
-// shots refusing a folder that lacks the default look theme.json names.
+// shots refusing a folder that lacks the default look theme.json names. A theme with a /chat page gets one group more,
+// the chat page with motion allowed (src/host/shot-groups.ts), so the Pause Auto control reduced motion hides is shot.
 import { KNOWN_SLOTS, PAGE_SCOPE } from '@automatos/theme-cli/manifest'
 import { describe, expect, it } from 'vitest'
 import {
-  declaredIn, EMPTY_SERVED, expectedShots, HOME_PATH, presetOrder, shotPresets, SLOT_PREFIX, viewOfPath, viewsOf, viewSlug, type Served,
+  declaredIn, EMPTY_SERVED, expectedShots, HOME_PATH, presetOrder, readSettings, shotPresets, SLOT_PREFIX, viewOfPath, viewsOf, viewSlug,
+  type Served,
 } from '../src/host/router.ts'
+import { groupShots, groupViews, shotAddress, shotGroups } from '../src/host/shot-groups.ts'
 
 const OWNS_HOME: Served = Object.freeze({ slots: ['frame@1', 'lookEditor@1'], pages: ['/', '/chat'], routes: ['notes'] })
 
@@ -61,5 +64,36 @@ describe('the presets in order', () => {
     expect(() => shotPresets([], 'ember')).toThrow('looks/presets has no ember.look.json')
     expect(shotPresets(['workshop', 'ember', 'aurora'], 'ember')).toEqual(['ember', 'aurora', 'workshop'])
     expect(shotPresets([], undefined)).toEqual([])
+  })
+})
+
+describe('the motion group', () => {
+  const declared: Served = { slots: ['frame@1', 'lookEditor@1'], pages: ['/chat', '/deliverables'], routes: ['notes'] }
+  const groups = shotGroups(['ember', 'aurora'], 1024, declared.pages)
+  const motion = groups[groups.length - 1]
+
+  it('shoots the chat page once more, in the default look at 1440 px, with motion allowed', () => {
+    expect(motion).toEqual({ folder: 'ember/1440-motion', preset: 'ember', width: 1440, reducedMotion: false, page: '/chat' })
+    expect(groups.slice(0, -1).every((group) => group.reducedMotion && group.page === null)).toBe(true)
+    expect(new Set(groups.map((group) => group.folder)).size).toBe(groups.length)
+  })
+
+  it('is left out for a theme with no /chat page', () => {
+    expect(shotGroups(['ember'], 1024, ['/deliverables']).filter((group) => !group.reducedMotion)).toEqual([])
+    expect(shotGroups(['ember'], 1024)).toHaveLength(3)
+  })
+
+  it("opens its shots with the host's reduced motion off, where every other group's turn it on", () => {
+    if (motion === undefined) throw new Error('no motion group')
+    expect(readSettings(shotAddress(motion, '/chat').slice(1)).reducedMotion).toBe(false)
+    expect(readSettings(shotAddress(groups[0] ?? motion, '/chat').slice(1)).reducedMotion).toBe(true)
+  })
+
+  it('holds the chat page alone: its one view, and its one file while the theme serves it', () => {
+    if (motion === undefined) throw new Error('no motion group')
+    expect(groupViews(motion, viewsOf(declared))).toEqual([{ kind: 'page', key: '/chat', path: '/chat' }])
+    expect(groupShots(motion, declared, EMPTY_SERVED)).toEqual(['page-chat.png'])
+    expect(groupShots(motion, declared, { ...EMPTY_SERVED, pages: ['/chat'] })).toEqual([])
+    expect(groupShots(groups[0] ?? motion, declared, EMPTY_SERVED)).toEqual(expectedShots(declared, EMPTY_SERVED))
   })
 })
