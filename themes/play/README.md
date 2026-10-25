@@ -1,7 +1,7 @@
 # Play
 
 Play is the Automatos theme with Auto, the mascot: its own frame and sidebar, a chat with Auto, a shelf of
-Deliverables, a Conversations page, and looks you pick and tweak (Make it yours, and the style sheet). This folder
+Deliverables, a Conversations page, and looks you pick and tweak (the Look page and the style sheet). This folder
 builds it as an installable theme package, `automatos/play` (PRD-261). `CHANGELOG.md` lists what each version changed.
 
 ## Where the code comes from
@@ -13,8 +13,8 @@ Copied from core (`AutomatosAI/automatos-ai`); the kit's `docs/PLAY-HISTORY.md` 
 `src/entry.ts` registers `frame@1`, `lookEditor@1`, `styleSheet@1` and `notFound@1`, the `/chat` and
 `/deliverables` pages and the route `conversations` (`/x/conversations`). `theme.json` declares the same, plus
 `asleep@1`, which Play's frame draws itself. The pages keep the core page for the link parameters core keeps it for
-(`keepCorePage`); the host's own layouts still say which `?tab=` values the theme's Deliverables page serves. Make it
-yours and the style sheet mark their heading with `data-theme-heading` (and `tabindex="-1"`), the mark the host hands
+(`keepCorePage`); the host's own layouts still say which `?tab=` values the theme's Deliverables page serves. The Look
+page and the style sheet mark their heading with `data-theme-heading` (and `tabindex="-1"`), the mark the host hands
 the focus to once the screen shows.
 
 ## Source

@@ -172,10 +172,10 @@ describe('the style sheet under Play, on Ember', () => {
     expect(playStates()).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('links back to Make it yours', async () => {
+  it('links back to the Look page, by its name', async () => {
     renderSheet()
     await ready()
-    expect(screen.getByRole('link', { name: 'Back to Looks' })).toHaveAttribute('href', '/looks')
+    expect(screen.getByRole('link', { name: 'Back to Look' })).toHaveAttribute('href', '/looks')
   })
 })
 

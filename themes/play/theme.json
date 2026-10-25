@@ -17,7 +17,7 @@
   "routes": ["conversations"],
   "nav": [
     { "id": "nav-play-conversations", "label": "Conversations", "path": "/x/conversations" },
-    { "id": "nav-play-looks", "label": "Make it yours", "path": "/looks" },
+    { "id": "nav-play-looks", "label": "Look", "path": "/looks" },
     { "id": "nav-play-style-sheet", "label": "Style sheet", "path": "/looks/style" }
   ],
   "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-command-center", "storage", "theme"],

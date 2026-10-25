@@ -33,7 +33,8 @@ import {
   looksRow, looksTree, manage, mountLooks, myLook, renderLooks, savedLooks, startLooksTest, status, stubDownloads,
 } from './looks-harness.tsx'
 
-const HEADING = 'Make it yours.'
+/** The page's heading: Look, its name in the nav too (Play 1.1.1; test/looks/look-name.test.tsx). */
+const HEADING = 'Look'
 const heading = () => screen.getByRole('heading', { level: 1, name: HEADING })
 
 beforeEach(() => {

@@ -55,7 +55,7 @@ const SEEN = Object.freeze({
   search: 'Search ⌘K',
   asleep: 'Automatos is asleep',
   checkAgain: 'Check again',
-  lookEditor: 'Make it yours.',
+  lookEditor: 'Look',
   styleSheet: 'Style sheet',
   lost: 'This page wandered off',
   backToChat: 'Back to chat',
@@ -200,7 +200,7 @@ describe('frame@1', () => {
 })
 
 describe('the slots', () => {
-  it('lookEditor@1: Make it yours, in the frame', async () => {
+  it('lookEditor@1: the Look page, in the frame', async () => {
     renderFramed('slot', 'lookEditor@1')
     const heading = await within(framedPage()).findByRole('heading', { level: 1, name: SEEN.lookEditor }, CHUNK_WAIT)
     expect(heading).toBeInTheDocument()

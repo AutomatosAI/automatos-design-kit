@@ -17,7 +17,8 @@ import { PLAY_ONLY_HEADING } from './screen-heading'
 import { usePlayLook } from './use-play-look'
 
 /**
- * PRD-260 §4 — Make it yours (/looks, Ember looks-01), ported from Automatos
+ * PRD-260 §4 — the Look page (/looks, Ember looks-01; Play 1.1.1 names it Look
+ * in the nav and its heading alike, "Make it yours." only its tagline), ported from Automatos
  * Play's components/looks/LooksScreen.tsx: the heading with the active look's
  * name, a live preview with Auto, the Looks row (the five presets, then the
  * user's saved looks), the picked look's actions (Save, Rename, Duplicate,
@@ -29,12 +30,13 @@ import { usePlayLook } from './use-play-look'
  * standing in for the user's look (M72).
  */
 
-/** The page's name, and what /looks says under Classic or Studio (K9: app/looks/page.tsx). */
-export const LOOKS_TITLE = 'Make it yours'
-export const LOOKS_PLAY_ONLY_NOTE = 'Make it yours is part of the Play theme.'
+/** The page's name (the nav's and its heading's), and what /looks says under Classic or Studio (K9: app/looks/page.tsx). */
+export const LOOKS_TITLE = 'Look'
+export const LOOKS_PLAY_ONLY_NOTE = 'The Look page is part of the Play theme.'
 
-export const LOOKS_HEADING = 'Make it yours.'
-export const LOOKS_LEAD = 'Pick a look, then tweak it. Auto changes with it.'
+export const LOOKS_HEADING = LOOKS_TITLE
+/** The tagline under the heading: "Make it yours." lives on here only. */
+export const LOOKS_LEAD = 'Make it yours. Pick a look, then tweak it. Auto changes with it.'
 export const STYLE_SHEET_LINK = 'See the style sheet'
 
 /** The editor's state and actions: picking, editing, Save as new look and Reset. */
