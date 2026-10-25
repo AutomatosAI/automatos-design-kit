@@ -26,7 +26,8 @@ import { useMascotMotion } from './use-mascot-motion'
  * page names his state in its own words) is hidden from assistive technology:
  * no image role, no name, no caption read out (P260-FX-24, M74).
  *
- * PRD-261 A-13b (F10, WCAG 2.2.2): under him sits the Pause Auto control,
+ * PRD-261 A-13b (F10, WCAG 2.2.2): under him sits the Pause Auto control (at
+ * the large size a quiet button at the top right of his stage, Play 1.1.1),
  * wherever he can move (playing, not decorative, not under the OS reduced-motion
  * setting) unless the caller turns it off (pauseControl). Paused, or never asked
  * to play (playing={false}), he is his still and his ring stops (data-motion="still"),
