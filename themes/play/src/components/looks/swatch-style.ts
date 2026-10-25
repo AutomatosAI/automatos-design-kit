@@ -14,6 +14,12 @@ import type { Look } from '../../lib/looks/types'
 /** A style prop that may also carry Play's custom properties (React sets those with setProperty). */
 export type SwatchStyle = CSSProperties & { readonly [name: `--pl-${string}`]: string }
 
+/** How much of a slider's track is filled, up to its thumb: 0% to 100% of `max` (0% when nothing can be picked). */
+export function fillStyle(value: number, max: number): SwatchStyle {
+  const share = max > 0 ? Math.min(Math.max(value / max, 0), 1) : 0
+  return { '--pl-look-slider-fill': `${Math.round(share * 100)}%` }
+}
+
 /** One colour for a swatch, a dot or a chip. */
 export function colourStyle(colour: string): SwatchStyle {
   return { '--pl-look-swatch': colour }

@@ -19,7 +19,7 @@ import { safeGlow } from '../../lib/looks/engine'
 import { GLOW_MIN, type Look } from '../../lib/looks/types'
 
 import styles from './editor.module.css'
-import { colourStyle, typeStyle } from './swatch-style'
+import { colourStyle, fillStyle, typeStyle } from './swatch-style'
 
 /**
  * PRD-260 — the editor's option groups (Ember looks-01), ported from Automatos
@@ -188,6 +188,7 @@ export function GlowSlider({ look, onChange }: OptionsProps) {
         value={glow}
         aria-valuetext={value}
         onChange={onInput}
+        style={fillStyle(glow, max)}
       />
     </div>
   )

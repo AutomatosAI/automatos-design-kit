@@ -175,12 +175,50 @@
   gap: var(--pl-space-3);
 }
 
+/* Drawn from the look's tokens, the same in Chromium, WebKit and Firefox (Play 1.1.1): a 6px track in the outlined
+   buttons' line, filled in the accent as text up to the thumb (--pl-look-slider-fill, set inline from the value),
+   and a round thumb in the accent as text, ringed in the ground so it reads on the fill. accent-color stays for an
+   engine that draws its own. */
 .slider {
   width: 100%;
   min-height: var(--pl-tap-min);
   margin: 0;
+  appearance: none;
+  background: transparent;
   accent-color: var(--pl-color-accent-text);
   cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: var(--pl-radius-pill);
+  background: linear-gradient(to right, var(--pl-color-accent-text) var(--pl-look-slider-fill, 0%), var(--pl-line-button) 0);
+}
+
+.slider::-moz-range-track {
+  height: 6px;
+  border-radius: var(--pl-radius-pill);
+  background: linear-gradient(to right, var(--pl-color-accent-text) var(--pl-look-slider-fill, 0%), var(--pl-line-button) 0);
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  border: 2px solid var(--pl-color-bg);
+  border-radius: var(--pl-radius-round);
+  background: var(--pl-color-accent-text);
+}
+
+.slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--pl-color-bg);
+  border-radius: var(--pl-radius-round);
+  background: var(--pl-color-accent-text);
 }
 
 .errors {
