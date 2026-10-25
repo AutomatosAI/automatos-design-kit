@@ -27,7 +27,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   matches its label (axe's label-content-name-mismatch).
 - The style sheet shows each value rounded to three decimal places, and wraps a value only after a comma, never
   inside a number.
-- The LOOK drawer's looks wrap in a grid instead of a row cut at the drawer's edge.
+- The LOOK drawer's looks wrap in a grid instead of a row cut at the drawer's edge, and its Grid and Glow sliders
+  draw their own track (the look's track colour, visible in WebKit too) and a square accent thumb.
 
 ## 1.0.0
 

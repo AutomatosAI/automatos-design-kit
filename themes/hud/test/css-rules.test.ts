@@ -89,4 +89,16 @@ describe('the LOOK drawer', () => {
     expect(row).not.toContain('overflow-x')
     expect(ruleBody('looks/drawer.module.css', '.card')).toContain('width: 100%;')
   })
+
+  it('draws its sliders itself in WebKit and Firefox: the track in the look\'s track colour, a square accent thumb', () => {
+    expect(ruleBody('looks/drawer.module.css', '.slider')).toContain('appearance: none;')
+    for (const track of ['.slider::-webkit-slider-runnable-track', '.slider::-moz-range-track']) {
+      expect(ruleBody('looks/drawer.module.css', track)).toContain('background: var(--hud-track);')
+    }
+    for (const thumb of ['.slider::-webkit-slider-thumb', '.slider::-moz-range-thumb']) {
+      const body = ruleBody('looks/drawer.module.css', thumb)
+      expect(body).toContain('background: var(--hud-accent);')
+      expect(body).toContain('border-radius: 0;')
+    }
+  })
 })

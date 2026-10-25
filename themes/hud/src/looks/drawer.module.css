@@ -196,12 +196,52 @@
   letter-spacing: 0.1em;
 }
 
+/*
+ * Grid and Glow: a 4 px square track in the look's track colour and a 16 px square thumb in the accent, drawn by the
+ * page in every engine (WebKit and Blink read ::-webkit-slider-*, Firefox ::-moz-range-*), so the track shows on
+ * every ground and nothing is round.
+ */
 .slider {
   width: 100%;
   min-height: var(--hud-tap-min);
   margin: 0;
-  accent-color: var(--hud-accent);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
   cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-track);
+}
+
+.slider::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-moz-range-track {
+  height: 4px;
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-track);
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-accent);
 }
 
 /* Scan, Auto and Motion: an on switch takes the accent's fill and its text. */
