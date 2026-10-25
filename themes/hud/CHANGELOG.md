@@ -11,6 +11,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - Pause Auto on the core screen stands beside the state chip, over the ring's foot, instead of under Auto among the
   rings, and every Pause Auto control stands on the page's ground, so no ring shows through it.
 - The host's first-run nudge heads the core screen's column, above the title, instead of landing on the message box.
+- A new chat is finished: its one line is set as the message box's key hint (mono capitals), the transcript's list
+  appears once something is said, and three starters put their words in the message box.
 
 ## 1.0.0
 

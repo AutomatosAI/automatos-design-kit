@@ -1,5 +1,5 @@
-import { type FormEvent, type KeyboardEvent, type RefObject, useId, useState } from 'react'
-import { AiLabelFence } from '@automatos/theme-sdk'
+import { type FormEvent, type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useState } from 'react'
+import { AiLabelFence, type HostChatDraft } from '@automatos/theme-sdk'
 
 import styles from './composer.module.css'
 
@@ -10,7 +10,8 @@ import styles from './composer.module.css'
  * Esc in the box presses too. The keys are said under the box, and the box names them as its description. The
  * host's AI label fence (the SDK's AiLabelFence) disables the box while a theme hides the host's AI label; it
  * fences the box only, never the conversation, so the approval cards stay clickable. The ref is the textarea:
- * Send, Stop and Try again put the focus back in it.
+ * Send, Stop and Try again put the focus back in it. Words handed in as a fill (an empty chat's starter) take the
+ * box's place and the focus, once per serial, for you to send or change.
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -27,6 +28,21 @@ export interface ComposerProps {
   readonly onStop: () => void
   /** Focus the box as it appears (a new chat). */
   readonly autoFocus?: boolean
+  /** Words to put in the box: each new serial replaces what is there and focuses it. */
+  readonly fill?: HostChatDraft | null
+}
+
+export interface BoxFill {
+  readonly fill: HostChatDraft | null
+  /** Puts these words in the message box, as a new fill. */
+  readonly fillBox: (text: string) => void
+}
+
+/** The words a page puts in the message box (an empty chat's starter), each with a new serial. */
+export function useBoxFill(): BoxFill {
+  const [fill, setFill] = useState<HostChatDraft | null>(null)
+  const fillBox = useCallback((text: string) => setFill((last) => ({ text, serial: (last?.serial ?? 0) + 1 })), [])
+  return { fill, fillBox }
 }
 
 function SendOrStop({ streaming, ready, onStop }: { readonly streaming: boolean; readonly ready: boolean; readonly onStop: () => void }) {
@@ -70,9 +86,14 @@ function useDraft(streaming: boolean, onSend: (text: string) => boolean, onStop:
   return { draft, setDraft, ready, onSubmit, onKeyDown }
 }
 
-export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false }: ComposerProps) {
+export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false, fill = null }: ComposerProps) {
   const { draft, setDraft, ready, onSubmit, onKeyDown } = useDraft(streaming, onSend, onStop)
   const hintId = useId()
+  useEffect(() => {
+    if (fill === null) return
+    setDraft(fill.text)
+    boxRef.current?.focus()
+  }, [fill, boxRef, setDraft])
   return (
     <div className={styles.composer}>
       <AiLabelFence>

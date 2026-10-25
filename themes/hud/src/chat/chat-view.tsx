@@ -9,6 +9,8 @@ import {
 
 import { ChatFooter, type ChatSending } from './chat-footer'
 import { chipWords } from './chip'
+import { useBoxFill } from './composer'
+import { EmptyChat } from './empty-chat'
 import { useScreenLayout } from './layout'
 import { latestReply, liveMessages, replyProgress, runningToolInput } from './reply'
 import { ChatScreen } from './screen'
@@ -24,7 +26,8 @@ import { VoiceCore } from './voice-core'
  * driven by it (use-hud-auto.ts), the transcript, and the message box. Auto's state is the turn's, as
  * Mascot.dc.html maps it: thinking once you send, searching, reading or working while a tool runs, back at rest
  * when his words start, celebrating a done receipt or a new Deliverable, oops on a failure, listening while an
- * approval card waits, asleep while the backend is down or after a long while without input.
+ * approval card waits, asleep while the backend is down or after a long while without input. Before anything is
+ * said, the empty chat's starters put their words in the message box.
  *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,
  * whose effects (Auto reading the status and the reply) run before the turn's own (a failure, a card waiting or
@@ -106,6 +109,7 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
   const auto = useChatAuto(turn, live, idleMs)
   const box = useRef<HTMLTextAreaElement>(null)
   const sending = useSending(chat, auto, box)
+  const { fill, fillBox } = useBoxFill()
   const { ref, layout } = useScreenLayout()
   const reply = latestReply(live)
   const chip = chipWords(auto.mascot, {
@@ -115,7 +119,7 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
     approvalWaiting: auto.state.approvalWaiting,
   })
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
-  const footer = <ChatFooter chat={chat} boxRef={box} sending={sending} autoFocus={chat.messages.length === 0} />
+  const footer = <ChatFooter chat={chat} boxRef={box} sending={sending} autoFocus={chat.messages.length === 0} fill={fill} />
   return (
     <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer}>
       <Transcript
@@ -124,6 +128,7 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
         onRetry={sending.retry}
         trialBlocked={chat.trialExhausted}
         after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
+        empty={<EmptyChat onStarter={fillBox} />}
       />
     </ChatScreen>
   )

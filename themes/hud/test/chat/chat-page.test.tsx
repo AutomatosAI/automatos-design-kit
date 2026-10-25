@@ -15,7 +15,7 @@ import hud from '../../src/entry.ts'
 import { HudChat } from '../../src/pages/chat.tsx'
 import { CHAT_KEEPS_CORE_PAGE } from '../../src/pages/core-screen.ts'
 import { readThemeJson } from '../support/files.ts'
-import { stubClips } from './support.tsx'
+import { openChat, stubClips } from './support.tsx'
 
 interface Manifest {
   readonly pages?: Readonly<Record<string, unknown>>
@@ -57,9 +57,10 @@ describe('/chat', () => {
   })
 
   it('loads the core screen and draws it: the core, the transcript, the box and the panels', async () => {
+    openChat()
     render(<HudChat />)
     expect(await screen.findByRole('group', { name: CORE_LABEL })).toBeInTheDocument()
-    expect(screen.getByRole('list', { name: CONVERSATION_LABEL })).toBeInTheDocument()
+    expect(await screen.findByRole('list', { name: CONVERSATION_LABEL })).toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: PLACEHOLDER })).toBeInTheDocument()
     for (const title of [AGENTS_TITLE, MISSION_TITLE, DELIVERABLES_TITLE]) {
       expect(screen.getByRole('region', { name: title })).toBeInTheDocument()

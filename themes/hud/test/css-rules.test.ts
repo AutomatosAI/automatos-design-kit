@@ -1,8 +1,9 @@
 // @vitest-environment node
 // HUD's layout and control rules that jsdom never applies, read from the stylesheets as written: every box measured
 // with its border and padding whatever the host's reset, 40 px under the message box's keys at the core screen's
-// foot, and Pause Auto on the opaque ground beside the core's state chip. A rule is found by its selector, comments
-// out and whitespace collapsed.
+// foot, Pause Auto on the opaque ground beside the core's state chip, and the empty chat's line and starters in the
+// message box's hint and HUD's secondary button. A rule is found by its selector, comments out and whitespace
+// collapsed.
 import { describe, expect, it } from 'vitest'
 import { readSource } from './support/files.ts'
 
@@ -44,5 +45,22 @@ describe('Pause Auto', () => {
   it('sits in a row with the state chip over the ring\'s foot, not under Auto', () => {
     expect(ruleBody('chat/voice-core.module.css', '.chipRow')).toContain('bottom: var(--hud-core-chip-bottom);')
     expect(ruleBody('chat/voice-core.module.css', '.chip')).not.toContain('position: absolute')
+  })
+})
+
+describe('the empty chat', () => {
+  it("sets its line as the message box's key hint: mono capitals, tracked", () => {
+    const line = ruleBody('chat/empty-chat.module.css', '.line')
+    expect(line).toContain('font: 500 12px/1.5 var(--hud-font-mono);')
+    expect(line).toContain('letter-spacing: var(--hud-tracking-chip);')
+    expect(line).toContain('text-transform: uppercase;')
+    expect(ruleBody('chat/composer.module.css', '.hint')).toContain('letter-spacing: var(--hud-tracking-chip);')
+  })
+
+  it("draws each starter as HUD's secondary button: an accent-line outline, square, 44 px high", () => {
+    const starter = ruleBody('chat/empty-chat.module.css', '.starter')
+    expect(starter).toContain('border: 1px solid var(--hud-accent-line);')
+    expect(starter).toContain('border-radius: 0;')
+    expect(starter).toContain('min-height: var(--hud-tap-min);')
   })
 })
