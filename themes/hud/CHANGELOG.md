@@ -10,6 +10,7 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   panels keep their sizes; the core screen leaves 40 px under the message box's keys.
 - Pause Auto on the core screen stands beside the state chip, over the ring's foot, instead of under Auto among the
   rings, and every Pause Auto control stands on the page's ground, so no ring shows through it.
+- The host's first-run nudge heads the core screen's column, above the title, instead of landing on the message box.
 
 ## 1.0.0
 

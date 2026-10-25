@@ -1,4 +1,5 @@
 import type { ReactNode, RefObject } from 'react'
+import { FirstRunNudge } from '@automatos/theme-sdk'
 
 import { THEME_HEADING } from '../theme'
 import type { ScreenLayout } from './layout'
@@ -13,7 +14,9 @@ import styles from './screen.module.css'
  * the left and DELIVERABLES on the right, as the design does; two put all three in one column on the right; one is
  * the design's phone, the conversation alone. The design's other panels (spend, latency, this machine) are not
  * drawn: the SDK gives a theme no source for them, and the design's own rule is to hide a panel without one. The
- * title is the screen's h1, which the host focuses when the page opens.
+ * title is the screen's h1, which the host focuses when the page opens. The host's first-run nudge (the local
+ * edition's, until a key exists or it is dismissed) heads the conversation's column: its pill floats over the top of
+ * the column from a zero-height anchor, never over the message box.
  */
 
 export interface ChatScreenProps {
@@ -55,6 +58,7 @@ export function ChatScreen({ screenRef, layout, title, core, footer, children }:
     <div ref={screenRef} className={styles.screen} data-columns={columns}>
       {columns === 'three' && <LeftPanels />}
       <div className={styles.centre}>
+        <FirstRunNudge />
         <h1 className={styles.title} tabIndex={-1} {...THEME_HEADING}>
           {title}
         </h1>
