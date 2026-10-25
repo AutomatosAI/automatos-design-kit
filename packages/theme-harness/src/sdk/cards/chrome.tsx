@@ -5,11 +5,17 @@
  * banner once the workspace's credits are used up (the refused request's `credits_exhausted` code, or the host's
  * trial state, read through the fake context area), drawing nothing while work runs, and the local edition's
  * first-run nudge, drawing nothing in SaaS or once dismissed. Each drawn root carries data-protected-surface.
+ *
+ * The nudge has the geometry of core's components/local/first-run-nudge.tsx (chrome-styles.ts): a zero-height anchor
+ * that takes no space, with its pill placed over the top of the chat column, core's words in it and the link to
+ * Settings (a click kept, as the other cards keep theirs), in plain colours.
  */
-import { type ReactElement, useState } from 'react'
+import { type MouseEvent, type ReactElement, useState } from 'react'
 import { recordCardAction } from '../../internal/scripted/cards-log.ts'
 import { CREDITS_EXHAUSTED_CODE } from '../../internal/scripted/chat-turn.ts'
 import { useEdition, useTrial } from '../../internal/scripted/host-inputs.ts'
+import { CloseGlyph, KeyGlyph } from './chrome-glyphs.tsx'
+import { NUDGE_ANCHOR, NUDGE_DISMISS, NUDGE_KEY_COLOR, NUDGE_LINK, NUDGE_PILL } from './chrome-styles.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 
@@ -17,8 +23,10 @@ export const HEADER_UTILITIES_LABEL = 'Header utilities'
 /** The utilities, in the Studio header's order (components/layout/studio-header.tsx). */
 export const HEADER_UTILITIES: readonly string[] = Object.freeze(['Help', 'Notifications', 'Theme', 'Account'])
 export const CREDITS_PAUSED_LINE = "Work on Automatos's AI keys is paused: the workspace's credits are used up. Add a key of your own to go on."
-export const NUDGE_LABEL = 'Get started'
-export const NUDGE_LINE = 'Add an LLM key to start chatting.'
+/** first-run-nudge.tsx:28-29 FIRST_RUN_NUDGE_MESSAGE, FIRST_RUN_NUDGE_LINK_LABEL and :27's href. */
+export const NUDGE_LINE = 'Add an LLM key to bring Auto to life'
+export const NUDGE_LINK_LABEL = 'Settings → API Keys'
+export const NUDGE_SETTINGS_HREF = '/settings'
 export const DISMISS_LABEL = 'Dismiss'
 const EXHAUSTED_TRIAL = 'exhausted'
 const LOCAL_EDITION = 'local'
@@ -48,17 +56,29 @@ export const TrialExhaustedBanner: Sdk['TrialExhaustedBanner'] = function TrialE
   )
 }
 
-/** cards.FirstRunNudge: on the local edition only, until dismissed. */
+/** The link to Settings: the click is kept, and the harness stays where it is. */
+function openSettings(event: MouseEvent<HTMLAnchorElement>): void {
+  event.preventDefault()
+  recordCardAction({ card: 'first-run-nudge', id: NUDGE_SETTINGS_HREF, action: 'opened' })
+}
+
+/** cards.FirstRunNudge: on the local edition only, until dismissed; a pill over the chat that takes no space. */
 export const FirstRunNudge: Sdk['FirstRunNudge'] = function FirstRunNudge(): ReactElement {
   const edition = useEdition()
   const [dismissed, setDismissed] = useState(false)
   if (edition !== LOCAL_EDITION || dismissed) return <></>
   return (
-    <aside data-protected-surface="first-run-nudge" aria-label={NUDGE_LABEL}>
-      <p>{NUDGE_LINE}</p>
-      <button type="button" onClick={() => setDismissed(true)}>
-        {DISMISS_LABEL}
-      </button>
-    </aside>
+    <div data-protected-surface="first-run-nudge" style={NUDGE_ANCHOR}>
+      <div role="status" aria-live="polite" style={NUDGE_PILL}>
+        <KeyGlyph color={NUDGE_KEY_COLOR} />
+        <span>{NUDGE_LINE}</span>
+        <a href={NUDGE_SETTINGS_HREF} style={NUDGE_LINK} onClick={openSettings}>
+          {NUDGE_LINK_LABEL}
+        </a>
+        <button type="button" aria-label={DISMISS_LABEL} style={NUDGE_DISMISS} onClick={() => setDismissed(true)}>
+          <CloseGlyph />
+        </button>
+      </div>
+    </div>
   )
 }

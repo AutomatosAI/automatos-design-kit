@@ -28,7 +28,8 @@ import {
 } from '../src/sdk/cards.ts'
 import { APPROVE_LABEL, APPROVED_LINE, DENIED_LINE, DENY_LABEL, REJECT_LABEL } from '../src/sdk/cards/approvals.tsx'
 import { CREATE_MISSION_LABEL, DISMISS_SUGGESTION_LABEL, KEEP_LABEL, KEPT_LINE, WITHDRAW_LABEL, WITHDRAWN_LINE } from '../src/sdk/cards/chat-cards.tsx'
-import { CREDITS_PAUSED_LINE, DISMISS_LABEL, NUDGE_LINE } from '../src/sdk/cards/chrome.tsx'
+import { CREDITS_PAUSED_LINE, DISMISS_LABEL, NUDGE_LINE, NUDGE_LINK_LABEL } from '../src/sdk/cards/chrome.tsx'
+import { NUDGE_PILL } from '../src/sdk/cards/chrome-styles.ts'
 import { MADE_BY_FALLBACK } from '../src/sdk/cards/content.tsx'
 import { chatControls, resetChat } from '../src/sdk/chat.ts'
 
@@ -213,6 +214,19 @@ describe('content and chrome', () => {
     inputs.edition = 'saas'
     render(<FirstRunNudge />)
     expect(surface('first-run-nudge')).toBeNull()
+  })
+
+  it("FirstRunNudge: core's zero-height anchor, its pill over the top of the chat, core's words and a kept click on Settings", () => {
+    render(<FirstRunNudge />)
+    const anchor = surface('first-run-nudge')
+    expect(anchor).toHaveStyle({ position: 'relative', height: '0px', zIndex: '30' })
+    const pill = screen.getByRole('status')
+    expect(anchor).toContainElement(pill)
+    expect(pill).toHaveStyle({ position: 'absolute', left: '50%', top: '12px', whiteSpace: 'nowrap' })
+    expect(NUDGE_PILL).toMatchObject({ transform: 'translateX(-50%)', borderRadius: '9999px', padding: '8px 16px', gap: '12px' })
+    expect(pill).toHaveTextContent(`${NUDGE_LINE}${NUDGE_LINK_LABEL}`)
+    fireEvent.click(within(pill).getByRole('link', { name: NUDGE_LINK_LABEL }))
+    expect(cardActions()).toEqual([{ card: 'first-run-nudge', id: '/settings', action: 'opened' }])
   })
 
   it('HeaderUtilities keeps each click; AiLabelFence leaves the composer on while the label shows; CorePage shows its children', () => {
