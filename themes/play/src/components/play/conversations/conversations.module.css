@@ -29,10 +29,14 @@
   gap: var(--pl-space-4);
 }
 
-/* html.play outranks Studio's element rules (globals.css .studio h1/h2): <html> carries both. */
+/* html.play outranks Studio's element rules (globals.css .studio h1/h2): <html> carries both. A title too long for
+   the row is cut with an ellipsis rather than pushing New chat out (Play 1.1.1). */
 :global(html.play) .title {
   margin: 0;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font: var(--pl-text-status);
   letter-spacing: var(--pl-display-letter-spacing);
   color: var(--pl-color-text);
@@ -56,7 +60,10 @@
   cursor: pointer;
 }
 
+/* New chat keeps its size and its one line beside any title. */
 .newChat {
+  flex: none;
+  white-space: nowrap;
   background: var(--pl-color-text);
   color: var(--pl-color-bg);
 }
