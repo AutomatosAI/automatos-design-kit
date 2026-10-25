@@ -12,7 +12,7 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
 
 - The frame around every page (`frame@1`): the top bar, the side rail (every core page, HUD's Conversations after
   Chat, and RECENT, the latest conversations) and the backdrop. Every page HUD doesn't own is the host's, drawn
-  inside the frame and recoloured by the look.
+  inside the frame and recoloured by the look. In a phone's browser it is the phone's frame (below).
 - The core screen at `/chat`, a page HUD owns: the conversation's title with New chat beside it, Auto in the voice
   core with the state in words under him and Pause Auto beside it, the transcript with his replies and the host's own
   cards (approvals, Deliverables, Missions, tickets), the message box (Enter sends, Shift + Enter makes a new line,
@@ -20,6 +20,7 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
   how to start, with three starters that fill the message box. It loads in its own chunk. A `/chat` link with
   `repo`, `runtime` or `mode` keeps the host's own chat page. There is no microphone: the SDK gives a theme no voice.
+  In a phone's browser it is the phone's core screen (below).
 - Conversations at `/x/conversations`, HUD's own route (`routes`, with a nav entry): every conversation in Today,
   This week and Earlier panels, a search on the title and New chat. It loads in its own chunk; where HUD doesn't
   draw (below 360 px, its minWidth) it sends the browser to the chat.
@@ -57,10 +58,31 @@ and iOS) and stills in `assets/mascot/`, on a ring the page draws in the look's 
 Auto is on: at the foot of the rail, his state the backend's. He moves only where he can be paused (the Pause Auto
 control), and stands still under the reduced-motion setting and while the look's motion is off. On the core
 screen he is in the voice core, his state the chat's, with Pause Auto beside the state chip, and the rail's dock
-steps aside, so he shows once; it steps aside too while the host draws its own floating Auto. His files are
+steps aside, so he shows once; it steps aside too while the host draws its own floating Auto. In a phone's browser
+there is no rail, so he shows on the core screen alone. His files are
 (c) Automatos AI, not covered by the code licence (`NOTICE`).
 
-## On a phone
+## In a phone's browser
+
+HUD draws from 360 px up (`minWidth`). Below 1024 px, the width core's own shell takes for a desktop, it draws the
+Command design's phone (390 by 844) instead of its desktop layout. The width is asked as core asks it
+(`src/lib/phone-layout.ts`), so HUD and the host agree on each side of it; from 1024 px up nothing changes.
+
+- **The frame.** The phone's top bar: MENU, the mark and AUTOMATOS //, and the backend's connection as a glyph and a
+  word. There is no rail, so every page takes the window's whole width. MENU opens the menu, a modal panel from the
+  left edge: New chat, search and LOOK; the rail's pages with Conversations after Chat, RECENT, Docs and Settings;
+  and the host's header utilities. It takes the focus, keeps Tab inside it, and Esc, Close or a tap beside it shuts
+  it, handing the focus back to MENU; everything behind it is inert while it is open, and following a link shuts it.
+- **The core screen.** A line naming who is at work (the running Mission's agent with the time since it started, or
+  Auto and his state in a word), the 290 px core with Auto, the state chip and Pause Auto beside it, the last
+  exchange (your words in quotes, then Auto's reply with all it carries on the desktop: his tool lines, the host's
+  cards, the receipts, the snag box), and the control row. TYPE opens the message box, the desktop's, over the row,
+  and puts the focus in it; shut again, it keeps its words. STOP stops a reply and is disabled while nothing runs.
+  The row's middle is kept for the voice button (`src/chat/phone/voice-slot.tsx`, which draws nothing): the SDK
+  gives a theme no voice yet, so HUD draws no HOLD TO TALK, no waveform and no MIC LIVE. They arrive with the SDK's
+  voice area.
+
+## In the phone app
 
 The phone has its own HUD layout. `theme.json`'s `mobile` block gives a phone that draws a theme from data alone
 HUD's ARC colours (Studio's tokens, the same in its light and dark schemes, since HUD is never light), and no
