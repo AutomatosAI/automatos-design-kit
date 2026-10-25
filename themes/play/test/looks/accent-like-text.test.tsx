@@ -17,6 +17,11 @@ vi.mock('../../src/components/play/shell/play-sidebar.tsx', async () => {
   const { createElement } = await import('react')
   return { PlaySidebar: () => createElement('aside', { 'data-testid': 'play-sidebar' }) }
 })
+// Auto as his state only: this test is about the buttons around him.
+vi.mock('../../src/components/mascot/auto-mascot.tsx', async () => {
+  const { createElement } = await import('react')
+  return { AutoMascot: ({ state }: { readonly state: string }) => createElement('div', { 'data-testid': 'auto', 'data-state': state }) }
+})
 
 const MARK = 'data-accent-like-text'
 const THEME_CSS = 'app/play-theme.css'
