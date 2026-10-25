@@ -21,6 +21,13 @@
   padding: var(--pl-space-5) var(--pl-space-6);
 }
 
+/* "Not connected", then the host's header utilities, at the right of the asleep screen's top row. */
+.topEnd {
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-4);
+}
+
 .wordmark {
   font: var(--pl-text-brand);
   letter-spacing: var(--pl-display-letter-spacing);
