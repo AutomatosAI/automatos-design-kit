@@ -16,6 +16,7 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FAILURE_TEXT, HarnessHost, prepareHost, THEME_FALLBACK_NOTICE } from '../app/host.tsx'
 import { host } from '../src/host.ts'
+import { CORE_BASE_STYLE_ID } from '../src/host/core-base.ts'
 import { HARNESS_IMPORT_MAP, HARNESS_SDK_ENTRY, harnessImportMap, importMapAliases } from '../src/host/import-map.ts'
 import { HTML_ATTRS, paintLook, PREVIEW_STYLE_ID, type PrepaintTable } from '../src/host/prepaint.ts'
 import { declaredOf, loadTheme, readServedTheme, reportOf, type HarnessTheme, type ServedTheme } from '../src/host/register.ts'
@@ -199,12 +200,13 @@ describe('the toolbar', () => {
     expect(html().getAttribute(HTML_ATTRS.motion)).toBe('reduce')
   })
 
-  it('switches forced colours: the attribute the preview and the mirrored rules paint under', async () => {
+  it("switches forced colours: the attribute the preview and the mirrored rules paint under, over core's base", async () => {
     const user = userEvent.setup()
     mount(sampleTheme())
     await screen.findByTestId('frame')
     expect(html().hasAttribute(HTML_ATTRS.forcedColors)).toBe(false)
     expect(document.getElementById(PREVIEW_STYLE_ID)?.textContent).toContain('CanvasText')
+    expect(document.head.firstElementChild, "core's base layer, first in <head>").toBe(document.getElementById(CORE_BASE_STYLE_ID))
     await user.click(screen.getByLabelText('Forced colours'))
     expect(html().getAttribute(HTML_ATTRS.forcedColors)).toBe('active')
   })

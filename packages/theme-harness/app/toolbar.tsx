@@ -43,6 +43,9 @@ const BAR_STYLE: CSSProperties = Object.freeze({
   fontSize: '14px',
 })
 const FIELD_STYLE: CSSProperties = Object.freeze({ display: 'inline-flex', alignItems: 'center', gap: '6px' })
+/** The page draws on core's base layer (no border, no padding on a select), so the toolbar's own controls say theirs. */
+const SELECT_STYLE: CSSProperties = Object.freeze({ border: '1px solid #71717a', borderRadius: '4px', padding: '2px 6px', background: '#ffffff' })
+const LINK_STYLE: CSSProperties = Object.freeze({ color: '#1d4ed8', textDecoration: 'underline' })
 const KIND_LABELS: Readonly<Record<View['kind'], string>> = Object.freeze({ slot: 'slot', page: 'page', route: 'route', base: 'host page' })
 
 function SelectField(props: { label: string; value: string; options: readonly Option[]; disabled?: boolean; onSelect: (value: string) => void }) {
@@ -50,7 +53,7 @@ function SelectField(props: { label: string; value: string; options: readonly Op
   return (
     <label style={FIELD_STYLE}>
       {label}
-      <select value={value} disabled={disabled} onChange={(event: ChangeEvent<HTMLSelectElement>) => onSelect(event.target.value)}>
+      <select value={value} disabled={disabled} style={SELECT_STYLE} onChange={(event: ChangeEvent<HTMLSelectElement>) => onSelect(event.target.value)}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -131,7 +134,7 @@ export function Toolbar(props: ToolbarProps) {
       />
       <CheckField label="Reduced motion" checked={settings.reducedMotion} onToggle={(checked) => set({ reducedMotion: checked })} />
       <CheckField label="Forced colours" checked={settings.forcedColors} onToggle={(checked) => set({ forcedColors: checked })} />
-      <a href={PHONE_PATH} style={{ color: '#1d4ed8' }}>Phone view</a>
+      <a href={PHONE_PATH} style={LINK_STYLE}>Phone view</a>
       <ReportLines report={props.report} />
     </div>
   )

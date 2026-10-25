@@ -3,9 +3,10 @@
  * register(host) as core's loader does, and draws the view the fake host's path names: the theme's frame around
  * the slot, page or route there (src/host/slots.ts), the host's own page alone below the theme's minWidth, and the
  * host's own page with core's notice once the entry failed to load, its register threw, or something it drew threw
- * (a boundary around the theme, as core's provider falls back on 'render'). Before the theme draws, <html> gets
- * what core's boot puts there (src/host/prepaint.ts): the base's and the theme's classes, the active look's
- * variables, the tone, and the host's status.
+ * (a boundary around the theme, as core's provider falls back on 'render'). Before the theme draws, the page gets
+ * core's base layer (src/host/core-base.ts: Tailwind's preflight and globals.css's base), and <html> gets what core's
+ * boot puts there (src/host/prepaint.ts): the base's and the theme's classes, the active look's variables, the tone,
+ * and the host's status.
  *
  * The toolbar's settings drive the fake host (src/host.ts): the width and minWidth (useThemeLayout), the chosen tone
  * and the one the theme forces (useTone), reduced motion (useMediaPreferences), and the look runtime mounted on the
@@ -22,6 +23,7 @@ import {
   applyHtml, forcedTone, htmlClasses, installPreviewStyle, lookTone, paintLook, paintNames, STUDIO_CLASS, TONE_CLASSES,
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
+import { installCoreBase } from '../src/host/core-base.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
@@ -185,7 +187,9 @@ interface Painted {
 function useHtmlPaint(theme: HarnessTheme, { status, reason, tone, look, settings }: Painted): void {
   const { base, htmlClass } = theme.manifest
   const { reducedMotion, forcedColors } = settings
-  useEffect(() => {
+  // Core's base layer first in <head>, before the theme's stylesheet, and before the theme draws (src/host/core-base.ts).
+  useLayoutEffect(() => {
+    installCoreBase(document)
     installPreviewStyle(document)
   }, [])
   useLayoutEffect(() => {
