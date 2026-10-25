@@ -2,7 +2,8 @@
  * `automatos-theme shots <theme folder> [--out <folder>]` (PRD-261 B-02f): the theme drawn in the kit's browser
  * harness (packages/theme-harness), with nothing of Automatos running, shot on Chromium and WebKit with an axe scan
  * of every shot: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px,
- * plus one set just below its minWidth, and an axe.json beside each set (the harness's shots/shots.spec.ts).
+ * plus one set just below its minWidth, and for a theme with a /chat page two more chat shots at 1440 (motion allowed,
+ * and a made-up transcript), with an axe.json beside each set (the harness's shots/shots.spec.ts).
  *
  * Two steps, each only once the one before it passed, both run by Node from the harness's folder with the theme
  * folder and the out folder (default ./shots) in AUTOMATOS_HARNESS_THEME and AUTOMATOS_HARNESS_OUT:

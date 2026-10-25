@@ -1,11 +1,14 @@
 /**
  * PRD-261 B-02f: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px,
- * plus one set just below its minWidth (the host's own pages there), each scanned with axe.
+ * plus one set just below its minWidth (the host's own pages there), each scanned with axe; and for a theme with a
+ * /chat page, that page with motion allowed and on the transcript (src/host/shot-groups.ts), into
+ * `<preset>/1440-motion/` and `<preset>/1440-transcript/`.
  *
  * One test per preset and width (and one below minWidth), so a failure names its group: it opens the harness,
  * reads the views the app drew the theme with (HARNESS_GLOBAL), then for each view opens its address, waits until
  * the harness settled (the host's status, the network idle, the fonts and every image in; no fixed sleep), shoots
- * the page and scans the theme's stage. The folder gets <project>/<preset>/<width>/<view>.png and its axe.json.
+ * the page and scans the theme's stage. The folder gets <project>/<preset>/<width>/<view>.png and its axe.json. Every
+ * context asks for reduced motion (playwright.config.ts); the motion group's page asks the browser for none instead.
  *
  * What a group must hold is read from the theme folder, not from the views the page drew: theme.json's slots, pages
  * and routes, less what the page reports the theme did not register, one file name each (router.ts expectedShots).
@@ -20,9 +23,10 @@ import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import {
-  HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, expectedShots,
-  offOrigin, shotAddress, shotGroups, shotPresets, viewSlug, type HarnessReport, type Served, type ShotGroup, type View,
+  HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, offOrigin,
+  shotPresets, viewSlug, type HarnessReport, type Served, type View,
 } from '../src/host/router.ts'
+import { groupShots, groupViews, shotAddress, shotGroups, type ShotGroup } from '../src/host/shot-groups.ts'
 import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan } from './axe.ts'
 
 const VIEWPORT_HEIGHT = 900
@@ -54,8 +58,9 @@ function readThemeFolder(themeDir: string): ThemeFolder {
   const dir = join(themeDir, PRESETS_DIR)
   const ids = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith(PRESET_SUFFIX)).map((name) => name.slice(0, -PRESET_SUFFIX.length)) : []
   const presets = shotPresets(ids, typeof manifest.look === 'string' ? manifest.look : undefined)
-  const groups = shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0)
-  return { declared: declaredIn(manifest), presets, groups }
+  const declared = declaredIn(manifest)
+  const groups = shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages)
+  return { declared, presets, groups }
 }
 
 const OUT_DIR = required(OUT_ENV)
@@ -115,18 +120,26 @@ async function shootViews(page: Page, group: ShotGroup, views: readonly View[], 
   return scans
 }
 
+/** What a group shoots, for its test's title. */
+function groupSubject(group: ShotGroup): string {
+  if (group.page === null) return 'every slot, page and route'
+  if (group.transcript) return `${group.page} on the transcript`
+  return group.reducedMotion ? group.page : `${group.page} with motion allowed`
+}
+
 for (const group of THEME.groups) {
-  test(`${group.folder}: a shot and an axe scan of every slot, page and route`, async ({ page }, testInfo) => {
+  test(`${group.folder}: a shot and an axe scan of ${groupSubject(group)}`, async ({ page }, testInfo) => {
     const requests = recordRequests(page)
+    if (!group.reducedMotion) await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.setViewportSize({ width: group.width, height: VIEWPORT_HEIGHT })
     await openSettled(page, shotAddress(group, HOME_PATH))
     const report = await harnessReport(page)
     expect(report.status, 'the theme started in the harness').toBe('active')
     expect(report.presets, "the page serves the folder's presets, the default look first").toEqual(THEME.presets)
-    const expected = expectedShots(THEME.declared, report.missing)
-    expect(expected.length, 'the theme serves a slot, page or route').toBeGreaterThan(0)
+    const expected = groupShots(group, THEME.declared, report.missing)
+    if (group.page === null) expect(expected.length, 'the theme serves a slot, page or route').toBeGreaterThan(0)
     const folder = freshFolder(testInfo.project.name, group.folder)
-    const scans = await shootViews(page, group, report.views, folder)
+    const scans = await shootViews(page, group, groupViews(group, report.views), folder)
     writeAxeReport(join(folder, AXE_FILE), scans)
     const written = readdirSync(folder).filter((name) => name.endsWith(SHOT_SUFFIX)).sort()
     expect(written, 'one PNG per slot, page and route theme.json declares and the theme registered').toEqual([...expected].sort())

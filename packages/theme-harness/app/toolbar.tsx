@@ -2,7 +2,8 @@
  * PRD-261 B-02e: the harness's toolbar: which view (a slot, page or route the theme serves, at its path), which of
  * the theme's presets, the stage's width (the window's, 1440, 1024, or just below the theme's minWidth, where the
  * host draws its own pages), the tone (off while the theme or its look forces one, as core forces it), reduced
- * motion and forced colours. Every control is a labelled native one. Below them, what theme.json declares that the
+ * motion, forced colours, and the transcript (the chat opened on a made-up exchange, src/host/transcript.ts). Every
+ * control is a labelled native one. Below them, what theme.json declares that the
  * theme didn't register, and what it registered undeclared (the host draws neither). A link opens the phone view
  * (app/phone/page.tsx), what Automatos Go draws for the theme.
  */
@@ -43,6 +44,9 @@ const BAR_STYLE: CSSProperties = Object.freeze({
   fontSize: '14px',
 })
 const FIELD_STYLE: CSSProperties = Object.freeze({ display: 'inline-flex', alignItems: 'center', gap: '6px' })
+/** The page draws on core's base layer (no border, no padding on a select), so the toolbar's own controls say theirs. */
+const SELECT_STYLE: CSSProperties = Object.freeze({ border: '1px solid #71717a', borderRadius: '4px', padding: '2px 6px', background: '#ffffff' })
+const LINK_STYLE: CSSProperties = Object.freeze({ color: '#1d4ed8', textDecoration: 'underline' })
 const KIND_LABELS: Readonly<Record<View['kind'], string>> = Object.freeze({ slot: 'slot', page: 'page', route: 'route', base: 'host page' })
 
 function SelectField(props: { label: string; value: string; options: readonly Option[]; disabled?: boolean; onSelect: (value: string) => void }) {
@@ -50,7 +54,7 @@ function SelectField(props: { label: string; value: string; options: readonly Op
   return (
     <label style={FIELD_STYLE}>
       {label}
-      <select value={value} disabled={disabled} onChange={(event: ChangeEvent<HTMLSelectElement>) => onSelect(event.target.value)}>
+      <select value={value} disabled={disabled} style={SELECT_STYLE} onChange={(event: ChangeEvent<HTMLSelectElement>) => onSelect(event.target.value)}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -131,7 +135,8 @@ export function Toolbar(props: ToolbarProps) {
       />
       <CheckField label="Reduced motion" checked={settings.reducedMotion} onToggle={(checked) => set({ reducedMotion: checked })} />
       <CheckField label="Forced colours" checked={settings.forcedColors} onToggle={(checked) => set({ forcedColors: checked })} />
-      <a href={PHONE_PATH} style={{ color: '#1d4ed8' }}>Phone view</a>
+      <CheckField label="Transcript" checked={settings.transcript} onToggle={(checked) => set({ transcript: checked })} />
+      <a href={PHONE_PATH} style={LINK_STYLE}>Phone view</a>
       <ReportLines report={props.report} />
     </div>
   )

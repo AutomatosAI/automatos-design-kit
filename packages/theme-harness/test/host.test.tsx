@@ -16,12 +16,14 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { FAILURE_TEXT, HarnessHost, prepareHost, THEME_FALLBACK_NOTICE } from '../app/host.tsx'
 import { host } from '../src/host.ts'
+import { CORE_BASE_STYLE_ID } from '../src/host/core-base.ts'
 import { HARNESS_IMPORT_MAP, HARNESS_SDK_ENTRY, harnessImportMap, importMapAliases } from '../src/host/import-map.ts'
 import { HTML_ATTRS, paintLook, PREVIEW_STYLE_ID, type PrepaintTable } from '../src/host/prepaint.ts'
 import { declaredOf, loadTheme, readServedTheme, reportOf, type HarnessTheme, type ServedTheme } from '../src/host/register.ts'
 import {
-  DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, shotGroups, viewOfPath, viewSlug, type HarnessSettings,
+  DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, viewOfPath, viewSlug, type HarnessSettings,
 } from '../src/host/router.ts'
+import { shotGroups } from '../src/host/shot-groups.ts'
 
 // From the string import.meta.url: under jsdom, `new URL()` is jsdom's class, which fileURLToPath refuses.
 const PLAY_DIR = `${resolve(dirname(fileURLToPath(import.meta.url)), '../../../themes/play')}${sep}`
@@ -199,12 +201,13 @@ describe('the toolbar', () => {
     expect(html().getAttribute(HTML_ATTRS.motion)).toBe('reduce')
   })
 
-  it('switches forced colours: the attribute the preview and the mirrored rules paint under', async () => {
+  it("switches forced colours: the attribute the preview and the mirrored rules paint under, over core's base", async () => {
     const user = userEvent.setup()
     mount(sampleTheme())
     await screen.findByTestId('frame')
     expect(html().hasAttribute(HTML_ATTRS.forcedColors)).toBe(false)
     expect(document.getElementById(PREVIEW_STYLE_ID)?.textContent).toContain('CanvasText')
+    expect(document.head.firstElementChild, "core's base layer, first in <head>").toBe(document.getElementById(CORE_BASE_STYLE_ID))
     await user.click(screen.getByLabelText('Forced colours'))
     expect(html().getAttribute(HTML_ATTRS.forcedColors)).toBe('active')
   })
@@ -262,7 +265,9 @@ describe('what the build and the shots read', () => {
   })
 
   it('reads back the settings it writes into the address, and drops a malformed value', () => {
-    const settings: HarnessSettings = { path: '/x/notes', preset: 'paper', width: 1023, tone: 'dark', reducedMotion: true, forcedColors: true, toolbar: false }
+    const settings: HarnessSettings = {
+      path: '/x/notes', preset: 'paper', width: 1023, tone: 'dark', reducedMotion: true, forcedColors: true, transcript: true, toolbar: false,
+    }
     expect(readSettings(settingsQuery(settings))).toEqual(settings)
     expect(settingsQuery(DEFAULT_SETTINGS)).toBe('')
     expect(readSettings('?path=javascript:x&width=12&tone=blue&preset=../x')).toEqual(DEFAULT_SETTINGS)
@@ -272,7 +277,7 @@ describe('what the build and the shots read', () => {
     const groups = shotGroups(['ember', 'aurora', 'daylight', 'obsidian', 'workshop'], 1024)
     expect(groups).toHaveLength(11)
     expect(groups.slice(0, 2).map((group) => group.folder)).toEqual(['ember/1440', 'ember/1024'])
-    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023 })
+    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023, reducedMotion: true, page: null, transcript: false })
     const urls = [`${HARNESS_ORIGIN}/harness/a.js`, 'data:image/png;base64,AA==', `blob:${HARNESS_ORIGIN}/id`, 'https://cdn.example.com/x.js']
     expect(offOrigin(urls)).toEqual(['https://cdn.example.com/x.js'])
   })

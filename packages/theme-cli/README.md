@@ -225,7 +225,8 @@ Exit code 0 when written, 1 when refused (nothing written), 2 for a usage error.
 
 `automatos-theme dev <theme folder> [--port <n>]` serves the kit's browser harness (the mock host page `shots`
 photographs) for the theme on `http://127.0.0.1:4319/`, as a local app to build the theme in, with nothing of
-Automatos running: the toolbar switches the view, preset, width, tone, reduced motion and forced colours.
+Automatos running: the toolbar switches the view, preset, width, tone, reduced motion, forced colours and a made-up
+transcript in the chat.
 
 1. It listens first, on `127.0.0.1` only and the port (`--port`, default 4319, beside the shots' 4318; `0` picks a
    free one). A port in use is refused in one sentence, before anything is built.

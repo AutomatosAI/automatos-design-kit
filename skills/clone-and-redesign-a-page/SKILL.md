@@ -56,9 +56,10 @@ The full template's `/agents` page is a finished clone to copy the shape of:
    gives it ([page-inventory.md](../../guides/page-inventory.md), then [sdk.md](../../guides/sdk.md)). Done when every
    part of the page has a hook, or is marked as staying the host's.
 3. **Leave the host what the SDK doesn't give.** A part with no SDK hook yet (on `/agents`, an agent's details or
-   creating one) is not drawn by the theme: list the link parameters that open it (such as `tab`) in the page
-   entry's `keepCorePage`, and the host draws its own page for those links. Done when `keepCorePage` names each
-   such parameter (16 at most).
+   creating one) is not drawn by the theme: core already draws its own page for the links that open such parts, from
+   a fixed list per route ([contract.md](../../guides/contract.md), "Pages", the `keepCorePage` table). Name the
+   route's list in the page entry's `keepCorePage` so the package says which links leave its page (the host checks the
+   list's shape only). Done when the theme's page draws only what its links leave to it.
 4. **Redraw the page in `src/`.** A component of the theme's own (`src/components/<page>/`) that imports only
    `@automatos/theme-sdk` and the theme's own files: its data from the page area's hooks, navigation through
    `HostLink` and `useHostRouter`, the host's cards from `cards`. Write it fresh, in the theme's design; never paste
