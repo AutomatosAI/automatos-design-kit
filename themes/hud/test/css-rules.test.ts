@@ -1,9 +1,9 @@
 // @vitest-environment node
 // HUD's layout and control rules that jsdom never applies, read from the stylesheets as written: every box measured
-// with its border and padding whatever the host's reset, 40 px under the message box's keys at the core screen's
-// foot, Pause Auto on the opaque ground beside the core's state chip, and the empty chat's line and starters in the
-// message box's hint and HUD's secondary button. A rule is found by its selector, comments out and whitespace
-// collapsed.
+// with its border and padding whatever the host's reset, the phone frame's page width, menu and tap targets, 40 px
+// under the message box's keys at the core screen's foot, Pause Auto on the opaque ground beside the core's state
+// chip, and the empty chat's line and starters in the message box's hint and HUD's secondary button. A rule is found
+// by its selector, comments out and whitespace collapsed.
 import { describe, expect, it } from 'vitest'
 import { readSource } from './support/files.ts'
 
@@ -26,6 +26,31 @@ describe('the frame', () => {
   it("measures every box with its border and padding, so HUD's sizes hold whatever the host's reset", () => {
     const body = ruleBody('app/hud-theme.css', ':where(html.hud) *, :where(html.hud) *::before, :where(html.hud) *::after')
     expect(body).toBe('box-sizing: border-box;')
+  })
+})
+
+describe('the phone frame', () => {
+  it('gives a page the whole width, padded 16 px, on the design phone\'s 32 px grid and 320 by 320 glow', () => {
+    expect(ruleBody('frame/frame.module.css', '.frame[data-layout="phone"] .page')).toBe(
+      'padding: var(--hud-space-4) var(--hud-space-4) var(--hud-space-5);',
+    )
+    const phone = ruleBody('frame/frame.module.css', '.frame[data-layout="phone"]')
+    expect(phone).toContain('--hud-grid-size: 32px;')
+    expect(phone).toContain('--hud-glow-ellipse: 320px 320px;')
+  })
+
+  it('draws nothing of the menu while it is shut, whatever its display says, and lays it over the page when open', () => {
+    expect(ruleBody('frame/nav-drawer.module.css', '.layer[hidden]')).toBe('display: none;')
+    expect(ruleBody('frame/nav-drawer.module.css', '.layer')).toContain('position: fixed;')
+    expect(ruleBody('frame/nav-drawer.module.css', '.glass')).toContain('background: var(--hud-drawer);')
+    expect(ruleBody('frame/nav-drawer.module.css', '.drawer')).toContain('overflow-y: auto;')
+  })
+
+  it("keeps MENU and Close at the design's 44 px tap targets", () => {
+    expect(ruleBody('frame/top-bar.module.css', '.menu')).toContain('min-height: var(--hud-tap-min);')
+    const close = ruleBody('frame/nav-drawer.module.css', '.close')
+    expect(close).toContain('width: var(--hud-tap-min);')
+    expect(close).toContain('height: var(--hud-tap-min);')
   })
 })
 

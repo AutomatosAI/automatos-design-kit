@@ -74,3 +74,16 @@
 .page:focus {
   outline: 2px solid transparent;
 }
+
+/*
+ * The phone layout (data-layout="phone", src/lib/phone-layout.ts): no rail, so a page takes the window's whole width,
+ * padded 16 px; the backdrop takes the design phone's 32 px grid and its 320 by 320 glow.
+ */
+.frame[data-layout="phone"] {
+  --hud-grid-size: 32px;
+  --hud-glow-ellipse: 320px 320px;
+}
+
+.frame[data-layout="phone"] .page {
+  padding: var(--hud-space-4) var(--hud-space-4) var(--hud-space-5);
+}
