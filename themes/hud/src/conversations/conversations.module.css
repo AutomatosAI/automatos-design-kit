@@ -1,0 +1,183 @@
+/*
+ * The Conversations page (/x/conversations), drawn full bleed in the frame: it scrolls on its own, padded as a framed
+ * page is, its one column capped and centred: the display-face heading with New chat, a square search box on the
+ * panel fill, the status line, then the groups as HUD panels, their rows split by the look's line. Every colour is a
+ * look variable (src/lib/looks/vars.ts).
+ */
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--hud-space-5) var(--hud-space-5) var(--hud-space-6);
+}
+
+.page {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--hud-space-4);
+}
+
+/* Unlayered and under html.hud, so it outranks Studio's h1 rule. */
+.heading {
+  margin: 0;
+  min-width: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 40px;
+  font-weight: var(--hud-display-weight);
+  line-height: 1;
+  letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
+}
+
+/* The heading takes focus only from script, when the host hands it over: a transparent outline. */
+.heading:focus {
+  outline: 2px solid transparent;
+}
+
+.search {
+  width: 100%;
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: var(--hud-panel-fill);
+  color: var(--hud-text);
+  font: 400 15px/1.4 var(--hud-font-text);
+}
+
+.search::placeholder {
+  color: var(--hud-text-2);
+}
+
+/* A focus edge in the accent; the global ring draws the outline. */
+.search:focus-visible {
+  border-color: var(--hud-accent);
+}
+
+/* The status line: a sentence, so in sentence case, in mono. */
+.status {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 400 13px/1.5 var(--hud-font-mono);
+}
+
+/* Said to screen readers only. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-4);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.item + .item {
+  border-top: 1px solid var(--hud-line);
+}
+
+.row {
+  min-height: var(--hud-tap-min);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--hud-space-1);
+  padding: var(--hud-space-2) var(--hud-space-2);
+  color: var(--hud-text);
+  text-decoration: none;
+}
+
+.row:hover {
+  background: var(--hud-accent-fill);
+  box-shadow: inset 2px 0 0 var(--hud-accent);
+}
+
+.rowTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+}
+
+.rowTitle {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--hud-text);
+  font: 600 15px/1.3 var(--hud-font-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  flex: none;
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.preview {
+  overflow: hidden;
+  color: var(--hud-text-2);
+  font: 12px/1.4 var(--hud-font-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.failed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--hud-space-3);
+  padding: var(--hud-space-3);
+  border: 1px solid var(--hud-error-text);
+}
+
+.error {
+  margin: 0;
+  color: var(--hud-error-text);
+  font: 400 13px/1.4 var(--hud-font-text);
+}
+
+/* Try again: the failed state's one primary, the accent with its ink. */
+.retry {
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-4);
+  border: 0;
+  border-radius: 0;
+  background: var(--hud-accent);
+  color: var(--hud-accent-ink);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}

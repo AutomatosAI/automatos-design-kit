@@ -1,16 +1,16 @@
 import { useId, useMemo } from 'react'
 
-import { HostLink, resolveActiveNavId, useCoreNav, useHostPathname } from '@automatos/theme-sdk'
+import { HostLink, useCoreNav, useHostPathname } from '@automatos/theme-sdk'
 
 import { AutoDock } from './auto-dock'
-import { buildRailNav, type RailGroup, type RailItem } from './rail-nav'
+import { buildRailNav, resolveRailActiveId, type RailGroup, type RailItem } from './rail-nav'
 import styles from './side-rail.module.css'
 
 /**
- * The side rail: every core page, grouped as the Studio menu groups them (rail-nav.ts), in Geist Mono
- * capitals; the current one in the accent with a 2 px bar on its edge, and aria-current, so the state is never
- * the colour alone. Docs and Settings sit at its foot, above Auto's dock. Every link is the SDK's HostLink:
- * a path inside the app moves the host's router, Docs opens in a new tab.
+ * The side rail: every core page, grouped as the Studio menu groups them, and HUD's Conversations after Chat
+ * (rail-nav.ts), in Geist Mono capitals; the current one in the accent with a 2 px bar on its edge, and
+ * aria-current, so the state is never the colour alone. Docs and Settings sit at its foot, above Auto's dock. Every
+ * link is the SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab.
  */
 
 export const RAIL_LABEL = 'Sidebar'
@@ -57,7 +57,7 @@ function RailGroupList({ group, activeId }: { readonly group: RailGroup; readonl
 export function SideRail() {
   const coreNav = useCoreNav()
   const nav = useMemo(() => buildRailNav(coreNav), [coreNav])
-  const activeId = resolveActiveNavId(useHostPathname())
+  const activeId = resolveRailActiveId(useHostPathname())
   return (
     <aside className={styles.rail} aria-label={RAIL_LABEL}>
       <nav aria-label={NAV_LABEL} className={styles.nav}>

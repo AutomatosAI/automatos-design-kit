@@ -13,7 +13,9 @@
   "pages": {
     "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] }
   },
+  "routes": ["conversations"],
   "nav": [
+    { "id": "nav-hud-conversations", "label": "Conversations", "path": "/x/conversations" },
     { "id": "nav-hud-looks", "label": "Look", "path": "/looks" },
     { "id": "nav-hud-style-sheet", "label": "Style sheet", "path": "/looks/style" }
   ],

@@ -1,0 +1,35 @@
+/* New chat: HUD's secondary button, an accent-line outline, square, mono 12 px capitals tracked .14em, 44 px high. */
+
+.newChat {
+  flex: none;
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 var(--hud-space-4);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 600 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.newChat:hover {
+  border-color: var(--hud-accent);
+  color: var(--hud-accent-text);
+}
+
+/* Until the host's chat session is ready (useStartChat). */
+.newChat:disabled {
+  color: var(--hud-text-2);
+  cursor: progress;
+}
+
+.plus {
+  color: var(--hud-accent-text);
+  font-size: 14px;
+}

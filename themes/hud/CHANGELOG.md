@@ -13,6 +13,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - The host's first-run nudge heads the core screen's column, above the title, instead of landing on the message box.
 - A new chat is finished: its one line is set as the message box's key hint (mono capitals), the transcript's list
   appears once something is said, and three starters put their words in the message box.
+- Conversations: HUD's own page at `/x/conversations` (its route `conversations`, and a nav entry): every
+  conversation in Today, This week and Earlier panels, a title search and New chat. The rail lists it after Chat.
 
 ## 1.0.0
 
