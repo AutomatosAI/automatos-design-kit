@@ -161,8 +161,9 @@
 }
 
 .checkAgain {
-  background: var(--pl-color-text);
-  color: var(--pl-color-bg);
+  border: 1px solid var(--pl-button-2-edge);
+  background: var(--pl-button-2-fill);
+  color: var(--pl-button-2-ink);
 }
 
 .primary {

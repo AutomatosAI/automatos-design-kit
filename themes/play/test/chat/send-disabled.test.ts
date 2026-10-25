@@ -1,8 +1,8 @@
 // @vitest-environment node
 // Play 1.1.1: Send with nothing to send. It was the fill at 55% opacity: muddy, and 2.4:1 on Daylight. Now it is an
 // outline (the outlined buttons' line, a transparent fill, the third text colour), on the empty chat's accent Send
-// as well as a conversation's cream one; Send and Stop carry a transparent 1px edge, so the outline takes no more
-// room than the fill. A static check of the stylesheet's text (css: false).
+// as well as a conversation's cream one; Send and Stop carry a 1px edge in the fill's colour (the secondary button's
+// edge token), so the outline takes no more room than the fill. A static check of the stylesheet's text (css: false).
 import { describe, expect, it } from 'vitest'
 import { declaredFor } from '../support/rule-values.ts'
 
@@ -26,8 +26,9 @@ describe('Send with nothing to send (Play 1.1.1)', () => {
     expect(declaredFor(COMPOSER_CSS, '.chat[data-empty] .send:disabled').get('background')).toBe('transparent')
   })
 
-  it('gives Send and Stop a transparent 1px edge, so the outline moves nothing', () => {
-    expect(declaredFor(COMPOSER_CSS, '.send').get('border')).toBe('1px solid transparent')
-    expect(declaredFor(COMPOSER_CSS, '.stop').get('border')).toBe('1px solid transparent')
+  it("gives Send and Stop a 1px edge (the secondary button's, the fill's colour), so the outline moves nothing", () => {
+    expect(declaredFor(COMPOSER_CSS, '.send').get('border')).toBe('1px solid var(--pl-button-2-edge)')
+    expect(declaredFor(COMPOSER_CSS, '.stop').get('border')).toBe('1px solid var(--pl-button-2-edge)')
+    expect(declaredFor(COMPOSER_CSS, '.chat[data-empty] .send').get('border-color')).toBe('transparent')
   })
 })

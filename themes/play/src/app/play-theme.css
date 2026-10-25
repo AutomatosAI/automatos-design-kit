@@ -44,6 +44,12 @@ html.play {
   --pl-color-sheet-accent: var(--pl-sheet-accent);
   --pl-tint-sheet-line: color-mix(in srgb, var(--pl-sheet-text) 18%, var(--pl-sheet-bg));
 
+  /* Colour: the secondary (cream) button, filled in the text colour; an outline where the look's accent reads as
+     the text colour (the rule after this block) */
+  --pl-button-2-fill: var(--pl-color-text);
+  --pl-button-2-ink: var(--pl-color-bg);
+  --pl-button-2-edge: var(--pl-color-text);
+
   /* Colour: lines, from the ground's text so they suit dark and light grounds */
   --pl-line-faint: color-mix(in srgb, var(--pl-ground-text) 8%, transparent);
   --pl-line: var(--pl-ground-line);
@@ -191,6 +197,15 @@ html.play {
   --pl-page-max: 1720px; /* a Studio page inside Play's frame: the Studio shell's own cap */
   --pl-search-min-width: 240px; /* the frame's search button, as wide as Studio's */
   --pl-control-height: 32px; /* the frame's header row controls, beside the core's 30px utilities */
+}
+
+/* Play 1.1.1: where the look's accent reads as its text colour (Cream on a dark ground: Obsidian), the accent primary
+   and the cream secondary would be the same button. Play's frame and asleep screen then carry data-accent-like-text
+   (lib/looks/accent-like-text.ts), and every secondary button inside is an outline. */
+html.play [data-accent-like-text] {
+  --pl-button-2-fill: transparent;
+  --pl-button-2-ink: var(--pl-color-text);
+  --pl-button-2-edge: var(--pl-line-button);
 }
 
 /*

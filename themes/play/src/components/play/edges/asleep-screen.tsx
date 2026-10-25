@@ -7,6 +7,7 @@ import { useOnline } from '@automatos/theme-sdk'
 import { useRecheckCountdown } from '../../../hooks/use-recheck-countdown'
 import type { MascotName } from '@automatos/mascot/types'
 import { refocus } from '../../../lib/play/focus'
+import { useAccentLikeText } from '../../looks/use-accent-like-text'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import styles from './edges.module.css'
 import { StartCommand } from './start-command'
@@ -69,12 +70,13 @@ function WayBack({ local }: { readonly local: boolean }) {
 
 export function AsleepScreen({ mascot, onClipEnded, detail, onCheck, checking, recheckSeconds, local }: AsleepScreenProps) {
   const { remaining, checkNow } = useRecheckCountdown(recheckSeconds, onCheck, checking)
+  const accentLikeText = useAccentLikeText()
   const title = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
     refocus(title.current)
   }, [])
   return (
-    <div className={styles.screen}>
+    <div className={styles.screen} data-accent-like-text={accentLikeText || undefined}>
       <header className={styles.top}>
         <EdgeWordmark quiet />
         <span className={styles.status} role="status">

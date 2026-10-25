@@ -4,6 +4,7 @@ import { type ReactNode, type RefObject, useRef } from 'react'
 import { Search } from '../../../vendor/lucide-react/index.js'
 import { HeaderUtilities, openGlobalSearch } from '@automatos/theme-sdk'
 
+import { useAccentLikeText } from '../../looks/use-accent-like-text'
 import { AsleepGate } from '../edges/asleep-gate'
 import { PlaySidebar } from './play-sidebar'
 import styles from './play-frame.module.css'
@@ -51,10 +52,12 @@ interface FrameLayoutProps extends PlayFrameProps {
 }
 
 function FrameLayout({ children, fullBleed = false, autoWidget, mainRef }: FrameLayoutProps) {
+  // Play 1.1.1: on a look whose accent reads as its text colour, the secondary buttons are outlines (play-theme.css).
+  const accentLikeText = useAccentLikeText()
   // `safe-bottom` (the one safe-area helper, globals.css) keeps the frame's
   // bottom edge clear of a home bar, as the Studio shell does.
   return (
-    <div className={`${styles.frame} safe-bottom`}>
+    <div className={`${styles.frame} safe-bottom`} data-accent-like-text={accentLikeText || undefined}>
       <PlaySidebar />
       <div className={styles.column}>
         <PlayHeader />
