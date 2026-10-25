@@ -74,7 +74,9 @@ describe('the motion group', () => {
   const motion = groups.find((group) => !group.reducedMotion)
 
   it('shoots the chat page once more, in the default look at 1440 px, with motion allowed', () => {
-    expect(motion).toEqual({ folder: 'ember/1440-motion', preset: 'ember', width: 1440, reducedMotion: false, page: '/chat', transcript: false })
+    expect(motion).toEqual({
+      folder: 'ember/1440-motion', preset: 'ember', width: 1440, height: 900, reducedMotion: false, page: '/chat', transcript: false,
+    })
     expect(groups.slice(0, -2).every((group) => group.reducedMotion && group.page === null && !group.transcript)).toBe(true)
     expect(groups.slice(-2).map((group) => group.folder)).toEqual(['ember/1440-motion', 'ember/1440-transcript'])
     expect(new Set(groups.map((group) => group.folder)).size).toBe(groups.length)

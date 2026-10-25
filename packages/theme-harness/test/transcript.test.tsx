@@ -84,7 +84,9 @@ describe('the transcript', () => {
     expect(readSettings('').transcript).toBe(false)
     expect(settingsQuery({ ...DEFAULT_SETTINGS, transcript: true })).toBe('?chat=transcript')
     const group = shotGroups(['ember'], 1024, ['/chat']).find((candidate) => candidate.transcript)
-    expect(group).toEqual({ folder: 'ember/1440-transcript', preset: 'ember', width: 1440, reducedMotion: true, page: '/chat', transcript: true })
+    expect(group).toEqual({
+      folder: 'ember/1440-transcript', preset: 'ember', width: 1440, height: 900, reducedMotion: true, page: '/chat', transcript: true,
+    })
     if (group === undefined) throw new Error('no transcript group')
     expect(readSettings(shotAddress(group, '/chat').slice(1))).toMatchObject({ path: '/chat', transcript: true, reducedMotion: true })
   })

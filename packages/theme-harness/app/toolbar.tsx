@@ -1,11 +1,11 @@
 /**
  * PRD-261 B-02e: the harness's toolbar: which view (a slot, page or route the theme serves, at its path), which of
- * the theme's presets, the stage's width (the window's, 1440, 1024, or just below the theme's minWidth, where the
- * host draws its own pages), the tone (off while the theme or its look forces one, as core forces it), reduced
- * motion, forced colours, and the transcript (the chat opened on a made-up exchange, src/host/transcript.ts). Every
- * control is a labelled native one. Below them, what theme.json declares that the
- * theme didn't register, and what it registered undeclared (the host draws neither). A link opens the phone view
- * (app/phone/page.tsx), what Automatos Go draws for the theme.
+ * the theme's presets, the stage's width (the window's, 1440, 1024, a phone's 390, or just below the theme's minWidth,
+ * where the host draws its own pages), the tone (off while the theme or its look forces one, as core forces it),
+ * reduced motion, forced colours, and the transcript (the chat opened on a made-up exchange, src/host/transcript.ts).
+ * Every control is a labelled native one. Below them, what theme.json declares that the theme didn't register, and
+ * what it registered undeclared (the host draws neither). A link opens the phone view (app/phone/page.tsx), what
+ * Automatos Go draws for the theme.
  */
 import type { HostLook } from '@automatos/theme-sdk'
 import type { ChangeEvent, CSSProperties } from 'react'

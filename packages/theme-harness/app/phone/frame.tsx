@@ -5,8 +5,10 @@
  * expo-status-bar does for the app (src/styles/ground/ground.ts statusBarStyle).
  */
 import type { CSSProperties, ReactNode } from 'react'
+import { PHONE_VIEWPORT } from '../../src/host/router.ts'
 
-export const PHONE = Object.freeze({ width: 390, height: 844, top: 47, bottom: 34 })
+/** The screen (the harness's PHONE_VIEWPORT, which the shots' phone-width group shoots at too) and its safe area. */
+export const PHONE = Object.freeze({ width: PHONE_VIEWPORT.width, height: PHONE_VIEWPORT.height, top: 47, bottom: 34 })
 const BEZEL = 12
 const SCREEN_RADIUS = 44
 const BEZEL_COLOUR = '#0c0c0e'

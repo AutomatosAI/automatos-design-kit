@@ -1,9 +1,10 @@
 // PRD-261 B-02f and B-02i: kit.yml's harness job. It installs and builds as the kit job does, installs the two
-// browsers the shots run on, runs `automatos-theme shots` over Play, then over HUD into a folder of its own, then the
-// dev smoke (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), then the phone
-// view's shots (`automatos-theme dev` over the harness's made-up phone skin, /phone shot on Chromium into a folder of
-// its own), and uploads the shots, their axe.json files and the smoke's shot as kit-harness. These checks read files
-// only; nothing is installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each
+// browsers the shots run on, runs `automatos-theme shots` over Play, then over HUD into a folder of its own (each
+// group in its own viewport; a theme whose minWidth fits a phone is shot at 390 × 844 too), then the dev smoke
+// (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), then the phone view's shots
+// (`automatos-theme dev` over the harness's made-up phone skin, /phone shot on Chromium into a folder of its own), and
+// uploads the shots, their axe.json files and the smoke's shot as kit-harness. These checks read files only; nothing
+// is installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each
 // file under the 400-line cap.)
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -25,6 +26,12 @@ const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
 // (which reduced motion never draws) is in the upload; every other group keeps the config's reduced motion.
 const SHOTS_SPEC = "packages/theme-harness/shots/shots.spec.ts";
 const SHOT_GROUPS = "packages/theme-harness/src/host/shot-groups.ts";
+// The harness's widths: the phone's viewport, which the phone-width group shoots in and the toolbar offers the width of.
+const ROUTER = "packages/theme-harness/src/host/router.ts";
+const TOOLBAR = "packages/theme-harness/app/toolbar.tsx";
+const PHONE_VIEWPORT = "export const PHONE_VIEWPORT: Readonly<{ width: number; height: number }> = Object.freeze({ width: 390, height: 844 })";
+/** The theme folder each `automatos-theme shots` run of a job shoots. */
+const SHOTS_THEME = /^npx automatos-theme shots (\S+)/;
 // PRD-261 B-02i: the dev smoke's own Playwright config, whose web server is `automatos-theme dev themes/play`, and the
 // spec it runs, which opens /chat there.
 const DEV_SMOKE_CONFIG = "packages/theme-harness/shots/dev-smoke.config.ts";
@@ -136,6 +143,27 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     const groups = readText(SHOT_GROUPS);
     expect(groups).toContain("export const CHAT_PAGE = '/chat'");
     expect(groups).toContain("export const MOTION_SUFFIX = '-motion'");
+  });
+
+  it("sizes each shot's page to its group's viewport: 900 tall, or a phone's 390 × 844 for a theme that fits one", () => {
+    const spec = readText(SHOTS_SPEC);
+    expect(spec).toContain("await page.setViewportSize({ width: group.width, height: group.height })");
+    expect(spec).not.toContain("VIEWPORT_HEIGHT");
+    const groups = readText(SHOT_GROUPS);
+    expect(groups).toContain("export const DESKTOP_HEIGHT = 900");
+    expect(groups).toContain("return minWidth <= PHONE_VIEWPORT.width");
+    expect(groups).toContain("...phoneGroups(looks, minWidth, pages)]");
+    expect(readText(ROUTER)).toContain(PHONE_VIEWPORT);
+    expect(readText(TOOLBAR)).toContain("widthChoices(minWidth)");
+  });
+
+  it("shoots themes that each declare their own minWidth, which decides their phone-width group", () => {
+    const themes = workflowRuns(harness).flatMap((run) => SHOTS_THEME.exec(run)?.[1] ?? []);
+    expect(themes).toEqual(["themes/play", "themes/hud"]);
+    themes.forEach((theme) => {
+      const manifest = JSON.parse(readText(`${theme}/theme.json`)) as { minWidth?: unknown };
+      expect(Number.isInteger(manifest.minWidth), `${theme}/theme.json declares minWidth`).toBe(true);
+    });
   });
 
   it("smokes `automatos-theme dev` over Play with its own spec, on Chromium alone, with no retry, at /chat", () => {
