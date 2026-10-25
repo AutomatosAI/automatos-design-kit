@@ -17,15 +17,18 @@ import styles from './top-bar.module.css'
 /**
  * The top bar (the design's 56 px bar): the diamond mark and AUTOMATOS // HUD, which goes to the chat; the
  * clock in the middle; then where Automatos runs and whether it answers, as a glyph and a word (never colour
- * alone); the host's search; LOOK, the look editor, lit while it is open; and the host's own header
- * utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account). The bar is the page's
- * one banner, and it is named: a browser gives the banner role to this <header> alone, but Testing Library gives it
- * to every <header>, a panel's head and a screen's heading row too, so a test finds the bar by its name.
+ * alone); the host's search, named by its visible words with its shortcut in aria-keyshortcuts (a name that
+ * differs from the words on screen fails WCAG's label in name); LOOK, the look editor, lit while it is open; and the
+ * host's own header utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account). The
+ * bar is the page's one banner, and it is named: a browser gives the banner role to this <header> alone, but Testing
+ * Library gives it to every <header>, a panel's head and a screen's heading row too, so a test finds the bar by its
+ * name.
  */
 
 export const TOP_BAR_LABEL = 'Top bar'
 export const BRAND_LABEL = 'Automatos HUD'
-export const SEARCH_LABEL = 'Open search (⌘K)'
+/** The host's search shortcut, said to assistive technology (the button's name is its visible words). */
+export const SEARCH_SHORTCUT = 'Meta+K'
 export const LOOK_LABEL = 'Look'
 
 const EDITION_WORDS: Readonly<Record<HostEdition, string>> = { local: 'Local', saas: 'Hosted' }
@@ -67,9 +70,8 @@ function StatusChip() {
 
 function SearchButton() {
   return (
-    <button type="button" className={styles.search} onClick={openGlobalSearch} aria-label={SEARCH_LABEL}>
-      <span>Search</span>
-      <kbd className={styles.kbd}>⌘K</kbd>
+    <button type="button" className={styles.search} onClick={openGlobalSearch} aria-keyshortcuts={SEARCH_SHORTCUT}>
+      <span>Search</span> <kbd className={styles.kbd}>⌘K</kbd>
     </button>
   )
 }

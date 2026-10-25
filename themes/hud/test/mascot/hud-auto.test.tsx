@@ -1,7 +1,8 @@
 // Auto in HUD's slot, on the kit's harness: his ring's tone for each of his 12 states (Mascot.dc.html's colours, the
 // accent while calm or busy), nothing at all while the look's auto is off, his still with no control while the look's
 // motion is off or the OS asks for reduced motion, and his clip with the Pause Auto control otherwise, which pauses
-// him (the SDK's storage area keeps the flag) and makes him a still. The frame's dock shows him in the backend's state.
+// him (the SDK's storage area keeps the flag) and makes him a still; with pause={false} the control is the page's to
+// place. The frame's dock shows him in the backend's state.
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { captionFor } from '@automatos/mascot/media'
@@ -77,6 +78,13 @@ describe('the Pause Auto control', () => {
     act(() => fireEvent.click(pause))
     expect(screen.getByRole('button', { name: PAUSE })).toHaveAttribute('aria-pressed', 'true')
     expect(container.querySelector('video')).toBeNull()
+  })
+
+  it('is left to the page with pause={false}: his clip plays, with no control under him', () => {
+    withLook(ARC)
+    const { container } = render(<HudAuto state="idle" pause={false} />)
+    expect(container.querySelector('video')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: PAUSE })).toBeNull()
   })
 
   it('is disabled, and he is a still, until the host can say whether he is paused', () => {

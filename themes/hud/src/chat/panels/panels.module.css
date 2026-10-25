@@ -1,7 +1,8 @@
 /*
- * The side panels' rows ("Automatos Command HUD.dc.html": AGENTS, MISSION, DELIVERABLES), inside HUD's Panel: rows
- * split by the look's line, names in Geist, status words and details in mono, a status's glyph and word in its
- * tone (live: the readable accent; failed: the error colour; quiet: the secondary text).
+ * The side panels' rows ("Automatos Command HUD.dc.html": AGENTS, MISSION, DELIVERABLES; TODAY, NEEDS YOU and NEXT UP
+ * in the places of its SPEND, LATENCY and THIS MACHINE), inside HUD's Panel: rows split by the look's line, names in
+ * Geist, status words and details in mono, a status's glyph and word in its tone (live: the readable accent; failed:
+ * the error colour; quiet: the secondary text), and TODAY's numbers in the look's display face.
  */
 
 .rows {
@@ -62,9 +63,13 @@
   font: 12px/1.5 var(--hud-font-mono);
 }
 
-/* The running Mission: its name in the display face, then its steps. */
+/* The Mission: its name in the display face, at most three lines of it, then its steps. */
 .missionName {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   color: var(--hud-text);
   font-family: var(--hud-font-display);
   font-size: 22px;
@@ -152,4 +157,95 @@ a.deliverableTitle:hover {
 
 .headerLink:hover {
   text-decoration: underline;
+}
+
+/* TODAY's numbers, two by two: a mono label over a number in the display face (the design's big numbers). */
+.stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--hud-space-3) var(--hud-space-4);
+}
+
+.stat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-1);
+  padding-top: var(--hud-space-2);
+  border-top: 1px solid var(--hud-line);
+}
+
+.statLabel {
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.statValue {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 34px;
+  font-weight: var(--hud-display-weight);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.stat[data-tone="live"] .statValue {
+  color: var(--hud-accent-text);
+}
+
+/* A row's title, linked to where it is answered. */
+.rowLink {
+  min-width: 0;
+  color: var(--hud-text);
+  font: 600 14px/1.3 var(--hud-font-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.rowLink:hover {
+  text-decoration: underline;
+}
+
+/* The rest of a list, elsewhere: a mono link in the readable accent. */
+.more {
+  align-self: flex-start;
+  color: var(--hud-accent-text);
+  font: 500 12px/1.4 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.more:hover {
+  text-decoration: underline;
+}
+
+/* A scheduled run, as the design's SCHEDULED card: its time, its agent and name, then the ◇ mark. */
+.run {
+  display: flex;
+  align-items: baseline;
+  gap: var(--hud-space-3);
+  padding: 6px 0;
+  color: var(--hud-text);
+  font: 13px/1.4 var(--hud-font-mono);
+}
+
+.runTime {
+  flex: none;
+  color: var(--hud-accent-text);
+}
+
+.runName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.runMark {
+  flex: none;
+  margin-left: auto;
+  color: var(--hud-text-2);
 }

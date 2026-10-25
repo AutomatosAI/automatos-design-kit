@@ -2,7 +2,7 @@
   "schema": "automatos-theme/v1",
   "id": "automatos/hud",
   "name": "HUD",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatos as a command deck: bracketed panels, mono labels, one accent, a grid and scan-line backdrop, and Auto at the core.",
   "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
   "base": "studio",
@@ -13,11 +13,13 @@
   "pages": {
     "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] }
   },
+  "routes": ["conversations"],
   "nav": [
+    { "id": "nav-hud-conversations", "label": "Conversations", "path": "/x/conversations" },
     { "id": "nav-hud-looks", "label": "Look", "path": "/looks" },
     { "id": "nav-hud-style-sheet", "label": "Style sheet", "path": "/looks/style" }
   ],
-  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-agents", "pages-command-center", "storage", "theme"],
+  "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-agents", "pages-assignments", "pages-command-center", "storage", "theme"],
   "look": "arc",
   "fonts": ["assets/fonts/chakra-petch-latin-600-normal.woff2", "assets/fonts/rajdhani-latin-700-normal.woff2"],
   "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },

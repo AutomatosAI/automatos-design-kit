@@ -157,3 +157,16 @@ export function contrastChecks(look: HudLook): readonly ContrastCheck[] {
 export function formatRatio(ratio: number): string {
   return `${ratio.toFixed(2)}:1`
 }
+
+/** A number with more decimal places than the sheet shows. */
+const LONG_DECIMAL = /\d*\.\d{4,}/g
+/** The decimal places the sheet shows a value's numbers to. */
+export const SHOWN_PLACES = 3
+
+/**
+ * A painted value as the sheet shows it: every number with more than SHOWN_PLACES decimal places rounded to that many
+ * (a grid's alpha, 14 / 300, is painted as 0.04666666666666667 and shown as 0.047). The painted value is unchanged.
+ */
+export function displayValue(value: string): string {
+  return value.replace(LONG_DECIMAL, (number) => String(Number(Number(number).toFixed(SHOWN_PLACES))))
+}

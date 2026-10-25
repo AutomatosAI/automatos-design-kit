@@ -45,10 +45,12 @@
   text-transform: uppercase;
 }
 
+/* The header's value, set as the label is: in capitals, so a word ("All") reads as the header does. */
 .value {
   color: var(--hud-accent-text);
   font-family: var(--hud-font-display);
   font-size: var(--hud-label-size);
   font-weight: var(--hud-display-weight);
   letter-spacing: var(--hud-tracking-panel);
+  text-transform: uppercase;
 }

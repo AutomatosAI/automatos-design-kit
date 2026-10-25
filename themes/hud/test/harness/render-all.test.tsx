@@ -8,11 +8,12 @@
 // the whole window). Each is awaited with findBy*, never a timer: it shows one h1 with the host's focus mark
 // (data-theme-heading) in the frame's main, then what a member sees there, named here as the screen draws it, so
 // the test never imports a chunk's module itself: the LOOK drawer with the look's name as its status, the style
-// sheet naming the active look, and the core screen with Auto's core and the message box, the rail's dock stepping
-// aside so Auto shows once. A view registered with nothing named here fails. The look runtime holds each preset in
-// turn, checked by HUD's own look spec and its ground's tone forced from boot/prepaint.json's tone rule, as core's
-// does for HUD; under each the frame carries the preset and draws its top bar, rail and the page. After every test
-// the harness's network refusal has refused nothing. Screenshots and axe are the harness job's (kit.yml).
+// sheet naming the active look, the core screen with Auto's core and the message box, the rail's dock stepping
+// aside so Auto shows once, and the Conversations route with New chat and its search, current in the rail. A view
+// registered with nothing named here fails. The look runtime holds each preset in turn, checked by HUD's own look
+// spec and its ground's tone forced from boot/prepaint.json's tone rule, as core's does for HUD; under each the frame
+// carries the preset and draws its top bar, rail and the page. After every test the harness's network refusal has
+// refused nothing. Screenshots and axe are the harness job's (kit.yml).
 import { LOOK_STYLE_HREF, LOOKS_HREF, SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
 import { render, screen, within } from '@testing-library/react'
 import { Suspense, type ComponentType } from 'react'
@@ -63,12 +64,15 @@ const SEEN = Object.freeze({
   sidebar: 'Sidebar',
   mainNav: 'Main',
   brand: 'Automatos HUD',
-  search: 'Open search (⌘K)',
+  search: /^Search\s*⌘K$/,
   dock: 'Auto',
   lookEditor: 'Look',
   styleSheet: 'Style sheet',
   core: "Auto's core",
   messageAuto: 'Message Auto',
+  conversations: 'Conversations',
+  newChat: 'New chat',
+  searchConversations: 'Search conversations',
 })
 /** The host's page for each slot HUD draws inside the frame; a page is drawn at its own path. */
 const SLOT_PATHS: Readonly<Record<string, string>> = { 'lookEditor@1': LOOKS_HREF, 'styleSheet@1': LOOK_STYLE_HREF }
@@ -169,6 +173,13 @@ const SEEN_ON: Readonly<Record<string, Seen>> = {
     expect(within(stage).getByRole('textbox', { name: SEEN.messageAuto })).toBeInTheDocument()
     const rail = screen.getByRole('complementary', { name: SEEN.sidebar })
     expect(within(rail).queryByRole('heading', { name: SEEN.dock })).toBeNull()
+  },
+  conversations: async (stage) => {
+    expect(within(stage).getByRole('heading', { level: 1, name: SEEN.conversations })).toBeInTheDocument()
+    expect(within(stage).getByRole('button', { name: SEEN.newChat })).toBeInTheDocument()
+    expect(await within(stage).findByRole('searchbox', { name: SEEN.searchConversations }, CHUNK_WAIT)).toBeInTheDocument()
+    const rail = screen.getByRole('complementary', { name: SEEN.sidebar })
+    expect(within(rail).getByRole('link', { name: SEEN.conversations })).toHaveAttribute('aria-current', 'page')
   },
 }
 

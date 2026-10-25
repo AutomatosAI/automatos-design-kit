@@ -74,8 +74,10 @@
   text-transform: uppercase;
 }
 
-/* The Pause Auto control: HUD's secondary button, an accent-line outline. */
+/* The Pause Auto control: HUD's secondary button, an accent-line outline on the opaque ground, so no ring shows
+   through it wherever it stands. */
 .pause {
+  flex: none;
   min-height: var(--hud-tap-min);
   display: inline-flex;
   align-items: center;
@@ -83,7 +85,7 @@
   padding: 0 var(--hud-space-3);
   border: 1px solid var(--hud-accent-line);
   border-radius: 0;
-  background: transparent;
+  background: var(--hud-bg);
   color: var(--hud-text);
   font: 500 12px/1 var(--hud-font-mono);
   letter-spacing: var(--hud-tracking-label);
@@ -93,7 +95,7 @@
 
 .pause[aria-pressed="true"] {
   border-color: var(--hud-accent);
-  background: var(--hud-accent-fill);
+  background: linear-gradient(var(--hud-accent-fill), var(--hud-accent-fill)), var(--hud-bg);
   color: var(--hud-accent-text);
 }
 

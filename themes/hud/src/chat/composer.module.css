@@ -84,8 +84,12 @@
   color: var(--hud-accent-ink);
 }
 
+/* Nothing to send yet: a quiet outline in the line colour, its word in the secondary text, never a faded fill. */
 .send:disabled {
-  opacity: 0.45;
+  border: 1px solid var(--hud-line);
+  background: transparent;
+  color: var(--hud-text-2);
+  opacity: 1;
   cursor: default;
 }
 
@@ -108,4 +112,8 @@
   letter-spacing: var(--hud-tracking-chip);
   text-align: center;
   text-transform: uppercase;
+}
+
+.hintPart {
+  white-space: nowrap;
 }

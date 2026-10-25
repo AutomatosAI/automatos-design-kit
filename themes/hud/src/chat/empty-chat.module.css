@@ -1,0 +1,50 @@
+/*
+ * The conversation before anything is said: at the foot of the transcript, over the message box, the line set as the
+ * box's key hint (composer.module.css .hint), then the starters, each HUD's secondary button (an accent-line outline,
+ * mono 12 px capitals tracked .14em, 44 px high), wrapping and centred.
+ */
+
+.empty {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hud-space-3);
+}
+
+.line {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 500 12px/1.5 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.starters {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--hud-space-2);
+}
+
+.starter {
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-4);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 600 12px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.starter:hover {
+  border-color: var(--hud-accent);
+  color: var(--hud-accent-text);
+}

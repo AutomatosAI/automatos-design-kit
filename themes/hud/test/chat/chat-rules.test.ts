@@ -1,7 +1,8 @@
 // The core screen's pure rules: the layout the screen picks for its size (the design's desktop until measured), the
-// state chip's words, a tool call's glyph, an agent's status and a Deliverable's day, and a turn that failed before
-// its reply began. Each is a plain function, read without rendering.
-import type { HostChatMessage, HostToolCall } from '@automatos/theme-sdk'
+// state chip's words, a tool call's glyph, an agent's status and a Deliverable's day, NEEDS YOU's rows and where
+// each opens, NEXT UP's order and times, and a turn that failed before its reply began. Each is a plain function,
+// read without rendering.
+import { type HostChatMessage, type HostToolCall, missionHref, type NeedsYou, QUESTIONS_HREF, ticketHref } from '@automatos/theme-sdk'
 import { describe, expect, it } from 'vitest'
 import { captionFor } from '@automatos/mascot/media'
 import { AWAITING_ANSWER, autoLabel, chipWords, NAPPING } from '../../src/chat/chip.ts'
@@ -10,6 +11,7 @@ import {
   DEFAULT_LAYOUT, LARGE_CORE_MIN_HEIGHT, screenLayout, THREE_COLUMNS_MIN, TWO_COLUMNS_MIN,
 } from '../../src/chat/layout.ts'
 import { agentStatus, madeWhen, TODAY } from '../../src/chat/panels/panel-rows.ts'
+import { needsYouRows, runsWhen, upcomingRuns } from '../../src/chat/panels/work-rows.ts'
 import { failedBeforeReply } from '../../src/chat/turn-end.tsx'
 
 function call(fields: Partial<HostToolCall>): HostToolCall {
@@ -92,5 +94,39 @@ describe('a turn that failed before its reply', () => {
     expect(failedBeforeReply('error', [asked], true)).toBe(false)
     expect(failedBeforeReply('error', [asked, message({ error: { message: 'It failed.', code: null } })], false)).toBe(false)
     expect(failedBeforeReply('idle', [asked], false)).toBe(false)
+  })
+})
+
+describe('the work panels', () => {
+  const AT = '2026-10-14T09:00:00+00:00'
+  const empty: NeedsYou['rows'] = { review: [], question: [], approval: [], stuck: [], failed: [] }
+
+  it("open each Needs-you row where the core's widget does: a ticket or its Mission, a question in its ticket or tab", () => {
+    const rows = needsYouRows({
+      total: 3,
+      counts: { review: 0, question: 1, approval: 0, stuck: 1, failed: 1 },
+      rows: {
+        ...empty,
+        question: [{ source: 'grant', id: '8', title: null, ticket_id: null, agent_name: null, at: AT }],
+        stuck: [{ ticket_id: 44, title: 'Post the bake sale', agent_name: null, mission_id: 'm-3', opens: 'mission', at: AT }],
+        failed: [{ ticket_id: 45, number: '#0045', title: null, agent_name: 'Scribe', mission_id: 'm-4', at: AT }],
+      },
+    })
+    expect(rows.map((row) => [row.kind, row.title, row.href, row.detail])).toEqual([
+      ['question', 'A question', QUESTIONS_HREF, null],
+      ['stuck', 'Post the bake sale', missionHref('m-3'), null],
+      ['failed', '#0045 · A failed ticket', ticketHref(45), 'Scribe'],
+    ])
+  })
+
+  it('list the timed runs soonest first, and name when each runs', () => {
+    const run = (id: string, at: string | null) => ({ id, name: id, type: 'task' as const, next_run_at: at, frequency: 'once', agent_name: null, agent_id: null })
+    const runs = upcomingRuns([run('b', '2026-10-15T09:00:00Z'), run('none', null), run('bad', 'soon'), run('a', '2026-10-14T18:00:00Z')])
+    expect(runs.map(({ item }) => item.id)).toEqual(['a', 'b'])
+    const now = new Date(2026, 9, 14, 9) // Wed 14 Oct 2026
+    expect(runsWhen(new Date(2026, 9, 14, 18, 0), now)).toBe('18:00')
+    expect(runsWhen(new Date(2026, 9, 16, 9, 5), now)).toBe('Fri 09:05')
+    expect(runsWhen(new Date(2026, 9, 20, 9, 0), now)).toBe('Tue 09:00')
+    expect(runsWhen(new Date(2026, 9, 22, 9, 0), now)).toBe('22 Oct 09:00')
   })
 })

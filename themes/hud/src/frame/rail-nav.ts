@@ -1,9 +1,12 @@
-import type { CoreNav, CoreNavItem } from '@automatos/theme-sdk'
+import { resolveActiveNavId, type CoreNav, type CoreNavItem } from '@automatos/theme-sdk'
+
+import { CONVERSATIONS_HREF } from '../conversations/route'
 
 /**
  * The side rail's nav, from the core nav (the SDK's useCoreNav: the Studio menu after its edition, role and
- * plan filters): its groups in the menu's own order, each with its items, and the footer (Docs, Settings).
- * Pure data, no React; the routes stay the host's, never a second list here.
+ * plan filters): its groups in the menu's own order, each with its items, and the footer (Docs, Settings), with
+ * HUD's own page, Conversations, right after Chat (after Play's, themes/play/src/components/play/shell/play-nav.ts,
+ * Play 1.1.1). Pure data, no React; the routes stay the host's, never a second list here.
  */
 
 export interface RailItem {
@@ -26,8 +29,30 @@ export interface RailNav {
   readonly footer: readonly RailItem[]
 }
 
+/** HUD's Conversations page, at its theme route: right after Chat. */
+export const CONVERSATIONS_ITEM: RailItem = {
+  id: 'conversations',
+  label: 'Conversations',
+  href: CONVERSATIONS_HREF,
+  external: false,
+}
+const CONVERSATIONS_FOLLOW = 'chat'
+
 function toRailItem({ id, label, href, external }: CoreNavItem): RailItem {
   return { id, label, href, external }
+}
+
+function withConversations(items: readonly RailItem[]): RailItem[] {
+  return items.flatMap((item) => (item.id === CONVERSATIONS_FOLLOW ? [item, CONVERSATIONS_ITEM] : [item]))
+}
+
+function isUnder(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
+/** The rail item a path belongs to: HUD's Conversations page, else the core nav's resolver. */
+export function resolveRailActiveId(pathname: string): string | null {
+  return isUnder(pathname, CONVERSATIONS_ITEM.href) ? CONVERSATIONS_ITEM.id : resolveActiveNavId(pathname)
 }
 
 /** The menu's groups in the menu's own order (OPERATIONS, WORKFORCE, WORKSPACE). */
@@ -40,7 +65,7 @@ export function buildRailNav({ primary, footer }: CoreNav): RailNav {
   const groups = groupsInOrder(primary).map((group) => ({
     id: group.toLowerCase(),
     label: group,
-    items: primary.filter((item) => item.group === group).map(toRailItem),
+    items: withConversations(primary.filter((item) => item.group === group).map(toRailItem)),
   }))
   const loose = primary.filter((item) => item.group === null).map(toRailItem)
   return { groups, footer: [...loose, ...footer.map(toRailItem)] }

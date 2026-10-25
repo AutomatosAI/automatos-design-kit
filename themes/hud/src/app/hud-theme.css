@@ -58,6 +58,16 @@ html.hud {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * Every box is measured with its border and padding, as the Command design's own reset has it: HUD's sizes (the
+ * 232 px rail, the 420 px core, the 44 px targets) hold whether or not the host's stylesheet sets the same.
+ */
+:where(html.hud) *,
+:where(html.hud) *::before,
+:where(html.hud) *::after {
+  box-sizing: border-box;
+}
+
 /* The keyboard focus ring wherever nothing draws its own: a 2 px outline in the readable accent, offset 2 px. */
 :where(html.hud :focus-visible) {
   outline: 2px solid var(--hud-accent-text);

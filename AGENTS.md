@@ -55,7 +55,8 @@ core wins and the kit is fixed.
   Play's README points there). Core's PRD-261 A-19 merge removed builtin Play from core, so Play lives only in this
   kit and a Play change is made here alone. Play's `CHANGELOG.md` lists what each version changed.
 - `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference: a command
-  deck frame (a top bar, a side rail, bracketed panels) around the host's pages, five presets and Auto. Its look data
+  deck frame (a top bar, a side rail, bracketed panels) around the host's pages, its own chat and Conversations, five
+  presets and Auto. Its look data
   (`looks/` and `boot/prepaint.json`) is committed, made from its catalogue (`src/lib/looks/`) and held to it by its
   own tests, not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first. Both themes
   are released the same way, Play from a `play-v<version>` tag and HUD from a `hud-v<version>` tag

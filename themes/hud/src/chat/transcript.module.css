@@ -15,7 +15,7 @@
   gap: var(--hud-space-4);
 }
 
-/* The list sits at the bottom of a short conversation, under the core. */
+/* The list sits at the bottom of a short conversation, under the core (and the empty chat, before it, the same). */
 .list {
   margin: auto 0 0;
   padding: 0;
@@ -27,13 +27,6 @@
 
 .item {
   min-width: 0;
-}
-
-.empty {
-  margin: auto 0 0;
-  color: var(--hud-text-2);
-  font: 15px/1.5 var(--hud-font-text);
-  text-align: center;
 }
 
 .row {

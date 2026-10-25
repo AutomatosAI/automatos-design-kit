@@ -22,9 +22,11 @@ import { useVideoFormat } from './use-video-format'
  *
  * He moves only where he can be stopped (WCAG 2.2.2): under the OS reduced-motion setting, with the look's
  * motion off, while paused, and until the host knows whether he is paused, he is his still; where his clip can
- * play, the Pause Auto control sits under him. A browser that blocks autoplay, or a clip that won't play, gives
- * stills from then on. The frame's dock places him (src/frame/auto-dock.tsx), and so does the chat's voice
- * core, which drives `state` from @automatos/mascot's reducer.
+ * play, the Pause Auto control sits under him, or where the page places it (`pause={false}` and HudPauseControl:
+ * the voice core puts it beside its state chip, clear of the rings). The control stands on the page's ground, so
+ * nothing drawn behind it shows through. A browser that blocks autoplay, or a clip that won't play, gives stills
+ * from then on. The frame's dock places him (src/frame/auto-dock.tsx), and so does the chat's voice core, which
+ * drives `state` from @automatos/mascot's reducer.
  */
 
 /** Auto's stage height in px: the frame's dock. The design's voice core is 150 on desktop and 104 on a phone. */
@@ -45,6 +47,8 @@ export interface HudAutoProps {
   readonly playing?: boolean
   /** True where the page names the state itself: hidden from assistive technology, no live chip. */
   readonly decorative?: boolean
+  /** False leaves the Pause Auto control to the page, which places HudPauseControl itself. */
+  readonly pause?: boolean
 }
 
 type SizeStyle = CSSProperties & { readonly '--hud-auto-size': string }
@@ -66,6 +70,27 @@ function useClip(motion: AutoMotion, playing: boolean) {
   return { video, onError, onBlocked }
 }
 
+/** The Pause Auto control: a toggle in HUD's secondary style, disabled until the host knows whether he is paused. */
+function AutoPauseButton({ motion }: { readonly motion: AutoMotion }) {
+  return (
+    <MascotPauseButton
+      paused={motion.paused}
+      disabled={!motion.ready}
+      onToggle={motion.togglePaused}
+      className={styles.pause}
+      iconClassName={styles.pauseIcon}
+    />
+  )
+}
+
+/** The Pause Auto control where a page places it: drawn only while Auto shows and his clip may play. */
+export function HudPauseControl() {
+  const auto = useHudLook().auto
+  const motion = useAutoMotion()
+  if (auto === 'off' || !pausable(motion, true, false)) return null
+  return <AutoPauseButton motion={motion} />
+}
+
 export function HudAuto(props: HudAutoProps) {
   const auto = useHudLook().auto
   if (auto === 'off') return null
@@ -73,7 +98,8 @@ export function HudAuto(props: HudAutoProps) {
 }
 
 function AutoStage(props: HudAutoProps) {
-  const { state, onClipEnded, size = AUTO_DOCK_SIZE, caption, showCaption = true, playing = true, decorative = false } = props
+  const { state, onClipEnded, size = AUTO_DOCK_SIZE, caption, showCaption = true, playing = true } = props
+  const { decorative = false, pause = true } = props
   const motion = useAutoMotion()
   const clip = useClip(motion, playing)
   const player = useMascotPlayer({ target: state, still: clip.video === null, onClipEnded })
@@ -104,15 +130,7 @@ function AutoStage(props: HudAutoProps) {
           {label}
         </p>
       )}
-      {pausable(motion, playing, decorative) && (
-        <MascotPauseButton
-          paused={motion.paused}
-          disabled={!motion.ready}
-          onToggle={motion.togglePaused}
-          className={styles.pause}
-          iconClassName={styles.pauseIcon}
-        />
-      )}
+      {pause && pausable(motion, playing, decorative) && <AutoPauseButton motion={motion} />}
     </div>
   )
 }

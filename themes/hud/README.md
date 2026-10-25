@@ -10,13 +10,19 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
 
 ## What HUD draws
 
-- The frame around every page (`frame@1`): the top bar, the side rail and the backdrop. Every page HUD doesn't own
-  is the host's, drawn inside the frame and recoloured by the look.
-- The core screen at `/chat`, a page HUD owns: Auto in the voice core with the state in words under him, the
-  transcript with his replies and the host's own cards (approvals, Deliverables, Missions, tickets), the message box
-  (Enter sends, Shift + Enter makes a new line, Esc stops), and the Agents, Mission and Deliverables panels beside
-  it as the window allows. It loads in its own chunk. A `/chat` link with `repo`, `runtime` or `mode` keeps the
-  host's own chat page. There is no microphone: the SDK gives a theme no voice.
+- The frame around every page (`frame@1`): the top bar, the side rail (every core page, HUD's Conversations after
+  Chat, and RECENT, the latest conversations) and the backdrop. Every page HUD doesn't own is the host's, drawn
+  inside the frame and recoloured by the look.
+- The core screen at `/chat`, a page HUD owns: the conversation's title with New chat beside it, Auto in the voice
+  core with the state in words under him and Pause Auto beside it, the transcript with his replies and the host's own
+  cards (approvals, Deliverables, Missions, tickets), the message box (Enter sends, Shift + Enter makes a new line,
+  Esc stops), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
+  else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
+  how to start, with three starters that fill the message box. It loads in its own chunk. A `/chat` link with
+  `repo`, `runtime` or `mode` keeps the host's own chat page. There is no microphone: the SDK gives a theme no voice.
+- Conversations at `/x/conversations`, HUD's own route (`routes`, with a nav entry): every conversation in Today,
+  This week and Earlier panels, a search on the title and New chat. It loads in its own chunk; where HUD doesn't
+  draw (below 1024 px) it sends the browser to the chat.
 - The LOOK drawer at `/looks` (`lookEditor@1`): the five presets and your saved looks, the eight knobs, Save as new
   look, Reset and Delete, a live preview, and Share, to export a look as a file or import one.
 - The style sheet at `/looks/style` (`styleSheet@1`): what the active look paints, its knobs with the variable each
@@ -50,7 +56,8 @@ Auto, the Automatos mascot, through `@automatos/mascot`: his 12 states, his clip
 and iOS) and stills in `assets/mascot/`, on a ring the page draws in the look's colours. He shows while the look's
 Auto is on: at the foot of the rail, his state the backend's. He moves only where he can be paused (the Pause Auto
 control), and stands still under the reduced-motion setting and while the look's motion is off. On the core
-screen he is in the voice core, his state the chat's, and the rail's dock steps aside, so he shows once. His files are
+screen he is in the voice core, his state the chat's, with Pause Auto beside the state chip, and the rail's dock
+steps aside, so he shows once; it steps aside too while the host draws its own floating Auto. His files are
 (c) Automatos AI, not covered by the code licence (`NOTICE`).
 
 ## On a phone

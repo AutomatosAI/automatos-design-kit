@@ -2,6 +2,7 @@ import { type ReactNode, type RefObject, useEffect, useRef } from 'react'
 import type { HostChatMessage } from '@automatos/theme-sdk'
 
 import { AutoReply } from './auto-reply'
+import { EmptyChat } from './empty-chat'
 import styles from './transcript.module.css'
 
 /**
@@ -10,13 +11,12 @@ import styles from './transcript.module.css'
  * design's large sizes and the earlier ones smaller. It scrolls inside the column, keeping the newest line in view
  * while Auto answers unless you scrolled up to read; a new message follows again (after Play's message list,
  * themes/play/src/components/play/chat/message-list.tsx, Play 1.1.1). What follows the conversation (a turn that
- * failed before a reply began, a Mission Auto suggests) sits under the list, inside the scroll.
+ * failed before a reply began, a Mission Auto suggests) sits under the list, inside the scroll. Before anything is
+ * said there is no list: the empty chat (empty-chat.tsx) stands in its place.
  */
 
 export const CONVERSATION_LABEL = 'Conversation'
 export const YOU = 'You'
-/** The transcript before anything is said. */
-export const EMPTY_LINE = 'Nothing said yet. Type below, and Auto answers here.'
 /** How close to the bottom counts as reading the newest line. */
 export const FOLLOW_SLACK_PX = 120
 
@@ -79,32 +79,46 @@ export interface TranscriptProps {
   readonly trialBlocked?: boolean
   /** Shown under the conversation, inside the scroll. */
   readonly after?: ReactNode
+  /** Shown in the list's place before anything is said: the empty chat's line by default. */
+  readonly empty?: ReactNode
 }
 
-export function Transcript({ messages, streaming, onRetry, trialBlocked = false, after }: TranscriptProps) {
-  const { scrollerRef, endRef } = useFollow(messages)
+type ListProps = Pick<TranscriptProps, 'messages' | 'streaming' | 'onRetry' | 'trialBlocked'>
+
+function MessageList({ messages, streaming, onRetry, trialBlocked = false }: ListProps) {
   const newest = messages[messages.length - 1]?.id
   const recent = recentIds(messages)
   return (
+    <ol className={styles.list} aria-label={CONVERSATION_LABEL}>
+      {messages.map((message) => (
+        <li key={message.id} className={styles.item}>
+          {message.role === 'user' ? (
+            <YouRow message={message} recent={recent.has(message.id)} />
+          ) : (
+            <AutoReply
+              message={message}
+              streaming={streaming && message.id === newest}
+              onRetry={message.id === newest ? onRetry : undefined}
+              snagHidden={trialBlocked && message.id === newest}
+              recent={recent.has(message.id)}
+            />
+          )}
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+export function Transcript(props: TranscriptProps) {
+  const { messages, streaming, onRetry, trialBlocked = false, after, empty = <EmptyChat /> } = props
+  const { scrollerRef, endRef } = useFollow(messages)
+  return (
     <div ref={scrollerRef} className={styles.scroller}>
-      {messages.length === 0 && <p className={styles.empty}>{EMPTY_LINE}</p>}
-      <ol className={styles.list} aria-label={CONVERSATION_LABEL}>
-        {messages.map((message) => (
-          <li key={message.id} className={styles.item}>
-            {message.role === 'user' ? (
-              <YouRow message={message} recent={recent.has(message.id)} />
-            ) : (
-              <AutoReply
-                message={message}
-                streaming={streaming && message.id === newest}
-                onRetry={message.id === newest ? onRetry : undefined}
-                snagHidden={trialBlocked && message.id === newest}
-                recent={recent.has(message.id)}
-              />
-            )}
-          </li>
-        ))}
-      </ol>
+      {messages.length === 0 ? (
+        empty
+      ) : (
+        <MessageList messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} />
+      )}
       {after}
       <div ref={endRef} />
     </div>

@@ -1,7 +1,8 @@
 /*
- * The core screen's layout ("Automatos Command HUD.dc.html"): the frame's full-bleed column, padded 20 by 24 px,
- * the conversation's column between side columns of panels with 20 px between them (layout.ts picks how many).
- * The conversation's column is viewport-bound: the core and the box keep their size, the transcript scrolls.
+ * The core screen's layout ("Automatos Command HUD.dc.html"): the frame's full-bleed column, padded 20 by 24 px and
+ * 40 px at the foot, so the keys under the message box never meet the window's edge; the conversation's column
+ * between side columns of panels with 20 px between them (layout.ts picks how many). The conversation's column is
+ * viewport-bound: the core and the box keep their size, the transcript scrolls.
  */
 
 .screen {
@@ -13,7 +14,7 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   gap: 20px;
-  padding: 20px var(--hud-space-5) var(--hud-space-5);
+  padding: 20px var(--hud-space-5) var(--hud-space-6);
 }
 
 .screen[data-columns="three"] {
@@ -42,8 +43,18 @@
   gap: 14px;
 }
 
+/* The title row: the conversation's title, then New chat, centred over the core. */
+.titleRow {
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hud-space-3);
+}
+
 /* The conversation's title: a mono label over the core, in the secondary text. */
 .title {
+  min-width: 0;
   max-width: 100%;
   margin: 0;
   overflow: hidden;

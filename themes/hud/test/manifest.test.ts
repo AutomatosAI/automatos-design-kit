@@ -118,7 +118,7 @@ describe('theme.json', () => {
       schema: 'automatos-theme/v1',
       id: 'automatos/hud',
       name: 'HUD',
-      version: '1.0.0',
+      version: '1.0.1',
       htmlClass: 'hud',
       minWidth: 1024,
       base: 'studio',

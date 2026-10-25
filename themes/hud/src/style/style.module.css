@@ -113,6 +113,8 @@
   font-weight: 500;
 }
 
+/* Names and values wrap between their parts (a hyphen, a space, the break the markup allows after a comma), never
+   inside a number or a word. */
 .code,
 .value {
   padding: 0;
@@ -120,7 +122,8 @@
   background: transparent;
   color: var(--hud-text);
   font: 500 12px/1.4 var(--hud-font-mono);
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .value {

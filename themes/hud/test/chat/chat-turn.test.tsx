@@ -10,7 +10,8 @@ import { host } from '@automatos/theme-harness/host'
 import { STOPPED_NOTICE } from '../../src/chat/auto-reply.tsx'
 import { KEYS_HINT, SEND, STOP } from '../../src/chat/composer.tsx'
 import { HudChatPage } from '../../src/chat/hud-chat.tsx'
-import { CONVERSATION_LABEL, EMPTY_LINE } from '../../src/chat/transcript.tsx'
+import { EMPTY_LINE } from '../../src/chat/empty-chat.tsx'
+import { CONVERSATION_LABEL } from '../../src/chat/transcript.tsx'
 import {
   ASKED, ask, box, core, HELD, QUESTION, renderChat, reply, streamEnds, stubClips, words, yourRow,
 } from './support.tsx'
@@ -42,15 +43,16 @@ describe('a turn', () => {
     expect(cursorOf(reply())).toBeNull()
   })
 
-  it('opens a new chat on an empty transcript that says how to start, and focuses the box', async () => {
+  it('opens a new chat that says how to start, with no transcript list until something is said, and focuses the box', async () => {
     render(<HudChatPage />)
-    expect(await screen.findByRole('list', { name: CONVERSATION_LABEL })).toBeEmptyDOMElement()
-    expect(screen.getByText(EMPTY_LINE)).toBeInTheDocument()
+    expect(await screen.findByText(EMPTY_LINE)).toBeInTheDocument()
+    expect(screen.queryByRole('list', { name: CONVERSATION_LABEL })).toBeNull()
     expect(box()).toHaveFocus()
     host.setChatScript([HELD])
     ask(QUESTION)
     expect(host.chatSent()).toEqual([{ chatId: null, text: QUESTION, retry: false }])
     expect(screen.queryByText(EMPTY_LINE)).toBeNull()
+    expect(screen.getByRole('list', { name: CONVERSATION_LABEL })).toBeInTheDocument()
   })
 
   it('holds the board lane open while the page is on screen, as the Studio chat does', async () => {
@@ -144,6 +146,9 @@ describe('for a screen reader', () => {
     expect(within(core()).getByText('Ready when you are')).toHaveAttribute('aria-live', 'polite')
     expect(within(core()).getByRole('img', { name: 'Auto: Ready when you are' })).toBeInTheDocument()
     expect(box()).toHaveAccessibleDescription(KEYS_HINT)
+    const hint = document.getElementById(box().getAttribute('aria-describedby') ?? '')
+    const parts = [...(hint?.querySelectorAll('span') ?? [])].map((part) => part.textContent)
+    expect(parts).toEqual(KEYS_HINT.split(' · '))
     expect(screen.getByRole('heading', { level: 1, name: 'Laptop for uni' })).toHaveAttribute('data-theme-heading', 'true')
   })
 
