@@ -13,7 +13,7 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}` |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
-| `minWidth` | 1024: below it the host draws its own pages and chrome |
+| `minWidth` | 360: below it the host draws its own pages and chrome |
 | `tone` | `from-look`: the look sets light or dark, and every HUD look is dark |
 | `look` | `arc`, the default preset |
 

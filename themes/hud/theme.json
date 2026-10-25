@@ -7,7 +7,7 @@
   "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
   "base": "studio",
   "htmlClass": "hud",
-  "minWidth": 1024,
+  "minWidth": 360,
   "tone": "from-look",
   "slots": ["frame@1", "lookEditor@1", "styleSheet@1"],
   "pages": {

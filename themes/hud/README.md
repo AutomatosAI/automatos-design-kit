@@ -22,7 +22,7 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   `repo`, `runtime` or `mode` keeps the host's own chat page. There is no microphone: the SDK gives a theme no voice.
 - Conversations at `/x/conversations`, HUD's own route (`routes`, with a nav entry): every conversation in Today,
   This week and Earlier panels, a search on the title and New chat. It loads in its own chunk; where HUD doesn't
-  draw (below 1024 px) it sends the browser to the chat.
+  draw (below 360 px, its minWidth) it sends the browser to the chat.
 - The LOOK drawer at `/looks` (`lookEditor@1`): the five presets and your saved looks, the eight knobs, Save as new
   look, Reset and Delete, a live preview, and Share, to export a look as a file or import one.
 - The style sheet at `/looks/style` (`styleSheet@1`): what the active look paints, its knobs with the variable each
