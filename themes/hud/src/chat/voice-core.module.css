@@ -150,16 +150,17 @@
   transform: translateX(-50%);
 }
 
-/* The row over the ring's foot: the state chip, then Pause Auto while Auto can move, both on the opaque ground. */
+/* The row over the ring's foot, across the core: the state chip, then Pause Auto while Auto can move, centred, both
+   on the opaque ground; the chip gives way (an ellipsis) where the two don't fit. */
 .chipRow {
   position: absolute;
-  left: 50%;
+  left: var(--hud-space-2);
+  right: var(--hud-space-2);
   bottom: var(--hud-core-chip-bottom);
-  max-width: calc(100% - var(--hud-space-4));
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--hud-space-2);
-  transform: translateX(-50%);
 }
 
 /* The state chip ("SEARCHING THE WEB"): mono capitals on the ground, in an accent-line box. */

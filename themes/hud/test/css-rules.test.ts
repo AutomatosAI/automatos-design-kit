@@ -43,8 +43,18 @@ describe('Pause Auto', () => {
   })
 
   it('sits in a row with the state chip over the ring\'s foot, not under Auto', () => {
-    expect(ruleBody('chat/voice-core.module.css', '.chipRow')).toContain('bottom: var(--hud-core-chip-bottom);')
+    const row = ruleBody('chat/voice-core.module.css', '.chipRow')
+    expect(row).toContain('bottom: var(--hud-core-chip-bottom);')
     expect(ruleBody('chat/voice-core.module.css', '.chip')).not.toContain('position: absolute')
+    expect(ruleBody('chat/voice-core.module.css', '.chip')).toContain('min-width: 0;')
+  })
+
+  it('shares a row as wide as the core with the chip, centred, so the two fit side by side', () => {
+    const row = ruleBody('chat/voice-core.module.css', '.chipRow')
+    expect(row).toContain('left: var(--hud-space-2);')
+    expect(row).toContain('right: var(--hud-space-2);')
+    expect(row).toContain('justify-content: center;')
+    expect(ruleBody('mascot/hud-auto.module.css', '.pause')).toContain('flex: none;')
   })
 })
 
