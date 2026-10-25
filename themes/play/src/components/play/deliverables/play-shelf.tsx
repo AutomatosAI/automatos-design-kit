@@ -35,7 +35,8 @@ import { useSocialsOffered } from './socials-offered'
  * PRD-260 §4, D5 — Play's Deliverables shelf (Ember mock 04), ported from
  * Automatos Play's components/deliverables/ShelfScreen.tsx onto the core's
  * list (the theme SDK's useDeliverables, PRD-261 A-14b): "Your shelf" with
- * Auto in the header, the type chips (the list's artifact_type), the card
+ * Auto in the header (on an empty shelf he stands in the middle instead, the
+ * empty message his caption, Play 1.1.1), the type chips (the list's artifact_type), the card
  * grid with the newest in the spotlight, and Load more (the hook's next page:
  * its offset, buildListQuery). A card opens /deliverables?deliverable=<id> (K8).
  *
@@ -123,6 +124,8 @@ export function ShelfScreen({ now, notice }: ShelfScreenProps) {
   const { view, paging } = useShelfList(filter)
   const auto = useShelfMascot(view)
   const total = view.status === 'ready' ? view.total : null
+  // An empty shelf's Auto stands in its empty state (shelf-body.tsx), so none in the header.
+  const empty = view.status === 'ready' && view.items.length === 0
   return (
     <PageColumns>
       <div className={styles.page}>
@@ -132,9 +135,11 @@ export function ShelfScreen({ now, notice }: ShelfScreenProps) {
             {total !== null && <p className={styles.count}>{countLine(total)}</p>}
             <Sections />
           </div>
-          <div className={styles.auto}>
-            <AutoMascot state={auto.mascot} onClipEnded={auto.onClipEnded} caption={auto.caption} size="small" />
-          </div>
+          {!empty && (
+            <div className={styles.auto}>
+              <AutoMascot state={auto.mascot} onClipEnded={auto.onClipEnded} caption={auto.caption} size="small" />
+            </div>
+          )}
         </header>
         {notice && (
           <p className={styles.status} role="status">
@@ -142,7 +147,7 @@ export function ShelfScreen({ now, notice }: ShelfScreenProps) {
           </p>
         )}
         <FilterChips selected={filter} onSelect={setFilter} />
-        <ShelfBody view={view} filter={filter} paging={paging} now={now ?? new Date()} />
+        <ShelfBody view={view} filter={filter} paging={paging} now={now ?? new Date()} auto={auto} />
       </div>
     </PageColumns>
   )

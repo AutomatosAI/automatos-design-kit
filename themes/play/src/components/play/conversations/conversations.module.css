@@ -38,9 +38,11 @@
   color: var(--pl-color-text);
 }
 
-/* New chat is the secondary (cream) button; Try again is the failed state's one primary. */
+/* New chat is the secondary (cream) button; Try again is the failed state's one primary, and Start a chat the
+   empty list's. */
 .newChat,
-.retry {
+.retry,
+.start {
   min-height: var(--pl-tap-min);
   display: inline-flex;
   align-items: center;
@@ -60,12 +62,14 @@
 }
 
 /* Until the chat session store is hydrated (useStartChat). */
-.newChat:disabled {
+.newChat:disabled,
+.start:disabled {
   cursor: progress;
 }
 
 .newChat:focus-visible,
-.retry:focus-visible {
+.retry:focus-visible,
+.start:focus-visible {
   outline: 2px solid transparent; /* drawn in forced colours, which drop the box-shadow ring (M19) */
   outline-offset: 2px;
   box-shadow: var(--pl-focus-field);
@@ -176,6 +180,17 @@
   padding: var(--pl-space-3);
   font: var(--pl-text-small);
   color: var(--pl-color-text-2);
+}
+
+/* No conversations yet: Auto at his regular size, the message his caption, then Start a chat, one block in the
+   middle of the list's column. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pl-space-5);
+  padding: var(--pl-space-6) 0;
+  text-align: center;
 }
 
 .failed {

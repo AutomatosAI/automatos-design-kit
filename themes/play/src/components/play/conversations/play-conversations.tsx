@@ -24,12 +24,14 @@ import styles from './conversations.module.css'
  * opens the conversation in the chat (/chat?chatId=<id>). The title and New
  * chat head the list's own column, over the search box, as in the Play app
  * (P260-FX-14). Auto idles in the mascot column, in the same spot as in the
- * chat so nothing jumps.
+ * chat so nothing jumps. With no conversations yet there is no mascot column:
+ * Auto stands in the middle of the list's column at his regular size, the empty
+ * message his caption, then Start a chat, as on an empty shelf (Play 1.1.1).
  *
  * One status line sits under the search box for the page's life, so a screen
- * reader hears every change to it (P260-FX-24, M22): loading, no conversations
- * yet and no title matching are shown; while titles match, the count is said
- * to screen readers only, since the list itself shows it.
+ * reader hears every change to it (P260-FX-24, M22): loading and no title
+ * matching are shown; no conversations yet, and while titles match the count,
+ * are said to screen readers only, since Auto's caption or the list shows them.
  *
  * app/conversations/page.tsx sends Classic and Studio to /chat on the server
  * (K10); PlayConversations does the same in the browser when the style leaves
@@ -46,6 +48,7 @@ export const SEARCH_LABEL = 'Search conversations'
 export const LOADING_LIST = 'Loading your conversations…'
 export const NO_CONVERSATIONS = 'No conversations yet. Say hello to Auto and your first one starts.'
 export const LIST_FAILED = "Your conversations didn't load. Try again in a moment."
+export const START_A_CHAT = 'Start a chat'
 /** sr-only: the Tailwind utility the core uses for words that are only for screen readers. */
 const SCREEN_READER_ONLY = 'sr-only'
 
@@ -86,12 +89,15 @@ export function ConversationsScreen({ now }: PlayConversationsProps) {
   const chats = useMemo(() => (list.status === 'loaded' ? list.chats.map(summaryOfHostChat) : []), [list])
   const shown = filterByTitle(chats, query)
   const line = statusLine(list, shown.length, query)
+  const empty = list.status === 'loaded' && list.chats.length === 0
   return (
     <PageColumns
       mascot={
-        <MascotColumn>
-          <AutoMascot state="idle" />
-        </MascotColumn>
+        empty ? undefined : (
+          <MascotColumn>
+            <AutoMascot state="idle" />
+          </MascotColumn>
+        )
       }
     >
       <div className={styles.body}>
@@ -131,7 +137,8 @@ function statusLine(list: HostConversationListState, shown: number, query: strin
   if (list.status === 'loading') return { text: LOADING_LIST, hidden: false }
   // The failure is the alert below; the line stays, empty, for the next change.
   if (list.status === 'failed') return { text: '', hidden: true }
-  if (list.chats.length === 0) return { text: NO_CONVERSATIONS, hidden: false }
+  // Auto's caption says it on the page (EmptyList).
+  if (list.chats.length === 0) return { text: NO_CONVERSATIONS, hidden: true }
   if (shown === 0) return { text: noMatchLine(query), hidden: false }
   return { text: matchLine(shown, query), hidden: true }
 }
@@ -143,7 +150,20 @@ interface ListBodyProps {
   readonly now: Date
 }
 
-/** The failed state's alert, or the matching conversations; the status line says the rest. */
+/** No conversations yet: Auto at his regular size, the message his caption, then Start a chat, centred. */
+function EmptyList() {
+  const { startChat, ready } = useStartChat()
+  return (
+    <div className={styles.empty}>
+      <AutoMascot state="idle" caption={NO_CONVERSATIONS} />
+      <button type="button" className={styles.start} onClick={startChat} disabled={!ready}>
+        {START_A_CHAT}
+      </button>
+    </div>
+  )
+}
+
+/** The failed state's alert, no conversations yet, or the matching conversations; the status line says the rest. */
 function ListBody({ list, shown, now }: ListBodyProps) {
   if (list.status === 'failed') {
     return (
@@ -157,5 +177,6 @@ function ListBody({ list, shown, now }: ListBodyProps) {
       </div>
     )
   }
+  if (list.status === 'loaded' && list.chats.length === 0) return <EmptyList />
   return shown.length > 0 ? <ConversationList chats={shown} now={now} /> : null
 }

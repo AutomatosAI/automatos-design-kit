@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useStartChat, type Deliverable } from '@automatos/theme-sdk'
 
+import type { ShelfMascot } from '../../../hooks/use-shelf-mascot'
 import { refocus } from '../../../lib/play/focus'
 import { emptyMessage, type ShelfFilter, type ShelfView } from '../../../lib/play/shelf'
+import { AutoMascot } from '../../mascot/auto-mascot'
 
 import { ShelfCard } from './shelf-card'
 import cardStyles from './shelf-card.module.css'
@@ -14,7 +16,8 @@ import styles from './shelf.module.css'
  * PRD-260 §4 — the shelf under the chips, ported from Automatos Play's
  * components/deliverables/ShelfBody.tsx: loading, the error state (a failed
  * request, or the list's success: false — never "nothing here yet"), the
- * friendly empty state, or the grid with Load more. A later page that failed
+ * friendly empty state (Auto at his regular size in the middle, the message
+ * his caption, then Start a chat: Play 1.1.1), or the grid with Load more. A later page that failed
  * keeps the grid and says so, with a way to ask again. When the last Load more
  * goes with the page it asked for, focus moves to that page's first card, never
  * to <body> (P260-FX-22, M20).
@@ -45,9 +48,11 @@ export interface ShelfBodyProps {
   readonly filter: ShelfFilter
   readonly paging: ShelfPaging
   readonly now: Date
+  /** The shelf's Auto (useShelfMascot): an empty shelf shows him in its middle. */
+  readonly auto: ShelfMascot
 }
 
-export function ShelfBody({ view, filter, paging, now }: ShelfBodyProps) {
+export function ShelfBody({ view, filter, paging, now, auto }: ShelfBodyProps) {
   if (view.status === 'loading') {
     return (
       <p className={styles.status} role="status">
@@ -56,7 +61,7 @@ export function ShelfBody({ view, filter, paging, now }: ShelfBodyProps) {
     )
   }
   if (view.status === 'failed') return <Failed message={SHELF_FAILED} retry={paging.retry} />
-  if (view.items.length === 0) return <Empty filter={filter} />
+  if (view.items.length === 0) return <Empty filter={filter} auto={auto} />
   return <Grid items={view.items} paging={paging} now={now} />
 }
 
@@ -105,11 +110,12 @@ function Grid({ items, paging, now }: GridProps) {
   )
 }
 
-function Empty({ filter }: { readonly filter: ShelfFilter }) {
+/** Auto at his regular size, the empty message as his caption, then Start a chat: one centred block. */
+function Empty({ filter, auto }: { readonly filter: ShelfFilter; readonly auto: ShelfMascot }) {
   const { startChat, ready } = useStartChat()
   return (
     <div className={styles.empty}>
-      <p className={styles.status}>{emptyMessage(filter)}</p>
+      <AutoMascot state={auto.mascot} onClipEnded={auto.onClipEnded} caption={emptyMessage(filter)} />
       <button type="button" className={styles.button} onClick={startChat} disabled={!ready}>
         {START_A_CHAT}
       </button>

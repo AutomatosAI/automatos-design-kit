@@ -135,6 +135,17 @@
   align-items: center;
 }
 
+/* The empty shelf: Auto at his regular size, the message his caption, then Start a chat, one block in the middle
+   of the page, its caption no wider than a reading column. */
+.empty {
+  align-self: center;
+  max-width: var(--pl-content-max);
+  align-items: center;
+  gap: var(--pl-space-5);
+  padding: var(--pl-space-6) 0;
+  text-align: center;
+}
+
 .error {
   margin: 0;
   font: var(--pl-text-small);
