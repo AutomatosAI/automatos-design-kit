@@ -1,6 +1,6 @@
 {
   "name": "@automatos/theme-hud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HUD, the Automatos theme as a command deck, built as an installable theme package (automatos/hud).",
   "private": true,
   "license": "Apache-2.0",

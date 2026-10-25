@@ -2,7 +2,7 @@
   "schema": "automatos-theme/v1",
   "id": "automatos/hud",
   "name": "HUD",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatos as a command deck: bracketed panels, mono labels, one accent, a grid and scan-line backdrop, and Auto at the core.",
   "engines": { "automatos": "^1.1.0", "sdk": "^1.1.0" },
   "base": "studio",

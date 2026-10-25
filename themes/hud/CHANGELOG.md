@@ -2,6 +2,10 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.0.1
+
+Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
+
 ## 1.0.0
 
 The first version of HUD (`automatos/hud`), from the Command design:
