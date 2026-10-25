@@ -43,8 +43,18 @@
   gap: 14px;
 }
 
+/* The title row: the conversation's title, then New chat, centred over the core. */
+.titleRow {
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hud-space-3);
+}
+
 /* The conversation's title: a mono label over the core, in the secondary text. */
 .title {
+  min-width: 0;
   max-width: 100%;
   margin: 0;
   overflow: hidden;

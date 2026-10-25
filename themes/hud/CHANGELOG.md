@@ -15,6 +15,7 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   appears once something is said, and three starters put their words in the message box.
 - Conversations: HUD's own page at `/x/conversations` (its route `conversations`, and a nav entry): every
   conversation in Today, This week and Earlier panels, a title search and New chat. The rail lists it after Chat.
+- New chat beside the core screen's title.
 
 ## 1.0.0
 

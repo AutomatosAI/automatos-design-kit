@@ -1,11 +1,13 @@
 // The core screen's own parts around the conversation, on the harness: the host's first-run nudge (the local
 // edition's) heads the conversation's column, above its title, and never sits with the message box; a new chat says
 // how to start in one line, with three starters that put their words in the box, and no transcript list until
-// something is said. Roles, names, the host's surface marks and the document's order only.
+// something is said; New chat stands beside the title. Roles, names, the host's surface marks and the document's
+// order only.
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { EMPTY_LINE, STARTERS, STARTERS_LABEL } from '../../src/chat/empty-chat.tsx'
+import { NEW_CHAT } from '../../src/components/new-chat.tsx'
 import { HudChatPage } from '../../src/chat/hud-chat.tsx'
 import { CONVERSATION_LABEL } from '../../src/chat/transcript.tsx'
 import { box, HELD, renderChat, stubClips } from './support.tsx'
@@ -69,5 +71,16 @@ describe('a new chat', () => {
     await renderChat()
     expect(screen.queryByText(EMPTY_LINE)).toBeNull()
     expect(screen.queryByRole('list', { name: STARTERS_LABEL })).toBeNull()
+  })
+})
+
+describe('New chat', () => {
+  it("stands beside the conversation's title and starts a fresh chat: the host's new chat, then the chat", async () => {
+    await renderChat()
+    const newChat = screen.getByRole('button', { name: NEW_CHAT })
+    expect(newChat.parentElement).toBe(title().parentElement)
+    fireEvent.click(newChat)
+    expect(host.startedChats()).toBe(1)
+    expect(host.navigations()).toContainEqual({ method: 'push', href: '/chat' })
   })
 })
