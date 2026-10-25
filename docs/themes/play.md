@@ -24,14 +24,14 @@ from, and [`themes/play/README.md`](../../themes/play/README.md) how it is built
 |---|---|
 | `frame@1` | Play's frame and sidebar around every page. A page Play doesn't own is the host's, inside the frame. |
 | `asleep@1` | Declared, not registered: Play's frame draws its own "backend is asleep" screen, so the host leaves the health poll to it. |
-| `lookEditor@1` | Make it yours, at `/looks`: pick a look, change it, save it. |
+| `lookEditor@1` | Look, at `/looks`: pick a look, change it, save it. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: what the active look paints, its type, colours, components and Auto's states. |
 | `notFound@1` | The 404, with Auto lost. |
 | `/chat` | Play's own chat with Auto (`mode: own`). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
 | `/deliverables` | Play's shelf of Deliverables (`mode: own`). A link with `tab`, `post` or `artifact_type` keeps the host's page. |
 | `/x/conversations` | The route `conversations`: Play's Conversations page. |
 
-The menu entries (`nav`) for the host's search: Conversations (`/x/conversations`), Make it yours (`/looks`) and
+The menu entries (`nav`) for the host's search: Conversations (`/x/conversations`), Look (`/looks`) and
 Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`, `context`,
 `deliverables`, `events`, `looks`, `navigation`, `pages-command-center`, `storage` and `theme`.
 [guides/mascot-placement.md](../../guides/mascot-placement.md) has where Play puts Auto on each of these screens.
