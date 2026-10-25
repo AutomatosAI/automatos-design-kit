@@ -3,7 +3,8 @@
 // (the chip names its query), back at rest once the tool ends, celebrating a done receipt at the turn's end, oops on
 // a failure, listening while an approval card waits, asleep while the backend is down and napping after a long
 // while without input. The chip says each state in words; with the look's auto knob off Auto is gone and the chip
-// stays. The core's data-state is the state he shows; the chip is read by its text.
+// stays. Pause Auto stands beside the chip, clear of the rings, while Auto can move. The core's data-state is the
+// state he shows; the chip is read by its text.
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { captionFor } from '@automatos/mascot/media'
@@ -118,6 +119,36 @@ describe('the nap', () => {
       fireEvent.keyDown(window, { key: 'a' })
     })
     expect(core()).toHaveAttribute('data-state', 'idle')
+  })
+})
+
+describe('Pause Auto on the core', () => {
+  const PAUSE = 'Pause Auto'
+  const pauseIn = (): HTMLElement | null => within(core()).queryByRole('button', { name: PAUSE })
+
+  it("stands beside the state chip, outside Auto's stage among the rings, and pausing makes him a still", async () => {
+    await renderChat()
+    const pause = pauseIn()
+    if (pause === null) throw new Error('The core has no Pause Auto control.')
+    expect(pause.parentElement).toBe(chip().parentElement)
+    const stage = within(core()).getByRole('img', { name: `Auto: ${captionFor('idle')}` })
+    expect(stage.parentElement).not.toContainElement(pause)
+    expect(within(core()).getAllByRole('button', { name: PAUSE })).toHaveLength(1)
+    expect(core().querySelector('video')).not.toBeNull()
+    act(() => fireEvent.click(pause))
+    expect(pauseIn()).toHaveAttribute('aria-pressed', 'true')
+    expect(core().querySelector('video')).toBeNull()
+  })
+
+  it("is not drawn while Auto can't move: the look's auto off, or the reduced-motion setting", async () => {
+    host.setLooks({ look: GHOST })
+    const { unmount } = await renderChat()
+    expect(pauseIn()).toBeNull()
+    unmount()
+    host.setLooks(null)
+    host.setReducedMotion(true)
+    await renderChat()
+    expect(pauseIn()).toBeNull()
   })
 })
 

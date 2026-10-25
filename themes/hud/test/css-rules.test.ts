@@ -1,7 +1,8 @@
 // @vitest-environment node
 // HUD's layout and control rules that jsdom never applies, read from the stylesheets as written: every box measured
-// with its border and padding whatever the host's reset, and 40 px under the message box's keys at the core screen's
-// foot. A rule is found by its selector, comments out and whitespace collapsed.
+// with its border and padding whatever the host's reset, 40 px under the message box's keys at the core screen's
+// foot, and Pause Auto on the opaque ground beside the core's state chip. A rule is found by its selector, comments
+// out and whitespace collapsed.
 import { describe, expect, it } from 'vitest'
 import { readSource } from './support/files.ts'
 
@@ -31,5 +32,17 @@ describe('the core screen', () => {
   it("leaves 40 px under the message box's keys at its foot", () => {
     expect(ruleBody('chat/screen.module.css', '.screen')).toContain('padding: 20px var(--hud-space-5) var(--hud-space-6);')
     expect(ruleBody('app/hud-theme.css', 'html.hud')).toContain('--hud-space-6: 40px;')
+  })
+})
+
+describe('Pause Auto', () => {
+  it('stands on the opaque ground, pressed or not, so no ring shows through it', () => {
+    expect(ruleBody('mascot/hud-auto.module.css', '.pause')).toContain('background: var(--hud-bg);')
+    expect(ruleBody('mascot/hud-auto.module.css', '.pause[aria-pressed="true"]')).toMatch(/background: [^;]*, var\(--hud-bg\);/)
+  })
+
+  it('sits in a row with the state chip over the ring\'s foot, not under Auto', () => {
+    expect(ruleBody('chat/voice-core.module.css', '.chipRow')).toContain('bottom: var(--hud-core-chip-bottom);')
+    expect(ruleBody('chat/voice-core.module.css', '.chip')).not.toContain('position: absolute')
   })
 })

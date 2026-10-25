@@ -150,16 +150,24 @@
   transform: translateX(-50%);
 }
 
-/* The state chip ("SEARCHING THE WEB"): mono capitals on the ground, in an accent-line box, over the ring's foot. */
-.chip {
+/* The row over the ring's foot: the state chip, then Pause Auto while Auto can move, both on the opaque ground. */
+.chipRow {
   position: absolute;
   left: 50%;
   bottom: var(--hud-core-chip-bottom);
-  max-width: calc(100% - var(--hud-space-6));
+  max-width: calc(100% - var(--hud-space-4));
+  display: flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  transform: translateX(-50%);
+}
+
+/* The state chip ("SEARCHING THE WEB"): mono capitals on the ground, in an accent-line box. */
+.chip {
+  min-width: 0;
   margin: 0;
   padding: 5px 12px;
   overflow: hidden;
-  transform: translateX(-50%);
   border: 1px solid var(--hud-accent-line);
   background: var(--hud-bg);
   color: var(--hud-accent-text);

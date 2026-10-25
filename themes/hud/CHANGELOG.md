@@ -8,6 +8,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 
 - Every box is measured with its border and padding, whatever the host's own reset, so the rail, the core and the
   panels keep their sizes; the core screen leaves 40 px under the message box's keys.
+- Pause Auto on the core screen stands beside the state chip, over the ring's foot, instead of under Auto among the
+  rings, and every Pause Auto control stands on the page's ground, so no ring shows through it.
 
 ## 1.0.0
 
