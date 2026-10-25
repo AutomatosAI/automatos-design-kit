@@ -71,3 +71,12 @@ describe('a panel', () => {
     expect(ruleBody('components/panel.module.css', '.title')).toContain('text-transform: uppercase;')
   })
 })
+
+describe('the style sheet', () => {
+  it('wraps a name or a value only between its parts, never inside a number', () => {
+    const code = ruleBody('style/style.module.css', '.code, .value')
+    expect(code).toContain('overflow-wrap: normal;')
+    expect(code).toContain('word-break: normal;')
+    expect(code).not.toContain('anywhere')
+  })
+})

@@ -1,15 +1,16 @@
-import type { CSSProperties } from 'react'
+import { type CSSProperties, Fragment } from 'react'
 
 import { Panel } from '../components/panel'
 import type { HudLook } from '../lib/looks/types'
-import { contrastChecks, formatRatio, knobRows, swatches, HUD_COLOURS, STUDIO_TOKENS, type Swatch } from './tokens'
+import { contrastChecks, displayValue, formatRatio, knobRows, swatches, HUD_COLOURS, STUDIO_TOKENS, type Swatch } from './tokens'
 import styles from './style.module.css'
 
 /**
  * The style sheet's sections, each a HUD panel: the look's knobs with the variable each drives, HUD's colours,
  * Studio's tokens, and the live contrast with an AA verdict as a glyph and a word, never the colour alone. A
  * swatch's chip is drawn in the variable itself (var(), or hsl(var()) for a Studio triplet), so it shows what the
- * page paints now; the value beside it is the one the look paints.
+ * page paints now; the value beside it is the one the look paints, its numbers rounded to three places, free to wrap
+ * after a comma and never inside a number.
  */
 
 export const KNOBS_TITLE = 'This look'
@@ -24,6 +25,23 @@ type ChipStyle = CSSProperties & { readonly '--hud-swatch': string }
 /** A chip drawn in a HUD variable, or in a Studio triplet wrapped as hsl(). */
 export function chipStyle(name: string, studio: boolean): ChipStyle {
   return { '--hud-swatch': studio ? `hsl(var(${name}))` : `var(${name})` }
+}
+
+/** A painted value, rounded for reading (displayValue), with a line break allowed after each comma. */
+export function PaintedValue({ value, className }: { readonly value: string; readonly className?: string }) {
+  const [first, ...rest] = displayValue(value).split(',')
+  return (
+    <code className={className}>
+      {first}
+      {rest.map((part, index) => (
+        // The parts of one value never reorder.
+        <Fragment key={index}>
+          ,<wbr />
+          {part}
+        </Fragment>
+      ))}
+    </code>
+  )
 }
 
 export function KnobSection({ look }: { readonly look: HudLook }) {
@@ -47,7 +65,7 @@ export function KnobSection({ look }: { readonly look: HudLook }) {
                 <code className={styles.code}>{row.variable}</code>
               </td>
               <td>
-                <code className={styles.code}>{row.value}</code>
+                <PaintedValue className={styles.code} value={row.value} />
               </td>
             </tr>
           ))}
@@ -64,7 +82,7 @@ function SwatchList({ items, studio }: { readonly items: readonly Swatch[]; read
         <li key={swatch.name} className={styles.swatch}>
           <span className={styles.chip} style={chipStyle(swatch.name, studio)} aria-hidden="true" />
           <code className={styles.code}>{swatch.name}</code>
-          <code className={styles.value}>{swatch.value}</code>
+          <PaintedValue className={styles.value} value={swatch.value} />
           <span className={styles.role}>{swatch.role}</span>
         </li>
       ))}

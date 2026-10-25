@@ -9,7 +9,9 @@ import { ARC, GHOST, NOVA, PRESETS } from '../../src/lib/looks/presets.ts'
 import { KNOB_NAMES } from '../../src/lib/looks/types.ts'
 import { lookToCssVars } from '../../src/lib/looks/vars.ts'
 import { glowCap } from '../../src/looks/editing.ts'
-import { CONTRAST_PAIRS, contrastChecks, formatRatio, glowWords, HUD_COLOURS, knobRows, STUDIO_TOKENS, swatches } from '../../src/style/tokens.ts'
+import {
+  CONTRAST_PAIRS, contrastChecks, displayValue, formatRatio, glowWords, HUD_COLOURS, knobRows, STUDIO_TOKENS, swatches,
+} from '../../src/style/tokens.ts'
 import { readThemeJson } from '../support/files.ts'
 
 interface ContrastFile {
@@ -63,6 +65,18 @@ describe("the style sheet's contrast", () => {
   it('writes a ratio to two places', () => {
     expect(formatRatio(4.5)).toBe('4.50:1')
     expect(formatRatio(12.3456)).toBe('12.35:1')
+  })
+})
+
+describe("the style sheet's values, as shown", () => {
+  it('round every number past three decimal places to three, and leave the rest as painted', () => {
+    expect(lookToCssVars(ARC)['--hud-grid']).toBe('rgba(63,224,255,0.04666666666666667)')
+    expect(displayValue(lookToCssVars(ARC)['--hud-grid'] ?? '')).toBe('rgba(63,224,255,0.047)')
+    expect(displayValue('199.29411765 14.8936% 63.1372549%')).toBe('199.294 14.894% 63.137%')
+    expect(displayValue('rgba(230,241,245,.10)')).toBe('rgba(230,241,245,.10)')
+    expect(displayValue('210 40% 1.96%')).toBe('210 40% 1.96%')
+    expect(displayValue('rgba(63,224,255,0.1000)')).toBe('rgba(63,224,255,0.1)')
+    expect(displayValue(ACCENTS.arc.hex)).toBe(ACCENTS.arc.hex)
   })
 })
 

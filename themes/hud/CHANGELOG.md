@@ -25,6 +25,8 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
 - A panel header's value is in capitals, as its label is (DELIVERABLES' ALL).
 - Search in the top bar is named by the words it shows, with its shortcut in `aria-keyshortcuts`, so its name
   matches its label (axe's label-content-name-mismatch).
+- The style sheet shows each value rounded to three decimal places, and wraps a value only after a comma, never
+  inside a number.
 
 ## 1.0.0
 
