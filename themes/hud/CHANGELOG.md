@@ -22,6 +22,7 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   runs) over DELIVERABLES, in the places of the design's spend, latency and machine panels, which have no source.
 - MISSION shows this conversation's Mission first, once the chat plans one, and the newest running Mission
   otherwise.
+- A panel header's value is in capitals, as its label is (DELIVERABLES' ALL).
 
 ## 1.0.0
 

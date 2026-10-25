@@ -64,3 +64,10 @@ describe('the empty chat', () => {
     expect(starter).toContain('min-height: var(--hud-tap-min);')
   })
 })
+
+describe('a panel', () => {
+  it("sets its header's value in capitals, as its label is, so DELIVERABLES' All reads ALL", () => {
+    expect(ruleBody('components/panel.module.css', '.value')).toContain('text-transform: uppercase;')
+    expect(ruleBody('components/panel.module.css', '.title')).toContain('text-transform: uppercase;')
+  })
+})
