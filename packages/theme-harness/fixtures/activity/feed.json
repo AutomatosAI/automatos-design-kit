@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "mission-harness-mission-1",
+      "type": "mission",
+      "name": "Compare three laptops and write a shortlist",
+      "status": "running",
+      "started_at": "2026-10-14T09:00:00+00:00",
+      "completed_at": null,
+      "duration_seconds": null,
+      "agent": { "id": 7, "name": "Scout", "avatar_url": null },
+      "agents": [
+        { "id": 7, "name": "Scout", "avatar_url": null },
+        { "id": 8, "name": "Quill", "avatar_url": null }
+      ],
+      "summary": "Comparing battery life and weight",
+      "source_id": "harness-mission-1",
+      "source_url": "/missions/harness-mission-1",
+      "trigger": "chat",
+      "step_progress": {
+        "current": 2,
+        "total": 3,
+        "steps": [
+          { "name": "Find three reviews", "status": "completed" },
+          { "name": "Compare the laptops", "status": "running" },
+          { "name": "Write the shortlist", "status": "pending" }
+        ]
+      },
+      "error_message": null,
+      "last_progress": { "summary": "Comparing battery life and weight", "at": "2026-10-14T09:04:00+00:00", "requires_attention": false }
+    }
+  ],
+  "total": 1,
+  "limit": 1,
+  "offset": 0
+}

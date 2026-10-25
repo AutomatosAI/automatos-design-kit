@@ -14,7 +14,8 @@ fine.
 | `health/` | The host's health as `useHealth` reports it: up and down | `host.setHealth(health.connection, health)` |
 | `errors/` | The backend's error bodies (`404.json`: a Deliverable the workspace doesn't hold) | the Deliverables fake |
 | `conversations/` | The conversations the backend holds, newest activity by `updatedAt`, each with its messages (a stored reply may name who wrote it, `provenance`, or be a failure the server saved, `savedError`) | `host.conversationsOf(json)`, then `host.setConversations` |
-| `agents/` | The workspace's agents as `useAgents` gives them (`roster.json`: active, inactive and failing ones, with and without a team or tags) and their counts as `useAgentStats` gives them (`stats.json`) | `host.setPageQuery('useAgents', { data })`, `host.setPageQuery('useAgentStats', { data })` |
+| `agents/` | The workspace's agents as `useAgents` gives them (`roster.json`: active, inactive and failing ones, with and without a team or tags) and their counts as `useAgentStats` gives them (`stats.json`) | `host.setPageQuery('useAgents', { data })`, `host.setPageQuery('useAgentStats', { data })`; the browser harness answers with them (`src/host/sample-data.ts`) |
+| `activity/` | The activity feed as `useActivityFeed` gives it (`feed.json`: one Mission running, on its second of three steps, two agents on it) | `host.setPageQuery('useActivityFeed', { data })`; the browser harness answers every filter with it (`src/host/sample-data.ts`) |
 | `phone-skin/` | A made-up theme folder with a `mobile` block, no look data and fake colours: `theme.json` (its Light scheme as `H S% L%` triplets, its Dark as `#rrggbb`, every one of the ten contrast pairs passing, and Auto as `stills`), `src/entry.ts` (the three slots it declares) and `assets/mascot/hello.png` and `idle.png` (a drawn stand-in, not Auto) | `automatos-theme dev` in `shots/phone-shots.config.ts`, for the phone view's shots |
 
 ## The stream format
