@@ -52,22 +52,22 @@
   font: 400 12px/1.4 var(--hud-font-text);
 }
 
-/* The looks row: 96 px cards, scrolling sideways. */
+/* The looks: cards at least 96 px wide in a grid that wraps, so every look shows whole and none is cut at the edge. */
 .row {
   margin: 0;
-  padding: 0 0 6px;
+  padding: 0;
   list-style: none;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
   gap: var(--hud-space-2);
-  overflow-x: auto;
 }
 
 .rowItem {
-  flex: none;
+  min-width: 0;
 }
 
 .card {
-  width: 96px;
+  width: 100%;
   padding: 0;
   display: flex;
   flex-direction: column;

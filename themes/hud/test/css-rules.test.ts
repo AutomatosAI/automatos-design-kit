@@ -80,3 +80,13 @@ describe('the style sheet', () => {
     expect(code).not.toContain('anywhere')
   })
 })
+
+describe('the LOOK drawer', () => {
+  it('lays its looks out in a grid that wraps, cards at least 96 px wide, none cut at the edge', () => {
+    const row = ruleBody('looks/drawer.module.css', '.row')
+    expect(row).toContain('display: grid;')
+    expect(row).toContain('grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));')
+    expect(row).not.toContain('overflow-x')
+    expect(ruleBody('looks/drawer.module.css', '.card')).toContain('width: 100%;')
+  })
+})
