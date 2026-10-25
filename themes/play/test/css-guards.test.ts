@@ -389,7 +389,7 @@ describe('PRD-260 (e) — Make it yours on Paper, in forced colours and with a l
     expect(side.get('flex')).toBe('0 1 auto')
     expect(side.get('min-width')).toBe('0')
     expect(side.get('max-width')).toBe('40%')
-    expect(declarations(bodyOf(rules, '.status')).get('overflow-wrap')).toBe('anywhere')
+    expect(declarations(bodyOf(rules, '.status')).get('overflow-wrap')).toBe('break-word') // between words first (Play 1.1.1)
     const text = declarations(bodyOf(rules, '.cardText'))
     expect(text.get('min-width')).toBe('0')
     expect(text.get('overflow-wrap')).toBe('anywhere')

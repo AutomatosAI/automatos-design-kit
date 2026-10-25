@@ -10,6 +10,10 @@
  * M18, M19, M73: the active look's card is marked in the accent as text (the raw
  * accents fall below 3:1 on Paper); a card's swatch keeps its own colours in forced
  * colours; a long look name wraps instead of squeezing the heading or being clipped.
+ *
+ * Play 1.1.1: the look's name breaks between words (break-word, never anywhere), the
+ * style sheet link never wraps, and in a column under 560px (a 1024 to 1280 px window,
+ * beside the editor) the header stacks: the heading, then the name and the link.
  */
 
 .screen {
@@ -22,6 +26,7 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
+  container-type: inline-size;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -69,22 +74,39 @@
   gap: var(--pl-space-1);
 }
 
-/* "Ember", or "Ember · edited"; a name with no spaces still wraps. */
+/* "Ember", or "Ember · edited": it wraps between words, and a name with no spaces still wraps. */
 .status {
   margin: 0;
   font: var(--pl-text-mono-sm);
   color: var(--pl-color-text-2);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   text-align: right;
 }
 
-/* "See the style sheet": a quiet link to the live style sheet (/looks/style). */
+/* "See the style sheet": a quiet link to the live style sheet (/looks/style), on one line. */
 .styleLink {
   min-height: var(--pl-tap-min);
   display: inline-flex;
   align-items: center;
   font: var(--pl-text-meta);
   color: var(--pl-color-accent-text);
+  white-space: nowrap;
+}
+
+/* A narrow column: the heading, then the look's name and the link under it, on the left. */
+@container (max-width: 560px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerSide {
+    align-items: flex-start;
+  }
+
+  .status {
+    text-align: left;
+  }
 }
 
 /* The live preview: Auto on the left, a slice of the chat on the right. */
@@ -101,10 +123,12 @@
   background: var(--pl-tint-panel);
 }
 
+/* Centred on its own line once the chat slice wraps under him. */
 .previewAuto {
   flex: none;
   display: flex;
   justify-content: center;
+  margin-inline: auto;
 }
 
 /* Beside Auto while there is room; under him in a narrow window. */
