@@ -1,0 +1,21 @@
+[
+  {
+    "id": "harness-chat-transcript",
+    "title": "Laptop shortlist",
+    "updatedAt": "2026-10-14T09:10:00+00:00",
+    "preview": "Here is your laptop shortlist.",
+    "messages": [
+      { "role": "user", "text": "Help me pick a light laptop for travel" },
+      {
+        "role": "assistant",
+        "text": "I read three reviews and compared battery life, weight and price. Here is your laptop shortlist: the lightest of the three also lasts the longest.",
+        "frames": [
+          { "data": { "type": "tool-start", "data": { "toolCallId": "call-1", "toolName": "platform_search_documents", "input": { "query": "laptops" } } } },
+          { "data": { "type": "tool-end", "data": { "toolCallId": "call-1", "toolName": "platform_search_documents", "success": true, "durationMs": 420, "summary": "3 documents found" } } },
+          { "data": { "type": "tool-data", "data": { "generated_document": { "deliverable_id": "d-report-1", "title": "Laptop shortlist", "format": "pdf" } } } },
+          { "data": { "type": "finish" } }
+        ]
+      }
+    ]
+  }
+]

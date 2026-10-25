@@ -198,6 +198,8 @@ export interface HarnessSettings {
   readonly tone: HarnessTone
   readonly reducedMotion: boolean
   readonly forcedColors: boolean
+  /** True opens the chat on a made-up conversation (src/host/transcript.ts); false on a new chat. */
+  readonly transcript: boolean
   /** False hides the toolbar (the shots draw the theme alone). */
   readonly toolbar: boolean
 }
@@ -209,12 +211,14 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   tone: 'light',
   reducedMotion: false,
   forcedColors: false,
+  transcript: false,
   toolbar: true,
 })
 
 const PARAM = Object.freeze({
-  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', toolbar: 'toolbar',
+  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', toolbar: 'toolbar',
 })
+const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
 const ACTIVE = 'active'
 const OFF = 'off'
@@ -243,6 +247,7 @@ export function readSettings(search: string): HarnessSettings {
     tone: tone === 'dark' || tone === 'light' ? tone : DEFAULT_SETTINGS.tone,
     reducedMotion: params.get(PARAM.motion) === REDUCE,
     forcedColors: params.get(PARAM.forced) === ACTIVE,
+    transcript: params.get(PARAM.chat) === TRANSCRIPT,
     toolbar: params.get(PARAM.toolbar) !== OFF,
   })
 }
@@ -256,6 +261,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.tone !== DEFAULT_SETTINGS.tone) params.set(PARAM.tone, settings.tone)
   if (settings.reducedMotion) params.set(PARAM.motion, REDUCE)
   if (settings.forcedColors) params.set(PARAM.forced, ACTIVE)
+  if (settings.transcript) params.set(PARAM.chat, TRANSCRIPT)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
   const query = params.toString()
   return query === '' ? '' : `?${query}`

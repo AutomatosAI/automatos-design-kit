@@ -265,7 +265,9 @@ describe('what the build and the shots read', () => {
   })
 
   it('reads back the settings it writes into the address, and drops a malformed value', () => {
-    const settings: HarnessSettings = { path: '/x/notes', preset: 'paper', width: 1023, tone: 'dark', reducedMotion: true, forcedColors: true, toolbar: false }
+    const settings: HarnessSettings = {
+      path: '/x/notes', preset: 'paper', width: 1023, tone: 'dark', reducedMotion: true, forcedColors: true, transcript: true, toolbar: false,
+    }
     expect(readSettings(settingsQuery(settings))).toEqual(settings)
     expect(settingsQuery(DEFAULT_SETTINGS)).toBe('')
     expect(readSettings('?path=javascript:x&width=12&tone=blue&preset=../x')).toEqual(DEFAULT_SETTINGS)
@@ -275,7 +277,7 @@ describe('what the build and the shots read', () => {
     const groups = shotGroups(['ember', 'aurora', 'daylight', 'obsidian', 'workshop'], 1024)
     expect(groups).toHaveLength(11)
     expect(groups.slice(0, 2).map((group) => group.folder)).toEqual(['ember/1440', 'ember/1024'])
-    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023, reducedMotion: true, page: null })
+    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023, reducedMotion: true, page: null, transcript: false })
     const urls = [`${HARNESS_ORIGIN}/harness/a.js`, 'data:image/png;base64,AA==', `blob:${HARNESS_ORIGIN}/id`, 'https://cdn.example.com/x.js']
     expect(offOrigin(urls)).toEqual(['https://cdn.example.com/x.js'])
   })

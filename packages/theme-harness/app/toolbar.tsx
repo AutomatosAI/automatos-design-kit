@@ -2,7 +2,8 @@
  * PRD-261 B-02e: the harness's toolbar: which view (a slot, page or route the theme serves, at its path), which of
  * the theme's presets, the stage's width (the window's, 1440, 1024, or just below the theme's minWidth, where the
  * host draws its own pages), the tone (off while the theme or its look forces one, as core forces it), reduced
- * motion and forced colours. Every control is a labelled native one. Below them, what theme.json declares that the
+ * motion, forced colours, and the transcript (the chat opened on a made-up exchange, src/host/transcript.ts). Every
+ * control is a labelled native one. Below them, what theme.json declares that the
  * theme didn't register, and what it registered undeclared (the host draws neither). A link opens the phone view
  * (app/phone/page.tsx), what Automatos Go draws for the theme.
  */
@@ -134,6 +135,7 @@ export function Toolbar(props: ToolbarProps) {
       />
       <CheckField label="Reduced motion" checked={settings.reducedMotion} onToggle={(checked) => set({ reducedMotion: checked })} />
       <CheckField label="Forced colours" checked={settings.forcedColors} onToggle={(checked) => set({ forcedColors: checked })} />
+      <CheckField label="Transcript" checked={settings.transcript} onToggle={(checked) => set({ transcript: checked })} />
       <a href={PHONE_PATH} style={LINK_STYLE}>Phone view</a>
       <ReportLines report={props.report} />
     </div>

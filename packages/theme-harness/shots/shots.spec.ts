@@ -1,7 +1,8 @@
 /**
  * PRD-261 B-02f: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px,
  * plus one set just below its minWidth (the host's own pages there), each scanned with axe; and for a theme with a
- * /chat page, that page once more with motion allowed (src/host/shot-groups.ts), into `<preset>/1440-motion/`.
+ * /chat page, that page with motion allowed and on the transcript (src/host/shot-groups.ts), into
+ * `<preset>/1440-motion/` and `<preset>/1440-transcript/`.
  *
  * One test per preset and width (and one below minWidth), so a failure names its group: it opens the harness,
  * reads the views the app drew the theme with (HARNESS_GLOBAL), then for each view opens its address, waits until
@@ -122,6 +123,7 @@ async function shootViews(page: Page, group: ShotGroup, views: readonly View[], 
 /** What a group shoots, for its test's title. */
 function groupSubject(group: ShotGroup): string {
   if (group.page === null) return 'every slot, page and route'
+  if (group.transcript) return `${group.page} on the transcript`
   return group.reducedMotion ? group.page : `${group.page} with motion allowed`
 }
 

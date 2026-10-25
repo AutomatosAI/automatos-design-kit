@@ -3,8 +3,9 @@
 // own, frame@1's too when the theme owns the home page; each gets a file name of its own, for every slot and page
 // core knows and for routes that differ only by '/' and '-'; the files a shot group must hold come from theme.json,
 // less what the page reports missing; and the presets go default look first, the rest in file-name order, with the
-// shots refusing a folder that lacks the default look theme.json names. A theme with a /chat page gets one group more,
-// the chat page with motion allowed (src/host/shot-groups.ts), so the Pause Auto control reduced motion hides is shot.
+// shots refusing a folder that lacks the default look theme.json names. A theme with a /chat page gets two groups more
+// (src/host/shot-groups.ts): the chat page with motion allowed, so the Pause Auto control reduced motion hides is shot,
+// and on the transcript (test/transcript.test.tsx holds that one).
 import { KNOWN_SLOTS, PAGE_SCOPE } from '@automatos/theme-cli/manifest'
 import { describe, expect, it } from 'vitest'
 import {
@@ -70,16 +71,17 @@ describe('the presets in order', () => {
 describe('the motion group', () => {
   const declared: Served = { slots: ['frame@1', 'lookEditor@1'], pages: ['/chat', '/deliverables'], routes: ['notes'] }
   const groups = shotGroups(['ember', 'aurora'], 1024, declared.pages)
-  const motion = groups[groups.length - 1]
+  const motion = groups.find((group) => !group.reducedMotion)
 
   it('shoots the chat page once more, in the default look at 1440 px, with motion allowed', () => {
-    expect(motion).toEqual({ folder: 'ember/1440-motion', preset: 'ember', width: 1440, reducedMotion: false, page: '/chat' })
-    expect(groups.slice(0, -1).every((group) => group.reducedMotion && group.page === null)).toBe(true)
+    expect(motion).toEqual({ folder: 'ember/1440-motion', preset: 'ember', width: 1440, reducedMotion: false, page: '/chat', transcript: false })
+    expect(groups.slice(0, -2).every((group) => group.reducedMotion && group.page === null && !group.transcript)).toBe(true)
+    expect(groups.slice(-2).map((group) => group.folder)).toEqual(['ember/1440-motion', 'ember/1440-transcript'])
     expect(new Set(groups.map((group) => group.folder)).size).toBe(groups.length)
   })
 
   it('is left out for a theme with no /chat page', () => {
-    expect(shotGroups(['ember'], 1024, ['/deliverables']).filter((group) => !group.reducedMotion)).toEqual([])
+    expect(shotGroups(['ember'], 1024, ['/deliverables']).filter((group) => group.page !== null)).toEqual([])
     expect(shotGroups(['ember'], 1024)).toHaveLength(3)
   })
 

@@ -9,8 +9,9 @@
  * and the host's status.
  *
  * The toolbar's settings drive the fake host (src/host.ts): the width and minWidth (useThemeLayout), the chosen tone
- * and the one the theme forces (useTone), reduced motion (useMediaPreferences), and the look runtime mounted on the
- * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too.
+ * and the one the theme forces (useTone), reduced motion (useMediaPreferences), the look runtime mounted on the
+ * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too,
+ * and the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat).
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  */
 import type { HostLook } from '@automatos/theme-sdk'
@@ -29,6 +30,7 @@ import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
 } from '../src/host/router.ts'
 import { drawView } from '../src/host/slots.ts'
+import { showTranscript } from '../src/host/transcript.ts'
 import { BasePage } from './base-page.tsx'
 import { Toolbar } from './toolbar.tsx'
 
@@ -98,11 +100,15 @@ export function applySettings(theme: HarnessTheme, settings: HarnessSettings, wi
   host.setReducedMotion(settings.reducedMotion)
 }
 
-/** The fake host as the settings start it, before the first render: the settings, the look runtime and the path. */
+/**
+ * The fake host as the settings start it, before the first render: the settings, the look runtime, the path, and the
+ * chat's conversation (the transcript, or a new chat).
+ */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
+  showTranscript(settings.transcript)
 }
 
 /** Catches what the theme throws while drawing, so the host can fall back. */
@@ -251,6 +257,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
+    if (next.transcript !== settings.transcript) showTranscript(next.transcript)
     setSettings(next)
   }
   const onRenderError = (error: unknown): void => {
