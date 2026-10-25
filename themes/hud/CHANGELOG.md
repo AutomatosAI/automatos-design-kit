@@ -31,6 +31,18 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   draw their own track (the look's track colour, visible in WebKit too) and a square accent thumb.
 - Send with nothing to send is an outline in the line colour instead of a faded accent block.
 - The rail's Auto dock steps aside while the host draws its own floating Auto widget, so Auto shows once.
+- HUD draws a phone's width: `minWidth` is 360 (it was 1024), and below 1024 px, the width core's own shell takes for
+  a desktop, HUD draws the Command design's phone instead of its desktop layout, which is unchanged from 1024 px up.
+- The phone's frame: a top bar with MENU, the mark and AUTOMATOS //, and the backend's connection in words; no rail, so
+  every page takes the window's whole width. MENU opens a modal menu with New chat, search, LOOK, the rail's pages,
+  RECENT, Docs and Settings, and the host's header utilities; it keeps the focus inside, and Esc, Close or a tap
+  beside it shuts it with the focus back on MENU.
+- The phone's core screen at `/chat`: a line naming who is at work (the running Mission's agent and its time, or Auto
+  and his state), the 290 px core with the state chip and Pause Auto beside it, the last exchange (your words in
+  quotes, Auto's reply with its cards), TYPE, which opens the message box, and STOP, disabled while nothing runs. The
+  row's middle is kept for the voice button, which arrives with the SDK's voice area; HUD draws no microphone.
+- Conversations draws in a phone's browser too, instead of sending it to the chat below 1024 px, its heading sized
+  to fit a 360 px window.
 
 ## 1.0.0
 

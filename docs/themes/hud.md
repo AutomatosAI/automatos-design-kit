@@ -13,7 +13,7 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}` |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
-| `minWidth` | 1024: below it the host draws its own pages and chrome |
+| `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px HUD draws its phone layout (below) |
 | `tone` | `from-look`: the look sets light or dark, and every HUD look is dark |
 | `look` | `arc`, the default preset |
 
@@ -23,15 +23,56 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 
 | Where | What it is |
 |---|---|
-| `frame@1` | The top bar, the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. |
+| `frame@1` | The top bar, the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
 (`/looks`) and Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`, `context`, `deliverables`, `events`, `looks`, `navigation`, `pages-agents`, `pages-assignments`, `pages-command-center`, `storage` and `theme`. There is no microphone: the SDK gives a theme no voice, so the message box is the way in (Enter sends,
 Shift + Enter makes a new line, Esc stops).
+
+## In a phone's browser
+
+`minWidth` is 360, so HUD draws a phone's width. Below 1024 px (`DESKTOP_MIN_WIDTH` in `src/lib/phone-layout.ts`) it
+draws the Command design's phone (390 by 844) instead of its desktop layout. 1024 is the width core's own shell takes
+for a desktop (`hooks/use-mobile.ts`), the width HUD's desktop frame is built and shot from, and the width core's host
+draws an installed theme's frame from; the width is asked as core's `useIsBelowWidth` asks it (`(max-width: 1023px)`,
+through `matchMedia`, known on the first render), and a browser that can't say is a wide one. From 1024 px up nothing
+changes, and a window crossing the width keeps the page it shows.
+
+- **The frame** (`src/frame/phone-top-bar.tsx`, `src/frame/nav-drawer.tsx`). A 56 px bar: MENU, the mark and
+  AUTOMATOS //, and the backend's connection as a glyph and a word (the design's MIC LIVE stands there; it arrives with
+  the SDK's voice area). No rail: every page takes the window's whole width, padded 16 px, on the design phone's 32 px
+  grid and 320 by 320 glow. MENU (`aria-expanded`, `aria-controls`, `aria-haspopup="dialog"`) opens the menu, a modal
+  dialog from the left edge over the drawer glass: New chat, search and LOOK; the rail's pages in their groups with
+  Conversations after Chat, RECENT, Docs and Settings; then the host's header utilities, which stay mounted while the
+  menu is shut, so the frame always renders them. Open, it takes the focus (Close first), Tab and Shift + Tab wrap
+  inside it, and Esc, Close or a tap on the glass shut it with the focus back on MENU; following a link or New chat
+  shuts it for the page it opens. The bar, the page and the host's floating Auto widget are `inert` while it is open.
+  A key pressed in a host menu drawn elsewhere in the page stays that menu's.
+- **The core screen** (`src/chat/phone/`). From the top: the line naming who is at work, the running Mission's agent,
+  `WORKING`, and the time since it started (the SDK's activity feed, the same ask as the desktop's MISSION panel; the
+  feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time; the
+  290 px core with Auto, the state chip and Pause Auto beside it, as on the desktop; the last exchange, your newest
+  words in quotes and every reply after them, Auto's with all it carries on the desktop (tool lines, Deliverables, the
+  host's cards, receipts, the snag box, the AI-generated mark), then what follows the conversation; and a dock pinned
+  to the foot: the host's credits banner, the message box (the desktop's, with the AI label fence) once TYPE opens it,
+  and the control row. TYPE opens and shuts the box, putting the focus in it and keeping its words when shut; an empty
+  chat's starter opens it with its words. STOP stops a reply as the box's Stop does, is disabled while nothing runs,
+  and hands the focus to TYPE. The row's middle is the voice button's place (`VoiceSlot`, which draws nothing): the
+  SDK has no voice area yet, so HUD draws no HOLD TO TALK, no waveform and no MIC LIVE. The conversation's title is the
+  screen's h1 for a screen reader and the host's focus, not drawn, as the design's phone has none; New chat is in the
+  menu. The screen scrolls as one when the window is too short for it.
+- **Conversations, the LOOK drawer and the style sheet** draw in the phone's frame as they do on the desktop, each
+  wrapping to the width; Conversations' heading shrinks to fit a 360 px window.
+
+Core's host draws an installed theme's frame and pages from 1024 px up for now, whatever `minWidth` names
+(`frontend/lib/theme-host/installed-entry.ts`, `INSTALLED_FRAME_MIN_WIDTH_PX`), and its own pages below that; the kit's
+harness draws HUD from its `minWidth`, so `automatos-theme dev` in a narrow window shows the phone layout. Kit CI's
+harness shots draw HUD at 1440 and 1024 px and just below `minWidth` (the host's pages), so no shot draws the phone
+layout yet; HUD's own tests hold it (`test/frame/phone-frame.test.tsx`, `test/chat/chat-phone.test.tsx`).
 
 ## Looks
 
@@ -75,12 +116,13 @@ is never packed).
   `assets/mascot/`: the same 36 files as Play's, (c) Automatos AI and not covered by the code licence
   (`themes/hud/NOTICE`). He shows while the look's `auto` is on, at the foot of the rail, on a ring in the look's
   colours, with the Pause Auto control; on the core screen he is in the voice core and the rail's dock steps aside.
+  In a phone's browser there is no rail, so he shows on the core screen alone.
 - **Fonts.** Rajdhani 700 and Chakra Petch 600 in `assets/fonts/`, listed in `theme.json` `fonts`, under the SIL Open
   Font License 1.1 with their licences. Geist and Geist Mono are the host's.
 - **Bundled.** `@automatos/look-kit` and `@automatos/mascot`, packed under `source/packages/<name>/src/`.
 - **Previews.** None: `theme.json` lists no `previews`.
 
-## On a phone
+## In the phone app
 
 A phone app never runs HUD's code. What it can read is `theme.json`'s `mobile` block: `tokens`, with a `light` and a
 `dark` scheme of Studio's 24 colour tokens as `#rrggbb`, the two schemes identical (ARC's colours: `--background`

@@ -1,10 +1,14 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useId } from 'react'
 
 import { useHudLook } from '../lib/looks/use-hud-look'
+import { usePhoneLayout } from '../lib/phone-layout'
 import { Backdrop } from './backdrop'
 import styles from './frame.module.css'
+import { NavDrawer } from './nav-drawer'
+import { PhoneTopBar } from './phone-top-bar'
 import { SideRail } from './side-rail'
 import { TopBar } from './top-bar'
+import { useNavDrawer } from './use-nav-drawer'
 
 /**
  * HUD's frame around every page at the theme's width: the backdrop, the top bar, the side rail and the page.
@@ -13,6 +17,12 @@ import { TopBar } from './top-bar'
  * The host hands over the floating Auto widget, drawn beside the page as the Studio shell has it; while it does,
  * the rail's Auto dock steps aside, so Auto shows once. The frame carries the active look's id, which a test reads;
  * every colour and switch is the look's painted variables.
+ *
+ * In a window narrower than the desktop layout (src/lib/phone-layout.ts) it is the design's phone: the phone's top
+ * bar (src/frame/phone-top-bar.tsx) and no rail, so the page takes the whole width; the rail's pages, search, LOOK
+ * and the host's header utilities move into the menu MENU opens (src/frame/nav-drawer.tsx), and everything behind it,
+ * the host's floating Auto widget too, is inert while it is open. The page keeps its place in the tree either way,
+ * so a window crossing the width keeps the page as it is. The frame says which layout it draws in data-layout.
  */
 
 export interface HudFrameProps {
@@ -30,13 +40,16 @@ export function hasAutoWidget(autoWidget: ReactNode): boolean {
 
 export function HudFrame({ children, fullBleed = false, autoWidget }: HudFrameProps) {
   const look = useHudLook()
+  const phone = usePhoneLayout()
+  const drawer = useNavDrawer(phone)
+  const drawerId = useId()
   // `safe-bottom` (the host's one safe-area helper) keeps the frame's bottom edge clear of a home bar.
   return (
-    <div className={`${styles.frame} safe-bottom`} data-look={look.id}>
+    <div className={`${styles.frame} safe-bottom`} data-look={look.id} data-layout={phone ? 'phone' : 'desktop'}>
       <Backdrop />
-      <TopBar />
-      <div className={styles.body}>
-        <SideRail dock={!hasAutoWidget(autoWidget)} />
+      {phone ? <PhoneTopBar drawer={drawer} drawerId={drawerId} /> : <TopBar />}
+      <div className={styles.body} inert={phone && drawer.open}>
+        {!phone && <SideRail dock={!hasAutoWidget(autoWidget)} />}
         {fullBleed ? (
           <main className={styles.fullBleed} tabIndex={-1}>
             {children}
@@ -47,7 +60,14 @@ export function HudFrame({ children, fullBleed = false, autoWidget }: HudFramePr
           </main>
         )}
       </div>
-      {autoWidget}
+      {phone && <NavDrawer drawer={drawer} id={drawerId} />}
+      {phone && hasAutoWidget(autoWidget) ? (
+        <div className={styles.widget} inert={drawer.open}>
+          {autoWidget}
+        </div>
+      ) : (
+        autoWidget
+      )}
     </div>
   )
 }

@@ -12,8 +12,11 @@
 // aside so Auto shows once, and the Conversations route with New chat and its search, current in the rail. A view
 // registered with nothing named here fails. The look runtime holds each preset in turn, checked by HUD's own look
 // spec and its ground's tone forced from boot/prepaint.json's tone rule, as core's does for HUD; under each the frame
-// carries the preset and draws its top bar, rail and the page. After every test the harness's network refusal has
-// refused nothing. Screenshots and axe are the harness job's (kit.yml).
+// carries the preset and draws its top bar, rail and the page. At a phone's width (390 px, through the stand-in
+// matchMedia of test/support/window-width.ts, and theme.json's minWidth on the fake host) every view renders in the
+// phone frame too: its bar with MENU and no rail, the one marked h1, and the core screen as the phone's, with its
+// controls. After every test the harness's network refusal has refused nothing. Screenshots and axe are the harness
+// job's (kit.yml).
 import { LOOK_STYLE_HREF, LOOKS_HREF, SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
 import { render, screen, within } from '@testing-library/react'
 import { Suspense, type ComponentType } from 'react'
@@ -25,9 +28,11 @@ import { validateHudLook } from '../../src/lib/looks/spec.ts'
 import type { HudLook } from '../../src/lib/looks/types.ts'
 import type { FrameSlotProps } from '../../src/slots/frame.tsx'
 import { readThemeJson } from '../support/files.ts'
+import { PHONE_WIDTH, resetWindowWidth, setWindowWidth } from '../support/window-width.ts'
 
 /** What this test reads of HUD's theme.json and first-paint table. */
 interface HudManifest {
+  readonly minWidth: number
   readonly slots: readonly string[]
   readonly pages?: Readonly<Record<string, unknown>>
   readonly routes?: readonly string[]
@@ -258,5 +263,49 @@ describe.each(PRESETS.map((look): [string, HudLook] => [look.id, look]))('under 
     }
     await expectDrawn(view, look)
     expectFrame(look)
+  })
+})
+
+/** What a member sees on a phone where it differs from the desktop: no rail, and the core screen's phone controls. */
+const SEEN_ON_PHONE: Readonly<Record<string, Seen>> = {
+  ...SEEN_ON,
+  '/chat': async (stage) => {
+    expect(await within(stage).findByRole('group', { name: SEEN.core }, CHUNK_WAIT)).toBeInTheDocument()
+    expect(await within(stage).findByRole('group', { name: 'Controls' }, CHUNK_WAIT)).toBeInTheDocument()
+  },
+  conversations: async (stage) => {
+    expect(within(stage).getByRole('heading', { level: 1, name: SEEN.conversations })).toBeInTheDocument()
+    expect(await within(stage).findByRole('searchbox', { name: SEEN.searchConversations }, CHUNK_WAIT)).toBeInTheDocument()
+  },
+}
+
+describe("at a phone's width", () => {
+  const [look] = PRESETS
+
+  beforeEach(() => {
+    mountLook(look)
+    setWindowWidth(PHONE_WIDTH)
+    host.setMinWidth(manifest.minWidth)
+    host.setWidth(PHONE_WIDTH)
+  })
+
+  afterEach(() => {
+    resetWindowWidth()
+  })
+
+  it.each(VIEWS.map((view): [string, View] => [`${view.kind} ${view.key}`, view]))('%s renders in the phone frame', async (_name, view) => {
+    renderView(view)
+    if (ON_ITS_OWN.includes(view.key)) {
+      expect(await screen.findByRole('heading', { level: 1 }, CHUNK_WAIT)).toBeInTheDocument()
+      return
+    }
+    const stage = screen.getByRole('main')
+    const headings = await within(stage).findAllByRole('heading', { level: 1 }, CHUNK_WAIT)
+    expect(headings.filter((heading) => heading.getAttribute('data-theme-heading') === 'true')).toHaveLength(1)
+    const seen = SEEN_ON_PHONE[view.key]
+    if (seen === undefined) throw new Error(`render-all names nothing HUD's ${view.kind} "${view.key}" draws on a phone`)
+    await seen(stage, look)
+    expect(screen.queryByRole('complementary', { name: SEEN.sidebar })).toBeNull()
+    expect(within(screen.getByRole('banner', { name: SEEN.topBar })).getByRole('button', { name: 'Menu' })).toBeInTheDocument()
   })
 })

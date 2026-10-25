@@ -22,7 +22,8 @@ import styles from './top-bar.module.css'
  * host's own header utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account). The
  * bar is the page's one banner, and it is named: a browser gives the banner role to this <header> alone, but Testing
  * Library gives it to every <header>, a panel's head and a screen's heading row too, so a test finds the bar by its
- * name.
+ * name. The phone's bar (src/frame/phone-top-bar.tsx) draws the brand and the status from here, and its menu
+ * (src/frame/nav-drawer.tsx) search and LOOK.
  */
 
 export const TOP_BAR_LABEL = 'Top bar'
@@ -42,33 +43,40 @@ function isUnder(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-function Brand() {
+/** The mark and AUTOMATOS // HUD; `phone`: the phone's AUTOMATOS //, as the design's phone has it, named the same. */
+export function Brand({ phone = false }: { readonly phone?: boolean }) {
   return (
-    <HostLink href={CHAT_HREF} className={styles.brand} aria-label={BRAND_LABEL}>
+    <HostLink href={CHAT_HREF} className={phone ? `${styles.brand} ${styles.phoneBrand}` : styles.brand} aria-label={BRAND_LABEL}>
       <span className={styles.mark} aria-hidden="true" />
       <span className={styles.wordmark} aria-hidden="true">
-        Automatos <span className={styles.slashes}>//</span> HUD
+        Automatos <span className={styles.slashes}>//</span>
+        {phone ? null : ' HUD'}
       </span>
     </HostLink>
   )
 }
 
-/** "● Local · online": the edition, then the backend's connection. */
-function StatusChip() {
+/** The status's words: "Local · online", or on a phone the connection alone ("online"), so the bar fits 360 px. */
+export function statusWords(edition: HostEdition, connection: HostHealth['connection'], phone: boolean): string {
+  const word = CONNECTION_STATUS[connection].word
+  return phone ? word : `${EDITION_WORDS[edition]} · ${word}`
+}
+
+/** "● Local · online": the edition, then the backend's connection; a glyph and a word, never colour alone. */
+export function StatusChip({ phone = false }: { readonly phone?: boolean }) {
   const edition = useEdition()
   const { connection } = useHealth()
-  const status = CONNECTION_STATUS[connection]
   return (
     <span className={styles.status} data-connection={connection} role="status">
       <span className={styles.glyph} aria-hidden="true">
-        {status.glyph}
+        {CONNECTION_STATUS[connection].glyph}
       </span>
-      {`${EDITION_WORDS[edition]} · ${status.word}`}
+      {statusWords(edition, connection, phone)}
     </span>
   )
 }
 
-function SearchButton() {
+export function SearchButton() {
   return (
     <button type="button" className={styles.search} onClick={openGlobalSearch} aria-keyshortcuts={SEARCH_SHORTCUT}>
       <span>Search</span> <kbd className={styles.kbd}>⌘K</kbd>
@@ -76,7 +84,7 @@ function SearchButton() {
   )
 }
 
-function LookLink() {
+export function LookLink() {
   const open = isUnder(useHostPathname(), LOOKS_HREF)
   return (
     <HostLink href={LOOKS_HREF} className={styles.look} aria-current={open ? 'page' : undefined}>
