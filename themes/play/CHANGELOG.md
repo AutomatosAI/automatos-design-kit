@@ -4,6 +4,10 @@ Play's versions, newest first. A released version's files never change: a change
 
 ## 1.1.1
 
+- **New listing previews.** The seven pictures `theme.json` lists under `previews` (each preset's chat, and Ember's
+  shelf and Look page) are shot again from 1.1.1 installed in core's local edition (core's browser lane, the
+  `play-previews` shots), so the listing shows the first chat that fits the window, the pinned sidebar foot and the
+  Look page as they are now. Same names and sizes; `theme.json` is unchanged.
 - **The old markers are gone.** Play's motion stop now reads only the host's generic marker,
   `data-theme-motion="reduce"` on `<html>`, and its motion factor `--pl-motion-scale` only the host's
   `--theme-motion` (1 when the host sets none). The `data-pl-motion` selector and the `--pl-motion` fallback, which
