@@ -1,13 +1,20 @@
 // The core screen's own parts around the conversation, on the harness: the host's first-run nudge (the local
 // edition's) heads the conversation's column, above its title, and never sits with the message box; a new chat says
 // how to start in one line, with three starters that put their words in the box, and no transcript list until
-// something is said; New chat stands beside the title. Roles, names, the host's surface marks and the document's
+// something is said; New chat stands beside the title; the side columns hold the design's panels and the three that
+// take the places of the ones the SDK has no source for. Roles, names, the host's surface marks and the document's
 // order only.
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { EMPTY_LINE, STARTERS, STARTERS_LABEL } from '../../src/chat/empty-chat.tsx'
 import { NEW_CHAT } from '../../src/components/new-chat.tsx'
+import { AGENTS_TITLE } from '../../src/chat/panels/agents-panel.tsx'
+import { DELIVERABLES_TITLE } from '../../src/chat/panels/deliverables-panel.tsx'
+import { MISSION_TITLE } from '../../src/chat/panels/mission-panel.tsx'
+import { NEEDS_YOU_TITLE } from '../../src/chat/panels/needs-you-panel.tsx'
+import { NEXT_UP_TITLE } from '../../src/chat/panels/next-up-panel.tsx'
+import { TODAY_TITLE } from '../../src/chat/panels/today-panel.tsx'
 import { HudChatPage } from '../../src/chat/hud-chat.tsx'
 import { CONVERSATION_LABEL } from '../../src/chat/transcript.tsx'
 import { box, HELD, renderChat, stubClips } from './support.tsx'
@@ -82,5 +89,19 @@ describe('New chat', () => {
     fireEvent.click(newChat)
     expect(host.startedChats()).toBe(1)
     expect(host.navigations()).toContainEqual({ method: 'push', href: '/chat' })
+  })
+})
+
+describe('the side columns', () => {
+  /** The panels of the column holding `title`, by their headings, in order. */
+  function columnOf(title: string): (string | null | undefined)[] {
+    const column = screen.getByRole('region', { name: title }).parentElement as HTMLElement
+    return within(column).getAllByRole('region').map((region) => region.querySelector('h2')?.textContent)
+  }
+
+  it("put AGENTS and MISSION on the left, and TODAY, NEEDS YOU, NEXT UP and DELIVERABLES on the right, as the design's columns", async () => {
+    await renderChat()
+    expect(columnOf(AGENTS_TITLE)).toEqual([AGENTS_TITLE, MISSION_TITLE])
+    expect(columnOf(TODAY_TITLE)).toEqual([TODAY_TITLE, NEEDS_YOU_TITLE, NEXT_UP_TITLE, DELIVERABLES_TITLE])
   })
 })

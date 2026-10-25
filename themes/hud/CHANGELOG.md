@@ -17,6 +17,9 @@ Fixes and the parts 1.0.0 left out, so HUD is a finished theme:
   conversation in Today, This week and Earlier panels, a title search and New chat. The rail lists it after Chat.
 - New chat beside the core screen's title, and RECENT in the rail: the latest conversations, the one on screen
   marked.
+- The core screen's right column is full: TODAY (working now, completed today, needs you, in queue, as big numbers),
+  NEEDS YOU (the Needs-you number and its first rows, each linked where it is answered) and NEXT UP (the week's next
+  runs) over DELIVERABLES, in the places of the design's spend, latency and machine panels, which have no source.
 
 ## 1.0.0
 
