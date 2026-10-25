@@ -102,3 +102,13 @@ describe('the LOOK drawer', () => {
     }
   })
 })
+
+describe('the message box', () => {
+  it('draws Send, with nothing to send, as an outline in the line colour, its word in the secondary text, not faded', () => {
+    const disabled = ruleBody('chat/composer.module.css', '.send:disabled')
+    expect(disabled).toContain('border: 1px solid var(--hud-line);')
+    expect(disabled).toContain('background: transparent;')
+    expect(disabled).toContain('color: var(--hud-text-2);')
+    expect(disabled).toContain('opacity: 1;')
+  })
+})
