@@ -110,7 +110,7 @@ describe('RECENT', () => {
     host.setPathname('/chat')
     host.setSearchParams('chatId=c3')
     render(<><SideRail /><HudChatPage /></>)
-    await waitFor(() => expect(recent().getByRole('link', { name: 'Chat number 3' })).toHaveAttribute('aria-current', 'true'))
+    await waitFor(() => expect(recent().getByRole('link', { name: 'Chat number 3' })).toHaveAttribute('aria-current', 'page'))
     expect(recent().getAllByRole('link').filter((link) => link.hasAttribute('aria-current'))).toHaveLength(1)
   })
 

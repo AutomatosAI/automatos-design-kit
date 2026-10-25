@@ -36,8 +36,6 @@ export interface KindMark {
   readonly tone: StatusTone
 }
 
-export const NEEDS_YOU_ORDER: readonly NeedsYouKind[] = ['review', 'question', 'approval', 'stuck', 'failed']
-
 export const KIND_MARKS: Readonly<Record<NeedsYouKind, KindMark>> = {
   review: { glyph: '◆', word: 'Review', tone: 'live' },
   question: { glyph: '◆', word: 'Question', tone: 'live' },

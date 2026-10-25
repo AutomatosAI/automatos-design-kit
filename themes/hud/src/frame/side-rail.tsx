@@ -77,7 +77,7 @@ function RecentList() {
             <HostLink
               href={chatHref(chat.id)}
               className={styles.recent}
-              aria-current={onChat && chat.id === activeChatId ? 'true' : undefined}
+              aria-current={onChat && chat.id === activeChatId ? 'page' : undefined}
             >
               <span className={styles.recentTitle}>{conversationTitle(chat)}</span>
             </HostLink>
