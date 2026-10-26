@@ -77,8 +77,10 @@ polite live region saying what he is doing.
 | Chat, first open | `hello`, then `idle` | large | none while the headline says it (`hello`, `idle`, `listening`) |
 | Chat, a turn | from the turn's events: thinking, working, searching, reading, celebrate, oops | regular | the state's caption, such as "Working on it" |
 | Chat, while the page loads | `loading` | regular | "Loading" |
+| Chat, a voice session (Play 1.2.0) | from the host's session (`useVoice`): listening, thinking, `idle` while he speaks with his ring following his voice (`readVoiceLevels`), oops, `loading` while it waits for the microphone | as the chat's | "Listening", "Thinking", "Speaking" |
+| Chat on a phone (below 1024 px) | as on a desktop | small, beside his caption over the message box | the state's caption |
 | Deliverables shelf | from the shelf: idle, celebrate on a new Deliverable | small | "Your report is ready" for a new report |
-| Conversations (`/x/conversations`) | `idle` | regular | "Ready when you are" |
+| Conversations (`/x/conversations`) | `idle` (none on a phone) | regular | "Ready when you are" |
 | 404 (`notFound@1`) | `lost` | regular | none: the screen's own text speaks |
 | Asleep (in the frame) | `sleeping` | large | none: the screen's own text speaks |
 | Look preview (`/looks`) | `celebrate` | regular | "Ta-da." |

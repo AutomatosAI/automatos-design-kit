@@ -45,8 +45,8 @@ the theme from the tag, so the same workflow releases both.
 ### 0. Preconditions
 
 - The hosted edition runs a core that reads this Play version (host contract 1.1.0 with the theme `mobile`
-  block) and verifies a signature when it is pasted, and the public key above is merged in both repos and
-  deployed.
+  block; from Play 1.2.0, theme SDK 1.2.0 with the `voice` area, and the declared `minWidth` honoured) and verifies a
+  signature when it is pasted, and the public key above is merged in both repos and deployed.
 - On hosted, a read-only query finds no theme version holding a signature stored before verification existed
   (`select count(*) from theme_packages where signature is not null` is 0); clear or re-sign any it finds.
 - `play-v<v>` is pushed on a commit of `main`, and Theme release has published its release with
