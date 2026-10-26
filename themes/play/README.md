@@ -120,6 +120,6 @@ table as the boot script does, against Play's engine.
   and `test/storage-port.test.ts`: no browser storage under `src/`, and Auto's pause, his hello and the seen
   Deliverables on the SDK's storage area, run on the theme harness's storage area (`@automatos/theme-harness`, core's
   ported), which the test holds to core's rules.
-- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.2.0.autotheme` and its `.sha256.json`, checked
+- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.2.1.autotheme` and its `.sha256.json`, checked
   as core's reader checks a package (the caps: the entry 300 KB, JS and CSS 3 MB, each clip 1 MB; the scope check on
   `dist/theme.css`). Kit CI uploads both as the `kit-themes` artifact.
