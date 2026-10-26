@@ -19,12 +19,17 @@ import { LOADING_LIST, matchLine, NO_CONVERSATIONS, noMatchLine } from '../../sr
 import { readThemeJson } from '../support/files.ts'
 
 interface Manifest {
+  readonly minWidth: number
   readonly routes?: readonly string[]
   readonly nav?: readonly { readonly id: string; readonly label: string; readonly path: string }[]
 }
 
 const NOW = new Date(2026, 9, 14, 15, 30) // Wed 14 Oct 2026, 15:30
-/** A window below HUD's minWidth (1024 px): the host draws its own pages there. */
+/** HUD's minWidth, as theme.json says it: below it the host draws its own pages. */
+const MIN_WIDTH = readThemeJson<Manifest>('theme.json').minWidth
+/** A window just below HUD's minWidth. */
+const BELOW_MIN_WIDTH = MIN_WIDTH - 1
+/** The Command design's phone, which HUD draws. */
 const PHONE_WIDTH = 390
 
 function at(day: number, hour: number, minute = 0): string {
@@ -143,8 +148,10 @@ describe('empty and failed', () => {
 })
 
 describe('only where HUD draws its pages', () => {
+  beforeEach(() => host.setMinWidth(MIN_WIDTH))
+
   it("sends the browser to /chat below HUD's width, showing nothing and asking for nothing", () => {
-    host.setWidth(PHONE_WIDTH)
+    host.setWidth(BELOW_MIN_WIDTH)
     renderPage()
     expect(replaced()).toEqual([{ method: 'replace', href: '/chat' }])
     expect(screen.queryByRole('searchbox')).toBeNull()
@@ -160,6 +167,14 @@ describe('only where HUD draws its pages', () => {
   })
 
   it('stays put on a desktop', async () => {
+    renderPage()
+    await screen.findByRole('region', { name: 'Today' })
+    expect(replaced()).toEqual([])
+  })
+
+  it("stays put on a phone: HUD draws from its minWidth up, the design's 390 px phone among them", async () => {
+    expect(PHONE_WIDTH).toBeGreaterThanOrEqual(MIN_WIDTH)
+    host.setWidth(PHONE_WIDTH)
     renderPage()
     await screen.findByRole('region', { name: 'Today' })
     expect(replaced()).toEqual([])

@@ -148,3 +148,62 @@
   display: flex;
   align-items: center;
 }
+
+/*
+ * The phone's bar (phone-top-bar.tsx): the same 56 px bar and hairline, padded 16 px: MENU, then the mark and the
+ * design's phone wordmark (AUTOMATOS //, 16 px), and the status pushed to the right at the design's 11 px, so the bar
+ * fits a 360 px window whatever the status says.
+ */
+.phoneBar {
+  gap: var(--hud-space-3);
+  padding: 0 var(--hud-space-4);
+}
+
+.phoneBrand {
+  min-width: 0;
+  gap: 10px;
+}
+
+.phoneBrand .wordmark {
+  font-size: 16px;
+}
+
+.phoneBar .status {
+  margin-left: auto;
+  font-size: 11px;
+}
+
+/* MENU: HUD's secondary button in the line colour, three bars before the word; the accent line while it is open. */
+.menu {
+  flex: none;
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 600 11px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.menu:hover,
+.menu[aria-expanded="true"] {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-accent-text);
+}
+
+/* Three 12 px bars, drawn in the word's colour. */
+.menuIcon {
+  width: 12px;
+  height: 9px;
+  flex: none;
+  background:
+    linear-gradient(currentcolor, currentcolor) top / 100% 1.5px no-repeat,
+    linear-gradient(currentcolor, currentcolor) center / 100% 1.5px no-repeat,
+    linear-gradient(currentcolor, currentcolor) bottom / 100% 1.5px no-repeat;
+}

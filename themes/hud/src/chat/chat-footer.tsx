@@ -28,7 +28,8 @@ export interface ChatFooterProps {
   readonly fill?: HostChatDraft | null
 }
 
-function TrialBanner({ errorCode, trialExhausted }: { readonly errorCode: string | null; readonly trialExhausted: boolean }) {
+/** The host's banner for used-up credits, while they are; the phone's screen places it over its controls. */
+export function TrialBanner({ errorCode, trialExhausted }: { readonly errorCode: string | null; readonly trialExhausted: boolean }) {
   const exhausted = useTrial()?.state === EXHAUSTED || trialExhausted
   if (!exhausted) return null
   return (

@@ -1,0 +1,87 @@
+import type { ActivityFeedItem } from '@automatos/theme-sdk'
+
+import type { MascotName } from '@automatos/mascot/types'
+
+/**
+ * The phone core screen's top line, the Command design's "RESEARCHER · SEARCHING" with "02:14" on the right: who is at
+ * work, what they are doing, and how long it has run. The SDK says which Mission runs now (its activity feed: the
+ * newest working Mission, the agent on it and when it started), so while one runs the line names its agent, working,
+ * and the time since it started; the feed says nothing finer of what the agent does. With none, the line is Auto and
+ * his state in one word (the chat's, as the chip under the core says it in full), with no time: the chat gives a turn
+ * no start time. Pure.
+ */
+
+export const AUTO_NAME = 'Auto'
+/** What a running Mission's agent is doing, as far as the feed says. */
+export const MISSION_WORKING = 'Working'
+
+/**
+ * Auto's state in a word. An approval card waiting (listening) is "Waiting for you", never "Listening", which would
+ * read as an open microphone, and HUD has none.
+ */
+export const STATE_WORDS: Readonly<Record<MascotName, string>> = {
+  hello: 'Ready',
+  idle: 'Ready',
+  listening: 'Waiting for you',
+  thinking: 'Thinking',
+  working: 'Working',
+  searching: 'Searching',
+  reading: 'Reading',
+  celebrate: 'Done',
+  oops: 'Snag',
+  sleeping: 'Asleep',
+  lost: 'Lost',
+  loading: 'Loading',
+}
+
+export interface StatusLineWords {
+  readonly who: string
+  readonly doing: string
+  /** How long the Mission has run ('02:14'); null without one, or without its start. */
+  readonly clock: string | null
+  /** The same as a duration, for <time dateTime> ('PT134S'). */
+  readonly duration: string | null
+}
+
+const MS_PER_SECOND = 1000
+const SECONDS_PER_MINUTE = 60
+const SECONDS_PER_HOUR = 3600
+
+function twoDigits(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+/** The agent on a running Mission (its first, when it names several); null when it names none. */
+export function missionAgent(item: ActivityFeedItem | null): string | null {
+  const name = (item?.agent ?? item?.agents[0])?.name.trim()
+  return name ? name : null
+}
+
+/** Whole seconds from `startedAt` to `now`, never below 0 (a clock a little ahead); null when it is no time. */
+export function elapsedSeconds(startedAt: string | null, now: Date): number | null {
+  if (startedAt === null) return null
+  const started = new Date(startedAt).getTime()
+  if (Number.isNaN(started)) return null
+  return Math.max(0, Math.floor((now.getTime() - started) / MS_PER_SECOND))
+}
+
+/** '02:14' for 134 seconds; '1:02:14' past the hour. */
+export function clockOf(seconds: number): string {
+  const hours = Math.floor(seconds / SECONDS_PER_HOUR)
+  const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE)
+  const tail = `${twoDigits(minutes)}:${twoDigits(seconds % SECONDS_PER_MINUTE)}`
+  return hours > 0 ? `${hours}:${tail}` : tail
+}
+
+/** The line for Auto's state and the Mission running now (null for none), at `now`. */
+export function statusLineWords(state: MascotName, mission: ActivityFeedItem | null, now: Date): StatusLineWords {
+  const agent = missionAgent(mission)
+  if (agent === null) return { who: AUTO_NAME, doing: STATE_WORDS[state], clock: null, duration: null }
+  const seconds = elapsedSeconds(mission?.started_at ?? null, now)
+  return {
+    who: agent,
+    doing: MISSION_WORKING,
+    clock: seconds === null ? null : clockOf(seconds),
+    duration: seconds === null ? null : `PT${seconds}S`,
+  }
+}

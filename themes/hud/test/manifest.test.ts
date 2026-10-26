@@ -120,7 +120,7 @@ describe('theme.json', () => {
       name: 'HUD',
       version: '1.0.1',
       htmlClass: 'hud',
-      minWidth: 1024,
+      minWidth: 360,
       base: 'studio',
       tone: 'from-look',
       look: 'arc',

@@ -1,0 +1,100 @@
+/*
+ * The phone's menu (nav-drawer.tsx): a fixed layer over the frame, the drawer glass across it and the menu from the
+ * left edge, at most 320 px wide and never so wide that no glass is left to tap, on the page's ground with the look's
+ * line on its edge, square, scrolling on its own and clear of a home bar at its foot. The lists inside are the rail's
+ * (side-rail.module.css).
+ */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+}
+
+/* Shut: nothing drawn, whatever another rule says about the element's display. */
+.layer[hidden] {
+  display: none;
+}
+
+.glass {
+  position: absolute;
+  inset: 0;
+  background: var(--hud-drawer);
+}
+
+.drawer {
+  position: relative;
+  width: min(320px, calc(100% - 56px));
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-5);
+  padding: var(--hud-space-2) var(--hud-space-4) calc(var(--hud-space-5) + env(safe-area-inset-bottom, 0px));
+  border-right: 1px solid var(--hud-line);
+  background: var(--hud-bg);
+  color: var(--hud-text);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+}
+
+.title {
+  color: var(--hud-text-2);
+  font: 500 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+/* Close: a 44 px square in the line colour. */
+.close {
+  flex: none;
+  width: var(--hud-tap-min);
+  height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 500 14px/1 var(--hud-font-mono);
+  cursor: pointer;
+}
+
+.close:hover {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-accent-text);
+}
+
+/* New chat, search and LOOK, wrapping as the menu's width allows. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.action {
+  display: contents;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-5);
+}
+
+/* The host's header utilities, at the menu's foot under a hairline. */
+.utilities {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: var(--hud-space-4);
+  border-top: 1px solid var(--hud-line);
+}

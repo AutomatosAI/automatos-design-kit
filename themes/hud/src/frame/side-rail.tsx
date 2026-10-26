@@ -4,7 +4,7 @@ import { CHAT_HREF, chatHref, HostLink, useCoreNav, useHostPathname, useRecentCh
 
 import { conversationTitle } from '../conversations/conversations'
 import { AutoDock } from './auto-dock'
-import { buildRailNav, resolveRailActiveId, type RailGroup, type RailItem } from './rail-nav'
+import { buildRailNav, resolveRailActiveId, type RailGroup, type RailItem, type RailNav } from './rail-nav'
 import styles from './side-rail.module.css'
 
 /**
@@ -13,7 +13,8 @@ import styles from './side-rail.module.css'
  * aria-current, so the state is never the colour alone. Under the nav, RECENT lists the latest conversations (the
  * SDK's useRecentChats), each opening in the chat, the one on screen marked; nothing until there is one. Docs and
  * Settings sit at its foot, above Auto's dock (none while the host draws its own floating Auto). Every link is the
- * SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab.
+ * SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab. On a phone the same lists
+ * stand in the frame's menu instead (src/frame/nav-drawer.tsx), which takes them from here.
  */
 
 export const RAIL_LABEL = 'Sidebar'
@@ -36,7 +37,7 @@ function RailLink({ item, active }: { readonly item: RailItem; readonly active: 
   )
 }
 
-function RailList({ items, activeId, label }: { readonly items: readonly RailItem[]; readonly activeId: string | null; readonly label?: string }) {
+export function RailList({ items, activeId, label }: { readonly items: readonly RailItem[]; readonly activeId: string | null; readonly label?: string }) {
   return (
     <ul className={styles.list} aria-label={label}>
       {items.map((item) => (
@@ -48,7 +49,7 @@ function RailList({ items, activeId, label }: { readonly items: readonly RailIte
   )
 }
 
-function RailGroupList({ group, activeId }: { readonly group: RailGroup; readonly activeId: string | null }) {
+export function RailGroupList({ group, activeId }: { readonly group: RailGroup; readonly activeId: string | null }) {
   const labelId = useId()
   return (
     <div role="group" aria-labelledby={labelId} className={styles.group}>
@@ -61,7 +62,7 @@ function RailGroupList({ group, activeId }: { readonly group: RailGroup; readonl
 }
 
 /** RECENT: the latest conversations, each opening in the chat, the one the chat shows marked. */
-function RecentList() {
+export function RecentList() {
   const labelId = useId()
   const { chats, activeChatId } = useRecentChats(RECENT_SHOWN)
   const onChat = useHostPathname() === CHAT_HREF
@@ -93,10 +94,15 @@ export interface SideRailProps {
   readonly dock?: boolean
 }
 
-export function SideRail({ dock = true }: SideRailProps) {
+/** The rail's nav for this caller, and the item the current page belongs to. */
+export function useRailNav(): { readonly nav: RailNav; readonly activeId: string | null } {
   const coreNav = useCoreNav()
   const nav = useMemo(() => buildRailNav(coreNav), [coreNav])
-  const activeId = resolveRailActiveId(useHostPathname())
+  return { nav, activeId: resolveRailActiveId(useHostPathname()) }
+}
+
+export function SideRail({ dock = true }: SideRailProps) {
+  const { nav, activeId } = useRailNav()
   return (
     <aside className={styles.rail} aria-label={RAIL_LABEL}>
       <nav aria-label={NAV_LABEL} className={styles.nav}>
