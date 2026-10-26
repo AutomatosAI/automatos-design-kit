@@ -15,7 +15,7 @@ import type {
 } from '@automatos/theme-sdk'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { Component, type ReactElement, type ReactNode } from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import missionFixture from '../fixtures/cards/mission-approval.json'
 import suggestionFixture from '../fixtures/cards/mission-suggestion.json'
 import taskFixture from '../fixtures/cards/task-card.json'
@@ -31,7 +31,7 @@ import { CREATE_MISSION_LABEL, DISMISS_SUGGESTION_LABEL, KEEP_LABEL, KEPT_LINE, 
 import {
   CREDITS_PAUSED_LINE, DISMISS_LABEL, HEADER_UTILITIES, HEADER_UTILITIES_LABEL, NUDGE_LINE, NUDGE_LINK_LABEL, UNREAD_SAMPLE,
 } from '../src/sdk/cards/chrome.tsx'
-import { NUDGE_PILL } from '../src/sdk/cards/chrome-styles.ts'
+import { NUDGE_DISMISS, NUDGE_LINK, NUDGE_MESSAGE, NUDGE_PILL, NUDGE_PILL_SM, NUDGE_SM_QUERY } from '../src/sdk/cards/chrome-styles.ts'
 import { MADE_BY_FALLBACK } from '../src/sdk/cards/content.tsx'
 import { chatControls, resetChat } from '../src/sdk/chat.ts'
 
@@ -88,12 +88,26 @@ class Caught extends Component<{ readonly children: ReactNode }, { readonly erro
 
 const surface = (name: string): Element | null => document.querySelector(`[${PROTECTED_SURFACE_ATTR}="${name}"]`)
 
+const MIN_WIDTH = /\(min-width:\s*(\d+)px\)/
+
+/** A window `width` pixels wide to its min-width media queries (jsdom has no matchMedia); afterEach takes it away. */
+function windowOf(width: number): void {
+  const list = (media: string) => ({
+    media, matches: Number(MIN_WIDTH.exec(media)?.[1] ?? Infinity) <= width, addEventListener: vi.fn(), removeEventListener: vi.fn(),
+  })
+  Object.defineProperty(window, 'matchMedia', { configurable: true, writable: true, value: list })
+}
+
 beforeEach(() => {
   vi.restoreAllMocks()
   resetCards()
   resetChat()
   inputs.edition = 'local'
   inputs.trial = null
+})
+
+afterEach(() => {
+  Reflect.deleteProperty(window, 'matchMedia')
 })
 
 describe('every card', () => {
@@ -218,17 +232,43 @@ describe('content and chrome', () => {
     expect(surface('first-run-nudge')).toBeNull()
   })
 
-  it("FirstRunNudge: core's zero-height anchor, its pill over the top of the chat, core's words and a kept click on Settings", () => {
+  it("FirstRunNudge: core's zero-height anchor, its box over the top of the chat, core's words and a kept click on Settings", () => {
     render(<FirstRunNudge />)
     const anchor = surface('first-run-nudge')
     expect(anchor).toHaveStyle({ position: 'relative', height: '0px', zIndex: '30' })
     const pill = screen.getByRole('status')
     expect(anchor).toContainElement(pill)
-    expect(pill).toHaveStyle({ position: 'absolute', left: '50%', top: '12px', whiteSpace: 'nowrap' })
-    expect(NUDGE_PILL).toMatchObject({ transform: 'translateX(-50%)', borderRadius: '9999px', padding: '8px 16px', gap: '12px' })
+    expect(pill).toHaveStyle({ position: 'absolute', left: '50%', top: '12px' })
+    expect(NUDGE_PILL).toMatchObject({ transform: 'translateX(-50%)', padding: '8px 16px', gap: '12px' })
     expect(pill).toHaveTextContent(`${NUDGE_LINE}${NUDGE_LINK_LABEL}`)
     fireEvent.click(within(pill).getByRole('link', { name: NUDGE_LINK_LABEL }))
     expect(cardActions()).toEqual([{ card: 'first-run-nudge', id: '/settings', action: 'opened' }])
+  })
+
+  it('FirstRunNudge fits a phone (core #1333): as wide as its words up to the window, the words wrapping, the rest kept whole', () => {
+    expect(NUDGE_PILL).toMatchObject({ width: 'max-content', maxWidth: 'calc(100vw - 2rem)', borderRadius: '16px' })
+    expect(NUDGE_PILL).not.toHaveProperty('whiteSpace')
+    expect(NUDGE_MESSAGE).toEqual({ minWidth: '0px' })
+    expect([NUDGE_LINK.flexShrink, NUDGE_DISMISS.flexShrink]).toEqual([0, 0])
+    render(<FirstRunNudge />)
+    const pill = screen.getByRole('status')
+    expect(within(pill).getByText(NUDGE_LINE)).toHaveStyle({ minWidth: '0px' })
+    expect(within(pill).getByRole('link', { name: NUDGE_LINK_LABEL }).style.flexShrink).toBe('0')
+    expect(within(pill).getByRole('button', { name: DISMISS_LABEL }).style.flexShrink).toBe('0')
+    // No matchMedia (jsdom's own window): the corners below sm, rounded-2xl.
+    expect(pill.style.borderRadius).toBe('16px')
+  })
+
+  it('FirstRunNudge: a full pill from sm (640 px) up, as `sm:rounded-full`, and rounded-2xl on a phone', () => {
+    expect(NUDGE_SM_QUERY).toBe('(min-width: 640px)')
+    expect(NUDGE_PILL_SM).toEqual({ ...NUDGE_PILL, borderRadius: '9999px' })
+    windowOf(640)
+    const { unmount } = render(<FirstRunNudge />)
+    expect(screen.getByRole('status').style.borderRadius).toBe('9999px')
+    unmount()
+    windowOf(390)
+    render(<FirstRunNudge />)
+    expect(screen.getByRole('status').style.borderRadius).toBe('16px')
   })
 
   it("HeaderUtilities: core's cluster, icon-sized Help, bell with its badge and theme menu, then the account's avatar", () => {

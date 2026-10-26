@@ -75,8 +75,10 @@ carry its turn's frames (`frames`, in the stream format), read onto it as the st
 opens with its tool lines and Deliverables. The chrome stand-ins (`src/sdk/cards/chrome.tsx`) take the room core's cards
 take, in plain colours: `HeaderUtilities` is core's cluster on the local edition (Help at 30 × 30, the bell at 40 × 40
 with a made-up unread badge, a separator, the theme menu at 40 × 40, the account's 36-pixel avatar), each button named
-as before; `FirstRunNudge` is core's zero-height anchor with its pill placed over the top of the chat column, so it
-takes no room from the chat, with core's words and the link to Settings (a kept click).
+as before; `FirstRunNudge` is core's zero-height anchor with its box placed over the top of the chat column, so it
+takes no room from the chat, as wide as its words up to the window less 2rem, its message wrapping on a phone while the
+link and Dismiss keep their size, and a full pill from Tailwind's `sm` (640 px) up, read from the window's media query
+(core #1333), with core's words and the link to Settings (a kept click).
 
 The voice area (SDK 1.2.0, `src/sdk/voice.ts`) answers from the fake host's voice session
 (`src/internal/voice-session.ts`): `useVoice` a frozen snapshot of it and `stop()`, `readVoiceLevels` the levels a test

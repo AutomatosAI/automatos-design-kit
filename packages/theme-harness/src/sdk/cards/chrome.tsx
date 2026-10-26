@@ -6,20 +6,22 @@
  * trial state, read through the fake context area), drawing nothing while work runs, and the local edition's
  * first-run nudge, drawing nothing in SaaS or once dismissed. Each drawn root carries data-protected-surface.
  *
- * The nudge has the geometry of core's components/local/first-run-nudge.tsx (chrome-styles.ts): a zero-height anchor
- * that takes no space, with its pill placed over the top of the chat column, core's words in it and the link to
- * Settings (a click kept, as the other cards keep theirs), in plain colours. The utilities have the geometry of core's
- * cluster on the local edition: Help, the bell with a made-up unread count, a separator, the theme menu and the
- * account's avatar, each button named as HEADER_UTILITIES names it.
+ * The nudge has the geometry of core's components/local/first-run-nudge.tsx at 2c0bd3153 (chrome-styles.ts): a
+ * zero-height anchor that takes no space, with its box placed over the top of the chat column, as wide as its words up
+ * to the window, the words wrapping inside it on a phone, core's words in it and the link to Settings (a click kept, as
+ * the other cards keep theirs), in plain colours; its corners are a full pill from Tailwind's `sm` (640 px) up, read
+ * from the window's media query as core's class reads it (none in jsdom: the narrow corners). The utilities have the
+ * geometry of core's cluster on the local edition: Help, the bell with a made-up unread count, a separator, the theme
+ * menu and the account's avatar, each button named as HEADER_UTILITIES names it.
  */
-import { type MouseEvent, type ReactElement, useState } from 'react'
+import { type MouseEvent, type ReactElement, useState, useSyncExternalStore } from 'react'
 import { recordCardAction } from '../../internal/scripted/cards-log.ts'
 import { CREDITS_EXHAUSTED_CODE } from '../../internal/scripted/chat-turn.ts'
 import { useEdition, useTrial } from '../../internal/scripted/host-inputs.ts'
 import { BellGlyph, CloseGlyph, HelpGlyph, KeyGlyph, ToneGlyph } from './chrome-glyphs.tsx'
 import {
-  AVATAR, BADGE, HELP_BUTTON, ICON_BUTTON_40, NUDGE_ANCHOR, NUDGE_DISMISS, NUDGE_KEY_COLOR, NUDGE_LINK, NUDGE_PILL, PROFILE_BUTTON,
-  SEPARATOR, UTILITIES,
+  AVATAR, BADGE, HELP_BUTTON, ICON_BUTTON_40, NUDGE_ANCHOR, NUDGE_DISMISS, NUDGE_KEY_COLOR, NUDGE_LINK, NUDGE_MESSAGE, NUDGE_PILL,
+  NUDGE_PILL_SM, NUDGE_SM_QUERY, PROFILE_BUTTON, SEPARATOR, UTILITIES,
 } from './chrome-styles.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
@@ -85,16 +87,33 @@ function openSettings(event: MouseEvent<HTMLAnchorElement>): void {
   recordCardAction({ card: 'first-run-nudge', id: NUDGE_SETTINGS_HREF, action: 'opened' })
 }
 
-/** cards.FirstRunNudge: on the local edition only, until dismissed; a pill over the chat that takes no space. */
+const hasMatchMedia = (): boolean => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+
+function subscribeSm(onChange: () => void): () => void {
+  if (!hasMatchMedia()) return () => undefined
+  const query = window.matchMedia(NUDGE_SM_QUERY)
+  query.addEventListener('change', onChange)
+  return () => query.removeEventListener('change', onChange)
+}
+
+const smNow = (): boolean => hasMatchMedia() && window.matchMedia(NUDGE_SM_QUERY).matches
+
+/** True while the window is at least Tailwind's `sm` wide, as core's `sm:` classes ask; false with no matchMedia. */
+function useSmUp(): boolean {
+  return useSyncExternalStore(subscribeSm, smNow, () => false)
+}
+
+/** cards.FirstRunNudge: on the local edition only, until dismissed; a box over the chat that takes no space. */
 export const FirstRunNudge: Sdk['FirstRunNudge'] = function FirstRunNudge(): ReactElement {
   const edition = useEdition()
+  const smUp = useSmUp()
   const [dismissed, setDismissed] = useState(false)
   if (edition !== LOCAL_EDITION || dismissed) return <></>
   return (
     <div data-protected-surface="first-run-nudge" style={NUDGE_ANCHOR}>
-      <div role="status" aria-live="polite" style={NUDGE_PILL}>
+      <div role="status" aria-live="polite" style={smUp ? NUDGE_PILL_SM : NUDGE_PILL}>
         <KeyGlyph color={NUDGE_KEY_COLOR} />
-        <span>{NUDGE_LINE}</span>
+        <span style={NUDGE_MESSAGE}>{NUDGE_LINE}</span>
         <a href={NUDGE_SETTINGS_HREF} style={NUDGE_LINK} onClick={openSettings}>
           {NUDGE_LINK_LABEL}
         </a>
