@@ -80,6 +80,39 @@ violation. The browsers come from `npx playwright install chromium webkit`.
 Exit codes: 0 every shot passed; the failing step's own exit code; 1 no `theme.json` (or not JSON) or no
 `src/entry.ts`, or a default look with no `looks/presets/` yet; 2 usage error.
 
+### The showcase shots
+
+`shots` is a regression set: every view of every preset on the local edition, at one pixel per CSS pixel, scanned
+with axe. The showcase is a separate, short set of clean images of the kit's own themes, HUD and Play, for READMEs,
+docs and the product site. It is not a command: kit CI's `harness` job runs it after the shots, and it runs the same
+way from the kit's root:
+
+```text
+npx playwright test --config packages/theme-harness/shots/showcase.config.ts
+```
+
+The config serves each theme with `dev` on a port of its own (HUD on `http://127.0.0.1:4320`, Play on `:4321`). Each
+shot is one view in one look, at 1440 × 900 or a phone's 390 × 844, drawn as the hosted edition draws it
+(`edition=saas` in the harness's address, so core's local-only first-run nudge is not over the chat), at twice the
+pixel density, with reduced motion, a fixed clock (14 Oct 2026, 10:24 UTC, inside the fixtures' made-up day) and the
+harness's own made-up data: the laptop-shortlist conversation and its Deliverable, the running Mission and the board's
+cards, and the made-up voice session. The harness's labelled stand-in for core's floating Auto widget is hidden for
+the shot. The images are Chromium's alone and get no axe scan: the regression shots cover WebKit and the scans.
+
+The PNGs go to `packages/theme-harness/dist/showcase/`, each named `<theme>-<width>-<what>-<look>.png` (for example
+`hud-1440-voice-listening-arc.png`), with a failed test's trace in its `test-results/`. CI uploads that folder as the
+`kit-showcase` artifact on every pull request and every push to `main`, apart from the `kit-harness` artifact. The
+list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
+
+| Theme | Width | Shots |
+|---|---|---|
+| HUD | 1440 | `chat-arc`, `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
+| HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `chat-ghost` |
+| Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember` |
+| Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember` |
+
+HUD draws no Command Centre page of its own (the host's page stands in its frame there), so the set has none.
+
 ## `previews`
 
 ```text

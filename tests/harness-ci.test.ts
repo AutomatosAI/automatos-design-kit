@@ -2,9 +2,10 @@
 // browsers the shots run on, runs `automatos-theme shots` over Play, then over HUD into a folder of its own (each
 // group in its own viewport; a theme whose minWidth fits a phone is shot at 390 × 844 too), then the dev smoke
 // (`automatos-theme dev themes/play` serves the harness and /chat renders, on Chromium), then the phone view's shots
-// (`automatos-theme dev` over the harness's made-up phone skin, /phone shot on Chromium into a folder of its own), and
-// uploads the shots, their axe.json files and the smoke's shot as kit-harness. These checks read files only; nothing
-// is installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each
+// (`automatos-theme dev` over the harness's made-up phone skin, /phone shot on Chromium into a folder of its own), then
+// the showcase shots (`automatos-theme dev` over HUD and Play, chosen views on the hosted edition at twice the pixel
+// density, on Chromium, into a folder apart from the shots), and uploads the shots, their axe.json files and the
+// smoke's shot as kit-harness and the showcase as kit-showcase. These checks read files only; nothing is installed. (Moved out of tests/kit-ci.test.ts, which holds the kit's own contract, to keep each
 // file under the 400-line cap.)
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -47,6 +48,16 @@ const PHONE_SHOTS_SPEC = "packages/theme-harness/shots/phone-shots.spec.ts";
 const PHONE_SHOTS_STEP = "Phone shots";
 const PHONE_SHOTS_RUN = `npx playwright test --config ${PHONE_SHOTS_CONFIG}`;
 const PHONE_SKIN_THEME = "packages/theme-harness/fixtures/phone-skin/theme.json";
+// The showcase shots: their own Playwright config, whose web servers are `automatos-theme dev` over HUD and over Play,
+// each on its own port, the spec, and the folder they go to, uploaded as an artefact of its own.
+const SHOWCASE_CONFIG = "packages/theme-harness/shots/showcase.config.ts";
+const SHOWCASE_SPEC = "packages/theme-harness/shots/showcase.spec.ts";
+const SHOWCASE_STEP = "Showcase shots";
+const SHOWCASE_RUN = `npx playwright test --config ${SHOWCASE_CONFIG}`;
+const SHOWCASE_OUT = "packages/theme-harness/dist/showcase";
+const SHOWCASE_UPLOAD = "Upload showcase";
+const SHOWCASE_PLAN = "packages/theme-harness/src/host/showcase.ts";
+const HARNESS_PREFIX = "packages/theme-harness/";
 const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
 
 function readText(rel: string): string {
@@ -95,16 +106,18 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
       `npx automatos-theme shots themes/hud --out ${HUD_SHOTS_OUT}`,
       DEV_SMOKE_RUN,
       PHONE_SHOTS_RUN,
+      SHOWCASE_RUN,
     ]);
   });
 
-  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), then the phone shots, all before the upload", () => {
+  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), the phone shots and the showcase, before the uploads", () => {
     const steps = stepNames(harness);
     const shots = steps.indexOf("Shots");
     const upload = steps.indexOf("Upload shots");
     expect(shots).toBeGreaterThanOrEqual(0);
     expect(upload).toBeGreaterThan(shots);
-    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP]);
+    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP, SHOWCASE_STEP]);
+    expect(steps.slice(upload)).toEqual(["Upload shots", SHOWCASE_UPLOAD]);
   });
 
   it("shoots HUD into a folder of the upload that none of Play's groups or the smoke's folder takes", () => {
@@ -129,6 +142,35 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
         `\\s+with:\\n\\s+name: kit-harness\\n\\s+path: ${escapedPath(SHOTS_OUT)}/\\n\\s+if-no-files-found: error`,
     );
     expect(harness).toMatch(upload);
+  });
+
+  it("uploads the showcase as kit-showcase whatever happened, from its own folder outside kit-harness's, and fails when there is none", () => {
+    const upload = new RegExp(
+      `- name: ${SHOWCASE_UPLOAD}\\n\\s+if: always\\(\\)\\n\\s+uses: actions/upload-artifact@[0-9a-f]{40}[^\\n]*\\n` +
+        `\\s+with:\\n\\s+name: kit-showcase\\n\\s+path: ${escapedPath(SHOWCASE_OUT)}/\\n\\s+if-no-files-found: error`,
+    );
+    expect(harness).toMatch(upload);
+    expect(`${SHOWCASE_OUT}/`.startsWith(`${SHOTS_OUT}/`)).toBe(false);
+    expect(readText(SHOWCASE_CONFIG)).toContain("join(HARNESS_DIR, SHOWCASE_FOLDER, 'test-results')");
+    expect(readText(SHOWCASE_SPEC)).toContain("join(fileURLToPath(new URL('..', import.meta.url)), SHOWCASE_FOLDER)");
+    expect(readText(SHOWCASE_PLAN)).toContain(`export const SHOWCASE_FOLDER = '${SHOWCASE_OUT.slice(HARNESS_PREFIX.length)}'`);
+  });
+
+  it("shoots the showcase on Chromium alone, at twice the pixel density, with reduced motion, a fixed clock and no retry", () => {
+    const config = readText(SHOWCASE_CONFIG);
+    expect(Array.from(config.matchAll(/\bname: '([a-z]+)'/g), (match) => match[1])).toEqual(["chromium"]);
+    expect(config).toMatch(/^\s+retries: 0,$/m);
+    expect(config).toMatch(/^\s+testMatch: 'showcase\.spec\.ts',$/m);
+    expect(config).toContain("deviceScaleFactor: SHOWCASE_SCALE");
+    expect(config).toContain("contextOptions: { reducedMotion: 'reduce' }");
+    expect(config).toContain("[process.execPath, themeCli(), 'dev', join(THEMES_DIR, theme), '--port', String(SHOWCASE_PORTS[theme])]");
+    expect(config).toContain("webServer: SHOWCASE_THEMES.map(serve)");
+    const spec = readText(SHOWCASE_SPEC);
+    expect(spec).toContain("await page.clock.setFixedTime(SHOWCASE_TIME)");
+    expect(spec).not.toContain("scanShot");
+    const plan = readText(SHOWCASE_PLAN);
+    expect(plan).toContain("export const SHOWCASE_SCALE = 2");
+    expect(plan).toContain("export const SHOWCASE_EDITION: HarnessEdition = 'saas'");
   });
 
   it("shoots on Chromium and WebKit, with no retry", () => {

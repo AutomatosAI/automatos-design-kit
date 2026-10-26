@@ -3,10 +3,15 @@
  * plain colours: the nudge's pill and the badge carry their own (high contrast on any ground), and the utilities take
  * the text colour of the header they sit in, as core's take the theme's tokens, so they read on a light or dark look.
  *
- * The first-run nudge is core's frontend/components/local/first-run-nudge.tsx: a zero-height anchor (`relative z-30`,
- * inline `flex: 0 0 auto; height: 0`), so it takes no space from the chat, and on it an absolutely placed pill over the
- * top of the chat column (`absolute left-1/2 top-3 -translate-x-1/2`, `flex items-center gap-3 whitespace-nowrap`,
- * `max-w-[calc(100vw-2rem)] rounded-full border px-4 py-2 text-sm shadow-lg backdrop-blur`).
+ * The first-run nudge is core's frontend/components/local/first-run-nudge.tsx at 2c0bd3153 (core #1333, which made it
+ * fit a phone): a zero-height anchor (`relative z-30`, inline `flex: 0 0 auto; height: 0`), so it takes no space from
+ * the chat, and on it an absolutely placed box over the top of the chat column (`absolute left-1/2 top-3
+ * -translate-x-1/2`, `flex w-max max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl border px-4 py-2 text-sm
+ * shadow-lg backdrop-blur sm:rounded-full`). It is as wide as its words up to the window less 2rem; its message
+ * (`min-w-0`) wraps inside it while the key, the link and Dismiss (`shrink-0`) keep their size. Its corners are 16 px
+ * below Tailwind's `sm` breakpoint (640 px; core's tailwind.config.ts keeps the default screens) and a full pill from
+ * it. A style object holds no media query, so the pill from `sm` up is NUDGE_PILL_SM, which chrome.tsx draws while
+ * the window matches NUDGE_SM_QUERY, as the class would.
  *
  * The header utilities are core's components/layout/studio-header.tsx StudioHeaderUtilities on the local edition, as
  * globals.css's `.studio .sh-utils` draws it: a row 4 pixels apart of Help (`.sh-icon-btn`, 30 × 30), the
@@ -23,10 +28,13 @@ const PLAIN_BORDER = '#d4d4d8'
 /** Tailwind's shadow-lg. */
 const SHADOW_LG = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)'
 
-/** first-run-nudge.tsx:107: the zero-height anchor. */
+/** first-run-nudge.tsx:105: the zero-height anchor. */
 export const NUDGE_ANCHOR: CSSProperties = Object.freeze({ position: 'relative', zIndex: 30, flex: '0 0 auto', height: '0px' })
 
-/** first-run-nudge.tsx:109-112: the pill over the top of the chat column. */
+/** Tailwind's `sm`, as a media query on the window: the width the pill's corners round fully from. */
+export const NUDGE_SM_QUERY = '(min-width: 640px)'
+
+/** first-run-nudge.tsx:106-111: the box over the top of the chat column, below `sm` (`rounded-2xl`). */
 export const NUDGE_PILL: CSSProperties = Object.freeze({
   position: 'absolute',
   left: '50%',
@@ -35,9 +43,9 @@ export const NUDGE_PILL: CSSProperties = Object.freeze({
   display: 'flex',
   alignItems: 'center',
   gap: '12px',
-  whiteSpace: 'nowrap',
+  width: 'max-content',
   maxWidth: 'calc(100vw - 2rem)',
-  borderRadius: '9999px',
+  borderRadius: '16px',
   border: `1px solid ${PLAIN_BORDER}`,
   background: 'rgba(255, 255, 255, 0.95)',
   color: PLAIN_TEXT,
@@ -49,15 +57,24 @@ export const NUDGE_PILL: CSSProperties = Object.freeze({
   backdropFilter: 'blur(8px)',
 })
 
+/** first-run-nudge.tsx:110 `sm:rounded-full`: the same box from `sm` up, a full pill. */
+export const NUDGE_PILL_SM: CSSProperties = Object.freeze({ ...NUDGE_PILL, borderRadius: '9999px' })
+
 /** The key's colour: an amber dark enough for its 3:1 on the pill. */
 export const NUDGE_KEY_COLOR = '#a16207'
 
-/** first-run-nudge.tsx:116-118: the link to Settings. */
-export const NUDGE_LINK: CSSProperties = Object.freeze({ fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px' })
+/** first-run-nudge.tsx:113: the message, which may shrink below its words' width, so they wrap (`min-w-0`). */
+export const NUDGE_MESSAGE: CSSProperties = Object.freeze({ minWidth: '0px' })
 
-/** first-run-nudge.tsx:125: the round dismiss button around its 16-pixel cross. */
+/** first-run-nudge.tsx:114-120: the link to Settings, which keeps its size (`shrink-0`). */
+export const NUDGE_LINK: CSSProperties = Object.freeze({
+  flexShrink: 0, fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px',
+})
+
+/** first-run-nudge.tsx:121-129: the round dismiss button around its 16-pixel cross, which keeps its size (`shrink-0`). */
 export const NUDGE_DISMISS: CSSProperties = Object.freeze({
-  display: 'inline-flex', borderRadius: '9999px', padding: '4px', color: PLAIN_MUTED, background: 'transparent', cursor: 'pointer',
+  display: 'inline-flex', flexShrink: 0, borderRadius: '9999px', padding: '4px', color: PLAIN_MUTED, background: 'transparent',
+  cursor: 'pointer',
 })
 
 /** globals.css `.studio .sh-utils`. */

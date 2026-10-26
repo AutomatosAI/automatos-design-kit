@@ -13,7 +13,7 @@
  *   the address each shot opens, are src/host/shot-groups.ts's).
  * - The widths: the two desktop widths, a phone's (PHONE_VIEWPORT), and the one just below the theme's minWidth.
  * - The settings the toolbar switches (the voice phase among them), as the query string a reload or a shot opens the
- *   harness with.
+ *   harness with, and the host's edition, which only the address sets (`edition=saas`; the showcase shots ask for it).
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
  */
@@ -207,6 +207,10 @@ export type HarnessTone = 'light' | 'dark'
 export const VOICE_PHASES = Object.freeze(['idle', 'listening', 'thinking', 'speaking', 'error'] as const)
 export type HarnessVoicePhase = (typeof VOICE_PHASES)[number]
 
+/** The host's editions (the SDK's HostEdition): the local one, the harness's default, and the hosted one, SaaS. */
+export const EDITIONS = Object.freeze(['local', 'saas'] as const)
+export type HarnessEdition = (typeof EDITIONS)[number]
+
 /** What the toolbar switches; the path is the fake host's (useHostPathname), so the theme's own links move it too. */
 export interface HarnessSettings {
   readonly path: string
@@ -224,6 +228,11 @@ export interface HarnessSettings {
   readonly voice: HarnessVoicePhase
   /** False hides the toolbar (the shots draw the theme alone). */
   readonly toolbar: boolean
+  /**
+   * The host's edition (useEdition), fixed for the page as core's is for a build: 'local', or 'saas', where core draws no
+   * first-run nudge. No toolbar control: the address alone sets it.
+   */
+  readonly edition: HarnessEdition
 }
 
 export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
@@ -236,11 +245,12 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   transcript: false,
   voice: 'idle',
   toolbar: true,
+  edition: 'local',
 })
 
 const PARAM = Object.freeze({
   path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', voice: 'voice',
-  toolbar: 'toolbar',
+  toolbar: 'toolbar', edition: 'edition',
 })
 const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
@@ -262,6 +272,10 @@ function voiceOf(value: string | null): HarnessVoicePhase {
   return VOICE_PHASES.find((phase) => phase === value) ?? DEFAULT_SETTINGS.voice
 }
 
+function editionOf(value: string | null): HarnessEdition {
+  return EDITIONS.find((edition) => edition === value) ?? DEFAULT_SETTINGS.edition
+}
+
 /** The settings a query string names; a missing or malformed value is the default's. */
 export function readSettings(search: string): HarnessSettings {
   const params = new URLSearchParams(search)
@@ -278,6 +292,7 @@ export function readSettings(search: string): HarnessSettings {
     transcript: params.get(PARAM.chat) === TRANSCRIPT,
     voice: voiceOf(params.get(PARAM.voice)),
     toolbar: params.get(PARAM.toolbar) !== OFF,
+    edition: editionOf(params.get(PARAM.edition)),
   })
 }
 
@@ -293,6 +308,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.transcript) params.set(PARAM.chat, TRANSCRIPT)
   if (settings.voice !== DEFAULT_SETTINGS.voice) params.set(PARAM.voice, settings.voice)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
+  if (settings.edition !== DEFAULT_SETTINGS.edition) params.set(PARAM.edition, settings.edition)
   const query = params.toString()
   return query === '' ? '' : `?${query}`
 }

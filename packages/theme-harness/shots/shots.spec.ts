@@ -10,8 +10,8 @@
  * One test per group, so a failure names its group. The page is sized to the group's viewport (its width, and its
  * height: 900, or the phone's 844), so a theme's own media queries see the width the group shoots, as a browser that
  * size would. Each test opens the harness, reads the views the app drew the theme with (HARNESS_GLOBAL), then for
- * each view opens its address, waits until the harness settled (the host's status, the network idle, the fonts and
- * every image in; no fixed sleep), shoots the page and scans the theme's stage. The folder gets
+ * each view opens its address, waits until the harness settled (settle.ts: the host's status, the network idle, the
+ * fonts and every image in; no fixed sleep), shoots the page and scans the theme's stage. The folder gets
  * <project>/<preset>/<width>/<view>.png and its axe.json. Every context asks for reduced motion (playwright.config.ts);
  * the motion group's page asks the browser for none instead.
  *
@@ -26,20 +26,16 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
-import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import {
-  HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, offOrigin,
-  shotPresets, usesIn, viewSlug, type HarnessReport, type Served, type View,
+  HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, offOrigin, shotPresets, usesIn,
+  viewSlug, type Served, type View,
 } from '../src/host/router.ts'
 import { groupShots, groupViews, shotAddress, shotGroups, type ShotGroup } from '../src/host/shot-groups.ts'
 import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan } from './axe.ts'
+import { harnessReport, openSettled } from './settle.ts'
 
 const MANIFEST_FILE = 'theme.json'
 const PRESETS_DIR = 'looks/presets'
-const SETTLED_STATUSES: readonly string[] = ['active', 'failed']
-/** How long the harness may take to settle one view before the test fails, naming the wait. */
-const SETTLE_TIMEOUT_MS = 30_000
-const SETTLE = Object.freeze({ timeout: SETTLE_TIMEOUT_MS })
 
 function required(name: string): string {
   const value = process.env[name]
@@ -75,32 +71,6 @@ function recordRequests(page: Page): string[] {
   const urls: string[] = []
   page.on('request', (request) => urls.push(request.url()))
   return urls
-}
-
-/**
- * Opens an address and waits until the harness drew it: the host's status, the network, the fonts, and every image,
- * a lazy one (loading="lazy", which an image below the fold never starts) asked for now, so the shot never races it.
- */
-async function openSettled(page: Page, address: string): Promise<void> {
-  await page.goto(address)
-  await page.waitForFunction(
-    ({ attribute, settled }) => settled.includes(document.documentElement.getAttribute(attribute) ?? ''),
-    { attribute: HTML_ATTRS.status, settled: [...SETTLED_STATUSES] },
-    SETTLE,
-  )
-  await page.waitForLoadState('networkidle', SETTLE)
-  await page.evaluate(async () => {
-    await document.fonts.ready
-    document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((image) => {
-      image.loading = 'eager'
-    })
-  })
-  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete), undefined, SETTLE)
-}
-
-async function harnessReport(page: Page): Promise<HarnessReport> {
-  const handle = await page.waitForFunction((name) => Reflect.get(window, name) as unknown, HARNESS_GLOBAL, SETTLE)
-  return (await handle.jsonValue()) as HarnessReport
 }
 
 /** The folder a group's files go to, emptied first, so a file an earlier run wrote can't stand in for a missing one. */

@@ -75,8 +75,10 @@ carry its turn's frames (`frames`, in the stream format), read onto it as the st
 opens with its tool lines and Deliverables. The chrome stand-ins (`src/sdk/cards/chrome.tsx`) take the room core's cards
 take, in plain colours: `HeaderUtilities` is core's cluster on the local edition (Help at 30 × 30, the bell at 40 × 40
 with a made-up unread badge, a separator, the theme menu at 40 × 40, the account's 36-pixel avatar), each button named
-as before; `FirstRunNudge` is core's zero-height anchor with its pill placed over the top of the chat column, so it
-takes no room from the chat, with core's words and the link to Settings (a kept click).
+as before; `FirstRunNudge` is core's zero-height anchor with its box placed over the top of the chat column, so it
+takes no room from the chat, as wide as its words up to the window less 2rem, its message wrapping on a phone while the
+link and Dismiss keep their size, and a full pill from Tailwind's `sm` (640 px) up, read from the window's media query
+(core #1333), with core's words and the link to Settings (a kept click).
 
 The voice area (SDK 1.2.0, `src/sdk/voice.ts`) answers from the fake host's voice session
 (`src/internal/voice-session.ts`): `useVoice` a frozen snapshot of it and `stop()`, `readVoiceLevels` the levels a test
@@ -216,7 +218,9 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the
   toolbar's two attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
   motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
-  setting is in the address, so a reload opens the same view.
+  setting is in the address, so a reload opens the same view. The address also takes `edition=saas`, which no toolbar
+  control sets: the fake host is then the hosted edition (`useEdition()` answers `'saas'`) for the whole page, as core's
+  edition is fixed for a build, so core's local-only first-run nudge is not drawn; the showcase shots draw so.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 
@@ -265,6 +269,18 @@ phone's screen (`[data-phone-frame]`: the panels beside it are the harness's, as
 into its folder's `axe.json`; a critical violation, a missing shot or a request to another origin fails the test.
 Its files, and a failed test's trace, go to `dist/shots/phone/`. `test/phone-skin-fixture.test.ts` holds the fixture
 to core's validator and to `automatos-theme skin`'s own check, so the shots draw a skin that passes.
+
+`shots/showcase.config.ts` makes the showcase (kit CI's `harness` job, after the phone shots): clean images of HUD
+and Play for READMEs, docs and the product site, not a regression set. Its web servers are `automatos-theme dev
+themes/hud` on `http://127.0.0.1:4320` and `automatos-theme dev themes/play` on `:4321`, and `shots/showcase.spec.ts`
+shoots each image in `SHOWCASE_SHOTS` (`src/host/showcase.ts`, which `test/showcase.test.ts` holds to the themes'
+declared views and presets) on Chromium, one test each: one view in one look at 1440 × 900 or 390 × 844, with
+`edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
+inside the fixtures' made-up day, the time zone and locale fixed too, and the host's Auto widget stand-in hidden for
+the shot. A test fails when the theme did not start, lacks the shot's look, is not on the shot's view, draws the nudge
+or is not in the shot's voice phase. No axe scan: the regression shots scan the same views. The PNGs go to
+`dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
+the job uploads the folder as `kit-showcase`.
 
 ## The phone view
 
