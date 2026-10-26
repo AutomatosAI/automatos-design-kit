@@ -134,11 +134,30 @@
   color: var(--pl-color-text-2);
 }
 
+/* Play 1.2.0: while Auto speaks through the host's voice, his ring follows his voice in place of its pulse:
+   use-voice-ring.ts writes his level (0 to 1) as --pl-voice-level on the stage, frame by frame, and the ring
+   swells by up to --pl-voice-swell with it, scaled by the host's motion factor. With no level (standing still,
+   or between sessions) it rests at its own size. */
+.stage[data-voice="speaking"] {
+  --pl-voice-swell: 0.18;
+}
+
+.stage[data-voice="speaking"] .ring {
+  animation: none;
+  opacity: calc(0.8 + var(--pl-voice-level, 0) * 0.2);
+  transform: translateX(-50%) scale(calc(1 + var(--pl-voice-level, 0) * var(--pl-voice-swell) * var(--pl-motion-scale, 1)));
+}
+
 /* PRD-261 A-13b (F10, WCAG 2.2.2): standing still, under the OS reduced-motion setting or while
    the user has paused him, the ring stops pulsing too. Here, not only in app/play-theme.css, so
-   the still holds wherever Auto is drawn. */
+   the still holds wherever Auto is drawn. Speaking, it holds its size as well (Play 1.2.0). */
 .auto[data-motion="still"] .ring {
   animation: none;
+}
+
+.auto[data-motion="still"] .stage[data-voice="speaking"] .ring {
+  opacity: 1;
+  transform: translateX(-50%);
 }
 
 /* The Pause Auto control under him: the style sheet's toggle (components/looks/style). At the large size it

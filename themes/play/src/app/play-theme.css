@@ -180,6 +180,7 @@ html.play {
   --pl-bubble-max: 480px; /* your messages */
   --pl-deliverable-card-max: 520px; /* the Deliverable card in a reply */
   --pl-composer-max-height: 200px; /* the message box grows to this, then scrolls */
+  --pl-composer-input-min: 9rem; /* the words' narrowest line beside the voice button and Send, before they wrap */
   --pl-header-height: 80px;
   --pl-phone-bar-height: 56px;
   --pl-content-max: 700px;

@@ -16,12 +16,13 @@ import { AutoMascot } from '../../mascot/auto-mascot'
 import { MascotColumn, PageColumns, PageHeader } from '../shell/page-columns'
 
 import { LooseApprovalCards } from './approval-cards'
-import { chatCaption } from './caption'
 import { ExampleChips, FirstOpenHero } from './first-open'
 import { MessageBox } from './message-box'
 import { MessageList } from './message-list'
-import { latestReply, liveMessages, replyProgress, runningToolInput } from './reply'
+import { liveMessages, replyProgress } from './reply'
 import { PlayTrialBanner, TurnEnd } from './turn-end'
+import { useAutoOnScreen } from './use-auto-on-screen'
+import { VoiceWords } from './voice-words'
 import styles from './composer.module.css'
 
 /**
@@ -48,6 +49,11 @@ import styles from './composer.module.css'
  * PlayChatView, Auto and the screen in its child, whose effects (Auto's
  * reading of the status and the reply) run before the turn's own (a failure,
  * an approval card waiting or settled) in every commit.
+ *
+ * Play 1.2.0: the host's voice button stands beside Send (message-box.tsx), and while a voice session runs Auto
+ * follows it rather than the chat (use-auto-on-screen.ts): listening while the microphone is open, thinking, then
+ * speaking with his ring following his voice; the words it heard and spoke show over the message box
+ * (voice-words.tsx). Typing stays as it was.
  */
 
 export interface PlayChatViewProps {
@@ -107,12 +113,6 @@ function useComposer(auto: AutoMascotDriver, linked: HostChatDraft | null, onTak
   return { fill, pick, onFocus, onBlur }
 }
 
-/** The newest reply's newest live Deliverable's kind, for the caption's "It's on your shelf too." */
-function newestKind(reply: HostChatMessage | undefined): string | undefined {
-  const made = reply?.deliverables ?? []
-  return made[made.length - 1]?.kind
-}
-
 /**
  * Try again (the chat's: it clears the turn's suggestion first, as chat.tsx
  * does on a new message) goes with the failed turn's snag box, so focus moves
@@ -147,19 +147,12 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
   const composer = useComposer(auto, draft ?? null, onDraftTaken)
   const box = useRef<HTMLTextAreaElement>(null)
   const { retry, onStop } = useSending(chat, auto, box)
-  const { streaming, trialExhausted } = chat
+  const shown = useAutoOnScreen(auto, live)
   const empty = live.length === 0
-  const reply = latestReply(live)
-  const caption = chatCaption(auto.mascot, {
-    runningInput: runningToolInput(reply),
-    deliverableKind: newestKind(reply),
-    backendDown: auto.state.backendDown,
-    approvalWaiting: auto.state.approvalWaiting,
-  })
 
   const mascot = empty ? undefined : (
     <MascotColumn>
-      <AutoMascot state={auto.mascot} onClipEnded={auto.onClipEnded} {...caption} />
+      <AutoMascot state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} {...shown.caption} />
     </MascotColumn>
   )
 
@@ -169,34 +162,24 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
       {!empty && <PageHeader title={chat.title} />}
       <div className={styles.chat} data-empty={empty || undefined}>
         {empty ? (
-          <FirstOpenHero state={auto.mascot} onClipEnded={auto.onClipEnded} {...caption} />
-        ) : (
-          <MessageList
-            messages={chat.messages}
-            streaming={streaming}
-            onRetry={retry}
-            trialBlocked={trialExhausted}
-            after={
-              <TurnEnd
-                status={chat.status}
-                trialExhausted={trialExhausted}
-                messages={live}
-                onRetry={retry}
-                suggestion={chat.suggestion}
-                planningMissionId={chat.planningMissionId}
-                chatId={chat.conversation.chatId ?? ''}
-                before={<LooseApprovalCards approvals={chat.looseApprovals} />}
-              />
-            }
+          <FirstOpenHero
+            state={shown.state}
+            onClipEnded={auto.onClipEnded}
+            speaking={shown.speaking}
+            voiceActive={shown.voiceActive}
+            {...shown.caption}
           />
+        ) : (
+          <ConversationMessages chat={chat} live={live} retry={retry} />
         )}
         <div className={styles.footer}>
           {empty && <ExampleChips onPick={composer.pick} />}
-          <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={trialExhausted} />
+          <VoiceWords words={shown.words} />
+          <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
           <MessageBox
             ref={box}
             key={composer.fill ? `fill-${composer.fill.serial}` : 'box'}
-            streaming={streaming}
+            streaming={chat.streaming}
             onSend={chat.send}
             onStop={onStop}
             onFocus={composer.onFocus}
@@ -207,5 +190,36 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
         </div>
       </div>
     </PageColumns>
+  )
+}
+
+interface ConversationMessagesProps {
+  readonly chat: HostChatController
+  readonly live: readonly HostChatMessage[]
+  readonly retry: () => void
+}
+
+/** The conversation, then what follows it: a failed turn's snag box, the Mission Auto suggests, loose approval cards. */
+function ConversationMessages({ chat, live, retry }: ConversationMessagesProps) {
+  const { streaming, trialExhausted } = chat
+  return (
+    <MessageList
+      messages={chat.messages}
+      streaming={streaming}
+      onRetry={retry}
+      trialBlocked={trialExhausted}
+      after={
+        <TurnEnd
+          status={chat.status}
+          trialExhausted={trialExhausted}
+          messages={live}
+          onRetry={retry}
+          suggestion={chat.suggestion}
+          planningMissionId={chat.planningMissionId}
+          chatId={chat.conversation.chatId ?? ''}
+          before={<LooseApprovalCards approvals={chat.looseApprovals} />}
+        />
+      }
+    />
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { type ForwardedRef, type FormEvent, type KeyboardEvent, forwardRef, useCallback, useEffect, useRef, useState } from 'react'
-import { AiLabelFence } from '@automatos/theme-sdk'
+import { AiLabelFence, VoiceButton } from '@automatos/theme-sdk'
 
 import styles from './composer.module.css'
 
@@ -15,9 +15,19 @@ import styles from './composer.module.css'
  * AI label fence (the SDK's `cards.AiLabelFence`) disables it while a theme hides the label.
  * It takes focus as it appears without scrolling the page: Chromium scrolls an autofocused
  * field into view, which pushed the first open's Auto off the top of a laptop's window.
+ *
+ * Play 1.2.0: the host's voice button (the SDK's voice.VoiceButton) stands beside Send, so a member can talk to
+ * Auto as well as type: Live when the workspace has it, else quick-ask (mode auto), held to talk (press hold), and
+ * held from the keyboard with Space anywhere but a field (core's hotkey; null where there is no keyboard to hold,
+ * the phone). Core draws all of it: the press, the microphone prompt, the "AI voice assistant" caption and the stop
+ * control while the microphone is open, a failure with Try again. Play only places it and colours it, through the
+ * --voice-button-* custom properties and its data-voice-* attributes (composer.module.css). Text stays: the box
+ * and Send never lock while voice runs.
  */
 
 export const PLACEHOLDER = 'Message Auto'
+/** The key that holds the voice button from anywhere but a field: core's default, named here. */
+export const VOICE_HOTKEY = 'Space'
 
 export interface MessageBoxProps {
   /** Auto is answering: Stop instead of Send. */
@@ -30,6 +40,8 @@ export interface MessageBoxProps {
   readonly initialDraft?: string
   /** Focus the box as it appears (the first open, and after an example fills it). */
   readonly autoFocus?: boolean
+  /** The voice button's hotkey: VOICE_HOTKEY on a desktop, null on a phone (no keyboard to hold). */
+  readonly voiceHotkey?: string | null
 }
 
 /**
@@ -53,7 +65,7 @@ function useBoxRef(forwarded: ForwardedRef<HTMLTextAreaElement>, autoFocus: bool
 }
 
 export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(function MessageBox(
-  { streaming, onSend, onStop, onFocus, onBlur, initialDraft = '', autoFocus = false },
+  { streaming, onSend, onStop, onFocus, onBlur, initialDraft = '', autoFocus = false, voiceHotkey = VOICE_HOTKEY },
   ref,
 ) {
   const [draft, setDraft] = useState(initialDraft)
@@ -97,6 +109,9 @@ export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(funct
           aria-label={PLACEHOLDER}
           rows={1}
         />
+        <div className={styles.voice}>
+          <VoiceButton mode="auto" press="hold" hotkey={voiceHotkey} size="md" />
+        </div>
         {streaming ? (
           <button type="button" className={styles.stop} onClick={() => onStop()}>
             <span className={styles.stopIcon} aria-hidden="true" />

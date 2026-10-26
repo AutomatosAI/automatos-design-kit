@@ -11,6 +11,7 @@ import type { MascotName } from '@automatos/mascot/types'
 import styles from './auto-mascot.module.css'
 import { MascotPauseButton } from '@automatos/mascot/mascot-pause-button'
 import { useMascotMotion } from './use-mascot-motion'
+import { useVoiceRing } from './use-voice-ring'
 
 /**
  * PRD-260 D6 — Auto: the clip for the reducer's state, the light ring under him
@@ -35,6 +36,10 @@ import { useMascotMotion } from './use-mascot-motion'
  * tab of this browser (lib/mascot/pause.ts). Under reduced motion he is the
  * same still, with no control, since nothing moves. Until the host can say
  * whether he is paused (PRD-261 E3g) he is his still and the control is disabled.
+ *
+ * Play 1.2.0: while he speaks through the host's voice (`speaking`), his light ring follows his voice
+ * (use-voice-ring.ts: data-voice="speaking" on his stage, and his level on it frame by frame), in place of
+ * its pulse; standing still, he never follows it.
  */
 
 export type AutoMascotSize = 'small' | 'regular' | 'large'
@@ -77,6 +82,8 @@ export interface AutoMascotProps {
    * No caller passes it yet; the Looks preview keeps its control.
    */
   readonly pauseControl?: boolean
+  /** Play 1.2.0: Auto speaks through the host's voice; his ring follows his voice unless he stands still. */
+  readonly speaking?: boolean
 }
 
 /** The Pause Auto control shows only where a live Auto's clip could be moving. */
@@ -105,6 +112,7 @@ export function AutoMascot({
   playing = true,
   decorative = false,
   pauseControl = true,
+  speaking = false,
 }: AutoMascotProps) {
   const motion = useMascotMotion()
   const format = useVideoFormat()
@@ -116,6 +124,7 @@ export function AutoMascot({
   const player = useMascotPlayer({ target: state, still: video === null, onClipEnded })
   const label = caption ?? captionFor(state)
   const pausable = showsPauseControl({ playing, decorative, pauseControl, reducedMotion: motion.reducedMotion })
+  const stage = useVoiceRing<HTMLDivElement>(speaking && !still)
 
   const onVideoError = useCallback((event: SyntheticEvent<HTMLVideoElement>) => {
     console.warn(`[mascot] Auto's clip ${event.currentTarget.src} didn't play, so he is a still.`)
@@ -132,12 +141,14 @@ export function AutoMascot({
     >
       {/* data-glow: app/play-theme.css lights the page behind everything from it (body:has). */}
       <div
+        ref={stage}
         className={styles.stage}
         role={decorative ? undefined : 'img'}
         aria-label={decorative ? undefined : label}
         data-testid="auto-stage"
         data-ring={ringTone(player.showing)}
         data-glow={lightsPage ? pageGlow(player.showing) : undefined}
+        data-voice={speaking ? 'speaking' : undefined}
       >
         <div className={styles.ring} />
         {video !== null ? (

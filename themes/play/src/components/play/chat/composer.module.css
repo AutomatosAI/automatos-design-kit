@@ -32,6 +32,7 @@
   max-width: var(--pl-content-max);
   margin: 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--pl-space-3);
   padding: var(--pl-space-2) var(--pl-space-2) var(--pl-space-2) var(--pl-space-5);
@@ -46,7 +47,7 @@
 }
 
 .input {
-  flex: 1;
+  flex: 1 1 var(--pl-composer-input-min);
   min-width: 0;
   min-height: var(--pl-tap-min);
   max-height: var(--pl-composer-max-height);
@@ -112,4 +113,92 @@
   height: 10px;
   border-radius: var(--pl-radius-icon);
   background: currentcolor; /* Stop's ink, filled or outlined */
+}
+
+/*
+ * Play 1.2.0: the host's voice button beside Send (message-box.tsx). Core draws it; Play places it and colours it
+ * through its --voice-button-* custom properties and its data-voice-* attributes, never its caption or its stop
+ * control (core's protected surface). At rest it is an outlined square in the text colour, Send's size; while the
+ * microphone is open it fills with the accent, its ink on top, and a halo marks it, the look's own pair as on every
+ * primary. While the session is the button's, core shows the caption and the stop control under the press, and a
+ * failure's sentence with Try again: the box wraps (above), so a wide control drops to a line of its own, beside
+ * Send, and the words keep their line.
+ */
+.voice {
+  --voice-button-size: var(--pl-tap-min);
+  --voice-button-radius: var(--pl-radius-button);
+  --voice-button-bg: transparent;
+  --voice-button-fg: var(--pl-color-text);
+  --voice-button-active-bg: var(--pl-color-accent);
+  --voice-button-active-fg: var(--pl-color-accent-ink);
+  --voice-button-ring: var(--pl-color-accent-text);
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-meta);
+}
+
+.voice [data-voice-button="root"] {
+  max-width: 100%;
+}
+
+.voice [data-voice-button="press"] {
+  border: 1px solid var(--pl-line-button);
+  cursor: pointer;
+}
+
+.voice [data-voice-button="press"]:hover:not(:disabled) {
+  border-color: var(--pl-color-text);
+}
+
+.voice [data-voice-mic="open"] [data-voice-button="press"] {
+  border-color: transparent;
+  box-shadow: 0 0 0 4px var(--pl-tint-accent-halo);
+}
+
+.voice [data-voice-state="thinking"] [data-voice-button="press"],
+.voice [data-voice-state="speaking"] [data-voice-button="press"] {
+  border-color: var(--pl-color-accent-text);
+}
+
+/* The words the session heard and spoke while it runs (voice-words.tsx): yours as your message is drawn, Auto's as
+   his answer is, over the message box. */
+.words {
+  width: 100%;
+  max-width: var(--pl-content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+}
+
+.heard {
+  align-self: flex-end;
+  max-width: var(--pl-bubble-max);
+  margin: 0;
+  padding: var(--pl-space-2) var(--pl-space-4);
+  border: 1px dashed var(--pl-line-strong);
+  border-radius: var(--pl-radius-card);
+  color: var(--pl-color-text);
+  font: var(--pl-text-body);
+  overflow-wrap: anywhere;
+}
+
+.reply {
+  margin: 0;
+  color: var(--pl-color-text);
+  font: var(--pl-text-body);
+  overflow-wrap: anywhere;
+}
+
+.who {
+  margin-right: var(--pl-space-2);
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-label);
+  letter-spacing: var(--pl-label-tracking);
+  text-transform: uppercase;
 }

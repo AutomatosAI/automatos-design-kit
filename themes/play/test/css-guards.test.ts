@@ -50,6 +50,20 @@ const PLAY_STYLESHEETS_MIN = 27
 const CORE_VARS_PLAY_MAY_READ = new Set(['--font-geist-sans', '--font-geist-mono', '--font-newsreader', '--radius'])
 /** The host's look runtime's motion factor (PRD-261 K-19c): Play's --pl-motion-scale reads it, only the host sets it. */
 const HOST_VARS_PLAY_MAY_READ: ReadonlySet<string> = new Set(['--theme-motion'])
+/**
+ * Play 1.2.0: the custom properties a theme colours the host's voice button with (the SDK's voice area,
+ * areas/voice.d.ts). Play sets them for core's button to read (composer.module.css) and never reads them itself.
+ */
+const VOICE_BUTTON_VARS: ReadonlySet<string> = new Set([
+  '--voice-button-size',
+  '--voice-button-radius',
+  '--voice-button-bg',
+  '--voice-button-fg',
+  '--voice-button-active-bg',
+  '--voice-button-active-fg',
+  '--voice-button-ring',
+])
+const SDK_VOICE_AREA = path.join(THEME_ROOT, '..', '..', 'packages', 'theme-sdk', 'areas', 'voice.d.ts')
 const PLAY_VAR = /^--pl-[\w-]+$/
 const CATALOGUE = 'lib/looks/catalogue.ts'
 const CATALOGUE_MIN_COLOURS = 20
@@ -65,9 +79,12 @@ function isPlayVariable(name: string): boolean {
   return PLAY_VAR.test(name) || CORE_VARS_PLAY_MAY_READ.has(name)
 }
 
-/** The variables a stylesheet defines or reads that aren't Play's: a host variable Play may read counts only where defined. */
+/**
+ * The variables a stylesheet defines or reads that aren't Play's: a host variable Play may read counts only where
+ * defined, and the voice button's only where read.
+ */
 function strayVariables(css: string): string[] {
-  const defined = definedProperties(css).filter((name) => !isPlayVariable(name))
+  const defined = definedProperties(css).filter((name) => !isPlayVariable(name) && !VOICE_BUTTON_VARS.has(name))
   const read = readProperties(css).filter((name) => !isPlayVariable(name) && !HOST_VARS_PLAY_MAY_READ.has(name))
   return [...defined, ...read]
 }
@@ -98,6 +115,15 @@ describe("PRD-260 (b) — Play's CSS uses only --pl-* variables (K2)", () => {
     const css = '.a { --theme-motion: 0; --accent: red } .b { transition-duration: calc(1s * var(--theme-motion, 1)) }'
     expect(strayVariables(css)).toEqual(['--theme-motion', '--accent'])
     expect(readProperties(readSource(PLAY_THEME_CSS))).toContain('--theme-motion')
+  })
+
+  it("lets Play set the voice button's custom properties, the SDK's own names, and never read them (Play 1.2.0)", () => {
+    const named = new Set(Array.from(fs.readFileSync(SDK_VOICE_AREA, 'utf8').matchAll(/--voice-button-[a-z-]+/g), (match) => match[0]))
+    expect([...named].sort()).toEqual([...VOICE_BUTTON_VARS].sort())
+    const css = '.a { --voice-button-bg: var(--pl-color-text) } .b { color: var(--voice-button-fg) } .c { --voice-thing: 1px }'
+    expect(strayVariables(css)).toEqual(['--voice-thing', '--voice-button-fg'])
+    const composer = fs.readFileSync(path.join(SOURCE_ROOT, 'components', 'play', 'chat', 'composer.module.css'), 'utf8')
+    expect(definedProperties(composer).filter((name) => VOICE_BUTTON_VARS.has(name)).sort()).toEqual([...VOICE_BUTTON_VARS].sort())
   })
 
   it("finds no other variable in Play's stylesheets", () => {
