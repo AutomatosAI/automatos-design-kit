@@ -2,9 +2,9 @@
  * The `jsRules` check: the Marketplace review's JS rules on the package's source/ (`@automatos/theme-rules`).
  *
  * The same table the review job (scripts/review/review.ts) runs: an error-severity finding refuses
- * the package, so the check is an error; warnings alone (a theme that listens, or opens the
- * microphone or camera) are listed for the reviewer, so the check is a warning, each line starting
- * `warning: ` so it can't pass for a refusal. A package with no source/ (a theme folder with no
+ * the package, so the check is an error (a theme that listens, opens the microphone or camera, or
+ * speaks by itself among them); warnings alone are listed for the reviewer, so the check is a warning,
+ * each line starting `warning: ` so it can't pass for a refusal. No row of the table warns today. A package with no source/ (a theme folder with no
  * src/) installs privately but can't be reviewed for the Marketplace, and its JS rules are not measured.
  */
 import { jsRuleFindings, sourceScripts, SOURCE_PREFIX, type JsFinding } from '@automatos/theme-rules'

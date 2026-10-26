@@ -3,8 +3,7 @@
  * the text rules, exported as data, so every tool that reads a theme's source applies the same rows.
  *
  * Each finding has a severity. An error refuses the package; a warning is reported for the reviewer
- * to read and refuses nothing. They warn on: SpeechRecognition and webkitSpeechRecognition (a theme
- * that listens) and getUserMedia (a theme that opens the microphone or camera).
+ * to read and refuses nothing. No row warns today.
  *
  * They refuse: fetch, XHR, WebSocket, EventSource, sendBeacon, document.cookie, localStorage,
  * sessionStorage, indexedDB (a theme keeps state through the SDK's storage area, whose names
@@ -15,6 +14,15 @@
  * React; the vite-preset's own refusals), absolute paths and relative paths that leave source/ (in
  * imports, import(), import.meta.glob and `new URL(..., import.meta.url)`; the vite-preset's source
  * guard refuses the same in the build), bundled React, and obfuscated or minified-only source.
+ *
+ * They refuse audio the theme captures or makes itself (theme voice, SDK 1.2.0): getUserMedia (with
+ * webkitGetUserMedia and mozGetUserMedia), SpeechRecognition and webkitSpeechRecognition, and
+ * speechSynthesis. A theme talks to Auto by voice only through the SDK's voice area, whose names are
+ * never refused. The three rows are core's audio_capture.py patterns (TV-C7, AUDIO_APIS): each name as
+ * a whole identifier, not inside a longer one (`(?<![\w$])` and `(?![\w$])`, with `\w` read as Python
+ * reads it in a text pattern: any letter or number, and `_`), in calls, property reads, strings and
+ * comments alike. Core reads the bundle (dist/) and these rules read source/, so a name either one
+ * finds is refused by both.
  *
  * This is a lint for honest authors, by design: it reads the text, comments and strings included,
  * and can be bypassed (`globalThis['fe' + 'tch']` is caught, other spellings may not be). The
@@ -62,9 +70,24 @@ function rule(code: string, pattern: string, message: string, flags = '', severi
   return Object.freeze({ code, severity, pattern: new RegExp(pattern, `g${flags}`), message })
 }
 
-/** A row the reviewer reads: reported as a warning, never a refusal. */
-function warning(code: string, pattern: string, message: string): Rule {
-  return rule(code, pattern, message, '', 'warning')
+/**
+ * The audio rows' severity, core's AUDIO_CAPTURE_LEVEL: the review refuses a theme that captures or makes
+ * audio itself, as core's review blocks its bundle. A warning instead is this one constant.
+ */
+export const AUDIO_CAPTURE_SEVERITY: Severity = 'error'
+/** What a theme uses instead of its own audio: the SDK's voice area. */
+const VOICE_AREA = "use the SDK's voice area instead (voice.VoiceButton, useVoice, readVoiceLevels)."
+/**
+ * audio_capture.py `_ALONE_BEFORE` and `_ALONE_AFTER`: not part of a longer identifier. Python's `\w` in
+ * a text pattern is any letter or number and `_`; JavaScript's (even with the `u` flag) is ASCII only, so
+ * the class names the Unicode properties.
+ */
+const ALONE_BEFORE = String.raw`(?<![\p{L}\p{N}_$])`
+const ALONE_AFTER = String.raw`(?![\p{L}\p{N}_$])`
+
+/** An audio row: core's pattern for one browser audio API, refused at AUDIO_CAPTURE_SEVERITY. */
+function audio(code: string, names: string, message: string): Rule {
+  return rule(code, `${ALONE_BEFORE}(?:${names})${ALONE_AFTER}`, `${message} ${VOICE_AREA}`, 'u', AUDIO_CAPTURE_SEVERITY)
 }
 
 export const RULES: readonly Rule[] = Object.freeze([
@@ -88,8 +111,9 @@ export const RULES: readonly Rule[] = Object.freeze([
   rule('JS_LOCATION_WRITE', String.raw`\blocation\s*\.\s*(?:assign|replace)\s*\(`, 'navigates with location.assign/replace: navigate through the SDK.'),
   rule('JS_COMPUTED_GLOBAL', String.raw`\b(?:globalThis|window|self)\s*(?:\?\.\s*)?\[`, 'reads a computed property of globalThis/window.'),
   rule('JS_BUNDLED_REACT', String.raw`__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED|__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE|react\.production(?:\.min)?\.js|Symbol\.for\(\s*['"]react\.element['"]\s*\)`, "bundles React: the host's React comes through its import map."),
-  warning('JS_SPEECH_RECOGNITION', String.raw`\b(?:webkit)?SpeechRecognition\b`, "uses SpeechRecognition: a theme that listens can send the microphone's audio to the browser vendor's speech service."),
-  warning('JS_GET_USER_MEDIA', String.raw`\bgetUserMedia\b`, 'calls getUserMedia: a theme that opens the microphone or camera can record the person using it.'),
+  audio('JS_SPEECH_RECOGNITION', '(?:webkit)?SpeechRecognition', "uses SpeechRecognition: a theme that listens by itself can send the microphone's audio to the browser vendor's speech service, with no AI voice caption and no stop control;"),
+  audio('JS_GET_USER_MEDIA', 'getUserMedia|webkitGetUserMedia|mozGetUserMedia', 'calls getUserMedia: a theme that opens the microphone or camera by itself can record the person using it, with no AI voice caption and no stop control;'),
+  audio('JS_SPEECH_SYNTHESIS', 'speechSynthesis', 'uses speechSynthesis: a theme that speaks by itself can speak as Auto with no AI notice and no stop control;'),
 ])
 
 /** `from 'x'`, `import 'x'`, `import('x')`, `require('x')`: the quoted specifier is group 2. */

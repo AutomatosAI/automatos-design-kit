@@ -1,6 +1,6 @@
 /**
  * The recommended config as ESLint runs it (Linter, flat config): the seeded file fails with its three
- * codes and the review's own messages, a warning code warns, TypeScript and JSX lint without a parser
+ * codes and the review's own messages, a theme's own audio is an error, TypeScript and JSX lint without a parser
  * package, no comment is read as a directive, and a file is read at its path under source/.
  */
 import { resolve } from 'node:path'
@@ -55,9 +55,15 @@ describe('the recommended config', () => {
     expect(lint(SEEDED_TEXT, SEEDED_FILE).map((message) => message.message)).toEqual(review.map((item) => item.message))
   })
 
-  it('reports a warning code as a warning, which refuses nothing', () => {
-    const messages = lint('const listener = new webkitSpeechRecognition()', 'voice.ts')
-    expect(reported(messages)).toEqual([finding('JS_SPEECH_RECOGNITION', 1, WARNING)])
+  it("reports a theme's own audio as errors (theme voice): listening, the microphone, speaking", () => {
+    const text = [
+      'const listener = new webkitSpeechRecognition()',
+      'const stream = navigator.mediaDevices.getUserMedia({ audio: true })',
+      'window.speechSynthesis.speak(utterance)',
+    ].join('\n')
+    const codes = ['JS_SPEECH_RECOGNITION', 'JS_GET_USER_MEDIA', 'JS_SPEECH_SYNTHESIS']
+    expect(reported(lint(text, 'voice.ts'))).toEqual(codes.map((code, index) => finding(code, index + 1, ERROR)))
+    expect(lint(text, 'voice.ts').some((message) => message.severity === WARNING)).toBe(false)
   })
 
   it('lints TypeScript and JSX with no parser package, and passes plain theme code', () => {
