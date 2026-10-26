@@ -1,6 +1,9 @@
+import type { HostVoicePhase } from '@automatos/theme-sdk'
+
 import { captionFor } from '@automatos/mascot/media'
 import type { MascotName } from '@automatos/mascot/types'
 
+import { voiceStateWord } from '../voice/session'
 import { clip, toolDetail } from './labels'
 
 /**
@@ -8,7 +11,9 @@ import { clip, toolDetail } from './labels'
  * twin of the rings and of Auto himself. The state's own words are @automatos/mascot's captions; the chat adds what
  * it knows, after Play's chat caption (themes/play/src/components/play/chat/caption.ts, Play 1.1.1): the running
  * search's query, the kind of Deliverable that just landed, a nap that is not the backend being down, and an
- * approval card waiting for the owner. The words are sentence case; the chip sets them in capitals. Pure.
+ * approval card waiting for the owner. While the host's voice session listens, thinks or speaks, the chip says that
+ * instead (voiceStateWord: "Listening", "Thinking", "Speaking"), then the chat's state again. The words are sentence
+ * case; the chip sets them in capitals. Pure.
  */
 
 export interface ChipFacts {
@@ -20,6 +25,8 @@ export interface ChipFacts {
   readonly backendDown?: boolean
   /** An approval card waits for the owner's answer: Auto listens for it. */
   readonly approvalWaiting?: boolean
+  /** The host's voice session's phase (useVoice().phase): listening, thinking or speaking is said instead. */
+  readonly voicePhase?: HostVoicePhase
 }
 
 /** Asleep after the idle timeout, not because Automatos is down. */
@@ -35,6 +42,8 @@ const DETAIL_SEPARATOR = ' · '
 const BUSY: ReadonlySet<MascotName> = new Set<MascotName>(['searching', 'reading', 'working'])
 
 export function chipWords(state: MascotName, facts: ChipFacts = {}): string {
+  const spoken = voiceStateWord(facts.voicePhase)
+  if (spoken !== null) return spoken
   if (state === 'sleeping' && !facts.backendDown) return NAPPING
   if (state === 'listening' && facts.approvalWaiting) return AWAITING_ANSWER
   if (state === 'celebrate' && facts.deliverableKind) return captionFor(state, facts.deliverableKind)

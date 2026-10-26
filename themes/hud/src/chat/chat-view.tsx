@@ -5,6 +5,7 @@ import {
   type HostChatMessage,
   type HostHealth,
   useHealth,
+  useVoice,
 } from '@automatos/theme-sdk'
 
 import { usePhoneLayout } from '../lib/phone-layout'
@@ -30,8 +31,9 @@ import { VoiceCore } from './voice-core'
  * driven by it (use-hud-auto.ts), the transcript, and the message box. Auto's state is the turn's, as
  * Mascot.dc.html maps it: thinking once you send, searching, reading or working while a tool runs, back at rest
  * when his words start, celebrating a done receipt or a new Deliverable, oops on a failure, listening while an
- * approval card waits, asleep while the backend is down or after a long while without input. Before anything is
- * said, the empty chat's starters put their words in the message box.
+ * approval card waits, asleep while the backend is down or after a long while without input. The state chip says it
+ * in words, or, while the host's voice session listens, thinks or speaks, that (chip.ts). Before anything is said, the
+ * empty chat's starters put their words in the message box.
  *
  * Voice is beside the box, never instead of it: the host's voice button in the design's waveform over the message box
  * (src/voice/voice-deck.tsx). While a voice session runs on the conversation, the host puts what was heard and what
@@ -119,12 +121,14 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
   const sending = useSending(chat, auto, boxRef)
   const { fill, fillBox } = useBoxFill()
   const phone = usePhoneLayout()
+  const { phase: voicePhase } = useVoice()
   const reply = latestReply(live)
   const chip = chipWords(auto.mascot, {
     runningInput: runningToolInput(reply),
     deliverableKind: newestKind(reply),
     backendDown: auto.state.backendDown,
     approvalWaiting: auto.state.approvalWaiting,
+    voicePhase,
   })
   const parts: ChatParts = { chat, live, auto, chip, sending, boxRef, fill, fillBox }
   return phone ? <PhoneChat {...parts} /> : <DesktopChat {...parts} />

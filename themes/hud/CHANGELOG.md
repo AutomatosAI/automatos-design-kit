@@ -23,6 +23,9 @@ HUD talks, on the SDK's voice area (SDK 1.2.0: `engines.sdk` is `^1.2.0` and `us
   the transcript's newest YOU and AUTO rows on the desktop, the last exchange on the phone, Auto's with the
   AI-generated mark, until the saved turn takes their place. HUD draws no words of its own beside them, so they show
   once.
+- While a voice session listens, thinks or speaks, the state chip and the phone's top line say so: "Listening",
+  "Thinking", "Speaking", then the chat's state again. Listening is said only then, while the microphone is open; an
+  approval card waiting is still "Waiting for you".
 - The phone's STOP ends a voice session too, as it stops a reply.
 - The phone's mission clock reads days and hours from a day on (`12d 04h`, not `288:27:26`); under a day it is as it
   was (`02:14`, `1:02:14`).

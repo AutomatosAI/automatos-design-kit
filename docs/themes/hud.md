@@ -45,6 +45,7 @@ press.
 | MIC LIVE (`src/voice/mic-live.tsx`), whenever `useVoice().micOpen` (MIC MUTED on a muted call) | After the connection status in the top bar, the design's outlined chip | In the connection status's place in the phone's bar |
 | The waveform (`src/voice/waveform.tsx`, `wave.ts`) | 72 bars, half on each side of the button | 44 bars over the control row |
 | What was said aloud (the host's `voice-live-user` and `voice-live-assistant` messages at the end of the conversation) | The transcript's newest YOU and AUTO rows | The last exchange |
+| Auto's state while the session listens, thinks or speaks (`src/voice/session.ts` `VOICE_STATE_WORDS`) | The state chip says LISTENING, THINKING or SPEAKING | The top line (AUTO · LISTENING and the rest) and the state chip |
 
 - **Styling.** Through the button's root data attributes (`data-voice-state`, `data-voice-mic` and the rest), its press's
   `data-voice-button="press"` and the `--voice-button-*` custom properties: a circle in the look's accent, its 12%
@@ -57,6 +58,10 @@ press.
   while a session runs and motion is allowed: under the reduced-motion setting and while the look's `motion` is off
   there is no loop and every bar stands at rest; the loop is cancelled when the waveform unmounts.
 - **STOP** on the phone cancels the turn, as the design's does: it stops a reply and ends a voice session.
+- **Listening.** Auto's state in a word never says Listening for the chat's own listening state (an approval card
+  waiting is "Waiting for you"): it would read as an open microphone. While the voice session listens (the microphone
+  open), thinks or speaks, the chip and the phone's line say its phase instead, then the chat's state again; a running
+  Mission's line gives way to it while you talk to Auto.
 - **What was said aloud.** While a session runs on the conversation, core's chat puts what was heard and Auto's reply
   as far as he has spoken it at the end of its messages, and the saved turn takes their place once it lands. HUD draws
   them as any message, in its transcript's type, Auto's row with the AI-generated mark; it never draws `useVoice().heard`
@@ -83,7 +88,8 @@ changes, and a window crossing the width keeps the page it shows.
   A key pressed in a host menu drawn elsewhere in the page stays that menu's.
 - **The core screen** (`src/chat/phone/`). From the top: the line naming who is at work, the running Mission's agent,
   `WORKING`, and the time since it started (the SDK's activity feed, the same ask as the desktop's MISSION panel; the
-  feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time; the
+  feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time (while
+  a voice session listens, thinks or speaks, `AUTO` and its phase, whatever runs); the
   290 px core with Auto, the state chip and Pause Auto beside it, as on the desktop; the last exchange, your newest
   words in quotes and every reply after them, Auto's with all it carries on the desktop (tool lines, Deliverables, the
   host's cards, receipts, the snag box, the AI-generated mark), which is the exchange being spoken while a voice session
