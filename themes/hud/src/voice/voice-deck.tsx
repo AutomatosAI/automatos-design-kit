@@ -30,8 +30,8 @@ const HINT_PARTS: readonly string[] = VOICE_HINT.split(HINT_SEPARATOR)
 
 /** A phrase of the hint, its key (Space) drawn as one. */
 function HintPart({ part }: { readonly part: string }) {
+  if (!part.includes(KEY_WORD)) return <span className={styles.hintPart}>{part}</span>
   const [before, after] = part.split(KEY_WORD)
-  if (after === undefined) return <span className={styles.hintPart}>{part}</span>
   return (
     <span className={styles.hintPart}>
       {before}

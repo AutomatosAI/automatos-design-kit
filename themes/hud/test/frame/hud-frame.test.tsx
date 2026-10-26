@@ -134,7 +134,8 @@ describe('the top bar', () => {
   it("says where Automatos runs and whether it answers, in words", () => {
     host.setHealth('down')
     renderFrame()
-    expect(within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('status')).toHaveTextContent('Local · offline')
+    const statuses = within(screen.getByRole('banner', { name: TOP_BAR })).getAllByRole('status')
+    expect(statuses.find((status) => status.hasAttribute('data-connection'))).toHaveTextContent('Local · offline')
   })
 
   it('shows the time', () => {

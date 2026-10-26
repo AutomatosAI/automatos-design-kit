@@ -48,6 +48,9 @@ const bar = (): HTMLElement => screen.getByRole('banner', { name: TOP_BAR })
 const menuButton = (): HTMLElement => within(bar()).getByRole('button', { name: MENU_LABEL })
 const menu = (): HTMLElement => screen.getByRole('dialog', { name: DRAWER_LABEL })
 const utilities = (): HTMLElement | null => document.querySelector<HTMLElement>('[data-protected-surface="header-utilities"]')
+/** The bar's connection status: a status with its connection named (MIC LIVE's status beside it says none). */
+const connection = (): HTMLElement | undefined =>
+  within(bar()).getAllByRole('status').find((status) => status.hasAttribute('data-connection'))
 
 /** The phone frame with its menu open; MENU, found before the bar goes inert. */
 function openMenu(): { readonly button: HTMLElement; readonly dialog: HTMLElement } {
@@ -112,7 +115,7 @@ describe('the phone frame', () => {
     expect(menuButton()).toHaveAttribute('aria-expanded', 'false')
     expect(menuButton()).toHaveAttribute('aria-haspopup', 'dialog')
     expect(within(bar()).getByRole('link', { name: BRAND })).toHaveAttribute('href', '/chat')
-    expect(within(bar()).getByRole('status')).toHaveTextContent(/^● ?online$/)
+    expect(connection()).toHaveTextContent(/^● ?online$/)
     expect(screen.queryByRole('complementary', { name: SIDEBAR })).toBeNull()
     expect(screen.queryByRole('group', { name: UTILITIES })).toBeNull()
     expect(screen.queryByRole('button', { name: SEARCH })).toBeNull()
@@ -121,7 +124,7 @@ describe('the phone frame', () => {
   it('says the backend is down in words', () => {
     host.setHealth('down')
     renderFrame()
-    expect(within(bar()).getByRole('status')).toHaveTextContent('offline')
+    expect(connection()).toHaveTextContent('offline')
   })
 
   it('gives a page the whole width: its main alone in the body, no rail beside it, framed or full bleed', () => {

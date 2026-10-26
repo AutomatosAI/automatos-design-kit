@@ -30,7 +30,8 @@ function barStyle(height: number): BarStyle {
 function useWaveLoop(ref: RefObject<HTMLDivElement | null>, entry: WaveEntry, active: boolean, count: number): void {
   useEffect(() => {
     const wave = ref.current
-    if (!active || wave === null) return undefined
+    // A page with no animation frames (a server, a bare test DOM) draws the bars at rest.
+    if (!active || wave === null || typeof requestAnimationFrame !== 'function') return undefined
     const bars = Array.from(wave.children).filter((bar): bar is HTMLElement => bar instanceof HTMLElement)
     const length = historyLength(bars.length, entry)
     let history: readonly number[] = []
@@ -40,9 +41,7 @@ function useWaveLoop(ref: RefObject<HTMLDivElement | null>, entry: WaveEntry, ac
       history = pushLevel(history, Math.max(user, agent), length)
       const scales = barScales(history, bars.length, entry)
       // The DOM itself, in the frame: a style write per bar, and no render.
-      bars.forEach((bar, index) => {
-        bar.style.transform = `scaleY(${scales[index]})`
-      })
+      bars.forEach((bar, index) => bar.style.setProperty('transform', `scaleY(${scales[index]})`))
       frame = requestAnimationFrame(step)
     }
     frame = requestAnimationFrame(step)

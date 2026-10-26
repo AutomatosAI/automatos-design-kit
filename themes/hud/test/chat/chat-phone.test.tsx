@@ -3,9 +3,9 @@
 // at work (a running Mission's agent and its time, else Auto and his state), the core at the phone's size with the
 // state chip and Pause Auto beside it, the last exchange (your words in quotes, Auto's reply), and the control row:
 // TYPE opens the message box (focused, sending as on the desktop, keeping its words when shut), STOP stops a reply
-// and is disabled while nothing runs, and the voice button's place between them draws nothing: no microphone, no
-// waveform, no MIC LIVE. From 1024 px up the screen is the desktop's, and a window crossing the width keeps the
-// conversation. Roles, names and attributes only; every value is made up.
+// and is disabled while nothing runs, and the host's voice button stands between them (test/voice/ holds it, the
+// waveform over the row and what was said aloud). From 1024 px up the screen is the desktop's, and a window crossing
+// the width keeps the conversation. Roles, names and attributes only; every value is made up.
 import type { ActivityFeed } from '@automatos/theme-sdk'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -18,7 +18,6 @@ import { AGENTS_TITLE } from '../../src/chat/panels/agents-panel.tsx'
 import { RUNNING_MISSION } from '../../src/chat/panels/mission-panel.tsx'
 import { CONTROLS_LABEL, STOP_LABEL, TYPE_LABEL } from '../../src/chat/phone/phone-controls.tsx'
 import { LAST_EXCHANGE_LABEL } from '../../src/chat/phone/phone-transcript.tsx'
-import { VoiceSlot } from '../../src/chat/phone/voice-slot.tsx'
 import { CONVERSATION_LABEL } from '../../src/chat/transcript.tsx'
 import { DESKTOP_WIDTH, PHONE_WIDTH, resetWindowWidth, setWindowWidth } from '../support/window-width.ts'
 import { ASKED, core, HELD, openChat, QUESTION, stubClips, type StoredMessage, type Turn, words } from './support.tsx'
@@ -76,7 +75,11 @@ describe('the phone core screen', () => {
     expect(screen.getByText('Auto · Ready')).toBeInTheDocument()
     expect(core()).toHaveAttribute('data-size', 'small')
     expect(within(exchange()).getByRole('article', { name: 'You said' })).toBeInTheDocument()
-    expect(within(controls()).getAllByRole('button').map((button) => button.textContent)).toEqual([TYPE_LABEL, STOP_LABEL])
+    const buttons = within(controls()).getAllByRole('button')
+    expect(buttons).toHaveLength(3)
+    expect(buttons[0]).toBe(typeButton())
+    expect(buttons[1]).toHaveAccessibleName('Hold to talk')
+    expect(buttons[2]).toBe(stopButton())
     expect(screen.queryByRole('region', { name: AGENTS_TITLE })).toBeNull()
     expect(screen.queryByRole('list', { name: CONVERSATION_LABEL })).toBeNull()
     expect(screen.getByRole('heading', { level: 1, name: 'Laptop for uni' })).toHaveAttribute('data-theme-heading', 'true')
@@ -193,23 +196,6 @@ describe('the line', () => {
     const time = line?.querySelector('time')
     expect(time?.textContent).toMatch(/^02:1\d$/)
     expect(time?.getAttribute('dateTime')).toMatch(/^PT\d+S$/)
-  })
-})
-
-describe('the voice controls', () => {
-  it("are not drawn: the voice button's place renders nothing", () => {
-    const { container } = render(<VoiceSlot />)
-    expect(container).toBeEmptyDOMElement()
-  })
-
-  it('leave TYPE and STOP alone in the row, with no talk or mic control, no waveform and no MIC LIVE', async () => {
-    await renderPhoneChat()
-    const row = controls()
-    expect(within(row).getAllByRole('button')).toHaveLength(2)
-    expect(row.firstElementChild).toBe(typeButton())
-    expect(row.lastElementChild).toBe(stopButton())
-    expect(screen.queryByRole('button', { name: /talk|mic|voice|speak/i })).toBeNull()
-    expect(screen.queryByText(/mic live|hold to talk/i)).toBeNull()
   })
 })
 

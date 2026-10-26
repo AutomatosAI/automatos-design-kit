@@ -2,8 +2,8 @@
 // go out and show as a YOU row, Auto's reply streams into an AUTO row with the design's block cursor, Stop (the
 // button, or Esc in the box) keeps what he wrote and says so, his reply carries the host's AI-generated mark, the
 // message box keeps the keyboard rules (Enter sends, Shift+Enter is a new line, a composition is never cut short,
-// an empty box sends nothing), and the screen names its parts for a screen reader. No microphone is drawn: the SDK
-// offers a theme no voice. Roles, names and attributes only.
+// an empty box sends nothing), and the screen names its parts for a screen reader. Voice is beside the box, never
+// instead of it (test/voice/ holds the voice button, MIC LIVE and the waveform). Roles, names and attributes only.
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
@@ -152,10 +152,11 @@ describe('for a screen reader', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Laptop for uni' })).toHaveAttribute('data-theme-heading', 'true')
   })
 
-  it('draws no microphone: no talk or mic control, and no MIC LIVE', async () => {
+  it("keeps the message box beside the host's voice button, and no MIC LIVE while the microphone is shut", async () => {
     await renderChat()
-    expect(screen.queryByRole('button', { name: /talk|mic|voice|speak/i })).toBeNull()
-    expect(screen.queryByText(/mic live|hold to talk/i)).toBeNull()
+    expect(box()).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Hold to talk' })).toBeEnabled()
+    expect(screen.queryByText(/^mic live$/i)).toBeNull()
   })
 
   it('hides the rings from assistive technology and marks every loop for the motion knob', async () => {

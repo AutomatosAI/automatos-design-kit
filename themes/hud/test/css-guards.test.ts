@@ -4,20 +4,31 @@
 //   (vite-preset's css-scope, a port of core's css_scope.py), and the global ones (src/app/) pass it as written;
 // - no `!important` and no `@import`, and no selector names the host's protected surfaces;
 // - every @keyframes name and @font-face family starts with hud-, as written, so the build renames none of them;
-// - HUD defines only --hud-* variables, and Studio's --radius on purpose; it reads only its own, the host's fonts and
+// - HUD defines only --hud-* variables, Studio's --radius on purpose, and the --voice-button-* properties the host's
+//   voice button reads (the SDK's voice area, the way a theme styles it); it reads only its own, the host's fonts and
 //   the host's motion factor (the look's variables are --hud-*, painted by the host from boot/prepaint.json);
 // - no literal colour: no #hex, no colour function of numbers and no named colour, a system colour only inside a
 //   forced-colours block. src/lib/looks/catalogue.ts is the one home for a colour.
 import { cssScopeErrors } from '@automatos/vite-preset/css-scope'
 import { transformThemeCss } from '@automatos/vite-preset/theme-css'
 import { describe, expect, it } from 'vitest'
-import { readSource, sourceStyles } from './support/files.ts'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { KIT_ROOT, readSource, sourceStyles } from './support/files.ts'
 
 const HTML_CLASS = 'hud'
 const GLOBAL_STYLE = /^app\//
 const COMMENT = /\/\*[\s\S]*?\*\//g
-/** Variables HUD may define besides its own: Studio's corner radius, which HUD sets to 0 on purpose. */
-const DEFINED_OUTSIDE_PREFIX: readonly string[] = ['--radius']
+/** The SDK's voice area, whose VoiceButton names the custom properties a theme styles it with. */
+const VOICE_AREA = readFileSync(join(KIT_ROOT, 'packages', 'theme-sdk', 'areas', 'voice.d.ts'), 'utf8')
+/** The voice button's custom properties, as the SDK names them (`--voice-button-size` and the rest). */
+const VOICE_BUTTON_NAME = /`(--voice-button-[a-z-]+)`/g
+const VOICE_BUTTON_VARS: readonly string[] = [...new Set(Array.from(VOICE_AREA.matchAll(VOICE_BUTTON_NAME), (match) => match[1]))]
+/**
+ * Variables HUD may define besides its own: Studio's corner radius, which HUD sets to 0 on purpose, and the voice
+ * button's, which the host's button reads.
+ */
+const DEFINED_OUTSIDE_PREFIX: readonly string[] = ['--radius', ...VOICE_BUTTON_VARS]
 /** Variables HUD may read besides its own: the host's Geist faces and its motion factor. */
 const READ_OUTSIDE_PREFIX: readonly string[] = ['--font-geist-sans', '--font-geist-mono', '--theme-motion']
 const OWN_PREFIX = '--hud-'
@@ -54,6 +65,13 @@ describe("HUD's stylesheets", () => {
   it('are found: the two global ones and the modules', () => {
     expect(STYLES).toEqual(expect.arrayContaining(['app/hud-fonts.css', 'app/hud-theme.css']))
     expect(STYLES.filter((rel) => rel.endsWith('.module.css')).length).toBeGreaterThan(0)
+  })
+
+  it("may set the voice button's seven custom properties, the SDK's names, and no other of the host's", () => {
+    expect([...VOICE_BUTTON_VARS].sort()).toEqual([
+      '--voice-button-active-bg', '--voice-button-active-fg', '--voice-button-bg', '--voice-button-fg',
+      '--voice-button-radius', '--voice-button-ring', '--voice-button-size',
+    ])
   })
 
   it.each(STYLES)('%s passes the scope check once wrapped as the preset wraps it', (rel) => {
