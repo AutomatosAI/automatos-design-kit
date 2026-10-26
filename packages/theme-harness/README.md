@@ -78,13 +78,32 @@ with a made-up unread badge, a separator, the theme menu at 40 × 40, the accoun
 as before; `FirstRunNudge` is core's zero-height anchor with its pill placed over the top of the chat column, so it
 takes no room from the chat, with core's words and the link to Settings (a kept click).
 
+The voice area (SDK 1.2.0, `src/sdk/voice.ts`) answers from the fake host's voice session
+(`src/internal/voice-session.ts`): `useVoice` a frozen snapshot of it and `stop()`, `readVoiceLevels` the levels a test
+set while a session runs (connecting, listening, thinking or speaking), clamped to 0 to 1, and zeros otherwise. The
+`VoiceButton` stand-in (`src/sdk/voice-button.tsx`) checks its props as core does and draws core's DOM in plain colours:
+the root (`data-voice-button="root"`) with `data-voice-state`, `data-voice-mode`, `data-voice-press`, `data-voice-size`
+and `data-voice-mic`, a real `<button>` for the press named by `label` or by what a press does ("Hold to talk", "Talk to
+Auto"), sized by `size` and styled by the `--voice-button-*` custom properties a theme sets on core's. While the session
+is the button's (its engine, and its `conversation` when it names one) the host's control shows under it in the protected
+surface `voice-control`: the "AI voice assistant" caption (a tiny caption in the text's colour, never a pill), the
+microphone's state, and Stop (quick-ask) or End call and Close live voice (a Live call); then the microphone prompt
+while it connects, and a failure's sentence with Try again and Close. A press moves the session as the host would: a
+start listens with the microphone open, a release thinks, a stop ends it (quick-ask back to idle, a call to ended).
+`hold` starts on the pointer's press and sends on its release, and a click no pointer made counts as a toggle, as on
+core; `toggle` starts, then sends (or ends a call). The hotkey is checked, not listened for. With no host voice on the
+page the button is drawn disabled, titled with the reason. `test/voice.test.tsx` holds the stand-ins' behaviour and
+`test/voice-types.test.tsx` holds them to the vendored `areas/voice.d.ts`: its phases and the button's modes, presses
+and sizes, the snapshot's fields, and every data attribute and custom property it names.
+
 ## The fake host
 
 `host` (`@automatos/theme-harness/host`, `src/host.ts`) sets what the host would say and reads back what a theme
 asked of it. `host.reset()` puts it all back: the local edition's one operator in `WORKSPACE_DEFAULTS`, online,
 the backend up, a 1280-pixel window over a 1024-pixel `minWidth`, the light tone, the OS motion setting as
 `matchMedia` says (jsdom has none: motion allowed), no look runtime, no package files, `STORAGE_DEFAULTS` with no
-theme state kept, and nothing asked.
+theme state kept, no voice session (the host's voice on the page as `VOICE_DEFAULTS` offers it: quick-ask, and Live
+not set up), and nothing asked.
 
 | Area | Controls | Read back |
 |---|---|---|
@@ -98,6 +117,7 @@ theme state kept, and nothing asked.
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
 | chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
+| voice (SDK 1.2.0) | `setVoice` (any of the session's fields), `setVoicePhase` (the phase, its engine, and the microphone as that engine has it), `setVoiceMic`, `setVoiceWords` (`heard`, `reply`), `setVoiceError`, `setVoiceAvailable` (`VOICE_DEFAULTS` with changes; `null` for no host voice on the page), `setVoiceLevels` | `voiceStops()` (every `stop()`: useVoice's, the button's), `voicePresses()` (each press that reached the host: start, release or stop, with its engine and conversation) |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside

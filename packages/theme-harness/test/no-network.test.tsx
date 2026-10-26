@@ -38,7 +38,7 @@ function EveryHook() {
     sdk.useMediaPreferences(), sdk.useTone(), sdk.useThemeLayout()]
   const navigation = [sdk.useHostRouter(), sdk.useHostPathname(), sdk.useHostSearchParams(), sdk.useCoreNav()]
   sdk.useHostEvent('board-changed', () => undefined)
-  const looks = [sdk.useLook(), sdk.useLookScope(), sdk.useThemeState('probe')]
+  const looks = [sdk.useLook(), sdk.useLookScope(), sdk.useThemeState('probe'), sdk.useVoice()]
   const pages = [sdk.useAgents(), sdk.useAgentStats(), sdk.useMissions(), sdk.useMission(MISSION), sdk.useMissionField(MISSION),
     sdk.useRecommendedAssignments(), sdk.useActivityFeed(), sdk.useActivityStats(), sdk.useActivitySchedule(), sdk.useQuestions(),
     sdk.useNeedsYou(), sdk.useWatches(), sdk.useDocuments(), sdk.useDocumentStats(), sdk.useTeams(), sdk.useDocumentTeamCounts(),
@@ -77,7 +77,7 @@ describe('the fake SDK, with the network refused', () => {
       sdk.notify({ title: 'Saved' }), sdk.HOST_EVENT_NAMES, sdk.onHostEvent('chat-changed', () => undefined),
       sdk.saveLook(LOOK), sdk.listLooks(), sdk.exportLook(LOOK), sdk.importLook(JSON.stringify(LOOK)), sdk.assetUrl('assets/a.png'),
       sdk.readThemeState('probe'), sdk.writeThemeState('probe', true), sdk.removeThemeState('probe'),
-      sdk.subscribeThemeState('probe', () => undefined), sdk.THEME_STATE_LIMITS,
+      sdk.subscribeThemeState('probe', () => undefined), sdk.THEME_STATE_LIMITS, sdk.readVoiceLevels(),
     ]
     sdk.dismissNotice()
     sdk.openGlobalSearch()
