@@ -88,9 +88,11 @@ the root (`data-voice-button="root"`) with `data-voice-state`, `data-voice-mode`
 and `data-voice-mic`, a real `<button>` for the press named by `label` or by what a press does ("Hold to talk", "Talk to
 Auto"), sized by `size` and styled by the `--voice-button-*` custom properties a theme sets on core's. While the session
 is the button's (its engine, and its `conversation` when it names one) the host's control shows under it in the protected
-surface `voice-control`: the "AI voice assistant" caption (a tiny caption in the text's colour, never a pill), the
-microphone's state, and Stop (quick-ask) or End call and Close live voice (a Live call); then the microphone prompt
-while it connects, and a failure's sentence with Try again and Close. A press moves the session as the host would: a
+surface `voice-control`, in a row that wraps so it fits a phone under the button: the "AI voice assistant" caption (a
+tiny caption in the text's colour, never a pill), the microphone's state, and Stop (quick-ask) or End call and Close
+live voice (a Live call), each a small outlined button showing its icon and its word ("Stop", "End call", "Close"), as
+core draws them since its labelled stop control; then the microphone prompt while it connects, and a failure's
+sentence with Try again and Close. A press moves the session as the host would: a
 start listens with the microphone open, on the button's `conversation` or else the one on screen, a release thinks, a
 stop ends it (quick-ask back to idle, a call to ended). `hold` starts on the pointer's press and sends on its release,
 and a click no pointer made counts as a toggle, as on core; `toggle` starts, then sends (or ends a call). The hotkey is

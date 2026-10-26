@@ -7,12 +7,14 @@
  * (`data-voice-button="press"`, named by `label` or by what a press does), and the screen reader's line.
  *
  * While the session is the button's (voice-press.ts ownsSession: its engine, its conversation), the host's control
- * shows under it in the protected surface `voice-control`: the "AI voice assistant" caption (a tiny caption, never a
- * pill), the microphone's state and Stop (quick-ask) or End call / Close live voice (a Live call); then the microphone
- * prompt while it connects and a failure's sentence with Try again and Close. A press acts on the fake host's session
- * (src/internal/voice-session.ts): `hold` starts on the pointer's press and sends on its release, a click no pointer
- * made counts as a toggle (as core's does), `toggle` starts, then sends or ends. With no host voice on the page
- * (host.setVoiceAvailable(null)) it is drawn disabled, titled with the reason. The hotkey is checked, not listened for.
+ * shows under it in the protected surface `voice-control`, in a row that wraps: the "AI voice assistant" caption (a
+ * tiny caption, never a pill), the microphone's state and Stop (quick-ask) or End call / Close live voice (a Live
+ * call), each a small outlined button showing its icon and its word (core's fix/voice-stop-label, bfd1022dc); then the
+ * microphone prompt while it connects and a failure's sentence with Try again and Close. A press acts on the fake
+ * host's session (src/internal/voice-session.ts): `hold` starts on the pointer's press and sends on its release, a
+ * click no pointer made counts as a toggle (as core's does), `toggle` starts, then sends or ends. With no host voice on
+ * the page (host.setVoiceAvailable(null)) it is drawn disabled, titled with the reason. The hotkey is checked, not
+ * listened for.
  */
 import type { HostVoiceAvailability, VoiceButtonMode, VoiceButtonPress, VoiceButtonProps, VoiceButtonSize } from '@automatos/theme-sdk'
 import { type MouseEvent, type PointerEvent, useRef } from 'react'
@@ -22,8 +24,8 @@ import {
   type PressOptions, type VoiceSessionStandIn,
 } from '../internal/voice-session.ts'
 import {
-  AI_VOICE_LABEL, CAPTION, CONTROL_ROW, CONTROL_SLOT, CONTROL_WORDS, DEFAULT_LABELS, FAILURE, FAILURE_BUTTON, GLYPH_SIDE, pressStyle,
-  ROOT, ROUND_BUTTON, SMALL_TEXT, SR_ONLY, STATE_WORDS, VOICE_WORDS,
+  AI_VOICE_LABEL, CAPTION, CONTROL_GLYPH_SIDE, CONTROL_ROW, CONTROL_SLOT, CONTROL_WORDS, DEFAULT_LABELS, FAILURE, FAILURE_BUTTON,
+  GLYPH_SIDE, pressStyle, ROOT, SMALL_TEXT, SR_ONLY, STATE_WORDS, STOP_CONTROLS, stopControlStyle, VOICE_WORDS, type StopGlyph,
 } from './voice-button-styles.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
@@ -139,12 +141,43 @@ function MicGlyph({ size }: { readonly size: VoiceButtonSize }) {
   )
 }
 
-/** voice-button.tsx StopControl: Stop while quick-ask runs; End call, or Close once a call ended; none for a failure. */
+/** lucide's Square, PhoneOff and X, in a 24 px box, drawn at CONTROL_GLYPH_SIDE: the icon beside a stop control's word. */
+const STOP_GLYPHS: Readonly<Record<StopGlyph, readonly string[]>> = Object.freeze({
+  square: ['M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z'],
+  'phone-off': [
+    'M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3'
+      + 'a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63'
+      + 'A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91',
+    'M22 2 2 22',
+  ],
+  x: ['M18 6 6 18', 'm6 6 12 12'],
+})
+
+function StopGlyphIcon({ glyph }: { readonly glyph: StopGlyph }) {
+  return (
+    <svg
+      aria-hidden="true" width={CONTROL_GLYPH_SIDE} height={CONTROL_GLYPH_SIDE} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={2}
+    >
+      {STOP_GLYPHS[glyph].map((path) => <path key={path} d={path} />)}
+    </svg>
+  )
+}
+
+/**
+ * voice-button.tsx StopControl over voice-controls.tsx StopButton and EndOrClose: Stop while quick-ask runs; End call,
+ * or Close once a call ended; none for a failure. Each is a small outlined button, its icon and its word.
+ */
 function StopControl({ now }: { readonly now: VoiceSessionStandIn }) {
   const running = isRunning(now.phase)
   if (now.phase === 'error' || (now.mode !== 'live' && !running)) return null
-  const label = now.mode !== 'live' ? VOICE_WORDS.stop : running ? CONTROL_WORDS.endCall : CONTROL_WORDS.closeLive
-  return <button type="button" aria-label={label} style={ROUND_BUTTON} onClick={stopVoice}>■</button>
+  const control = now.mode !== 'live' ? STOP_CONTROLS.stop : running ? STOP_CONTROLS.endCall : STOP_CONTROLS.closeLive
+  return (
+    <button type="button" aria-label={control.name} style={stopControlStyle(control.alert)} onClick={stopVoice}>
+      <StopGlyphIcon glyph={control.glyph} />
+      {control.word}
+    </button>
+  )
 }
 
 const minutes = (seconds: number): string => `${Math.floor(seconds / SECONDS_PER_MINUTE)}:${String(seconds % SECONDS_PER_MINUTE).padStart(SECONDS_PAD, '0')}`
