@@ -45,16 +45,21 @@ describe('the phone-width group', () => {
     const phoneFolders = (minWidth: number): string[] => atPhone(shotGroups(PRESETS, minWidth)).map((group) => group.folder)
     expect([0, 320, 360, 390].map(fitsPhone)).toEqual([true, true, true, true])
     expect([391, 768, 1024].map(fitsPhone)).toEqual([false, false, false])
+    const sweep = [0, 320, 359, 360, 389, 390, 391, 768, 1023, 1024, 3840]
+    expect(sweep.filter((minWidth) => phoneFolders(minWidth).length > 0)).toEqual([0, 320, 359, 360, 389, 390])
     expect(phoneFolders(390)).toEqual(['ember/390', 'aurora/390'])
     expect(phoneFolders(0)).toEqual(['ember/390', 'aurora/390'])
     expect(phoneFolders(391)).toEqual([])
-    expect(shotGroups(PRESETS, 391).map((group) => group.folder)).toContain('below-390')
+    expect(shotGroups(PRESETS, 391).find((group) => group.folder === 'below-390'))
+      .toMatchObject({ preset: 'ember', width: 390, height: DESKTOP_HEIGHT, page: null })
+    expect(shotGroups(PRESETS, 390).find((group) => group.folder === 'below-389')).toMatchObject({ width: 389, height: DESKTOP_HEIGHT })
     expect(phoneFolders(1024)).toEqual([])
   })
 
   it('has no transcript group for a theme with no /chat page, and a default folder for a theme with no preset', () => {
     expect(atPhone(shotGroups(PRESETS, 360, ['/deliverables'])).every((group) => group.page === null)).toBe(true)
     expect(atPhone(shotGroups([], 360)).map((group) => group.folder)).toEqual(['default/390'])
+    expect(atPhone(shotGroups([], 360, ['/chat'])).map((group) => group.folder)).toEqual(['default/390', 'default/390-transcript'])
   })
 
   it('leaves the other groups as they are, each 900 tall: the desktop widths, below minWidth and the chat groups', () => {

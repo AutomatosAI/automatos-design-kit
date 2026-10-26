@@ -29,6 +29,8 @@ const SHOT_GROUPS = "packages/theme-harness/src/host/shot-groups.ts";
 // The harness's widths: the phone's viewport, which the phone-width group shoots in and the toolbar offers the width of.
 const ROUTER = "packages/theme-harness/src/host/router.ts";
 const TOOLBAR = "packages/theme-harness/app/toolbar.tsx";
+// The phone view's phone, which draws Automatos Go at the same 390 × 844 the phone-width group shoots in.
+const PHONE_FRAME = "packages/theme-harness/app/phone/frame.tsx";
 const PHONE_VIEWPORT = "export const PHONE_VIEWPORT: Readonly<{ width: number; height: number }> = Object.freeze({ width: 390, height: 844 })";
 /** The theme folder each `automatos-theme shots` run of a job shoots. */
 const SHOTS_THEME = /^npx automatos-theme shots (\S+)/;
@@ -155,6 +157,8 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     expect(groups).toContain("...phoneGroups(looks, minWidth, pages)]");
     expect(readText(ROUTER)).toContain(PHONE_VIEWPORT);
     expect(readText(TOOLBAR)).toContain("widthChoices(minWidth)");
+    expect(readText(SHOTS_CONFIG)).toContain("const VIEWPORT = Object.freeze({ width: SHOT_WIDTHS[0], height: DESKTOP_HEIGHT })");
+    expect(readText(PHONE_FRAME)).toContain("width: PHONE_VIEWPORT.width, height: PHONE_VIEWPORT.height");
   });
 
   it("shoots themes that each declare their own minWidth, which decides their phone-width group", () => {
