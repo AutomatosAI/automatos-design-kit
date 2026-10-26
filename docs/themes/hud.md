@@ -71,8 +71,10 @@ changes, and a window crossing the width keeps the page it shows.
 Core's host draws an installed theme's frame and pages from 1024 px up for now, whatever `minWidth` names
 (`frontend/lib/theme-host/installed-entry.ts`, `INSTALLED_FRAME_MIN_WIDTH_PX`), and its own pages below that; the kit's
 harness draws HUD from its `minWidth`, so `automatos-theme dev` in a narrow window shows the phone layout. Kit CI's
-harness shots draw HUD at 1440 and 1024 px and just below `minWidth` (the host's pages), so no shot draws the phone
-layout yet; HUD's own tests hold it (`test/frame/phone-frame.test.tsx`, `test/chat/chat-phone.test.tsx`).
+harness shots draw HUD at 1440 and 1024 px, just below `minWidth` (the host's pages) and, as its `minWidth` fits a
+phone, at a phone's 390 × 844 in a window that size: every view of each preset (`<preset>/390/`) and `/chat` on the
+made-up transcript (`<preset>/390-transcript/`), each with an axe scan. HUD's own tests hold the layout too
+(`test/frame/phone-frame.test.tsx`, `test/chat/chat-phone.test.tsx`).
 
 ## Looks
 

@@ -58,15 +58,20 @@ folder with the theme folder in `AUTOMATOS_HARNESS_THEME` and the out folder in 
 2. `playwright test --config shots/playwright.config.ts`, whose web server previews that build on
    `http://127.0.0.1:4318`.
 
-The out folder (default `./shots`) gets `<browser>/<preset>/<width>/<view>.png`: one PNG per slot, page and route
-the theme both declares and registers, for each preset at 1440 and 1024 px and once just below its `minWidth`, with
-reduced motion, and an `axe.json` beside each set. A theme with a `/chat` page gets that page twice more in its default
-look at 1440 px: with motion allowed, in `<preset>/1440-motion/` (Auto's clip and the Pause Auto control, which reduced
-motion never draws), and on a made-up transcript, in `<preset>/1440-transcript/` (the owner's words, Auto's reply
-with a tool line and a Deliverable). The harness draws the theme on core's base layer (Tailwind's preflight and core's
-base styles), the looks pages full bleed and the 404 with no frame, as core does, and answers the page areas' reads
-with made-up data. A set fails on a missing shot, on any request to another origin than the harness's, and on a
-critical axe violation. The browsers come from `npx playwright install chromium webkit`.
+The out folder (default `./shots`) gets `<browser>/<preset>/<width>/<view>.png`: one PNG per slot, page and route the
+theme both declares and registers, for each preset at 1440 and 1024 px and once just below its own `minWidth`, with
+reduced motion, and an `axe.json` beside each set. A theme with a `/chat` page gets that page twice more in its
+default look at 1440 px: with motion allowed, in `<preset>/1440-motion/` (Auto's clip and the Pause Auto control,
+which reduced motion never draws), and on a made-up transcript, in `<preset>/1440-transcript/` (the owner's words,
+Auto's reply with a tool line and a Deliverable). A theme whose own `minWidth` is at most 390 px, so it draws at a
+phone's width, is shot at a phone's 390 × 844 too, with reduced motion: each preset in `<preset>/390/` and, with a
+`/chat` page, that page on the transcript in its default look, in `<preset>/390-transcript/`. A theme whose `minWidth`
+is wider gets no 390 set: below `minWidth` the host draws its own pages, which the set just below it shows. Each set's
+browser window is sized to the set's width (900 px tall, or the phone's 844), so the theme's own media queries see the
+width it is shot at. The harness draws the theme on core's base layer (Tailwind's preflight and core's base styles),
+the looks pages full bleed and the 404 with no frame, as core does, and answers the page areas' reads with made-up
+data. A set fails on a missing shot, on any request to another origin than the harness's, and on a critical axe
+violation. The browsers come from `npx playwright install chromium webkit`.
 
 Exit codes: 0 every shot passed; the failing step's own exit code; 1 no `theme.json` (or not JSON) or no
 `src/entry.ts`, or a default look with no `looks/presets/` yet; 2 usage error.
