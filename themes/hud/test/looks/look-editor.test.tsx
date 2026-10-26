@@ -140,6 +140,8 @@ describe('each knob', () => {
   })
 
   it('keeps the glow in its 0 to 40, and says what is painted past the cap its background and accent set', async () => {
+    expect(glowCapNote(20)).toBe('Held at 20 here so text stays easy to read.')
+    expect(cappedGlowText(30, 29)).toBe('30, held at 29')
     renderEditor({ look: NOVA })
     await lookHeld(NOVA)
     const cap = glowCap(NOVA)

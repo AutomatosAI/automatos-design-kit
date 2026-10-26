@@ -2,7 +2,8 @@
 // a test drives (the phase, the microphone, what was heard and replied, the error, what is available), the same object
 // while nothing changed; readVoiceLevels answers the levels a test set while a session runs, clamped, and zeros
 // otherwise; VoiceButton draws a real <button> under a root carrying core's data attributes, checks its props as core
-// does, owns the session it started, shows the "AI voice assistant" caption and the stop control while it does, and its
+// does, owns the session it started, shows the "AI voice assistant" caption and the stop control while it does (in a
+// row that wraps, Stop, End call and Close each its icon and its word, as core's fix/voice-stop-label draws them), and its
 // presses move the session; every stop() is counted, and host.reset() puts it all back.
 import { readVoiceLevels, useVoice, VoiceButton, type HostVoiceState, type VoiceButtonProps } from '@automatos/theme-sdk'
 import { act, fireEvent, render, screen } from '@testing-library/react'
@@ -29,6 +30,13 @@ function Strip() {
 }
 
 const strip = (): string | null => screen.getByTestId('strip').textContent
+
+/** A stop control as core draws it: a plain button showing its word beside its icon, never the bare icon. */
+function expectLabelled(control: HTMLElement, word: string): void {
+  expect(control).toHaveAttribute('type', 'button')
+  expect(control.textContent).toBe(word)
+  expect(control.querySelector('svg[aria-hidden="true"]')).not.toBeNull()
+}
 const rootOf = (button: HTMLElement): Element | null => button.closest(ROOT)
 const attributeOf = (button: HTMLElement, name: string): string | null | undefined => rootOf(button)?.getAttribute(name)
 
@@ -224,7 +232,13 @@ describe('VoiceButton', () => {
     expect([caption.style.background, caption.style.borderRadius, caption.style.padding]).toEqual(['', '', ''])
     expect(screen.getByText('Mic live')).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Auto is listening. Mic live')
-    fireEvent.click(screen.getByRole('button', { name: 'Stop' }))
+    const row = caption.parentElement as HTMLElement
+    expect([row.style.display, row.style.flexWrap, row.style.columnGap, row.style.rowGap]).toEqual(['flex', 'wrap', '6px', '4px'])
+    expect(row).toHaveTextContent(`${CAPTION}Mic liveStop`)
+    const stop = screen.getByRole('button', { name: 'Stop' })
+    expectLabelled(stop, 'Stop')
+    expect([stop.style.height, stop.style.borderRadius, stop.style.fontSize]).toEqual(['28px', '9999px', '12px'])
+    fireEvent.click(stop)
     expect(host.voiceStops()).toBe(1)
     expect(screen.queryByText(CAPTION)).toBeNull()
   })
@@ -237,12 +251,16 @@ describe('VoiceButton', () => {
     expect(Array.from(document.querySelectorAll(ROOT), (root) => root.getAttribute('data-voice-state'))).toEqual(['idle', 'idle'])
   })
 
-  it('a Live call ends with End call and closes with Close live voice', () => {
+  it('a Live call ends with End call and closes with Close live voice, each showing its word', () => {
     host.setVoicePhase('speaking', 'live')
     render(<VoiceButton />)
-    fireEvent.click(screen.getByRole('button', { name: 'End call' }))
+    const end = screen.getByRole('button', { name: 'End call' })
+    expectLabelled(end, 'End call')
+    fireEvent.click(end)
     expect(rootOf(screen.getByRole('button', { name: 'Hold to talk' }))?.getAttribute('data-voice-state')).toBe('ended')
-    fireEvent.click(screen.getByRole('button', { name: 'Close live voice' }))
+    const close = screen.getByRole('button', { name: 'Close live voice' })
+    expectLabelled(close, 'Close')
+    fireEvent.click(close)
     expect(host.voiceStops()).toBe(2)
   })
 

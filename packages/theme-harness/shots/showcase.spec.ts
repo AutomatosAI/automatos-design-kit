@@ -7,7 +7,8 @@
  * harness settled (settle.ts). It fails when the theme did not start, when the theme has no preset of the shot's look
  * (the harness would draw its default look under the shot's name), when the stage is not on the shot's view, when
  * core's first-run nudge is on the page (the hosted edition draws none), when the voice phase it asks for is not on the
- * host's voice button, and when a heading the shot names is not shown. A shot whose step opens the phone menu presses
+ * host's voice button, when a heading the shot names is not shown, and when a shot after Play's hello (the demo extra
+ * `hello-played`) still shows "Hi, I'm Auto." anywhere. A shot whose step opens the phone menu presses
  * the theme's Menu button and waits for its dialog. Then it writes `<theme>-<width>-<what>-<look>.png` into
  * dist/showcase/ (Playwright makes the folder): the viewport as drawn, with animations off and the caret hidden. The
  * host's Auto widget stand-in (a labelled box where core draws its floating Auto) is hidden for the shot, since no host
@@ -17,7 +18,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
 import { DEFAULT_SETTINGS, STAGE_ID } from '../src/host/router.ts'
-import { SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot } from '../src/host/showcase.ts'
+import {
+  PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot,
+} from '../src/host/showcase.ts'
 import { harnessReport, openSettled, SETTLE } from './settle.ts'
 
 const OUT_DIR = join(fileURLToPath(new URL('..', import.meta.url)), SHOWCASE_FOLDER)
@@ -40,6 +43,7 @@ async function expectDrawn(page: Page, shot: ShowcaseShot): Promise<void> {
   await expect(page.locator(NUDGE), 'no first-run nudge on the hosted edition').toHaveCount(0)
   if (shot.voice !== DEFAULT_SETTINGS.voice) await expect(page.locator(voiceButtonIn(shot.voice)).first()).toBeAttached()
   if (shot.heading !== undefined) await expect(page.getByRole('heading', { name: shot.heading, exact: true })).toBeVisible()
+  if (shot.demo.includes('hello-played')) await expect(page.getByText(PLAY_HELLO, { exact: true }), 'no hello after it played').toHaveCount(0)
 }
 
 /** Opens the theme's phone menu and waits until its dialog shows. */

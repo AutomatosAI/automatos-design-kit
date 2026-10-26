@@ -267,11 +267,11 @@ describe('what the build and the shots read', () => {
   it('reads back the settings it writes into the address, and drops a malformed value', () => {
     const settings: HarnessSettings = {
       path: '/x/notes', preset: 'paper', width: 1023, tone: 'dark', reducedMotion: true, forcedColors: true, transcript: true,
-      voice: 'speaking', toolbar: false, edition: 'saas',
+      voice: 'speaking', toolbar: false, edition: 'saas', demo: ['healthy-agents', 'hello-played'],
     }
     expect(readSettings(settingsQuery(settings))).toEqual(settings)
     expect(settingsQuery(DEFAULT_SETTINGS)).toBe('')
-    expect(readSettings('?path=javascript:x&width=12&tone=blue&preset=../x&voice=shouting&edition=cloud')).toEqual(DEFAULT_SETTINGS)
+    expect(readSettings('?path=javascript:x&width=12&tone=blue&preset=../x&voice=shouting&edition=cloud&demo=everything')).toEqual(DEFAULT_SETTINGS)
   })
 
   it("plans a shot folder per preset at 1440 and 1024, and one below minWidth; flags a request off the harness's origin", () => {

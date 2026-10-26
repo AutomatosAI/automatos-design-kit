@@ -1,0 +1,32 @@
+[
+  {
+    "id": "harness-chat-bake-sale-captions",
+    "title": "Bake sale captions",
+    "updatedAt": "2026-10-14T08:05:00+00:00",
+    "preview": "Three captions for Saturday's stall, each with the opening time."
+  },
+  {
+    "id": "harness-chat-board-summary",
+    "title": "Weekly board summary",
+    "updatedAt": "2026-10-13T16:40:00+00:00",
+    "preview": "Four cards moved to Done this week; two are waiting for you."
+  },
+  {
+    "id": "harness-chat-invoice-check",
+    "title": "September invoice check",
+    "updatedAt": "2026-10-12T11:20:00+00:00",
+    "preview": "Two invoices look odd: the same amount was paid twice."
+  },
+  {
+    "id": "harness-chat-team-day",
+    "title": "Team day plan",
+    "updatedAt": "2026-10-09T14:00:00+00:00",
+    "preview": "A plan for the day, with a long walk after lunch."
+  },
+  {
+    "id": "harness-chat-revision-week",
+    "title": "Revision week",
+    "updatedAt": "2026-10-02T09:30:00+00:00",
+    "preview": "Here is a plan for the week, an hour a day."
+  }
+]

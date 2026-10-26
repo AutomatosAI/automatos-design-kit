@@ -13,10 +13,13 @@
  *   the address each shot opens, are src/host/shot-groups.ts's).
  * - The widths: the two desktop widths, a phone's (PHONE_VIEWPORT), and the one just below the theme's minWidth.
  * - The settings the toolbar switches (the voice phase among them), as the query string a reload or a shot opens the
- *   harness with, and the host's edition, which only the address sets (`edition=saas`; the showcase shots ask for it).
+ *   harness with, and two the address alone sets, for the showcase shots: the host's edition (`edition=saas`) and the
+ *   demo extras over the sample data (`demo=healthy-agents,older-chats,hello-played`, src/host/demo.ts).
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
  */
+
+import { demoOf, demoText, NO_DEMO, type DemoExtra } from './demo.ts'
 
 export const HARNESS_HOST = '127.0.0.1'
 export const HARNESS_PORT = 4318
@@ -233,6 +236,8 @@ export interface HarnessSettings {
    * first-run nudge. No toolbar control: the address alone sets it.
    */
   readonly edition: HarnessEdition
+  /** The demo extras over the sample data (src/host/demo.ts); none by default. No toolbar control: the address alone. */
+  readonly demo: readonly DemoExtra[]
 }
 
 export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
@@ -246,11 +251,12 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   voice: 'idle',
   toolbar: true,
   edition: 'local',
+  demo: NO_DEMO,
 })
 
 const PARAM = Object.freeze({
   path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', voice: 'voice',
-  toolbar: 'toolbar', edition: 'edition',
+  toolbar: 'toolbar', edition: 'edition', demo: 'demo',
 })
 const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
@@ -293,6 +299,7 @@ export function readSettings(search: string): HarnessSettings {
     voice: voiceOf(params.get(PARAM.voice)),
     toolbar: params.get(PARAM.toolbar) !== OFF,
     edition: editionOf(params.get(PARAM.edition)),
+    demo: demoOf(params.get(PARAM.demo)),
   })
 }
 
@@ -309,6 +316,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.voice !== DEFAULT_SETTINGS.voice) params.set(PARAM.voice, settings.voice)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
   if (settings.edition !== DEFAULT_SETTINGS.edition) params.set(PARAM.edition, settings.edition)
+  if (demoText(settings.demo) !== '') params.set(PARAM.demo, demoText(settings.demo))
   const query = params.toString()
   return query === '' ? '' : `?${query}`
 }

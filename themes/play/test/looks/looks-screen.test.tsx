@@ -59,7 +59,7 @@ describe('Make it yours under Play', () => {
     expect(preview.getByText('Ta-da.')).toBeInTheDocument()
     expect(preview.getByText('Can you make me a shortlist under £700?')).toBeInTheDocument()
     expect(preview.getByText('✓ Searched the web · 5 results')).toBeInTheDocument()
-    expect(preview.getByText('ASUS Vivobook S 14')).toBeInTheDocument()
+    expect(preview.getByText('Aero 14')).toBeInTheDocument()
     expect(preview.getByText('Laptop shortlist')).toBeInTheDocument()
     expect(preview.getByText('Open')).toBeInTheDocument()
     expect(preview.getByText('Message Auto')).toBeInTheDocument()

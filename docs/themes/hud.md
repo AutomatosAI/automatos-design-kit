@@ -5,11 +5,11 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.1.0.
+`themes/hud/theme.json` at version 1.1.1.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.1.0` |
+| `id`, `version` | `automatos/hud`, `1.1.1` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.2.0"}`: SDK 1.2.0, the SDK with the voice area |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
@@ -26,7 +26,7 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
@@ -44,7 +44,7 @@ press.
 | The voice button (`VoiceButton`: core draws the press, the microphone prompt, the "AI voice assistant" caption, the stop control, Live's mute and device, a failure's Try again, and the spoken AI notice once a session) | In the middle of the design's waveform over the message box (`src/voice/voice-deck.tsx`): `press: 'hold'`, `mode: 'auto'` (Auto Live where it can start, else quick-ask), `hotkey: 'Space'` (never while typing, core's rule), `size: 'md'` at the 44 px tap size; the design's hint under it, HOLD SPACE TO TALK · OR TYPE · "AUTO, STOP" TO CANCEL, gives way to the host's caption and stop control while the session runs | The design's 84 px HOLD TO TALK circle between TYPE and STOP (`src/chat/phone/voice-slot.tsx`): `press: 'hold'`, `mode: 'auto'`, `hotkey: null`, `size: 'lg'`; HOLD TO TALK under it at rest |
 | MIC LIVE (`src/voice/mic-live.tsx`), whenever `useVoice().micOpen` (MIC MUTED on a muted call) | After the connection status in the top bar, the design's outlined chip | In the connection status's place in the phone's bar |
 | The waveform (`src/voice/waveform.tsx`, `wave.ts`) | 72 bars, half on each side of the button | 44 bars over the control row |
-| What was said aloud (the host's `voice-live-user` and `voice-live-assistant` messages at the end of the conversation) | The transcript's newest YOU and AUTO rows | The last exchange |
+| What was said aloud (the host's `voice-live-user` and `voice-live-assistant` messages at the end of the conversation) | The transcript's newest YOU and AUTO rows | The last exchange, at the foot of its room over the waveform while the session runs |
 | Auto's state while the session listens, thinks or speaks (`src/voice/session.ts` `VOICE_STATE_WORDS`) | The state chip says LISTENING, THINKING or SPEAKING | The top line (AUTO · LISTENING and the rest) and the state chip |
 
 - **Styling.** Through the button's root data attributes (`data-voice-state`, `data-voice-mic` and the rest), its press's
@@ -93,7 +93,8 @@ changes, and a window crossing the width keeps the page it shows.
   290 px core with Auto, the state chip and Pause Auto beside it, as on the desktop; the last exchange, your newest
   words in quotes and every reply after them, Auto's with all it carries on the desktop (tool lines, Deliverables, the
   host's cards, receipts, the snag box, the AI-generated mark), which is the exchange being spoken while a voice session
-  runs, then what follows the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
+  runs, sitting then at the foot of its room over the waveform rather than centred under the core, then what follows
+  the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
   desktop's, with the AI label fence) once TYPE opens it, the waveform, and the control row: TYPE, the host's voice
   button as HOLD TO TALK (`VoiceSlot`), and STOP. TYPE opens and shuts the box, putting the focus in it and keeping its
   words when shut; an empty chat's starter opens it with its words. STOP stops a reply as the box's Stop does, ends a
@@ -146,7 +147,8 @@ The five presets (`looks/presets/`):
 `boot/prepaint.json` paints the active look before HUD's code runs: HUD's own `--hud-*` variables and Studio's colour
 tokens, so the host's pages inside the frame take the look's colours too. Its tone rule gives every ground `dark`.
 The text colours are fixed so they read at WCAG AA on every background, and the glow stops where text on it would
-drop under AA; `design/contrast.json` declares the pairs `automatos-theme check design` measures on every preset (it
+drop under AA (past that point the LOOK drawer's glow slider says, in plain words, "Held at 20 here so text stays easy
+to read."); `design/contrast.json` declares the pairs `automatos-theme check design` measures on every preset (it
 is never packed).
 
 ## Auto and the files

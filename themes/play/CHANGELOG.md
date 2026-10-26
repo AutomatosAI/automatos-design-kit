@@ -2,6 +2,20 @@
 
 Play's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.2.1
+
+Polish for the product images:
+
+- **Hello on an empty chat only.** Auto's hello ("Hi, I'm Auto.") plays once per browser session, as before, but now
+  only on an empty chat, the first open it belongs to. A conversation opened first in a session (a link to it in a new
+  tab, a reload, one picked from Conversations) no longer shows the hello caption beside it, under Auto in the mascot
+  column or over the phone's message box; the session's hello waits for its first empty chat.
+- **A made-up laptop.** The Look page's preview and the style sheet's sample chat name a made-up laptop, the Aero 14,
+  where they named a real product.
+- **Save as new look fits.** The look editor's option groups sit 20 px apart and 8 px under their labels (24 and 12
+  before), so at 1440 by 900 the whole panel fits under the header row and Save as new look and Reset are no longer
+  cut at the window's foot. A shorter window still scrolls the panel on its own.
+
 ## 1.2.0
 
 Play gets a voice and a phone. It needs SDK 1.2.0 (`engines.sdk` `^1.2.0`, `voice` in `uses`) and draws from a

@@ -11,7 +11,7 @@
 // URL cleaned, the history asked again, a cold start, the races of P260-FX-07) is core's to prove, and the ledger
 // names those tests (test/moved-from-core/chat.json). Auto himself is a stand-in that shows his state and caption.
 // Roles and text only (CSS modules are proxies).
-import { removeThemeState, useStartChat, writeThemeState } from '@automatos/theme-sdk'
+import { readThemeState, removeThemeState, useStartChat, writeThemeState } from '@automatos/theme-sdk'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
@@ -121,6 +121,24 @@ describe('first open (an empty chat)', () => {
 })
 
 describe('a stored conversation', () => {
+  it("opened first in the session, has no hello over it; the session's first new chat still says hello (Play 1.2.1)", async () => {
+    removeThemeState(HELLO_KEY, HELLO_STATE)
+    openStoredChat()
+    render(
+      <>
+        <PlayChat />
+        <NewChatButton />
+      </>,
+    )
+    await screen.findByRole('list', { name: 'Conversation' })
+    expect(auto()).not.toHaveAttribute('data-state', 'hello')
+    expect(screen.queryByText(HELLO_TITLE)).toBeNull()
+    expect(readThemeState(HELLO_KEY, HELLO_STATE).value).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'New chat' }))
+    expect(screen.getByRole('heading', { name: HELLO_TITLE })).toBeInTheDocument()
+    expect(auto()).toHaveAttribute('data-state', 'hello')
+  })
+
   it('renders its messages once the conversation has opened, Auto saying so meanwhile', async () => {
     openStoredChat()
     host.setChatOpening(true)

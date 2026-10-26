@@ -43,8 +43,8 @@ const LINKED = {
   id: 'c1',
   title: 'Laptop for uni',
   updatedAt: '2026-10-14T09:00:00Z',
-  preview: 'The Vivobook S 14.',
-  messages: [{ role: 'user' as const, text: ASKED }, { role: 'assistant' as const, text: 'The Vivobook S 14.' }],
+  preview: 'The Aero 14.',
+  messages: [{ role: 'user' as const, text: ASKED }, { role: 'assistant' as const, text: 'The Aero 14.' }],
 }
 
 /** Nothing of Play's Conversations ran: no list asked for, no navigation but the one named, no Auto. */

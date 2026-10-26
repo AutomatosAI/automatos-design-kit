@@ -11,7 +11,11 @@
  *   each image is the same on every run;
  * - on the harness's own made-up data: the laptop-shortlist conversation with its Deliverable (src/host/transcript.ts),
  *   the running Mission and the board's cards (src/host/sample-data.ts), and the made-up voice session
- *   (src/host/voice.ts).
+ *   (src/host/voice.ts);
+ * - with the demo extras over it (src/host/demo.ts) that a member's workspace in use shows: every agent active on every
+ *   shot; on each of Play's shots on a conversation, the session's hello already played, so Auto is at rest beside it,
+ *   as Play greets on its first open (the first-open shot keeps his hello); and on Play's Conversations, five older
+ *   conversations beside the shortlist.
  * No axe scan: the regression shots scan the same views. HUD draws no Command Centre of its own (its theme.json
  * declares no such page, so the host's page would stand in its frame), so none is shot.
  *
@@ -21,6 +25,7 @@ import {
   DEFAULT_SETTINGS, HARNESS_HOST, pagePath, PHONE_VIEWPORT, routePath, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, slotPath,
   type HarnessEdition, type HarnessVoicePhase, type View,
 } from './router.ts'
+import type { DemoExtra } from './demo.ts'
 import { CHAT_PAGE, DESKTOP_HEIGHT, type Viewport } from './shot-groups.ts'
 
 /** The kit's themes the showcase draws, by their folder under themes/. */
@@ -63,25 +68,41 @@ export interface ShowcaseShot {
   readonly step: ShowcaseStep
   /** A heading the view must show (the first open's greeting), when the shot is one the theme names so. */
   readonly heading?: string
+  /** The demo extras over the sample data. */
+  readonly demo: readonly DemoExtra[]
 }
 
 const LOOK_EDITOR_SLOT = 'lookEditor@1'
 const CONVERSATIONS_ROUTE = 'conversations'
-/** Play's first open (themes/play/src/components/play/chat/first-open.tsx HELLO_TITLE). */
-const PLAY_HELLO = "Hi, I'm Auto."
+/**
+ * Play's hello: the first open's heading (themes/play/src/components/play/chat/first-open.tsx HELLO_TITLE), and Auto's
+ * caption while he plays it (packages/mascot/src/media.ts), which no shot after the hello shows.
+ */
+export const PLAY_HELLO = "Hi, I'm Auto."
 
 const CHAT: View = Object.freeze<View>({ kind: 'page', key: CHAT_PAGE, path: pagePath(CHAT_PAGE) })
 const LOOK_EDITOR: View = Object.freeze<View>({ kind: 'slot', key: LOOK_EDITOR_SLOT, path: slotPath(LOOK_EDITOR_SLOT) })
 const CONVERSATIONS: View = Object.freeze<View>({ kind: 'route', key: CONVERSATIONS_ROUTE, path: routePath(CONVERSATIONS_ROUTE) })
 
-type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading'>>
+type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading' | 'demo'>>
 
-/** A shot on a new chat with no voice session and nothing pressed, but for `changes`. */
+/** Every shot's extra: the roster with every agent active, as HUD's AGENTS panel lists it. */
+const HEALTHY: readonly DemoExtra[] = Object.freeze(['healthy-agents'])
+
+/** A shot on a new chat with no voice session and nothing pressed, every agent active, but for `changes`. */
 function planned(
   theme: ShowcaseTheme, viewport: Viewport, what: string, look: string, view: View, changes: ShotChanges = {},
 ): ShowcaseShot {
-  const made: ShowcaseShot = { theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, step: 'none' }
+  const made: ShowcaseShot = {
+    theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, step: 'none', demo: HEALTHY,
+  }
   return Object.freeze({ ...made, ...changes })
+}
+
+/** Play on a conversation: `changes`, with the session's hello already played, and any more extras. */
+function afterHello(changes: ShotChanges, ...more: readonly DemoExtra[]): ShotChanges {
+  const demo: readonly DemoExtra[] = Object.freeze([...HEALTHY, ...more, 'hello-played'])
+  return Object.freeze({ ...changes, demo })
 }
 
 const DESKTOP = SHOWCASE_DESKTOP
@@ -89,6 +110,7 @@ const PHONE = SHOWCASE_PHONE
 const ON_TRANSCRIPT: ShotChanges = Object.freeze<ShotChanges>({ transcript: true })
 const LISTENING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'listening' })
 const SPEAKING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'speaking' })
+const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-menu' })
 
 /** Every showcase shot, theme by theme, the desktop's before the phone's. */
 export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
@@ -99,16 +121,16 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('hud', PHONE, 'chat', 'arc', CHAT, ON_TRANSCRIPT),
   planned('hud', PHONE, 'voice-listening', 'forge', CHAT, LISTENING),
   planned('hud', PHONE, 'look-editor', 'arc', LOOK_EDITOR),
-  planned('hud', PHONE, 'chat', 'ghost', CHAT, ON_TRANSCRIPT),
+  planned('hud', PHONE, 'voice-speaking', 'arc', CHAT, SPEAKING),
   planned('play', DESKTOP, 'first-open', 'ember', CHAT, { heading: PLAY_HELLO }),
-  planned('play', DESKTOP, 'chat', 'ember', CHAT, ON_TRANSCRIPT),
-  planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, SPEAKING),
-  planned('play', DESKTOP, 'chat', 'daylight', CHAT, ON_TRANSCRIPT),
+  planned('play', DESKTOP, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
+  planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, afterHello(SPEAKING)),
+  planned('play', DESKTOP, 'chat', 'daylight', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'look-editor', 'ember', LOOK_EDITOR),
-  planned('play', PHONE, 'chat', 'ember', CHAT, ON_TRANSCRIPT),
-  planned('play', PHONE, 'menu', 'ember', CHAT, { transcript: true, step: 'open-menu' }),
-  planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, ON_TRANSCRIPT),
-  planned('play', PHONE, 'voice-listening', 'ember', CHAT, LISTENING),
+  planned('play', PHONE, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
+  planned('play', PHONE, 'menu', 'ember', CHAT, afterHello(MENU)),
+  planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, afterHello(ON_TRANSCRIPT, 'older-chats')),
+  planned('play', PHONE, 'voice-listening', 'ember', CHAT, afterHello(LISTENING)),
 ])
 
 /** A shot's file name: `<theme>-<width>-<what>-<look>.png`. */
@@ -123,13 +145,13 @@ export function showcaseOrigin(theme: ShowcaseTheme): string {
 
 /**
  * The address a shot opens on its theme's server: its view's path in its look at its width, with reduced motion, its
- * conversation and voice phase, no toolbar, on the hosted edition.
+ * conversation and voice phase, no toolbar, on the hosted edition, with its demo extras.
  */
 export function showcaseUrl(shot: ShowcaseShot): string {
-  const { view, look, viewport, transcript, voice } = shot
+  const { view, look, viewport, transcript, voice, demo } = shot
   const settings = {
     ...DEFAULT_SETTINGS, path: view.path, preset: look, width: viewport.width, reducedMotion: true, transcript, voice, toolbar: false,
-    edition: SHOWCASE_EDITION,
+    edition: SHOWCASE_EDITION, demo,
   }
   return `${showcaseOrigin(shot.theme)}/${settingsQuery(settings)}`
 }

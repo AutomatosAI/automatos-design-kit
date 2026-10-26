@@ -24,7 +24,8 @@ import { useFollowEnd } from './use-follow-end'
  * over the waveform and the control row with the host's voice button; opening it puts the focus in it, and shutting
  * it keeps its words for next time. An empty chat's starter opens it with its words. While a voice session runs on
  * the conversation, what was heard and what Auto is saying are its last messages (the host's voice-live-user and
- * voice-live-assistant), so the last exchange is the one being spoken. STOP stops the reply as the box's Stop does and
+ * voice-live-assistant), so the last exchange is the one being spoken, at the foot of its room over the waveform
+ * (phone-transcript.tsx, HUD 1.1.1). STOP stops the reply as the box's Stop does and
  * ends a voice session, and with the box shut hands the focus to TYPE, since STOP itself is disabled once nothing runs.
  */
 
@@ -38,6 +39,8 @@ interface Typing {
 interface Stopping {
   /** Auto is answering or a voice session runs. */
   readonly stoppable: boolean
+  /** A voice session runs. */
+  readonly talking: boolean
   readonly stop: () => void
 }
 
@@ -71,7 +74,7 @@ function useStop(streaming: boolean, { onStop }: ChatParts['sending'], typing: T
     if (streaming) onStop()
     if (!open) typeRef.current?.focus()
   }, [talking, stopVoice, streaming, onStop, open, typeRef])
-  return { stoppable: streaming || talking, stop }
+  return { stoppable: streaming || talking, talking, stop }
 }
 
 export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
@@ -87,6 +90,7 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
       trialBlocked={chat.trialExhausted}
       after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
       empty={<EmptyChat onStarter={typing.onStarter} />}
+      voice={stopping.talking}
     />
   )
   const dock = (

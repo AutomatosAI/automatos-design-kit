@@ -1,10 +1,11 @@
 /**
  * The VoiceButton stand-in's geometry and words (src/sdk/voice-button.tsx), from core's components/voice/
  * voice-button.tsx, voice-button-view.ts, voice-controls.tsx and AiVoiceLabel.tsx (at
- * 2e57484810204fb9b3481c86a0faed7c6eb3d0ae), in plain colours. The press takes the `--voice-button-*` custom properties
- * a theme styles core's button with, each with a plain default here (core's are Studio's tokens), so a theme's styling
- * shows in the harness as it does on core. The AI voice caption is core's: a tiny caption in the text's own colour,
- * never a pill or a badge.
+ * 2e57484810204fb9b3481c86a0faed7c6eb3d0ae; the control row that wraps and its labelled Stop, End call and Close from
+ * core's fix/voice-stop-label change, bfd1022dc9704713c341cb8cbe26e6a16c73d1d3, ahead of its merge), in plain colours.
+ * The press takes the `--voice-button-*` custom properties a theme styles core's button with, each with a plain default
+ * here (core's are Studio's tokens), so a theme's styling shows in the harness as it does on core. The AI voice caption
+ * is core's: a tiny caption in the text's own colour, never a pill or a badge.
  */
 import type { CSSProperties } from 'react'
 import type { VoiceButtonPress, VoiceButtonSize } from '@automatos/theme-sdk'
@@ -27,6 +28,27 @@ export const AI_VOICE_LABEL = 'AI voice assistant'
 /** voice-controls.tsx: the microphone's state, the call's end and close, and a failure's two ways out. */
 export const CONTROL_WORDS = Object.freeze({
   micLive: 'Mic live', micMuted: 'Mic muted', endCall: 'End call', closeLive: 'Close live voice', tryAgain: 'Try again', close: 'Close',
+})
+
+/** The icon beside a stop control's word: lucide's Square, PhoneOff and X, as core draws them. */
+export type StopGlyph = 'square' | 'phone-off' | 'x'
+
+/** One stop control: its name, the word it shows beside its icon, the icon, and whether it is in the alert colour. */
+export interface StopControlWords {
+  readonly name: string
+  readonly word: string
+  readonly glyph: StopGlyph
+  readonly alert: boolean
+}
+
+/**
+ * voice-controls.tsx StopButton (the quick ask's Stop) and EndOrClose (a Live call's End call, and Close once it
+ * ended, named "Close live voice"): each shows its word beside its icon.
+ */
+export const STOP_CONTROLS: Readonly<Record<'stop' | 'endCall' | 'closeLive', StopControlWords>> = Object.freeze({
+  stop: Object.freeze({ name: VOICE_WORDS.stop, word: VOICE_WORDS.stop, glyph: 'square', alert: false }),
+  endCall: Object.freeze({ name: CONTROL_WORDS.endCall, word: CONTROL_WORDS.endCall, glyph: 'phone-off', alert: true }),
+  closeLive: Object.freeze({ name: CONTROL_WORDS.closeLive, word: CONTROL_WORDS.close, glyph: 'x', alert: false }),
 })
 /** orb-state.ts ORB_STATE_LABELS: the state a screen reader hears. */
 export const STATE_WORDS = Object.freeze({
@@ -79,18 +101,31 @@ export const SR_ONLY: CSSProperties = Object.freeze({
   position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden',
   clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', borderWidth: 0,
 })
-/** voice-button.tsx VoiceControl's slot (`w-fit`) and its row (`flex items-center gap-2 px-1`). */
+/**
+ * voice-button.tsx VoiceControl's slot (`w-fit`) and its row (`flex flex-wrap items-center gap-x-1.5 gap-y-1 px-1`),
+ * which wraps, so the caption, the microphone and Stop fit a phone under the button.
+ */
 export const CONTROL_SLOT: CSSProperties = Object.freeze({ width: 'fit-content' })
-export const CONTROL_ROW: CSSProperties = Object.freeze({ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 4px' })
+export const CONTROL_ROW: CSSProperties = Object.freeze({
+  display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: '6px', rowGap: '4px', padding: '0 4px',
+})
 /** AiVoiceLabel.tsx: `shrink-0 text-[10px] leading-none` in the text's colour; no box, border or fill. */
 export const CAPTION: CSSProperties = Object.freeze({ flexShrink: 0, fontSize: '10px', lineHeight: 1, color: 'inherit' })
 /** voice-controls.tsx MicState and the duration: `text-[11px]`. */
 export const SMALL_TEXT: CSSProperties = Object.freeze({ fontSize: '11px', lineHeight: 1.2, color: 'inherit' })
-/** The ghost round icon buttons (Stop, End call, Close live voice): `h-7 w-7 rounded-full`. */
-export const ROUND_BUTTON: CSSProperties = Object.freeze({
-  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '9999px',
-  background: 'transparent', color: 'inherit', fontSize: '11px', cursor: 'pointer',
-})
+/**
+ * voice-controls.tsx LABELLED_CONTROL_CLASS on an outline button (`h-7 gap-1 rounded-full px-2 text-xs`, medium weight,
+ * on one line): Stop, End call (in the alert colour) and Close, each its 14 px icon (CONTROL_GLYPH_SIDE) and its word.
+ */
+export function stopControlStyle(alert: boolean): CSSProperties {
+  return {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px', height: '28px', padding: '0 8px',
+    borderRadius: '9999px', border: '1px solid currentColor', background: 'transparent', color: alert ? PLAIN_ALERT : 'inherit',
+    fontSize: '12px', lineHeight: '16px', fontWeight: 500, whiteSpace: 'nowrap', cursor: 'pointer',
+  }
+}
+/** voice-controls.tsx CONTROL_ICON_CLASS: `h-3.5 w-3.5`. */
+export const CONTROL_GLYPH_SIDE = 14
 /** voice-controls.tsx LiveCallFailure: the sentence and its two buttons. */
 export const FAILURE: CSSProperties = Object.freeze({
   maxWidth: '28rem', borderRadius: '8px', border: `1px solid ${PLAIN_ALERT}`, padding: '8px 16px', textAlign: 'center',

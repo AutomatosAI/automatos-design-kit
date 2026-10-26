@@ -43,11 +43,11 @@ const CONTENT_MD = `${FILES}/content?path=outputs%2Flaptop-shortlist.md`
 const TABLE = [
   '# The short answer',
   '',
-  'The **Vivobook S 14** is the pick. <script>alert(1)</script> ![a chart](https://evil.example/c.png)',
+  'The **Aero 14** is the pick. <script>alert(1)</script> ![a chart](https://evil.example/c.png)',
   '',
   '| Laptop | Price |',
   '|---|---|',
-  '| Vivobook S 14 | £679 |',
+  '| Aero 14 | £679 |',
 ].join('\n')
 const NOT_FOUND = 404
 const SERVER_ERROR = 500
@@ -249,10 +249,10 @@ describe('PlayDeliverable — the side panel', () => {
   })
 
   it("lists Sources · N from extra.sources, as Play's panel does: a web address as its host (P260-FX-13, M81)", () => {
-    found({ extra: { sources: ['https://www.reviews.example.com/laptops', { url: 'https://ratings.example.org/x' }, { title: 'Asus spec sheet' }] } })
+    found({ extra: { sources: ['https://www.reviews.example.com/laptops', { url: 'https://ratings.example.org/x' }, { title: 'Aero spec sheet' }] } })
     renderDetail()
     expect(panel().getByRole('heading', { level: 2, name: `${SOURCES} · 3` })).toBeInTheDocument()
-    expect(panel().getAllByRole('listitem').map((item) => item.textContent)).toEqual(['reviews.example.com', 'ratings.example.org', 'Asus spec sheet'])
+    expect(panel().getAllByRole('listitem').map((item) => item.textContent)).toEqual(['reviews.example.com', 'ratings.example.org', 'Aero spec sheet'])
   })
 
   it('has no Sources section when it carries none', () => {

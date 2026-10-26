@@ -59,6 +59,10 @@ import styles from './composer.module.css'
  * Play 1.2.0, on a phone (lib/play/phone-layout.ts), the Ember design's 390 chat: no mascot column (page-columns.tsx);
  * Auto stands at his small size beside his caption over the message box instead, and the voice button has no
  * hotkey, since there is no keyboard to hold.
+ *
+ * Play 1.2.1: Auto's hello (once per browser session, lib/mascot/session.ts) plays only on an empty chat, the first
+ * open it belongs to. A conversation opened first in a session (a link to it in a new tab, a reload, one picked from
+ * Conversations) no longer gets "Hi, I'm Auto." beside it; the session's hello waits for its first empty chat.
  */
 
 export interface PlayChatViewProps {
@@ -80,7 +84,10 @@ const BACKEND_OF: Readonly<Record<HostHealth['connection'], BackendStatus | unde
   checking: undefined,
 }
 
-/** Auto, driven by the chat's status and the reply being written, and connected to the chat's parts and events. */
+/**
+ * Auto, driven by the chat's status and the reply being written, and connected to the chat's parts and events; his
+ * hello asked for while the chat is empty, never over a conversation.
+ */
 function usePlayAuto({ chat, connect }: PlayTurn, live: readonly HostChatMessage[], idleMs: number | undefined) {
   const { connection } = useHealth()
   const auto = useAutoMascot({
@@ -93,9 +100,10 @@ function usePlayAuto({ chat, connect }: PlayTurn, live: readonly HostChatMessage
   // In the render that makes the driver, before any effect of this commit (use-play-turn.ts).
   connect(auto)
   const { greet } = auto
+  const empty = live.length === 0
   useEffect(() => {
-    greet()
-  }, [greet])
+    if (empty) greet()
+  }, [greet, empty])
   return auto
 }
 

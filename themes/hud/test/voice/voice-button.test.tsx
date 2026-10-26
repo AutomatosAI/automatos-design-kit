@@ -42,8 +42,17 @@ const deck = (): HTMLElement => screen.getByRole('group', { name: VOICE_DECK_LAB
 const rootOf = (press: HTMLElement): Element | null => press.closest('[data-voice-button="root"]')
 const controls = (): HTMLElement => screen.getByRole('group', { name: CONTROLS_LABEL })
 const typeButton = (): HTMLElement => within(controls()).getByRole('button', { name: TYPE_LABEL })
-/** HUD's STOP, by its word: the host's own Stop, while the session is the button's, is a glyph. */
-const stopButton = (): HTMLElement => within(controls()).getByText(STOP_LABEL, { selector: 'button' })
+/**
+ * HUD's STOP, by its word: the host's voice button draws a Stop of its own while the session is the button's (core
+ * #1339's labelled row), inside the button's root, so HUD's is the one outside it.
+ */
+const stopButton = (): HTMLElement => {
+  const hudStops = within(controls())
+    .getAllByText(STOP_LABEL, { selector: 'button' })
+    .filter((button) => button.closest('[data-voice-button="root"]') === null)
+  if (hudStops.length !== 1) throw new Error(`expected HUD's one STOP, found ${hudStops.length}`)
+  return hudStops[0]
+}
 /** The design's hint, as one line of text. */
 const hint = (): HTMLElement | null =>
   within(deck()).queryByText((_, element) => element?.tagName === 'P' && element.textContent === VOICE_HINT)

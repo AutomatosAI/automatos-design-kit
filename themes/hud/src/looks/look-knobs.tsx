@@ -15,10 +15,10 @@ import { clampKnob, flipped, glowCap, type KnobValues } from './editing'
  */
 
 export const REDUCED_MOTION_NOTE = 'Your device asks for reduced motion, so nothing moves, whatever Motion says.'
-/** Under the glow slider while the look's glow is past what its background and accent keep readable. */
-export const glowCapNote = (cap: number): string => `Painted at ${cap} here: any brighter and the text stops reading at AA.`
-/** The glow slider's value in words while it is capped: '30, painted at 29'. */
-export const cappedGlowText = (glow: number, cap: number): string => `${glow}, painted at ${cap}`
+/** Under the glow slider while the look's glow is past what its background and accent keep readable, in plain words. */
+export const glowCapNote = (cap: number): string => `Held at ${cap} here so text stays easy to read.`
+/** The glow slider's value in words while it is capped: '30, held at 29'. */
+export const cappedGlowText = (glow: number, cap: number): string => `${glow}, held at ${cap}`
 
 export interface KnobProps {
   readonly look: HudLook

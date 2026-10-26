@@ -5,11 +5,11 @@ Auto that a member types or talks to, a shelf of Deliverables, a Conversations p
 changes, from a phone's width up. It began as an interface
 built into core and now lives only in this kit; [PLAY-HISTORY.md](../PLAY-HISTORY.md) records where its code came
 from, and [`themes/play/README.md`](../../themes/play/README.md) how it is built. This page reads
-`themes/play/theme.json` at version 1.2.0.
+`themes/play/theme.json` at version 1.2.1.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/play`, `1.2.0` |
+| `id`, `version` | `automatos/play`, `1.2.1` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.2.0"}`: SDK 1.2.0 for the `voice` area |
 | `base` | `studio`: the host's Studio design wherever Play draws nothing of its own |
 | `htmlClass` | `play`: every rule of `dist/theme.css` sits under `html.play` |
@@ -25,7 +25,7 @@ from, and [`themes/play/README.md`](../../themes/play/README.md) how it is built
 |---|---|
 | `frame@1` | Play's frame and sidebar around every page. A page Play doesn't own is the host's, inside the frame. Below 1024 px, the phone's frame: its bar with Menu, Chats and Shelf, no sidebar, and the menu (below). |
 | `asleep@1` | Declared, not registered: Play's frame draws its own "backend is asleep" screen, so the host leaves the health poll to it. |
-| `lookEditor@1` | Look, at `/looks`: pick a look, change it, save it. |
+| `lookEditor@1` | Look, at `/looks`: pick a look, change it, save it. At 1440 by 900 the whole editor, Save as new look and Reset with it, fits under the header row; a shorter window scrolls it. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: what the active look paints, its type, colours, components and Auto's states. |
 | `notFound@1` | The 404, with Auto lost. |
 | `/chat` | Play's own chat with Auto (`mode: own`), the host's voice button beside Send. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
@@ -74,7 +74,8 @@ design` measures on every preset; it is never packed.
 
 - **Auto.** Twelve states (`hello`, `idle`, `listening`, `thinking`, `working`, `searching`, `reading`, `celebrate`,
   `oops`, `sleeping`, `lost`, `loading`), each as `.webm`, `.mp4` and `.png` in `assets/mascot/`: 36 files, (c)
-  Automatos AI and not covered by the code licence (the kit's `NOTICE`). The state machine, player and Pause Auto
+  Automatos AI and not covered by the code licence (the kit's `NOTICE`). He says hello ("Hi, I'm Auto.") once per
+  browser session, on its first empty chat, never beside a conversation opened before it. The state machine, player and Pause Auto
   control are `@automatos/mascot`, which Play bundles.
 - **Fonts.** Four display faces in `assets/fonts/` (Instrument Serif, regular and italic; Bricolage Grotesque 700;
   Fredoka 600), with their OFL licences. Geist is the host's.
