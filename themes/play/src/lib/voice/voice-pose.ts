@@ -1,4 +1,4 @@
-import type { HostVoicePhase, HostVoiceState } from '@automatos/theme-sdk'
+import type { HostVoiceState } from '@automatos/theme-sdk'
 
 import { captionFor } from '@automatos/mascot/media'
 import type { MascotName } from '@automatos/mascot/types'
@@ -22,17 +22,8 @@ export interface VoicePose {
   readonly speaking: boolean
 }
 
-/** What the session says now: the member's words heard so far, and Auto's spoken so far. */
-export interface VoiceWords {
-  readonly heard: string
-  readonly reply: string
-}
-
 export const SPEAKING_CAPTION = 'Speaking'
 export const CONNECTING_CAPTION = 'Getting ready to listen'
-
-/** The phases in which a session runs: the words it heard and spoke show. */
-const RUNNING: ReadonlySet<HostVoicePhase> = new Set<HostVoicePhase>(['connecting', 'listening', 'thinking', 'speaking'])
 
 const pose = (mascot: MascotName, caption: string, speaking = false): VoicePose => Object.freeze({ mascot, caption, speaking })
 
@@ -58,12 +49,4 @@ export function voicePose(voice: Pick<HostVoiceState, 'phase' | 'micOpen'>): Voi
     default:
       return null
   }
-}
-
-/** The words to show while a session runs; null when none runs or it has no words yet. */
-export function voiceWords(voice: Pick<HostVoiceState, 'phase' | 'heard' | 'reply'>): VoiceWords | null {
-  if (!RUNNING.has(voice.phase)) return null
-  const heard = voice.heard.trim()
-  const reply = voice.reply.trim()
-  return heard === '' && reply === '' ? null : Object.freeze({ heard, reply })
 }

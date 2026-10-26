@@ -104,8 +104,10 @@ While a session runs, Auto follows it (`src/lib/voice/voice-pose.ts`):
 | `idle`, `ended` | the chat's own state | the chat's |
 
 His ring follows the level once a frame, in `requestAnimationFrame`, never under reduced motion or while he is paused.
-What the session heard and what Auto has said so far show over the message box while it runs. Play captures and
-plays no audio itself; the kit's rules refuse a theme that does.
+What the session heard and what Auto has said so far are the conversation's last two messages while it runs (core's
+chat adds them, `voice-live-user` and `voice-live-assistant`, until the saved turn takes their place), so Play's message
+list draws them as your message and Auto's reply, with his AI-generated mark; Play draws no words of its own beside
+them. Play captures and plays no audio itself; the kit's rules refuse a theme that does.
 
 ## In a phone's browser
 
@@ -131,7 +133,8 @@ an installed theme's `minWidth` and draws its frame and pages from that width up
 
 Kit CI's harness shots draw Play at a phone's 390 × 844 too, as its `minWidth` fits a phone: every view of each preset
 (`<preset>/390/`) and `/chat` on the made-up transcript (`<preset>/390-transcript/`), each with an axe scan; and its
-voice states at 1440 px (`<preset>/1440-voice-<phase>/`). Play's own tests hold the layout too
+voice states on the transcript at 1440 px (`<preset>/1440-voice-<phase>/`), the session's words at the end of the
+conversation. Play's own tests hold the layout too
 (`test/shell/phone-frame.test.tsx`, `test/shell/phone-css.test.ts`, `test/chat/voice-chat.test.tsx`).
 
 ## In the phone app

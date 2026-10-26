@@ -4,7 +4,9 @@
 // (mode auto), with the Space hotkey; its presses reach the host, and while the session is its own core's caption and
 // stop control show under it. Typing stays: the box and Send work while voice runs. Auto follows the session: he
 // listens while the microphone is open, thinks, then speaks (his calm clip, his ring following his voice), and goes
-// back to the chat's state when it ends; the words it heard and spoke show over the message box while it runs. On a
+// back to the chat's state when it ends. The words it heard and spoke are the conversation's last two messages while it
+// runs, as core's chat (and the harness) adds them, so Play draws them once, as your message and Auto's reply, and
+// nothing of its own over the message box. On a
 // phone (Play 1.2.0's phone layout, a 390 px window through test/support/window-width.ts) the button has no hotkey,
 // and Auto stands at his small size beside his caption over the message box, where the desktop gives him a column.
 // Auto himself is a stand-in that shows his state, his size, his caption and whether he speaks. Roles, attributes
@@ -15,7 +17,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
 import { PLACEHOLDER, VOICE_HOTKEY } from '../../src/components/play/chat/message-box.tsx'
 import { PlayChat } from '../../src/components/play/chat/play-chat.tsx'
-import { HEARD_LABEL, REPLY_LABEL, VOICE_WORDS_LABEL } from '../../src/components/play/chat/voice-words.tsx'
 import { HELLO_KEY, HELLO_STATE } from '../../src/lib/mascot/session.ts'
 import { CONNECTING_CAPTION, SPEAKING_CAPTION } from '../../src/lib/voice/voice-pose.ts'
 import { host } from '@automatos/theme-harness/host'
@@ -188,33 +189,52 @@ describe('Auto following the voice session', () => {
   })
 })
 
-describe('what the session heard and Auto said', () => {
-  const words = () => screen.queryByRole('group', { name: VOICE_WORDS_LABEL })
+describe("the session's words in the conversation", () => {
+  const conversation = () => screen.getByRole('list', { name: 'Conversation' })
+  const lastItems = () => within(conversation()).getAllByRole('listitem').slice(-2)
+  /** How many times `text` is drawn on the page: the words show once, never twice. */
+  const timesShown = (text: string): number => screen.queryAllByText(text, { exact: false }).length
 
-  it('shows your words and then his over the message box while the session runs, and nothing once it ends', async () => {
+  /** The session on the stored conversation c1 in `phase`, with what the member said and Auto's reply so far. */
+  function talk(phase: 'listening' | 'speaking', reply = ''): void {
+    act(() => {
+      host.setVoice({ chatId: 'c1', heard: HEARD, reply })
+      host.setVoicePhase(phase)
+    })
+  }
+
+  it('are its last messages while the session runs: yours as your message is drawn, then his as his reply, once', async () => {
     await renderConversation()
-    expect(words()).toBeNull()
-    act(() => host.setVoicePhase('listening'))
-    expect(words()).toBeNull()
-    act(() => host.setVoiceWords({ heard: HEARD }))
-    expect(words()).toHaveTextContent(`${HEARD_LABEL}${HEARD}`)
-    act(() => host.setVoicePhase('speaking'))
-    act(() => host.setVoiceWords({ reply: REPLY }))
-    const shown = words()
-    if (shown === null) throw new Error('The words went while Auto spoke.')
-    expect(within(shown).getByText(REPLY, { exact: false })).toHaveTextContent(`${REPLY_LABEL}${REPLY}`)
-    expect(shown).not.toHaveAttribute('aria-live')
-    act(() => host.setVoicePhase('idle'))
-    expect(words()).toBeNull()
+    talk('listening')
+    const items = within(conversation()).getAllByRole('listitem')
+    expect(items[items.length - 1]).toHaveTextContent(HEARD)
+    expect(timesShown(HEARD)).toBe(1)
+    talk('speaking', REPLY)
+    const [yours, his] = lastItems()
+    expect(yours).toHaveTextContent(HEARD)
+    expect(his).toHaveTextContent(REPLY)
+    expect(within(his).getByRole('article', { name: 'Auto said' })).toBeInTheDocument()
+    expect(within(conversation()).getByText(REPLY).closest('[data-ai-generated]')).toHaveAttribute('data-ai-generated', 'true')
+    expect([timesShown(HEARD), timesShown(REPLY)]).toEqual([1, 1])
   })
 
-  it('stands between the chat and the message box, never inside the conversation', async () => {
+  it('draw nothing over the message box: the box follows the conversation, and the words are in it', async () => {
     await renderConversation()
-    act(() => host.setVoicePhase('listening'))
-    act(() => host.setVoiceWords({ heard: HEARD }))
-    const list = screen.getByRole('list', { name: 'Conversation' })
-    expect(within(list).queryByText(HEARD)).toBeNull()
-    expect(words()?.compareDocumentPosition(box()) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    talk('speaking', REPLY)
+    const reply = within(conversation()).getByText(REPLY)
+    expect(reply.compareDocumentPosition(box()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.queryByRole('group', { name: 'Voice' })).toBeNull()
+  })
+
+  it('go once the session ends or its turn is saved', async () => {
+    await renderConversation()
+    talk('speaking', REPLY)
+    act(() => host.setVoicePhase('idle'))
+    expect([timesShown(HEARD), timesShown(REPLY)]).toEqual([0, 0])
+    talk('speaking', REPLY)
+    act(() => host.voiceTurnSaved('c1'))
+    expect([timesShown(HEARD), timesShown(REPLY)]).toEqual([0, 0])
+    expect(lastItems()[1]).toHaveTextContent('Aim for 16 GB of memory.')
   })
 })
 

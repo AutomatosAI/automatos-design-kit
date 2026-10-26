@@ -165,44 +165,6 @@
   border-color: var(--pl-color-accent-text);
 }
 
-/* The words the session heard and spoke while it runs (voice-words.tsx): yours as your message is drawn, Auto's as
-   his answer is, over the message box. */
-.words {
-  width: 100%;
-  max-width: var(--pl-content-max);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--pl-space-2);
-}
-
-.heard {
-  align-self: flex-end;
-  max-width: var(--pl-bubble-max);
-  margin: 0;
-  padding: var(--pl-space-2) var(--pl-space-4);
-  border: 1px dashed var(--pl-line-strong);
-  border-radius: var(--pl-radius-card);
-  color: var(--pl-color-text);
-  font: var(--pl-text-body);
-  overflow-wrap: anywhere;
-}
-
-.reply {
-  margin: 0;
-  color: var(--pl-color-text);
-  font: var(--pl-text-body);
-  overflow-wrap: anywhere;
-}
-
-.who {
-  margin-right: var(--pl-space-2);
-  color: var(--pl-color-text-2);
-  font: var(--pl-text-label);
-  letter-spacing: var(--pl-label-tracking);
-  text-transform: uppercase;
-}
-
 /* Play 1.2.0: on a phone, Auto stands beside his caption over the message box (the Ember design's 390 strip: an 84 px
    Auto, his status in the display face and its second line), where the desktop gives him the mascot column. */
 .strip {

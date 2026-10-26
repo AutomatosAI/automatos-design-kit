@@ -18,7 +18,8 @@ phone's width up (`minWidth` 360).
   saying so; while he speaks he is his calm clip and his light ring swells with his voice (`readVoiceLevels().agent`,
   read in an animation frame and written as `--pl-voice-level`). Under reduced motion, and while he is paused, he holds
   still. A session waiting for the microphone loads; a failed one is his oops. When it ends the chat drives him again.
-  What the session heard and what Auto has said so far show over the message box while it runs.
+  What the session heard and what Auto has said so far show in the conversation, as your message and his reply, where
+  the host puts them while it runs; Play draws nothing of its own over the message box, so they show once.
 - **Play on a phone.** Below 1024 px Play draws the Ember design's 390 screens instead of its desktop layout: a 56 px
   bar with Menu, the wordmark, Chats and Shelf (the current one dotted), and no sidebar or header row; Menu opens a
   modal menu with New chat, search, the sidebar's nav, Recent, Docs and Settings, the connection pill and the host's

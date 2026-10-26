@@ -4,7 +4,6 @@ import type { HostChatMessage } from '@automatos/theme-sdk'
 
 import type { AutoMascotDriver } from '../../../hooks/use-auto-mascot'
 import { usePlayVoice } from '../../../hooks/use-play-voice'
-import type { VoiceWords } from '../../../lib/voice/voice-pose'
 import type { MascotName } from '@automatos/mascot/types'
 
 import { type ChatCaption, chatCaption } from './caption'
@@ -14,7 +13,7 @@ import { latestReply, runningToolInput } from './reply'
  * Play 1.2.0 — the Auto the chat shows: the chat's (his reducer's state and the caption the chat gives it,
  * caption.ts), or, while the host's voice session runs, the session's (lib/voice/voice-pose.ts), so he listens while
  * the microphone is open, thinks, and speaks with his ring following his voice. When the session ends the chat
- * drives him again, where it left him. The words the session heard and spoke come with it (voice-words.tsx).
+ * drives him again, where it left him.
  */
 
 export interface AutoOnScreen {
@@ -26,7 +25,6 @@ export interface AutoOnScreen {
   readonly speaking: boolean
   /** A voice session drives him (its caption shows even where the first open's headline would say it). */
   readonly voiceActive: boolean
-  readonly words: VoiceWords | null
 }
 
 /** The newest reply's newest live Deliverable's kind, for the caption's "It's on your shelf too." */
@@ -47,9 +45,9 @@ function chatCaptionOf(auto: AutoMascotDriver, live: readonly HostChatMessage[])
 }
 
 export function useAutoOnScreen(auto: AutoMascotDriver, live: readonly HostChatMessage[]): AutoOnScreen {
-  const { pose, words } = usePlayVoice()
+  const { pose } = usePlayVoice()
   if (pose === null) {
-    return { state: auto.mascot, caption: chatCaptionOf(auto, live), speaking: false, voiceActive: false, words }
+    return { state: auto.mascot, caption: chatCaptionOf(auto, live), speaking: false, voiceActive: false }
   }
-  return { state: pose.mascot, caption: { caption: pose.caption }, speaking: pose.speaking, voiceActive: true, words }
+  return { state: pose.mascot, caption: { caption: pose.caption }, speaking: pose.speaking, voiceActive: true }
 }
