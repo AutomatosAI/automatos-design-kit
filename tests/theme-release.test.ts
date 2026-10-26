@@ -212,10 +212,11 @@ describe("theme-release.yml (C-06a): each theme from its tag", () => {
     JSON.stringify({ schema: 1, keys: statuses.map((status) => ({ keyId: "ed25519:0123456789abcdef", spki: "AAAA", status, added: "2026-10-20" })) });
 
   it.each<[string, number, string, RegExp]>([
-    ["no key, as the file ships until the production key", 1, keys(), /^::error::No signing key yet: keys\/theme-signing\.json holds no active key/m],
+    ["no key", 1, keys(), /^::error::No signing key yet: keys\/theme-signing\.json holds no active key/m],
     ["no active key", 1, keys("retired", "revoked"), /^::error::No signing key yet: /m],
     ["a file that isn't a keys file", 1, "{", /^::error::keys\/theme-signing\.json can't be read as a keys file/m],
     ["an active key", 0, keys("active"), /^keys\/theme-signing\.json holds 1 active signing key\(s\)\.$/m],
+    ["the shipped file, Automatos's theme-signing key", 0, readText("keys/theme-signing.json"), /^keys\/theme-signing\.json holds 1 active signing key\(s\)\.$/m],
   ])("the key check, run as the runner's bash runs it, on %s: exit %i with one plain line, never a stack trace", (_, status, keysText, line) => {
     writeFileSync(keysPath, keysText);
     const ran = runStep(stepNamed(release, "Check a signing key is published").run, { KEYS: keysPath });

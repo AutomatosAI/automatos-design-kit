@@ -147,9 +147,11 @@ To attach a signature again, run the workflow by hand on `main` with the `tag` i
 `hud-v<version>`). The job runs only on `main`, so a run on another branch can't bring its own keys file.
 
 `keys/theme-signing.json` is `{"schema":1,"keys":[{keyId, spki, status, added}]}`, `status` one of `active`, `retired`
-and `revoked`. As committed it holds no key, so no signature verifies, and both jobs stop when a signature is there to
-check. Publishing the key's public half is a pull request to `main` ([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md),
-"Once, before the first signature").
+and `revoked`. It holds one key: Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active, added 2026-10-26.
+Nothing is signed with it yet; the first signatures come from Theme sign runs (section 4). If the file held no active
+key, no signature would verify, and both jobs stop when a signature is there to check. A change to the keys is a pull
+request to `main`, with the same bytes in core's `orchestrator/services/themes/data/signing-keys.json`
+([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "Once, before the first signature").
 
 ## Changing a dependency
 

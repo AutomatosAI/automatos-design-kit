@@ -37,8 +37,11 @@ the theme from the tag, so the same workflow releases both.
 - Its public half, in `keys/theme-signing.json` here and in the core repo's
   `orchestrator/services/themes/data/signing-keys.json`, the two files identical and holding one key:
   `{"keyId": "ed25519:<16 hex>", "spki": "<base64>", "status": "active", "added": "<YYYY-MM-DD>"}`. A Theme
-  sign run prints both values (`Public key (SPKI, base64)` and `Key id`). Until this repo's file holds the key,
-  Theme release attaches no signature: it stops with "No signing key yet".
+  sign run prints both values (`Public key (SPKI, base64)` and `Key id`). If this repo's file held no active key,
+  Theme release would attach no signature: it stops with "No signing key yet".
+
+Done on 2026-10-26: both files hold Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active. No version is
+signed with it yet; the first signatures come from Theme sign runs (step 4).
 
 ## The run
 
