@@ -38,7 +38,7 @@ function Messages() {
       <div className={chat.answer}>
         <div className={chat.markdown}>
           <p>
-            Three make the cut. My pick is the <strong>Vivobook</strong>.
+            Three make the cut. My pick is the <strong>Aero 14</strong>.
           </p>
         </div>
       </div>

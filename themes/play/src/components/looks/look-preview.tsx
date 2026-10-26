@@ -30,7 +30,7 @@ export function LookPreview() {
         </ul>
         <p className={styles.previewAnswer}>
           Three laptops make the cut. My pick is the{' '}
-          <strong className={styles.previewHighlight}>ASUS Vivobook S 14</strong>.
+          <strong className={styles.previewHighlight}>Aero 14</strong>.
         </p>
         <div className={styles.previewCard}>
           <span className={styles.previewTile} aria-hidden="true" />
