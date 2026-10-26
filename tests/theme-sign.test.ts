@@ -1,7 +1,7 @@
 // PRD-261 C-03a (D3-c): the kit's signing step. The signed text is byte for byte what core's
 // signing.py `canonical_text` writes (Python json.dumps, sort_keys, no spaces, ensure_ascii); the
-// expected strings below were written by that Python call. Keys are generated per test run: no key
-// is stored in this public repo.
+// expected strings below were written by that Python call. Keys are generated per test run: no private
+// key is stored in this public repo.
 import { generateKeyPairSync, verify, type KeyObject } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { canonicalBytes, canonicalJson, checkPayload, ID_PATTERN, isEchoSafe, parseRequest, VERSION_PATTERN } from "../scripts/sign/request.ts";

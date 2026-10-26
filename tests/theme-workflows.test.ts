@@ -207,7 +207,7 @@ describe("the signing key stays in the sign workflow", () => {
     expect(namesPrivateKey(".github/workflows/x.yml", `# a ${label} never goes here\non: push\n`)).toBe(false);
     expect(namesPrivateKey(".github/workflows/x.yml", `      run: echo "${label}"\n`)).toBe(true);
     expect(namesPrivateKey("keys/theme-signing.json", `${label}\n`)).toBe(true);
-    expect(namesPrivateKey("keys/theme-signing.json", '{"schema":1,"keys":[]}\n')).toBe(false);
+    expect(namesPrivateKey("keys/theme-signing.json", readText("keys/theme-signing.json"))).toBe(false);
   });
 });
 

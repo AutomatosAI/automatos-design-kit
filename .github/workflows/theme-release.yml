@@ -26,8 +26,8 @@ name: Theme release
 # the signed bytes on another runner. The keys come from the triggering commit, so a key published after the
 # tag counts and a revoked one stops counting.
 #
-# Until the production key is in keys/theme-signing.json no signature can verify: a run with one to check
-# stops with that reason and attaches nothing. No secrets: each job uses its own token, with contents: write
+# keys/theme-signing.json holds Automatos's theme-signing key. If it holds no active key, no signature can
+# verify: a run with one to check stops with that reason and attaches nothing. No secrets: each job uses its own token, with contents: write
 # for the release and nothing else. GitHub does not evaluate path filters for tag pushes, so every play-v* and
 # hud-v* tag runs the release job, and a push to main runs this workflow only when it changes a signature.
 

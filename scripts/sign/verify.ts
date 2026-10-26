@@ -7,8 +7,9 @@
  *
  * The keys file is `{"schema":1,"keys":[{keyId, spki, status, added}]}`: `spki` the public key's
  * SPKI DER in base64, `keyId` derived from it (envelope.ts `keyIdOf`), `status` one of active,
- * retired, revoked, `added` a YYYY-MM-DD date. It ships with no key until the production key is
- * added, so until then nothing verifies.
+ * retired, revoked, `added` a YYYY-MM-DD date. It holds Automatos's theme-signing key,
+ * ed25519:e138b6d0fa7aaaf3 (active, added 2026-10-26): the public half of the key Theme sign
+ * signs with. Only an envelope that key signed verifies.
  *
  * The signed payload is rebuilt from the package itself: `id` and `version` from its theme.json,
  * each member's sha256 and the package digest (digest.ts), so an envelope verifies only for the
