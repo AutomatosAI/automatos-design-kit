@@ -244,7 +244,8 @@ describe("the session's words in the conversation", () => {
     talk('speaking', REPLY)
     act(() => host.voiceTurnSaved('c1'))
     expect([timesShown(HEARD), timesShown(REPLY)]).toEqual([0, 0])
-    expect(lastItems()[1]).toHaveTextContent('Aim for 16 GB of memory.')
+    // The saved reply is the conversation's own again (the harness's MarkdownView shows its source).
+    expect(lastItems()[1]).toHaveTextContent('Aim for **16 GB of memory**.')
   })
 })
 
