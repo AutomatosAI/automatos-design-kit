@@ -130,6 +130,16 @@ describe('the voice button in the message box', () => {
     expect(screen.queryByRole('note', { name: AI_VOICE_CAPTION })).toBeNull()
   })
 
+  it("stays on while a theme hides the host's AI label, which switches off the words and Send", () => {
+    host.setAiLabelShown(false)
+    render(<PlayChat />)
+    expect(box()).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
+    expect(press()).toBeEnabled()
+    fireEvent.pointerDown(press())
+    expect(host.voicePresses()).toHaveLength(1)
+  })
+
   it('locks nothing: the words and Send work while the microphone is open', () => {
     host.setChatScript([{ frames: [], hold: true }])
     render(<PlayChat />)
