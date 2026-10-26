@@ -112,7 +112,7 @@ describe('theme.json', () => {
       id: 'automatos/play',
       version: '1.2.0',
       htmlClass: 'play',
-      minWidth: 1024,
+      minWidth: 360,
       base: 'studio',
       tone: 'from-look',
       routes: ['conversations'],

@@ -3,8 +3,8 @@
  * and the Looks row beside the editor, ported from Automatos Play's
  * components/looks/looks.module.css. Inside Play's frame (a viewport-bound
  * column, full bleed), so the main column scrolls and the editor scrolls on its
- * own. Play's pages render only at >= 1024 px (D7), so Play's phone rules are
- * not ported. Every variable is --pl-* (K2); a card's own colours arrive as
+ * own; on a phone (Play 1.2.0) the page is one column, its rules at the foot. Every variable is --pl-* (K2); a
+ * card's own colours arrive as
  * --pl-look-* properties from swatch-style.ts.
  *
  * M18, M19, M73: the active look's card is marked in the accent as text (the raw
@@ -384,5 +384,20 @@
 @media (forced-colors: active) {
   .card[aria-pressed="true"] {
     border-width: 2px;
+  }
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the page is one column, the editor under the preview and the
+   Looks row (editor.module.css), the whole of it scrolling as one, 16 px in. */
+@media (max-width: 1023px) {
+  .screen {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .main {
+    flex: none;
+    overflow-y: visible;
+    padding: var(--pl-space-4);
   }
 }

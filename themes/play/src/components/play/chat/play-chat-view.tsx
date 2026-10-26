@@ -12,12 +12,13 @@ import {
 
 import { type AutoMascotDriver, type BackendStatus, useAutoMascot } from '../../../hooks/use-auto-mascot'
 import { type PlayTurn, usePlayTurn } from '../../../hooks/use-play-turn'
+import { usePhoneLayout } from '../../../lib/play/phone-layout'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import { MascotColumn, PageColumns, PageHeader } from '../shell/page-columns'
 
 import { LooseApprovalCards } from './approval-cards'
 import { ExampleChips, FirstOpenHero } from './first-open'
-import { MessageBox } from './message-box'
+import { MessageBox, VOICE_HOTKEY } from './message-box'
 import { MessageList } from './message-list'
 import { liveMessages, replyProgress } from './reply'
 import { PlayTrialBanner, TurnEnd } from './turn-end'
@@ -54,6 +55,10 @@ import styles from './composer.module.css'
  * follows it rather than the chat (use-auto-on-screen.ts): listening while the microphone is open, thinking, then
  * speaking with his ring following his voice; the words it heard and spoke show over the message box
  * (voice-words.tsx). Typing stays as it was.
+ *
+ * Play 1.2.0, on a phone (lib/play/phone-layout.ts), the Ember design's 390 chat: no mascot column (page-columns.tsx);
+ * Auto stands at his small size beside his caption over the message box instead, and the voice button has no
+ * hotkey, since there is no keyboard to hold.
  */
 
 export interface PlayChatViewProps {
@@ -148,16 +153,14 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
   const box = useRef<HTMLTextAreaElement>(null)
   const { retry, onStop } = useSending(chat, auto, box)
   const shown = useAutoOnScreen(auto, live)
+  const phone = usePhoneLayout()
   const empty = live.length === 0
-
-  const mascot = empty ? undefined : (
-    <MascotColumn>
-      <AutoMascot state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} {...shown.caption} />
-    </MascotColumn>
+  const figure = (size: 'regular' | 'small') => (
+    <AutoMascot state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} size={size} {...shown.caption} />
   )
 
   return (
-    <PageColumns mascot={mascot}>
+    <PageColumns mascot={empty ? undefined : <MascotColumn>{figure('regular')}</MascotColumn>}>
       {/* An empty chat has no page header: "Hi, I'm Auto." is its heading, so the first open fits a laptop window. */}
       {!empty && <PageHeader title={chat.title} />}
       <div className={styles.chat} data-empty={empty || undefined}>
@@ -175,6 +178,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
         <div className={styles.footer}>
           {empty && <ExampleChips onPick={composer.pick} />}
           <VoiceWords words={shown.words} />
+          {phone && !empty && <div className={styles.strip}>{figure('small')}</div>}
           <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
           <MessageBox
             ref={box}
@@ -186,6 +190,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
             onBlur={composer.onBlur}
             initialDraft={composer.fill?.text}
             autoFocus={empty || composer.fill !== null}
+            voiceHotkey={phone ? null : VOICE_HOTKEY}
           />
         </div>
       </div>

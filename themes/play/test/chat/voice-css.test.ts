@@ -5,12 +5,16 @@
 // notices or screen reader line, which no Play stylesheet names; and no rule there hides, clips or covers anything.
 // A static check of the stylesheets' text (css: false).
 import fs from 'node:fs'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { cssRules } from '../support/css-cascade.ts'
-import { declarations, playCssFiles, relative } from '../support/play-css.ts'
-import { readSource } from '../source-files.ts'
+import { declarations, definedProperties, playCssFiles, readProperties, relative } from '../support/play-css.ts'
+import { readSource, THEME_ROOT } from '../source-files.ts'
 
 const COMPOSER_CSS = 'components/play/chat/composer.module.css'
+/** The SDK's voice area, which names the custom properties a theme styles the button with. */
+const SDK_VOICE_AREA = path.join(THEME_ROOT, '..', '..', 'packages', 'theme-sdk', 'areas', 'voice.d.ts')
+const VOICE_BUTTON_VAR = /--voice-button-[a-z-]+/g
 /** A selector part naming the voice button. */
 const NAMES_VOICE = /data-voice|voice-button/
 /** The voice button's own data attributes a theme styles it by (areas/voice.d.ts). */
@@ -34,6 +38,15 @@ const HIDES: Readonly<Record<string, RegExp>> = {
 const voiceRules = () => cssRules(readSource(COMPOSER_CSS)).filter((rule) => rule.selectors.some((selector) => NAMES_VOICE.test(selector)))
 
 describe("Play's styling of the voice button", () => {
+  it("sets every custom property the SDK names for the button, and reads none of them (css-guards.test.ts lets it)", () => {
+    const named = new Set(Array.from(fs.readFileSync(SDK_VOICE_AREA, 'utf8').matchAll(VOICE_BUTTON_VAR), (match) => match[0]))
+    expect(named.size).toBe(7)
+    const css = readSource(COMPOSER_CSS)
+    expect(definedProperties(css).filter((name) => name.startsWith('--voice-button-')).sort()).toEqual([...named].sort())
+    const reading = playCssFiles().flatMap((file) => readProperties(fs.readFileSync(file, 'utf8')).filter((name) => name.startsWith('--voice-')))
+    expect(reading).toEqual([])
+  })
+
   it('names the button only by its own data attributes, under .voice', () => {
     const rules = voiceRules()
     expect(rules.length).toBeGreaterThan(0)

@@ -202,3 +202,30 @@
   letter-spacing: var(--pl-label-tracking);
   text-transform: uppercase;
 }
+
+/* Play 1.2.0: on a phone, Auto stands beside his caption over the message box (the Ember design's 390 strip: an 84 px
+   Auto, his status in the display face and its second line), where the desktop gives him the mascot column. */
+.strip {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: var(--pl-space-1) var(--pl-space-1) 0;
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the box 12 px in and its own insets as the design's, Send and
+   Stop narrower, so the words, the voice button and Send share a 360 px line. */
+@media (max-width: 1023px) {
+  .footer {
+    padding: var(--pl-space-2) var(--pl-space-3) var(--pl-space-4);
+  }
+
+  .box {
+    gap: var(--pl-space-2);
+    padding: var(--pl-space-1) var(--pl-space-1) var(--pl-space-1) var(--pl-space-4);
+  }
+
+  .send,
+  .stop {
+    padding: 0 var(--pl-space-4);
+  }
+}

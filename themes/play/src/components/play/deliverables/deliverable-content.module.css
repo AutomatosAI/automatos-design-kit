@@ -144,3 +144,10 @@
   border: 1px solid var(--pl-line);
   background: var(--pl-color-surface);
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the printed sheet with the Ember design's 390 margins. */
+@media (max-width: 1023px) {
+  .document {
+    padding: var(--pl-space-5) var(--pl-space-4);
+  }
+}

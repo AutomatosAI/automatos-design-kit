@@ -227,3 +227,22 @@
   border-left: 3px solid currentcolor;
   border-right: 3px solid currentcolor;
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): beside his caption, Auto's row wraps (the Pause Auto control
+   drops under him rather than past the screen's edge), and at the large size the control stands under him in the
+   column, where the desktop sets it beside his head. */
+@media (max-width: 1023px) {
+  .auto[data-size="small"] {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  .auto[data-size="small"] .caption {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .auto[data-size="large"] .pause {
+    position: static;
+  }
+}

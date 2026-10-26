@@ -4,11 +4,14 @@
 // (mode auto), with the Space hotkey; its presses reach the host, and while the session is its own core's caption and
 // stop control show under it. Typing stays: the box and Send work while voice runs. Auto follows the session: he
 // listens while the microphone is open, thinks, then speaks (his calm clip, his ring following his voice), and goes
-// back to the chat's state when it ends; the words it heard and spoke show over the message box while it runs. Auto
-// himself is a stand-in that shows his state, his caption and whether he speaks. Roles, attributes and text only.
+// back to the chat's state when it ends; the words it heard and spoke show over the message box while it runs. On a
+// phone (Play 1.2.0's phone layout, a 390 px window through test/support/window-width.ts) the button has no hotkey,
+// and Auto stands at his small size beside his caption over the message box, where the desktop gives him a column.
+// Auto himself is a stand-in that shows his state, his size, his caption and whether he speaks. Roles, attributes
+// and text only.
 import { type VoiceButtonProps, writeThemeState } from '@automatos/theme-sdk'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
 import { PLACEHOLDER, VOICE_HOTKEY } from '../../src/components/play/chat/message-box.tsx'
 import { PlayChat } from '../../src/components/play/chat/play-chat.tsx'
@@ -16,6 +19,7 @@ import { HEARD_LABEL, REPLY_LABEL, VOICE_WORDS_LABEL } from '../../src/component
 import { HELLO_KEY, HELLO_STATE } from '../../src/lib/mascot/session.ts'
 import { CONNECTING_CAPTION, SPEAKING_CAPTION } from '../../src/lib/voice/voice-pose.ts'
 import { host } from '@automatos/theme-harness/host'
+import { PHONE_WIDTH, resetWindowWidth, setWindowWidth } from '../support/window-width.ts'
 
 /** Every VoiceButton Play renders, by its props, as it hands them to the SDK. */
 const voiceButtons = vi.hoisted(() => ({ props: [] as unknown[] }))
@@ -32,12 +36,19 @@ vi.mock('@automatos/theme-sdk', async (importOriginal) => {
   }
 })
 
-// Auto as his state, his caption and whether he speaks.
+// Auto as his state, his size, his caption and whether he speaks.
 vi.mock('../../src/components/mascot/auto-mascot.tsx', async () => {
   const { createElement } = await import('react')
+  type Shown = Pick<AutoMascotProps, 'state' | 'caption' | 'detail' | 'speaking' | 'size'>
   return {
-    AutoMascot: ({ state, caption, detail, speaking }: Pick<AutoMascotProps, 'state' | 'caption' | 'detail' | 'speaking'>) =>
-      createElement('div', { 'data-testid': 'auto', 'data-state': state, 'data-speaking': String(speaking ?? false) }, caption, ' ', detail),
+    AutoMascot: ({ state, caption, detail, speaking, size }: Shown) =>
+      createElement(
+        'div',
+        { 'data-testid': 'auto', 'data-state': state, 'data-size': size ?? 'regular', 'data-speaking': String(speaking ?? false) },
+        caption,
+        ' ',
+        detail,
+      ),
   }
 })
 
@@ -76,6 +87,10 @@ beforeEach(() => {
   host.reset()
   voiceButtons.props.length = 0
   writeThemeState(HELLO_KEY, true, HELLO_STATE) // hello already played this session
+})
+
+afterEach(() => {
+  resetWindowWidth()
 })
 
 describe('the voice button in the message box', () => {
@@ -200,5 +215,41 @@ describe('what the session heard and Auto said', () => {
     const list = screen.getByRole('list', { name: 'Conversation' })
     expect(within(list).queryByText(HEARD)).toBeNull()
     expect(words()?.compareDocumentPosition(box()) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+})
+
+describe('on a phone', () => {
+  beforeEach(() => {
+    setWindowWidth(PHONE_WIDTH)
+    host.setMinWidth(360)
+    host.setWidth(PHONE_WIDTH)
+  })
+
+  it('gives the voice button no hotkey, there being no keyboard to hold, and keeps it beside Send', () => {
+    render(<PlayChat />)
+    expect(lastProps()).toEqual({ mode: 'auto', press: 'hold', hotkey: null, size: 'md' })
+    const form = box().closest('form')
+    if (form === null) throw new Error('The message box is not a form.')
+    expect(within(form).getAllByRole('button').map((button) => button.getAttribute('aria-label') ?? button.textContent)).toEqual([
+      HOLD_TO_TALK,
+      'Send',
+    ])
+  })
+
+  it('draws Auto at his small size beside his caption over the message box, with no mascot column', async () => {
+    await renderConversation()
+    expect(screen.queryByRole('complementary', { name: 'Auto' })).toBeNull()
+    expect(screen.getAllByTestId('auto')).toHaveLength(1)
+    expect(auto()).toHaveAttribute('data-size', 'small')
+    expect(auto().compareDocumentPosition(box()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByRole('list', { name: 'Conversation' }).compareDocumentPosition(auto()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('has Auto there follow the voice session, as in his column', async () => {
+    await renderConversation()
+    act(() => host.setVoicePhase('listening'))
+    expect(auto()).toHaveAttribute('data-state', 'listening')
+    act(() => host.setVoicePhase('speaking'))
+    expect([auto().dataset.state, auto().dataset.speaking, auto().dataset.size]).toEqual(['idle', 'true', 'small'])
   })
 })

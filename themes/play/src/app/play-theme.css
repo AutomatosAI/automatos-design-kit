@@ -209,6 +209,17 @@ html.play [data-accent-like-text] {
   --pl-button-2-edge: var(--pl-line-button);
 }
 
+/* Play 1.2.0: on a phone (lib/play/phone-layout.ts: narrower than 1024 px, Play's minWidth 360 up) the sizes the
+   Ember design's 390 screens use: Auto at 170 px where he is at his large size (the first open, the asleep
+   screen), and the page glow from the foot, behind Auto beside his caption over the message box. */
+@media (max-width: 1023px) {
+  html.play {
+    --pl-mascot-size-large: 170px;
+    --pl-page-glow: radial-gradient(360px 260px at 30% 92%, var(--pl-glow), transparent 65%);
+    --pl-page-glow-snag: radial-gradient(360px 260px at 30% 92%, var(--pl-glow-snag), transparent 65%);
+  }
+}
+
 /*
  * Base rules. :where(html.play) keeps each at the specificity Play gave it
  * (an element selector), so a Studio page's own classes still win under

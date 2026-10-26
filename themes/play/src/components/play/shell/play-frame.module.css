@@ -102,3 +102,17 @@
 .page:focus {
   outline: 2px solid transparent;
 }
+
+/* The host's floating Auto widget, in a wrapper the phone menu can make inert (Play 1.2.0); it lays out as if the
+   wrapper weren't there. */
+.widget {
+  display: contents;
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): a framed page starts 16 px in, as the Ember design's 390 screens
+   do, under the phone's top bar. */
+@media (max-width: 1023px) {
+  .page {
+    padding: var(--pl-space-4);
+  }
+}
