@@ -8,6 +8,7 @@ import { act, cleanup, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { ARC } from '../../src/lib/looks/presets.ts'
+import type { HudLook } from '../../src/lib/looks/types.ts'
 import { REST_SCALE } from '../../src/voice/wave.ts'
 import { Waveform } from '../../src/voice/waveform.tsx'
 
@@ -124,7 +125,8 @@ describe('the waveform', () => {
   })
 
   it("holds still while the look's motion is off", () => {
-    host.setLooks({ look: { ...ARC, motion: 'off' } })
+    const still: HudLook = { ...ARC, motion: 'off' }
+    host.setLooks({ look: still })
     host.setVoicePhase('speaking')
     host.setVoiceLevels({ agent: 1 })
     renderWave()
