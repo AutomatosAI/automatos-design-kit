@@ -41,7 +41,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `id` | yes | `publisher/slug`, lower-case letters, digits and dashes. The `automatos` publisher is reserved. |
 | `name` | yes | One line of plain text, at most 60 characters |
 | `version` | yes | `MAJOR.MINOR.PATCH`. A version once submitted is spent: the same version with other bytes, or a lower one, is refused. |
-| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and so is the SDK. |
+| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and the SDK 1.2.0; a theme that uses the SDK's `voice` area names `"sdk": "^1.2.0"`. |
 | `base` | yes | `studio` or `classic`: the design the host draws wherever the theme has none of its own |
 | `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes, starting with a letter. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
 | `minWidth` | yes | Pixels, 0 to 3840. Below it the host draws its own pages and chrome. |
@@ -155,7 +155,8 @@ with its licence.
 - no `!important`, no `@import`; at-rules only `@media`, `@supports`, `@layer`, `@container`, `@font-face`,
   `@keyframes` (or `@-webkit-keyframes`) and `@charset`;
 - every `@keyframes` name and `@font-face` family starts with `<htmlClass>-`;
-- no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards are the host's.
+- no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards, and the voice
+  button's control (`voice-control`: the AI voice caption and the stop control), are the host's.
 
 The kit's Vite preset puts every rule under the theme's class, renames its keyframes and font families, and checks
 the result as the server does, so a build that passes it passes this check; [pitfalls.md](pitfalls.md) has what the
