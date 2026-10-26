@@ -220,7 +220,11 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
   setting is in the address, so a reload opens the same view. The address also takes `edition=saas`, which no toolbar
   control sets: the fake host is then the hosted edition (`useEdition()` answers `'saas'`) for the whole page, as core's
-  edition is fixed for a build, so core's local-only first-run nudge is not drawn; the showcase shots draw so.
+  edition is fixed for a build, so core's local-only first-run nudge is not drawn; the showcase shots draw so. So does
+  `demo=`, a comma list of made-up extras over the sample data (`src/host/demo.ts`, given in `src/host/demo-data.ts`):
+  `healthy-agents` (every agent of the roster active), `older-chats` (five older conversations,
+  `fixtures/conversations/showcase.json`, beside the transcript or a new chat) and `hello-played` (Play's hello played
+  this session, in theme state, as Play's tests mark it). Without it the page draws the sample data alone.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 
@@ -276,9 +280,10 @@ themes/hud` on `http://127.0.0.1:4320` and `automatos-theme dev themes/play` on 
 shoots each image in `SHOWCASE_SHOTS` (`src/host/showcase.ts`, which `test/showcase.test.ts` holds to the themes'
 declared views and presets) on Chromium, one test each: one view in one look at 1440 × 900 or 390 × 844, with
 `edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
-inside the fixtures' made-up day, the time zone and locale fixed too, and the host's Auto widget stand-in hidden for
-the shot. A test fails when the theme did not start, lacks the shot's look, is not on the shot's view, draws the nudge
-or is not in the shot's voice phase. No axe scan: the regression shots scan the same views. The PNGs go to
+inside the fixtures' made-up day, the time zone and locale fixed too, the host's Auto widget stand-in hidden for the
+shot, and the demo extras a workspace in use shows (`demo=`: every agent active; on Play's conversations its hello
+already played; older conversations on Play's list). A test fails when the theme did not start, lacks the shot's look,
+is not on the shot's view, draws the nudge, is not in the shot's voice phase or shows Play's hello after it played. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
 the job uploads the folder as `kit-showcase`.
 

@@ -96,7 +96,9 @@ shot is one view in one look, at 1440 × 900 or a phone's 390 × 844, drawn as t
 (`edition=saas` in the harness's address, so core's local-only first-run nudge is not over the chat), at twice the
 pixel density, with reduced motion, a fixed clock (14 Oct 2026, 10:24 UTC, inside the fixtures' made-up day) and the
 harness's own made-up data: the laptop-shortlist conversation and its Deliverable, the running Mission and the board's
-cards, and the made-up voice session. The harness's labelled stand-in for core's floating Auto widget is hidden for
+cards, and the made-up voice session, with the demo extras a workspace in use shows (`demo=` in the address): every
+agent active, Play's hello already played on each of its conversations (its first open keeps it), and five older
+conversations on Play's Conversations. The harness's labelled stand-in for core's floating Auto widget is hidden for
 the shot. The images are Chromium's alone and get no axe scan: the regression shots cover WebKit and the scans.
 
 The PNGs go to `packages/theme-harness/dist/showcase/`, each named `<theme>-<width>-<what>-<look>.png` (for example
@@ -107,7 +109,7 @@ list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
 | Theme | Width | Shots |
 |---|---|---|
 | HUD | 1440 | `chat-arc`, `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
-| HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `chat-ghost` |
+| HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc` |
 | Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember` |
 | Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember` |
 
