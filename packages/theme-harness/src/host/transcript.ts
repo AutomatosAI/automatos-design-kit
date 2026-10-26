@@ -16,6 +16,11 @@ const NONE = ''
 export const TRANSCRIPT_CONVERSATIONS = host.conversationsOf(transcript, 'fixtures/conversations/transcript.json')
 export const TRANSCRIPT_CHAT_ID = TRANSCRIPT_CONVERSATIONS[0]?.id ?? NONE
 
+/** The conversation on screen: the transcript's while it shows, else a new chat's, which has no id yet (null). */
+export function transcriptChatId(shown: boolean): string | null {
+  return shown ? TRANSCRIPT_CHAT_ID : null
+}
+
 /** The chat on the transcript (the backend holds it and the address links it), or on a new chat with none held. */
 export function showTranscript(shown: boolean): void {
   host.setConversations(shown ? TRANSCRIPT_CONVERSATIONS : [])

@@ -16,10 +16,11 @@
  *   its media queries answered by a phone-sized viewport. A theme whose minWidth is above it gets none: below its
  *   minWidth the host draws its own pages, which its below-minWidth group already shows.
  * - For a theme whose theme.json `uses` names the SDK's `voice` area (SDK 1.2.0), its voice states: the chat page (or,
- *   with no /chat page, every view) in the default look at 1440 px, with reduced motion, once for each phase of the
- *   host's made-up voice session but idle (src/host/voice.ts: listening, thinking, speaking, failed), into
- *   `<preset>/1440-voice-<phase>/`. Idle is every other group. Reduced motion holds the voice levels still, so the
- *   shots are the same on every run.
+ *   with no /chat page, every view) on the transcript in the default look at 1440 px, with reduced motion, once for
+ *   each phase of the host's made-up voice session but idle (src/host/voice.ts: listening, thinking, speaking,
+ *   failed), into `<preset>/1440-voice-<phase>/`. The session runs on the transcript's conversation, so the shots show
+ *   its words as core's chat draws them, the conversation's last two messages. Idle is every other group. Reduced
+ *   motion holds the voice levels still, so the shots are the same on every run.
  */
 import {
   belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, PHONE_VIEWPORT, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug, VOICE_PHASES,
@@ -57,7 +58,7 @@ export interface ShotGroup extends Viewport {
   readonly reducedMotion: boolean
   /** The one page the group shoots; null for every view the theme serves. */
   readonly page: string | null
-  /** True for the transcript groups alone: the chat opened on the made-up exchange. */
+  /** True for the transcript and voice groups alone: the chat opened on the made-up exchange. */
   readonly transcript: boolean
   /** The voice groups' phase of the host's made-up voice session; left out (no session) in every other group. */
   readonly voice?: HarnessVoicePhase
@@ -93,15 +94,15 @@ function chatGroups(preset: string | null, pages: readonly string[]): ShotGroup[
 }
 
 /**
- * For a theme whose `uses` names the voice area: the chat page (every view with none) in the default look at 1440 px,
- * with reduced motion, in each phase of VOICE_SHOT_PHASES; none for any other theme.
+ * For a theme whose `uses` names the voice area: the chat page (every view with none) on the transcript in the default
+ * look at 1440 px, with reduced motion, in each phase of VOICE_SHOT_PHASES; none for any other theme.
  */
 function voiceGroups(preset: string | null, pages: readonly string[], uses: readonly string[]): ShotGroup[] {
   if (!uses.includes(VOICE_AREA)) return []
   const page = pages.includes(CHAT_PAGE) ? CHAT_PAGE : null
   return VOICE_SHOT_PHASES.map((voice): ShotGroup => ({
     folder: `${folderOf(preset, CHAT_GROUP_WIDTH)}${VOICE_SUFFIX}${voice}`,
-    preset, ...desktop(CHAT_GROUP_WIDTH), reducedMotion: true, page, transcript: false, voice,
+    preset, ...desktop(CHAT_GROUP_WIDTH), reducedMotion: true, page, transcript: true, voice,
   }))
 }
 

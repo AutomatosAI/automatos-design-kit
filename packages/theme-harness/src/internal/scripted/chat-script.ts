@@ -316,6 +316,11 @@ export function useActiveChatId(): string | null {
   return activeChat.use()
 }
 
+/** The conversation on screen right now (null for a new chat), where a voice session starts (voice-session.ts). */
+export function activeChatId(): string | null {
+  return activeChat.get()
+}
+
 /** Whether the host's AI label is on screen from now on (PRD-264 EUAI-11b): Send and Try again refuse while not. */
 export function setAiLabelShown(shown: boolean): void {
   aiLabel.set(shown)

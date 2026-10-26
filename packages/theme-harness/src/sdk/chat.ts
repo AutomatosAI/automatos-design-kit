@@ -18,8 +18,9 @@
  * the Mission being planned (setPlanningMissionId, core's Mission store), and read back what was sent (chatSent,
  * turnsLeft), how often New chat was pressed (startedChats) and each load of a conversation list
  * (conversationsAsked); resetChat puts them back.
- * Not modelled: the approvals store that keeps cards across chat screens, and a cold start on the newest
- * conversation (the screen opens on a new chat, as core's Play parity specs have it).
+ * While the host's voice session runs on a conversation, its words are that conversation's last two messages
+ * (internal/live-voice-turns.ts, core's lib/chat/live-voice-turns.ts). Not modelled: the approvals store that keeps
+ * cards across chat screens, and a cold start on the newest conversation (a new chat opens, as core's Play specs have).
  */
 import type {
   HostChatApproval,
@@ -37,6 +38,7 @@ import type {
   HostSearchParams,
 } from '@automatos/theme-sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useLiveVoiceRecords } from '../internal/live-voice-turns.ts'
 import { type ApprovalStatus, type FiledApproval, isWaitingCard } from '../internal/scripted/approvals.ts'
 import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord, withFrame } from '../internal/scripted/chat-reply.ts'
 import {
@@ -230,12 +232,13 @@ function useOpenConversation(conversation: HostChatConversation, opened: Opened,
   const handlers = { chatId: conversation.chatId, adopt: opened.adopt, onData: options?.onData, onEvent: options?.onEvent, down }
   const { state, send: sendTurn, retry: retryTurn, stop, card } = useScriptedTurn(opened.history, handlers)
   const chatId = conversation.chatId ?? ''
-  const messages = useMemo(() => Object.freeze(state.messages.map((record) => hostMessage(record, state, chatId, card))), [state, chatId, card])
+  const shown = useLiveVoiceRecords(state.messages, conversation.chatId)
+  const messages = useMemo(() => Object.freeze(shown.map((record) => hostMessage(record, state, chatId, card))), [shown, state, chatId, card])
   const looseApprovals = useMemo(() => looseOf(state, chatId, card), [state, chatId, card])
   const send = useCallback((text: string) => aiLabelShown() && !turnEnding() && sendTurn(text), [sendTurn])
   const retry = useCallback(() => aiLabelShown() && !turnEnding() && retryTurn(), [retryTurn])
   const planningMissionId = usePlanningMissionId()
-  const title = chatTitle(state.messages, conversation.title)
+  const title = chatTitle(shown, conversation.title)
   return useMemo(
     () =>
       Object.freeze({

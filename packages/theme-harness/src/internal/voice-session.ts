@@ -6,13 +6,16 @@
  * (components/voice/voice-press.ts ownsSession and pressAction) and stop(), over cells a test sets (host.ts).
  *
  * A press acts on the session as the host would, as far as a theme can see: a start listens (the microphone open) in
- * the engine it resolves to, a release thinks, a stop ends the session (quick-ask goes back to idle, a Live call to
- * ended). Each press that reaches the host is kept, and every stop() is counted, for a test to read back.
+ * the engine it resolves to, on the conversation the button names or else the one on screen (voice-host.ts start), a
+ * release thinks, a stop ends the session (quick-ask goes back to idle, a Live call to ended). Each press that reaches
+ * the host is kept, and every stop() is counted, for a test to read back. While the session runs on a conversation,
+ * its words show there as two messages at the end (live-voice-turns.ts).
  */
 import type {
   HostVoiceAvailability, HostVoiceLevels, HostVoiceMode, HostVoicePhase, VoiceButtonMode, VoiceButtonPress,
 } from '@automatos/theme-sdk'
 import { cell, log } from './cell.ts'
+import { activeChatId } from './scripted/chat-script.ts'
 
 /** The session's own fields, as core's engines report them (VoiceSnapshot). */
 export interface VoiceSessionStandIn {
@@ -111,13 +114,16 @@ export function stopVoice(): void {
   session.set(Object.freeze({ ...now, ...ended, micOpen: false, muted: false }))
 }
 
+/** voice-host.ts start: the conversation a control names (null: a new chat), else the one on screen. */
+const startedOn = (named: string | null | undefined): string | null => (named === undefined ? activeChatId() : named)
+
 /** Carries out a press on the host: kept, then the session moves as the host would move it (Live ignores a release). */
 export function runPress(action: VoicePressAction | 'none', options: PressOptions): void {
   const available = availability.get()
   const now = session.get()
   if (action === 'none' || available === null || (action === 'release' && now.mode !== 'quick')) return
   const mode = action === 'start' ? resolveMode(options.mode, available) : now.mode ?? resolveMode(options.mode, available)
-  const chatId = action === 'start' ? options.chatId ?? null : now.chatId
+  const chatId = action === 'start' ? startedOn(options.chatId) : now.chatId
   presses.add(Object.freeze({ action, mode, chatId }))
   if (action === 'stop') stopVoice()
   else if (action === 'release') session.set(Object.freeze({ ...now, phase: 'thinking', micOpen: false }))
