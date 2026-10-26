@@ -1,14 +1,17 @@
 /**
  * PRD-261 B-02f: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px,
- * plus one set just below its minWidth (the host's own pages there), each scanned with axe; and for a theme with a
+ * plus one set just below its minWidth (the host's own pages there), each scanned with axe; for a theme with a
  * /chat page, that page with motion allowed and on the transcript (src/host/shot-groups.ts), into
- * `<preset>/1440-motion/` and `<preset>/1440-transcript/`.
+ * `<preset>/1440-motion/` and `<preset>/1440-transcript/`; and for a theme whose minWidth fits a phone, each preset at
+ * the phone's 390 × 844 (`<preset>/390/`, with the chat on the transcript in `<preset>/390-transcript/`).
  *
- * One test per preset and width (and one below minWidth), so a failure names its group: it opens the harness,
- * reads the views the app drew the theme with (HARNESS_GLOBAL), then for each view opens its address, waits until
- * the harness settled (the host's status, the network idle, the fonts and every image in; no fixed sleep), shoots
- * the page and scans the theme's stage. The folder gets <project>/<preset>/<width>/<view>.png and its axe.json. Every
- * context asks for reduced motion (playwright.config.ts); the motion group's page asks the browser for none instead.
+ * One test per group, so a failure names its group. The page is sized to the group's viewport (its width, and its
+ * height: 900, or the phone's 844), so a theme's own media queries see the width the group shoots, as a browser that
+ * size would. Each test opens the harness, reads the views the app drew the theme with (HARNESS_GLOBAL), then for
+ * each view opens its address, waits until the harness settled (the host's status, the network idle, the fonts and
+ * every image in; no fixed sleep), shoots the page and scans the theme's stage. The folder gets
+ * <project>/<preset>/<width>/<view>.png and its axe.json. Every context asks for reduced motion (playwright.config.ts);
+ * the motion group's page asks the browser for none instead.
  *
  * What a group must hold is read from the theme folder, not from the views the page drew: theme.json's slots, pages
  * and routes, less what the page reports the theme did not register, one file name each (router.ts expectedShots).
@@ -29,7 +32,6 @@ import {
 import { groupShots, groupViews, shotAddress, shotGroups, type ShotGroup } from '../src/host/shot-groups.ts'
 import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan } from './axe.ts'
 
-const VIEWPORT_HEIGHT = 900
 const MANIFEST_FILE = 'theme.json'
 const PRESETS_DIR = 'looks/presets'
 const SETTLED_STATUSES: readonly string[] = ['active', 'failed']
@@ -131,7 +133,7 @@ for (const group of THEME.groups) {
   test(`${group.folder}: a shot and an axe scan of ${groupSubject(group)}`, async ({ page }, testInfo) => {
     const requests = recordRequests(page)
     if (!group.reducedMotion) await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.setViewportSize({ width: group.width, height: VIEWPORT_HEIGHT })
+    await page.setViewportSize({ width: group.width, height: group.height })
     await openSettled(page, shotAddress(group, HOME_PATH))
     const report = await harnessReport(page)
     expect(report.status, 'the theme started in the harness').toBe('active')

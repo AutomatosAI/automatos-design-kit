@@ -277,7 +277,9 @@ describe('what the build and the shots read', () => {
     const groups = shotGroups(['ember', 'aurora', 'daylight', 'obsidian', 'workshop'], 1024)
     expect(groups).toHaveLength(11)
     expect(groups.slice(0, 2).map((group) => group.folder)).toEqual(['ember/1440', 'ember/1024'])
-    expect(groups[10]).toEqual({ folder: 'below-1023', preset: 'ember', width: 1023, reducedMotion: true, page: null, transcript: false })
+    expect(groups[10]).toEqual({
+      folder: 'below-1023', preset: 'ember', width: 1023, height: 900, reducedMotion: true, page: null, transcript: false,
+    })
     const urls = [`${HARNESS_ORIGIN}/harness/a.js`, 'data:image/png;base64,AA==', `blob:${HARNESS_ORIGIN}/id`, 'https://cdn.example.com/x.js']
     expect(offOrigin(urls)).toEqual(['https://cdn.example.com/x.js'])
   })

@@ -12,14 +12,15 @@ import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, devices } from '@playwright/test'
-import { HARNESS_ORIGIN, OUT_ENV, THEME_ENV } from '../src/host/router.ts'
+import { HARNESS_ORIGIN, OUT_ENV, SHOT_WIDTHS, THEME_ENV } from '../src/host/router.ts'
+import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 
 const HARNESS_DIR = fileURLToPath(new URL('..', import.meta.url))
 const DEFAULT_THEME_DIR = resolve(HARNESS_DIR, '../../themes/play')
 const DEFAULT_OUT_DIR = join(HARNESS_DIR, 'dist/shots')
 const HARNESS_CONFIG = join(HARNESS_DIR, 'vite.harness.config.ts')
-/** The default viewport; each test sets the width it shoots at. */
-const VIEWPORT = Object.freeze({ width: 1440, height: 900 })
+/** The default viewport; each test sizes the page to its group's (src/host/shot-groups.ts), the phone's 390 × 844 too. */
+const VIEWPORT = Object.freeze({ width: SHOT_WIDTHS[0], height: DESKTOP_HEIGHT })
 /** One test shoots and scans every view of one preset at one width. */
 const TEST_TIMEOUT_MS = 300_000
 const EXPECT_TIMEOUT_MS = 15_000

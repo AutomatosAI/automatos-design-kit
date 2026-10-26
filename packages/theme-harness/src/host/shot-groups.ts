@@ -1,6 +1,7 @@
 /**
  * PRD-261 B-02f: the shots' groups (one Playwright test each, shots/shots.spec.ts) and the address each shot opens.
- * No DOM and no React, so the spec (Node) and the tests read the same plan.
+ * No DOM and no React, so the spec (Node) and the tests read the same plan. Each group names its viewport, which the
+ * spec sizes the page to: DESKTOP_HEIGHT tall at its width, but the phone-width group's, a phone's 390 × 844.
  *
  * - Each preset, the default look first, at 1440 and 1024 px, then the default look just below the theme's minWidth:
  *   every view the theme serves, with reduced motion, as the shots' determinism asks.
@@ -9,30 +10,43 @@
  *   the Pause Auto control beside it (WCAG 2.2.2), which reduced motion never draws; and once on the transcript
  *   (src/host/transcript.ts: the owner's words, Auto's reply with a tool line and a Deliverable), so a chat with a
  *   conversation on it is shot, not only an empty one.
+ * - For a theme whose minWidth is at most a phone's width (router.ts PHONE_VIEWPORT), each preset at the phone's
+ *   390 × 844, every view with reduced motion, into `<preset>/390/`; and with a /chat page, the chat page on the
+ *   transcript there in the default look (`<preset>/390-transcript/`). So a theme's phone layout is drawn and scanned,
+ *   its media queries answered by a phone-sized viewport. A theme whose minWidth is above it gets none: below its
+ *   minWidth the host draws its own pages, which its below-minWidth group already shows.
  */
 import {
-  belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug, type Served, type View,
+  belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, PHONE_VIEWPORT, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug,
+  type Served, type View,
 } from './router.ts'
 
 /** The page the chat groups shoot. */
 export const CHAT_PAGE = '/chat'
 /** The width the chat groups shoot at: the wider desktop width. */
 export const CHAT_GROUP_WIDTH = SHOT_WIDTHS[0]
+/** The viewport's height in every group but the phone-width ones: the Command design's desktop, 1440 × 900. */
+export const DESKTOP_HEIGHT = 900
 /** The motion group's folder beside its preset's 1440 folder: `<preset>/1440-motion`, which no preset or width takes. */
 export const MOTION_SUFFIX = '-motion'
-/** The transcript group's: `<preset>/1440-transcript`. */
+/** The transcript groups': `<preset>/1440-transcript`, and `<preset>/390-transcript` at the phone's width. */
 export const TRANSCRIPT_SUFFIX = '-transcript'
 
-/** One test of the shots: a preset (null for a theme with none) at one width, into its own folder. */
-export interface ShotGroup {
+/** The page's size in a group, in CSS pixels. */
+export interface Viewport {
+  readonly width: number
+  readonly height: number
+}
+
+/** One test of the shots: a preset (null for a theme with none) in one viewport, into its own folder. */
+export interface ShotGroup extends Viewport {
   readonly folder: string
   readonly preset: string | null
-  readonly width: number
   /** True for every group but the motion one: the host's reduced motion on, and the browser asked for it. */
   readonly reducedMotion: boolean
   /** The one page the group shoots; null for every view the theme serves. */
   readonly page: string | null
-  /** True for the transcript group alone: the chat opened on the made-up exchange. */
+  /** True for the transcript groups alone: the chat opened on the made-up exchange. */
   readonly transcript: boolean
 }
 
@@ -40,9 +54,17 @@ const NO_PRESET_FOLDER = 'default'
 
 const folderOf = (preset: string | null, width: number): string => `${preset ?? NO_PRESET_FOLDER}/${width}`
 
+const desktop = (width: number): Viewport => ({ width, height: DESKTOP_HEIGHT })
+
 /** A group of every view, with reduced motion. */
-function everyView(folder: string, preset: string | null, width: number): ShotGroup {
-  return { folder, preset, width, reducedMotion: true, page: null, transcript: false }
+function everyView(folder: string, preset: string | null, viewport: Viewport): ShotGroup {
+  return { folder, preset, ...viewport, reducedMotion: true, page: null, transcript: false }
+}
+
+/** The chat page on the transcript, with reduced motion, in `<preset>/<width>-transcript`. */
+function transcriptGroup(preset: string | null, viewport: Viewport): ShotGroup {
+  const folder = `${folderOf(preset, viewport.width)}${TRANSCRIPT_SUFFIX}`
+  return { folder, preset, ...viewport, reducedMotion: true, page: CHAT_PAGE, transcript: true }
 }
 
 /**
@@ -51,24 +73,38 @@ function everyView(folder: string, preset: string | null, width: number): ShotGr
  */
 function chatGroups(preset: string | null, pages: readonly string[]): ShotGroup[] {
   if (!pages.includes(CHAT_PAGE)) return []
-  const chat = { preset, width: CHAT_GROUP_WIDTH, page: CHAT_PAGE }
-  const base = folderOf(preset, CHAT_GROUP_WIDTH)
-  return [
-    { ...chat, folder: `${base}${MOTION_SUFFIX}`, reducedMotion: false, transcript: false },
-    { ...chat, folder: `${base}${TRANSCRIPT_SUFFIX}`, reducedMotion: true, transcript: true },
-  ]
+  const viewport = desktop(CHAT_GROUP_WIDTH)
+  const folder = `${folderOf(preset, CHAT_GROUP_WIDTH)}${MOTION_SUFFIX}`
+  const motion: ShotGroup = { folder, preset, ...viewport, reducedMotion: false, page: CHAT_PAGE, transcript: false }
+  return [motion, transcriptGroup(preset, viewport)]
+}
+
+/** True for a theme drawn at a phone's width: its minWidth at most PHONE_VIEWPORT's width. */
+export function fitsPhone(minWidth: number): boolean {
+  return minWidth <= PHONE_VIEWPORT.width
+}
+
+/**
+ * For a theme that fits a phone: each preset at the phone's viewport, then, with a /chat page, that page on the
+ * transcript there in the default look; none for any other theme.
+ */
+function phoneGroups(looks: readonly (string | null)[], minWidth: number, pages: readonly string[]): ShotGroup[] {
+  if (!fitsPhone(minWidth)) return []
+  const views = looks.map((preset) => everyView(folderOf(preset, PHONE_VIEWPORT.width), preset, PHONE_VIEWPORT))
+  return pages.includes(CHAT_PAGE) ? [...views, transcriptGroup(looks[0], PHONE_VIEWPORT)] : views
 }
 
 /**
  * Each preset (default first) at each desktop width, then the default look just below the theme's minWidth, then the
- * chat groups for a theme whose `pages` (theme.json's routes) hold /chat.
+ * chat groups for a theme whose `pages` (theme.json's routes) hold /chat, then the phone-width groups for a theme
+ * whose minWidth fits a phone.
  */
 export function shotGroups(presets: readonly string[], minWidth: number, pages: readonly string[] = []): ShotGroup[] {
   const looks: readonly (string | null)[] = presets.length === 0 ? [null] : presets
-  const desktop = looks.flatMap((preset) => SHOT_WIDTHS.map((width) => everyView(folderOf(preset, width), preset, width)))
+  const wide = looks.flatMap((preset) => SHOT_WIDTHS.map((width) => everyView(folderOf(preset, width), preset, desktop(width))))
   const below = belowWidth(minWidth)
-  const narrow = below === null ? [] : [everyView(`below-${below}`, looks[0], below)]
-  return [...desktop, ...narrow, ...chatGroups(looks[0], pages)]
+  const narrow = below === null ? [] : [everyView(`below-${below}`, looks[0], desktop(below))]
+  return [...wide, ...narrow, ...chatGroups(looks[0], pages), ...phoneGroups(looks, minWidth, pages)]
 }
 
 /** The address a shot opens: the view's path, the group's look, width, motion and conversation, no toolbar. */

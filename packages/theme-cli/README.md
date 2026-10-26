@@ -185,8 +185,10 @@ The command reads the kit's own folders, writes only the new one, and sends noth
 
 `automatos-theme shots <theme folder> [--out <folder>]` draws the theme in the kit's browser harness
 (`packages/theme-harness`, its README says how), with nothing of Automatos running, and shoots it on Chromium and
-WebKit: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px, plus one set
-just below its `minWidth`, each with an axe scan (`axe.json` beside each set). The out folder (default `./shots`) holds
+WebKit: one PNG per slot, page and route the theme serves, for each of its presets at 1440 and 1024 px, the same at
+390 × 844 for a theme whose `minWidth` fits a phone, plus one set just below its `minWidth`, and for a theme with a
+`/chat` page two more chat shots at 1440 (motion allowed, and a made-up transcript), each with an axe scan (`axe.json`
+beside each set). The out folder (default `./shots`) holds
 `<browser>/<preset>/<width>/<view>.png`.
 
 It builds the harness for the folder (`vite build --config vite.harness.config.ts`), then runs the shots

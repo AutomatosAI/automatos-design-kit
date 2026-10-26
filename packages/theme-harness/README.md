@@ -170,34 +170,42 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   `--font-geist-mono` and `--font-newsreader` on `<html>` with one class each, as core's layout does, so a theme's
   `var(--font-geist-sans)` text draws in Geist, not in the browser's default face. The rules stay in the page, apart
   from the theme's stylesheet and its wrap; the build emits the files under `harness/`.
-- **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the
-  theme's editor sets paints too), the width (the window's, 1440, 1024, or just below `minWidth`), the tone (off
-  while the theme or its look forces one), reduced motion, forced colours and the transcript (the chat opened on a
-  made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool line and the Deliverable
-  it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens one). A page cannot turn
-  the browser's media features on, so the build copies a theme's `@media (prefers-reduced-motion: reduce)` and
-  `@media (forced-colors: active)` rules under the toolbar's two attributes, and forced colours paints the system
-  colours over the page. The shots ask the browser itself for reduced motion, or for none in the motion group; forced
-  colours is the toolbar's preview only, and no shot draws it. Each setting is in the address, so a reload opens the
-  same view.
+- **The toolbar** (`app/toolbar.tsx`): the view, the preset (the look runtime is mounted on it, and a look the theme's
+  editor sets paints too), the stage's width (the window's, then, widest first, 1440, 1024, a phone's 390 and just
+  below the theme's own `minWidth`; a theme's own media queries answer the window, not the stage, so a layout one of
+  them picks, such as a phone layout, shows in a window that narrow, and each shot sizes its window to its group's
+  width), the tone (off while the theme or its look forces one), reduced motion, forced colours and the transcript
+  (the chat opened on a made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool
+  line and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens
+  one). A page cannot turn the browser's media features on, so the build copies a theme's
+  `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the toolbar's two
+  attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
+  motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
+  setting is in the address, so a reload opens the same view.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 
-`shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one
-test per group (`src/host/shot-groups.ts`), each waiting on the host's status, the network, the fonts and the images
-(never a fixed sleep), with animations off. The groups: every view of each preset at 1440 and 1024 px, and of the
-default look just below `minWidth`, with reduced motion on; then, for a theme with a `/chat` page, that page twice
-more in the default look at 1440 px: with motion allowed (`<preset>/1440-motion/`: the host's reduced motion off and
-the browser asked for none, so Auto's clip and the Pause Auto control beside it are shot), and on the transcript
-(`<preset>/1440-transcript/`, with reduced motion: a chat with a conversation on it). Each PNG gets an axe scan of
-the theme's stage (`shots/axe.ts`); a set's scans go to its `axe.json`. A set fails when its folder does not hold
-exactly one PNG per slot, page and route that `theme.json` declares (a chat group: the chat page's), less what the
-page reports the theme did not register (a route's `/` is `_` in its file name, so no two views share one); when the
-page's presets are not the folder's, default look first; on any request to another origin than
-`http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a default look that `looks/presets/`
-lacks stops the shots before they start. The shots draw a theme on core's base layer, in core's frames, with
-stand-ins that take the room core's cards take; they prove a theme draws, not that core draws it the same way: core's
-browser lane does that.
+`shots/` photographs it (`automatos-theme shots`, kit CI's `harness` job): Playwright on Chromium and WebKit, one test
+per group (`src/host/shot-groups.ts`), each waiting on the host's status, the network, the fonts and the images (never
+a fixed sleep), with animations off. Each group sizes the browser's window to its own viewport, so a theme's own media
+queries see the width the group shoots, as a browser that size would: 900 px tall at the group's width, or a phone's
+390 × 844 (`PHONE_VIEWPORT` in `src/host/router.ts`, the phone view's size too). The groups: every view of each preset
+at 1440 and 1024 px, and of the default look just below the theme's own `minWidth`, with reduced motion on; then, for
+a theme with a `/chat` page, that page twice more in the default look at 1440 px: with motion allowed
+(`<preset>/1440-motion/`: the host's reduced motion off and the browser asked for none, so Auto's clip and the Pause
+Auto control beside it are shot), and on the transcript (`<preset>/1440-transcript/`, with reduced motion: a chat with
+a conversation on it). Then, for a theme whose own `minWidth` is at most 390 px, so it draws at a phone's width, the
+phone-width groups at 390 × 844, with reduced motion: every view of each preset (`<preset>/390/`) and, with a `/chat`
+page, that page on the transcript in the default look (`<preset>/390-transcript/`), so the theme's phone layout is
+drawn and scanned. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
+just below it already shoots. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`); a set's scans go to its
+`axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and route that `theme.json`
+declares (a chat group: the chat page's), less what the page reports the theme did not register (a route's `/` is `_`
+in its file name, so no two views share one); when the page's presets are not the folder's, default look first; on any
+request to another origin than `http://127.0.0.1:4318`; and on a critical axe violation. A `theme.json` naming a
+default look that `looks/presets/` lacks stops the shots before they start. The shots draw a theme on core's base
+layer, in core's frames, with stand-ins that take the room core's cards take; they prove a theme draws, not that core
+draws it the same way: core's browser lane does that.
 
 `shots/dev-smoke.config.ts` is the smoke of `automatos-theme dev` (kit CI's `harness` job, after the shots): its web
 server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium and checks
@@ -242,8 +250,10 @@ own rule (`src/phone/skin.ts`):
   colours, saying why the phone offers it none.
 - **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
   member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
-  phone says so. The theme's own web screens are no stand-in: their `minWidth` (1024) keeps them off a phone-width
-  browser, where the host draws its own pages. The contrast panel still measures the block, look by look.
+  phone says so. The theme's own web screens are no stand-in, whatever the theme's own `minWidth`: Automatos Go runs
+  no theme code, and those screens are what a phone's browser draws at or above that width (the shots' phone-width
+  groups photograph them for a theme whose `minWidth` fits a phone, above). The contrast panel still measures the
+  block, look by look.
 
 The contrast panel is `check`'s own measure (theme-cli's `mobile-contrast`, `src/phone/contrast.ts`): the outcome and
 reason in `check`'s words, then the ten pairs of the scheme or look on screen, each with its ratio, its minimum and its

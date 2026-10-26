@@ -11,6 +11,7 @@
  *   MainLayout draws a core page under a theme.
  * - The shots' plan: each view's file name, and the files a set must hold, read from the theme folder (the groups, and
  *   the address each shot opens, are src/host/shot-groups.ts's).
+ * - The widths: the two desktop widths, a phone's (PHONE_VIEWPORT), and the one just below the theme's minWidth.
  * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
@@ -155,6 +156,12 @@ export function presetOrder(ids: readonly string[], defaultLook: string | undefi
 
 /** The two desktop widths the toolbar offers and the shots draw at. */
 export const SHOT_WIDTHS: readonly number[] = Object.freeze([1440, 1024])
+/**
+ * A phone's screen: an iPhone's 390 × 844 points, a point a CSS pixel, as the Command design draws its phone and the
+ * phone view (app/phone/frame.tsx) draws Automatos Go. The toolbar offers its width, and the shots draw a theme whose
+ * minWidth fits it in a viewport of this size (src/host/shot-groups.ts).
+ */
+export const PHONE_VIEWPORT: Readonly<{ width: number; height: number }> = Object.freeze({ width: 390, height: 844 })
 /** The narrowest stage the harness draws. */
 export const MIN_STAGE_WIDTH = 320
 export const MAX_STAGE_WIDTH = 3840
@@ -173,14 +180,22 @@ export interface WidthChoice {
 
 export const WINDOW_WIDTH = 'window'
 
-/** The toolbar's widths: the window's, the two desktop widths, and one below the theme's minWidth. */
+const widestFirst = (a: WidthChoice, b: WidthChoice): number => (b.width ?? 0) - (a.width ?? 0)
+
+/**
+ * The toolbar's widths: the window's, then, widest first, the two desktop widths, the phone's, and one below the
+ * theme's minWidth (left out when it is one of the others).
+ */
 export function widthChoices(minWidth: number): WidthChoice[] {
   const below = belowWidth(minWidth)
+  const phone = PHONE_VIEWPORT.width
   const fixed = SHOT_WIDTHS.map((width): WidthChoice => ({ value: String(width), label: `${width} px`, width }))
-  const narrow: WidthChoice[] = below === null || SHOT_WIDTHS.includes(below)
+  const phoneChoice: WidthChoice = { value: String(phone), label: `${phone} px (phone)`, width: phone }
+  const narrow: WidthChoice[] = below === null || SHOT_WIDTHS.includes(below) || below === phone
     ? []
     : [{ value: String(below), label: `${below} px (below minWidth)`, width: below }]
-  return [{ value: WINDOW_WIDTH, label: 'The window', width: null }, ...fixed, ...narrow]
+  const sized = [...fixed, phoneChoice, ...narrow].sort(widestFirst)
+  return [{ value: WINDOW_WIDTH, label: 'The window', width: null }, ...sized]
 }
 
 // ---- settings in the query string ----
