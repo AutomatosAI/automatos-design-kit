@@ -194,12 +194,16 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   editor sets paints too), the stage's width (the window's, then, widest first, 1440, 1024, a phone's 390 and just
   below the theme's own `minWidth`; a theme's own media queries answer the window, not the stage, so a layout one of
   them picks, such as a phone layout, shows in a window that narrow, and each shot sizes its window to its group's
-  width), the tone (off while the theme or its look forces one), reduced motion, forced colours and the transcript
-  (the chat opened on a made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool
-  line and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens
-  one). A page cannot turn the browser's media features on, so the build copies a theme's
-  `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the toolbar's two
-  attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
+  width), the tone (off while the theme or its look forces one), reduced motion, forced colours, the transcript (the
+  chat opened on a made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool line
+  and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens one)
+  and the voice (`src/host/voice.ts`: no session, or a made-up quick-ask session every `VoiceButton` owns, listening
+  with the member's words so far, thinking, speaking with Auto's reply, or failed). While the member or Auto speaks,
+  `readVoiceLevels` answers a level that moves with the clock, so a theme's waveform animates; under the toolbar's
+  reduced motion it holds still, so a shot reads the same levels on every run (the shots' `animations: 'disabled'`
+  stops CSS animations, not a theme's own animation frames). A page cannot turn the browser's media features on, so the
+  build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the
+  toolbar's two attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
   motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
   setting is in the address, so a reload opens the same view.
 
@@ -217,7 +221,10 @@ Auto control beside it are shot), and on the transcript (`<preset>/1440-transcri
 a conversation on it). Then, for a theme whose own `minWidth` is at most 390 px, so it draws at a phone's width, the
 phone-width groups at 390 × 844, with reduced motion: every view of each preset (`<preset>/390/`) and, with a `/chat`
 page, that page on the transcript in the default look (`<preset>/390-transcript/`), so the theme's phone layout is
-drawn and scanned. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
+drawn and scanned. Then, for a theme whose `theme.json` `uses` names the SDK's `voice` area, its voice states: the
+`/chat` page (or, with none, every view) in the default look at 1440 px, with reduced motion, in each phase of the
+made-up voice session but idle, `<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and `-error/`, so the
+theme's voice button is shot with the host's AI voice caption and stop control, its waveform held still. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
 just below it already shoots. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`); a set's scans go to its
 `axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and route that `theme.json`
 declares (a chat group: the chat page's), less what the page reports the theme did not register (a route's `/` is `_`

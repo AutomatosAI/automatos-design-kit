@@ -2,7 +2,8 @@
  * PRD-261 B-02e: the harness's toolbar: which view (a slot, page or route the theme serves, at its path), which of
  * the theme's presets, the stage's width (the window's, 1440, 1024, a phone's 390, or just below the theme's minWidth,
  * where the host draws its own pages), the tone (off while the theme or its look forces one, as core forces it),
- * reduced motion, forced colours, and the transcript (the chat opened on a made-up exchange, src/host/transcript.ts).
+ * reduced motion, forced colours, the transcript (the chat opened on a made-up exchange, src/host/transcript.ts), and
+ * the host's voice session (none, or a made-up one listening, thinking, speaking or failed, src/host/voice.ts).
  * Every control is a labelled native one. Below them, what theme.json declares that the theme didn't register, and
  * what it registered undeclared (the host draws neither). A link opens the phone view (app/phone/page.tsx), what
  * Automatos Go draws for the theme.
@@ -10,7 +11,9 @@
 import type { HostLook } from '@automatos/theme-sdk'
 import type { ChangeEvent, CSSProperties } from 'react'
 import type { RegisterReport } from '../src/host/register.ts'
-import { PHONE_PATH, WINDOW_WIDTH, widthChoices, type HarnessSettings, type HarnessTone, type View } from '../src/host/router.ts'
+import {
+  PHONE_PATH, VOICE_PHASES, WINDOW_WIDTH, widthChoices, type HarnessSettings, type HarnessTone, type HarnessVoicePhase, type View,
+} from '../src/host/router.ts'
 
 export interface ToolbarProps {
   readonly settings: HarnessSettings
@@ -91,6 +94,11 @@ function widthOf(value: string): number | null {
 }
 
 const TONE_OPTIONS: readonly Option[] = Object.freeze([{ value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }])
+const VOICE_LABELS: Readonly<Record<HarnessVoicePhase, string>> = Object.freeze({
+  idle: 'Off', listening: 'Listening', thinking: 'Thinking', speaking: 'Speaking', error: 'Failed',
+})
+const VOICE_OPTIONS: readonly Option[] = Object.freeze(VOICE_PHASES.map((phase) => ({ value: phase, label: VOICE_LABELS[phase] })))
+const voicePhaseOf = (value: string): HarnessVoicePhase => VOICE_PHASES.find((phase) => phase === value) ?? 'idle'
 
 /** The report's two lines, or none when the theme registered exactly what theme.json declares. */
 function ReportLines({ report }: { report: RegisterReport | null }) {
@@ -136,6 +144,7 @@ export function Toolbar(props: ToolbarProps) {
       <CheckField label="Reduced motion" checked={settings.reducedMotion} onToggle={(checked) => set({ reducedMotion: checked })} />
       <CheckField label="Forced colours" checked={settings.forcedColors} onToggle={(checked) => set({ forcedColors: checked })} />
       <CheckField label="Transcript" checked={settings.transcript} onToggle={(checked) => set({ transcript: checked })} />
+      <SelectField label="Voice" value={settings.voice} options={VOICE_OPTIONS} onSelect={(value) => set({ voice: voicePhaseOf(value) })} />
       <a href={PHONE_PATH} style={LINK_STYLE}>Phone view</a>
       <ReportLines report={props.report} />
     </div>

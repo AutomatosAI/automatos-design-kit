@@ -141,7 +141,7 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     expect(readText(SHOTS_CONFIG)).toContain("contextOptions: { reducedMotion: 'reduce' }");
     const spec = readText(SHOTS_SPEC);
     expect(spec).toContain("if (!group.reducedMotion) await page.emulateMedia({ reducedMotion: 'no-preference' })");
-    expect(spec).toContain("shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages)");
+    expect(spec).toContain("shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages, usesIn(manifest))");
     const groups = readText(SHOT_GROUPS);
     expect(groups).toContain("export const CHAT_PAGE = '/chat'");
     expect(groups).toContain("export const MOTION_SUFFIX = '-motion'");

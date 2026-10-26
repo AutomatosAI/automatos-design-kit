@@ -12,7 +12,8 @@
  * - The shots' plan: each view's file name, and the files a set must hold, read from the theme folder (the groups, and
  *   the address each shot opens, are src/host/shot-groups.ts's).
  * - The widths: the two desktop widths, a phone's (PHONE_VIEWPORT), and the one just below the theme's minWidth.
- * - The settings the toolbar switches, as the query string a reload or a shot opens the harness with.
+ * - The settings the toolbar switches (the voice phase among them), as the query string a reload or a shot opens the
+ *   harness with.
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
  */
@@ -202,6 +203,10 @@ export function widthChoices(minWidth: number): WidthChoice[] {
 
 export type HarnessTone = 'light' | 'dark'
 
+/** The voice phases the toolbar and the shots show a theme's voice in (src/host/voice.ts holds each one's session). */
+export const VOICE_PHASES = Object.freeze(['idle', 'listening', 'thinking', 'speaking', 'error'] as const)
+export type HarnessVoicePhase = (typeof VOICE_PHASES)[number]
+
 /** What the toolbar switches; the path is the fake host's (useHostPathname), so the theme's own links move it too. */
 export interface HarnessSettings {
   readonly path: string
@@ -215,6 +220,8 @@ export interface HarnessSettings {
   readonly forcedColors: boolean
   /** True opens the chat on a made-up conversation (src/host/transcript.ts); false on a new chat. */
   readonly transcript: boolean
+  /** The host's voice session: none ('idle'), or a made-up one in that phase (src/host/voice.ts). */
+  readonly voice: HarnessVoicePhase
   /** False hides the toolbar (the shots draw the theme alone). */
   readonly toolbar: boolean
 }
@@ -227,11 +234,13 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   reducedMotion: false,
   forcedColors: false,
   transcript: false,
+  voice: 'idle',
   toolbar: true,
 })
 
 const PARAM = Object.freeze({
-  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', toolbar: 'toolbar',
+  path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', voice: 'voice',
+  toolbar: 'toolbar',
 })
 const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
@@ -249,6 +258,10 @@ function widthOf(value: string | null): number | null {
   return width >= MIN_STAGE_WIDTH && width <= MAX_STAGE_WIDTH ? width : null
 }
 
+function voiceOf(value: string | null): HarnessVoicePhase {
+  return VOICE_PHASES.find((phase) => phase === value) ?? DEFAULT_SETTINGS.voice
+}
+
 /** The settings a query string names; a missing or malformed value is the default's. */
 export function readSettings(search: string): HarnessSettings {
   const params = new URLSearchParams(search)
@@ -263,6 +276,7 @@ export function readSettings(search: string): HarnessSettings {
     reducedMotion: params.get(PARAM.motion) === REDUCE,
     forcedColors: params.get(PARAM.forced) === ACTIVE,
     transcript: params.get(PARAM.chat) === TRANSCRIPT,
+    voice: voiceOf(params.get(PARAM.voice)),
     toolbar: params.get(PARAM.toolbar) !== OFF,
   })
 }
@@ -277,6 +291,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.reducedMotion) params.set(PARAM.motion, REDUCE)
   if (settings.forcedColors) params.set(PARAM.forced, ACTIVE)
   if (settings.transcript) params.set(PARAM.chat, TRANSCRIPT)
+  if (settings.voice !== DEFAULT_SETTINGS.voice) params.set(PARAM.voice, settings.voice)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
   const query = params.toString()
   return query === '' ? '' : `?${query}`
@@ -320,6 +335,12 @@ export function declaredIn(manifest: unknown): Served {
   const pages = fields.pages
   const pageRoutes = pages !== null && typeof pages === 'object' && !Array.isArray(pages) ? Object.keys(pages) : []
   return { slots: textList(fields.slots), pages: pageRoutes, routes: textList(fields.routes) }
+}
+
+/** The SDK areas a theme.json's `uses` names, read leniently (the app checks the file): none when it names none. */
+export function usesIn(manifest: unknown): string[] {
+  const uses = manifest !== null && typeof manifest === 'object' ? (manifest as Readonly<Record<string, unknown>>).uses : undefined
+  return textList(uses)
 }
 
 /**

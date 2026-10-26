@@ -66,7 +66,10 @@ which reduced motion never draws), and on a made-up transcript, in `<preset>/144
 Auto's reply with a tool line and a Deliverable). A theme whose own `minWidth` is at most 390 px, so it draws at a
 phone's width, is shot at a phone's 390 × 844 too, with reduced motion: each preset in `<preset>/390/` and, with a
 `/chat` page, that page on the transcript in its default look, in `<preset>/390-transcript/`. A theme whose `minWidth`
-is wider gets no 390 set: below `minWidth` the host draws its own pages, which the set just below it shows. Each set's
+is wider gets no 390 set: below `minWidth` the host draws its own pages, which the set just below it shows. A theme
+whose `theme.json` `uses` names the SDK's `voice` area (SDK 1.2.0) gets its voice states too: its `/chat` page (or every
+view, with none) in its default look at 1440 px, in each phase of a made-up voice session, in
+`<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and `-error/`, with the voice levels held still. Each set's
 browser window is sized to the set's width (900 px tall, or the phone's 844), so the theme's own media queries see the
 width it is shot at. The harness draws the theme on core's base layer (Tailwind's preflight and core's base styles),
 the looks pages full bleed and the 404 with no frame, as core does, and answers the page areas' reads with made-up
