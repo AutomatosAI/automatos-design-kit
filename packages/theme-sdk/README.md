@@ -7,9 +7,8 @@ vite-preset keeps `@automatos/theme-sdk` external.
 ## Where it comes from
 
 Vendored from core (`AutomatosAI/automatos-ai`), `frontend/packages/theme-sdk`, at commit
-`c68435599b4fd94e3b0bcc4ae2b36a3db7081110` (SDK 1.2.0, which adds the `voice` area: `VoiceButton`, `useVoice` and
-`readVoiceLevels`), the head of core pull request #1334, not merged yet: once it is, the kit is re-pinned to its merge
-commit on core `main`, which moves only this commit. Since `99fb70ff5`, the kit's previous pin (SDK 1.1.0, which added
+`2e57484810204fb9b3481c86a0faed7c6eb3d0ae` (SDK 1.2.0, which adds the `voice` area: `VoiceButton`, `useVoice` and
+`readVoiceLevels`), core `main` at the merge of pull request #1334 (26 Oct 2026). Since `99fb70ff5`, the kit's previous pin (SDK 1.1.0, which added
 the `storage` area), only `package.json` (its version), `index.d.ts` (the `voice` re-export) and the new
 `areas/voice.d.ts` changed. By version (PRD-261 D2-b): `package.json`, `index.d.ts`, `areas/*.d.ts` and
 `internal/*.d.ts` are core's files unchanged. Only this README is the kit's own.

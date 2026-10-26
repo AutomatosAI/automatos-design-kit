@@ -1,7 +1,7 @@
 /**
  * Theme voice (SDK 1.2.0): the fake host's voice session, which the fake voice area (src/sdk/voice.ts) and its
  * VoiceButton stand-in (src/sdk/voice-button.tsx) read. Not an SDK name. It mirrors the host's voice as a theme sees it
- * in core (at c68435599b4fd94e3b0bcc4ae2b36a3db7081110): the session's fields (lib/voice/engine.ts VoiceSnapshot and
+ * in core (at 2e57484810204fb9b3481c86a0faed7c6eb3d0ae): the session's fields (lib/voice/engine.ts VoiceSnapshot and
  * IDLE_VOICE), what the host can offer (lib/voice/host/availability.ts, resolveVoiceMode), what a press does
  * (components/voice/voice-press.ts ownsSession and pressAction) and stop(), over cells a test sets (host.ts).
  *

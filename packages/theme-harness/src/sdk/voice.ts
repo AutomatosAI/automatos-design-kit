@@ -1,6 +1,6 @@
 /**
  * Theme voice (SDK 1.2.0): the fake of SDK area `voice`. It mirrors core's frontend/lib/theme-sdk/voice.ts (at
- * c68435599b4fd94e3b0bcc4ae2b36a3db7081110): useVoice hands back a frozen, theme-neutral snapshot of the tab's voice
+ * 2e57484810204fb9b3481c86a0faed7c6eb3d0ae): useVoice hands back a frozen, theme-neutral snapshot of the tab's voice
  * session and stop(), the same object while nothing changed; readVoiceLevels the member's and Auto's levels, each 0 to
  * 1 (a value out of range clamped, one that is not a finite number 0); VoiceButton is the stand-in in voice-button.tsx.
  * Outside the host's voice (host.setVoiceAvailable(null)) useVoice answers the idle snapshot with nothing available and

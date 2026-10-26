@@ -1,7 +1,7 @@
 /**
  * Theme voice (SDK 1.2.0): the stand-in for the SDK's `voice.VoiceButton`. It mirrors core's
  * frontend/lib/theme-sdk/host-cards/voice-button.tsx over components/voice/voice-button.tsx (at
- * c68435599b4fd94e3b0bcc4ae2b36a3db7081110): the props checked as core checks them (a TypeError naming the prop), and
+ * 2e57484810204fb9b3481c86a0faed7c6eb3d0ae): the props checked as core checks them (a TypeError naming the prop), and
  * the same DOM a theme styles: the root (`data-voice-button="root"`) with `data-voice-state`, `data-voice-mode`,
  * `data-voice-press`, `data-voice-size` and `data-voice-mic`, a real <button> for the press
  * (`data-voice-button="press"`, named by `label` or by what a press does), and the screen reader's line.

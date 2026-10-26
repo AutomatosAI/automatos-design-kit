@@ -3,11 +3,9 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `c68435599b4fd94e3b0bcc4ae2b36a3db7081110`, the head of core pull request #1334
+Source: `AutomatosAI/automatos-ai` at `2e57484810204fb9b3481c86a0faed7c6eb3d0ae`, core `main` at the merge of pull request #1334
 (theme voice: SDK 1.2.0 with the `voice` area, the `voice-control` protected surface and the review's audio capture
-check; the host contract stays 1.1.0). It is not merged yet: once it is, the kit is re-pinned to its merge commit on
-core `main`, which moves only the commit named here, in `CORE_SHA` and in `data/contract.json`, and the sha256 rows
-below. Every file here is the same as at `99fb70ff5`, the kit's previous pin (main, 24 Oct 2026: host contract and SDK
+check; the host contract stays 1.1.0), merged 26 Oct 2026. Every file here is the same as at `99fb70ff5`, the kit's previous pin (main, 24 Oct 2026: host contract and SDK
 1.1.0 with the theme format's optional `mobile` block), but `host.ts`, whose `SDK_VERSION` follows `shared-modules.json`'s
 `sdkVersion` to `1.2.0`.
 
@@ -59,7 +57,7 @@ to the copies of the same lists in `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `2faf2af84d6fdda8689b46262b129886afe02ef1f7b20734833baf681fa8a8a6` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `e189f8fc3242505b1ef72bede92e6c90ae2573829f4f108c70a46b092541704f` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 

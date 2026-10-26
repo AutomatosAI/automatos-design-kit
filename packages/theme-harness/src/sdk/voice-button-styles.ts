@@ -1,7 +1,7 @@
 /**
  * The VoiceButton stand-in's geometry and words (src/sdk/voice-button.tsx), from core's components/voice/
  * voice-button.tsx, voice-button-view.ts, voice-controls.tsx and AiVoiceLabel.tsx (at
- * c68435599b4fd94e3b0bcc4ae2b36a3db7081110), in plain colours. The press takes the `--voice-button-*` custom properties
+ * 2e57484810204fb9b3481c86a0faed7c6eb3d0ae), in plain colours. The press takes the `--voice-button-*` custom properties
  * a theme styles core's button with, each with a plain default here (core's are Studio's tokens), so a theme's styling
  * shows in the harness as it does on core. The AI voice caption is core's: a tiny caption in the text's own colour,
  * never a pill or a badge.
