@@ -218,7 +218,9 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the
   toolbar's two attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
   motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
-  setting is in the address, so a reload opens the same view.
+  setting is in the address, so a reload opens the same view. The address also takes `edition=saas`, which no toolbar
+  control sets: the fake host is then the hosted edition (`useEdition()` answers `'saas'`) for the whole page, as core's
+  edition is fixed for a build, so core's local-only first-run nudge is not drawn; the showcase shots draw so.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 

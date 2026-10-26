@@ -13,7 +13,9 @@
  * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too,
  * the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat), and the host's voice session
  * (src/host/voice.ts: none, or a made-up one in the phase chosen, on the conversation on screen, whose words show in it
- * as core's chat shows them), whose levels move unless reduced motion is on.
+ * as core's chat shows them), whose levels move unless reduced motion is on. The address alone sets the host's edition
+ * (useEdition: local, or `edition=saas`, the hosted one, where core draws no first-run nudge), once, before the first
+ * render, as core's is fixed for a build.
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  */
 import type { HostLook } from '@automatos/theme-sdk'
@@ -105,11 +107,12 @@ export function applySettings(theme: HarnessTheme, settings: HarnessSettings, wi
 }
 
 /**
- * The fake host as the settings start it, before the first render: the settings, the look runtime, the path, the
- * chat's conversation (the transcript, or a new chat) and the voice session (none, or a made-up one in its phase, on
- * that conversation).
+ * The fake host as the settings start it, before the first render: the edition, the settings, the look runtime, the
+ * path, the chat's conversation (the transcript, or a new chat) and the voice session (none, or a made-up one in its
+ * phase, on that conversation).
  */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
+  host.setEdition(settings.edition)
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
