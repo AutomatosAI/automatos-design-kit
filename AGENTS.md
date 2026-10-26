@@ -105,8 +105,12 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   does the phone view on `/phone`. Then the phone shots (`packages/theme-harness/shots/phone-shots.config.ts`):
   `automatos-theme dev` over the harness's made-up phone skin (`packages/theme-harness/fixtures/phone-skin`), its
   `/phone` shot on Chromium on Chat, the Command Centre and First open in Light and Dark, and with the skin designer
-  showing a failing pair, each with an axe scan of the phone, into the shots' `phone/` folder. The job uploads the
-  shots, their `axe.json` files and the smoke's shots as `kit-harness`.
+  showing a failing pair, each with an axe scan of the phone, into the shots' `phone/` folder. Then the showcase
+  shots (`packages/theme-harness/shots/showcase.config.ts`): `automatos-theme dev` over HUD and over Play, each on its
+  own port, and chosen views of each in chosen looks on the hosted edition (no first-run nudge), at twice the pixel
+  density, with reduced motion and a fixed clock, on Chromium and with no axe scan, into
+  `packages/theme-harness/dist/showcase/`. The job uploads the shots, their `axe.json` files and the smoke's shots as
+  `kit-harness`, and the showcase as `kit-showcase`.
 
 ## Adding a dependency
 

@@ -270,6 +270,18 @@ into its folder's `axe.json`; a critical violation, a missing shot or a request 
 Its files, and a failed test's trace, go to `dist/shots/phone/`. `test/phone-skin-fixture.test.ts` holds the fixture
 to core's validator and to `automatos-theme skin`'s own check, so the shots draw a skin that passes.
 
+`shots/showcase.config.ts` makes the showcase (kit CI's `harness` job, after the phone shots): clean images of HUD
+and Play for READMEs, docs and the product site, not a regression set. Its web servers are `automatos-theme dev
+themes/hud` on `http://127.0.0.1:4320` and `automatos-theme dev themes/play` on `:4321`, and `shots/showcase.spec.ts`
+shoots each image in `SHOWCASE_SHOTS` (`src/host/showcase.ts`, which `test/showcase.test.ts` holds to the themes'
+declared views and presets) on Chromium, one test each: one view in one look at 1440 × 900 or 390 × 844, with
+`edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
+inside the fixtures' made-up day, the time zone and locale fixed too, and the host's Auto widget stand-in hidden for
+the shot. A test fails when the theme did not start, lacks the shot's look, is not on the shot's view, draws the nudge
+or is not in the shot's voice phase. No axe scan: the regression shots scan the same views. The PNGs go to
+`dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
+the job uploads the folder as `kit-showcase`.
+
 ## The phone view
 
 `/phone` (`app/phone/`) is what Automatos Go, the Automatos phone app, draws for the theme, at an iPhone's 390 × 844
