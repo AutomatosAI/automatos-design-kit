@@ -4,7 +4,7 @@
     "coreSha": "101a0bf33f64fb4f89af81b4293415be60b661ac",
     "coreIts": 35,
     "kitPath": "test/chat/play-chat.test.tsx",
-    "kitIts": 19,
+    "kitIts": 20,
     "rehomed": [
       {
         "assertion": "A cold start on this device lands on the newest conversation (getChatHistory(1), no hello): the chat controller's conversation loading.",
