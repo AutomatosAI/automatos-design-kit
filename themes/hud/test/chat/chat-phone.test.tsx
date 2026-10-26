@@ -4,8 +4,9 @@
 // state chip and Pause Auto beside it, the last exchange (your words in quotes, Auto's reply), and the control row:
 // TYPE opens the message box (focused, sending as on the desktop, keeping its words when shut), STOP stops a reply
 // and is disabled while nothing runs, and the host's voice button stands between them (test/voice/ holds it, the
-// waveform over the row and what was said aloud). From 1024 px up the screen is the desktop's, and a window crossing
-// the width keeps the conversation. Roles, names and attributes only; every value is made up.
+// waveform over the row and a voice session's words in the last exchange). From 1024 px up the screen is the
+// desktop's, and a window crossing the width keeps the conversation. Roles, names and attributes only; every value is
+// made up.
 import type { ActivityFeed } from '@automatos/theme-sdk'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'

@@ -9,7 +9,6 @@ import {
 
 import { usePhoneLayout } from '../lib/phone-layout'
 import { VoiceDeck } from '../voice/voice-deck'
-import { useVoiceWords, VoiceWords } from '../voice/voice-words'
 import { ChatFooter } from './chat-footer'
 import type { ChatParts, Sending } from './chat-parts'
 import { chipWords } from './chip'
@@ -35,8 +34,9 @@ import { VoiceCore } from './voice-core'
  * said, the empty chat's starters put their words in the message box.
  *
  * Voice is beside the box, never instead of it: the host's voice button in the design's waveform over the message box
- * (src/voice/voice-deck.tsx), and, while a voice session runs, what was said aloud under the transcript
- * (src/voice/voice-words.tsx) until the turn lands in the conversation.
+ * (src/voice/voice-deck.tsx). While a voice session runs on the conversation, the host puts what was heard and what
+ * Auto is saying at the end of its messages (voice-live-user and voice-live-assistant), so the transcript shows them as
+ * a YOU and an AUTO row like any others, until the saved turn takes their place.
  *
  * In a window narrower than the desktop layout (src/lib/phone-layout.ts) the same chat is drawn as the design's phone
  * (phone/phone-chat.tsx); everything above is made once for both, so a window crossing the width keeps it.
@@ -133,7 +133,6 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
 /** The desktop's core screen: the conversation's column between the side panels, laid out by its measured size. */
 function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
   const { ref, layout } = useScreenLayout()
-  const said = useVoiceWords()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
   const autoFocus = chat.messages.length === 0
   const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={<VoiceDeck />} />
@@ -148,7 +147,6 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }:
         after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
         empty={<EmptyChat onStarter={fillBox} />}
       />
-      {said !== null && <VoiceWords words={said} />}
     </ChatScreen>
   )
 }

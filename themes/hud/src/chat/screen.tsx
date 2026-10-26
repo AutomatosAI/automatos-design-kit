@@ -34,7 +34,7 @@ export interface ChatScreenProps {
   readonly core: ReactNode
   /** Under the transcript: the host's banners, the voice deck and the message box. */
   readonly footer?: ReactNode
-  /** The transcript, and what a voice session said aloud under it. */
+  /** The transcript. */
   readonly children?: ReactNode
   /** The Mission this conversation plans, which MISSION shows first; null or absent for none. */
   readonly missionId?: string | null

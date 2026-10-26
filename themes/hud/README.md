@@ -51,9 +51,10 @@ the host's voice button does, on a press. Typing stays: voice is beside the mess
   (`readVoiceLevels`: the member's while the microphone is open, Auto's while he speaks), the newest beside the button;
   it runs only while a session runs and motion is allowed, so the bars stand still under the reduced-motion setting and
   while the look's motion is off.
-- **What was said aloud** (`src/voice/voice-words.tsx`): while a session runs, the words heard as a YOU row and Auto's
-  reply as far as he has spoken it as an AUTO row, under the transcript on the desktop and in the last exchange's place
-  on the phone, until the turn lands in the conversation.
+- **What was said aloud** is the conversation's: while a session runs on it, the host puts what was heard and what
+  Auto is saying at the end of its messages (`voice-live-user` and `voice-live-assistant`), so the transcript shows them
+  as its newest YOU and AUTO rows, Auto's with the AI-generated mark, and on the phone they are the last exchange, until
+  the saved turn takes their place. HUD draws no words of its own beside them, so they show once.
 
 ## Looks
 
@@ -102,7 +103,7 @@ Command design's phone (390 by 844) instead of its desktop layout. The width is 
 - **The core screen.** A line naming who is at work (the running Mission's agent with the time since it started, or
   Auto and his state in a word), the 290 px core with Auto, the state chip and Pause Auto beside it, the last
   exchange (your words in quotes, then Auto's reply with all it carries on the desktop: his tool lines, the host's
-  cards, the receipts, the snag box; while a voice session runs, what was said aloud in its place), the waveform and
+  cards, the receipts, the snag box; while a voice session runs, the exchange being spoken), the waveform and
   the control row: TYPE, the host's voice button as HOLD TO TALK, and STOP. TYPE opens the message box, the desktop's,
   over the waveform, and puts the focus in it; shut again, it keeps its words. STOP stops a reply, ends a voice
   session, and is disabled while nothing runs.
