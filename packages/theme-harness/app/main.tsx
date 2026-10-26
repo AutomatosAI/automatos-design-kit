@@ -3,7 +3,9 @@
  * reset; `edition=saas` in the address makes it the hosted one, in app/host.tsx prepareHost), names the theme folder's
  * files root (the build serves the folder's assets/ there, so the SDK's assetUrl answers), checks the theme folder's
  * files (src/host/register.ts readServedTheme), reads the settings from the address (src/host/router.ts), gives the page
- * areas' reads their made-up answers (src/host/sample-data.ts), and draws the mock host (app/host.tsx). Each change goes back into the address, so a reload, or a shot, opens the same view.
+ * areas' reads their made-up answers (src/host/sample-data.ts; the demo extras the address asks for go over them in
+ * prepareHost, src/host/demo-data.ts), and draws the mock host (app/host.tsx). Each change goes back into the address,
+ * so a reload, or a shot, opens the same view.
  * Files core would refuse are listed instead of drawn (app/refused.tsx).
  *
  * On PHONE_PATH it draws the phone view instead (app/phone/page.tsx): what Automatos Go draws for the theme, with its

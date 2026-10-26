@@ -4,10 +4,12 @@
  * (fixtures/conversations/transcript.json: the owner's words, then Auto's reply with a tool line and the Deliverable it
  * made, its turn's frames in the recorded stream's format), linked from the address with `?chatId=`, as core's deep
  * link opens a stored conversation (frontend/lib/chat-controller/conversation.ts). The fake chat opens it with its
- * history (src/sdk/chat.ts), and the theme's conversation lists show it.
+ * history (src/sdk/chat.ts), and the theme's conversation lists show it, beside any older conversations the page holds
+ * (the demo extra `older-chats`, src/host/demo-data.ts).
  */
 import transcript from '../../fixtures/conversations/transcript.json'
 import { host } from '../host.ts'
+import type { ConversationFixture } from '../sdk/chat.ts'
 
 /** core's lib/chat-controller/view-model.ts CHAT_ID_PARAM. */
 const CHAT_ID_PARAM = 'chatId'
@@ -21,8 +23,11 @@ export function transcriptChatId(shown: boolean): string | null {
   return shown ? TRANSCRIPT_CHAT_ID : null
 }
 
-/** The chat on the transcript (the backend holds it and the address links it), or on a new chat with none held. */
-export function showTranscript(shown: boolean): void {
-  host.setConversations(shown ? TRANSCRIPT_CONVERSATIONS : [])
+/**
+ * The chat on the transcript (the backend holds it and the address links it), or on a new chat; the backend holds
+ * `older` conversations beside it either way (none by default).
+ */
+export function showTranscript(shown: boolean, older: readonly ConversationFixture[] = []): void {
+  host.setConversations([...(shown ? TRANSCRIPT_CONVERSATIONS : []), ...older])
   host.setSearchParams(shown ? new URLSearchParams({ [CHAT_ID_PARAM]: TRANSCRIPT_CHAT_ID }).toString() : NONE)
 }

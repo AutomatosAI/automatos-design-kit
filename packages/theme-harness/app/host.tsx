@@ -15,7 +15,8 @@
  * (src/host/voice.ts: none, or a made-up one in the phase chosen, on the conversation on screen, whose words show in it
  * as core's chat shows them), whose levels move unless reduced motion is on. The address alone sets the host's edition
  * (useEdition: local, or `edition=saas`, the hosted one, where core draws no first-run nudge), once, before the first
- * render, as core's is fixed for a build.
+ * render, as core's is fixed for a build, and the demo extras over the sample data (`demo=`, src/host/demo.ts: every
+ * agent active, older conversations beside the chat's, Play's hello played this session), which the showcase asks for.
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  */
 import type { HostLook } from '@automatos/theme-sdk'
@@ -29,6 +30,7 @@ import {
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
 import { installCoreBase } from '../src/host/core-base.ts'
+import { giveDemo, olderConversations } from '../src/host/demo-data.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
@@ -107,16 +109,17 @@ export function applySettings(theme: HarnessTheme, settings: HarnessSettings, wi
 }
 
 /**
- * The fake host as the settings start it, before the first render: the edition, the settings, the look runtime, the
- * path, the chat's conversation (the transcript, or a new chat) and the voice session (none, or a made-up one in its
- * phase, on that conversation).
+ * The fake host as the settings start it, before the first render: the edition, the demo extras, the settings, the
+ * look runtime, the path, the chat's conversation (the transcript, or a new chat, with the older ones the extras ask
+ * for) and the voice session (none, or a made-up one in its phase, on that conversation).
  */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   host.setEdition(settings.edition)
+  giveDemo(settings.demo)
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
-  showTranscript(settings.transcript)
+  showTranscript(settings.transcript, olderConversations(settings.demo))
   showVoice(settings.voice, transcriptChatId(settings.transcript))
 }
 
@@ -266,7 +269,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
-    if (next.transcript !== settings.transcript) showTranscript(next.transcript)
+    if (next.transcript !== settings.transcript) showTranscript(next.transcript, olderConversations(next.demo))
     if (next.voice !== settings.voice || next.transcript !== settings.transcript) showVoice(next.voice, transcriptChatId(next.transcript))
     setSettings(next)
   }
