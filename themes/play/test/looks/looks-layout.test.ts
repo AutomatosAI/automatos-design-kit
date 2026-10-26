@@ -4,11 +4,14 @@
 // the link stays on one line, and under a 560px column (a container query on the page's main column) the header
 // stacks: the heading, then the name and the link on the left. Auto in the preview is centred once the chat slice
 // wraps under him. The Looks row cut its cards at the edge with no sign of more: now each card snaps to the row's
-// start and the row's end fades. A static check of the stylesheet's text (css: false).
+// start and the row's end fades. Play 1.2.1: the editor's option groups sit 20 px apart and 8 px under their labels, so
+// at 1440 by 900 the whole panel fits under the header row and Save as new look is no longer cut at the window's foot.
+// A static check of the stylesheet's text (css: false).
 import { describe, expect, it } from 'vitest'
 import { declaredFor } from '../support/rule-values.ts'
 
 const LOOKS_CSS = 'components/looks/looks.module.css'
+const EDITOR_CSS = 'components/looks/editor.module.css'
 const NARROW = '@container (max-width: 560px)'
 
 describe("the Look page's header in a narrow column (Play 1.1.1)", () => {
@@ -49,5 +52,17 @@ describe('the Looks row when it overflows (Play 1.1.1)', () => {
     const row = declaredFor(LOOKS_CSS, '.row')
     expect(row.get('mask-image')).toBe('linear-gradient(to right, currentcolor calc(100% - var(--pl-space-6)), transparent)')
     expect(row.get('padding')?.split(' ')[1]).toBe('var(--pl-space-6)')
+  })
+})
+
+describe("the Look page's editor at 1440 by 900 (Play 1.2.1)", () => {
+  it('sets its option groups 20 px apart and 8 px under their labels, so Save as new look and Reset fit the window', () => {
+    expect(declaredFor(EDITOR_CSS, '.editor').get('gap')).toBe('calc(var(--pl-space-4) + var(--pl-space-1))')
+    expect(declaredFor(EDITOR_CSS, '.section').get('gap')).toBe('var(--pl-space-2)')
+  })
+
+  it('keeps the actions at the foot, the panel scrolling on its own in a shorter window', () => {
+    expect(declaredFor(EDITOR_CSS, '.actions').get('margin-top')).toBe('auto')
+    expect(declaredFor(EDITOR_CSS, '.editor').get('overflow-y')).toBe('auto')
   })
 })

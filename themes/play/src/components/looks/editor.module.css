@@ -12,7 +12,10 @@
  */
 
 /* Room under Save and Reset for the floating Auto widget MainLayout keeps on every page but
-   the chat (a 48 px button 16 px from the corner), so it never covers Reset. */
+   the chat (a 48 px button 16 px from the corner), so it never covers Reset.
+   Play 1.2.1: 20 px between the option groups and 8 px from a group's label to its options (24 and 12 before), so the
+   whole panel, Save as new look and Reset with it, fits a 1440 by 900 window under the header row: the button's foot
+   sat 10 px below the window's edge. A shorter window still scrolls the panel on its own. */
 .editor {
   --pl-look-widget-room: 56px;
   width: var(--pl-look-editor-width);
@@ -21,7 +24,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: var(--pl-space-5);
+  gap: calc(var(--pl-space-4) + var(--pl-space-1));
   padding: var(--pl-space-5) var(--pl-space-5) calc(var(--pl-space-5) + var(--pl-look-widget-room));
   border-left: 1px solid var(--pl-line);
   color: var(--pl-color-text);
@@ -30,7 +33,7 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--pl-space-3);
+  gap: var(--pl-space-2);
 }
 
 .label {
