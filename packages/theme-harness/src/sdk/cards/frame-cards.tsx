@@ -14,8 +14,8 @@ type Sdk = typeof import('@automatos/theme-sdk')
 
 /** The page's label, beside every in-app chat (the default of `label`). */
 const PAGE_LABEL = 'page'
-/** A fieldset with no box of its own. */
-const NO_BOX: CSSProperties = Object.freeze({ border: 0, margin: 0, padding: 0, minWidth: 0 })
+/** A fieldset with no box of its own, laid out as its children alone, as core draws the fence (`display: contents`). */
+const NO_BOX: CSSProperties = Object.freeze({ display: 'contents', border: 0, margin: 0, padding: 0, minWidth: 0 })
 const NO_LAYOUT: CSSProperties = Object.freeze({ display: 'contents' })
 
 /** cards.AiLabelFence: the composer, disabled while the AI label beside it can't be seen. */

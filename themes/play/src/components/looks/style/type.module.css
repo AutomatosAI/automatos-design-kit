@@ -2,8 +2,8 @@
  * PRD-260 §4 — the style sheet's Type section, ported from Automatos Play's
  * components/looks/style/style.module.css: a label column, then each specimen
  * set in its own app/play-theme.css token, so the display ones follow the
- * look's type style and sizes. Every variable is --pl-* (K2). The sheet renders
- * only at >= 1024 px (D7), so Play's phone rules are not ported.
+ * look's type style and sizes. Every variable is --pl-* (K2). On a phone (Play 1.2.0) each label stands over its
+ * specimen, the display ones in their phone sizes.
  */
 
 .specimens {
@@ -68,4 +68,21 @@
 .mono {
   font: var(--pl-text-mono);
   color: var(--pl-color-text-2);
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): each specimen's label over it, the display ones in their phone
+   sizes. */
+@media (max-width: 1023px) {
+  .specimen {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--pl-space-1);
+  }
+
+  .hero {
+    font: var(--pl-text-hero-phone);
+  }
+
+  .status {
+    font: var(--pl-text-status-phone);
+  }
 }

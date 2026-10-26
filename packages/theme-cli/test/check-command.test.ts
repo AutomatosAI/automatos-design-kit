@@ -11,14 +11,16 @@ import { CORE_SHA, LLM_SERVER_ONLY, REPORT_SCHEMA } from '../src/check/report.ts
 import { NO_SOURCE_WARNING } from '../src/source.ts'
 import { entryImporting, helloFolder, ranCheck, removeTempFolders, tempFolder } from './check-support.ts'
 
-const ORDER = ['sizes', 'cssScope', 'looks', 'uses', 'clonedFrom', 'previews', 'jsRules', 'contrast', 'llm']
-const WITH_BUILD = ['sizes', 'cssScope', 'looks', 'uses', 'clonedFrom', 'previews', 'jsRules', 'reproducibleBuild', 'contrast', 'llm']
+const ORDER = ['sizes', 'cssScope', 'looks', 'uses', 'audioCapture', 'clonedFrom', 'previews', 'jsRules', 'contrast', 'llm']
+const WITH_BUILD = [
+  'sizes', 'cssScope', 'looks', 'uses', 'audioCapture', 'clonedFrom', 'previews', 'jsRules', 'reproducibleBuild', 'contrast', 'llm',
+]
 const LINE = /^(\S+)\s+(pass|warning|error|not_measured)\s+\S/
 /** A theme with a `mobile` block admits no host below 1.1.0. */
 const MOBILE_ENGINES = { automatos: '^1.1.0', sdk: '^1.0.0' }
 /** hello's sheet under html.play: since core's A-20 any theme id may take the class. */
 const PLAY_SHEET = 'html.play .hello-frame { color: red; }\n'
-const CLEAN_VERDICT = 'verdict: pass (6 pass, 0 warning, 0 error, 3 not_measured)'
+const CLEAN_VERDICT = 'verdict: pass (7 pass, 0 warning, 0 error, 3 not_measured)'
 
 afterEach(removeTempFolders)
 
@@ -87,7 +89,7 @@ describe('the lines', () => {
       '    mobile.tokens.light: --foreground on --background is 3.03:1, under the AA minimum of 4.5:1 for text.',
       '    mobile.tokens.light: fail, 1 of 10 pair(s) measured',
     ])
-    expect(ran.out.at(-1)).toBe('verdict: blocked (6 pass, 0 warning, 1 error, 2 not_measured)')
+    expect(ran.out.at(-1)).toBe('verdict: blocked (7 pass, 0 warning, 1 error, 2 not_measured)')
   })
 
   it("checks a theme of any id with htmlClass 'play' (core A-20), and refuses a class the host keeps, Play's id too", async () => {

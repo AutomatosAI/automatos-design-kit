@@ -10,10 +10,10 @@
  *   boot gets it, or null when its defaults don't fit what is left (:231), and the web then paints
  *   nothing from it. Its tone rule (:232) is left out: it never changes what is painted, only the tone a
  *   phone is drawn in, which the reader doesn't decide.
- * - `lookFits` is boot-sanitize.ts `lookFitsPrepaint` (:182-:186), the boot script's `fits` (boot.ts :139-:140).
+ * - `lookFits` is boot-sanitize.ts `lookFitsPrepaint` (:182-:186), the boot script's `fits` (boot.ts :140-:141).
  * - `paintLook` is mobile_tokens.py `paint_look` (:365-:371): the look when it fits, else the defaults
- *   whole (boot.ts :145); every knob table's entry, then every pair table's, a later one overwriting
- *   (:146-:147); a numeric rule's variable left out, since the web paints rgba() there last (:148); kept,
+ *   whole (boot.ts :146); every knob table's entry, then every pair table's, a later one overwriting
+ *   (:147-:148); a numeric rule's variable left out, since the web paints rgba() there last (:149); kept,
  *   as the table writes them, only the MOBILE_TOKEN_NAMES whose value is an "H S% L%" triplet.
  * - `missingTokens` is mobile_tokens.py `missing_tokens` (:374-:377).
  * - `parseColour` is mobile_tokens.py `parse_colour` (:114-:126): a token value as the #RRGGBB the phone
@@ -25,10 +25,10 @@
  * `bootTable` and `lookFits` are the CLI's one port of boot-sanitize.ts: `check design` keeps and fits a
  * table with them too (src/check/contrast.ts), so each rule keeps its `scale`, which the phone never reads.
  * `paintLook` is the server's paint, not the browser's: contrast.ts `firstPaint` is THEME_BOOT_SCRIPT's own
- * paint (boot.ts :145-:148), every variable it sets, numeric rules' rgba() included, which a design pair may
+ * paint (boot.ts :146-:149), every variable it sets, numeric rules' rgba() included, which a design pair may
  * name; this keeps only the triplet Studio tokens a phone draws.
  *
- * Numbers are the doubles JSON.parse gives (contract.py `js_number` :226-:240): the table reaches here
+ * Numbers are the doubles JSON.parse gives (contract.py `js_number` :227-:241): the table reaches here
  * through parseJson (json.ts), which is JSON.parse, so a 310-digit literal is already Infinity (not
  * finite) and 2**53 + 1 is already 2**53. Nothing here throws on a table or look of the wrong shape.
  */
@@ -229,7 +229,7 @@ export function isStudioTriplet(value: unknown): boolean {
   return typeof value === 'string' && !value.startsWith(HEX_MARK) && isMobileColour(value)
 }
 
-/** mobile_tokens.py `_phone_tokens` (:351-:362): boot.ts :146-:148 for a look that fits, phone tokens only. */
+/** mobile_tokens.py `_phone_tokens` (:351-:362): boot.ts :147-:149 for a look that fits, phone tokens only. */
 function phoneTokens(table: BootTable, look: JsonRecord): BootVars {
   const cells: BootVars[] = [
     ...Object.entries(table.knobs).map(([knob, options]) => options[String(own(look, knob))]),

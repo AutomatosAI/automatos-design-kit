@@ -2,7 +2,8 @@
 // HUD's theme.json, entry, package.json and build config agree with each other and with core's manifest validator
 // (vendored in the theme CLI). `uses` declares exactly the SDK areas the packed source imports (HUD's src/ and the
 // src/ of each kit library it bundles, which the package carries under source/packages/): every one, so core's
-// review warns of none undeclared, and only those, so it reports none declared and unused. Files are read, not built.
+// review warns of none undeclared, and only those, so it reports none declared and unused. HUD 1.1.0 uses the SDK's
+// voice area, so it runs on SDK 1.2.0 and peers the vendored SDK at 1.2.0. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
@@ -41,6 +42,10 @@ interface PackageJson {
 
 const manifest = readThemeJson<Manifest>('theme.json')
 const pkg = readThemeJson<PackageJson>('package.json')
+const sdkPackage = JSON.parse(readFileSync(join(KIT_ROOT, 'packages', 'theme-sdk', 'package.json'), 'utf8')) as PackageJson
+/** The host contract HUD runs on, and the SDK whose voice area it uses (SDK 1.2.0). */
+const HUD_ENGINES = { automatos: '^1.1.0', sdk: '^1.2.0' }
+const SDK_NAME = '@automatos/theme-sdk'
 const play = JSON.parse(readFileSync(join(KIT_ROOT, 'themes', 'play', 'package.json'), 'utf8')) as PackageJson
 const entry = readSource('entry.ts')
 
@@ -118,7 +123,7 @@ describe('theme.json', () => {
       schema: 'automatos-theme/v1',
       id: 'automatos/hud',
       name: 'HUD',
-      version: '1.0.1',
+      version: '1.1.0',
       htmlClass: 'hud',
       minWidth: 360,
       base: 'studio',
@@ -127,9 +132,10 @@ describe('theme.json', () => {
     })
   })
 
-  it("runs on the engines Play runs on", () => {
-    const playManifest = JSON.parse(readFileSync(join(KIT_ROOT, 'themes', 'play', 'theme.json'), 'utf8')) as Manifest
-    expect(manifest.engines).toEqual(playManifest.engines)
+  it("runs on today's host contract and on SDK 1.2.0, the SDK with the voice area, the vendored SDK's version", () => {
+    expect(manifest.engines).toEqual(HUD_ENGINES)
+    expect(manifest.uses).toContain('voice')
+    expect(`^${sdkPackage.version}`).toBe(manifest.engines.sdk)
   })
 
   it('declares the frame, the look editor and the style sheet as slots', () => {
@@ -198,9 +204,10 @@ describe('package.json', () => {
     expect(bundledPackages(THEME_ROOT).map((item) => item.name).sort()).toEqual(['@automatos/look-kit', '@automatos/mascot'])
   })
 
-  it("has Play's dev dependencies, peers, engines and scripts, but its own build and pack", () => {
+  it("has Play's dev dependencies, peers, engines and scripts, but the vendored SDK as its peer and its own build and pack", () => {
     expect(pkg.devDependencies).toEqual(play.devDependencies)
-    expect(pkg.peerDependencies).toEqual(play.peerDependencies)
+    expect(pkg.peerDependencies).toEqual({ ...play.peerDependencies, [SDK_NAME]: sdkPackage.version })
+    expect(pkg.peerDependencies[SDK_NAME]).toBe('1.2.0')
     expect(pkg.engines).toEqual(play.engines)
     expect(pkg.scripts).toEqual({
       ...play.scripts,

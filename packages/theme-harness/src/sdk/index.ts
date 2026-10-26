@@ -3,7 +3,8 @@
  * (vitest-preset.ts aliases it here). It mirrors core's frontend/lib/theme-sdk/index.ts:16-31: one module per
  * area, re-exported here. Each area names its SDK names, so an area module's own controls and helpers never
  * reach the surface, and test/surface.test.ts holds the union to the vendored types' value exports, nothing
- * missing and nothing extra. Chat, deliverables and cards are PRD-261 B-02c's fakes over fake fixtures.
+ * missing and nothing extra. Chat, deliverables and cards are PRD-261 B-02c's fakes over fake fixtures; voice is
+ * theme voice's (SDK 1.2.0).
  */
 export { SDK_VERSION, defineTheme } from './theme.ts'
 export {
@@ -46,3 +47,4 @@ export {
   useActivityFeed, useActivityStats, useActivitySchedule, useQuestions, useNeedsYou, useWatches, useBoardEventStream,
 } from './pages-command-center.ts'
 export { readThemeState, writeThemeState, removeThemeState, subscribeThemeState, useThemeState, THEME_STATE_LIMITS } from './storage.ts'
+export { VoiceButton, useVoice, readVoiceLevels } from './voice.ts'

@@ -3,7 +3,7 @@
  * groups, the glow slider and the actions, ported from Automatos Play's
  * components/looks/editor.module.css. A column of Play's frame beside the
  * main one, scrolling on its own (Play's sticky 100dvh panel, for a frame that
- * has a header row). Desktop only (D7). Every variable is --pl-* (K2); a
+ * has a header row); on a phone (Play 1.2.0) under the page. Every variable is --pl-* (K2); a
  * swatch's own colour arrives as --pl-look-swatch from swatch-style.ts.
  *
  * M18, M19: a chosen option is marked in the accent as text (the raw accents fall
@@ -294,5 +294,17 @@
 
   .swatch:focus-visible {
     outline-color: CanvasText;
+  }
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the editor under the page, as wide as the screen, scrolling
+   with it. */
+@media (max-width: 1023px) {
+  .editor {
+    width: auto;
+    overflow-y: visible;
+    padding: var(--pl-space-5) var(--pl-space-4) calc(var(--pl-space-5) + var(--pl-look-widget-room));
+    border-left: 0;
+    border-top: 1px solid var(--pl-line);
   }
 }

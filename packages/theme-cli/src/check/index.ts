@@ -5,8 +5,8 @@
  * The folder is packed exactly as `pack` packs it, into a temporary folder, so a theme core's reader
  * would refuse is refused here with every reason (exit 1) and nothing else runs, as on the server.
  * An accepted package gets one line per check, in this order: sizes, cssScope, looks (the reader's),
- * uses (uses.ts), clonedFrom (drift.ts), previews (previews.ts), jsRules (js.ts), reproducibleBuild
- * (only with `--rebuild`), contrast and llm, each at pass, warning, error or not_measured, with plain
+ * uses (uses.ts), audioCapture (audio.ts), clonedFrom (drift.ts), previews (previews.ts), jsRules (js.ts),
+ * reproducibleBuild (only with `--rebuild`), contrast and llm, each at pass, warning, error or not_measured, with plain
  * lines under it, then the verdict. The first line names the core commit whose checks these are.
  * `contrast` measures the WCAG AA colour pairs of theme.json's `mobile` block (mobile-contrast.ts): its line
  * gives the outcome, each failing pair, and each scheme, the table's defaults or preset with how many
@@ -36,6 +36,7 @@ import { WARNING_PREFIX, type CommandDeps } from '../cli-main.ts'
 import type { Output } from '../output.ts'
 import { packTheme } from '../pack.ts'
 import { readZip } from '../zip.ts'
+import { audioCaptureCheck, describeAudio } from './audio.ts'
 import { cloneCheck, describeClones } from './drift.ts'
 import { describeJs, jsRulesCheck } from './js.ts'
 import { describePreviews, previewsCheck } from './previews.ts'
@@ -126,6 +127,7 @@ export async function reviewChecked(files: Files, manifest: Manifest, packageByt
   const reader = readerChecks(files, packageBytes, manifest)
   const said = describeReader(reader)
   const uses = usesCheck(manifest, files, options.surface)
+  const audioCapture = audioCaptureCheck(files)
   const clonedFrom = cloneCheck(manifest, options.release)
   const previews = previewsCheck(manifest, files)
   const jsRules = jsRulesCheck(files)
@@ -136,6 +138,7 @@ export async function reviewChecked(files: Files, manifest: Manifest, packageByt
     ['cssScope', reader.cssScope, said.cssScope],
     ['looks', reader.looks, said.looks],
     ['uses', uses, describeUses(uses)],
+    ['audioCapture', audioCapture, describeAudio(audioCapture)],
     ['clonedFrom', clonedFrom, describeClones(clonedFrom)],
     ['previews', previews, describePreviews(previews)],
     ['jsRules', jsRules, describeJs(jsRules)],

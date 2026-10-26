@@ -7,8 +7,7 @@
  * variable is --pl-* (K2). Like Make it yours, the sheet sits full bleed in
  * Play's frame (a viewport-bound column, PlayOnlyRoute), so the page pads and
  * scrolls itself; a grid, so no row is squeezed as it would be in a flex column
- * that scrolls. Play's pages render only at >= 1024 px (D7), so Play's phone
- * and tablet rules are not ported.
+ * that scrolls. On a phone (Play 1.2.0) the panel's sections are one column, its rules at the foot.
  */
 
 .page {
@@ -292,4 +291,21 @@
   gap: var(--pl-space-1);
   font: var(--pl-text-small);
   color: var(--pl-color-text-2);
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the style sheet 16 px in, its panel's sections one column. */
+@media (max-width: 1023px) {
+  .page {
+    padding: var(--pl-space-4);
+  }
+
+  .sheet {
+    gap: var(--pl-space-6);
+    padding: var(--pl-space-4);
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--pl-space-6);
+  }
 }

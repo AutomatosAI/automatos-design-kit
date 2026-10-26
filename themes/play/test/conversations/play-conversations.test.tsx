@@ -25,6 +25,7 @@ import {
   SEARCH_LABEL,
 } from '../../src/components/play/conversations/play-conversations.tsx'
 import { host } from '@automatos/theme-harness/host'
+import { readThemeFile } from '../source-files.ts'
 
 // Auto as his state only, as core's test has him.
 vi.mock('../../src/components/mascot/auto-mascot.tsx', async () => {
@@ -35,8 +36,8 @@ vi.mock('../../src/components/mascot/auto-mascot.tsx', async () => {
 const NOW = new Date(2026, 9, 14, 15, 30) // Wed 14 Oct 2026, 15:30
 /** The host's page of the history (hooks/use-conversation-list.ts CONVERSATION_LIMIT): Play asks for no size of its own. */
 const HOST_PAGE_SIZE = 50
-/** A window below Play's minWidth (1024 px): the host draws its own pages there. */
-const PHONE_WIDTH = 390
+/** Play's minWidth, as theme.json declares it (360 from Play 1.2.0, a phone's): below it the host draws its own pages. */
+const MIN_WIDTH = (JSON.parse(readThemeFile('theme.json')) as { readonly minWidth: number }).minWidth
 
 function at(day: number, hour: number, minute = 0): string {
   return new Date(2026, 9, day, hour, minute).toISOString()
@@ -208,8 +209,9 @@ describe('PlayConversations — only where Play draws its pages', () => {
     expect(host.conversationsAsked()).toEqual([])
   })
 
-  it("sends the browser to /chat below the theme's width (1024 px), where Play pages do not render (D7)", () => {
-    host.setWidth(PHONE_WIDTH)
+  it("sends the browser to /chat below the theme's width, where Play pages do not render (D7)", () => {
+    host.setMinWidth(MIN_WIDTH)
+    host.setWidth(MIN_WIDTH - 1)
     renderPage()
     expect(replaced()).toEqual([{ method: 'replace', href: '/chat' }])
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()

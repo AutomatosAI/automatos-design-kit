@@ -1,3 +1,6 @@
+import { useVoice } from '@automatos/theme-sdk'
+
+import { MicLive } from '../voice/mic-live'
 import { Brand, StatusChip, TOP_BAR_LABEL } from './top-bar'
 import styles from './top-bar.module.css'
 import type { NavDrawerState } from './use-nav-drawer'
@@ -5,8 +8,9 @@ import type { NavDrawerState } from './use-nav-drawer'
 /**
  * The top bar on a phone (the design's phone: AUTOMATOS // on the left, the status on the right): MENU, which opens
  * the frame's menu with the rail's pages, search, LOOK and the host's header utilities (src/frame/nav-drawer.tsx), the
- * mark and AUTOMATOS //, and the backend's connection as a glyph and a word. The design's MIC LIVE stands where the
- * status is; it arrives with the SDK's voice area, which a theme doesn't have yet. MENU says whether the menu is open
+ * mark and AUTOMATOS //, and the backend's connection as a glyph and a word. While the host's voice has the microphone
+ * open, MIC LIVE (src/voice/mic-live.tsx) stands where the status is, as the design's phone has it: a 360 px bar holds
+ * one of the two, and the status comes back once the microphone shuts. MENU says whether the menu is open
  * (aria-expanded) and which element it opens (aria-controls). The bar is the page's named banner, as on the desktop.
  */
 
@@ -19,6 +23,7 @@ export interface PhoneTopBarProps {
 }
 
 export function PhoneTopBar({ drawer, drawerId }: PhoneTopBarProps) {
+  const { micOpen } = useVoice()
   return (
     <header className={`${styles.bar} ${styles.phoneBar}`} aria-label={TOP_BAR_LABEL} inert={drawer.open}>
       <button
@@ -34,7 +39,8 @@ export function PhoneTopBar({ drawer, drawerId }: PhoneTopBarProps) {
         {MENU_LABEL}
       </button>
       <Brand phone />
-      <StatusChip phone />
+      {micOpen ? null : <StatusChip phone />}
+      <MicLive phone />
     </header>
   )
 }

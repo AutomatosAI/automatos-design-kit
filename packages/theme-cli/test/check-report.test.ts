@@ -21,7 +21,7 @@ const README = new URL('../src/core/README.md', import.meta.url)
 const SOURCE_LINE = /^Source: `AutomatosAI\/automatos-ai` at `([0-9a-f]{40})`/m
 const DATA_ROW = /^\| `data\/([a-z-]+\.json)` \| `[^`]+` \| `([0-9a-f]{64})` \|$/gm
 const CLEAN_LEVELS: Readonly<Record<string, Level>> = {
-  sizes: 'pass', cssScope: 'pass', looks: 'pass', uses: 'pass', clonedFrom: 'pass', previews: 'pass',
+  sizes: 'pass', cssScope: 'pass', looks: 'pass', uses: 'pass', audioCapture: 'pass', clonedFrom: 'pass', previews: 'pass',
   jsRules: 'not_measured', contrast: 'not_measured', llm: 'not_measured',
 }
 
@@ -35,7 +35,7 @@ describe('the report and the verdict', () => {
     expect([report.schema, report.stage, report.verdict]).toEqual([REPORT_SCHEMA, STAGE, 'pass'])
     expect(levels(report.checks)).toEqual(CLEAN_LEVELS)
     expect(Object.keys(report.checks)).toEqual(Object.keys(CLEAN_LEVELS))
-    expect(report.summary).toEqual({ pass: 6, warning: 0, error: 0, not_measured: 3 })
+    expect(report.summary).toEqual({ pass: 7, warning: 0, error: 0, not_measured: 3 })
     expect(report.checks.uses.usedAreas).toEqual(['theme'])
   })
 
@@ -105,7 +105,7 @@ describe("core's M-03 cases: a mobile block's colour pairs measured", () => {
       'mobile.tokens.light: --foreground on --background is 3.03:1, under the AA minimum of 4.5:1 for text.',
     ])
     // core's llm passes on its fake model; here llm is the server's, not measured.
-    expect(report.summary).toEqual({ pass: 6, warning: 0, error: 1, not_measured: 2 })
+    expect(report.summary).toEqual({ pass: 7, warning: 0, error: 1, not_measured: 2 })
   })
 
   it('a mobile block whose measured pairs meet AA passes contrast', async () => {
@@ -114,7 +114,7 @@ describe("core's M-03 cases: a mobile block's colour pairs measured", () => {
     expect([report.verdict, contrast.level, contrast.source]).toEqual(['pass', 'pass', 'tokens'])
     expect(statuses(contrast.schemes).map(([id]) => id)).toEqual(['light'])
     expect(contrast).not.toHaveProperty('presets')
-    expect(report.summary).toEqual({ pass: 7, warning: 0, error: 0, not_measured: 2 })
+    expect(report.summary).toEqual({ pass: 8, warning: 0, error: 0, not_measured: 2 })
   })
 
   it('fromLooks: a preset under AA blocks and is named', async () => {

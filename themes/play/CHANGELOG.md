@@ -2,6 +2,34 @@
 
 Play's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.2.0
+
+Play gets a voice and a phone. It needs SDK 1.2.0 (`engines.sdk` `^1.2.0`, `voice` in `uses`) and draws from a
+phone's width up (`minWidth` 360).
+
+- **Talk to Auto.** The host's voice button (the SDK's `voice.VoiceButton`) stands in the message box between the words
+  and Send: Live where the workspace has it, else quick-ask (`mode` `auto`), held to talk (`press` `hold`), with the
+  Space hotkey on a desktop (never while typing) and none on a phone. Core draws all of it: the press, the microphone
+  prompt, the "AI voice assistant" caption and the stop control while the microphone is open, a failure with Try
+  again. Play colours it through its `--voice-button-*` properties and `data-voice-*` attributes only, in the look's
+  own pairs (the text at rest, the accent and its ink while it hears), and never hides or covers the caption or the
+  stop control. Typing stays: nothing locks while voice runs, and the box wraps so core's controls keep their room.
+- **Auto follows the voice session.** He listens while the microphone is open, thinks, then speaks, with his caption
+  saying so; while he speaks he is his calm clip and his light ring swells with his voice (`readVoiceLevels().agent`,
+  read in an animation frame and written as `--pl-voice-level`). Under reduced motion, and while he is paused, he holds
+  still. A session waiting for the microphone loads; a failed one is his oops. When it ends the chat drives him again.
+  What the session heard and what Auto has said so far show in the conversation, as your message and his reply, where
+  the host puts them while it runs; Play draws nothing of its own over the message box, so they show once.
+- **Play on a phone.** Below 1024 px Play draws the Ember design's 390 screens instead of its desktop layout: a 56 px
+  bar with Menu, the wordmark, Chats and Shelf (the current one dotted), and no sidebar or header row; Menu opens a
+  modal menu with New chat, search, the sidebar's nav, Recent, Docs and Settings, the connection pill and the host's
+  header utilities (mounted while shut), which keeps Tab inside it and shuts on Esc, Close or the glass, with
+  everything behind it inert. The chat puts Auto at his small size beside his caption over the message box;
+  Conversations is titled Chats and has no mascot column; the shelf has two columns; a Deliverable's panel, the look
+  editor and the style sheet's columns stack under the page; the asleep screen and the 404 take the phone's sizes and
+  full-width buttons. Every page starts 16 px in, every control is a 44 px target, and nothing is wider than the
+  screen. From 1024 px up nothing changes, and a window crossing the width keeps its page.
+
 ## 1.1.1
 
 - **New listing previews.** The seven pictures `theme.json` lists under `previews` (each preset's chat, and Ember's

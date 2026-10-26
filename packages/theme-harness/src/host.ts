@@ -3,8 +3,9 @@
  * SDK with (`import { host } from '@automatos/theme-harness/host'`). Each area's fake (src/sdk/<area>.ts)
  * holds its own state and controls; this gathers them, and `host.reset()` puts every area back as a test
  * starts: the local edition's one operator in WORKSPACE_DEFAULTS, online, the backend up, a desktop width,
- * the light tone, no look runtime, no package files, STORAGE_DEFAULTS with no theme state kept, nothing asked
- * and nothing refused. Call it in a beforeEach; a control set inside act() renders what reads it again.
+ * the light tone, no look runtime, no package files, STORAGE_DEFAULTS with no theme state kept, no voice session (the
+ * host's voice on the page, VOICE_DEFAULTS), nothing asked and nothing refused. Call it in a beforeEach; a control
+ * set inside act() renders what reads it again.
  */
 import { forgetNetworkCalls, networkCalls } from './internal/network.ts'
 import { pageControls, resetPages } from './internal/page-views.ts'
@@ -20,6 +21,7 @@ import { resetStorage, storageControls } from './sdk/storage.ts'
 import { chatControls, resetChat } from './sdk/chat.ts'
 import { deliverablesControls, resetDeliverables } from './sdk/deliverables.ts'
 import { cardsControls, resetCards } from './sdk/cards.ts'
+import { resetVoice, voiceControls } from './sdk/voice.ts'
 
 export { WORKSPACE_DEFAULTS, ROLE_DEFAULTS, DEFAULT_WIDTH, DEFAULT_MIN_WIDTH } from './sdk/context.ts'
 export { STORAGE_DEFAULTS, THEME_STATE_KEY_PREFIX, type StorageStandIn } from './sdk/storage.ts'
@@ -32,6 +34,7 @@ export type { PageAsk, PageQueryAnswer, PageRun } from './internal/page-views.ts
 export type { DatabaseKnowledgeAnswer } from './sdk/pages-documents.ts'
 export type { BlobUrls, DeliverablesAsk, DetailAsk, DownloadAsk } from './sdk/deliverables.ts'
 export type { ConversationsAsk } from './sdk/chat.ts'
+export { VOICE_DEFAULTS, type VoicePressRecord, type VoiceSessionStandIn } from './internal/voice-session.ts'
 /**
  * The names a theme's own fixtures build the chat's parts with: the tool-data key the receipts frame rides under
  * (what the fake's liveReceiptsOf reads, core's lib/chat/receipts.ts), and the code a request refused for used-up
@@ -46,7 +49,7 @@ export { CREDITS_EXHAUSTED_CODE } from './internal/scripted/chat-turn.ts'
  */
 const RESETS: readonly (() => void)[] = Object.freeze([
   resetStorage, resetContext, resetNavigation, resetNotices, resetEvents, resetLooks, resetAssets,
-  resetPages, resetCommandCenter, resetDocuments, resetChat, resetDeliverables, resetCards, forgetNetworkCalls,
+  resetPages, resetCommandCenter, resetDocuments, resetChat, resetDeliverables, resetCards, resetVoice, forgetNetworkCalls,
 ])
 
 export const host = Object.freeze({
@@ -67,6 +70,7 @@ export const host = Object.freeze({
   ...chatControls,
   ...deliverablesControls,
   ...cardsControls,
+  ...voiceControls,
   /** Every fetch and XMLHttpRequest the harness refused since the last reset, oldest first. */
   networkCalls,
 })

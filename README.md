@@ -31,7 +31,7 @@ the local edition. It has no sign-in of its own, so against a hosted API `submit
 | [`packages/theme-cli`](packages/theme-cli/README.md) | `automatos-theme`, the command line: `pack`, `check`, `check design`, `new`, `brief`, `clone`, `skin`, `dev`, `shots`, `previews`, `install`, `submit` ([docs/cli.md](docs/cli.md)) |
 | [`packages/vite-preset`](packages/vite-preset/README.md) | `@automatos/vite-preset`: the Vite build every theme uses, with the source guard that keeps a build to the theme's own `src/` |
 | [`packages/theme-harness`](packages/theme-harness/README.md) | `@automatos/theme-harness`: the vitest preset a theme's tests run on (a fake SDK and a fake host), and the browser harness `dev` and `shots` serve |
-| [`packages/theme-sdk`](packages/theme-sdk/README.md) | The type declarations of `@automatos/theme-sdk` 1.1.0, vendored from core; the host serves the real module |
+| [`packages/theme-sdk`](packages/theme-sdk/README.md) | The type declarations of `@automatos/theme-sdk` 1.2.0, vendored from core; the host serves the real module |
 | [`packages/look-kit`](packages/look-kit/README.md) | `@automatos/look-kit`: a look's custom properties, Studio's tokens, the WCAG contrast math and the look validator; a theme bundles it |
 | [`packages/mascot`](packages/mascot/README.md) | `@automatos/mascot`: Auto's state machine, clip player, media chooser, captions and the Pause Auto control; a theme bundles it |
 | [`packages/theme-rules`](packages/theme-rules/README.md) | `@automatos/theme-rules`: the JS rules the Marketplace review runs on a package's `source/` |

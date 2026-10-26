@@ -7,7 +7,7 @@
  *   commit src/core/README.md names: the host keeps only the names and values its own grammar accepts,
  *   and drops the whole table when its defaults no longer fit what is left.
  * - `firstPaint` is THEME_BOOT_SCRIPT's paint in frontend/lib/theme-host/boot.ts at that commit
- *   (:145-:148), on the kept table: every knob table's entry, then every pair table's, a later one
+ *   (:146-:149), on the kept table: every knob table's entry, then every pair table's, a later one
  *   overwriting, then each numeric rule's `rgba()`; the table's defaults for a look that doesn't fit.
  *   Core's frontend/lib/theme-host/looks/paint.ts `paint` is the same walk as a pure function, which
  *   core holds to the script. It is not mobile-paint.ts `paintLook`, the server's mobile_tokens.py
@@ -125,7 +125,7 @@ function choiceOf(look: JsonRecord, knob: string): string {
   return String(own(look, knob))
 }
 
-/** One numeric rule's variable (boot.ts :148): the colour knob's rgb at look[knob] / scale, capped by its cap cell. */
+/** One numeric rule's variable (boot.ts :149): the colour knob's rgb at look[knob] / scale, capped by its cap cell. */
 function ruleEntry(rule: BootRule, look: JsonRecord): [string, string] {
   const alpha = Number(own(look, rule.knob)) / rule.scale
   const cap = rule.capTable === null ? alpha : rule.caps[choiceOf(look, rule.capTable[0])][choiceOf(look, rule.capTable[1])]
@@ -133,7 +133,7 @@ function ruleEntry(rule: BootRule, look: JsonRecord): [string, string] {
 }
 
 /**
- * What THEME_BOOT_SCRIPT sets for `look` from a table bootTable kept (boot.ts :145-:148): `look` when it
+ * What THEME_BOOT_SCRIPT sets for `look` from a table bootTable kept (boot.ts :146-:149): `look` when it
  * fits, else the defaults, and nothing when those don't fit either, as core's looks/paint.ts `paint`. The
  * script checks each name and value again as it sets it; a kept table's all pass, and every numeric rule it
  * keeps is `rgba-alpha`, the one template the script paints.

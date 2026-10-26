@@ -11,7 +11,7 @@ import styles from './opening.module.css'
 
 /**
  * PRD-260 §4 — Play's chat at /chat, mounted by app/chat/layout.tsx through
- * ThemeSlot (PRD-261 A-04b) under Play at >= 1024 px (K7), inside Play's frame:
+ * ThemeSlot (PRD-261 A-04b) under Play from its minWidth up (K7; 360 px from Play 1.2.0), inside Play's frame:
  * builtin Play's slot for the page (lib/theme-host/builtin/play-chat-lazy.tsx)
  * draws MainLayout full bleed around it, as ThemeSlot frames an installed
  * theme's page (MainLayout is host-only, docs/theme-host/sdk-surface-map.md).

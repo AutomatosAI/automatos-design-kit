@@ -15,10 +15,16 @@
  *   transcript there in the default look (`<preset>/390-transcript/`). So a theme's phone layout is drawn and scanned,
  *   its media queries answered by a phone-sized viewport. A theme whose minWidth is above it gets none: below its
  *   minWidth the host draws its own pages, which its below-minWidth group already shows.
+ * - For a theme whose theme.json `uses` names the SDK's `voice` area (SDK 1.2.0), its voice states: the chat page (or,
+ *   with no /chat page, every view) on the transcript in the default look at 1440 px, with reduced motion, once for
+ *   each phase of the host's made-up voice session but idle (src/host/voice.ts: listening, thinking, speaking,
+ *   failed), into `<preset>/1440-voice-<phase>/`. The session runs on the transcript's conversation, so the shots show
+ *   its words as core's chat draws them, the conversation's last two messages. Idle is every other group. Reduced
+ *   motion holds the voice levels still, so the shots are the same on every run.
  */
 import {
-  belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, PHONE_VIEWPORT, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug,
-  type Served, type View,
+  belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, PHONE_VIEWPORT, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug, VOICE_PHASES,
+  type HarnessVoicePhase, type Served, type View,
 } from './router.ts'
 
 /** The page the chat groups shoot. */
@@ -31,6 +37,12 @@ export const DESKTOP_HEIGHT = 900
 export const MOTION_SUFFIX = '-motion'
 /** The transcript groups': `<preset>/1440-transcript`, and `<preset>/390-transcript` at the phone's width. */
 export const TRANSCRIPT_SUFFIX = '-transcript'
+/** The voice groups': `<preset>/1440-voice-<phase>`. */
+export const VOICE_SUFFIX = '-voice-'
+/** The SDK area a theme.json's `uses` names for the voice groups. */
+export const VOICE_AREA = 'voice'
+/** The phases the voice groups shoot: every one but idle, which every other group shows. */
+export const VOICE_SHOT_PHASES: readonly HarnessVoicePhase[] = Object.freeze(VOICE_PHASES.filter((phase) => phase !== DEFAULT_SETTINGS.voice))
 
 /** The page's size in a group, in CSS pixels. */
 export interface Viewport {
@@ -46,8 +58,10 @@ export interface ShotGroup extends Viewport {
   readonly reducedMotion: boolean
   /** The one page the group shoots; null for every view the theme serves. */
   readonly page: string | null
-  /** True for the transcript groups alone: the chat opened on the made-up exchange. */
+  /** True for the transcript and voice groups alone: the chat opened on the made-up exchange. */
   readonly transcript: boolean
+  /** The voice groups' phase of the host's made-up voice session; left out (no session) in every other group. */
+  readonly voice?: HarnessVoicePhase
 }
 
 const NO_PRESET_FOLDER = 'default'
@@ -79,6 +93,19 @@ function chatGroups(preset: string | null, pages: readonly string[]): ShotGroup[
   return [motion, transcriptGroup(preset, viewport)]
 }
 
+/**
+ * For a theme whose `uses` names the voice area: the chat page (every view with none) on the transcript in the default
+ * look at 1440 px, with reduced motion, in each phase of VOICE_SHOT_PHASES; none for any other theme.
+ */
+function voiceGroups(preset: string | null, pages: readonly string[], uses: readonly string[]): ShotGroup[] {
+  if (!uses.includes(VOICE_AREA)) return []
+  const page = pages.includes(CHAT_PAGE) ? CHAT_PAGE : null
+  return VOICE_SHOT_PHASES.map((voice): ShotGroup => ({
+    folder: `${folderOf(preset, CHAT_GROUP_WIDTH)}${VOICE_SUFFIX}${voice}`,
+    preset, ...desktop(CHAT_GROUP_WIDTH), reducedMotion: true, page, transcript: true, voice,
+  }))
+}
+
 /** True for a theme drawn at a phone's width: its minWidth at most PHONE_VIEWPORT's width. */
 export function fitsPhone(minWidth: number): boolean {
   return minWidth <= PHONE_VIEWPORT.width
@@ -96,21 +123,24 @@ function phoneGroups(looks: readonly (string | null)[], minWidth: number, pages:
 
 /**
  * Each preset (default first) at each desktop width, then the default look just below the theme's minWidth, then the
- * chat groups for a theme whose `pages` (theme.json's routes) hold /chat, then the phone-width groups for a theme
- * whose minWidth fits a phone.
+ * chat groups for a theme whose `pages` (theme.json's routes) hold /chat, then the voice groups for a theme whose
+ * `uses` names the voice area, then the phone-width groups for a theme whose minWidth fits a phone.
  */
-export function shotGroups(presets: readonly string[], minWidth: number, pages: readonly string[] = []): ShotGroup[] {
+export function shotGroups(
+  presets: readonly string[], minWidth: number, pages: readonly string[] = [], uses: readonly string[] = [],
+): ShotGroup[] {
   const looks: readonly (string | null)[] = presets.length === 0 ? [null] : presets
   const wide = looks.flatMap((preset) => SHOT_WIDTHS.map((width) => everyView(folderOf(preset, width), preset, desktop(width))))
   const below = belowWidth(minWidth)
   const narrow = below === null ? [] : [everyView(`below-${below}`, looks[0], desktop(below))]
-  return [...wide, ...narrow, ...chatGroups(looks[0], pages), ...phoneGroups(looks, minWidth, pages)]
+  const voice = voiceGroups(looks[0], pages, uses)
+  return [...wide, ...narrow, ...chatGroups(looks[0], pages), ...voice, ...phoneGroups(looks, minWidth, pages)]
 }
 
-/** The address a shot opens: the view's path, the group's look, width, motion and conversation, no toolbar. */
+/** The address a shot opens: the view's path, the group's look, width, motion, conversation and voice, no toolbar. */
 export function shotAddress(group: ShotGroup, path: string): string {
-  const { preset, width, reducedMotion, transcript } = group
-  return `/${settingsQuery({ ...DEFAULT_SETTINGS, path, preset, width, reducedMotion, transcript, toolbar: false })}`
+  const { preset, width, reducedMotion, transcript, voice = DEFAULT_SETTINGS.voice } = group
+  return `/${settingsQuery({ ...DEFAULT_SETTINGS, path, preset, width, reducedMotion, transcript, voice, toolbar: false })}`
 }
 
 /** The views a group shoots, of those the page drew: every one, or its one page. */

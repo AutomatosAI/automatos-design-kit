@@ -1,6 +1,6 @@
 {
   "name": "@automatos/theme-play",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Play, the Automatos theme with Auto the mascot, built as an installable theme package (automatos/play).",
   "private": true,
   "license": "Apache-2.0",
@@ -27,7 +27,7 @@
     "eslint": "9.39.5"
   },
   "peerDependencies": {
-    "@automatos/theme-sdk": "1.1.0",
+    "@automatos/theme-sdk": "1.2.0",
     "react": "^19.0.0"
   },
   "peerDependenciesMeta": {

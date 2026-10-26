@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useActivityFeed } from '@automatos/theme-sdk'
+import { useActivityFeed, useVoice } from '@automatos/theme-sdk'
 
 import type { MascotName } from '@automatos/mascot/types'
 
@@ -10,8 +10,9 @@ import { statusLineWords } from './status-words'
 /**
  * The phone core screen's top line (status-words.ts): who is at work and what they do on the left, the running
  * Mission's time on the right, read from the SDK's activity feed with the same ask as the desktop's MISSION panel, and
- * Auto's state, the chat's. The time counts each second while a Mission with a start runs, and stops otherwise. Plain
- * text: the chip under the core is the screen's live region for Auto's state.
+ * Auto's state, the chat's, or while the host's voice session listens, thinks or speaks, that (status-words.ts). The
+ * time counts each second while a Mission with a start runs, and stops otherwise. Plain text: the chip under the core
+ * is the screen's live region for Auto's state.
  */
 
 const TICK_MS = 1000
@@ -30,9 +31,10 @@ function useNow(ticking: boolean): Date {
 
 export function StatusLine({ state }: { readonly state: MascotName }) {
   const { data } = useActivityFeed(RUNNING_MISSION)
+  const { phase } = useVoice()
   const mission = data?.items[0] ?? null
   const now = useNow(typeof mission?.started_at === 'string')
-  const words = statusLineWords(state, mission, now)
+  const words = statusLineWords(state, mission, now, phase)
   return (
     <p className={styles.line}>
       <span className={styles.who}>{`${words.who} · ${words.doing}`}</span>

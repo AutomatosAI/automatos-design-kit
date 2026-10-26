@@ -45,9 +45,9 @@ describe('the rules', () => {
 describe('the recommended config', () => {
   const config = plugin.configs.recommended
 
-  it("runs every rule at its code's level: a warning row warns, every other code is an error", () => {
+  it("runs every rule at its code's level: a warning row warns (none today), every other code is an error", () => {
     const warnings = new Set(RULES.filter((row) => row.severity === 'warning').map((row) => row.code))
-    expect(warnings.size).toBeGreaterThan(0)
+    expect(Array.from(warnings)).toEqual([])
     const expected = Object.fromEntries(CODES.map((code) => [`${NAMESPACE}/${code}`, warnings.has(code) ? 'warn' : 'error']))
     expect(config.rules).toEqual(expected)
     CODES.forEach((code) => expect(levelOf(code), code).toBe(warnings.has(code) ? 'warn' : 'error'))

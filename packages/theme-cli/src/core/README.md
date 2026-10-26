@@ -3,11 +3,11 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `99fb70ff5c837e9b7a1da40b8234d364b34b19d4` (main, 24 Oct 2026: host contract and SDK
-1.1.0, with the theme format's optional `mobile` block, after builtin Play left core and `play` stopped being a reserved
-`htmlClass`, and after the listing's previews kept theme.json's order. Every file here is the same as at `1699a4f95`;
-since `101a0bf33` only `package-manifest.ts` (no theme id keeps a reserved class) and `css-value.ts` (its `var()` example)
-changed, and the other files are unchanged since `7ae677b52`).
+Source: `AutomatosAI/automatos-ai` at `2e57484810204fb9b3481c86a0faed7c6eb3d0ae`, core `main` at the merge of pull request #1334
+(theme voice: SDK 1.2.0 with the `voice` area, the `voice-control` protected surface and the review's audio capture
+check; the host contract stays 1.1.0), merged 26 Oct 2026. Every file here is the same as at `99fb70ff5`, the kit's previous pin (main, 24 Oct 2026: host contract and SDK
+1.1.0 with the theme format's optional `mobile` block), but `host.ts`, whose `SDK_VERSION` follows `shared-modules.json`'s
+`sdkVersion` to `1.2.0`.
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -34,7 +34,7 @@ only when a case does; the test holds the copy to this row:
 
 | File here | Core file | sha256 |
 |---|---|---|
-| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `26dc0ce566b64b60c3056f7994295bd6ea8a3e8b4115ab20a438cffc35461ae5` |
+| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `1bb99a3181af1a9c2a92bc88bc4b2c4fa25c6b42b60e5a29b80f666dfcc51f8e` |
 
 `check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
 edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
@@ -43,21 +43,21 @@ commit above:
 | File here | Core file | sha256 |
 |---|---|---|
 | `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
-| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `fa37c9b1c356f735df5e34ad7adf22707828995d546292e2a286114c37f58031` |
+| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `2418aa818eb6871e66619ddc2eb15f9338d2c0ebc45b4486b7bc8fe89749d191` |
 
 ## `data/contract.json` (the guides' lists)
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `daf3a774a21ca0bfefd9f2e4ee76f454a0369f543bf7048a787312db6a42dcd8`), written as JSON with
+(that file's sha256 there: `b87148b88f1d2bd8d520fe2ffcf31c4206502603244f6a9782b009155842f4c8`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
 `HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
-contract.py changed only its reserved `htmlClass` names. `tests/guides.test.ts` holds the file to the sha256 below and
+contract.py changed only its reserved `htmlClass` names and its `SDK_VERSION` (1.2.0). `tests/guides.test.ts` holds the file to the sha256 below and
 to the copies of the same lists in `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `2e0e39ecf508285cd7638c0894dbdd84c37a59ed81de80969301f128f7f716f2` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `e189f8fc3242505b1ef72bede92e6c90ae2573829f4f108c70a46b092541704f` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
@@ -131,11 +131,14 @@ and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts`
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (the boot's `sanitizePrepaint`
 and fit check, shared with `check design`, and the server's `paint_look`), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
-to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
-the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
-`src/check/` ports it over the two data files, the contrast check included (`src/check/mobile-contrast.ts`, which paints
-`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, `@automatos/look-kit`'s
-copy of core's `frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
-`check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
-and `check-mobile-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases
-among them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).
+to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`,
+`audio_capture.py`, `drift.py`, the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a
+`mobile` block's colour pairs): `src/check/` ports it over the two data files, the audio capture check included
+(`src/check/audio.ts`, over `@automatos/theme-rules`' `AUDIO_APIS`, the JS rules' own patterns), and the contrast check
+(`src/check/mobile-contrast.ts`, which paints `fromLooks` through `src/mobile-paint.ts` and takes its ratio from
+look-kit's `contrastRatio`, `@automatos/look-kit`'s copy of core's `frontend/lib/look-kit/contrast.ts`, the same file at
+this commit). Its `check-uses`, `check-drift` and `check-report` tests repeat the cases of core's
+`orchestrator/tests/test_prd261_review_stage.py` at the same commit, `check-audio` those of
+`orchestrator/tests/test_theme_voice_audio_capture.py`, and `check-mobile-contrast` those of
+`orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases among them (Play's
+`test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

@@ -10,7 +10,9 @@
 // named here as the screen draws it, so the test never imports a chunk's module itself. With the backend down
 // the frame draws the asleep screen (asleep@1 is declared, not registered); the frame renders under each of
 // Play's five presets, a look runtime holding the preset as core's does for Play; and after every test the
-// harness's network refusal has refused nothing. Screenshots are B-02f's.
+// harness's network refusal has refused nothing. Screenshots are B-02f's. Play 1.2.0: at a phone's width (390 px,
+// through the stand-in matchMedia of test/support/window-width.ts, and theme.json's minWidth, 360, on the fake host)
+// every view renders in the phone frame too: its bar with Menu and no sidebar, the page in the whole width.
 import { CHAT_HREF, SDK_VERSION, type ThemeRegistrationHost } from '@automatos/theme-sdk'
 import { act, render, screen, within } from '@testing-library/react'
 import { Suspense, type ComponentType } from 'react'
@@ -23,9 +25,11 @@ import type { Look } from '../../src/lib/looks/types.ts'
 import type { FrameSlotProps } from '../../src/play-slots.tsx'
 import { host } from '@automatos/theme-harness/host'
 import { readThemeFile } from '../source-files.ts'
+import { PHONE_WIDTH, resetWindowWidth, setWindowWidth } from '../support/window-width.ts'
 
 /** What this test reads of Play's theme.json. */
 interface PlayManifest {
+  readonly minWidth: number
   readonly slots: readonly string[]
   readonly pages: Readonly<Record<string, unknown>>
   readonly routes: readonly string[]
@@ -245,5 +249,54 @@ describe('the pages and the route', () => {
     const heading = await within(page).findByRole('heading', { level: 1, name: SEEN.conversations }, CHUNK_WAIT)
     expect(heading).toBeInTheDocument()
     expect(within(page).getByRole('searchbox', { name: SEEN.searchConversations })).toBeInTheDocument()
+  })
+})
+
+/** What a member sees of a view on a phone, found in the frame's main. */
+type SeenOnPhone = (page: HTMLElement) => Promise<HTMLElement>
+
+/** Each view in the frame as the host renders it, and what a member sees of it on a phone. */
+const PHONE_VIEWS: Array<[string, Kind, string, SeenOnPhone]> = [
+  ['the look editor', 'slot', 'lookEditor@1', (page) => within(page).findByRole('heading', { level: 1, name: SEEN.lookEditor }, CHUNK_WAIT)],
+  ['the style sheet', 'slot', 'styleSheet@1', (page) => within(page).findByRole('heading', { level: 1, name: SEEN.styleSheet }, CHUNK_WAIT)],
+  ['/chat', 'page', '/chat', (page) => within(page).findByRole('region', { name: SEEN.sayHello }, CHUNK_WAIT)],
+  ['/deliverables', 'page', '/deliverables', (page) => within(page).findByRole('heading', { level: 1, name: SEEN.shelf }, CHUNK_WAIT)],
+  ['Conversations', 'route', 'conversations', (page) => within(page).findByRole('heading', { level: 1, name: 'Chats' }, CHUNK_WAIT)],
+]
+
+describe("at a phone's width (390 px), from Play's minWidth up", () => {
+  beforeEach(() => {
+    setWindowWidth(PHONE_WIDTH)
+    host.setMinWidth(manifest.minWidth)
+    host.setWidth(PHONE_WIDTH)
+  })
+
+  afterEach(() => {
+    resetWindowWidth()
+  })
+
+  it('is a width Play draws at: its minWidth is a phone\'s', () => {
+    expect(manifest.minWidth).toBe(360)
+    expect(PHONE_WIDTH).toBeGreaterThanOrEqual(manifest.minWidth)
+  })
+
+  it.each(PHONE_VIEWS)('%s renders in the phone frame: the bar with Menu, no sidebar, the page in the whole width', async (_name, kind, key, seen) => {
+    const { container } = renderFramed(kind, key)
+    expect(await seen(framedPage())).toBeInTheDocument()
+    expect(container.querySelector('[data-layout]')).toHaveAttribute('data-layout', 'phone')
+    expect(screen.queryByRole('complementary', { name: SEEN.sidebar })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(screen.queryByRole('complementary', { name: 'Auto' })).toBeNull()
+  })
+
+  it('notFound@1: the 404 on its own, with the way back to the chat', async () => {
+    const Lost = registration<object>('slot', 'notFound@1')
+    render(
+      <Suspense fallback={null}>
+        <Lost />
+      </Suspense>,
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: SEEN.lost }, CHUNK_WAIT)).toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getByRole('link', { name: SEEN.backToChat })).toHaveAttribute('href', CHAT_HREF)
   })
 })

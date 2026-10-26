@@ -11,7 +11,9 @@
  * The toolbar's settings drive the fake host (src/host.ts): the width and minWidth (useThemeLayout), the chosen tone
  * and the one the theme forces (useTone), reduced motion (useMediaPreferences), the look runtime mounted on the
  * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too,
- * and the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat).
+ * the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat), and the host's voice session
+ * (src/host/voice.ts: none, or a made-up one in the phase chosen, on the conversation on screen, whose words show in it
+ * as core's chat shows them), whose levels move unless reduced motion is on.
  * It proves a theme draws, not that core draws it the same way: core's browser lane does that.
  */
 import type { HostLook } from '@automatos/theme-sdk'
@@ -30,7 +32,8 @@ import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
 } from '../src/host/router.ts'
 import { drawView } from '../src/host/slots.ts'
-import { showTranscript } from '../src/host/transcript.ts'
+import { showTranscript, transcriptChatId } from '../src/host/transcript.ts'
+import { driveVoiceLevels, showVoice } from '../src/host/voice.ts'
 import { BasePage } from './base-page.tsx'
 import { Toolbar } from './toolbar.tsx'
 
@@ -92,23 +95,26 @@ export function mountLooks(theme: HarnessTheme, settings: HarnessSettings): void
   host.setLooks({ look, defaultLook: theme.presets[0], tone: themeTone(theme, look) })
 }
 
-/** The fake host's width, minWidth, chosen tone and reduced motion for the settings. */
+/** The fake host's width, minWidth, chosen tone and reduced motion for the settings, and its voice levels under them. */
 export function applySettings(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   host.setMinWidth(theme.manifest.minWidth)
   host.setWidth(settings.width ?? windowWidth)
   host.setTone(settings.tone)
   host.setReducedMotion(settings.reducedMotion)
+  driveVoiceLevels(settings.reducedMotion)
 }
 
 /**
- * The fake host as the settings start it, before the first render: the settings, the look runtime, the path, and the
- * chat's conversation (the transcript, or a new chat).
+ * The fake host as the settings start it, before the first render: the settings, the look runtime, the path, the
+ * chat's conversation (the transcript, or a new chat) and the voice session (none, or a made-up one in its phase, on
+ * that conversation).
  */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
   showTranscript(settings.transcript)
+  showVoice(settings.voice, transcriptChatId(settings.transcript))
 }
 
 /** Catches what the theme throws while drawing, so the host can fall back. */
@@ -258,6 +264,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
     if (next.transcript !== settings.transcript) showTranscript(next.transcript)
+    if (next.voice !== settings.voice || next.transcript !== settings.transcript) showVoice(next.voice, transcriptChatId(next.transcript))
     setSettings(next)
   }
   const onRenderError = (error: unknown): void => {

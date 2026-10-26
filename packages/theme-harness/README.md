@@ -78,13 +78,42 @@ with a made-up unread badge, a separator, the theme menu at 40 × 40, the accoun
 as before; `FirstRunNudge` is core's zero-height anchor with its pill placed over the top of the chat column, so it
 takes no room from the chat, with core's words and the link to Settings (a kept click).
 
+The voice area (SDK 1.2.0, `src/sdk/voice.ts`) answers from the fake host's voice session
+(`src/internal/voice-session.ts`): `useVoice` a frozen snapshot of it and `stop()`, `readVoiceLevels` the levels a test
+set while a session runs (connecting, listening, thinking or speaking), clamped to 0 to 1, and zeros otherwise. The
+`VoiceButton` stand-in (`src/sdk/voice-button.tsx`) checks its props as core does and draws core's DOM in plain colours:
+the root (`data-voice-button="root"`) with `data-voice-state`, `data-voice-mode`, `data-voice-press`, `data-voice-size`
+and `data-voice-mic`, a real `<button>` for the press named by `label` or by what a press does ("Hold to talk", "Talk to
+Auto"), sized by `size` and styled by the `--voice-button-*` custom properties a theme sets on core's. While the session
+is the button's (its engine, and its `conversation` when it names one) the host's control shows under it in the protected
+surface `voice-control`: the "AI voice assistant" caption (a tiny caption in the text's colour, never a pill), the
+microphone's state, and Stop (quick-ask) or End call and Close live voice (a Live call); then the microphone prompt
+while it connects, and a failure's sentence with Try again and Close. A press moves the session as the host would: a
+start listens with the microphone open, on the button's `conversation` or else the one on screen, a release thinks, a
+stop ends it (quick-ask back to idle, a call to ended). `hold` starts on the pointer's press and sends on its release,
+and a click no pointer made counts as a toggle, as on core; `toggle` starts, then sends (or ends a call). The hotkey is
+checked, not listened for. With no host voice on the page the button is drawn disabled, titled with the reason.
+`test/voice.test.tsx` holds the stand-ins' behaviour and `test/voice-types.test.tsx` holds them to the vendored
+`areas/voice.d.ts`: its phases and the button's modes, presses and sizes, the snapshot's fields, and every data
+attribute and custom property it names.
+
+The session's words show in its conversation as core's chat shows them (`src/internal/live-voice-turns.ts`, over core's
+`lib/chat/live-voice-turns.ts`): while it runs on a conversation (its `chatId`), that conversation's messages in
+`useChatController` end with two ordinary messages, `voice-live-user` with `heard` and `voice-live-assistant` with
+`reply`, each once it has words. A new chat with no id gets none, nor does any other conversation. They go when the
+session ends, and when the turn is saved (`host.voiceTurnSaved(chatId)`, core's `chat_changed`), staying out while
+Auto's reply of that exchange grows, until the member says something else. So a theme draws a voice session's words in
+its conversation like any message, never from `useVoice().heard` and `.reply` beside it: in core that would show them
+twice. `test/voice-turns.test.tsx` holds the rule.
+
 ## The fake host
 
 `host` (`@automatos/theme-harness/host`, `src/host.ts`) sets what the host would say and reads back what a theme
 asked of it. `host.reset()` puts it all back: the local edition's one operator in `WORKSPACE_DEFAULTS`, online,
 the backend up, a 1280-pixel window over a 1024-pixel `minWidth`, the light tone, the OS motion setting as
 `matchMedia` says (jsdom has none: motion allowed), no look runtime, no package files, `STORAGE_DEFAULTS` with no
-theme state kept, and nothing asked.
+theme state kept, no voice session (the host's voice on the page as `VOICE_DEFAULTS` offers it: quick-ask, and Live
+not set up), and nothing asked.
 
 | Area | Controls | Read back |
 |---|---|---|
@@ -98,6 +127,7 @@ theme state kept, and nothing asked.
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
 | chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
+| voice (SDK 1.2.0) | `setVoice` (any of the session's fields, `chatId` among them), `setVoicePhase` (the phase, its engine, and the microphone as that engine has it), `setVoiceMic`, `setVoiceWords` (`heard`, `reply`), `setVoiceError`, `setVoiceAvailable` (`VOICE_DEFAULTS` with changes; `null` for no host voice on the page), `setVoiceLevels`, `voiceTurnSaved` (a conversation's saved rows landed: the session's words leave it) | `voiceStops()` (every `stop()`: useVoice's, the button's), `voicePresses()` (each press that reached the host: start, release or stop, with its engine and conversation) |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside
@@ -174,12 +204,17 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   editor sets paints too), the stage's width (the window's, then, widest first, 1440, 1024, a phone's 390 and just
   below the theme's own `minWidth`; a theme's own media queries answer the window, not the stage, so a layout one of
   them picks, such as a phone layout, shows in a window that narrow, and each shot sizes its window to its group's
-  width), the tone (off while the theme or its look forces one), reduced motion, forced colours and the transcript
-  (the chat opened on a made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool
-  line and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens
-  one). A page cannot turn the browser's media features on, so the build copies a theme's
-  `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the toolbar's two
-  attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
+  width), the tone (off while the theme or its look forces one), reduced motion, forced colours, the transcript (the
+  chat opened on a made-up exchange, `src/host/transcript.ts`: the owner's words, then Auto's reply with a tool line
+  and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens one)
+  and the voice (`src/host/voice.ts`: no session, or a made-up quick-ask session on the conversation on screen, which
+  every `VoiceButton` owns, listening with the member's words so far, thinking, speaking with Auto's reply, or failed;
+  on the transcript its words end the conversation's messages, as core's chat adds them). While the member or Auto speaks,
+  `readVoiceLevels` answers a level that moves with the clock, so a theme's waveform animates; under the toolbar's
+  reduced motion it holds still, so a shot reads the same levels on every run (the shots' `animations: 'disabled'`
+  stops CSS animations, not a theme's own animation frames). A page cannot turn the browser's media features on, so the
+  build copies a theme's `@media (prefers-reduced-motion: reduce)` and `@media (forced-colors: active)` rules under the
+  toolbar's two attributes, and forced colours paints the system colours over the page. The shots ask the browser itself for reduced
   motion, or for none in the motion group; forced colours is the toolbar's preview only, and no shot draws it. Each
   setting is in the address, so a reload opens the same view.
 
@@ -197,7 +232,11 @@ Auto control beside it are shot), and on the transcript (`<preset>/1440-transcri
 a conversation on it). Then, for a theme whose own `minWidth` is at most 390 px, so it draws at a phone's width, the
 phone-width groups at 390 × 844, with reduced motion: every view of each preset (`<preset>/390/`) and, with a `/chat`
 page, that page on the transcript in the default look (`<preset>/390-transcript/`), so the theme's phone layout is
-drawn and scanned. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
+drawn and scanned. Then, for a theme whose `theme.json` `uses` names the SDK's `voice` area, its voice states: the
+`/chat` page (or, with none, every view) on the transcript in the default look at 1440 px, with reduced motion, in each
+phase of the made-up voice session but idle, `<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and
+`-error/`, so the theme's voice button is shot with the host's AI voice caption and stop control, its waveform held
+still, and the session's words in the conversation as core draws them. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
 just below it already shoots. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`); a set's scans go to its
 `axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and route that `theme.json`
 declares (a chat group: the chat page's), less what the page reports the theme did not register (a route's `/` is `_`

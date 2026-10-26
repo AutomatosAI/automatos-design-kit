@@ -1,0 +1,219 @@
+/*
+ * Play 1.2.0 — Play's frame on a phone (the Ember design's 390 screens): the top bar (phone-bar.tsx) and the menu it
+ * opens (phone-menu.tsx), drawn only below 1024 px (lib/play/phone-layout.ts). The bar is the design's: 56 px tall,
+ * a hairline under it, quiet text links in the bar's link type, the current place marked with the accent's dot as
+ * the design's tab bar marks it. The menu is a fixed layer over the frame: the glass across it, and the panel from
+ * the left edge, at most 320 px wide and never so wide that no glass is left to tap, on the page's ground, scrolling
+ * on its own and clear of a home bar at its foot; the lists inside are the sidebar's (play-sidebar.module.css).
+ * Every variable is --pl-* (K2).
+ */
+
+.bar {
+  flex: none;
+  height: var(--pl-phone-bar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  padding: 0 var(--pl-space-2);
+  border-bottom: 1px solid var(--pl-line-faint);
+  background: var(--pl-tint-bar);
+}
+
+/* Menu: a 44 px square with three bars drawn by the page, no icon font. */
+.menuButton {
+  flex: none;
+  width: var(--pl-tap-min);
+  height: var(--pl-tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--pl-radius-button);
+  background: transparent;
+  color: var(--pl-color-text);
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--pl-tint-hover);
+}
+
+.menuIcon {
+  position: relative;
+  width: 18px;
+  height: 12px;
+  border-top: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+}
+
+.menuIcon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
+  border-top: 2px solid currentcolor;
+}
+
+/* The wordmark takes what the bar leaves, its words cut with an ellipsis on the narrowest phone rather than pushing
+   the places out. */
+.wordmark {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--pl-tap-min);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--pl-space-1);
+  font: var(--pl-text-title);
+  letter-spacing: var(--pl-display-letter-spacing);
+  color: var(--pl-color-text);
+  text-decoration: none;
+}
+
+.wordmarkText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wordmarkAccent {
+  color: var(--pl-color-accent-text);
+}
+
+.places {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+
+.place {
+  min-height: var(--pl-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-2);
+  padding: 0 var(--pl-space-3);
+  border-radius: var(--pl-radius-button);
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-bar-link);
+  text-decoration: none;
+}
+
+.place:hover {
+  background: var(--pl-tint-hover);
+  color: var(--pl-color-text);
+}
+
+/* The current place: the text colour, its weight, and the accent's dot before it (the readable accent: M18). */
+.place[aria-current="page"] {
+  color: var(--pl-color-text);
+  font-weight: 600;
+}
+
+.place[aria-current="page"]::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: var(--pl-radius-round);
+  background: var(--pl-color-accent-text);
+}
+
+/* The menu. */
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+}
+
+/* Shut: nothing drawn, whatever another rule says about the element's display. */
+.layer[hidden] {
+  display: none;
+}
+
+.glass {
+  position: absolute;
+  inset: 0;
+  background: var(--pl-tint-scrim);
+}
+
+.menu {
+  position: relative;
+  width: min(320px, calc(100% - var(--pl-space-7)));
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-5);
+  padding: var(--pl-space-2) var(--pl-space-4) calc(var(--pl-space-5) + env(safe-area-inset-bottom, 0px));
+  border-right: 1px solid var(--pl-line);
+  background: var(--pl-color-bg);
+  color: var(--pl-color-text);
+}
+
+.menuHead {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+}
+
+/* Close: a quiet 44 px square. */
+.close {
+  flex: none;
+  width: var(--pl-tap-min);
+  height: var(--pl-tap-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pl-line-button);
+  border-radius: var(--pl-radius-button);
+  background: transparent;
+  color: var(--pl-color-text);
+  font: var(--pl-text-button-sm);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--pl-tint-hover);
+}
+
+/* New chat, then search. */
+.menuActions {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-2);
+}
+
+.action {
+  display: contents;
+}
+
+.search {
+  min-height: var(--pl-tap-min);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--pl-space-4);
+  border: 1px solid var(--pl-line);
+  border-radius: var(--pl-radius-button);
+  background: var(--pl-color-surface);
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-small);
+  cursor: pointer;
+}
+
+.search:hover {
+  border-color: var(--pl-line-button);
+}
+
+/* The host's header utilities, at the menu's foot under a hairline. */
+.utilities {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: var(--pl-space-4);
+  border-top: 1px solid var(--pl-line-faint);
+}

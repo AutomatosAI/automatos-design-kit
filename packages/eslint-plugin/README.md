@@ -35,7 +35,8 @@ relative import that leaves `src/` is `JS_PATH_IMPORT` here as it is there.
 
 `configs.recommended` lints every script under `src/` (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, as the
 review reads them) with every rule: a code the review refuses on is an error, a code it only lists for the reviewer
-(`JS_SPEECH_RECOGNITION`, `JS_GET_USER_MEDIA`) is a warning.
+a warning. Every code is an error today: a theme's own audio (`JS_GET_USER_MEDIA`, `JS_SPEECH_RECOGNITION`,
+`JS_SPEECH_SYNTHESIS`) is refused since theme voice (SDK 1.2.0), which gives a theme the SDK's voice area instead.
 
 ## What it reads
 

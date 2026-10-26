@@ -261,4 +261,9 @@ describe('content and chrome', () => {
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
     expect(surface('ai-label-fence')).toHaveAttribute('data-label', 'widget')
   })
+
+  it('AiLabelFence draws no box, as core\'s (display: contents), so a theme may fence parts of one row', () => {
+    render(<AiLabelFence><button type="button">Send</button></AiLabelFence>)
+    expect(surface('ai-label-fence')).toHaveStyle({ display: 'contents' })
+  })
 })

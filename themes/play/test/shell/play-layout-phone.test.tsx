@@ -7,7 +7,9 @@
 // it sends the browser to /chat without asking for the list or showing Auto, and on the server, where no width is
 // known, it renders nothing. A laptop-wide run proves the same spies see Play when it does mount: Play's chat in
 // Play's frame opens the linked conversation, holds the board's event lane and asks for Recent. Roles, attributes
-// and text only (CSS modules are proxies).
+// and text only (CSS modules are proxies). Play 1.2.0: Play's minWidth is a phone's, 360 (theme.json), so "below the
+// theme's width" is a window just under it; at a phone's 390 px Play draws its own phone layout
+// (test/shell/phone-frame.test.tsx, test/shell/phone-css.test.ts, test/chat/voice-chat.test.tsx).
 import { render, screen, within } from '@testing-library/react'
 import { renderToString } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,6 +17,7 @@ import { PlayChat } from '../../src/components/play/chat/play-chat.tsx'
 import { PlayConversations } from '../../src/components/play/conversations/play-conversations.tsx'
 import { PlayFrameSlot } from '../../src/play-slots.tsx'
 import { host } from '@automatos/theme-harness/host'
+import { readThemeFile } from '../source-files.ts'
 
 /** Auto, a spy: none of Play's screens may show him where Play does not mount. */
 const mascot = vi.hoisted(() => ({ shown: [] as string[] }))
@@ -28,8 +31,10 @@ vi.mock('../../src/components/mascot/auto-mascot.tsx', async () => {
   }
 })
 
-/** A phone below Play's minWidth (1024 px), and a laptop above it. */
-const PHONE_WIDTH = 390
+/** Play's minWidth, as theme.json declares it: below it the host draws its own pages. */
+const MIN_WIDTH = (JSON.parse(readThemeFile('theme.json')) as { readonly minWidth: number }).minWidth
+/** A window just below Play's minWidth, and a laptop above it. */
+const BELOW_WIDTH = MIN_WIDTH - 1
 const LAPTOP_WIDTH = 1440
 /** useRecentChats' own limit: the sidebar's Recent. */
 const RECENT_LIMIT = 8
@@ -55,9 +60,10 @@ beforeEach(() => {
   host.setConversations([LINKED])
 })
 
-describe("below the theme's width (a phone), Play's Conversations never mounts (M69)", () => {
+describe("below the theme's width, Play's Conversations never mounts (M69)", () => {
   it('sends the browser to /chat without asking for the list, and Auto never shows', () => {
-    host.setWidth(PHONE_WIDTH)
+    host.setMinWidth(MIN_WIDTH)
+    host.setWidth(BELOW_WIDTH)
     host.setPathname('/x/conversations')
     render(<PlayConversations />)
     expect(host.navigations()).toEqual([{ method: 'replace', href: '/chat' }])

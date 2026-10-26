@@ -1,8 +1,9 @@
 # Play
 
-Play is the Automatos theme with Auto, the mascot: its own frame and sidebar, a chat with Auto, a shelf of
-Deliverables, a Conversations page, and looks you pick and tweak (the Look page and the style sheet). This folder
-builds it as an installable theme package, `automatos/play` (PRD-261). `CHANGELOG.md` lists what each version changed.
+Play is the Automatos theme with Auto, the mascot: its own frame and sidebar, a chat with Auto you can type or talk
+to, a shelf of Deliverables, a Conversations page, and looks you pick and tweak (the Look page and the style sheet),
+from a phone's width up. This folder builds it as an installable theme package, `automatos/play` (PRD-261).
+`CHANGELOG.md` lists what each version changed.
 
 ## Where the code comes from
 
@@ -16,6 +17,22 @@ Copied from core (`AutomatosAI/automatos-ai`); the kit's `docs/PLAY-HISTORY.md` 
 (`keepCorePage`); the host's own layouts still say which `?tab=` values the theme's Deliverables page serves. The Look
 page and the style sheet mark their heading with `data-theme-heading` (and `tabindex="-1"`), the mark the host hands
 the focus to once the screen shows.
+
+## Voice and the phone (1.2.0)
+
+- **Voice** (SDK 1.2.0's `voice` area). The message box (`components/play/chat/message-box.tsx`) holds the host's
+  `VoiceButton` beside Send (`mode` `auto`, `press` `hold`, the Space hotkey; none on a phone), coloured through its
+  `--voice-button-*` properties and `data-voice-*` attributes in `composer.module.css`; core draws its caption, stop
+  control and failure, and Play names none of them. While a session runs Auto follows it (`lib/voice/voice-pose.ts`,
+  `components/play/chat/use-auto-on-screen.ts`): listening, thinking, then speaking with his ring following
+  `readVoiceLevels().agent` (`components/mascot/use-voice-ring.ts`, never under reduced motion or while paused); what
+  it heard and said is in the conversation, where the host puts it (the messages `voice-live-user` and
+  `voice-live-assistant`), drawn as any message. Play captures and plays no audio itself.
+- **The phone.** `minWidth` is 360. Below 1024 px (`lib/play/phone-layout.ts`, the query core's `useIsBelowWidth`
+  asks) the frame draws the phone bar and menu (`components/play/shell/phone-bar.tsx`, `phone-menu.tsx`, the
+  sidebar's parts from `sidebar-parts.tsx`) and no sidebar; pages drop the mascot column (`page-columns.tsx`), the
+  chat draws Auto small over the box, and every stylesheet's phone rules sit under the one `(max-width: 1023px)`
+  query.
 
 ## Source
 
@@ -34,8 +51,8 @@ copied into `src/vendor/` as source, at the versions core pins, with their licen
 
 ## Styles and assets
 
-The entry imports `app/play-fonts.css` and `app/play-theme.css`, then the components import their 25 CSS modules;
-the preset puts all 27 into `dist/theme.css`, every rule under `html.play` (D2-c), keyframes renamed `play-…`.
+The entry imports `app/play-fonts.css` and `app/play-theme.css`, then the components import their 26 CSS modules;
+the preset puts all 28 into `dist/theme.css`, every rule under `html.play` (D2-c), keyframes renamed `play-…`.
 `test/css.test.ts` runs the preset's wrap and the server's scope check over each file and over the whole sheet.
 
 - **The cascade (FX-01).** The wrap leaves a rule that is already under `html.play` as it is, so every rule of
@@ -103,6 +120,6 @@ table as the boot script does, against Play's engine.
   and `test/storage-port.test.ts`: no browser storage under `src/`, and Auto's pause, his hello and the seen
   Deliverables on the SDK's storage area, run on the theme harness's storage area (`@automatos/theme-harness`, core's
   ported), which the test holds to core's rules.
-- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.1.1.autotheme` and its `.sha256.json`, checked
+- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.2.0.autotheme` and its `.sha256.json`, checked
   as core's reader checks a package (the caps: the entry 300 KB, JS and CSS 3 MB, each clip 1 MB; the scope check on
   `dist/theme.css`). Kit CI uploads both as the `kit-themes` artifact.

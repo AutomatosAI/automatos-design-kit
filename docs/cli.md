@@ -161,6 +161,7 @@ The first line names the core commit whose checks these are. Then one line per c
 | `cssScope` | `dist/theme.css` scoped under the theme's class |
 | `looks` | The presets that pass `looks/schema.json` |
 | `uses` | `theme.json` `uses` against the SDK names `dist/` imports: an import of a name the SDK doesn't export is an error; an area used but not declared, a `uses` entry that is no SDK area, or a namespace or dynamic import is a warning |
+| `audioCapture` | `dist/` naming the browser's audio APIs itself (`getUserMedia`, `SpeechRecognition`, `speechSynthesis`), core's TV-C7 check: any is an error naming each, since a theme's voice goes through the SDK's `voice` area |
 | `clonedFrom` | Each page in `"mode": "clone"` against the core release's hash of the file it copied; a changed or missing file is a warning |
 | `previews` | Each preview by the preset the listing shows it under; one no preset claims is a warning |
 | `jsRules` | The Marketplace review's JS rules on `source/` (`@automatos/theme-rules`): a finding that refuses the package is an error, one listed for the reviewer a warning; no `source/` is `not_measured` |

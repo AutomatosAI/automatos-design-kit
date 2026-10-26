@@ -12,7 +12,7 @@ import styles from './auto-mascot.module.css'
  * stays is his caption: the words that say what Auto, the AI, is doing, as a polite live region, from the same
  * states the chat feeds him. A one-shot state (his hello, a celebration) still ends on the player's timer, so the
  * chat moves on as it does with him drawn. The props are the drawn mascot's, so every page that places him needs no
- * change; the ones only a drawn mascot reads (lightsPage, playing, pauseControl) are taken and left alone.
+ * change; the ones only a drawn mascot reads (lightsPage, playing, pauseControl, speaking) are taken and left alone.
  */
 
 export type AutoMascotSize = 'small' | 'regular' | 'large'
@@ -34,6 +34,8 @@ export interface AutoMascotProps {
   /** True where the page already names the state in visible words: nothing is drawn. */
   readonly decorative?: boolean
   readonly pauseControl?: boolean
+  /** A drawn mascot's ring follows Auto's voice while he speaks; here there is no ring. */
+  readonly speaking?: boolean
 }
 
 export function AutoMascot({

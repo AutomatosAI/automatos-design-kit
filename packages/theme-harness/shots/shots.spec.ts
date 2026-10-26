@@ -3,7 +3,9 @@
  * plus one set just below its minWidth (the host's own pages there), each scanned with axe; for a theme with a
  * /chat page, that page with motion allowed and on the transcript (src/host/shot-groups.ts), into
  * `<preset>/1440-motion/` and `<preset>/1440-transcript/`; and for a theme whose minWidth fits a phone, each preset at
- * the phone's 390 × 844 (`<preset>/390/`, with the chat on the transcript in `<preset>/390-transcript/`).
+ * the phone's 390 × 844 (`<preset>/390/`, with the chat on the transcript in `<preset>/390-transcript/`); and for a theme
+ * whose `uses` names the voice area, its voice states: the chat page (every view with none) on the transcript in each
+ * phase of the host's made-up voice session, its words in the conversation, in `<preset>/1440-voice-<phase>/`.
  *
  * One test per group, so a failure names its group. The page is sized to the group's viewport (its width, and its
  * height: 900, or the phone's 844), so a theme's own media queries see the width the group shoots, as a browser that
@@ -27,7 +29,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { HTML_ATTRS } from '../src/host/prepaint.ts'
 import {
   HARNESS_GLOBAL, HARNESS_ORIGIN, HOME_PATH, OUT_ENV, PRESET_SUFFIX, SHOT_SUFFIX, STAGE_ID, THEME_ENV, declaredIn, offOrigin,
-  shotPresets, viewSlug, type HarnessReport, type Served, type View,
+  shotPresets, usesIn, viewSlug, type HarnessReport, type Served, type View,
 } from '../src/host/router.ts'
 import { groupShots, groupViews, shotAddress, shotGroups, type ShotGroup } from '../src/host/shot-groups.ts'
 import { AXE_FILE, criticalViolations, scanShot, writeAxeReport, type ShotScan } from './axe.ts'
@@ -61,7 +63,7 @@ function readThemeFolder(themeDir: string): ThemeFolder {
   const ids = existsSync(dir) ? readdirSync(dir).filter((name) => name.endsWith(PRESET_SUFFIX)).map((name) => name.slice(0, -PRESET_SUFFIX.length)) : []
   const presets = shotPresets(ids, typeof manifest.look === 'string' ? manifest.look : undefined)
   const declared = declaredIn(manifest)
-  const groups = shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages)
+  const groups = shotGroups(presets, typeof manifest.minWidth === 'number' ? manifest.minWidth : 0, declared.pages, usesIn(manifest))
   return { declared, presets, groups }
 }
 
@@ -124,6 +126,7 @@ async function shootViews(page: Page, group: ShotGroup, views: readonly View[], 
 
 /** What a group shoots, for its test's title. */
 function groupSubject(group: ShotGroup): string {
+  if (group.voice !== undefined) return `${group.page ?? 'every slot, page and route'} on the transcript with the voice ${group.voice}`
   if (group.page === null) return 'every slot, page and route'
   if (group.transcript) return `${group.page} on the transcript`
   return group.reducedMotion ? group.page : `${group.page} with motion allowed`

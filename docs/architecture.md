@@ -12,7 +12,7 @@ says how the parts connect; [cli.md](cli.md) has every command, and each package
 | `@automatos/vite-preset` (`packages/vite-preset`) | The Vite plugin every theme builds with, `automatosTheme()`: the ES library output, the import map's modules left external, one stylesheet scoped under the theme's class, and the source guard | none (`postcss`; `vite` as a peer) |
 | `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `brief`, `clone`, `skin`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
 | `@automatos/theme-harness` (`packages/theme-harness`) | The vitest preset a theme's tests run on (jsdom, React, Testing Library, a fake SDK, a fake host) and the browser harness, a mock host page in `app/` | theme-cli (core's manifest validator), theme-sdk, vite-preset |
-| `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.1.0, vendored from core; types only | none |
+| `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.2.0, vendored from core; types only | none |
 | `@automatos/theme-rules` (`packages/theme-rules`) | The Marketplace review's JS rules, as one table of data | vite-preset (its import refusals) |
 | `@automatos/eslint-plugin` (`packages/eslint-plugin`) | The same rules as ESLint rules, one per code, for a theme's `lint` | theme-rules |
 | `@automatos/look-kit` (`packages/look-kit`) | A kit library: a look's custom properties, Studio's tokens, WCAG contrast, HSL triplets, the look validator | none |
@@ -126,8 +126,9 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `99fb70ff5c837e9b7a1da40b8234d364b34b19d4` (host contract
-1.1.0, SDK 1.1.0, with the `mobile` block), the commit `packages/theme-cli/src/core/README.md` names:
+kit is fixed. The kit vendors core's contract at commit `2e57484810204fb9b3481c86a0faed7c6eb3d0ae` (host contract
+1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; core `main` at the merge of pull request #1334, 26 Oct
+2026), the commit `packages/theme-cli/src/core/README.md` names:
 
 - **The validators**, copied with only their import paths edited, into `packages/theme-cli/src/core/`: core's
   `frontend/lib/theme-host/` `css-value.ts`, `look-schema.ts`, `package-manifest.ts`, `mobile-manifest.ts` and

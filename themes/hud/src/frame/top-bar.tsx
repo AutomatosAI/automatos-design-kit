@@ -11,13 +11,14 @@ import {
   type HostHealth,
 } from '@automatos/theme-sdk'
 
+import { MicLive } from '../voice/mic-live'
 import { Clock } from './clock'
 import styles from './top-bar.module.css'
 
 /**
  * The top bar (the design's 56 px bar): the diamond mark and AUTOMATOS // HUD, which goes to the chat; the
  * clock in the middle; then where Automatos runs and whether it answers, as a glyph and a word (never colour
- * alone); the host's search, named by its visible words with its shortcut in aria-keyshortcuts (a name that
+ * alone); MIC LIVE while the host's voice has the microphone open (src/voice/mic-live.tsx); the host's search, named by its visible words with its shortcut in aria-keyshortcuts (a name that
  * differs from the words on screen fails WCAG's label in name); LOOK, the look editor, lit while it is open; and the
  * host's own header utilities (the SDK's HeaderUtilities: Help, notifications, the theme menu and the account). The
  * bar is the page's one banner, and it is named: a browser gives the banner role to this <header> alone, but Testing
@@ -100,6 +101,7 @@ export function TopBar() {
       <Clock />
       <div className={styles.end}>
         <StatusChip />
+        <MicLive />
         <SearchButton />
         <LookLink />
         <div className={styles.utilities}>

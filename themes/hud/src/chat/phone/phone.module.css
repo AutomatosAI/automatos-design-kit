@@ -4,8 +4,8 @@
  * 11 px, padded 20 px as the design's is; the core 14 px under it at the phone's 290 px (voice-core.module.css); the
  * last exchange in the room left, your words at 15 px in the secondary text and Auto's reply at 19 px
  * (transcript.module.css), padded 24 px; then the dock pinned to the foot on the page's ground: the credits banner, the
- * message box once TYPE opens it, and the control row, TYPE and STOP at its two ends at the design's 64 by 44 px, its
- * middle kept for the voice button. Every colour is a look variable.
+ * message box once TYPE opens it, the waveform (src/voice/waveform.module.css) and the control row, TYPE and STOP at its
+ * two ends at the design's 64 by 44 px, the voice button between them. Every colour is a look variable.
  */
 
 .screen {
@@ -103,17 +103,26 @@
   background: var(--hud-bg);
 }
 
-/* The control row: TYPE and STOP at its two ends; the voice button's place in the middle draws nothing yet. */
+/*
+ * The control row: TYPE and STOP at its two ends, centred on the voice button's 84 px circle between them; under the
+ * row a strip at least as tall as the host's control (its 28 px round stop control) for HOLD TO TALK at rest and the
+ * host's control while the session is the button's. The button's cell spans both rows, so the host's control, wider
+ * than the circle, opens out under it to both sides, under TYPE and STOP, never over them, and the circle stays put.
+ */
 .controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--hud-space-3);
+  --hud-voice-circle: 84px;
+  --hud-voice-strip: 28px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 64px;
+  grid-template-rows: var(--hud-voice-circle) minmax(var(--hud-voice-strip), auto);
+  column-gap: var(--hud-space-3);
+  row-gap: var(--hud-space-1);
 }
 
 .type,
 .stop {
-  flex: none;
+  grid-row: 1;
+  align-self: center;
   min-width: 64px;
   min-height: var(--hud-tap-min);
   padding: 0 var(--hud-space-3);
@@ -127,6 +136,7 @@
 }
 
 .type {
+  grid-column: 1;
   color: var(--hud-text-2);
 }
 
@@ -137,6 +147,7 @@
 }
 
 .stop {
+  grid-column: 3;
   color: var(--hud-text);
   font-weight: 600;
 }
@@ -145,4 +156,47 @@
 .stop:disabled {
   color: var(--hud-text-2);
   cursor: default;
+}
+
+/*
+ * The voice button (voice-slot.tsx): the design's HOLD TO TALK circle, 84 px, its 2 px accent outline and 30 px glow,
+ * the accent's 12% fill at rest and the accent itself while it is held, the readable accent for its glyph and its
+ * focus ring, set through the --voice-button-* properties the host's button reads, and on the press by its data
+ * attribute. The host's caption and control under it take the secondary text colour from here.
+ */
+.voice {
+  --voice-button-size: var(--hud-voice-circle);
+  --voice-button-radius: 50%;
+  --voice-button-bg: var(--hud-accent-fill);
+  --voice-button-fg: var(--hud-accent-text);
+  --voice-button-active-bg: var(--hud-accent);
+  --voice-button-active-fg: var(--hud-accent-ink);
+  --voice-button-ring: var(--hud-accent-text);
+  grid-area: 1 / 2 / 3 / 3;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--hud-space-1);
+  color: var(--hud-text-2);
+}
+
+.voice [data-voice-button="press"] {
+  border: 2px solid var(--hud-accent);
+  box-shadow: 0 0 30px var(--hud-glow);
+}
+
+/* The host's own ring is a shadow, which the glow above replaces: the ring is drawn as HUD's outline instead. */
+.voice [data-voice-button="press"]:focus-visible {
+  outline: 2px solid var(--hud-accent-text);
+  outline-offset: 2px;
+}
+
+/* HOLD TO TALK under the circle, as the design's words in it: Geist Mono capitals in the readable accent. */
+.holdWords {
+  color: var(--hud-accent-text);
+  font: 600 11px/1.4 var(--hud-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }

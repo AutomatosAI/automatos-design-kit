@@ -1,0 +1,92 @@
+/*
+ * The desktop's voice deck (voice-deck.tsx), the conversation column's width: a row as tall as the design's 44 px
+ * waveform, a waveform half, the voice button, the other half; then a strip at least as tall as the host's control (its
+ * 28 px round stop control) for the design's hint at rest and the host's control while the session is the button's.
+ * The button's cell is the press's own width and spans both rows, so the host's control, wider than the press, opens
+ * out under it to both sides, under the waveform, never over it, and the press stays where it is.
+ *
+ * The button is the design's HOLD TO TALK at the desktop's tap size: a circle in the look's accent, its 12% fill at
+ * rest and the accent itself while it is held, the readable accent for its glyph and its focus ring, set through the
+ * --voice-button-* properties the host's button reads; its outline and glow are set on the press by its data
+ * attribute. The host's caption and control take the secondary text colour from here, the transcript's.
+ */
+
+.deck {
+  --hud-voice-press: var(--hud-tap-min);
+  --hud-voice-strip: 28px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--hud-voice-press) minmax(0, 1fr);
+  grid-template-rows: var(--hud-voice-press) minmax(var(--hud-voice-strip), auto);
+  column-gap: var(--hud-space-3);
+  row-gap: var(--hud-space-1);
+}
+
+.waveStart,
+.waveEnd {
+  min-width: 0;
+  align-self: center;
+}
+
+.waveStart {
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+.waveEnd {
+  grid-area: 1 / 3 / 2 / 4;
+}
+
+.press {
+  --voice-button-size: var(--hud-voice-press);
+  --voice-button-radius: 50%;
+  --voice-button-bg: var(--hud-accent-fill);
+  --voice-button-fg: var(--hud-accent-text);
+  --voice-button-active-bg: var(--hud-accent);
+  --voice-button-active-fg: var(--hud-accent-ink);
+  --voice-button-ring: var(--hud-accent-text);
+  grid-area: 1 / 2 / 3 / 3;
+  width: var(--hud-voice-press);
+  justify-self: center;
+  align-self: start;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: var(--hud-text-2);
+}
+
+.press [data-voice-button="press"] {
+  border: 1.5px solid var(--hud-accent);
+  box-shadow: 0 0 18px var(--hud-glow);
+}
+
+/* The host's own ring is a shadow, which the glow above replaces: the ring is drawn as HUD's outline instead. */
+.press [data-voice-button="press"]:focus-visible {
+  outline: 2px solid var(--hud-accent-text);
+  outline-offset: 2px;
+}
+
+/* The design's hint, as the message box's key hint is set: Geist Mono capitals, tracked, in the secondary text. */
+.hint {
+  grid-area: 2 / 1 / 3 / 4;
+  align-self: center;
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 500 11px/1.5 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.hintPart {
+  white-space: nowrap;
+}
+
+/* The key in a box in the line colour, its word in the text, as the design draws SPACE. */
+.key {
+  padding: 2px var(--hud-space-2);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: inherit;
+}

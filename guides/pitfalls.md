@@ -46,7 +46,14 @@ as the server does; a theme built some other way must do all three itself.
 **Styling the approval cards.** No selector may name `data-protected-surface`, and the cards keep their own boxes
 whatever a stylesheet says. A generic rule (`html.<htmlClass> button`) still matches the buttons inside them, and an
 element drawn over them can cover them: the reviewer reads for both. Place the host's cards; never restyle or cover
-them.
+them. The voice button's control is one too (`voice-control`): style the button through its `data-voice-*` attributes
+and `--voice-button-*` custom properties, and leave the "AI voice assistant" caption and the stop control as the host
+draws them.
+
+**Capturing audio yourself.** `getUserMedia`, `SpeechRecognition` and `speechSynthesis` in a theme's code are refused
+(`JS_GET_USER_MEDIA`, `JS_SPEECH_RECOGNITION`, `JS_SPEECH_SYNTHESIS` in `source/`, `audioCapture` in `dist/`), in a
+comment or a string too. Talk to Auto through the SDK's `voice` area: `VoiceButton`, `useVoice`, `readVoiceLevels`
+([sdk.md](sdk.md)).
 
 ## Motion
 

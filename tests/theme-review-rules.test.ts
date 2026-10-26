@@ -1,9 +1,13 @@
 // PRD-261 §9: the JS rules the isolated review runs on a submission's source/. Each refused
 // pattern is found with its code and line; honest code that only looks close is not.
 import { describe, expect, it } from "vitest";
-import { excerptOf, fileFindings, jsRuleFindings, pathProblem, RULES, specifierProblem } from "@automatos/theme-rules";
+import {
+  AUDIO_APIS, AUDIO_CAPTURE_SEVERITY, excerptOf, fileFindings, jsRuleFindings, pathProblem, RULES, specifierProblem,
+} from "@automatos/theme-rules";
 
 const PATH = "source/entry.ts";
+/** The audio rows (theme voice): each refuses, as core's review blocks the same names in a bundle. */
+const AUDIO_CODES: readonly string[] = ["JS_GET_USER_MEDIA", "JS_SPEECH_RECOGNITION", "JS_SPEECH_SYNTHESIS"];
 
 function codes(text: string): string[] {
   return fileFindings(PATH, text).map((finding) => finding.code);
@@ -181,9 +185,11 @@ describe("the rules table is data, and every refusal is an error", () => {
     }
   });
 
-  it("warns on exactly two rows: SpeechRecognition and getUserMedia", () => {
-    const warned = RULES.filter((row) => row.severity === "warning").map((row) => row.code);
-    expect(warned).toEqual(["JS_SPEECH_RECOGNITION", "JS_GET_USER_MEDIA"]);
+  it("warns on no row: listening, opening the microphone and speaking are refused too (theme voice)", () => {
+    expect(RULES.filter((row) => row.severity === "warning").map((row) => row.code)).toEqual([]);
+    expect(AUDIO_CAPTURE_SEVERITY).toBe("error");
+    const audio = RULES.filter((row) => AUDIO_CODES.includes(row.code));
+    expect(audio.map((row) => [row.code, row.severity])).toEqual(AUDIO_CODES.map((code) => [code, "error"]));
   });
 
   it.each([
@@ -200,38 +206,73 @@ describe("the rules table is data, and every refusal is an error", () => {
   });
 });
 
-describe("listening, or opening the microphone or camera, is a warning, not a refusal", () => {
+describe("a theme that listens, opens the microphone or camera, or speaks by itself is refused (core's audio_capture.py)", () => {
   it.each([
     ["JS_SPEECH_RECOGNITION", "const recognition = new SpeechRecognition()"],
     ["JS_SPEECH_RECOGNITION", "const recognition = new webkitSpeechRecognition()"],
     ["JS_SPEECH_RECOGNITION", "const Listener = window.SpeechRecognition ?? window.webkitSpeechRecognition"],
     ["JS_GET_USER_MEDIA", "const stream = await navigator.mediaDevices.getUserMedia({ audio: true })"],
     ["JS_GET_USER_MEDIA", "const { getUserMedia } = navigator.mediaDevices"],
-    // As with every rule, a name in a comment is still reported; the reviewer reads the line.
+    ["JS_GET_USER_MEDIA", "navigator.webkitGetUserMedia({ audio: true }, onStream, onError)"],
+    ["JS_GET_USER_MEDIA", "navigator.mozGetUserMedia({ video: true }, onStream, onError)"],
+    ["JS_SPEECH_SYNTHESIS", "speechSynthesis.speak(new SpeechSynthesisUtterance('hello'))"],
+    ["JS_SPEECH_SYNTHESIS", "window.speechSynthesis.cancel()"],
+    // As core reads them, and as with every rule: a name in a string or a comment is still reported.
+    ["JS_SPEECH_SYNTHESIS", "const name = 'speechSynthesis'"],
     ["JS_SPEECH_RECOGNITION", "// a later version could add SpeechRecognition here"],
     ["JS_GET_USER_MEDIA", "/* getUserMedia( for a voice look */"],
   ])("%s: %s", (code, text) => {
     const found = fileFindings(PATH, text);
-    expect(found.map((finding) => finding.code)).toContain(code);
-    expect(found.map((finding) => [finding.code, finding.severity])).toEqual(found.map(() => [code, "warning"]));
+    expect(found.map((finding) => [finding.code, finding.severity])).toEqual(found.map(() => [code, "error"]));
+    expect(found.length).toBeGreaterThan(0);
   });
 
-  it("names the reason and the line", () => {
+  it("are core's AUDIO_APIS, in its order, with its names and words, one pattern for the rule and the check", () => {
+    expect(AUDIO_APIS.map((api) => [api.code, api.name, api.does])).toEqual([
+      ["JS_GET_USER_MEDIA", "getUserMedia", "opens the microphone"],
+      ["JS_SPEECH_RECOGNITION", "SpeechRecognition", "listens to the microphone"],
+      ["JS_SPEECH_SYNTHESIS", "speechSynthesis", "speaks"],
+    ]);
+    AUDIO_APIS.forEach((api) => expect(RULES.find((row) => row.code === api.code)?.pattern).toBe(api.pattern));
+    expect(Object.isFrozen(AUDIO_APIS)).toBe(true);
+  });
+
+  it("finds each name once where it stands, webkit's spelling included", () => {
+    const text = "const Listener = window.SpeechRecognition ?? window.webkitSpeechRecognition";
+    expect(codes(text)).toEqual(["JS_SPEECH_RECOGNITION", "JS_SPEECH_RECOGNITION"]);
+  });
+
+  it("names the reason, the line and the SDK's voice area to use instead", () => {
     const [finding] = fileFindings(PATH, "const a = 1\nconst stream = await navigator.mediaDevices.getUserMedia({ audio: true })\n");
-    expect(finding).toMatchObject({ code: "JS_GET_USER_MEDIA", severity: "warning", line: 2 });
+    expect(finding).toMatchObject({ code: "JS_GET_USER_MEDIA", severity: "error", line: 2 });
     expect(finding.message).toMatch(/microphone or camera/);
     expect(fileFindings(PATH, "new SpeechRecognition()")[0].message).toMatch(/browser vendor's speech service/);
+    expect(fileFindings(PATH, "speechSynthesis.cancel()")[0].message).toMatch(/speak as Auto/);
+    AUDIO_CODES.forEach((code) => {
+      const row = RULES.find((item) => item.code === code);
+      expect(row?.message, code).toContain("the SDK's voice area instead (voice.VoiceButton, useVoice, readVoiceLevels)");
+    });
   });
 
-  it("has no findings for code that only looks close", () => {
+  it("has no findings for code that only looks close, or for the SDK's voice area", () => {
     const close = [
       "const speechRecognitionEnabled = false",
       "const mySpeechRecognition = null",
-      "speechSynthesis.speak(new SpeechSynthesisUtterance('hello'))",
+      "const SpeechRecognitionEvent = null",
+      "const utterance = new SpeechSynthesisUtterance('hello')",
+      "const mySpeechSynthesisShim = null",
+      "const speechSynthesisReady = false",
+      "const $speechSynthesis = null",
+      // Core's names stand alone as Python reads \w: a letter of any script before one makes a longer identifier.
+      "const éspeechSynthesis = null",
       "const getUserMediaAllowed = () => false",
       "const devices = await navigator.mediaDevices.enumerateDevices()",
       "const userMedia = { audio: false }",
       "return <audio src={clip} controls />",
+      "import { VoiceButton, readVoiceLevels, useVoice } from '@automatos/theme-sdk'",
+      "const { phase, micOpen, stop } = useVoice()",
+      "const { user, agent } = readVoiceLevels()",
+      "return <VoiceButton press=\"toggle\" size=\"lg\" />",
     ].join("\n");
     expect(fileFindings(PATH, close)).toEqual([]);
   });

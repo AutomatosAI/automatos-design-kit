@@ -1,7 +1,7 @@
 /*
  * PRD-260 T-004 — Play's sidebar (Ember mock 01), ported from Automatos Play's
- * components/shell/shell.module.css. Desktop only: PlayFrame renders at >= 1024 px
- * (D7), so Play's phone bars are not ported. Every variable is --pl-* (K2).
+ * components/shell/shell.module.css. The desktop's: on a phone (Play 1.2.0) the frame draws its phone bar
+ * (phone.module.css) and the menu holds the sidebar's lists, in these styles. Every variable is --pl-* (K2).
  *
  * Play 1.1.1: the sidebar itself never scrolls. The wordmark and New chat stay at
  * the top and the foot (Docs, Settings, the pill) at the bottom; between them the

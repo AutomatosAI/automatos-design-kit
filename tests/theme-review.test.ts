@@ -177,20 +177,28 @@ describe("seeded bad packages fail at the right check", () => {
   });
 });
 
-describe("a JS-rule warning is listed for the reviewer and refuses nothing", () => {
-  it("source/ that listens to the microphone: the review passes, the warning is under JS rules", async () => {
+describe("source/ that captures or makes audio by itself is refused at JS rules (theme voice)", () => {
+  it("a theme that listens to the microphone: the review fails, the finding an error under JS rules", async () => {
     const entry = `${HELLO_ENTRY}\nexport function listen() { return new webkitSpeechRecognition() }\n`;
     const report = await review(await packedTheme({ entry }));
-    expect(report.outcome).toBe("pass");
+    expect(report.outcome).toBe("fail");
     expect(report.findings.map((finding) => [finding.code, finding.severity, finding.path])).toEqual([
-      ["JS_SPEECH_RECOGNITION", "warning", "source/entry.js"],
+      ["JS_SPEECH_RECOGNITION", "error", "source/entry.js"],
     ]);
     const js = report.checks.find((item) => item.name === "JS rules");
-    expect(js?.status).toBe("pass");
-    expect(js?.detail).toMatch(/^Nothing refused; 1 warning in source\//);
+    expect(js?.status).toBe("fail");
+    expect(statusOf(report, "Reproducible build")).toBe("pass");
     expect(js?.items).toHaveLength(1);
-    expect(js?.items[0]).toMatch(new RegExp(`^${WARNING_ITEM_PREFIX}JS_SPEECH_RECOGNITION source/entry\\.js:\\d+ `));
-    expect(summaryText(report)).toContain(`- ${WARNING_ITEM_PREFIX}JS_SPEECH_RECOGNITION`);
+    expect(js?.items[0]).toMatch(/^JS_SPEECH_RECOGNITION source\/entry\.js:\d+ .*SDK's voice area/);
+    expect(js?.items[0]?.startsWith(WARNING_ITEM_PREFIX)).toBe(false);
+    expect(summaryText(report)).toContain("- JS_SPEECH_RECOGNITION");
+  });
+
+  it("a theme that speaks by itself: the review fails at JS rules", async () => {
+    const entry = `${HELLO_ENTRY}\nexport function say(text) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(text)) }\n`;
+    const report = await review(await packedTheme({ entry }));
+    expect(report.outcome).toBe("fail");
+    expect(report.findings.map((finding) => [finding.code, finding.severity])).toEqual([["JS_SPEECH_SYNTHESIS", "error"]]);
   });
 });
 

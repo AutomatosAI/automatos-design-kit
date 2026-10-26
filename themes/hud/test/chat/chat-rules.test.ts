@@ -60,6 +60,18 @@ describe('the state chip', () => {
     expect(chipWords('celebrate', { deliverableKind: 'document' })).toBe('Your document is ready')
     expect(autoLabel('Thinking')).toBe('Auto: Thinking')
   })
+
+  it("says the voice session's phase while it listens, thinks or speaks, over whatever the chat says", () => {
+    expect(chipWords('idle', { voicePhase: 'listening' })).toBe('Listening')
+    expect(chipWords('listening', { approvalWaiting: true, voicePhase: 'thinking' })).toBe('Thinking')
+    expect(chipWords('searching', { runningInput: { query: 'budget laptops' }, voicePhase: 'speaking' })).toBe('Speaking')
+  })
+
+  it("says the chat's state again while the session connects, rests, has ended or failed", () => {
+    const phases = ['connecting', 'idle', 'ended', 'error'] as const
+    expect(phases.map((voicePhase) => chipWords('listening', { approvalWaiting: true, voicePhase }))).toEqual(phases.map(() => AWAITING_ANSWER))
+    expect(chipWords('thinking', { voicePhase: 'idle' })).toBe(captionFor('thinking'))
+  })
 })
 
 describe('a tool line', () => {

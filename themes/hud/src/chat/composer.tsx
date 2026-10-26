@@ -4,8 +4,8 @@ import { AiLabelFence, type HostChatDraft } from '@automatos/theme-sdk'
 import styles from './composer.module.css'
 
 /**
- * The message box under the transcript. The Command design talks first and types second ("or type"); HUD types:
- * the SDK offers a theme no voice, so there is no microphone to draw, and the box is the way in. Enter sends,
+ * The message box under the transcript. The Command design talks first and types second ("or type"); HUD does both:
+ * the host's voice button stands over the box (src/voice/), and the box stays the way to type. Enter sends,
  * Shift+Enter adds a line (an IME composition is never cut short), and Send becomes Stop while Auto answers, which
  * Esc in the box presses too. The keys are said under the box, and the box names them as its description. The
  * host's AI label fence (the SDK's AiLabelFence) disables the box while a theme hides the host's AI label; it

@@ -1,9 +1,11 @@
 // @vitest-environment node
 // HUD's layout and control rules that jsdom never applies, read from the stylesheets as written: every box measured
 // with its border and padding whatever the host's reset, the phone frame's page width, menu and tap targets, 40 px
-// under the message box's keys at the core screen's foot, the phone core screen's controls, dock and sizes, Pause Auto
-// on the opaque ground beside the core's state chip, and the empty chat's line and starters in the message box's hint
-// and HUD's secondary button. A rule is found by its selector, comments out and whitespace collapsed.
+// under the message box's keys at the core screen's foot, the phone core screen's controls, dock and sizes, the voice
+// button's place, size and colours on the phone and the desktop (the press never moving while the host's control opens
+// under it), the waveform's bars, Pause Auto on the opaque ground beside the core's state chip, and the empty chat's
+// line and starters in the message box's hint and HUD's secondary button. A rule is found by its selector, comments
+// out and whitespace collapsed.
 import { describe, expect, it } from 'vitest'
 import { readSource } from './support/files.ts'
 
@@ -62,13 +64,42 @@ describe('the core screen', () => {
 })
 
 describe('the phone core screen', () => {
-  it("keeps TYPE and STOP at the row's two ends at the design's 64 by 44 px, the middle the voice button's", () => {
+  it("keeps TYPE and STOP at the row's two ends at the design's 64 by 44 px, the voice button's 84 px circle between", () => {
     const controls = ruleBody('chat/phone/phone.module.css', '.controls')
-    expect(controls).toContain('display: flex;')
-    expect(controls).toContain('justify-content: space-between;')
+    expect(controls).toContain('display: grid;')
+    expect(controls).toContain('grid-template-columns: 64px minmax(0, 1fr) 64px;')
+    expect(controls).toContain('--hud-voice-circle: 84px;')
     const buttons = ruleBody('chat/phone/phone.module.css', '.type, .stop')
     expect(buttons).toContain('min-width: 64px;')
     expect(buttons).toContain('min-height: var(--hud-tap-min);')
+    expect(buttons).toContain('grid-row: 1;')
+    expect(buttons).toContain('align-self: center;')
+    expect(ruleBody('chat/phone/phone.module.css', '.type')).toContain('grid-column: 1;')
+    expect(ruleBody('chat/phone/phone.module.css', '.stop')).toContain('grid-column: 3;')
+  })
+
+  it("holds the strip under the circle at the host's control's height, so the press never moves as it opens", () => {
+    const controls = ruleBody('chat/phone/phone.module.css', '.controls')
+    expect(controls).toContain('--hud-voice-strip: 28px;')
+    expect(controls).toContain('grid-template-rows: var(--hud-voice-circle) minmax(var(--hud-voice-strip), auto);')
+    const voice = ruleBody('chat/phone/phone.module.css', '.voice')
+    expect(voice).toContain('grid-area: 1 / 2 / 3 / 3;')
+    expect(voice).toContain('align-items: center;')
+  })
+
+  it("draws the voice button as the design's circle through the host's --voice-button-* properties", () => {
+    const voice = ruleBody('chat/phone/phone.module.css', '.voice')
+    expect(voice).toContain('--voice-button-size: var(--hud-voice-circle);')
+    expect(voice).toContain('--voice-button-radius: 50%;')
+    expect(voice).toContain('--voice-button-bg: var(--hud-accent-fill);')
+    expect(voice).toContain('--voice-button-fg: var(--hud-accent-text);')
+    expect(voice).toContain('--voice-button-active-bg: var(--hud-accent);')
+    expect(voice).toContain('--voice-button-active-fg: var(--hud-accent-ink);')
+    const press = ruleBody('chat/phone/phone.module.css', '.voice [data-voice-button="press"]')
+    expect(press).toContain('border: 2px solid var(--hud-accent);')
+    expect(ruleBody('chat/phone/phone.module.css', '.voice [data-voice-button="press"]:focus-visible')).toContain(
+      'outline: 2px solid var(--hud-accent-text);',
+    )
   })
 
   it('pins the dock to the foot on the opaque ground while the screen scrolls as one', () => {
@@ -86,6 +117,53 @@ describe('the phone core screen', () => {
     expect(reply).toContain('--hud-row-auto: 19px;')
     expect(reply).toContain('grid-template-columns: minmax(0, 1fr);')
     expect(ruleBody('chat/transcript.module.css', '.row[data-layout="phone"] .speaker')).toContain('clip-path: inset(50%);')
+  })
+})
+
+describe('the desktop voice deck', () => {
+  it('stands the voice button between the waveform halves, its cell the press wide and spanning the strip', () => {
+    const deck = ruleBody('voice/voice-deck.module.css', '.deck')
+    expect(deck).toContain('grid-template-columns: minmax(0, 1fr) var(--hud-voice-press) minmax(0, 1fr);')
+    expect(deck).toContain('grid-template-rows: var(--hud-voice-press) minmax(var(--hud-voice-strip), auto);')
+    expect(deck).toContain('--hud-voice-press: var(--hud-tap-min);')
+    expect(deck).toContain('--hud-voice-strip: 28px;')
+    const press = ruleBody('voice/voice-deck.module.css', '.press')
+    expect(press).toContain('grid-area: 1 / 2 / 3 / 3;')
+    expect(press).toContain('justify-content: center;')
+    expect(press).toContain('--voice-button-size: var(--hud-voice-press);')
+    expect(press).toContain('--voice-button-ring: var(--hud-accent-text);')
+    expect(ruleBody('voice/voice-deck.module.css', '.hint')).toContain('grid-area: 2 / 1 / 3 / 4;')
+    expect(ruleBody('voice/voice-deck.module.css', '.press [data-voice-button="press"]:focus-visible')).toContain(
+      'outline: 2px solid var(--hud-accent-text);',
+    )
+  })
+})
+
+describe('the waveform', () => {
+  it("draws each bar at its design height and opacity, at rest a quarter of it, scaled from its middle", () => {
+    const bar = ruleBody('voice/waveform.module.css', '.bar')
+    expect(bar).toContain('height: calc(var(--hud-wave-height) * var(--hud-bar));')
+    expect(bar).toContain('opacity: calc(0.35 + 0.65 * var(--hud-bar));')
+    expect(bar).toContain('transform: scaleY(var(--hud-wave-rest));')
+    expect(bar).toContain('transform-origin: center;')
+    expect(ruleBody('voice/waveform.module.css', '.wave')).toContain('--hud-wave-rest: 0.25;')
+    expect(ruleBody('voice/waveform.module.css', '.wave')).toContain('--hud-wave-height: 44px;')
+    expect(ruleBody('voice/waveform.module.css', '.wave[data-size="small"]')).toContain('--hud-wave-height: 36px;')
+  })
+
+  it('animates nothing itself: only the frame loop moves it, where motion is allowed', () => {
+    expect(readSource('voice/waveform.module.css')).not.toMatch(/\banimation\b|@keyframes|transition/)
+  })
+})
+
+describe('MIC LIVE', () => {
+  it("is the design's chip on the desktop and the accent words on the phone, its status on no pixel", () => {
+    const mic = ruleBody('voice/mic-live.module.css', '.mic')
+    expect(mic).toContain('border: 1px solid var(--hud-accent-line);')
+    expect(mic).toContain('color: var(--hud-accent-text);')
+    expect(mic).toContain('text-transform: uppercase;')
+    expect(ruleBody('voice/mic-live.module.css', '.mic[data-layout="phone"]')).toContain('margin-left: auto;')
+    expect(ruleBody('voice/mic-live.module.css', '.said')).toContain('position: absolute;')
   })
 })
 

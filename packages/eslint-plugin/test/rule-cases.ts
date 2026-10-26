@@ -41,6 +41,7 @@ export const CASES: Readonly<Record<string, RuleCase>> = Object.freeze({
     valid: 'const devices = navigator.mediaDevices',
     invalid: 'const stream = navigator.mediaDevices.getUserMedia({ audio: true })',
   },
+  JS_SPEECH_SYNTHESIS: { valid: 'const { phase, stop } = useVoice()', invalid: 'window.speechSynthesis.speak(utterance)' },
   JS_ALIAS_IMPORT: { valid: "import { cn } from './lib/utils.ts'", invalid: "import { cn } from '@/lib/utils'" },
   JS_NEXT_IMPORT: { valid: "import { next } from './next-step.ts'", invalid: "import Link from 'next/link'" },
   JS_IMPORT: { valid: "import { useState } from 'react'", invalid: "import { toast } from 'sonner'" },

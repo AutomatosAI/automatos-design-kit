@@ -24,7 +24,7 @@ import styles from './style.module.css'
  * Auto's 12 states. Everything is computed from usePlayLook().look, so it redraws
  * as soon as the look changes anywhere in the app. Copy tokens puts the look's
  * variables on the clipboard as a :root block. app/looks/style/page.tsx shows
- * it through PlayOnlyRoute: under Play at >= 1024 px only, full bleed.
+ * it through PlayOnlyRoute: under Play from its minWidth up (360 px from Play 1.2.0), full bleed.
  * Until the stored look is read the frame shows only the heading and is
  * aria-busy, so the sheet never describes Ember in place of the user's look
  * (M72). Copy tokens' block names each face itself (lib/looks/style.ts

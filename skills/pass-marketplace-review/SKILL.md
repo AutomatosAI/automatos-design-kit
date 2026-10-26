@@ -18,6 +18,8 @@ last step of [build-automatos-theme](../build-automatos-theme/SKILL.md).
    when one is an error, `review_required` when one is a warning, else `pass`:
    - `sizes`, `cssScope`, `looks`: the reader's checks, with what they measured.
    - `uses`: the SDK names the bundle imports against `theme.json` `uses`. A name the SDK doesn't export is an error.
+   - `audioCapture`: the bundle opening the microphone, listening or speaking by itself (`getUserMedia`,
+     `SpeechRecognition`, `speechSynthesis`) is an error. Talk to Auto through the SDK's `voice` area.
    - `clonedFrom`: a cloned page whose core file has changed since is a warning.
    - `previews`: a preview that belongs to no preset is a warning. The listing keeps `theme.json`'s order, and its
      cover is the first preview listed.
@@ -43,7 +45,7 @@ last step of [build-automatos-theme](../build-automatos-theme/SKILL.md).
 ## The JS rules
 
 The rules read every script in `source/` as text, comments and strings included: a refused name in a comment is
-reported like the call. An error refuses the package; a warning is listed for the reviewer. The theme's `lint`
+reported like the call. An error refuses the package; a warning is listed for the reviewer (no rule warns today). The theme's `lint`
 (`@automatos/eslint-plugin`) runs the same table, so CI fails on them first.
 
 | Code | Refused | Do instead |
@@ -59,7 +61,7 @@ reported like the call. An error refuses the package; a warning is listed for th
 | `JS_BUNDLED_REACT` | React bundled into the theme | Leave React to the host's import map (the kit's preset does) |
 | `JS_ALIAS_IMPORT`, `JS_NEXT_IMPORT`, `JS_IMPORT` | `@/…`, `next/*`, or another import the preset refuses | The SDK; outside code copied into `src/vendor/` |
 | `JS_PATH_IMPORT` | An absolute path, or one that leaves `source/` | Relative paths inside `src/` |
-| `JS_SPEECH_RECOGNITION`, `JS_GET_USER_MEDIA` | Warnings: the microphone or the camera | Say why in the notes; the reviewer reads the line |
+| `JS_GET_USER_MEDIA`, `JS_SPEECH_RECOGNITION`, `JS_SPEECH_SYNTHESIS` | Audio of the theme's own: `getUserMedia` (the microphone or the camera), `SpeechRecognition`, `speechSynthesis` | The SDK's `voice` area: `VoiceButton`, `useVoice`, `readVoiceLevels` (SDK 1.2.0, [guides/sdk.md](../../guides/sdk.md)) |
 
 Minified or obfuscated source, and an `import()` of a URL or a computed value, are errors too.
 
