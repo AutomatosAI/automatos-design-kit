@@ -26,7 +26,8 @@ the focus to once the screen shows.
   control and failure, and Play names none of them. While a session runs Auto follows it (`lib/voice/voice-pose.ts`,
   `components/play/chat/use-auto-on-screen.ts`): listening, thinking, then speaking with his ring following
   `readVoiceLevels().agent` (`components/mascot/use-voice-ring.ts`, never under reduced motion or while paused); what
-  it heard and said shows over the box (`voice-words.tsx`). Play captures and plays no audio itself.
+  it heard and said is in the conversation, where the host puts it (the messages `voice-live-user` and
+  `voice-live-assistant`), drawn as any message. Play captures and plays no audio itself.
 - **The phone.** `minWidth` is 360. Below 1024 px (`lib/play/phone-layout.ts`, the query core's `useIsBelowWidth`
   asks) the frame draws the phone bar and menu (`components/play/shell/phone-bar.tsx`, `phone-menu.tsx`, the
   sidebar's parts from `sidebar-parts.tsx`) and no sidebar; pages drop the mascot column (`page-columns.tsx`), the

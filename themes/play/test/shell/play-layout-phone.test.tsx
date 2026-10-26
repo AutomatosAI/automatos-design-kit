@@ -9,7 +9,7 @@
 // Play's frame opens the linked conversation, holds the board's event lane and asks for Recent. Roles, attributes
 // and text only (CSS modules are proxies). Play 1.2.0: Play's minWidth is a phone's, 360 (theme.json), so "below the
 // theme's width" is a window just under it; at a phone's 390 px Play draws its own phone layout
-// (test/shell/phone-pages.test.tsx).
+// (test/shell/phone-frame.test.tsx, test/shell/phone-css.test.ts, test/chat/voice-chat.test.tsx).
 import { render, screen, within } from '@testing-library/react'
 import { renderToString } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

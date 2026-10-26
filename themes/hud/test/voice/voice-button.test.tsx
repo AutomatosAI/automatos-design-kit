@@ -79,7 +79,7 @@ describe('on the desktop', () => {
     expect(deck().parentElement).toContainElement(box())
   })
 
-  it('starts Auto Live where it can, and quick-ask where Live is not set up', async () => {
+  it('starts Auto Live where it can, and quick-ask where Live is not set up, on the conversation on screen', async () => {
     host.setVoiceAvailable({ live: true, reason: null })
     const live = await renderChat()
     expect(rootOf(within(deck()).getByRole('button', { name: HOLD_TO_TALK }))).toHaveAttribute('data-voice-mode', 'live')
@@ -89,7 +89,7 @@ describe('on the desktop', () => {
     const press = within(deck()).getByRole('button', { name: HOLD_TO_TALK })
     expect(rootOf(press)).toHaveAttribute('data-voice-mode', 'quick')
     fireEvent.click(press)
-    expect(host.voicePresses()).toEqual([{ action: 'start', mode: 'quick', chatId: null }])
+    expect(host.voicePresses()).toEqual([{ action: 'start', mode: 'quick', chatId: 'c1' }])
   })
 
   it("stands in the middle of the design's waveform, half its 72 bars on each side, the newest level beside it", async () => {

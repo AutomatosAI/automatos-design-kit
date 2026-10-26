@@ -19,8 +19,13 @@ HUD talks, on the SDK's voice area (SDK 1.2.0: `engines.sdk` is `^1.2.0` and `us
 - The waveform follows the voice's levels, the member's while the microphone is open and Auto's while he speaks, in an
   animation-frame loop, the newest level beside the button: 72 bars on the desktop, 44 over the phone's control row. It
   stands still while no session runs, under the reduced-motion setting and while the look's motion is off.
-- What was heard and Auto's spoken reply show as YOU and AUTO rows in HUD's type while the session runs, under the
-  transcript on the desktop and in the last exchange's place on the phone, until the turn lands in the conversation.
+- What was heard and Auto's spoken reply show in the conversation, where the host puts them while the session runs:
+  the transcript's newest YOU and AUTO rows on the desktop, the last exchange on the phone, Auto's with the
+  AI-generated mark, until the saved turn takes their place. HUD draws no words of its own beside them, so they show
+  once.
+- While a voice session listens, thinks or speaks, the state chip and the phone's top line say so: "Listening",
+  "Thinking", "Speaking", then the chat's state again. Listening is said only then, while the microphone is open; an
+  approval card waiting is still "Waiting for you".
 - The phone's STOP ends a voice session too, as it stops a reply.
 - The phone's mission clock reads days and hours from a day on (`12d 04h`, not `288:27:26`); under a day it is as it
   was (`02:14`, `1:02:14`).

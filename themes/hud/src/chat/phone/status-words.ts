@@ -1,6 +1,8 @@
-import type { ActivityFeedItem } from '@automatos/theme-sdk'
+import type { ActivityFeedItem, HostVoicePhase } from '@automatos/theme-sdk'
 
 import type { MascotName } from '@automatos/mascot/types'
+
+import { voiceStateWord } from '../../voice/session'
 
 /**
  * The phone core screen's top line, the Command design's "RESEARCHER · SEARCHING" with "02:14" on the right: who is at
@@ -8,7 +10,9 @@ import type { MascotName } from '@automatos/mascot/types'
  * newest working Mission, the agent on it and when it started), so while one runs the line names its agent, working,
  * and the time since it started; the feed says nothing finer of what the agent does. With none, the line is Auto and
  * his state in one word (the chat's, as the chip under the core says it in full), with no time: the chat gives a turn
- * no start time. Pure.
+ * no start time. While the host's voice session listens, thinks or speaks, the line is Auto and that word instead
+ * ("Listening", "Thinking", "Speaking"), a running Mission's agent included, since the member is talking to Auto; then
+ * it falls back to the above. Pure.
  */
 
 export const AUTO_NAME = 'Auto'
@@ -17,7 +21,8 @@ export const MISSION_WORKING = 'Working'
 
 /**
  * Auto's state in a word. An approval card waiting (listening) is "Waiting for you", never "Listening", which would
- * read as an open microphone: only the host's voice button opens it, and MIC LIVE says so.
+ * read as an open microphone: only the host's voice button opens it, and while it is open the line says the voice
+ * session's word instead (src/voice/session.ts VOICE_STATE_WORDS).
  */
 export const STATE_WORDS: Readonly<Record<MascotName, string>> = {
   hello: 'Ready',
@@ -82,8 +87,10 @@ export function clockOf(seconds: number): string {
   return hours > 0 ? `${hours}:${tail}` : tail
 }
 
-/** The line for Auto's state and the Mission running now (null for none), at `now`. */
-export function statusLineWords(state: MascotName, mission: ActivityFeedItem | null, now: Date): StatusLineWords {
+/** The line for Auto's state, the Mission running now (null for none) and the voice session's phase, at `now`. */
+export function statusLineWords(state: MascotName, mission: ActivityFeedItem | null, now: Date, voice?: HostVoicePhase): StatusLineWords {
+  const spoken = voiceStateWord(voice)
+  if (spoken !== null) return { who: AUTO_NAME, doing: spoken, clock: null, duration: null }
   const agent = missionAgent(mission)
   if (agent === null) return { who: AUTO_NAME, doing: STATE_WORDS[state], clock: null, duration: null }
   const seconds = elapsedSeconds(mission?.started_at ?? null, now)

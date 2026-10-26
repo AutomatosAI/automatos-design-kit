@@ -13,7 +13,7 @@ import styles from './waveform.module.css'
  * the frame itself, not through React, so a frame renders nothing. Under the reduced-motion setting, with the look's
  * motion off and while no session runs there is no loop, and every bar stands at rest (REST_SCALE, the stylesheet's);
  * the loop is cancelled, and the bars put back at rest, when any of those changes and when the waveform unmounts. It is
- * decoration, hidden from assistive technology: MIC LIVE, the voice button's own state and the words heard say it.
+ * decoration, hidden from assistive technology: MIC LIVE, the voice button's own state and the conversation's words say it.
  */
 
 export type WaveSize = 'large' | 'small'

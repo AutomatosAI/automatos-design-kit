@@ -170,6 +170,11 @@ Outside the host's voice (a page with none) `useVoice` answers the idle snapshot
 reason, `readVoiceLevels` zeros, and `VoiceButton` is drawn disabled; none throws. A theme never hides the caption or
 the stop control, and never rewords the AI notice the host speaks once per session.
 
+The session's words are already in its conversation: while it runs on one, `useChatController`'s messages there end
+with two ordinary messages, `voice-live-user` (what the member is saying) and `voice-live-assistant` (what Auto is
+saying), which go once the turn's saved rows land. Draw them as any message; never draw `heard` and `reply` beside the
+conversation as well, which would show the words twice. The harness adds them as core does.
+
 ## Page areas
 
 The data the core pages read, for a theme's own or cloned version of them ([page-inventory.md](page-inventory.md)).

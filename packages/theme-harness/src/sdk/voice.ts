@@ -10,10 +10,13 @@
  * (src/internal/voice-session.ts), which a press of the button moves too. A test starts with no session, the host's
  * voice on the page (quick-ask in this browser, Live not set up: VOICE_DEFAULTS), zero levels, and nothing pressed or
  * stopped. readVoiceLevels answers zeros while no session runs (connecting, listening, thinking or speaking), as core's
- * does, whatever levels a test set.
+ * does, whatever levels a test set. While a session runs on a conversation (its chatId), its heard and reply are that
+ * conversation's last two messages in useChatController, as in core (src/internal/live-voice-turns.ts), until the turn
+ * is saved (voiceTurnSaved) or the session ends.
  */
 import type { HostVoiceAvailability, HostVoiceLevels, HostVoiceMode, HostVoicePhase, HostVoiceState } from '@automatos/theme-sdk'
 import { useMemo } from 'react'
+import { voiceTurnSaved } from '../internal/live-voice-turns.ts'
 import {
   availability, IDLE_SESSION, micOpenIn, NO_LEVELS, resetVoiceSession, session, setVoiceLevelsSource, stopVoice, VOICE_DEFAULTS,
   VOICE_UNAVAILABLE, voiceLevelsNow, voicePresses, voiceStops, type VoiceSessionStandIn,
@@ -104,6 +107,11 @@ export const voiceControls = Object.freeze({
     heldLevels = next
     setVoiceLevelsSource(() => next)
   },
+  /**
+   * `chatId`'s saved rows landed (core's chat_changed): the session's words there leave its messages, and stay out while
+   * Auto's reply of that exchange grows; the member's next words show again. The saved rows themselves are not added.
+   */
+  voiceTurnSaved,
   /** How many times the host's stop() ran since the last reset: useVoice's, the button's Stop, End call and Close. */
   voiceStops,
   /** Each press of a VoiceButton that reached the host since the last reset, oldest first. */

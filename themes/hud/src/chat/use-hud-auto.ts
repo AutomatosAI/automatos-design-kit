@@ -1,7 +1,7 @@
 // After themes/play/src/hooks/use-auto-mascot.ts (Play 1.1.1): Auto driven by the chat, with Play's reducer and
 // events (@automatos/mascot). HUD leaves out Play's hello on the first open, and the typing cue: in HUD a
-// "Listening" chip would read as the microphone being open, which only the host's voice button opens (MIC LIVE says
-// so in the top bar).
+// "Listening" chip would read as the microphone being open, which only the host's voice button opens (the chip says
+// "Listening" only then, chip.ts, and MIC LIVE says so in the top bar).
 import { type Dispatch, useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 
 import {

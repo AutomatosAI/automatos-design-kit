@@ -1,11 +1,9 @@
 // HUD's voice rules, each a plain function read without rendering: the Command design's waveform (72 bars on the
 // desktop, 44 on the phone, the design's shape, a desktop half its own half of it), the voice's levels the bars show,
 // newest at the bars beside the voice button and older ones further out, each bar at rest a quarter of its height (the
-// stylesheet's own rest), when a session runs, MIC LIVE's words, and the words said aloud a session shows. Every value
-// is made up.
+// stylesheet's own rest), when a session runs, and MIC LIVE's words. Every value is made up.
 import { describe, expect, it } from 'vitest'
 import { isVoiceRunning, MIC_LIVE, MIC_MUTED, micWords } from '../../src/voice/session.ts'
-import { voiceWordsOf } from '../../src/voice/voice-words.tsx'
 import {
   ageOf, barScales, clampLevel, DESKTOP_BARS, historyLength, PHONE_BARS, pushLevel, REST_SCALE, shapeAt, waveShape,
 } from '../../src/voice/wave.ts'
@@ -75,23 +73,5 @@ describe('the session', () => {
     expect(micWords({ micOpen: true, muted: true })).toBe(MIC_MUTED)
     expect(micWords({ micOpen: false, muted: true })).toBeNull()
     expect([MIC_LIVE, MIC_MUTED]).toEqual(['Mic live', 'Mic muted'])
-  })
-})
-
-describe('the words said aloud', () => {
-  it('are what was heard while listening, and Auto answering once he thinks or speaks', () => {
-    const heard = 'What needs me'
-    expect(voiceWordsOf({ phase: 'listening', heard, reply: '' })).toEqual({ heard, reply: '', answering: false })
-    expect(voiceWordsOf({ phase: 'thinking', heard, reply: '' })).toEqual({ heard, reply: '', answering: true })
-    expect(voiceWordsOf({ phase: 'speaking', heard: 'What needs me', reply: 'Two cards.' })).toEqual({
-      heard: 'What needs me', reply: 'Two cards.', answering: true,
-    })
-  })
-
-  it('are nothing before a word is heard, and nothing once no session runs, whatever words it kept', () => {
-    expect(voiceWordsOf({ phase: 'connecting', heard: '', reply: '' })).toBeNull()
-    expect(voiceWordsOf({ phase: 'listening', heard: '', reply: '' })).toBeNull()
-    expect(voiceWordsOf({ phase: 'idle', heard: 'What needs me', reply: 'Two cards.' })).toBeNull()
-    expect(voiceWordsOf({ phase: 'error', heard: 'What needs me', reply: '' })).toBeNull()
   })
 })

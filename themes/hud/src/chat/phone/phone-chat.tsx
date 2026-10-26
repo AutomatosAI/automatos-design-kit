@@ -2,7 +2,6 @@ import { type RefObject, useCallback, useEffect, useId, useRef, useState } from 
 import { useVoice } from '@automatos/theme-sdk'
 
 import { isVoiceRunning } from '../../voice/session'
-import { VoiceWords, useVoiceWords } from '../../voice/voice-words'
 import { PHONE_BARS } from '../../voice/wave'
 import { Waveform } from '../../voice/waveform'
 import type { ChatParts } from '../chat-parts'
@@ -23,10 +22,10 @@ import { useFollowEnd } from './use-follow-end'
  * (chat-parts.ts): Auto in the phone's core, the last exchange, and the dock. The message box is the desktop's
  * (composer.tsx: Enter sends, Esc stops, the host's AI label fence around it), shut until TYPE opens it in the dock,
  * over the waveform and the control row with the host's voice button; opening it puts the focus in it, and shutting
- * it keeps its words for next time. An empty chat's starter opens it with its words. While a voice session runs,
- * what was said aloud takes the last exchange's place (src/voice/voice-words.tsx) until the turn lands in the
- * conversation. STOP stops the reply as the box's Stop does and ends a voice session, and with the box shut hands the
- * focus to TYPE, since STOP itself is disabled once nothing runs.
+ * it keeps its words for next time. An empty chat's starter opens it with its words. While a voice session runs on
+ * the conversation, what was heard and what Auto is saying are its last messages (the host's voice-live-user and
+ * voice-live-assistant), so the last exchange is the one being spoken. STOP stops the reply as the box's Stop does and
+ * ends a voice session, and with the box shut hands the focus to TYPE, since STOP itself is disabled once nothing runs.
  */
 
 interface Typing {
@@ -78,7 +77,6 @@ function useStop(streaming: boolean, { onStop }: ChatParts['sending'], typing: T
 export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
   const typing = useTyping({ boxRef, fillBox })
   const stopping = useStop(chat.streaming, sending, typing)
-  const said = useVoiceWords()
   const scrollRef = useFollowEnd(chat.messages)
   const composerId = useId()
   const transcript = (
@@ -89,7 +87,6 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
       trialBlocked={chat.trialExhausted}
       after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
       empty={<EmptyChat onStarter={typing.onStarter} />}
-      aloud={said === null ? null : <VoiceWords words={said} phone />}
     />
   )
   const dock = (

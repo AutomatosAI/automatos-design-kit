@@ -1,9 +1,11 @@
 // Theme voice in the browser harness (src/host/voice.ts, src/host/router.ts, src/host/shot-groups.ts): the voice phase is
-// a setting in the address (`voice=<phase>`), each phase but idle a made-up quick-ask session every VoiceButton owns, so
-// a theme's voice states draw with the host's caption; the levels move with the clock while someone speaks, and hold
-// still under reduced motion, which every voice shot asks for; and a theme whose theme.json `uses` names the voice area
-// gets one shot group per phase but idle, on its chat page (or every view) in the default look at 1440 px. Made-up data.
-import { readVoiceLevels, VoiceButton } from '@automatos/theme-sdk'
+// a setting in the address (`voice=<phase>`), each phase but idle a made-up quick-ask session on the conversation on
+// screen, which every VoiceButton owns, so a theme's voice states draw with the host's caption, and whose words end the
+// transcript's messages as core's chat adds them; the levels move with the clock while someone speaks, and hold still
+// under reduced motion, which every voice shot asks for; and a theme whose theme.json `uses` names the voice area gets
+// one shot group per phase but idle, on its chat page (or every view) on the transcript in the default look at 1440 px.
+// Made-up data.
+import { type HostChatConversation, readVoiceLevels, useChatController, VoiceButton } from '@automatos/theme-sdk'
 import { act, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '../src/host.ts'
@@ -11,7 +13,9 @@ import {
   DEFAULT_SETTINGS, EMPTY_SERVED, expectedShots, readSettings, settingsQuery, usesIn, VOICE_PHASES, type Served,
 } from '../src/host/router.ts'
 import { groupShots, shotAddress, shotGroups, VOICE_SHOT_PHASES } from '../src/host/shot-groups.ts'
+import { showTranscript, TRANSCRIPT_CHAT_ID, transcriptChatId } from '../src/host/transcript.ts'
 import { driveVoiceLevels, HELD_LEVEL, heldLevels, movingLevels, showVoice, VOICE_HEARD, VOICE_REPLY, voiceSessionOf } from '../src/host/voice.ts'
+import { VOICE_LIVE_ASSISTANT_ID, VOICE_LIVE_USER_ID } from '../src/internal/live-voice-turns.ts'
 
 const PRESETS = ['ember', 'aurora']
 const PAGES = ['/chat', '/deliverables']
@@ -19,6 +23,19 @@ const DECLARED: Served = { slots: ['frame@1', 'lookEditor@1'], pages: PAGES, rou
 const VOICE_USES = ['chat', 'voice']
 /** Two moments a fifth of a second apart, in milliseconds since the page opened. */
 const MOMENTS = [1_000, 1_200]
+
+/** The chat screen a theme draws: each message of the conversation on screen, by its id and words. */
+function Thread({ conversation }: { readonly conversation: HostChatConversation }) {
+  const chat = useChatController(conversation)
+  return <ol>{chat.messages.map((message) => <li key={message.id} data-id={message.id}>{message.text}</li>)}</ol>
+}
+
+function ChatScreen() {
+  const { conversation } = useChatController()
+  return conversation === null ? null : <Thread key={conversation.key} conversation={conversation} />
+}
+
+const ids = (): (string | null)[] => Array.from(document.querySelectorAll('li'), (item) => item.getAttribute('data-id'))
 
 beforeEach(() => {
   host.reset()
@@ -36,8 +53,10 @@ describe('the voice setting', () => {
 
 describe('the made-up sessions', () => {
   it('are quick-ask on the conversation on screen, with the words each phase has; idle is none', () => {
-    expect(voiceSessionOf('idle')).toMatchObject({ phase: 'idle', mode: null })
+    expect(voiceSessionOf('idle', 'c-1')).toMatchObject({ phase: 'idle', mode: null, chatId: null })
     expect(voiceSessionOf('listening')).toMatchObject({ phase: 'listening', mode: 'quick', micOpen: true, heard: VOICE_HEARD, chatId: null })
+    expect(voiceSessionOf('speaking', TRANSCRIPT_CHAT_ID)).toMatchObject({ chatId: TRANSCRIPT_CHAT_ID })
+    expect([transcriptChatId(true), transcriptChatId(false)]).toEqual([TRANSCRIPT_CHAT_ID, null])
     expect(voiceSessionOf('thinking')).toMatchObject({ phase: 'thinking', micOpen: false, heard: VOICE_HEARD, reply: '' })
     expect(voiceSessionOf('speaking')).toMatchObject({ phase: 'speaking', heard: VOICE_HEARD, reply: VOICE_REPLY })
     expect(voiceSessionOf('error')).toMatchObject({ phase: 'error', error: 'Voice stopped. Try again.' })
@@ -54,6 +73,24 @@ describe('the made-up sessions', () => {
     act(() => showVoice('idle'))
     expect(root()?.getAttribute('data-voice-state')).toBe('idle')
     expect(screen.queryByRole('note', { name: 'AI voice assistant' })).toBeNull()
+  })
+
+  it("end the transcript's messages with their words, as core's chat adds them; a new chat shows none", () => {
+    showTranscript(true)
+    render(<ChatScreen />)
+    const stored = ids()
+    act(() => showVoice('listening', transcriptChatId(true)))
+    expect(ids()).toEqual([...stored, VOICE_LIVE_USER_ID])
+    act(() => showVoice('speaking', transcriptChatId(true)))
+    expect(ids()).toEqual([...stored, VOICE_LIVE_USER_ID, VOICE_LIVE_ASSISTANT_ID])
+    expect(screen.getByText(VOICE_REPLY, { selector: 'li' })).toBeInTheDocument()
+    act(() => showVoice('error', transcriptChatId(true)))
+    expect(ids()).toEqual(stored)
+    act(() => {
+      showTranscript(false)
+      showVoice('speaking', transcriptChatId(false))
+    })
+    expect(ids()).toEqual([])
   })
 })
 
@@ -102,15 +139,16 @@ describe('the voice shot groups', () => {
   it('shoot the chat page in each phase but idle, in the default look at 1440 px with reduced motion', () => {
     expect(VOICE_SHOT_PHASES).toEqual(['listening', 'thinking', 'speaking', 'error'])
     expect(voice).toEqual(VOICE_SHOT_PHASES.map((phase) => ({
-      folder: `ember/1440-voice-${phase}`, preset: 'ember', width: 1440, height: 900, reducedMotion: true, page: '/chat', transcript: false,
+      folder: `ember/1440-voice-${phase}`, preset: 'ember', width: 1440, height: 900, reducedMotion: true, page: '/chat', transcript: true,
       voice: phase,
     })))
     expect(new Set(groups.map((group) => group.folder)).size).toBe(groups.length)
   })
 
-  it('open each shot in its phase, with reduced motion and no toolbar, and hold the chat page alone', () => {
+  it('open each shot in its phase on the transcript, with reduced motion and no toolbar, and hold the chat page alone', () => {
     voice.forEach((group) => {
-      expect(readSettings(shotAddress(group, '/chat').slice(1))).toMatchObject({ voice: group.voice, reducedMotion: true, toolbar: false })
+      const settings = { voice: group.voice, transcript: true, reducedMotion: true, toolbar: false }
+      expect(readSettings(shotAddress(group, '/chat').slice(1))).toMatchObject(settings)
       expect(groupShots(group, DECLARED, EMPTY_SERVED)).toEqual(['page-chat.png'])
     })
     const plain = groups.find((group) => group.voice === undefined)

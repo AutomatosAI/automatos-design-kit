@@ -3,10 +3,13 @@
  * the address, the shots' voice groups, src/host/shot-groups.ts), and the levels readVoiceLevels answers on the page.
  * Made-up words.
  *
- * - Each phase but idle is a quick-ask session on the conversation on screen (it names none, so every VoiceButton owns
- *   it and shows the host's control): listening, the microphone open, with the member's words so far; thinking, with
- *   them said; speaking, with Auto's reply as far as it has been spoken; and a failure in core's words. Idle is no
- *   session. A press of the button moves the session on from there, as in a theme's tests.
+ * - Each phase but idle is a quick-ask session on the conversation on screen (the transcript's while it shows, else a
+ *   new chat's, which has no id yet), so every VoiceButton that names no other conversation owns it and shows the
+ *   host's control: listening, the microphone open, with the member's words so far; thinking, with them said;
+ *   speaking, with Auto's reply as far as it has been spoken; and a failure in core's words. Idle is no session. A
+ *   press of the button moves the session on from there, as in a theme's tests.
+ * - On the transcript the session's words are its conversation's last two messages, as core draws them
+ *   (src/internal/live-voice-turns.ts); a new chat shows none, as core's does until the turn returns its id.
  * - The levels move while someone speaks (listening: the member's; speaking: Auto's), so a theme's waveform animates in
  *   `dev`. With the harness's reduced motion on, which every shot group but the motion one asks for, they hold still
  *   (HELD_LEVEL), so a voice shot is the same on every run: the shots' `animations: 'disabled'` stops CSS animations,
@@ -39,14 +42,15 @@ const SESSIONS: Readonly<Record<HarnessVoicePhase, VoiceSessionStandIn>> = Objec
   error: quick({ phase: 'error', error: VOICE_FAILED }),
 })
 
-/** The made-up session the page shows in `phase`. */
-export function voiceSessionOf(phase: HarnessVoicePhase): VoiceSessionStandIn {
-  return SESSIONS[phase]
+/** The made-up session the page shows in `phase`, on the conversation `chatId` (null: a new chat). */
+export function voiceSessionOf(phase: HarnessVoicePhase, chatId: string | null = null): VoiceSessionStandIn {
+  const shown = SESSIONS[phase]
+  return shown.phase === 'idle' ? shown : Object.freeze({ ...shown, chatId })
 }
 
-/** The fake host's voice session from now on: the made-up one in `phase`. */
-export function showVoice(phase: HarnessVoicePhase): void {
-  host.setVoice(voiceSessionOf(phase))
+/** The fake host's voice session from now on: the made-up one in `phase`, on the conversation `chatId`. */
+export function showVoice(phase: HarnessVoicePhase, chatId: string | null = null): void {
+  host.setVoice(voiceSessionOf(phase, chatId))
 }
 
 /** `level` for whoever speaks in `phase` (the member while listening, Auto while speaking); 0 for the other. */

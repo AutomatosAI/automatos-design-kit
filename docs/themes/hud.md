@@ -44,7 +44,8 @@ press.
 | The voice button (`VoiceButton`: core draws the press, the microphone prompt, the "AI voice assistant" caption, the stop control, Live's mute and device, a failure's Try again, and the spoken AI notice once a session) | In the middle of the design's waveform over the message box (`src/voice/voice-deck.tsx`): `press: 'hold'`, `mode: 'auto'` (Auto Live where it can start, else quick-ask), `hotkey: 'Space'` (never while typing, core's rule), `size: 'md'` at the 44 px tap size; the design's hint under it, HOLD SPACE TO TALK · OR TYPE · "AUTO, STOP" TO CANCEL, gives way to the host's caption and stop control while the session runs | The design's 84 px HOLD TO TALK circle between TYPE and STOP (`src/chat/phone/voice-slot.tsx`): `press: 'hold'`, `mode: 'auto'`, `hotkey: null`, `size: 'lg'`; HOLD TO TALK under it at rest |
 | MIC LIVE (`src/voice/mic-live.tsx`), whenever `useVoice().micOpen` (MIC MUTED on a muted call) | After the connection status in the top bar, the design's outlined chip | In the connection status's place in the phone's bar |
 | The waveform (`src/voice/waveform.tsx`, `wave.ts`) | 72 bars, half on each side of the button | 44 bars over the control row |
-| What was said aloud (`src/voice/voice-words.tsx`: `useVoice().heard` and `.reply`) | YOU and AUTO rows under the transcript | In the last exchange's place |
+| What was said aloud (the host's `voice-live-user` and `voice-live-assistant` messages at the end of the conversation) | The transcript's newest YOU and AUTO rows | The last exchange |
+| Auto's state while the session listens, thinks or speaks (`src/voice/session.ts` `VOICE_STATE_WORDS`) | The state chip says LISTENING, THINKING or SPEAKING | The top line (AUTO · LISTENING and the rest) and the state chip |
 
 - **Styling.** Through the button's root data attributes (`data-voice-state`, `data-voice-mic` and the rest), its press's
   `data-voice-button="press"` and the `--voice-button-*` custom properties: a circle in the look's accent, its 12%
@@ -57,9 +58,14 @@ press.
   while a session runs and motion is allowed: under the reduced-motion setting and while the look's `motion` is off
   there is no loop and every bar stands at rest; the loop is cancelled when the waveform unmounts.
 - **STOP** on the phone cancels the turn, as the design's does: it stops a reply and ends a voice session.
-- **What was said aloud.** Host voice sends the words as a chat turn of its own and the conversation gets the saved
-  messages once that turn lands, so while a session runs HUD shows the words heard and Auto's reply as far as he has
-  spoken it, in its transcript's type, Auto's row with the AI-generated mark.
+- **Listening.** Auto's state in a word never says Listening for the chat's own listening state (an approval card
+  waiting is "Waiting for you"): it would read as an open microphone. While the voice session listens (the microphone
+  open), thinks or speaks, the chip and the phone's line say its phase instead, then the chat's state again; a running
+  Mission's line gives way to it while you talk to Auto.
+- **What was said aloud.** While a session runs on the conversation, core's chat puts what was heard and Auto's reply
+  as far as he has spoken it at the end of its messages, and the saved turn takes their place once it lands. HUD draws
+  them as any message, in its transcript's type, Auto's row with the AI-generated mark; it never draws `useVoice().heard`
+  or `.reply` itself, which would show the words twice.
 
 ## In a phone's browser
 
@@ -82,11 +88,12 @@ changes, and a window crossing the width keeps the page it shows.
   A key pressed in a host menu drawn elsewhere in the page stays that menu's.
 - **The core screen** (`src/chat/phone/`). From the top: the line naming who is at work, the running Mission's agent,
   `WORKING`, and the time since it started (the SDK's activity feed, the same ask as the desktop's MISSION panel; the
-  feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time; the
+  feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time (while
+  a voice session listens, thinks or speaks, `AUTO` and its phase, whatever runs); the
   290 px core with Auto, the state chip and Pause Auto beside it, as on the desktop; the last exchange, your newest
   words in quotes and every reply after them, Auto's with all it carries on the desktop (tool lines, Deliverables, the
-  host's cards, receipts, the snag box, the AI-generated mark), or while a voice session runs what was said aloud,
-  then what follows the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
+  host's cards, receipts, the snag box, the AI-generated mark), which is the exchange being spoken while a voice session
+  runs, then what follows the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
   desktop's, with the AI label fence) once TYPE opens it, the waveform, and the control row: TYPE, the host's voice
   button as HOLD TO TALK (`VoiceSlot`), and STOP. TYPE opens and shuts the box, putting the focus in it and keeping its
   words when shut; an empty chat's starter opens it with its words. STOP stops a reply as the box's Stop does, ends a
@@ -101,9 +108,10 @@ Core's host draws an installed theme's frame and pages from 1024 px up for now, 
 harness draws HUD from its `minWidth`, so `automatos-theme dev` in a narrow window shows the phone layout. Kit CI's
 harness shots draw HUD at 1440 and 1024 px, just below `minWidth` (the host's pages) and, as its `minWidth` fits a
 phone, at a phone's 390 × 844 in a window that size: every view of each preset (`<preset>/390/`) and `/chat` on the
-made-up transcript (`<preset>/390-transcript/`), each with an axe scan; and, as `uses` names `voice`, `/chat` at 1440 px
-in each phase of the harness's made-up voice session (`<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and
-`-error/`), with the host's caption and stop control, the waveform held still. HUD's own tests hold the layout too
+made-up transcript (`<preset>/390-transcript/`), each with an axe scan; and, as `uses` names `voice`, `/chat` on the
+transcript at 1440 px in each phase of the harness's made-up voice session (`<preset>/1440-voice-listening/`,
+`-thinking/`, `-speaking/` and `-error/`), with the host's caption and stop control, the waveform held still, and the
+session's words at the end of the conversation, as core's chat adds them. HUD's own tests hold the layout too
 (`test/frame/phone-frame.test.tsx`, `test/chat/chat-phone.test.tsx`, `test/voice/`).
 
 ## Looks

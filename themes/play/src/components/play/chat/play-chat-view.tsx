@@ -23,7 +23,6 @@ import { MessageList } from './message-list'
 import { liveMessages, replyProgress } from './reply'
 import { PlayTrialBanner, TurnEnd } from './turn-end'
 import { useAutoOnScreen } from './use-auto-on-screen'
-import { VoiceWords } from './voice-words'
 import styles from './composer.module.css'
 
 /**
@@ -53,8 +52,9 @@ import styles from './composer.module.css'
  *
  * Play 1.2.0: the host's voice button stands beside Send (message-box.tsx), and while a voice session runs Auto
  * follows it rather than the chat (use-auto-on-screen.ts): listening while the microphone is open, thinking, then
- * speaking with his ring following his voice; the words it heard and spoke show over the message box
- * (voice-words.tsx). Typing stays as it was.
+ * speaking with his ring following his voice. The words it heard and spoke are the conversation's: the host puts them
+ * at the end of its messages (voice-live-user, voice-live-assistant) until the saved turn takes their place, so the
+ * message list draws them as your message and Auto's reply. Typing stays as it was.
  *
  * Play 1.2.0, on a phone (lib/play/phone-layout.ts), the Ember design's 390 chat: no mascot column (page-columns.tsx);
  * Auto stands at his small size beside his caption over the message box instead, and the voice button has no
@@ -166,10 +166,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
       <div className={styles.chat} data-empty={empty || undefined}>
         {empty ? (
           <FirstOpenHero
-            state={shown.state}
-            onClipEnded={auto.onClipEnded}
-            speaking={shown.speaking}
-            voiceActive={shown.voiceActive}
+            state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} voiceActive={shown.voiceActive}
             {...shown.caption}
           />
         ) : (
@@ -177,7 +174,6 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
         )}
         <div className={styles.footer}>
           {empty && <ExampleChips onPick={composer.pick} />}
-          <VoiceWords words={shown.words} />
           {phone && !empty && <div className={styles.strip}>{figure('small')}</div>}
           <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
           <MessageBox

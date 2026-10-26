@@ -22,7 +22,9 @@ import styles from './composer.module.css'
  * the phone). Core draws all of it: the press, the microphone prompt, the "AI voice assistant" caption and the stop
  * control while the microphone is open, a failure with Try again. Play only places it and colours it, through the
  * --voice-button-* custom properties and its data-voice-* attributes (composer.module.css). Text stays: the box
- * and Send never lock while voice runs.
+ * and Send never lock while voice runs. The AI label fence takes the words and Send, each in a fence of its own
+ * (it draws no box, so the row stays one row), never the voice button: core's voice says it is an AI itself (the
+ * caption and the spoken notice), and a fieldset that is switched off switches off every control in it.
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -95,8 +97,8 @@ export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(funct
   }
 
   return (
-    <AiLabelFence>
-      <form className={styles.box} onSubmit={onSubmit}>
+    <form className={styles.box} onSubmit={onSubmit}>
+      <AiLabelFence>
         <textarea
           ref={boxRef}
           className={styles.input}
@@ -109,9 +111,11 @@ export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(funct
           aria-label={PLACEHOLDER}
           rows={1}
         />
-        <div className={styles.voice}>
-          <VoiceButton mode="auto" press="hold" hotkey={voiceHotkey} size="md" />
-        </div>
+      </AiLabelFence>
+      <div className={styles.voice}>
+        <VoiceButton mode="auto" press="hold" hotkey={voiceHotkey} size="md" />
+      </div>
+      <AiLabelFence>
         {streaming ? (
           <button type="button" className={styles.stop} onClick={() => onStop()}>
             <span className={styles.stopIcon} aria-hidden="true" />
@@ -122,7 +126,7 @@ export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(funct
             Send
           </button>
         )}
-      </form>
-    </AiLabelFence>
+      </AiLabelFence>
+    </form>
   )
 })

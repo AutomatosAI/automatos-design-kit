@@ -4,8 +4,8 @@
  * /chat page, that page with motion allowed and on the transcript (src/host/shot-groups.ts), into
  * `<preset>/1440-motion/` and `<preset>/1440-transcript/`; and for a theme whose minWidth fits a phone, each preset at
  * the phone's 390 × 844 (`<preset>/390/`, with the chat on the transcript in `<preset>/390-transcript/`); and for a theme
- * whose `uses` names the voice area, its voice states: the chat page (every view with none) in each phase of the
- * host's made-up voice session, in `<preset>/1440-voice-<phase>/`.
+ * whose `uses` names the voice area, its voice states: the chat page (every view with none) on the transcript in each
+ * phase of the host's made-up voice session, its words in the conversation, in `<preset>/1440-voice-<phase>/`.
  *
  * One test per group, so a failure names its group. The page is sized to the group's viewport (its width, and its
  * height: 900, or the phone's 844), so a theme's own media queries see the width the group shoots, as a browser that
@@ -126,7 +126,7 @@ async function shootViews(page: Page, group: ShotGroup, views: readonly View[], 
 
 /** What a group shoots, for its test's title. */
 function groupSubject(group: ShotGroup): string {
-  if (group.voice !== undefined) return `${group.page ?? 'every slot, page and route'} with the voice ${group.voice}`
+  if (group.voice !== undefined) return `${group.page ?? 'every slot, page and route'} on the transcript with the voice ${group.voice}`
   if (group.page === null) return 'every slot, page and route'
   if (group.transcript) return `${group.page} on the transcript`
   return group.reducedMotion ? group.page : `${group.page} with motion allowed`
