@@ -73,3 +73,23 @@
   color: var(--pl-color-text-2);
   overflow-wrap: anywhere;
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the panel under the page, Ask Auto about this and Download side
+   by side as the Ember design's 390 Deliverable has them. */
+@media (max-width: 1023px) {
+  .panel {
+    position: static;
+    padding: var(--pl-space-5) 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--pl-line-faint);
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .actions > * {
+    flex: 1 1 10rem;
+  }
+}

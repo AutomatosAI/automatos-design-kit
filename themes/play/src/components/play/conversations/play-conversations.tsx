@@ -11,6 +11,7 @@ import {
 } from '@automatos/theme-sdk'
 
 import { type ConversationSummary, filterByTitle, summaryOfHostChat } from '../../../lib/play/conversations'
+import { usePhoneLayout } from '../../../lib/play/phone-layout'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import { MascotColumn, PageColumns } from '../shell/page-columns'
 import { ConversationList } from './conversation-list'
@@ -35,14 +36,20 @@ import styles from './conversations.module.css'
  *
  * app/conversations/page.tsx sends Classic and Studio to /chat on the server
  * (K10); PlayConversations does the same in the browser when the style leaves
- * Play on this page, and below 1024 px, where Play's pages don't render (D7)
+ * Play on this page, and below Play's minWidth, where Play's pages don't render (D7)
  * and the core chat's own history is the list. Until the width is known (the
  * server, hydration) it shows nothing and sends nowhere, so a phone never asks
  * for the list (P260-FX-25, M69). The width is the SDK's useThemeLayout (the host's own value):
  * ThemeSlotRoute renders a theme route at any width and leaves the phone to the route.
+ *
+ * Play 1.2.0: Play draws from a phone's width up (theme.json's minWidth, 360), so on a phone this is the Ember
+ * design's 390 Chats: the same list, titled Chats as the design and the phone's top bar name it, with no mascot
+ * column (page-columns.tsx), a utility screen. Below the minWidth it still sends the browser to the chat.
  */
 
 export const CONVERSATIONS_TITLE = 'Conversations'
+/** The list's title on a phone, as the Ember design's 390 screen and the phone's top bar name it. */
+export const PHONE_CONVERSATIONS_TITLE = 'Chats'
 export const NEW_CHAT = 'New chat'
 export const SEARCH_LABEL = 'Search conversations'
 export const LOADING_LIST = 'Loading your conversations…'
@@ -70,7 +77,7 @@ export interface PlayConversationsProps {
   readonly now?: Date
 }
 
-/** The page under Play at >= 1024 px; anywhere else, the chat. */
+/** The page where Play draws (from its minWidth up, under Play); anywhere else, the chat. */
 export function PlayConversations({ now }: PlayConversationsProps) {
   const layout = useThemeLayout()
   const router = useHostRouter()
@@ -90,6 +97,7 @@ export function ConversationsScreen({ now }: PlayConversationsProps) {
   const shown = filterByTitle(chats, query)
   const line = statusLine(list, shown.length, query)
   const empty = list.status === 'loaded' && list.chats.length === 0
+  const title = usePhoneLayout() ? PHONE_CONVERSATIONS_TITLE : CONVERSATIONS_TITLE
   return (
     <PageColumns
       mascot={
@@ -103,7 +111,7 @@ export function ConversationsScreen({ now }: PlayConversationsProps) {
       <div className={styles.body}>
         <div className={styles.page}>
           <div className={styles.header}>
-            <h1 className={styles.title}>{CONVERSATIONS_TITLE}</h1>
+            <h1 className={styles.title}>{title}</h1>
             <button type="button" className={styles.newChat} onClick={startChat} disabled={!ready}>
               {NEW_CHAT}
             </button>

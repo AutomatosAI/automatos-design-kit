@@ -180,6 +180,7 @@ html.play {
   --pl-bubble-max: 480px; /* your messages */
   --pl-deliverable-card-max: 520px; /* the Deliverable card in a reply */
   --pl-composer-max-height: 200px; /* the message box grows to this, then scrolls */
+  --pl-composer-input-min: 9rem; /* the words' narrowest line beside the voice button and Send, before they wrap */
   --pl-header-height: 80px;
   --pl-phone-bar-height: 56px;
   --pl-content-max: 700px;
@@ -206,6 +207,17 @@ html.play [data-accent-like-text] {
   --pl-button-2-fill: transparent;
   --pl-button-2-ink: var(--pl-color-text);
   --pl-button-2-edge: var(--pl-line-button);
+}
+
+/* Play 1.2.0: on a phone (lib/play/phone-layout.ts: narrower than 1024 px, Play's minWidth 360 up) the sizes the
+   Ember design's 390 screens use: Auto at 170 px where he is at his large size (the first open, the asleep
+   screen), and the page glow from the foot, behind Auto beside his caption over the message box. */
+@media (max-width: 1023px) {
+  html.play {
+    --pl-mascot-size-large: 170px;
+    --pl-page-glow: radial-gradient(360px 260px at 30% 92%, var(--pl-glow), transparent 65%);
+    --pl-page-glow-snag: radial-gradient(360px 260px at 30% 92%, var(--pl-glow-snag), transparent 65%);
+  }
 }
 
 /*

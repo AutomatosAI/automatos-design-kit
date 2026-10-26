@@ -65,7 +65,8 @@ export function buildPlayNav({ primary, footer }: CoreNav): PlayNav {
   return { groups: [...groups, { id: LOOK_GROUP_ID, label: null, items: [PLAY_LOOK_ITEM] }], footer: footer.map(toPlayItem) }
 }
 
-function isUnder(pathname: string, href: string): boolean {
+/** The path is the page at `href`, or a page under it. */
+export function isUnder(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 

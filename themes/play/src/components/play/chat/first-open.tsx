@@ -10,7 +10,9 @@ import styles from './first-open.module.css'
  * components/chat/FirstOpen.tsx: Auto big (playing hello on the first open in
  * a browser session), "Hi, I'm Auto." and three examples that fill the
  * message box. The empty chat draws no page header (play-chat-view.tsx), so the
- * headline is the page's h1.
+ * headline is the page's h1. Play 1.2.0: while the host's voice session drives Auto (`voiceActive`), his caption
+ * shows whatever his state, since the headline says nothing of the session, and his ring follows his voice while he
+ * speaks.
  */
 
 export const HELLO_TITLE = "Hi, I'm Auto."
@@ -29,9 +31,13 @@ export interface FirstOpenHeroProps {
   readonly onClipEnded: (state: MascotName) => void
   readonly caption?: string
   readonly detail?: string
+  /** Auto speaks through the host's voice. */
+  readonly speaking?: boolean
+  /** A voice session drives Auto: his caption shows. */
+  readonly voiceActive?: boolean
 }
 
-export function FirstOpenHero({ state, onClipEnded, caption, detail }: FirstOpenHeroProps) {
+export function FirstOpenHero({ state, onClipEnded, caption, detail, speaking, voiceActive = false }: FirstOpenHeroProps) {
   return (
     <section className={styles.hero} aria-label="Say hello">
       <AutoMascot
@@ -40,7 +46,8 @@ export function FirstOpenHero({ state, onClipEnded, caption, detail }: FirstOpen
         caption={caption}
         detail={detail}
         size="large"
-        showCaption={!SAID_BY_HEADLINE.has(state)}
+        speaking={speaking}
+        showCaption={voiceActive || !SAID_BY_HEADLINE.has(state)}
       />
       <h1 className={styles.title}>{HELLO_TITLE}</h1>
       <p className={styles.line}>{HELLO_LINE}</p>

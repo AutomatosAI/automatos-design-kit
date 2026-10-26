@@ -139,3 +139,12 @@
   font: inherit;
   letter-spacing: inherit;
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): two columns as the Ember design's 390 shelf draws them, the
+   newest across both. */
+@media (max-width: 1023px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--pl-space-4) var(--pl-space-3);
+  }
+}

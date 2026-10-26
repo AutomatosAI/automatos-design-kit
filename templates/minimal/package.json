@@ -23,7 +23,7 @@
     "eslint": "9.39.5"
   },
   "peerDependencies": {
-    "@automatos/theme-sdk": "1.1.0",
+    "@automatos/theme-sdk": "1.2.0",
     "react": "^19.0.0"
   },
   "peerDependenciesMeta": {

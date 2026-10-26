@@ -61,3 +61,17 @@
   gap: var(--pl-space-5);
   padding: 0 var(--pl-space-5);
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the page header is the Ember design's title row, 16 px in and
+   only as tall as its title, in the phone's status size. */
+@media (max-width: 1023px) {
+  .pageHeader {
+    height: auto;
+    min-height: var(--pl-tap-min);
+    padding: var(--pl-space-3) var(--pl-space-4) var(--pl-space-2);
+  }
+
+  :global(html.play) .pageTitle {
+    font: var(--pl-text-status-phone);
+  }
+}

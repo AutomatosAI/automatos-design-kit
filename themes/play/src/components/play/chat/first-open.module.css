@@ -59,3 +59,24 @@
 .chip:hover {
   background: var(--pl-tint-hover);
 }
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the Ember design's 390 first open: Auto smaller (the phone's
+   large size, app/play-theme.css), the headline in the phone's hero size, the box and chips 12 px in. */
+@media (max-width: 1023px) {
+  .hero {
+    gap: var(--pl-space-2);
+    padding: var(--pl-space-4);
+  }
+
+  :global(html.play) .title {
+    font: var(--pl-text-hero-phone);
+  }
+
+  .line {
+    font: var(--pl-text-body);
+  }
+
+  .chip {
+    padding: 0 var(--pl-space-3);
+  }
+}

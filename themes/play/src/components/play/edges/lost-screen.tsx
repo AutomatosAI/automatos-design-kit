@@ -8,7 +8,7 @@ import { EdgeWordmark } from './wordmark'
  * PRD-260 §4 — Play's 404 (Ember mock 09), ported from Automatos Play's
  * components/edges/LostScreen.tsx: the whole window, Auto lost in front of a
  * giant hollow "404", and one way back, to the chat. app/not-found.tsx renders
- * it under Play at >= 1024 px; every other style and width keeps the plain 404.
+ * it under Play from its minWidth up (360 px from Play 1.2.0); every other style and width keeps the plain 404.
  * PRD-261 A-14f: the way back is the SDK's HostLink to its CHAT_HREF.
  */
 

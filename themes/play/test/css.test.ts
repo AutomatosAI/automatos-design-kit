@@ -23,8 +23,8 @@ const WRAP_WEIGHT: Specificity = [0, 1, 1]
 const THEME_CSS = 'app/play-theme.css'
 const FONTS_CSS = 'app/play-fonts.css'
 const GLOBAL_STYLESHEETS = [FONTS_CSS, THEME_CSS]
-/** 25 CSS modules, core's play-theme.css and the kit's play-fonts.css. */
-const STYLESHEET_COUNT = 27
+/** 26 CSS modules (Play 1.2.0 added the phone frame's), core's play-theme.css and the kit's play-fonts.css. */
+const STYLESHEET_COUNT = 28
 /** The FX-01 rules in core start with this (core's frontend/lib/__tests__/prd260-play-guards.test.ts). */
 const FX01_PREFIX = ':global(html.play)'
 /** Studio's element rules the FX-01 rules must outrank (core's app/globals.css). */

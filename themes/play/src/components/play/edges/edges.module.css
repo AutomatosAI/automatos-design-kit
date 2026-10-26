@@ -2,8 +2,8 @@
  * PRD-260 §4 — the edges of the app under Play (Ember): Automatos asleep (mock
  * 07, the whole window, the glow out) and the 404 (mock 09, Auto in front of a
  * huge hollow serif "404"), ported from Automatos Play's
- * components/edges/edges.module.css. Play's pages render only at >= 1024 px
- * (D7), so Play's phone rules are not ported. Every variable is --pl-* (K2).
+ * components/edges/edges.module.css. On a phone (Play 1.2.0) the screens' rules are at the foot. Every variable
+ * is --pl-* (K2).
  */
 
 .screen {
@@ -203,4 +203,63 @@
 .lostAuto {
   position: absolute;
   bottom: 0;
+}
+
+/* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the Ember design's 390 asleep screen and 404: the wordmark row
+   16 px in, the headline in the phone's hero size, the command as wide as the screen, Check again and Back to chat
+   full width at the foot, the "404" in its phone size. */
+@media (max-width: 1023px) {
+  .top {
+    flex-wrap: wrap;
+    padding: var(--pl-space-3) var(--pl-space-4);
+  }
+
+  .topEnd {
+    flex-wrap: wrap;
+    gap: var(--pl-space-2);
+  }
+
+  .wordmark {
+    font: var(--pl-text-title);
+  }
+
+  .body,
+  .lost {
+    padding: var(--pl-space-4) var(--pl-space-4) var(--pl-space-6);
+  }
+
+  :global(html.play) .title {
+    font: var(--pl-text-hero-phone);
+  }
+
+  .text {
+    font: var(--pl-text-body);
+  }
+
+  .command {
+    width: 100%;
+    padding-left: var(--pl-space-4);
+  }
+
+  :global(html.play) .commandText {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--pl-space-2);
+  }
+
+  .checkAgain,
+  .primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .big404 {
+    font: var(--pl-text-404-phone);
+  }
 }

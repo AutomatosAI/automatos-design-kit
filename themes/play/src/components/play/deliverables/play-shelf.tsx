@@ -40,8 +40,8 @@ import { useSocialsOffered } from './socials-offered'
  * grid with the newest in the spotlight, and Load more (the hook's next page:
  * its offset, buildListQuery). A card opens /deliverables?deliverable=<id> (K8).
  *
- * app/deliverables/layout.tsx renders it through ThemeSlot (PRD-261 A-04b) under Play at
- * >= 1024 px on /deliverables (K7), in the host's frame: builtin Play's slot for the
+ * app/deliverables/layout.tsx renders it through ThemeSlot (PRD-261 A-04b) under Play from
+ * its minWidth up on /deliverables (K7; 360 px from Play 1.2.0), in the host's frame: builtin Play's slot for the
  * page (lib/theme-host/builtin/play-shelf-lazy.tsx) draws MainLayout around it, as
  * ThemeSlot does for an installed theme's page (MainLayout is host-only,
  * docs/theme-host/sdk-surface-map.md). A link into one of the page's other
