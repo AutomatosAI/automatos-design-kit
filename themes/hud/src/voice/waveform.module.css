@@ -1,0 +1,32 @@
+/*
+ * The waveform ("Automatos Command HUD.dc.html"'s, waveform.tsx): bars in the look's accent across the row, centred on
+ * it, each its design height (--hud-bar, a part of the row's 44 px, 36 px on the phone) and the design's opacity for
+ * it, 3 px apart (2 px in a desktop half, which holds half the bars in under half the room). At rest every bar stands
+ * at a quarter of its height, the design's floor; the frame loop scales each from its middle while a voice is heard.
+ * Nothing here animates: the loop does, and only where motion is allowed.
+ */
+
+.wave {
+  --hud-wave-height: 44px;
+  --hud-wave-rest: 0.25;
+  min-width: 0;
+  height: var(--hud-wave-height);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.wave[data-size="small"] {
+  --hud-wave-height: 36px;
+  gap: 3px;
+}
+
+.bar {
+  flex: 1 1 0;
+  min-width: 0;
+  height: calc(var(--hud-wave-height) * var(--hud-bar));
+  background: var(--hud-accent);
+  opacity: calc(0.35 + 0.65 * var(--hud-bar));
+  transform: scaleY(var(--hud-wave-rest));
+  transform-origin: center;
+}

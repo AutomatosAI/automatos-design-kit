@@ -5,8 +5,10 @@ import { VoiceSlot } from './voice-slot'
 
 /**
  * The phone core screen's control row (the design's TYPE · HOLD TO TALK · STOP): TYPE opens and shuts the message box,
- * saying which (aria-expanded) and naming it (aria-controls); STOP stops Auto's reply, as the message box's Stop does,
- * and is disabled while nothing runs; the middle is the voice button's place (voice-slot.tsx), empty today.
+ * saying which (aria-expanded) and naming it (aria-controls); the host's voice button in the middle (voice-slot.tsx);
+ * STOP cancels the turn, as the design's STOP does: it stops Auto's reply, as the message box's Stop does, and ends
+ * the voice session while one runs, and is disabled while nothing runs. Typing stays: voice is beside it, never
+ * instead of it.
  */
 
 export const CONTROLS_LABEL = 'Controls'
@@ -19,21 +21,21 @@ export interface PhoneControlsProps {
   /** The message box's element, which TYPE opens. */
   readonly composerId: string
   readonly onType: () => void
-  /** Auto is answering: STOP can stop him. */
-  readonly streaming: boolean
+  /** Something STOP can stop runs: Auto is answering, or a voice session. */
+  readonly stoppable: boolean
   readonly onStop: () => void
   /** TYPE, which takes the focus when STOP stops a reply with the box shut. */
   readonly typeRef: RefObject<HTMLButtonElement | null>
 }
 
-export function PhoneControls({ typing, composerId, onType, streaming, onStop, typeRef }: PhoneControlsProps) {
+export function PhoneControls({ typing, composerId, onType, stoppable, onStop, typeRef }: PhoneControlsProps) {
   return (
     <div className={styles.controls} role="group" aria-label={CONTROLS_LABEL}>
       <button ref={typeRef} type="button" className={styles.type} aria-expanded={typing} aria-controls={composerId} onClick={onType}>
         {TYPE_LABEL}
       </button>
       <VoiceSlot />
-      <button type="button" className={styles.stop} disabled={!streaming} onClick={onStop}>
+      <button type="button" className={styles.stop} disabled={!stoppable} onClick={onStop}>
         {STOP_LABEL}
       </button>
     </div>

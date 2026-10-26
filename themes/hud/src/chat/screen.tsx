@@ -14,7 +14,7 @@ import styles from './screen.module.css'
 
 /**
  * The core screen's layout ("Automatos Command HUD.dc.html"): the conversation's column in the middle (its title,
- * the core, the transcript and the message box) between the side panels. Three columns put AGENTS and MISSION on
+ * the core, the transcript, the voice deck and the message box) between the side panels. Three columns put AGENTS and MISSION on
  * the left and DELIVERABLES on the right, as the design does, with TODAY, NEEDS YOU and NEXT UP over it in the places
  * of the design's SPEND, LATENCY and THIS MACHINE, which the SDK gives a theme no source for (the design's own rule
  * is to hide a panel without one); two put them all in one column on the right; one is the design's phone, the
@@ -32,9 +32,9 @@ export interface ChatScreenProps {
   readonly title: string
   /** The voice core. */
   readonly core: ReactNode
-  /** Under the transcript: the host's banners and the message box. */
+  /** Under the transcript: the host's banners, the voice deck and the message box. */
   readonly footer?: ReactNode
-  /** The transcript. */
+  /** The transcript, and what a voice session said aloud under it. */
   readonly children?: ReactNode
   /** The Mission this conversation plans, which MISSION shows first; null or absent for none. */
   readonly missionId?: string | null

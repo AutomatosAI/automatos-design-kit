@@ -12,7 +12,9 @@ import styles from './phone.module.css'
  * and ticket cards, the receipts, the snag box with Try again, the AI-generated mark. What follows the conversation
  * (turn-end.tsx: approvals left over, a turn that failed before its reply, a Mission Auto suggests) comes after it.
  * The earlier conversation is the desktop's and the Conversations page's to show. Before anything is said, `empty`
- * (the empty chat's line and starters) stands in its place.
+ * (the empty chat's line and starters) stands in its place. While a voice session has words, `aloud` (what was said
+ * aloud, src/voice/voice-words.tsx) takes the last exchange's place: the exchange on screen is the one being spoken,
+ * and the turn reaches the conversation once it lands.
  */
 
 export const LAST_EXCHANGE_LABEL = 'Last exchange'
@@ -47,29 +49,40 @@ export interface PhoneTranscriptProps {
   readonly after: ReactNode
   /** Shown before anything is said. */
   readonly empty: ReactNode
+  /** What a voice session has said aloud, shown in the last exchange's place; null while it has nothing. */
+  readonly aloud?: ReactNode
 }
 
-export function PhoneTranscript({ messages, streaming, onRetry, trialBlocked, after, empty }: PhoneTranscriptProps) {
+/** The last exchange's rows: your newest words in quotes, then Auto's replies after them. */
+function ExchangeRows({ messages, streaming, onRetry, trialBlocked }: Omit<PhoneTranscriptProps, 'after' | 'empty' | 'aloud'>) {
   const newest = messages[messages.length - 1]?.id
   return (
+    <>
+      {lastExchange(messages).map((message) =>
+        message.role === 'user' ? (
+          <YourWords key={message.id} message={message} />
+        ) : (
+          <AutoReply
+            key={message.id}
+            message={message}
+            streaming={streaming && message.id === newest}
+            onRetry={message.id === newest ? onRetry : undefined}
+            snagHidden={trialBlocked && message.id === newest}
+            recent
+            phone
+          />
+        ),
+      )}
+    </>
+  )
+}
+
+export function PhoneTranscript({ messages, streaming, onRetry, trialBlocked, after, empty, aloud = null }: PhoneTranscriptProps) {
+  const rows = <ExchangeRows messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} />
+  const exchange = messages.length === 0 ? empty : rows
+  return (
     <section className={styles.exchange} aria-label={LAST_EXCHANGE_LABEL}>
-      {messages.length === 0
-        ? empty
-        : lastExchange(messages).map((message) =>
-            message.role === 'user' ? (
-              <YourWords key={message.id} message={message} />
-            ) : (
-              <AutoReply
-                key={message.id}
-                message={message}
-                streaming={streaming && message.id === newest}
-                onRetry={message.id === newest ? onRetry : undefined}
-                snagHidden={trialBlocked && message.id === newest}
-                recent
-                phone
-              />
-            ),
-          )}
+      {aloud ?? exchange}
       {after}
     </section>
   )

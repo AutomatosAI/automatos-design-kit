@@ -8,6 +8,8 @@ import {
 } from '@automatos/theme-sdk'
 
 import { usePhoneLayout } from '../lib/phone-layout'
+import { VoiceDeck } from '../voice/voice-deck'
+import { useVoiceWords, VoiceWords } from '../voice/voice-words'
 import { ChatFooter } from './chat-footer'
 import type { ChatParts, Sending } from './chat-parts'
 import { chipWords } from './chip'
@@ -31,6 +33,10 @@ import { VoiceCore } from './voice-core'
  * when his words start, celebrating a done receipt or a new Deliverable, oops on a failure, listening while an
  * approval card waits, asleep while the backend is down or after a long while without input. Before anything is
  * said, the empty chat's starters put their words in the message box.
+ *
+ * Voice is beside the box, never instead of it: the host's voice button in the design's waveform over the message box
+ * (src/voice/voice-deck.tsx), and, while a voice session runs, what was said aloud under the transcript
+ * (src/voice/voice-words.tsx) until the turn lands in the conversation.
  *
  * In a window narrower than the desktop layout (src/lib/phone-layout.ts) the same chat is drawn as the design's phone
  * (phone/phone-chat.tsx); everything above is made once for both, so a window crossing the width keeps it.
@@ -127,8 +133,10 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
 /** The desktop's core screen: the conversation's column between the side panels, laid out by its measured size. */
 function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
   const { ref, layout } = useScreenLayout()
+  const said = useVoiceWords()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
-  const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={chat.messages.length === 0} fill={fill} />
+  const autoFocus = chat.messages.length === 0
+  const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={<VoiceDeck />} />
   const missionId = chat.planningMissionId
   return (
     <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer} missionId={missionId}>
@@ -140,6 +148,7 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }:
         after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
         empty={<EmptyChat onStarter={fillBox} />}
       />
+      {said !== null && <VoiceWords words={said} />}
     </ChatScreen>
   )
 }

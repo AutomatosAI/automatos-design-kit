@@ -17,7 +17,7 @@ export const MISSION_WORKING = 'Working'
 
 /**
  * Auto's state in a word. An approval card waiting (listening) is "Waiting for you", never "Listening", which would
- * read as an open microphone, and HUD has none.
+ * read as an open microphone: only the host's voice button opens it, and MIC LIVE says so.
  */
 export const STATE_WORDS: Readonly<Record<MascotName, string>> = {
   hello: 'Ready',
