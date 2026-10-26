@@ -50,13 +50,17 @@ describe('the line', () => {
     expect(missionAgent(null)).toBeNull()
   })
 
-  it('counts whole seconds, never below none, and reads the hour when there is one', () => {
+  it('counts whole seconds, never below none, and reads the hour when there is one, and the day from a day on', () => {
     expect(elapsedSeconds(STARTED, NOW)).toBe(134)
     expect(elapsedSeconds('2026-10-14T09:05:00Z', NOW)).toBe(0)
     expect(elapsedSeconds(null, NOW)).toBeNull()
     expect(clockOf(0)).toBe('00:00')
     expect(clockOf(134)).toBe('02:14')
     expect(clockOf(3734)).toBe('1:02:14')
+    expect(clockOf(86_399)).toBe('23:59:59')
+    expect(clockOf(86_400)).toBe('1d 00h')
+    expect(clockOf(288 * 3600 + 27 * 60 + 26)).toBe('12d 00h')
+    expect(clockOf(12 * 86_400 + 4 * 3600 + 59)).toBe('12d 04h')
   })
 
   it("says every one of Auto's states in a word, and an approval card waiting never as listening", () => {

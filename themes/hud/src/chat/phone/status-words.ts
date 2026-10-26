@@ -37,7 +37,7 @@ export const STATE_WORDS: Readonly<Record<MascotName, string>> = {
 export interface StatusLineWords {
   readonly who: string
   readonly doing: string
-  /** How long the Mission has run ('02:14'); null without one, or without its start. */
+  /** How long the Mission has run ('02:14', '1:02:14', '12d 04h'); null without one, or without its start. */
   readonly clock: string | null
   /** The same as a duration, for <time dateTime> ('PT134S'). */
   readonly duration: string | null
@@ -46,6 +46,8 @@ export interface StatusLineWords {
 const MS_PER_SECOND = 1000
 const SECONDS_PER_MINUTE = 60
 const SECONDS_PER_HOUR = 3600
+const HOURS_PER_DAY = 24
+const SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY
 
 function twoDigits(value: number): string {
   return String(value).padStart(2, '0')
@@ -65,8 +67,15 @@ export function elapsedSeconds(startedAt: string | null, now: Date): number | nu
   return Math.max(0, Math.floor((now.getTime() - started) / MS_PER_SECOND))
 }
 
-/** '02:14' for 134 seconds; '1:02:14' past the hour. */
+/**
+ * '02:14' for 134 seconds; '1:02:14' past the hour; '12d 04h' from a day on, where the seconds ticking would only be
+ * noise on a Mission that old.
+ */
 export function clockOf(seconds: number): string {
+  if (seconds >= SECONDS_PER_DAY) {
+    const days = Math.floor(seconds / SECONDS_PER_DAY)
+    return `${days}d ${twoDigits(Math.floor((seconds % SECONDS_PER_DAY) / SECONDS_PER_HOUR))}h`
+  }
   const hours = Math.floor(seconds / SECONDS_PER_HOUR)
   const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE)
   const tail = `${twoDigits(minutes)}:${twoDigits(seconds % SECONDS_PER_MINUTE)}`
