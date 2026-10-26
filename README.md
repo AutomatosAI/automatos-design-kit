@@ -24,7 +24,7 @@ to Auto by voice, ships five looks, and draws a phone layout in a phone's browse
 <table>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/play.md">Play</a></b> 1.2.0 (<code>automatos/play</code>): warm and editorial, with Auto
+      <b><a href="docs/themes/play.md">Play</a></b> 1.2.1 (<code>automatos/play</code>): warm and editorial, with Auto
       the mascot. Its own frame, chat, shelf of Deliverables and Conversations page.
       <a href="themes/play">Source</a>
     </td>
@@ -35,7 +35,7 @@ to Auto by voice, ships five looks, and draws a phone layout in a phone's browse
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/hud.md">HUD</a></b> 1.1.0 (<code>automatos/hud</code>): a mission-control console. A
+      <b><a href="docs/themes/hud.md">HUD</a></b> 1.1.1 (<code>automatos/hud</code>): a mission-control console. A
       top bar, a side rail, bracketed panels, and Auto in a voice core. <a href="themes/hud">Source</a>
     </td>
   </tr>
