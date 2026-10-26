@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@automatos/theme-cli": "0.1.0",
-    "@automatos/theme-sdk": "1.1.0",
+    "@automatos/theme-sdk": "1.2.0",
     "@automatos/vite-preset": "0.1.0"
   }
 }

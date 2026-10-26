@@ -1,17 +1,18 @@
 # @automatos/theme-sdk (vendored types)
 
-The type declarations of `@automatos/theme-sdk` 1.1.0, the one module an Automatos theme imports from the host.
+The type declarations of `@automatos/theme-sdk` 1.2.0, the one module an Automatos theme imports from the host.
 **Types only.** At runtime the host serves the SDK through its import map, so a theme never bundles it: the
 vite-preset keeps `@automatos/theme-sdk` external.
 
 ## Where it comes from
 
 Vendored from core (`AutomatosAI/automatos-ai`), `frontend/packages/theme-sdk`, at commit
-`99fb70ff5c837e9b7a1da40b8234d364b34b19d4` (SDK 1.1.0, which adds the `storage` area; core's folder is the same as at `1699a4f95` and
-`101a0bf33`, and since `7ae677b52` only comments changed: the trial and `TrialExhaustedBanner` are described in credits, and
-`HeaderUtilities` names the credit balance), by version (PRD-261 D2-b):
-`package.json`, `index.d.ts`, `areas/*.d.ts` and `internal/*.d.ts` are core's files unchanged. Only this README is
-the kit's own.
+`c68435599b4fd94e3b0bcc4ae2b36a3db7081110` (SDK 1.2.0, which adds the `voice` area: `VoiceButton`, `useVoice` and
+`readVoiceLevels`), the head of core pull request #1334, not merged yet: once it is, the kit is re-pinned to its merge
+commit on core `main`, which moves only this commit. Since `99fb70ff5`, the kit's previous pin (SDK 1.1.0, which added
+the `storage` area), only `package.json` (its version), `index.d.ts` (the `voice` re-export) and the new
+`areas/voice.d.ts` changed. By version (PRD-261 D2-b): `package.json`, `index.d.ts`, `areas/*.d.ts` and
+`internal/*.d.ts` are core's files unchanged. Only this README is the kit's own.
 
 It stays vendored until core publishes the SDK tarball on its CDN; then the kit depends on that tarball by its
 exact-version URL instead, and this folder goes.
@@ -22,5 +23,5 @@ Core bumps the package's `version` (and its `sdkVersion`) whenever the SDK's sur
 version, copy the folder again from the core commit that has it, keep this README, and name the commit here and in
 the pull request. Never edit the declarations in the kit: core wins.
 
-Themes depend on it as a workspace package (`"@automatos/theme-sdk": "1.1.0"` in `peerDependencies`), and
+Themes depend on it as a workspace package (`"@automatos/theme-sdk": "1.2.0"` in `peerDependencies`), and
 TypeScript reads `index.d.ts` through the package's `types` and `exports`.

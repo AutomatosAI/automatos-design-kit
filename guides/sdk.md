@@ -2,7 +2,7 @@
 
 `@automatos/theme-sdk` is the one module a theme imports from the host. The host serves it through its import map
 at run time, so a theme never bundles it; the kit vendors its type declarations in
-[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.1.0). Everything a theme reads of the app, and
+[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.2.0). Everything a theme reads of the app, and
 everything it asks the app to do, goes through these names: no `fetch`, no `@/…` import, no `next/*`, no browser
 storage of its own ([pitfalls.md](pitfalls.md)).
 
@@ -151,6 +151,24 @@ is scoped per theme and per account, not isolated: never keep a secret in it.
 Outside a running installed theme a read answers `ready: false` and a write refuses with `not-ready`; on the server it
 refuses with `unavailable`; with the browser's storage blocked a write answers `persisted: false` and the state lasts
 for the page. Nothing throws: every refusal is `{ ok: false, reason, message }`.
+
+## `voice`
+
+Talking to Auto by voice, through the host (SDK 1.2.0: `engines.sdk` `^1.2.0`, and `voice` in `uses`). The host runs
+the tab's one voice session: Auto Live (a call, on the plans that have it) or web quick-ask (hold to talk, on every
+plan and edition). A theme never captures audio itself: code that names `getUserMedia`, `SpeechRecognition`,
+`webkitSpeechRecognition` or `speechSynthesis` is refused by the Marketplace review and by the kit's lint
+(`JS_GET_USER_MEDIA`, `JS_SPEECH_RECOGNITION`, `JS_SPEECH_SYNTHESIS`).
+
+| Name | What it is |
+|---|---|
+| `VoiceButton` | The host's voice button: the press (`press`: `hold`, the default, or `toggle`), the engine (`mode`: `auto`, `quick` or `live`), the `conversation` it talks into, the `hotkey`, the `size` (`sm`, `md`, `lg`) and the `label`. While the session is the button's, the host draws the "AI voice assistant" caption and the stop control in a protected surface (`voice-control`) that no theme CSS can hide. Style it through `data-voice-state`, `data-voice-mode`, `data-voice-press`, `data-voice-size` and `data-voice-mic` on its root and the `--voice-button-*` custom properties. |
+| `useVoice` | The session as a frozen snapshot: what is `available` (quick, live and the reason), the `mode`, the `phase` (`idle`, `connecting`, `listening`, `thinking`, `speaking`, `ended`, `error`), `micOpen`, `muted`, `heard`, `reply`, `durationSec`, `error`, `chatId`, and `stop()`. |
+| `readVoiceLevels` | The member's and Auto's levels now, 0 to 1 (`user`, `agent`), for code inside an animation frame (a waveform, a mascot); zeros while no session runs. Never read it in a render. |
+
+Outside the host's voice (a page with none) `useVoice` answers the idle snapshot with nothing available and the
+reason, `readVoiceLevels` zeros, and `VoiceButton` is drawn disabled; none throws. A theme never hides the caption or
+the stop control, and never rewords the AI notice the host speaks once per session.
 
 ## Page areas
 

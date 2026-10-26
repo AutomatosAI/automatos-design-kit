@@ -11,6 +11,10 @@ import { entryImporting, HELLO_ENTRY, helloPackage, reviewHello, reviewOnThisHos
 
 const STORAGE_IMPORT = 'defineTheme, readThemeState, writeThemeState'
 const STORAGE_AREA = 'storage'
+const VOICE_IMPORT = 'defineTheme, VoiceButton, readVoiceLevels, useVoice'
+const VOICE_AREA = 'voice'
+/** The SDK the voice area needs (1.2.0), on today's host contract. */
+const VOICE_ENGINES = { automatos: '^1.1.0', sdk: '^1.2.0' }
 
 async function usesOf(entry: string, uses?: readonly string[]): Promise<Readonly<Record<string, unknown>>> {
   const report = (await reviewHello({ entry, manifest: uses === undefined ? {} : { uses } })).report
@@ -85,6 +89,26 @@ describe("the SDK's storage area on this host's name list (the vendored sdk-surf
     expect([report.verdict, uses.level, uses.unknownNames]).toEqual(['review_required', 'warning', []])
     expect(uses.undeclaredAreas).toEqual([STORAGE_AREA])
     expect(uses.problems).toEqual([filled(UNDECLARED, 'areas', [STORAGE_AREA])])
+  })
+})
+
+describe("the SDK's voice area (SDK 1.2.0) on this host's name list", () => {
+  it('a theme on engines.sdk ^1.2.0 with voice in uses passes, its voice names read as the area', async () => {
+    const manifest = { engines: VOICE_ENGINES, uses: ['theme', VOICE_AREA] }
+    const { report } = await reviewOnThisHost({ entry: entryImporting(VOICE_IMPORT), manifest })
+    const uses = report.checks.uses
+    expect([report.verdict, uses.level, uses.unknownNames, uses.undeclaredAreas]).toEqual(['pass', 'pass', [], []])
+    expect(uses.usedAreas).toContain(VOICE_AREA)
+    expect(uses.usedNames).toEqual(expect.arrayContaining(['VoiceButton', 'readVoiceLevels', 'useVoice']))
+  })
+
+  it('a voice call without voice in uses is a warning listing it', async () => {
+    const { report } = await reviewOnThisHost({ entry: entryImporting(VOICE_IMPORT), manifest: { engines: VOICE_ENGINES } })
+    expect(report.checks.uses).toMatchObject({ level: 'warning', undeclaredAreas: [VOICE_AREA] })
+  })
+
+  it("the vendored name list holds the voice area's three names", () => {
+    expect([...(sdkSurface()?.[VOICE_AREA] ?? [])].sort()).toEqual(['VoiceButton', 'readVoiceLevels', 'useVoice'])
   })
 })
 

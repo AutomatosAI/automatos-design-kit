@@ -61,7 +61,7 @@ describe('the table as the host keeps it (boot-sanitize.ts sanitizePrepaint), no
   })
 })
 
-describe("the first paint (THEME_BOOT_SCRIPT's paint, boot.ts :145-:148)", () => {
+describe("the first paint (THEME_BOOT_SCRIPT's paint, boot.ts :146-:149)", () => {
   it('paints each knob entry, then the pair cell, then the numeric rule as rgba(); the defaults for a look that does not fit', () => {
     expect(firstPaint(kept(TABLE), INK_GREEN)).toEqual({
       '--hello-bg': '#111111', '--hello-text': '#EEEEEE', '--background': '0 0% 7%', '--foreground': '0 0% 93%',
