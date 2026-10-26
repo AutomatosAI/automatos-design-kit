@@ -2,6 +2,29 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.1.0
+
+HUD talks, on the SDK's voice area (SDK 1.2.0: `engines.sdk` is `^1.2.0` and `uses` names `voice`), and types as before:
+
+- The host's voice button (the SDK's `VoiceButton`: core draws the press, the microphone prompt, the "AI voice
+  assistant" caption and the stop control; HUD places it and styles it through its data attributes and
+  `--voice-button-*` properties). On the desktop it stands in the middle of the Command design's 72-bar waveform over
+  the message box: hold to talk, Auto Live where it can start and quick-ask otherwise, Space as its key anywhere but a
+  field you type in. The design's hint under it, HOLD SPACE TO TALK · OR TYPE · "AUTO, STOP" TO CANCEL, gives way to
+  the host's caption and stop control while the session runs, in a strip that keeps its height, so the press never
+  moves under a held pointer. On the phone it is the design's 84 px HOLD TO TALK circle between TYPE and STOP, with no
+  key. Nothing locks it: it sits outside the message box's AI label fence.
+- MIC LIVE in the top bar whenever the microphone is open (MIC MUTED on a muted Live call), its words in a status a
+  screen reader hears; on the phone it takes the connection status's place while it shows.
+- The waveform follows the voice's levels, the member's while the microphone is open and Auto's while he speaks, in an
+  animation-frame loop, the newest level beside the button: 72 bars on the desktop, 44 over the phone's control row. It
+  stands still while no session runs, under the reduced-motion setting and while the look's motion is off.
+- What was heard and Auto's spoken reply show as YOU and AUTO rows in HUD's type while the session runs, under the
+  transcript on the desktop and in the last exchange's place on the phone, until the turn lands in the conversation.
+- The phone's STOP ends a voice session too, as it stops a reply.
+- The phone's mission clock reads days and hours from a day on (`12d 04h`, not `288:27:26`); under a day it is as it
+  was (`02:14`, `1:02:14`).
+
 ## 1.0.1
 
 Fixes and the parts 1.0.0 left out, so HUD is a finished theme:

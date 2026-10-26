@@ -18,9 +18,9 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   cards (approvals, Deliverables, Missions, tickets), the message box (Enter sends, Shift + Enter makes a new line,
   Esc stops), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
-  how to start, with three starters that fill the message box. It loads in its own chunk. A `/chat` link with
-  `repo`, `runtime` or `mode` keeps the host's own chat page. There is no microphone: the SDK gives a theme no voice.
-  In a phone's browser it is the phone's core screen (below).
+  how to start, with three starters that fill the message box. Over the message box, the host's voice button in the
+  design's waveform (below, Voice). It loads in its own chunk. A `/chat` link with `repo`, `runtime` or `mode` keeps the
+  host's own chat page. In a phone's browser it is the phone's core screen (below).
 - Conversations at `/x/conversations`, HUD's own route (`routes`, with a nav entry): every conversation in Today,
   This week and Earlier panels, a search on the title and New chat. It loads in its own chunk; where HUD doesn't
   draw (below 360 px, its minWidth) it sends the browser to the chat.
@@ -28,6 +28,32 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   look, Reset and Delete, a live preview, and Share, to export a look as a file or import one.
 - The style sheet at `/looks/style` (`styleSheet@1`): what the active look paints, its knobs with the variable each
   drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components.
+
+## Voice
+
+HUD talks to Auto through the host's voice (the SDK's voice area, SDK 1.2.0), and never opens the microphone itself:
+the host's voice button does, on a press. Typing stays: voice is beside the message box, never instead of it.
+
+- **The voice button** is the SDK's `VoiceButton`: core draws the press, the microphone prompt, the "AI voice
+  assistant" caption (a tiny caption, never a pill) and the stop control, with Live's mute and device, a failure's Try
+  again, and the spoken AI notice once a session; HUD places it and styles it through its data attributes and
+  `--voice-button-*` properties, and never hides or covers the caption or the stop control. Hold to talk, in Auto Live
+  where it can start and quick-ask otherwise. On the desktop (`src/voice/voice-deck.tsx`) it stands in the middle of
+  the Command design's waveform over the message box, with Space as its key anywhere but a field you type in, and the
+  design's hint under it (HOLD SPACE TO TALK · OR TYPE · "AUTO, STOP" TO CANCEL), which gives way to the host's
+  caption and stop control while the session runs. On the phone (`src/chat/phone/voice-slot.tsx`) it is the design's
+  84 px HOLD TO TALK circle between TYPE and STOP, with no key. Nothing locks it, the message box's AI label fence
+  included.
+- **MIC LIVE** (`src/voice/mic-live.tsx`) shows in the top bar whenever the microphone is open, MIC MUTED on a muted
+  call, its words in a status a screen reader hears; on the phone it takes the connection status's place.
+- **The waveform** (`src/voice/waveform.tsx`, `src/voice/wave.ts`): the design's 72 bars on the desktop, half on each
+  side of the button, and 44 over the phone's control row. An animation-frame loop reads the voice's levels
+  (`readVoiceLevels`: the member's while the microphone is open, Auto's while he speaks), the newest beside the button;
+  it runs only while a session runs and motion is allowed, so the bars stand still under the reduced-motion setting and
+  while the look's motion is off.
+- **What was said aloud** (`src/voice/voice-words.tsx`): while a session runs, the words heard as a YOU row and Auto's
+  reply as far as he has spoken it as an AUTO row, under the transcript on the desktop and in the last exchange's place
+  on the phone, until the turn lands in the conversation.
 
 ## Looks
 
@@ -69,18 +95,17 @@ Command design's phone (390 by 844) instead of its desktop layout. The width is 
 (`src/lib/phone-layout.ts`), so HUD and the host agree on each side of it; from 1024 px up nothing changes.
 
 - **The frame.** The phone's top bar: MENU, the mark and AUTOMATOS //, and the backend's connection as a glyph and a
-  word. There is no rail, so every page takes the window's whole width. MENU opens the menu, a modal panel from the
+  word, which MIC LIVE takes the place of while the microphone is open. There is no rail, so every page takes the window's whole width. MENU opens the menu, a modal panel from the
   left edge: New chat, search and LOOK; the rail's pages with Conversations after Chat, RECENT, Docs and Settings;
   and the host's header utilities. It takes the focus, keeps Tab inside it, and Esc, Close or a tap beside it shuts
   it, handing the focus back to MENU; everything behind it is inert while it is open, and following a link shuts it.
 - **The core screen.** A line naming who is at work (the running Mission's agent with the time since it started, or
   Auto and his state in a word), the 290 px core with Auto, the state chip and Pause Auto beside it, the last
   exchange (your words in quotes, then Auto's reply with all it carries on the desktop: his tool lines, the host's
-  cards, the receipts, the snag box), and the control row. TYPE opens the message box, the desktop's, over the row,
-  and puts the focus in it; shut again, it keeps its words. STOP stops a reply and is disabled while nothing runs.
-  The row's middle is kept for the voice button (`src/chat/phone/voice-slot.tsx`, which draws nothing): the SDK
-  gives a theme no voice yet, so HUD draws no HOLD TO TALK, no waveform and no MIC LIVE. They arrive with the SDK's
-  voice area.
+  cards, the receipts, the snag box; while a voice session runs, what was said aloud in its place), the waveform and
+  the control row: TYPE, the host's voice button as HOLD TO TALK, and STOP. TYPE opens the message box, the desktop's,
+  over the waveform, and puts the focus in it; shut again, it keeps its words. STOP stops a reply, ends a voice
+  session, and is disabled while nothing runs.
 
 ## In the phone app
 
