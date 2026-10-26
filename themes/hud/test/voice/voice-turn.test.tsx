@@ -1,8 +1,9 @@
 // A voice session's words on HUD's core screen, on the kit's harness, which adds them as core's chat does: while the
 // session runs on the conversation, what was heard and what Auto is saying are its last two messages (voice-live-user
 // and voice-live-assistant). HUD draws them as any others, once each: on the desktop the transcript's newest YOU and
-// AUTO rows, Auto's with the AI-generated mark; on the phone the last exchange, your words in quotes. They go once the
-// session ends or the turn is saved, and the stored exchange is the newest again. Roles, names and attributes only;
+// AUTO rows, Auto's with the AI-generated mark; on the phone the last exchange, your words in quotes, sitting at the foot
+// over the waveform while the session runs (HUD 1.1.1). They go once the session ends or the turn is saved, and the
+// stored exchange is the newest again. Roles, names and attributes only;
 // every word is made up.
 import { act, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -96,5 +97,19 @@ describe('on the phone', () => {
     act(() => host.setVoicePhase('idle'))
     expect(within(exchange).getByRole('article', { name: 'You said' })).toHaveTextContent(`“${QUESTION}”`)
     expect(timesShown(HEARD)).toBe(0)
+  })
+
+  it('sits the last exchange at the foot, over the waveform, while the session runs, and centres it again after (1.1.1)', async () => {
+    setWindowWidth(PHONE_WIDTH)
+    openChat()
+    render(<HudChatPage />)
+    await screen.findByRole('article', { name: 'You said' })
+    const exchange = screen.getByRole('region', { name: LAST_EXCHANGE_LABEL })
+    expect(exchange).not.toHaveAttribute('data-voice')
+    talk('listening')
+    expect(exchange).toHaveAttribute('data-voice', 'true')
+    expect(within(exchange).getByRole('article', { name: 'You said' })).toHaveTextContent(`“${HEARD}”`)
+    act(() => host.setVoicePhase('idle'))
+    expect(exchange).not.toHaveAttribute('data-voice')
   })
 })

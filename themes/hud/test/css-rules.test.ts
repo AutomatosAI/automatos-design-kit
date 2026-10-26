@@ -110,6 +110,11 @@ describe('the phone core screen', () => {
     expect(dock).toContain('background: var(--hud-bg);')
   })
 
+  it('centres the last exchange in its room, and sits it at the foot over the waveform while a voice session runs (1.1.1)', () => {
+    expect(ruleBody('chat/phone/phone.module.css', '.exchange')).toContain('justify-content: center;')
+    expect(ruleBody('chat/phone/phone.module.css', '.exchange[data-voice="true"]')).toBe('justify-content: flex-end;')
+  })
+
   it("sets your words at 15 px in the secondary text and Auto's reply the whole width at 19 px, AUTO for a screen reader", () => {
     expect(ruleBody('chat/phone/phone.module.css', '.quote')).toContain('font: 400 15px/1.5 var(--hud-font-text);')
     expect(ruleBody('chat/phone/phone.module.css', '.quote')).toContain('color: var(--hud-text-2);')
@@ -117,6 +122,18 @@ describe('the phone core screen', () => {
     expect(reply).toContain('--hud-row-auto: 19px;')
     expect(reply).toContain('grid-template-columns: minmax(0, 1fr);')
     expect(ruleBody('chat/transcript.module.css', '.row[data-layout="phone"] .speaker')).toContain('clip-path: inset(50%);')
+  })
+})
+
+describe('the desktop transcript', () => {
+  it('fades its top edge over the padding that keeps its first row clear, so a row scrolled under it is never cut (1.1.1)', () => {
+    const scroller = ruleBody('chat/transcript.module.css', '.scroller')
+    const fade = 'linear-gradient(to bottom, transparent, var(--hud-text) var(--hud-transcript-fade))'
+    expect(scroller).toContain('--hud-transcript-fade: 24px;')
+    expect(scroller).toContain('padding-top: var(--hud-transcript-fade);')
+    expect(scroller).toContain(`-webkit-mask-image: ${fade};`)
+    expect(scroller).toContain(` mask-image: ${fade};`)
+    expect(scroller).toContain('overflow-y: auto;')
   })
 })
 

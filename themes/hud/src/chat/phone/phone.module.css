@@ -78,6 +78,14 @@
   padding: var(--hud-space-4) var(--hud-space-5);
 }
 
+/*
+ * HUD 1.1.1: while a voice session runs (phone-transcript.tsx), the exchange sits at the foot of its room, just over the
+ * waveform: the words heard read as said into it, with the room left under the core, not a gap on either side.
+ */
+.exchange[data-voice="true"] {
+  justify-content: flex-end;
+}
+
 .you {
   min-width: 0;
 }

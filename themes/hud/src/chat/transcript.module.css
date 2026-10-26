@@ -4,7 +4,15 @@
  * earlier rows are smaller. The sizes ride on custom properties, so Auto's reply (reply.module.css) reads them.
  */
 
+/*
+ * HUD 1.1.1: the column's top edge fades over 24 px, about a line of text (a mask, so whatever is behind shows
+ * through), so a row or a card scrolled up under it fades out rather than being cut in half where the column is short
+ * (a voice session's rows at 1440 by 900). The same 24 px of padding keeps the first row clear of the fade at the top of
+ * the scroll. The fade is the transcript's own: the host's voice caption and stop control sit in the footer under it,
+ * never inside.
+ */
 .scroller {
+  --hud-transcript-fade: 24px;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -13,6 +21,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--hud-space-4);
+  padding-top: var(--hud-transcript-fade);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, var(--hud-text) var(--hud-transcript-fade));
+  mask-image: linear-gradient(to bottom, transparent, var(--hud-text) var(--hud-transcript-fade));
 }
 
 /* The list sits at the bottom of a short conversation, under the core (and the empty chat, before it, the same). */

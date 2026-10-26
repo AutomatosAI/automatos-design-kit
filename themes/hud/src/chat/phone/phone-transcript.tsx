@@ -15,6 +15,8 @@ import styles from './phone.module.css'
  * (the empty chat's line and starters) stands in its place. While a voice session runs on the conversation, the host
  * puts what was heard and what Auto is saying at the end of its messages (voice-live-user and voice-live-assistant):
  * they are the last exchange then, your words in quotes and Auto's reply with its AI-generated mark, as any other.
+ * HUD 1.1.1: while a session runs the exchange sits at the foot of its room, over the waveform, so the words heard
+ * read as said into it, not as a line adrift between the core and the dock (`data-voice`, phone.module.css).
  */
 
 export const LAST_EXCHANGE_LABEL = 'Last exchange'
@@ -49,6 +51,8 @@ export interface PhoneTranscriptProps {
   readonly after: ReactNode
   /** Shown before anything is said. */
   readonly empty: ReactNode
+  /** A voice session runs: the exchange sits at the foot of its room. */
+  readonly voice?: boolean
 }
 
 /** The last exchange's rows: your newest words in quotes, then Auto's replies after them. */
@@ -75,10 +79,10 @@ function ExchangeRows({ messages, streaming, onRetry, trialBlocked }: Omit<Phone
   )
 }
 
-export function PhoneTranscript({ messages, streaming, onRetry, trialBlocked, after, empty }: PhoneTranscriptProps) {
+export function PhoneTranscript({ messages, streaming, onRetry, trialBlocked, after, empty, voice = false }: PhoneTranscriptProps) {
   const rows = <ExchangeRows messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} />
   return (
-    <section className={styles.exchange} aria-label={LAST_EXCHANGE_LABEL}>
+    <section className={styles.exchange} aria-label={LAST_EXCHANGE_LABEL} data-voice={voice ? 'true' : undefined}>
       {messages.length === 0 ? empty : rows}
       {after}
     </section>
