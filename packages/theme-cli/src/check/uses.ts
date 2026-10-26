@@ -100,13 +100,18 @@ function specifierNames(block: string): Set<string> {
   return names
 }
 
-/** The browser's code, in path order. */
-export function bundleTexts(files: Files): string[] {
+/** The browser's code, each file's path and text, in path order (sdk_uses.py `bundle_texts`). */
+export function bundleFiles(files: Files): Array<readonly [string, string]> {
   const decoder = new TextDecoder('utf-8', { ignoreBOM: true })
   return Array.from(files.keys())
     .filter((path) => BUNDLE_PREFIXES.some((prefix) => path.startsWith(prefix)) && path.endsWith(BUNDLE_SUFFIX))
     .sort(byText)
-    .map((path) => decoder.decode(files.get(path)))
+    .map((path) => [path, decoder.decode(files.get(path))] as const)
+}
+
+/** The browser's code, in path order. */
+export function bundleTexts(files: Files): string[] {
+  return bundleFiles(files).map(([, text]) => text)
 }
 
 /** The names imported from the SDK across `texts`, and whether any imports it whole. */

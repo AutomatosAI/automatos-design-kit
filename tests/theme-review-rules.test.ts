@@ -2,12 +2,12 @@
 // pattern is found with its code and line; honest code that only looks close is not.
 import { describe, expect, it } from "vitest";
 import {
-  AUDIO_CAPTURE_SEVERITY, excerptOf, fileFindings, jsRuleFindings, pathProblem, RULES, specifierProblem,
+  AUDIO_APIS, AUDIO_CAPTURE_SEVERITY, excerptOf, fileFindings, jsRuleFindings, pathProblem, RULES, specifierProblem,
 } from "@automatos/theme-rules";
 
 const PATH = "source/entry.ts";
 /** The audio rows (theme voice): each refuses, as core's review blocks the same names in a bundle. */
-const AUDIO_CODES: readonly string[] = ["JS_SPEECH_RECOGNITION", "JS_GET_USER_MEDIA", "JS_SPEECH_SYNTHESIS"];
+const AUDIO_CODES: readonly string[] = ["JS_GET_USER_MEDIA", "JS_SPEECH_RECOGNITION", "JS_SPEECH_SYNTHESIS"];
 
 function codes(text: string): string[] {
   return fileFindings(PATH, text).map((finding) => finding.code);
@@ -225,6 +225,16 @@ describe("a theme that listens, opens the microphone or camera, or speaks by its
     const found = fileFindings(PATH, text);
     expect(found.map((finding) => [finding.code, finding.severity])).toEqual(found.map(() => [code, "error"]));
     expect(found.length).toBeGreaterThan(0);
+  });
+
+  it("are core's AUDIO_APIS, in its order, with its names and words, one pattern for the rule and the check", () => {
+    expect(AUDIO_APIS.map((api) => [api.code, api.name, api.does])).toEqual([
+      ["JS_GET_USER_MEDIA", "getUserMedia", "opens the microphone"],
+      ["JS_SPEECH_RECOGNITION", "SpeechRecognition", "listens to the microphone"],
+      ["JS_SPEECH_SYNTHESIS", "speechSynthesis", "speaks"],
+    ]);
+    AUDIO_APIS.forEach((api) => expect(RULES.find((row) => row.code === api.code)?.pattern).toBe(api.pattern));
+    expect(Object.isFrozen(AUDIO_APIS)).toBe(true);
   });
 
   it("finds each name once where it stands, webkit's spelling included", () => {

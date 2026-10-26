@@ -133,11 +133,14 @@ and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts`
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (the boot's `sanitizePrepaint`
 and fit check, shared with `check design`, and the server's `paint_look`), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
-to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`, `drift.py`,
-the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a `mobile` block's colour pairs):
-`src/check/` ports it over the two data files, the contrast check included (`src/check/mobile-contrast.ts`, which paints
-`fromLooks` through `src/mobile-paint.ts` and takes its ratio from look-kit's `contrastRatio`, `@automatos/look-kit`'s
-copy of core's `frontend/lib/look-kit/contrast.ts`, the same file at this commit). Its `check-uses`, `check-drift` and
-`check-report` tests repeat the cases of core's `orchestrator/tests/test_prd261_review_stage.py` at the same commit,
-and `check-mobile-contrast` those of `orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases
-among them (Play's `test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).
+to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`,
+`audio_capture.py`, `drift.py`, the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a
+`mobile` block's colour pairs): `src/check/` ports it over the two data files, the audio capture check included
+(`src/check/audio.ts`, over `@automatos/theme-rules`' `AUDIO_APIS`, the JS rules' own patterns), and the contrast check
+(`src/check/mobile-contrast.ts`, which paints `fromLooks` through `src/mobile-paint.ts` and takes its ratio from
+look-kit's `contrastRatio`, `@automatos/look-kit`'s copy of core's `frontend/lib/look-kit/contrast.ts`, the same file at
+this commit). Its `check-uses`, `check-drift` and `check-report` tests repeat the cases of core's
+`orchestrator/tests/test_prd261_review_stage.py` at the same commit, `check-audio` those of
+`orchestrator/tests/test_theme_voice_audio_capture.py`, and `check-mobile-contrast` those of
+`orchestrator/tests/test_prd261_mobile_contrast.py`, the corpus's `contrast` cases among them (Play's
+`test/mobile.test.ts` holds look-kit's `contrastRatio` to the same cases).

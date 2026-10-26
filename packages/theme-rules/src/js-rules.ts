@@ -18,7 +18,8 @@
  * They refuse audio the theme captures or makes itself (theme voice, SDK 1.2.0): getUserMedia (with
  * webkitGetUserMedia and mozGetUserMedia), SpeechRecognition and webkitSpeechRecognition, and
  * speechSynthesis. A theme talks to Auto by voice only through the SDK's voice area, whose names are
- * never refused. The three rows are core's audio_capture.py patterns (TV-C7, AUDIO_APIS): each name as
+ * never refused. The three rows are core's audio_capture.py patterns (TV-C7, AUDIO_APIS, exported here
+ * for the theme CLI's port of that check, which reads dist/): each name as
  * a whole identifier, not inside a longer one (`(?<![\w$])` and `(?![\w$])`, with `\w` read as Python
  * reads it in a text pattern: any letter or number, and `_`), in calls, property reads, strings and
  * comments alike. Core reads the bundle (dist/) and these rules read source/, so a name either one
@@ -85,10 +86,44 @@ const VOICE_AREA = "use the SDK's voice area instead (voice.VoiceButton, useVoic
 const ALONE_BEFORE = String.raw`(?<![\p{L}\p{N}_$])`
 const ALONE_AFTER = String.raw`(?![\p{L}\p{N}_$])`
 
-/** An audio row: core's pattern for one browser audio API, refused at AUDIO_CAPTURE_SEVERITY. */
-function audio(code: string, names: string, message: string): Rule {
-  return rule(code, `${ALONE_BEFORE}(?:${names})${ALONE_AFTER}`, `${message} ${VOICE_AREA}`, 'u', AUDIO_CAPTURE_SEVERITY)
+/** One browser audio API a theme may not use itself (audio_capture.py AudioApi): its rule's code and its words. */
+export interface AudioApi {
+  readonly code: string
+  /** The name core's check reports it by. */
+  readonly name: string
+  /** What it does, as core's sentences say it. */
+  readonly does: string
+  /** Every spelling, each a whole identifier: a global pattern, read with matchAll as the table's are. */
+  readonly pattern: RegExp
 }
+
+/** audio_capture.py AUDIO_APIS, in its order, with each rule's message. */
+const AUDIO_SPECS = [
+  {
+    code: 'JS_GET_USER_MEDIA', name: 'getUserMedia', spellings: 'getUserMedia|webkitGetUserMedia|mozGetUserMedia', does: 'opens the microphone',
+    message: 'calls getUserMedia: a theme that opens the microphone or camera by itself can record the person using it, with no AI voice caption and no stop control;',
+  },
+  {
+    code: 'JS_SPEECH_RECOGNITION', name: 'SpeechRecognition', spellings: '(?:webkit)?SpeechRecognition', does: 'listens to the microphone',
+    message: "uses SpeechRecognition: a theme that listens by itself can send the microphone's audio to the browser vendor's speech service, with no AI voice caption and no stop control;",
+  },
+  {
+    code: 'JS_SPEECH_SYNTHESIS', name: 'speechSynthesis', spellings: 'speechSynthesis', does: 'speaks',
+    message: 'uses speechSynthesis: a theme that speaks by itself can speak as Auto with no AI notice and no stop control;',
+  },
+] as const
+
+const audioPattern = (spellings: string): RegExp => new RegExp(`${ALONE_BEFORE}(?:${spellings})${ALONE_AFTER}`, 'gu')
+
+/** The audio APIs the review refuses in source/ and core's audioCapture check blocks in dist/, with one pattern each. */
+export const AUDIO_APIS: readonly AudioApi[] = Object.freeze(AUDIO_SPECS.map(({ code, name, does, spellings }) => (
+  Object.freeze({ code, name, does, pattern: audioPattern(spellings) })
+)))
+
+/** The audio rows of the table: each API's pattern, refused at AUDIO_CAPTURE_SEVERITY. */
+const AUDIO_RULES: readonly Rule[] = AUDIO_SPECS.map(({ code, message }, index) => (
+  Object.freeze({ code, severity: AUDIO_CAPTURE_SEVERITY, pattern: AUDIO_APIS[index].pattern, message: `${message} ${VOICE_AREA}` })
+))
 
 export const RULES: readonly Rule[] = Object.freeze([
   rule('JS_FETCH', String.raw`\bfetch\s*\(`, 'calls fetch(): a theme reads data through the SDK, never the network.'),
@@ -111,9 +146,7 @@ export const RULES: readonly Rule[] = Object.freeze([
   rule('JS_LOCATION_WRITE', String.raw`\blocation\s*\.\s*(?:assign|replace)\s*\(`, 'navigates with location.assign/replace: navigate through the SDK.'),
   rule('JS_COMPUTED_GLOBAL', String.raw`\b(?:globalThis|window|self)\s*(?:\?\.\s*)?\[`, 'reads a computed property of globalThis/window.'),
   rule('JS_BUNDLED_REACT', String.raw`__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED|__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE|react\.production(?:\.min)?\.js|Symbol\.for\(\s*['"]react\.element['"]\s*\)`, "bundles React: the host's React comes through its import map."),
-  audio('JS_SPEECH_RECOGNITION', '(?:webkit)?SpeechRecognition', "uses SpeechRecognition: a theme that listens by itself can send the microphone's audio to the browser vendor's speech service, with no AI voice caption and no stop control;"),
-  audio('JS_GET_USER_MEDIA', 'getUserMedia|webkitGetUserMedia|mozGetUserMedia', 'calls getUserMedia: a theme that opens the microphone or camera by itself can record the person using it, with no AI voice caption and no stop control;'),
-  audio('JS_SPEECH_SYNTHESIS', 'speechSynthesis', 'uses speechSynthesis: a theme that speaks by itself can speak as Auto with no AI notice and no stop control;'),
+  ...AUDIO_RULES,
 ])
 
 /** `from 'x'`, `import 'x'`, `import('x')`, `require('x')`: the quoted specifier is group 2. */
