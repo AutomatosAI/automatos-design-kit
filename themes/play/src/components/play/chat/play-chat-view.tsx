@@ -166,10 +166,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
       <div className={styles.chat} data-empty={empty || undefined}>
         {empty ? (
           <FirstOpenHero
-            state={shown.state}
-            onClipEnded={auto.onClipEnded}
-            speaking={shown.speaking}
-            voiceActive={shown.voiceActive}
+            state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} voiceActive={shown.voiceActive}
             {...shown.caption}
           />
         ) : (
