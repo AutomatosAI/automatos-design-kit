@@ -2,6 +2,21 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.1.1
+
+Polish for the product images:
+
+- The LOOK drawer's note under the glow slider, once the look's glow is past what its background and accent keep
+  readable, says so in plain words: "Held at 20 here so text stays easy to read." (it said "Painted at 20 here: any
+  brighter and the text stops reading at AA"). The slider's value for a screen reader reads "30, held at 29".
+- The core screen's transcript fades out over 24 px at its top edge, so a row or a card scrolled up under it fades
+  instead of being cut in half where the column is short (a voice session at 1440 by 900); 24 px of padding keeps the
+  first row clear of the fade at the top of the scroll. The host's voice caption and stop control sit under it, never
+  in it.
+- On the phone, while a voice session runs, the last exchange sits at the foot of its room, just over the waveform,
+  instead of centred between the core and the dock, so the words heard read as said into it rather than adrift in a
+  gap. At rest it is centred as before.
+
 ## 1.1.0
 
 HUD talks, on the SDK's voice area (SDK 1.2.0: `engines.sdk` is `^1.2.0` and `uses` names `voice`), and types as before:

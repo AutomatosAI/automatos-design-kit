@@ -15,7 +15,8 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   inside the frame and recoloured by the look. In a phone's browser it is the phone's frame (below).
 - The core screen at `/chat`, a page HUD owns: the conversation's title with New chat beside it, Auto in the voice
   core with the state in words under him and Pause Auto beside it, the transcript with his replies and the host's own
-  cards (approvals, Deliverables, Missions, tickets), the message box (Enter sends, Shift + Enter makes a new line,
+  cards (approvals, Deliverables, Missions, tickets; its top edge fades, so a row scrolled under it is never cut in
+  half), the message box (Enter sends, Shift + Enter makes a new line,
   Esc stops), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
   how to start, with three starters that fill the message box. Over the message box, the host's voice button in the
@@ -53,8 +54,8 @@ the host's voice button does, on a press. Typing stays: voice is beside the mess
   while the look's motion is off.
 - **What was said aloud** is the conversation's: while a session runs on it, the host puts what was heard and what
   Auto is saying at the end of its messages (`voice-live-user` and `voice-live-assistant`), so the transcript shows them
-  as its newest YOU and AUTO rows, Auto's with the AI-generated mark, and on the phone they are the last exchange, until
-  the saved turn takes their place. HUD draws no words of its own beside them, so they show once.
+  as its newest YOU and AUTO rows, Auto's with the AI-generated mark, and on the phone they are the last exchange,
+  sitting at the foot of its room over the waveform while the session runs, until the saved turn takes their place. HUD draws no words of its own beside them, so they show once.
 - **Auto's state while you talk** (`src/voice/session.ts`): while the session listens, thinks or speaks, the state chip
   under the core and the phone's top line say so ("Listening", "Thinking", "Speaking"), the one time HUD says
   Listening, since the microphone is open; then the chat's state again.
@@ -73,7 +74,8 @@ The host keeps the looks and paints the active one before HUD's code runs, from 
 The table is built from HUD's catalogue (`src/lib/looks/`), whose values are the design's (`looks.json`), and the
 tests hold the committed file to it. Every look is dark. The text colours are fixed so they read at WCAG AA on every
 background; the accent and the error colour have readable text forms; the glow stops where the text on it, or in a
-panel over it, would drop under AA.
+panel over it, would drop under AA, and past that point the LOOK drawer's glow slider says so in plain words ("Held at
+20 here so text stays easy to read.").
 
 ## Fonts
 
