@@ -18,6 +18,8 @@
  * Exit code 0 when the folder is written; 1 when the theme can't be made (a reserved name, an existing folder, a
  * folder of the kit's, a rename that would merge two of Play's names), every reason printed and nothing written; 2
  * for a usage error.
+ * A theme written into the kit's own `themes/` keeps its template's tsconfig.json, extending the kit's base as Play's
+ * and HUD's do; one written anywhere else gets a tsconfig.json that stands alone (tsconfig.ts).
  * The command reads the kit's own folders and writes only `--to`; it sends nothing anywhere.
  */
 import { existsSync } from 'node:fs'
@@ -31,7 +33,7 @@ import { within } from '../dev-server.ts'
 import type { Output } from '../output.ts'
 import { fullTheme } from './full.ts'
 import { copyTemplate, placeholderValues, themeNames, writeFolder, type ThemeNames } from './placeholders.ts'
-import { writeStandaloneTsconfig } from './tsconfig.ts'
+import { writeThemeTsconfig } from './tsconfig.ts'
 
 export const NEW_USAGE = 'usage: automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]'
 export const TEMPLATES = ['minimal', 'full'] as const
@@ -112,13 +114,13 @@ export function refusals(command: NewCommand, kitRoot: string): string[] {
 function writeTheme(command: NewCommand, names: ThemeNames, kitRoot: string): { readonly written: number } | { readonly problems: readonly string[] } {
   if (command.template === 'minimal') {
     const written = copyTemplate(join(kitRoot, 'templates', 'minimal'), command.target, placeholderValues(names)).length
-    writeStandaloneTsconfig(command.target, kitRoot)
+    writeThemeTsconfig(command.target, kitRoot, join(kitRoot, THEMES_DIR))
     return { written }
   }
   const made = fullTheme({ names, mascot: command.mascot, kitRoot })
   if (!made.ok) return { problems: made.problems }
   writeFolder(command.target, made.files)
-  writeStandaloneTsconfig(command.target, kitRoot)
+  writeThemeTsconfig(command.target, kitRoot, join(kitRoot, THEMES_DIR))
   return { written: made.files.length }
 }
 

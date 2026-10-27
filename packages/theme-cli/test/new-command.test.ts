@@ -1,19 +1,23 @@
 /**
  * `automatos-theme new` (PRD-261 B-03f): the arguments it takes, the themes it refuses before it writes anything (a
  * folder that is there already, one inside the kit's own folders, Automatos's own publisher, a class core keeps on
- * <html>, a name that can't be a class), and the minimal template written with its placeholders filled. The full
- * template's real builds are the kit's tests/template-full.test.ts; the minimal one's is tests/template-minimal.test.ts.
+ * <html>, a name that can't be a class), and the minimal template written with its placeholders filled: its
+ * tsconfig.json extending the kit's base in the kit's themes/, as Play's and HUD's do, and standing alone anywhere
+ * else. The full template's real builds are the kit's tests/template-full.test.ts; the minimal one's is
+ * tests/template-minimal.test.ts.
  */
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { COMMANDS, run, type CommandDeps } from '../src/cli-main.ts'
 import { KIT_FOLDERS_KEPT, KIT_ROOT, NEW_USAGE, parseNew, runNew } from '../src/new/index.ts'
 import { placeholdersIn, readFolder, themeNames } from '../src/new/placeholders.ts'
-import { BASE_TSCONFIG, standaloneTsconfig } from '../src/new/tsconfig.ts'
+import { BASE_TSCONFIG, isKitTheme, standaloneTsconfig } from '../src/new/tsconfig.ts'
 
 const folders: string[] = []
+/** The kit's own themes, whose tsconfig.json a theme made in the kit's themes/ matches. */
+const KIT_THEMES = ['play', 'hud']
 
 afterEach(() => {
   folders.splice(0).forEach((folder) => rmSync(folder, { recursive: true, force: true }))
@@ -31,11 +35,21 @@ interface Ran {
   readonly err: readonly string[]
 }
 
-function ranNew(argv: readonly string[], cwd: string): Ran {
+function ranNew(argv: readonly string[], cwd: string, kitRoot: string = KIT_ROOT): Ran {
   const out: string[] = []
   const err: string[] = []
-  const code = runNew(argv, { out: (line) => out.push(line), err: (line) => err.push(line) }, cwd)
+  const code = runNew(argv, { out: (line) => out.push(line), err: (line) => err.push(line) }, cwd, kitRoot)
   return { code, out, err }
+}
+
+const readJson = (path: string): Record<string, unknown> => JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+
+/** A temporary kit as the kit lays one out: the minimal template and the shared compiler options at its root. */
+function tempKit(): string {
+  const kit = tempFolder()
+  cpSync(join(KIT_ROOT, 'templates', 'minimal'), join(kit, 'templates', 'minimal'), { recursive: true })
+  cpSync(join(KIT_ROOT, BASE_TSCONFIG), join(kit, BASE_TSCONFIG))
+  return kit
 }
 
 describe('the arguments', () => {
@@ -127,6 +141,32 @@ describe('new --template minimal', () => {
     const base = JSON.parse(readFileSync(join(KIT_ROOT, BASE_TSCONFIG), 'utf8')) as Record<string, unknown>
     const template = JSON.parse(readFileSync(join(KIT_ROOT, 'templates', 'minimal', 'tsconfig.json'), 'utf8')) as Record<string, unknown>
     expect(written).toEqual({ compilerOptions: base.compilerOptions, include: template.include })
+  })
+
+  it("in the kit's own themes/, leaves the tsconfig.json extending the kit's base, as Play's and HUD's do", () => {
+    const kit = tempKit()
+    expect(ranNew(['new', 'acme/night-owl', '--template', 'minimal'], kit, kit).code).toBe(0)
+    const written = readJson(join(kit, 'themes', 'night-owl', 'tsconfig.json'))
+    expect(written.extends).toBe('../../tsconfig.base.json')
+    expect(written.compilerOptions).toBeUndefined()
+    KIT_THEMES.forEach((theme) => expect(written, theme).toEqual(readJson(join(KIT_ROOT, 'themes', theme, 'tsconfig.json'))))
+  })
+
+  it("outside the kit's themes/, from the same kit, writes a tsconfig.json that stands alone", () => {
+    const kit = tempKit()
+    const outside = join(tempFolder(), 'night-owl')
+    expect(ranNew(['new', 'acme/night-owl', '--template', 'minimal', '--to', outside], kit, kit).code).toBe(0)
+    const written = readJson(join(outside, 'tsconfig.json'))
+    expect(written.extends).toBeUndefined()
+    expect(written.compilerOptions).toEqual(readJson(join(KIT_ROOT, BASE_TSCONFIG)).compilerOptions)
+  })
+
+  it("takes a theme for the kit's own only right inside its themes/ folder", () => {
+    const kit = tempKit()
+    const themes = join(kit, 'themes')
+    expect(isKitTheme(join(themes, 'night-owl'), themes)).toBe(true)
+    expect(isKitTheme(join(themes, 'night-owl', 'nested'), themes)).toBe(false)
+    expect(isKitTheme(join(kit, 'night-owl'), themes)).toBe(false)
   })
 
   it("lets the theme's own compiler options win over the kit's, and drops the extends", () => {
