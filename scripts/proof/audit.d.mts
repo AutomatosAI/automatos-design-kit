@@ -57,6 +57,7 @@ export declare function namesLeak(path: string, place: Place, leakEntries: reado
 export declare function commandWords(command: string): string[]
 export declare function isCommandPath(word: string, rootEntries: readonly string[]): boolean
 export declare function gitInvocations(command: string): string[][]
+export declare function gitLocations(command: string): string[]
 export declare function gitRefProblem(args: readonly string[], branch: string, isPath: (word: string) => boolean): string | null
 export declare function callFlags(call: ToolCall, context: AuditContext): string[]
 export declare function parseDenyList(text: string): DenyPattern[]

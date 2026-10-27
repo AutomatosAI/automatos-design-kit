@@ -9,7 +9,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 import {
-  audit, callFlags, commandWords, gitInvocations, gitRefProblem, parseDenyList, parseTranscript, placeOf, runSummary,
+  audit, callFlags, commandWords, gitInvocations, gitLocations, gitRefProblem, parseDenyList, parseTranscript, placeOf, runSummary,
   TOOLCHAIN_PATHS, toolCalls, type AuditContext, type Place, type ToolCall,
 } from "../scripts/proof/audit.mjs";
 import { parseLeakList } from "../scripts/proof/guard.mjs";
@@ -104,7 +104,8 @@ describe("what the audit flags", () => {
     expect(flagsOf("Bash", { command: "node scripts/x.mjs ../../secrets.txt" })).toEqual(["outside: ../../secrets.txt"]);
     expect(flagsOf("Glob", { pattern: "/etc/**/*.conf" })).toEqual(["outside: /etc/"]);
     expect(flagsOf("Grep", { pattern: "theme", path: "~/Documents" })).toEqual(["outside: ~/Documents"]);
-    expect(flagsOf("Bash", { command: `git -C ${HOME}/kit log` })).toEqual([`outside: ${HOME}/kit`]);
+    expect(flagsOf("Bash", { command: `git -C ${HOME}/kit log` }))
+      .toEqual([`outside: ${HOME}/kit`, `git-ref: git works in ${HOME}/kit, outside the clone`]);
   });
 
   it("a word from / only when its first folder is there, so a route is not a path", () => {
@@ -127,12 +128,16 @@ describe("what the audit flags", () => {
     ["git fetch origin", "git fetch reaches another repository"],
     ["git log --all --oneline", "git log names every ref"],
     ["git log -p", "git log prints every commit's patch, the launcher's deletion included"],
+    ["git -C /tmp/another-kit log --oneline", "git works in /tmp/another-kit, outside the clone"],
+    ["git --git-dir=/tmp/another-kit/.git status", "git works in /tmp/another-kit/.git, outside the clone"],
+    ["git grep -e frame kit-b06-base", "git grep names kit-b06-base, not HEAD or proof/b06-harbour"],
   ])("a git command beyond the proof branch: %s", (command, problem) => {
     expect(flagsOf("Bash", { command })).toEqual([`git-ref: ${problem}`]);
   });
 
   it("not HEAD, the proof branch, a range between them, or a file of the clone", () => {
-    ["git diff HEAD", `git log HEAD..${BRANCH}`, "git log README.md", "git log -p themes/harbour", "git status --short"]
+    ["git diff HEAD", `git log HEAD..${BRANCH}`, "git log README.md", "git log -p themes/harbour", "git status --short",
+      "git -C themes/harbour status", `git -C ${CLONE} log --oneline`, "git grep frame", "git grep -e frame -- themes/harbour"]
       .forEach((command) => expect(flagsOf("Bash", { command }), command).toEqual([]));
   });
 
@@ -160,6 +165,7 @@ describe("reading commands", () => {
   it("finds each git invocation, past environment assignments and git's own options", () => {
     expect(gitInvocations("FOO=1 git -C x -c a=b log -n 3 && npm test; /usr/bin/git status | cat")).toEqual([["log", "-n", "3"], ["status"]]);
     expect(gitRefProblem(["log", "-n", "3"], BRANCH, () => false)).toBeNull();
+    expect(gitLocations("git -C a log && git --git-dir=b/.git --work-tree c status; git status")).toEqual(["a", "b/.git", "c"]);
   });
 
   it("splits a command into words, leaving out a word with a backslash (a regular expression, not a path)", () => {

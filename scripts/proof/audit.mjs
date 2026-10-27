@@ -11,8 +11,9 @@
 //            npm's own paths are allowed (TOOLCHAIN_PATHS, and the node binary's prefix)
 //   leak     a path the clone's proof/leak-paths.txt lists, wherever it is named
 //   git-ref  a git command naming a ref other than HEAD or the proof branch, naming every ref, reaching another
-//            repository (fetch, pull, clone, ls-remote, remote, submodule, push), or printing history's patches with
-//            no path to limit them (git log -p shows the launcher's deletion, the removed files' text)
+//            repository (fetch, pull, clone, ls-remote, remote, submodule, push), pointed at a folder outside the
+//            clone (-C, --git-dir, --work-tree; the toolchain's folders too), or printing history's patches with no
+//            path to limit them (git log -p shows the launcher's deletion, the removed files' text)
 //   web      a WebFetch or WebSearch call
 //   deny     a line of the --deny file, found in a call (ignoring case); the file must be outside the clone and
 //            outside this kit's checkout, and the report names its line number, never its text
@@ -57,7 +58,12 @@ const PATCH_OPTION = /^(?:-p|-u|-U\d*|--patch|--patch-with-stat|--patch-with-raw
 /** git's own options that take the next word (git -C <dir> log), and a command's that do (git log -n 5). */
 const GIT_VALUE_OPTIONS = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--config-env'])
 const VALUE_OPTIONS = new Set(['-n', '--max-count', '--skip', '--author', '--committer', '--grep', '--since', '--until',
-  '--format', '--pretty', '-S', '-G', '-L', '-U', '-m', '-F', '-o', '--output'])
+  '--format', '--pretty', '-S', '-G', '-L', '-U', '-m', '-F', '-o', '--output', '-e', '-f'])
+/** git's own options that say where the repository is: the folder each names must be the clone. */
+const LOCATION_OPTIONS = new Set(['-C', '--git-dir', '--work-tree'])
+const ATTACHED_LOCATION = /^--(?:git-dir|work-tree)=(.+)$/
+/** git grep's pattern is its first word unless one of these gives it; then every word may be a revision. */
+const GREP_PATTERN_OPTIONS = new Set(['-e', '-f', '--regexp'])
 const HEAD_NAMES = new Set(['HEAD', '@'])
 const COMMAND_SEPARATOR = /&&|\|\||[;|\n]/
 const SHELL_WORD = /"((?:[^"\\]|\\.)*)"|'([^']*)'|(\S+)/g
@@ -153,15 +159,29 @@ function shellWords(segment) {
   return Array.from(segment.matchAll(SHELL_WORD), (match) => match[1] ?? match[2] ?? match[3])
 }
 
-/** The git invocations in a command line, each as its words after `git` and git's own options. */
-export function gitInvocations(command) {
+/** Each git invocation in a command line, as { globals, args }: git's own options, then the command and its words. */
+function gitParts(command) {
   return command.split(COMMAND_SEPARATOR).map(shellWords).flatMap((words) => {
     const start = words.findIndex((word) => !ENV_ASSIGNMENT.test(word))
     if (start < 0 || posix.basename(words[start]) !== 'git') return []
     const rest = words.slice(start + 1)
     const at = rest.findIndex((word, index) => !word.startsWith('-') && !GIT_VALUE_OPTIONS.has(rest[index - 1]))
-    return at < 0 ? [] : [rest.slice(at)]
+    return at < 0 ? [{ globals: rest, args: [] }] : [{ globals: rest.slice(0, at), args: rest.slice(at) }]
   })
+}
+
+/** The git invocations in a command line, each as its words after `git` and git's own options. */
+export function gitInvocations(command) {
+  return gitParts(command).map(({ args }) => args).filter((args) => args.length > 0)
+}
+
+/** The folders a command line's git invocations name as the repository (-C, --git-dir, --work-tree), as written. */
+export function gitLocations(command) {
+  return gitParts(command).flatMap(({ globals }) => globals.flatMap((word, index) => {
+    if (LOCATION_OPTIONS.has(word)) return globals[index + 1] === undefined ? [] : [globals[index + 1]]
+    const attached = ATTACHED_LOCATION.exec(word)
+    return attached === null ? [] : [attached[1]]
+  }))
 }
 
 /** The revisions a word names: both ends of a range, the revision of rev:path. */
@@ -180,7 +200,8 @@ export function gitRefProblem(args, branch, isPath) {
   if (rest.some((word) => EVERY_REF_OPTION.test(word))) return `git ${command} names every ref`
   if (!REF_COMMANDS.has(command)) return null
   const end = rest.indexOf('--')
-  const words = (end < 0 ? rest : rest.slice(0, end)).filter((word, index, all) => !word.startsWith('-') && !VALUE_OPTIONS.has(all[index - 1]))
+  const before = (end < 0 ? rest : rest.slice(0, end)).filter((word, index, all) => !word.startsWith('-') && !VALUE_OPTIONS.has(all[index - 1]))
+  const words = command === 'grep' && !rest.some((word) => GREP_PATTERN_OPTIONS.has(word)) ? before.slice(1) : before
   const allowed = (revision) => HEAD_NAMES.has(revision) || revision === branch
   const other = words.find((word) => !isPath(word) && !revisionsOf(word).every(allowed))
   if (other !== undefined) return `git ${command} names ${other}, not HEAD or ${branch || 'the proof branch'}`
@@ -226,10 +247,11 @@ export function callFlags(call, context) {
   const outsideAndLeaks = pathFlags(namedPaths(call, place.rootEntries), place, leakEntries)
   const leakWords = leakCandidates(call).filter((word) => namesLeak(word, place, leakEntries))
     .map((word) => `${FLAGS.leak}: ${word}`)
-  const git = typeof call.input.command === 'string'
-    ? gitInvocations(call.input.command).map((args) => gitRefProblem(args, branch, isPath)).filter((problem) => problem !== null)
-      .map((problem) => `${FLAGS.gitRef}: ${problem}`)
-    : []
+  const command = typeof call.input.command === 'string' ? call.input.command : ''
+  const elsewhere = gitLocations(command).filter((folder) => placeOf(folder, place) !== 'clone')
+    .map((folder) => `git works in ${folder}, outside the clone`)
+  const git = [...elsewhere, ...gitInvocations(command).map((args) => gitRefProblem(args, branch, isPath)).filter((problem) => problem !== null)]
+    .map((problem) => `${FLAGS.gitRef}: ${problem}`)
   const web = WEB_TOOLS.includes(call.tool) ? [`${FLAGS.web}: ${call.tool}`] : []
   const haystack = JSON.stringify(call.input).toLowerCase()
   const denied = deny.flatMap(({ line, pattern }) => (haystack.includes(pattern) ? [`${FLAGS.deny}: line ${line} of the deny file`] : []))
