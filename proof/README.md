@@ -24,7 +24,9 @@ the branch's diff and CI), not on a sandbox. Say "audited" when reporting a proo
 | `<id>/` | One proof's folder, on its proof branch only: `BRIEF.md`, `RUN.md`, `GAPS.md` and `BASE` |
 
 The scripts are in `scripts/proof/`: `launch.sh` prepares the clone and starts the run, `guard.mjs` checks the diff
-and `audit.mjs` checks the transcript. `tests/proof*.test.ts` holds them to this page.
+and `audit.mjs` checks the transcript, with `leak-content.mjs` (the content check), `shell.mjs` (a Bash call read as
+the shell reads it) and `transcript.mjs` (the transcript's calls and results). `tests/proof*.test.ts` holds them to
+this page.
 
 ## What the run may read and change
 
@@ -74,8 +76,10 @@ remote. An unattended start is fine: the model is pinned by the flag.
 1. Audit the transcript, with the deny file if you keep one:
    `node scripts/proof/audit.mjs <dest>.transcript.jsonl <dest> --deny <file>`. The deny file holds one name a
    line that the run must never mention (private repositories, products, people); keep it outside every repository
-   and never commit it. The audit prints the run's turns, cost and duration from the transcript's last line, then
-   one line per flag. Read the report before you paste it anywhere: it quotes the calls it flags.
+   and never commit it. Audit the clone as the launcher and the run left it: the content check reads the base from
+   its history. The audit prints the run's turns, cost and duration from the transcript's last line and what the
+   content check holds, then one line per flag. Read the report before you paste it anywhere: it quotes the calls
+   it flags (never a leak file's text).
 2. Copy the turns and the cost into `proof/<id>/RUN.md` (the launcher has added the end time), and commit it.
 3. Push the branch and open a pull request. Kit CI runs as on any pull request, and its `proof` job runs too.
 4. Never merge the proof branch as it is: its first commit deletes the leak paths. To keep the theme, open a new
@@ -90,7 +94,8 @@ If the guard names lock entries other than the new workspace's (a different npm 
 | Check | Where | Proves |
 |---|---|---|
 | The guard | kit CI's `proof` job | The diff from the base tag to the branch touches only `themes/<slug>/` and `proof/<id>/`, but the lock's new workspace entries and the launcher's deletion of the leak paths; every leak path is still gone; the theme folder is new |
-| The audit | the owner, after the run | No tool call named a path outside the clone (but Node's and npm's own: its cache, the node binary's prefix, `/tmp`, `/private/tmp` and `/dev/null`), named a leak path, ran git on a ref other than `HEAD` or the proof branch, on every ref, against another repository or in a folder outside the clone (`-C`, `--git-dir`, `--work-tree`), printed history's patches with no path to limit them (`git log -p` would show the removed files), used the web, or held a line of the deny file |
+| The audit's content check (authoritative) | the owner, after the run | No tool result showed the run a leak file's text: none held a fingerprint of one (`leak-content: <leak file> seen in turn <n>`), and the base could be read from the clone's history |
+| The audit's command checks (secondary) | the owner, after the run | No tool call named a path outside the clone (but Node's and npm's own: its cache, the node binary's prefix, `/tmp`, `/private/tmp` and `/dev/null`), named a leak path, ran git on a ref other than `HEAD` or the proof branch, on every ref, against another repository or in a folder outside the clone (`-C`, `--git-dir`, `--work-tree`), printed history's patches for a path outside `themes/<slug>/` and `proof/<id>/` or for none (`git log -p` would show the removed files), used the web, or held a line of the deny file; each command read as the shell reads it, quotes and escapes taken off |
 | Build, lint, typecheck, test, pack | kit CI's `kit` job | The new theme is a workspace (`themes/*`), so every root script runs its scripts too, and `pack` checks its design and writes its package |
 | Shots | kit CI's `proof` job | `automatos-theme shots` draws the theme in the browser harness, every slot, page and route for each preset, on Chromium and WebKit, with an axe scan of each shot; uploaded as `kit-proof-shots` |
 
@@ -98,6 +103,24 @@ The `proof` job runs only on a pull request from a branch whose name starts with
 `guard.mjs`, never the branch's own, so a proof branch can't change the check that judges it. The guard reads the one
 `proof/<id>/BASE` the branch holds, takes the slug from the branch's name, fetches the base tag and checks the diff;
 then the job installs, builds, runs `automatos-theme check` on the theme and shoots it.
+
+### Why the content check is the authoritative one
+
+The command checks read what a call asked for, and a command can be written in more ways than they read: an escape the
+shell takes off (`com\mand`, which they do read), a git alias, a shell inside a shell (`sh -c`), or a script that runs
+git itself. The content check reads what came back instead. From the clone's history it takes the base (the parent of
+the launcher's deletion commit, which must be the commit of the tag `proof/<id>/BASE` names when the clone has both)
+and the leak files there (`leak-paths.txt` at the base). Each leak file's fingerprints are its lines, trimmed, of 32
+characters or more that no other text file of the base holds, whole or inside a line (so a line HUD shares with the
+reference it was built from is none), and its whole text, when it has a line of its own. Every tool result in the
+transcript, which holds what each call showed the run, is searched for them, as written and as JSON escapes them (a
+line counts by its first 200 characters). Whichever way the run reached a leak file, what it was shown is in a result,
+so a flag here stands whatever the commands looked like; the command checks then help find the call.
+
+It does not see text the run turned into something else before printing it (base64, say), nor a leak file's lines
+under 32 characters. A long line a leak file shares with a file outside the kit (boilerplate in an HTML page, say)
+flags a read of that file too, and a brief that quotes a leak file flags its own read: the report names the leak
+file and the turn, so read that turn of the transcript before deciding.
 
 ## RUN.md and GAPS.md
 

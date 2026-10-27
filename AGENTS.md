@@ -86,8 +86,10 @@ core wins and the kit is fixed.
   never merged as it is.
 - `scripts/proof/`: `launch.sh` (prepares the clone, outside this repository, and starts the run with its model
   pinned), `guard.mjs` (a proof branch changes only its theme and proof folders; `--ci` is kit.yml's `proof` job) and
-  `audit.mjs` (what the run's transcript reached for: paths outside the clone, leak paths, other refs, the web, a
-  deny list kept outside the repository).
+  `audit.mjs` (what the run's transcript shows: first a leak file's text in any tool result, matched against the
+  base in the clone's history by `leak-content.mjs`, the authoritative check; then what its calls reached for, read
+  as the shell reads them by `shell.mjs`: paths outside the clone, leak paths, other refs, the web, a deny list kept
+  outside the repository).
 
 ## What CI runs
 

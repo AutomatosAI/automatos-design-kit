@@ -1,19 +1,23 @@
-// PRD-261 B-06a: scripts/proof/audit.mjs, the proof audit. Seeded stream-json transcripts, as `claude -p
-// --output-format stream-json --verbose` writes them, against a made-up clone: a clean run passes; a path outside the
-// clone, a leak path, a ref other than HEAD or the proof branch, the web and a deny-file line are each flagged, with
-// the turn and the call; Node's and npm's own paths are allowed. Then the script runs with Node on files in a
-// temporary folder. The guard is in tests/proof.test.ts, the launcher in tests/proof-launch.test.ts.
+// PRD-261 B-06a: scripts/proof/audit.mjs, the proof audit's command checks. Seeded stream-json transcripts, as `claude
+// -p --output-format stream-json --verbose` writes them, against a made-up clone: a clean run passes; a path outside
+// the clone, a leak path, a ref other than HEAD or the proof branch, a patch walk beyond the proof's folders, the web
+// and a deny-file line are each flagged, with the turn and the call, however the command escapes or quotes them;
+// Node's and npm's own paths are allowed. Then the script runs with Node on a throwaway proof repository. The content
+// check is in tests/proof-content.test.ts, the guard in tests/proof.test.ts, the launcher in tests/proof-launch.test.ts.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 import {
-  audit, callFlags, commandWords, gitInvocations, gitLocations, gitRefProblem, parseDenyList, parseTranscript, placeOf, runSummary,
-  TOOLCHAIN_PATHS, toolCalls, type AuditContext, type Place, type ToolCall,
+  audit, callFlags, gitRefProblem, parseDenyList, placeOf, TOOLCHAIN_PATHS, type AuditContext, type Place,
 } from "../scripts/proof/audit.mjs";
 import { parseLeakList } from "../scripts/proof/guard.mjs";
-import { BRANCH, COMMAND_FOLDER, LEAK_LIST, REFERENCES_TEST, ROOT, sandbox } from "./support/proof-git.ts";
+import { commandWords, gitInvocations, gitLocations, shellCommands } from "../scripts/proof/shell.mjs";
+import { parseTranscript, runSummary, toolCalls, type ToolCall } from "../scripts/proof/transcript.mjs";
+import {
+  BRANCH, COMMAND_FIXTURE, COMMAND_FOLDER, LEAK_LIST, PROOF_ID, REFERENCES_TEST, ROOT, SLUG, gitEnv, proofRepo, sandbox,
+} from "./support/proof-git.ts";
 
 const AUDIT = fileURLToPath(new URL("../scripts/proof/audit.mjs", import.meta.url));
 const EXIT_OK = 0;
@@ -31,13 +35,20 @@ const PLACE: Place = {
 };
 /** The words that are files in the made-up clone (git log <file>). */
 const CLONE_FILES = new Set(["themes/harbour", "themes/harbour/src/entry.ts", "README.md"]);
+/** The proof's own folders: a history walk's patches may be limited to them. */
+const PROOF_FOLDERS = [`themes/${SLUG}`, `proof/${PROOF_ID}`];
+/** The Command folder with a backslash in its name, as a command may escape it, never holding the name whole. */
+const ESCAPED_COMMAND = COMMAND_FOLDER.replace("command", "com\\mand");
 const leakEntries = parseLeakList(readFileSync(join(ROOT, LEAK_LIST), "utf8"));
 const RESULT = { type: "result", subtype: "success", num_turns: 3, total_cost_usd: 0.5, duration_ms: 1234 };
 
 type Input = Readonly<Record<string, unknown>>;
 
 function context(overrides: Partial<AuditContext> = {}): AuditContext {
-  return { place: PLACE, leakEntries, branch: BRANCH, isPath: (word) => CLONE_FILES.has(word), deny: [], ...overrides };
+  return {
+    place: PLACE, leakEntries, branch: BRANCH, proofFolders: PROOF_FOLDERS, isPath: (word) => CLONE_FILES.has(word), deny: [],
+    ...overrides,
+  };
 }
 
 /** One assistant message (its id) holding these tool calls. */
@@ -79,6 +90,7 @@ describe("a clean run", () => {
     ["Grep", { pattern: "/api/documents", path: `${CLONE}/guides`, glob: "*.md" }],
     bash("npm ci"), bash("npx automatos-theme check themes/harbour"), bash("git status"), bash("git log --oneline -n 5"),
     bash("git diff HEAD -- themes/harbour"), bash("git log -p -- themes/harbour"), bash(`git log ${BRANCH}`),
+    bash("git log --oneline -n 5 2>&1 | head"), bash("git log -p -- themes/harbour > /tmp/log.txt"),
     bash('git add themes/harbour && git commit -s -m "feat: the frame: header, rail and panels"'),
     bash("node -e \"console.log(['/chat', '/agents'].join())\""),
   );
@@ -86,7 +98,7 @@ describe("a clean run", () => {
   it("passes, with no flag", () => {
     const report = audit(events, context());
     expect(report.flagged).toBe(false);
-    expect(report.lines).toEqual([expect.stringContaining("13 tool calls"), "proof-audit: clean."]);
+    expect(report.lines).toEqual([expect.stringContaining("15 tool calls"), "proof-audit: clean."]);
   });
 
   it("allows Node's and npm's own paths: the npm cache, the temporary folders, /dev/null and the node binary's prefix", () => {
@@ -135,10 +147,59 @@ describe("what the audit flags", () => {
     expect(flagsOf("Bash", { command })).toEqual([`git-ref: ${problem}`]);
   });
 
-  it("not HEAD, the proof branch, a range between them, or a file of the clone", () => {
+  it.each([
+    ["git log -p -- themes/harbour references", "references"],
+    ["git log -p README.md", "README.md"],
+    ["git whatchanged -p -- packages", "packages"],
+    ["git log -p -- themes/harbour/../../references", "themes/harbour/../../references"],
+    ["git log -p -- :(top)references", ":(top)references"],
+  ])("a patch walk with a path outside the proof's folders, where the deletion's text may be: %s", (command, path) => {
+    expect(flagsOf("Bash", { command })).toEqual([`git-ref: git ${command.split(" ")[1]} prints history's patches for ${path}, outside themes/harbour/ and proof/b06/`]);
+  });
+
+  it("a patch walk with no path at all, a bare -- included, and any patch walk with a path when the proof's folders are unknown", () => {
+    expect(flagsOf("Bash", { command: "git log -p --" })).toEqual(["git-ref: git log prints every commit's patch, the launcher's deletion included"]);
+    expect(gitRefProblem(["log", "-p", "--", "themes/harbour"], BRANCH, () => false))
+      .toBe("git log prints history's patches for themes/harbour, outside the proof's folders");
+  });
+
+  it.each([
+    ["git grep -o frame kit-b06-base", "-o is --only-matching for git grep, no value"],
+    ["git grep -A 3 frame kit-b06-base", "-A takes git grep's context lines"],
+    ["git log -f kit-b06-base", "-e and -f take a value in git grep alone"],
+    ["git grep -eframe kit-b06-base", "an attached -e"],
+    ["git grep -fpatterns.txt kit-b06-base", "an attached -f"],
+    ["git grep --regexp=frame kit-b06-base", "an attached --regexp"],
+    ["git grep --regexp frame kit-b06-base", "--regexp takes the next word"],
+    ["git grep -iefoo kit-b06-base", "-e in a bundle of short options"],
+  ])("git's options as each command takes them: %s (%s)", (command) => {
+    const name = command.split(" ")[1];
+    expect(flagsOf("Bash", { command })).toEqual([`git-ref: git ${name} names kit-b06-base, not HEAD or proof/b06-harbour`]);
+  });
+
+  it("not HEAD, the proof branch, a range between them, a file of the clone, or a patch walk inside the proof's folders", () => {
     ["git diff HEAD", `git log HEAD..${BRANCH}`, "git log README.md", "git log -p themes/harbour", "git status --short",
-      "git -C themes/harbour status", `git -C ${CLONE} log --oneline`, "git grep frame", "git grep -e frame -- themes/harbour"]
+      "git -C themes/harbour status", `git -C ${CLONE} log --oneline`, "git grep frame", "git grep -e frame -- themes/harbour",
+      "git log -p -- themes/harbour proof/b06", "git log -p -- ./themes/harbour/src", "git log --patch -- themes/harbour/ 2>&1",
+      "git grep -C 2 frame", "git grep -n -m 5 frame -- themes/harbour", "git status 2> /dev/null"]
       .forEach((command) => expect(flagsOf("Bash", { command }), command).toEqual([]));
+  });
+
+  it("whatever the shell's escapes and quotes hide: an escaped command, a joined line, an escaped leak path or outside path", () => {
+    expect(flagsOf("Bash", { command: "git l\\og -p" })).toEqual(["git-ref: git log prints every commit's patch, the launcher's deletion included"]);
+    expect(flagsOf("Bash", { command: "git log \\\n  -p" })).toEqual(["git-ref: git log prints every commit's patch, the launcher's deletion included"]);
+    expect(flagsOf("Bash", { command: "git 'log' \"-p\"" })).toEqual(["git-ref: git log prints every commit's patch, the launcher's deletion included"]);
+    expect(flagsOf("Bash", { command: `cat ${ESCAPED_COMMAND}/README.md` })).toEqual([`leak: ${COMMAND_FOLDER}/README.md`]);
+    expect(flagsOf("Bash", { command: `node -e "require('fs').readFileSync('${ESCAPED_COMMAND}/README.md')"` }))
+      .toEqual([`leak: ${COMMAND_FOLDER}/README.md`]);
+    expect(flagsOf("Bash", { command: `node -e 'require("fs").readFileSync("${ESCAPED_COMMAND}/README.md")'` }))
+      .toEqual([`leak: ${COMMAND_FOLDER}/README.md`]);
+    expect(flagsOf("Bash", { command: "cat \\/etc/hosts" })).toEqual(["outside: /etc/hosts"]);
+  });
+
+  it("not a regular expression for a path: a backslash the shell keeps inside quotes is passed on as written", () => {
+    expect(flagsOf("Bash", { command: `grep -rn "\\/home\\/owner" themes/harbour` })).toEqual([]);
+    expect(flagsOf("Bash", { command: "node -e \"/\\.ts$/.test(f)\" > /tmp/out.txt" })).toEqual([]);
   });
 
   it("WebFetch and WebSearch", () => {
@@ -168,8 +229,20 @@ describe("reading commands", () => {
     expect(gitLocations("git -C a log && git --git-dir=b/.git --work-tree c status; git status")).toEqual(["a", "b/.git", "c"]);
   });
 
-  it("splits a command into words, leaving out a word with a backslash (a regular expression, not a path)", () => {
-    expect(commandWords("node -e \"/\\.ts$/.test(f)\" > /tmp/out.txt")).toEqual(["node", "-e", "f", "/tmp/out.txt"]);
+  it("reads a command line as the shell does: commands, quotes taken off, escapes applied, a backslash and a line break joined", () => {
+    expect(shellCommands("git l\\og -p && echo 'a\\b' \"c\\d\" \"e\\\"f\" g\\ h || x; y | z\nw")).toEqual([
+      ["git", "log", "-p"], ["echo", "a\\b", "c\\d", "e\"f", "g h"], ["x"], ["y"], ["z"], ["w"],
+    ]);
+    expect(shellCommands("git log \\\n -p 2>&1")).toEqual([["git", "log", "-p", "2>&1"]]);
+    expect(shellCommands("echo '' \"open")).toEqual([["echo", "", "open"]]);
+  });
+
+  it("splits a command into words, keeping a word with a backslash the shell leaves (a regular expression)", () => {
+    expect(commandWords("node -e \"/\\.ts$/.test(f)\" > /tmp/out.txt")).toEqual(["node", "-e", "/\\.ts$/.test", "f", "/tmp/out.txt"]);
+  });
+
+  it("leaves a git command's redirections out of its words", () => {
+    expect(gitInvocations("git log -n 5 2>&1 > out.txt && git status &>/dev/null < in")).toEqual([["log", "-n", "5"], ["status"]]);
   });
 });
 
@@ -177,27 +250,52 @@ describe("scripts/proof/audit.mjs, run with Node", () => {
   const folder = sandbox("proof-audit-");
   afterAll(() => rmSync(folder, { recursive: true, force: true }));
 
-  /** A made-up clone with the kit's leak list, and its transcript beside it. */
+  /** A throwaway proof repository, as the launcher and a run leave one (tests/support/proof-git.ts), and its transcript beside it. */
   function setUp(events: readonly unknown[]): { clone: string; transcript: string } {
-    const clone = join(mkdtempSync(join(folder, "proof-")), "clone");
-    mkdirSync(join(clone, "proof"), { recursive: true });
-    writeFileSync(join(clone, LEAK_LIST), readFileSync(join(ROOT, LEAK_LIST)));
+    const clone = proofRepo(folder);
     const transcript = `${clone}.transcript.jsonl`;
     writeFileSync(transcript, `${events.map((event) => JSON.stringify(event)).join("\n")}\n`);
     return { clone, transcript };
   }
 
+  /** The audit, run with Node in git's test environment (its home the sandbox). */
   function runAudit(args: readonly string[]): { status: number | null; output: string } {
-    const result = spawnSync(process.execPath, [AUDIT, ...args], { encoding: "utf8" });
+    const result = spawnSync(process.execPath, [AUDIT, ...args], { encoding: "utf8", env: gitEnv(folder) });
     return { status: result.status, output: `${result.stdout}${result.stderr}` };
   }
 
-  it("exits 0 on a clean run, printing its numbers", () => {
-    const { clone, transcript } = setUp(run(bash("npm ci"), ["Glob", { pattern: "themes/**" }]));
+  /** A tool result the run was shown, answering the first call of the message `messageId`. */
+  const shown = (messageId: string, content: string): unknown => ({
+    type: "user", message: { role: "user", content: [{ type: "tool_result", tool_use_id: `toolu_${messageId}_0`, content }] },
+  });
+
+  it("exits 0 on a clean run, printing its numbers and what the content check holds", () => {
+    const events = run(bash("npm ci"), ["Glob", { pattern: "themes/**" }]);
+    const { clone, transcript } = setUp([...events.slice(0, 2), shown("msg_0", "added 812 packages"), ...events.slice(2)]);
     const outcome = runAudit([transcript, clone]);
     expect(outcome.status, outcome.output).toBe(EXIT_OK);
     expect(outcome.output).toContain("proof-audit: 2 tool calls; turns 3, cost 0.5 USD, duration 1234 ms.");
+    expect(outcome.output).toContain("proof-audit: the content check holds 4 lines and 4 whole texts of 4 leak files.");
     expect(outcome.output).toContain("proof-audit: clean.");
+  });
+
+  it("exits 1 when a tool result showed a leak file's text, naming the file and the turn, never the text", () => {
+    const events = run(bash("npm run build"));
+    const { clone, transcript } = setUp([...events.slice(0, 2), shown("msg_0", `> build\nmade up: ${COMMAND_FIXTURE}\n`), ...events.slice(2)]);
+    const outcome = runAudit([transcript, clone]);
+    expect(outcome.status, outcome.output).toBe(EXIT_FLAGGED);
+    expect(outcome.output).toMatch(new RegExp(`^leak-content: ${COMMAND_FIXTURE} seen in turn 1$`, "m"));
+    expect(outcome.output).not.toContain("made up:");
+  });
+
+  it("exits 1 when the clone has no history to read the base from: the content check could not run", () => {
+    const clone = join(mkdtempSync(join(folder, "proof-")), "clone");
+    mkdirSync(join(clone, "proof"), { recursive: true });
+    writeFileSync(join(clone, LEAK_LIST), readFileSync(join(ROOT, LEAK_LIST)));
+    writeFileSync(`${clone}.transcript.jsonl`, `${run().map((event) => JSON.stringify(event)).join("\n")}\n`);
+    const outcome = runAudit([`${clone}.transcript.jsonl`, clone]);
+    expect(outcome.status, outcome.output).toBe(EXIT_FLAGGED);
+    expect(outcome.output).toMatch(/^leak-content: the content check could not run: /m);
   });
 
   it("exits 1 on a flagged run, with a line for each flag", () => {

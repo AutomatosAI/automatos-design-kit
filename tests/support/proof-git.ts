@@ -21,6 +21,8 @@ export const COMMAND_FOLDER = ["references", "designs", "command"].join("/");
 /** A fixture copy of Command's looks, which the leak list's fixture glob takes. */
 export const COMMAND_FIXTURE = "packages/theme-cli/test/fixtures/core/command-looks.json";
 export const REFERENCES_TEST = "tests/references.test.ts";
+/** The subject of the launcher's deletion commit (scripts/proof/launch.sh), which the audit's content check finds. */
+export const REMOVAL_MESSAGE = `proof(${PROOF_ID}): remove the leak paths before the run`;
 /** The files the made-up kit's leak list takes out. */
 export const LEAK_FILES = [`${COMMAND_FOLDER}/README.md`, `${COMMAND_FOLDER}/looks/schema.json`, COMMAND_FIXTURE, REFERENCES_TEST];
 /** The kit's own proof files, copied into the made-up kit so the tests prove the real ones. */
@@ -141,7 +143,7 @@ export function proofRepo(home: string): string {
   const repo = upstream(home);
   git(repo, ["switch", "-q", "-c", BRANCH], home);
   git(repo, ["rm", "-r", "-q", "--", ...LEAK_FILES], home);
-  git(repo, ["commit", "-q", "-m", "remove the leak paths"], home);
+  git(repo, ["commit", "-q", "-m", REMOVAL_MESSAGE], home);
   commitFiles(repo, { ...themeFiles(), [`proof/${PROOF_ID}/BASE`]: `${BASE_TAG}\n`, [LOCKFILE]: lockText(proofLock()) }, home, "the theme");
   return repo;
 }

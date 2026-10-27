@@ -9,6 +9,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSy
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { findBase, REMOVAL_SUBJECT } from "../scripts/proof/leak-content.mjs";
 import {
   BASE_TAG, BRANCH, COMMAND_FOLDER, LEAK_FILES, PROOF_ID, REFERENCES_TEST, ROOT, SLUG, commitFiles, git, gitEnv, sandbox,
   themeFiles, upstream,
@@ -21,7 +22,10 @@ const MODEL = "claude-opus-5-5";
 const SCRIPT_TIMEOUT_MS = 60_000;
 const EXIT_REFUSED = 1;
 const PROTOCOL_FILES = ["proof/README.md", "proof/BRIEF.template.md", "proof/PROMPT.md", "proof/run-settings.json", "proof/leak-paths.txt"];
-const SCRIPT_FILES = ["scripts/proof/launch.sh", "scripts/proof/guard.mjs", "scripts/proof/audit.mjs"];
+const SCRIPT_FILES = [
+  "scripts/proof/launch.sh", "scripts/proof/guard.mjs", "scripts/proof/audit.mjs", "scripts/proof/leak-content.mjs",
+  "scripts/proof/shell.mjs", "scripts/proof/transcript.mjs",
+];
 const FORBIDDEN_TEXT = ["/Users/", "/home/", ".worktrees", "DUMPING AREA", "HANDOFF", "phase-bc-plan", "prd-261.json", "automatos-play-command"];
 const CATEGORIES = ["docs", "cli", "template", "checks", "host", "brief", "environment"];
 const BRIEF_SECTIONS = ["Theme", "Look and feel", "Frame and pages", "Looks", "Mascot", "Phone skin", "Out of scope", "Done when"];
@@ -164,6 +168,11 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
     [`- ${COMMAND_FOLDER}: 2 files`, "- packages/theme-cli/test/fixtures/**/command*: 1 files", `- ${REFERENCES_TEST}: 1 files`]
       .forEach((line) => expect(removal).toContain(line));
     expect(git(dest, ["rev-parse", "HEAD~2"], home).trim()).toBe(prepared.baseCommit);
+  });
+
+  it("leaves the base where the audit's content check finds it: the parent of the deletion commit, by its subject", () => {
+    expect(git(dest, ["log", "-n", "1", "--format=%s", "HEAD~1"], home).trim()).toMatch(REMOVAL_SUBJECT);
+    expect(findBase(dest)).toBe(prepared.baseCommit);
   });
 
   it("commits the brief, the run's records and the base tag, and leaves the clone clean", () => {
