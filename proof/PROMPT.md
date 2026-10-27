@@ -19,6 +19,9 @@ documented commands.
   brand, names or assets into your theme.
 - After `automatos-theme new` adds your folder, run `npm install` once so `package-lock.json` gains the new
   workspace. Only your workspace's own entries may change in it.
+- Your shell commands run in a sandbox: they write only inside this clone and npm's cache, read nothing in the home
+  folder, and reach only the npm registry. The commands above are allowed; `node` on its own, `npm exec` and `npx`
+  for anything but `automatos-theme` are not, so run code through the npm scripts and `npx automatos-theme`.
 - `AGENTS.md` and `CLAUDE.md` say nothing runs on the maintainer's machine and CI is the only test. That rule is for
   the kit's maintainers in their own checkouts. This clone is the proof's own: run the commands here.
 

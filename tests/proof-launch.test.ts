@@ -2,10 +2,14 @@
 // The launcher is read as text, then run with bash (CI only): it refuses without --model and refuses a --dest inside
 // a repository, inside the folder it runs from, inside the home folder's Claude Code folder, or one that exists,
 // before it writes anything; a --dry-run against a throwaway kit (tests/support/proof-git.ts) makes the proof branch,
-// deletes the leak paths in one commit, writes the proof folder, the run's settings and its task, starts nothing,
-// and leaves a branch the guard passes once a theme is added.
+// deletes the leak paths in one commit, writes the proof folder, the clone's git identity, the run's settings (filled
+// in with the clone's paths) and its task, starts nothing, and leaves a branch the guard passes once a theme is added.
+// The settings' template, the refusal of a --dest inside the home folder and node's prefix under it are in
+// tests/proof-settings.test.ts.
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
-import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, statSync, writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -33,6 +37,11 @@ const FLAGS = ["--id", "--slug", "--brief", "--model", "--base", "--dest", "--dr
 const PLACEHOLDER = /\{\{([A-Z]+)\}\}/g;
 
 const readText = (rel: string): string => readFileSync(join(ROOT, rel), "utf8");
+/** The parts of the run's filled-in settings these tests read; the template is tests/proof-settings.test.ts's. */
+interface RunSettings {
+  readonly permissions: { readonly allow: readonly string[] };
+  readonly sandbox: { readonly filesystem: Readonly<Record<string, readonly string[]>> };
+}
 const script = readText(LAUNCH);
 
 const scratch = sandbox("proof-launch-");
@@ -156,6 +165,7 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
     expect(result().status, `${result().stdout}${result().stderr}`).toBe(0);
     expect(result().stdout).toContain(`claude -p --model ${MODEL} --output-format stream-json --verbose --setting-sources project`);
     expect(result().stdout).toContain("dry run: nothing started.");
+    expect(result().stdout).toContain(`npm_config_cache=${realpathSync(dest)}.npm-cache npm_config_userconfig=/dev/null claude -p`);
     expect(existsSync(`${dest}.transcript.jsonl`)).toBe(false);
   });
 
@@ -185,8 +195,24 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
     expect(git(dest, ["status", "--porcelain"], home)).toBe("");
   });
 
-  it("gives the run the base's allow-list and the kit's skills, kept out of git, and its task beside the clone", () => {
-    expect(readFileSync(inClone(".claude/settings.json"), "utf8")).toBe(readText("proof/run-settings.json"));
+  it("gives the run its settings, filled in with the clone's real path and npm's cache beside it, and nothing left to fill", () => {
+    const clone = realpathSync(dest);
+    const text = readFileSync(inClone(".claude/settings.json"), "utf8");
+    expect(text).not.toContain("{{");
+    const settings = JSON.parse(text) as RunSettings;
+    expect(settings.permissions.allow.slice(0, 2)).toEqual([`Read(/${clone}/**)`, `Edit(/${clone}/**)`]);
+    expect(settings.permissions.allow[0].startsWith("Read(//")).toBe(true);
+    expect(settings.sandbox.filesystem).toEqual({ allowWrite: [clone, `${clone}.npm-cache`], denyWrite: [`${clone}/.claude`], denyRead: ["~/"] });
+    expect(`${clone}.npm-cache`.startsWith(`${clone}/`)).toBe(false);
+    expect(statSync(`${clone}.npm-cache`).isDirectory()).toBe(true);
+  });
+
+  it("gives the clone's own git config the identity this machine commits with, which the sandbox keeps the run from reading", () => {
+    expect(git(dest, ["config", "--local", "user.name"], home).trim()).toBe("Kit Test");
+    expect(git(dest, ["config", "--local", "user.email"], home).trim()).toBe("kit-test@example.com");
+  });
+
+  it("gives the run the kit's skills, kept out of git, and its task beside the clone", () => {
     expect(lstatSync(inClone(".claude/skills")).isSymbolicLink()).toBe(true);
     expect(readlinkSync(inClone(".claude/skills"))).toBe("../skills");
     const task = readFileSync(`${dest}.prompt.md`, "utf8");
@@ -212,13 +238,6 @@ describe("the protocol's files", () => {
     const names = new Set(Array.from(readText("proof/PROMPT.md").matchAll(PLACEHOLDER), (match) => match[1]));
     expect([...names].sort()).toEqual(["BASE", "BRANCH", "ID", "SLUG"]);
     names.forEach((name) => expect(script).toContain(`{{${name}}}`));
-  });
-
-  it("run-settings.json allows the kit's tools only, and denies the web, git push and the home folder's Claude Code folder", () => {
-    const { permissions } = JSON.parse(readText("proof/run-settings.json")) as { permissions: { allow: string[]; deny: string[] } };
-    expect(permissions.allow).toEqual(["Read", "Glob", "Grep", "Edit", "Write", "Bash(npm *)", "Bash(npx automatos-theme *)",
-      "Bash(node *)", "Bash(git status *)", "Bash(git diff *)", "Bash(git add *)", "Bash(git commit *)", "Bash(git log *)"]);
-    expect(permissions.deny).toEqual(["WebFetch", "WebSearch", "Bash(git push *)", "Read(~/.claude/**)", "Edit(~/.claude/**)"]);
   });
 
   it("README.md says audited, not impossible, and names every flag, every gap category and every script", () => {

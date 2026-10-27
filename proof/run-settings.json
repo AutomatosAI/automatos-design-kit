@@ -1,14 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Read",
-      "Glob",
-      "Grep",
-      "Edit",
-      "Write",
-      "Bash(npm *)",
+      "Read(/{{CLONE}}/**)",
+      "Edit(/{{CLONE}}/**)",
+      "Bash(npm ci)",
+      "Bash(npm install)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(npm test *)",
       "Bash(npx automatos-theme *)",
-      "Bash(node *)",
       "Bash(git status *)",
       "Bash(git diff *)",
       "Bash(git add *)",
@@ -18,9 +19,33 @@
     "deny": [
       "WebFetch",
       "WebSearch",
+      "Bash(node *)",
+      "Bash(npm exec *)",
+      "Bash(npm x *)",
+      "Bash(npx -c *)",
+      "Bash(npm publish *)",
       "Bash(git push *)",
-      "Read(~/.claude/**)",
-      "Edit(~/.claude/**)"
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Read(~/**)",
+      "Edit(~/**)"
     ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "autoAllowBashIfSandboxed": false,
+    "excludedCommands": [],
+    "filesystem": {
+      "allowRead": ["{{TOOLCHAIN}}"],
+      "allowWrite": ["{{CLONE}}", "{{NPM_CACHE}}"],
+      "denyWrite": ["{{CLONE}}/.claude"],
+      "denyRead": ["~/"]
+    },
+    "network": {
+      "allowedDomains": ["registry.npmjs.org"],
+      "allowLocalBinding": true
+    }
   }
 }

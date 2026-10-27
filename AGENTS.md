@@ -79,9 +79,10 @@ core wins and the kit is fixed.
   the test). `references/designs/`: design references (Ember and Command) to read, never to build from.
 - `proof/`: the proof protocol (PRD-261 B-06): a fresh agent, given a clean clone of the kit at a base tag and a
   brief, builds a new theme with the kit alone. `README.md` is the protocol (what the run may read and change, how to
-  launch it, what the guard, the audit and CI prove, what `RUN.md` and `GAPS.md` hold, the gap categories);
-  `BRIEF.template.md` the sections a brief has; `PROMPT.md` the run's fixed task; `run-settings.json` the run's
-  allow-list of tools; `leak-paths.txt` the paths the launcher deletes from the run's clone. A proof branch,
+  launch it, how the run is contained, what the guard, the audit and CI prove, what `RUN.md` and `GAPS.md` hold, the
+  gap categories); `BRIEF.template.md` the sections a brief has; `PROMPT.md` the run's fixed task;
+  `run-settings.json` the run's Claude Code settings (its permission rules and its sandbox), a template the launcher
+  fills with the clone's paths; `leak-paths.txt` the paths the launcher deletes from the run's clone. A proof branch,
   `proof/<id>-<slug>`, adds `proof/<id>/` (`BRIEF.md`, `RUN.md`, `GAPS.md`, `BASE`) and `themes/<slug>/`, and is
   never merged as it is.
 - `scripts/proof/`: `launch.sh` (prepares the clone, outside this repository, and starts the run with its model

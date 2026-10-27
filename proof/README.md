@@ -19,7 +19,7 @@ the branch's diff and CI), not on a sandbox. Say "audited" when reporting a proo
 | `README.md` | This protocol |
 | `BRIEF.template.md` | The sections a brief has; the brief itself is a file passed at launch |
 | `PROMPT.md` | The run's fixed task: `launch.sh` fills in the proof's id, slug, base tag and branch |
-| `run-settings.json` | The run's allow-list of tools, which `launch.sh` copies into the clone's Claude Code settings |
+| `run-settings.json` | The run's Claude Code settings, its permission rules and its sandbox: a template that `launch.sh` fills with the clone's paths and writes into the clone's settings |
 | `leak-paths.txt` | The paths `launch.sh` deletes from the run's clone before the run starts |
 | `<id>/` | One proof's folder, on its proof branch only: `BRIEF.md`, `RUN.md`, `GAPS.md` and `BASE` |
 
@@ -34,13 +34,48 @@ this page.
   the machine, no other branch, tag or earlier commit.
 - It changes only `themes/<slug>/` and `proof/<id>/`, and `package-lock.json` only by the new workspace's own
   entries (`themes/<slug>` and its `node_modules/<package name>` link), which `npm install` adds.
-- Its tools are `run-settings.json`'s allow-list, copied into the clone's Claude Code settings and kept out of git:
-  Read, Write, Edit, Glob and Grep; Bash for `npm`, `npx automatos-theme`, `node`, and `git status`, `git diff`,
-  `git add`, `git commit` and `git log`. WebFetch, WebSearch and `git push` are denied, and so are reads and edits
-  under the home folder's Claude Code folder. The kit's `skills/` folder is linked into the clone's settings folder,
-  so the run can use the skills as Claude Code skills.
+- Its tools are `run-settings.json`'s, filled in and written into the clone's Claude Code settings, kept out of git:
+  the file tools inside the clone; Bash for `npm ci`, `npm install`, `npm run`, `npm test`, `npx automatos-theme`,
+  and `git status`, `git diff`, `git add`, `git commit` and `git log`. `node` on its own, `npm exec`, `npx -c`,
+  `npm publish`, `git push`, `curl`, `wget`, WebFetch and WebSearch are denied, and so is the home folder. Bash runs
+  in a sandbox ([Isolation](#isolation)). The kit's `skills/` folder is linked into the clone's settings folder, so
+  the run can use the skills as Claude Code skills.
 - The run installs, builds and tests in its clone, so launch it on a machine where that is fine. The kit's rule that
   nothing runs on the maintainer's machine is about the maintainers' own checkouts; `PROMPT.md` tells the run so.
+
+## Isolation
+
+The run is held twice: Claude Code's permission rules hold its own tools, and a sandbox holds its shell. Both come
+from `run-settings.json`, a template: `launch.sh` fills in `{{CLONE}}` (the clone's real path; in a permission rule
+`/{{CLONE}}` becomes the `//`-prefixed absolute form), `{{NPM_CACHE}}` (`<dest>.npm-cache`, beside the clone) and
+`{{TOOLCHAIN}}` (below, or drops its line), and refuses settings with a placeholder left. Neither layer is perfect on
+its own; the audit reads the record of both.
+
+- **The sandbox** holds Bash and every process it starts: npm, the build, the tests, any script a `package.json`
+  names. They write only to the clone and to npm's cache (`allowWrite`), never to the clone's `.claude/`, where the
+  settings are (`denyWrite`); they read nothing in the home folder (`denyRead`); and they reach only the npm registry
+  (`registry.npmjs.org`): any other host is refused. They may listen and connect on localhost, for a dev server
+  (`allowLocalBinding`, on macOS; on Linux a sandboxed command has a localhost of its own). `failIfUnavailable` stops
+  the run when the sandbox can't start, `allowUnsandboxedCommands: false` takes away the retry outside it, and
+  `autoAllowBashIfSandboxed: false` keeps the Bash rules the gate (by default a sandboxed command needs no allow
+  rule). npm runs with no user config (`npm_config_userconfig=/dev/null`), so the home folder's `.npmrc` and its
+  tokens stay out, and the clone's git config holds the identity the run commits with.
+- **node under the home folder**: when node's install prefix is inside the home folder (`~/.nvm/versions/node/<v>`,
+  say), the launcher puts it in the sandbox's `allowRead` (`{{TOOLCHAIN}}`), so npm and node can load. The sandbox's
+  documented rule is that the narrower path wins, so that prefix is readable while the rest of the home folder stays
+  denied; it is unproven until the first real launch, and if npm or node fail to start, look there first.
+- **The permission rules** hold Claude Code's tools: Read and Edit inside the clone only (an `Edit` rule covers the
+  Write tool too, and a `Read` rule Glob and Grep; `Write(...)` and `Glob(...)` path rules never match), the home
+  folder denied (`Read(~/**)`, `Edit(~/**)`), the web denied, and Bash only for the commands listed, with `node`,
+  `npm exec`, `npm x`, `npx -c`, `npm publish`, `git push`, `curl` and `wget` denied. Under
+  `--permission-mode dontAsk` a call no rule allows is refused without a prompt, and the file tools' writes to the
+  clone's `.claude/` and `.git/` are refused whatever the rules say.
+- **What is left**: Bash's read-only commands (`cat`, `ls`, `grep`, `find`) and every process in the sandbox can still
+  read outside the clone wherever it isn't the home folder: the system's folders, another checkout under `/tmp`. The
+  audit's outside-path flag catches a path a call names outside the clone, and its content check catches a leak
+  file's text however the run came to read it.
+- **Platforms**: on macOS the sandbox is built in (Seatbelt). On Linux and WSL2 it needs `bubblewrap` and `socat`;
+  without them the run doesn't start.
 
 ## Launching a run
 
@@ -58,17 +93,20 @@ scripts/proof/launch.sh --id b06 --slug harbour --brief <brief file> --model <mo
 | `--brief <file>` | Required. The brief, copied into the clone as `proof/<id>/BRIEF.md` |
 | `--model <id>` | Required. The model, as an exact id (`claude-<family>-<version>`); an alias such as `opus` is refused, so an unattended run can't change model under it |
 | `--base <tag>` | The tag to clone. Default `kit-b06-base` |
-| `--dest <folder>` | Required. Where the clone goes: a new folder, outside the repository the launcher runs in, outside the folder it runs from, and outside the home folder's Claude Code folder |
+| `--dest <folder>` | Required. Where the clone goes: a new folder, outside the repository the launcher runs in, outside the folder it runs from, and outside the home folder (under `/tmp`, say), so the run's rules can deny the home folder |
 | `--dry-run` | Prepare the clone and print the run's command; start nothing |
 
-The launcher refuses without `--model`, and refuses any `--dest` above or one that exists. Then it clones the base
+The launcher refuses without `--model`, and refuses any `--dest` above, one that exists, and one whose path holds a
+quote, a backslash, `#`, `&` or a control character (the settings are filled in with it). Then it clones the base
 tag from the kit's public repository (one commit deep, that tag only), makes the branch `proof/<id>-<slug>`, deletes
 every path `leak-paths.txt` lists and commits the deletion with a message naming what it removed, then commits
-`proof/<id>/BRIEF.md`, `RUN.md`, `GAPS.md` and `BASE` (the base tag's name). It writes the task (`PROMPT.md`, filled
-in) to `<dest>.prompt.md` and, unless `--dry-run`, runs `claude -p` in the clone with that task on its input, that
-model, the clone's own settings only, no prompts (a call off the allow-list is denied) and no saved session, writing
-the stream-json transcript to `<dest>.transcript.jsonl`, beside the clone and never inside it; when the run stops it
-adds the end time to `RUN.md`. It never reads or writes the home folder's Claude Code folder and sends nothing to any
+`proof/<id>/BRIEF.md`, `RUN.md`, `GAPS.md` and `BASE` (the base tag's name). It gives the clone's own git config the
+identity this machine commits with (the sandbox keeps the run from the home folder's), writes the run's settings
+(`run-settings.json`, filled in with the clone's paths) and the task (`PROMPT.md`, filled in) to `<dest>.prompt.md`
+and, unless `--dry-run`, runs `claude -p` in the clone with that task on its input, that model, the clone's own
+settings only, no prompts (a call the rules don't allow is denied), no saved session, npm's cache at
+`<dest>.npm-cache` and no npm user config, writing the stream-json transcript to `<dest>.transcript.jsonl`, beside
+the clone and never inside it; when the run stops it adds the end time to `RUN.md`. It never reads or writes the home folder's Claude Code folder and sends nothing to any
 remote. An unattended start is fine: the model is pinned by the flag.
 
 ## After the run

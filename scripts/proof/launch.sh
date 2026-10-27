@@ -8,13 +8,15 @@
 #
 # It refuses, before it reads or writes anything else: no --model (an exact model id, never an alias), a bad id, slug
 # or base, a brief that is not a readable file, and a --dest that exists or lies inside this repository, inside the
-# folder it runs from or inside the home folder's Claude Code folder. Then it clones the base tag (one commit deep,
-# that tag only), makes the branch proof/<id>-<slug>, deletes every path proof/leak-paths.txt lists and commits the
-# deletion, commits proof/<id>/{BRIEF.md,RUN.md,GAPS.md,BASE}, writes the clone's Claude Code settings (the base's
-# proof/run-settings.json: the run's allow-list of tools, kept out of git) and the run's task (proof/PROMPT.md, filled
-# in) to <dest>.prompt.md, and prints the run's command. Unless --dry-run, it runs that command in the clone, its
-# stream-json transcript to <dest>.transcript.jsonl (beside the clone, never inside it), then adds the end time to
-# RUN.md. It sends nothing to any remote, and never reads or writes the home folder's Claude Code folder.
+# folder it runs from, inside the home folder's Claude Code folder or inside the home folder (the run's rules deny the
+# home folder). Then it clones the base tag (one commit deep, that tag only), makes the branch proof/<id>-<slug>,
+# deletes every path proof/leak-paths.txt lists and commits the deletion, commits proof/<id>/{BRIEF.md,RUN.md,GAPS.md,
+# BASE}, gives the clone the git identity this machine commits with, writes the clone's Claude Code settings (the
+# base's proof/run-settings.json, filled in with the clone's paths: the run's permission rules and its sandbox, kept
+# out of git) and the run's task (proof/PROMPT.md, filled in) to <dest>.prompt.md, and prints the run's command.
+# Unless --dry-run, it runs that command in the clone, with npm's cache at <dest>.npm-cache (beside the clone, never
+# inside it), its stream-json transcript to <dest>.transcript.jsonl (beside it too), then adds the end time to RUN.md.
+# It sends nothing to any remote, and never reads or writes the home folder's Claude Code folder.
 #
 # PROOF_KIT_URL overrides the repository it clones (the tests clone a throwaway one); the kit's own by default.
 set -eu
@@ -35,8 +37,15 @@ readonly RUN_SETTINGS='proof/run-settings.json'
 readonly SETTINGS_DIR='.claude'
 readonly TRANSCRIPT_SUFFIX='.transcript.jsonl'
 readonly PROMPT_SUFFIX='.prompt.md'
+readonly NPM_CACHE_SUFFIX='.npm-cache'
+# npm reads no user config in the run: the home folder's .npmrc is out of the sandbox's reach, and its tokens with it.
+readonly NPM_USERCONFIG='/dev/null'
+# A path the settings take as it is: absolute, and no character JSON or sed would read as more than itself.
+readonly SETTINGS_PATH_PATTERN='^/[^"\\#&[:cntrl:]]*$'
+readonly SYMLINK_MAX=40
 
 ID='' SLUG='' BRIEF='' MODEL='' BASE="$DEFAULT_BASE" DEST='' DRY_RUN=0 CLAUDE_HOME='' BASE_COMMIT=''
+NPM_CACHE='' TOOLCHAIN=''
 
 say() { printf '[proof] %s\n' "$*"; }
 refuse() { printf '[proof] REFUSED: %s\n' "$*" >&2; exit 1; }
@@ -111,6 +120,42 @@ check_dest() {
   here=$(pwd -P)
   ! is_within "$DEST" "$here" || refuse "--dest $DEST is inside the folder the launcher runs from ($here): put the clone outside it."
   ! is_within "$DEST" "$CLAUDE_HOME" || refuse "--dest $DEST is inside the home folder's Claude Code folder."
+  local home
+  home=$(real_dir "$HOME")
+  [ -z "$home" ] || ! is_within "$DEST" "$home" \
+    || refuse "--dest $DEST is inside your home folder ($home): put the clone outside your home folder, e.g. under /tmp, so the run's file rules can deny your home."
+  NPM_CACHE="$DEST$NPM_CACHE_SUFFIX"
+}
+
+# --- the run's toolchain --------------------------------------------------------------------------------------------
+# A file's real path, its symlinks followed (readlink without -f, which macOS's lacks).
+real_file() {
+  local path=$1 link count=0
+  while [ -L "$path" ] && [ "$count" -lt "$SYMLINK_MAX" ]; do
+    link=$(readlink "$path")
+    case "$link" in /*) path=$link ;; *) path="$(dirname "$path")/$link" ;; esac
+    count=$((count + 1))
+  done
+  printf '%s/%s' "$(real_dir "$(dirname "$path")")" "$(basename "$path")"
+}
+
+# Sets TOOLCHAIN: node's install prefix (two folders up from its real binary, ~/.nvm/versions/node/<version> say) when
+# it lies inside the home folder, which the sandbox's denyRead takes, so its allowRead can give it back to npm and
+# node; empty otherwise. allowRead carving that prefix out of denyRead is the sandbox's documented rule, but unproven
+# here until the first real launch; failIfUnavailable stops the run if the sandbox can't start at all.
+find_toolchain() {
+  local node prefix home
+  node=$(command -v node || true)
+  case "$node" in /*) ;; *) TOOLCHAIN=''; return 0 ;; esac
+  prefix=$(dirname "$(dirname "$(real_file "$node")")")
+  home=$(real_dir "$HOME")
+  if [ -n "$home" ] && is_within "$prefix" "$home"; then TOOLCHAIN=$prefix; else TOOLCHAIN=''; fi
+}
+
+# Refuses a path the settings can't hold as it is (they are filled in with sed, and are JSON).
+check_settings_path() {
+  [ -z "$2" ] || [[ "$2" =~ $SETTINGS_PATH_PATTERN ]] \
+    || refuse "$1 $2 has a character the run's settings can't hold (a quote, a backslash, #, & or a control character)."
 }
 
 # --- the clone --------------------------------------------------------------------------------------------------
@@ -198,12 +243,35 @@ write_proof_folder() {
 }
 
 # --- the run's settings and task --------------------------------------------------------------------------------
-# The run's tools: the base's allow-list (a call off it is denied, with no prompt), kept out of git by
-# .git/info/exclude, and the kit's skills linked in as Claude Code skills.
+# The run's commits need an identity, and the sandbox keeps git from reading the home folder's config: the clone's
+# own config gets the identity git commits with here (git var), when there is one.
+copy_identity() {
+  local ident name email
+  ident=$(git -C "$DEST" var GIT_COMMITTER_IDENT 2>/dev/null) || return 0
+  name=${ident%% <*}
+  email=${ident#*<}
+  email=${email%%>*}
+  git -C "$DEST" config user.name "$name"
+  git -C "$DEST" config user.email "$email"
+}
+
+# The run's settings: the base's template filled in with absolute paths. {{CLONE}} is the clone's real path (in a
+# permission rule, /{{CLONE}} is the //-prefixed absolute form), {{NPM_CACHE}} npm's cache beside it, {{TOOLCHAIN}}
+# node's prefix when it is inside the home folder (its line is dropped otherwise). Under --permission-mode dontAsk a
+# call its rules don't allow is denied, with no prompt; the sandbox holds Bash and every process it starts.
+fill_settings() {
+  local toolchain_line='/{{TOOLCHAIN}}/d'
+  [ -z "$TOOLCHAIN" ] || toolchain_line="s#{{TOOLCHAIN}}#$TOOLCHAIN#g"
+  sed -e "$toolchain_line" -e "s#{{CLONE}}#$DEST#g" -e "s#{{NPM_CACHE}}#$NPM_CACHE#g" "$DEST/$RUN_SETTINGS"
+}
+
+# The run's settings, kept out of git by .git/info/exclude, npm's cache folder, and the kit's skills linked in as
+# Claude Code skills.
 write_settings() {
-  [ -f "$DEST/$RUN_SETTINGS" ] || refuse "$BASE has no $RUN_SETTINGS: the launcher needs a base that holds the run's allow-list."
-  mkdir -p "$DEST/$SETTINGS_DIR"
-  cp "$DEST/$RUN_SETTINGS" "$DEST/$SETTINGS_DIR/settings.json"
+  [ -f "$DEST/$RUN_SETTINGS" ] || refuse "$BASE has no $RUN_SETTINGS: the launcher needs a base that holds the run's settings."
+  mkdir -p "$DEST/$SETTINGS_DIR" "$NPM_CACHE"
+  fill_settings > "$DEST/$SETTINGS_DIR/settings.json"
+  case "$(cat "$DEST/$SETTINGS_DIR/settings.json")" in *'{{'*) refuse "$RUN_SETTINGS has a placeholder the launcher does not fill." ;; esac
   [ ! -d "$DEST/skills" ] || ln -s ../skills "$DEST/$SETTINGS_DIR/skills"
   mkdir -p "$DEST/.git/info"
   printf '/%s/\n' "$SETTINGS_DIR" >> "$DEST/.git/info/exclude"
@@ -217,10 +285,11 @@ write_prompt() {
 }
 
 # The run's command, as printed: the task on stdin, the clone's own settings only, no prompts (a call off the
-# allow-list is denied), no saved session, the model pinned, the stream-json transcript beside the clone.
+# allow-list is denied), no saved session, the model pinned, npm's cache beside the clone and no npm user config, the
+# stream-json transcript beside the clone.
 run_command() {
-  printf 'cd %q && CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 claude -p --model %q --output-format stream-json --verbose --setting-sources project --permission-mode dontAsk --no-session-persistence < %q > %q' \
-    "$DEST" "$MODEL" "$DEST$PROMPT_SUFFIX" "$DEST$TRANSCRIPT_SUFFIX"
+  printf 'cd %q && CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 npm_config_cache=%q npm_config_userconfig=%q claude -p --model %q --output-format stream-json --verbose --setting-sources project --permission-mode dontAsk --no-session-persistence < %q > %q' \
+    "$DEST" "$NPM_CACHE" "$NPM_USERCONFIG" "$MODEL" "$DEST$PROMPT_SUFFIX" "$DEST$TRANSCRIPT_SUFFIX"
 }
 
 # Adds the end time and claude's exit status to RUN.md: in its table row, or as a line when the run rewrote the row.
@@ -235,7 +304,8 @@ start_run() {
   command -v claude >/dev/null || refuse "claude is not on PATH: install Claude Code, or prepare with --dry-run."
   say "running; the transcript goes to $DEST$TRANSCRIPT_SUFFIX. This waits until the run stops."
   local status=0
-  ( cd "$DEST" && CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 claude -p --model "$MODEL" --output-format stream-json --verbose \
+  ( cd "$DEST" && CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 npm_config_cache="$NPM_CACHE" npm_config_userconfig="$NPM_USERCONFIG" \
+      claude -p --model "$MODEL" --output-format stream-json --verbose \
       --setting-sources project --permission-mode dontAsk --no-session-persistence < "$DEST$PROMPT_SUFFIX" ) \
     > "$DEST$TRANSCRIPT_SUFFIX" || status=$?
   record_end "$status"
@@ -250,10 +320,14 @@ main() {
   find_claude_home
   check_brief
   check_dest
+  find_toolchain
+  check_settings_path --dest "$DEST"
+  check_settings_path "node's prefix" "$TOOLCHAIN"
   command -v git >/dev/null || refuse "git is not on PATH."
   clone_base
   remove_leaks
   write_proof_folder
+  copy_identity
   write_settings
   write_prompt
   say "the run's command:"
