@@ -1,0 +1,11 @@
+# The paths scripts/proof/launch.sh deletes from a proof run's clone, in one commit, before the run starts
+# (proof/README.md). One git glob a line, from the repository root: * stays inside one folder, ** crosses folders,
+# and an entry that names a folder takes everything under it. scripts/proof/guard.mjs allows that deletion and
+# nothing else outside the run's own folders; scripts/proof/audit.mjs flags any read of these paths.
+
+# The Command design reference, which HUD was built from.
+references/designs/command
+# Any test fixture copied from it.
+packages/theme-cli/test/fixtures/**/command*
+# The reference's own test, which reads it and fails once it is gone.
+tests/references.test.ts
