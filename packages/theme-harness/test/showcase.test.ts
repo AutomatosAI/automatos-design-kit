@@ -32,6 +32,10 @@ const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
 /** The shot list, as the showcase is asked for: HUD's, then Play's, the desktop's before the phone's. */
 const EXPECTED_FILES = [
   'hud-1440-chat-arc.png',
+  'hud-1440-chat-forge.png',
+  'hud-1440-chat-ghost.png',
+  'hud-1440-chat-nova.png',
+  'hud-1440-chat-signal.png',
   'hud-1440-voice-listening-arc.png',
   'hud-1440-voice-speaking-forge.png',
   'hud-1440-look-editor-arc.png',

@@ -2,7 +2,7 @@
   "schema": "automatos-theme/v1",
   "id": "automatos/hud",
   "name": "HUD",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Automatos as a command deck: bracketed panels, mono labels, one accent, a grid and scan-line backdrop, and Auto at the core.",
   "engines": { "automatos": "^1.1.0", "sdk": "^1.2.0" },
   "base": "studio",
@@ -21,6 +21,15 @@
   ],
   "uses": ["assets", "cards", "chat", "context", "deliverables", "events", "looks", "navigation", "pages-agents", "pages-assignments", "pages-command-center", "storage", "theme", "voice"],
   "look": "arc",
+  "previews": [
+    "assets/previews/arc.png",
+    "assets/previews/forge.png",
+    "assets/previews/ghost.png",
+    "assets/previews/nova.png",
+    "assets/previews/signal.png",
+    "assets/previews/arc-voice.png",
+    "assets/previews/arc-looks.png"
+  ],
   "fonts": ["assets/fonts/chakra-petch-latin-600-normal.woff2", "assets/fonts/rajdhani-latin-700-normal.woff2"],
   "mascot": { "states": ["hello", "idle", "listening", "thinking", "working", "searching", "reading", "celebrate", "oops", "sleeping", "lost", "loading"] },
   "mobile": {
