@@ -29,12 +29,17 @@ const QB13B_DEV_DEPENDENCIES: Readonly<Record<string, string>> = {
   "@axe-core/playwright": "4.14.0",
   eslint: "9.39.5",
 };
+// PRD-261 QB-13c (the maintainer's OK): Lighthouse for the harness job's report-only step (B-02h), at this version.
+const QB13C_DEV_DEPENDENCIES: Readonly<Record<string, string>> = {
+  lighthouse: "13.5.0",
+};
 // Every outside package a manifest may name. A new one needs the maintainer's OK and its name here.
 const APPROVED_DEPENDENCIES = [
   ...D2_DEV_DEPENDENCIES,
   "@types/node",
   ...TEST_DEV_DEPENDENCIES,
   ...Object.keys(QB13B_DEV_DEPENDENCIES),
+  ...Object.keys(QB13C_DEV_DEPENDENCIES),
 ];
 const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const TARBALL_URL = /^https:\/\/\S+\.tgz$/;
@@ -198,6 +203,12 @@ describe("root package.json", () => {
   it("pins the browser and lint toolchain at the versions QB-13b approved", () => {
     const dev = pkg.devDependencies ?? {};
     Object.entries(QB13B_DEV_DEPENDENCIES).forEach(([name, version]) => expect(dev[name], name).toBe(version));
+  });
+
+  it("pins Lighthouse, for the harness job's report-only step, at the version QB-13c approved, as a root devDependency", () => {
+    const dev = pkg.devDependencies ?? {};
+    Object.entries(QB13C_DEV_DEPENDENCIES).forEach(([name, version]) => expect(dev[name], name).toBe(version));
+    Object.keys(QB13C_DEV_DEPENDENCIES).forEach((name) => expect(pkg.dependencies?.[name], name).toBeUndefined());
   });
 });
 

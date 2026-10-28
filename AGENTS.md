@@ -109,8 +109,12 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   shots (`packages/theme-harness/shots/showcase.config.ts`): `automatos-theme dev` over HUD and over Play, each on its
   own port, and chosen views of each in chosen looks on the hosted edition (no first-run nudge), at twice the pixel
   density, with reduced motion and a fixed clock, on Chromium and with no axe scan, into
-  `packages/theme-harness/dist/showcase/`. The job uploads the shots, their `axe.json` files and the smoke's shots as
-  `kit-harness`, and the showcase as `kit-showcase`.
+  `packages/theme-harness/dist/showcase/`. Then Lighthouse, report only (`scripts/lighthouse/main.ts`, PRD-261 B-02h):
+  `automatos-theme dev` serves each theme under `themes/` in turn, and Lighthouse (pinned in the root `package.json`)
+  measures its home view and its `/chat` page at 1440 × 900 and at the phone's 390 × 844 on the same Chromium, its
+  scores a table in the job summary; no score fails the build, and the step continues on any error. The job uploads
+  the shots, their `axe.json` files and the smoke's shots as `kit-harness`, the showcase as `kit-showcase`, and the
+  Lighthouse reports as `kit-lighthouse`.
 
 ## Adding a dependency
 
