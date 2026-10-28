@@ -52,15 +52,16 @@ from `run-settings.json`, a template: `launch.sh` fills in `{{CLONE}}` (the clon
 placeholder left. Neither layer is perfect on its own; the audit reads the record of both.
 
 - **The sandbox** holds Bash and every process it starts: npm, the build, the tests, any script a `package.json`
-  names. They write only to the clone and to npm's cache (`allowWrite`), never to the clone's `.claude/` (where the
-  settings are), `.git/hooks/` or `.git/config` (`denyWrite`); they read nothing in the home folder (`denyRead`); and
-  they reach only the npm registry (`registry.npmjs.org`): any other host is refused. They may listen and connect on
-  localhost, for a dev server (`allowLocalBinding`, on macOS; on Linux a sandboxed command has a localhost of its
-  own). `failIfUnavailable` stops the run when the sandbox can't start, `allowUnsandboxedCommands: false` takes away
-  the retry outside it, and `autoAllowBashIfSandboxed: false` keeps the Bash rules the gate (by default a sandboxed
-  command needs no allow rule). npm runs with no user config (`npm_config_userconfig=/dev/null`), so the home
-  folder's `.npmrc` and its tokens stay out, and the clone's git config holds the identity the run commits with
-  (`.git/index` and `.git/objects` stay writable, for that commit; `.git/hooks` and `.git/config` do not).
+  names. They write only to the clone and to npm's cache (`allowWrite`), never to the clone's Claude Code project
+  settings folder (where the settings are), `.git/hooks/` or `.git/config` (`denyWrite`); they read nothing in the
+  home folder (`denyRead`); and they reach only the npm registry (`registry.npmjs.org`): any other host is refused.
+  They may listen and connect on localhost, for a dev server (`allowLocalBinding`, on macOS; on Linux a sandboxed
+  command has a localhost of its own). `failIfUnavailable` stops the run when the sandbox can't start,
+  `allowUnsandboxedCommands: false` takes away the retry outside it, and `autoAllowBashIfSandboxed: false` keeps
+  the Bash rules the gate (by default a sandboxed command needs no allow rule). npm runs with no user config
+  (`npm_config_userconfig=/dev/null`), so the home folder's `.npmrc` and its tokens stay out, and the clone's git
+  config holds the identity the run commits with (`.git/index` and `.git/objects` stay writable, for that commit;
+  `.git/hooks` and `.git/config` do not).
 - **node under the home folder**: when node's install prefix is inside the home folder, the launcher checks it
   against the version managers it knows (`~/.nvm/versions/node/<v>`, `~/.volta/tools/image/node/<v>`,
   `~/.local/share/fnm/node-versions/<v>/installation`, `~/.asdf/installs/nodejs/<v>`) and, only then, puts the node
@@ -73,12 +74,12 @@ placeholder left. Neither layer is perfect on its own; the audit reads the recor
   first.
 - **The permission rules** hold Claude Code's tools: Read and Edit inside the clone only (an `Edit` rule covers the
   Write tool too, and a `Read` rule Glob and Grep; `Write(...)` and `Glob(...)` path rules never match), the home
-  folder denied (`Read(~/**)`, `Edit(~/**)`), the clone's `.claude/`, `.git/hooks/` and `.git/config` denied to Edit
-  too (matching the sandbox's `denyWrite`, since nothing else stops the Edit tool writing them), the web denied, and
-  Bash only for the commands listed, with `node`, `npm exec`, `npm x`, `npx -c`, `npm publish`, `git push`, `curl`
-  and `wget` denied. Under `--permission-mode dontAsk` a call no rule allows is refused without a prompt. The
-  launcher also makes the clone's `.claude/settings.json` unwritable (`chmod a-w`) before it starts the run, so even
-  a write neither layer catches fails at the filesystem.
+  folder denied (`Read(~/**)`, `Edit(~/**)`), the clone's Claude Code project settings folder, `.git/hooks/` and
+  `.git/config` denied to Edit too (matching the sandbox's `denyWrite`, since nothing else stops the Edit tool
+  writing them), the web denied, and Bash only for the commands listed, with `node`, `npm exec`, `npm x`, `npx -c`,
+  `npm publish`, `git push`, `curl` and `wget` denied. Under `--permission-mode dontAsk` a call no rule allows is
+  refused without a prompt. The launcher also makes the clone's Claude Code settings file unwritable (`chmod a-w`)
+  before it starts the run, so even a write neither layer catches fails at the filesystem.
 - **`.git/hooks` and `.git/config`, after the run**: the launcher snapshots `.git/config` once the clone has its
   commit identity, and, when the run stops, removes any non-sample file `.git/hooks` has gained and restores
   `.git/config` if it no longer matches, saying so either way, before anything else touches the clone's git with a

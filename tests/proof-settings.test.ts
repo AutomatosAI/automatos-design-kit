@@ -150,7 +150,9 @@ describe("scripts/proof/launch.sh, the home folder and node's prefix", () => {
     const kitUrl = pathToFileURL(upstream(scratch)).href;
     const ran = launch(dest, { PROOF_KIT_URL: kitUrl, PATH: `${binDir}:${process.env.PATH ?? ""}` });
     expect(ran.status, `${ran.stdout}${ran.stderr}`).toBe(0);
-    expect(ran.stderr).toContain("node's install prefix is the home folder itself");
+    // say() (unlike refuse()) writes to stdout: a dry run still prints the warning, since the person launching
+    // needs to see it even though the run itself isn't refused.
+    expect(ran.stdout).toContain("node's install prefix is the home folder itself");
     expect(settingsOf(dest).sandbox.filesystem.allowRead).toBeUndefined();
   });
 
@@ -163,7 +165,7 @@ describe("scripts/proof/launch.sh, the home folder and node's prefix", () => {
     const kitUrl = pathToFileURL(upstream(scratch)).href;
     const ran = launch(dest, { PROOF_KIT_URL: kitUrl, PATH: `${join(prefix, "bin")}:${process.env.PATH ?? ""}` });
     expect(ran.status, `${ran.stdout}${ran.stderr}`).toBe(0);
-    expect(ran.stderr).toContain("not a known version-manager layout");
+    expect(ran.stdout).toContain("not a known version-manager layout");
     expect(settingsOf(dest).sandbox.filesystem.allowRead).toBeUndefined();
   });
 
