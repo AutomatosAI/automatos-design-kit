@@ -8,6 +8,11 @@ name: Theme review
 # vite-preset. The job summary holds the text the reviewer pastes into the admin queue's report
 # note (POST /api/admin/themes/{id}/report-note) with its outcome. The orchestrator never runs
 # this job and never calls GitHub. No secrets, and the token has no permissions.
+#
+# PRD-261 B-02j: the text ends with a report-only "Previews and accessibility" section (the
+# previews per preset, and contrast, which the look schema gives no pairs to measure), and once the
+# review has passed, an axe pass over harness shots of the package follows it, outside the
+# container. Neither is a check: the outcome is the review's alone, and the person reviewing decides.
 
 on:
   workflow_dispatch:
@@ -33,7 +38,8 @@ jobs:
   review:
     name: Review a theme version (no network, no secrets)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The review takes a few minutes; the axe pass after it has 35 of its own (browsers 10, shots 25).
+    timeout-minutes: 50
     steps:
       - name: Check out the kit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -105,3 +111,26 @@ jobs:
             -v "$GITHUB_WORKSPACE:/kit:ro" -v "$RUNNER_TEMP/review:/review" \
             -v "$GITHUB_STEP_SUMMARY:/review-summary.md" \
             -w /kit "$REVIEW_IMAGE" node scripts/review/main.ts
+
+      # PRD-261 B-02j, report only: the axe pass of the "Previews and accessibility" section, on the
+      # runner, outside the container above. The package's own code runs in a browser here, with the
+      # runner's network, so only once the review has passed (its JS rules and its reproducible build
+      # among the checks): both steps run on success only. scripts/review/axe.ts lays the package out as
+      # a theme folder in a work folder of its own (never the review's), draws it with
+      # `automatos-theme shots` (Chromium and WebKit, an axe scan of each shot) and appends what axe
+      # found to the job summary, after the text to paste. Nothing it finds feeds back into the review:
+      # the review step has written its report and outcome, and the person reviewing decides. Each step
+      # continues on an error and stops at a timeout of its own, so the job's result is the review's.
+      - name: Install browsers for the axe pass (report only)
+        if: success()
+        continue-on-error: true
+        timeout-minutes: 10
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Axe over harness shots of the package (report only)
+        if: success()
+        continue-on-error: true
+        timeout-minutes: 25
+        run: |
+          REVIEW_PACKAGE="$RUNNER_TEMP/review/package.autotheme" AXE_WORK="$RUNNER_TEMP/review-axe" \
+            REVIEW_SUMMARY="$GITHUB_STEP_SUMMARY" node scripts/review/axe.ts

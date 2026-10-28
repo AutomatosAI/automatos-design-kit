@@ -98,7 +98,8 @@ export function entryOf(folder: ReadonlyMap<string, Uint8Array>): { entry: strin
   return { error: `source/ has more than one entry module (${found.join(', ')}); keep one of ${names}.` }
 }
 
-function writeFolder(root: string, folder: ReadonlyMap<string, Uint8Array>): void {
+/** Writes `folder` (path to bytes) under `root`, emptied first. */
+export function writeFolder(root: string, folder: ReadonlyMap<string, Uint8Array>): void {
   rmSync(root, { recursive: true, force: true })
   folder.forEach((data, path) => {
     mkdirSync(dirname(join(root, path)), { recursive: true })

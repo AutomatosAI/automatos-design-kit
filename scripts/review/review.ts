@@ -7,6 +7,9 @@
  * (rebuild.ts). The outcome is `pass` only when every check passed; a JS-rule warning is listed for
  * the reviewer and fails nothing. The reviewer pastes the summary (summary.ts) into the admin
  * queue's report note with that outcome; core refuses to approve without a passing note.
+ *
+ * PRD-261 B-02j: a package that was read also gets the "Previews and accessibility" section (report.ts): its
+ * previews per preset and its contrast. It is report only and never a check, so the outcome never counts it.
  */
 import { checkPackage } from '@automatos/theme-cli/check'
 import { readZip } from '@automatos/theme-cli/zip'
@@ -14,6 +17,7 @@ import { jsRuleFindings, sourceScripts, SOURCE_PREFIX, type JsFinding } from '@a
 import { packageDigest, sha256Hex } from '../../packages/theme-cli/src/digest.ts'
 import type { ProbeResult } from './probe.ts'
 import { compareDist, DIST_PREFIX, rebuildDist, type DistComparison, type Files } from './rebuild.ts'
+import { previewsAndAccessibility, type PreviewsAndAccessibility } from './report.ts'
 
 export const REVIEW_SCHEMA = 'automatos-theme-review/v1'
 const SHA256_HEX = /^[0-9a-f]{64}$/
@@ -47,6 +51,8 @@ export interface ReviewReport {
   readonly outcome: Outcome
   readonly checks: readonly Check[]
   readonly findings: readonly JsFinding[]
+  /** Report only (B-02j): the package's previews and contrast; null when the package was not read. */
+  readonly previewsAndAccessibility: PreviewsAndAccessibility | null
 }
 
 export interface ReviewOptions {
@@ -63,14 +69,14 @@ function notRun(name: string, why: string): Check {
   return check(name, 'not_run', why)
 }
 
-interface Read {
+export interface Read {
   readonly files: Files | null
   readonly manifest: Readonly<Record<string, unknown>> | null
   readonly check: Check
 }
 
-/** The zip read and checked as core's reader checks it. */
-function readPackage(zip: Buffer): Read {
+/** The zip read and checked as core's reader checks it (axe.ts reads the package with it too). */
+export function readPackage(zip: Buffer): Read {
   let entries: ReturnType<typeof readZip>
   try {
     entries = readZip(zip)
@@ -153,7 +159,10 @@ function report(base: Omit<ReviewReport, 'outcome' | 'schema'>): ReviewReport {
 
 /** Reviews one package's bytes against the digest the admin queue named. */
 export async function reviewPackage(zip: Buffer, expectedDigest: string, options: ReviewOptions): Promise<ReviewReport> {
-  const empty = { id: null, version: null, expectedDigest, digest: null, zipSha256: sha256Hex(zip), tools: options.tools, findings: [] }
+  const empty = {
+    id: null, version: null, expectedDigest, digest: null, zipSha256: sha256Hex(zip), tools: options.tools, findings: [],
+    previewsAndAccessibility: null,
+  }
   const probe = await options.probe()
   const network = probe.isolated
     ? check('No network', 'pass', 'Every probe failed.', probe.lines)
@@ -170,5 +179,8 @@ export async function reviewPackage(zip: Buffer, expectedDigest: string, options
   const findings = jsRuleFindings(files)
   const build = source.status === 'pass' ? await buildCheck(files, digest, options.workDir) : notRun('Reproducible build', 'No source/ to build.')
   const checks = [network, read.check, digestCheck(digest, expectedDigest), source, jsCheck(findings, sourceScripts(files).length), build]
-  return report({ ...empty, id: text(read.manifest, 'id'), version: text(read.manifest, 'version'), digest, checks, findings })
+  const section = read.manifest === null ? null : previewsAndAccessibility(read.manifest, files)
+  return report({
+    ...empty, id: text(read.manifest, 'id'), version: text(read.manifest, 'version'), digest, checks, findings, previewsAndAccessibility: section,
+  })
 }

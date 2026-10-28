@@ -131,6 +131,13 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   then runs `scripts/review/main.ts` in `docker run --network none`: a no-network probe, the
   package checks, the digest, the JS rules on `source/` and the reproducible build. The job summary
   holds the text the reviewer pastes into the admin queue's report note, with its outcome.
+- That text ends with a report-only "Previews and accessibility" section (PRD-261 B-02j,
+  `scripts/review/report.ts`): each preset's previews with their sizes and the preset that claims each,
+  and contrast, not measured while core's look schema declares no text and ground pairs (a `mobile`
+  block's pairs are in core's own review report). Once the review has passed, the job runs an axe pass
+  outside the container (`scripts/review/axe.ts`): the package laid out as a theme folder in a folder of
+  its own, drawn by `automatos-theme shots`, and what axe found added to the job summary after the text.
+  Neither is a check, so neither changes the outcome; the axe steps continue on any error.
 - A Marketplace package ships `source/`: the theme's `src/` exactly as built (`source/entry.ts` is
   `src/entry.ts`), and the `src/` of each kit library it bundles as `source/packages/<name>/src/`. The
   review rebuilds it with this kit's preset and lockfile, from the theme folder, each library's `src/`
