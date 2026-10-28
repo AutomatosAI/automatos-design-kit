@@ -7,6 +7,10 @@ skills, and Play and HUD as worked examples. It may change only its theme folder
 the guard checks the branch's diff, the audit checks the run's transcript for reads it should not have made, and CI
 on the proof branch builds, lints, typechecks, tests, packs and draws the theme.
 
+This protocol is two steps (launch, judge) of the nine from a design to an installed, listed theme; the whole path,
+with the step before a launch (the brief) and the ones after a proof passes (fix, release, install, list), is
+[guides/from-design-to-theme.md](../guides/from-design-to-theme.md).
+
 The result is **audited, not impossible**. The run is told to stay inside its clone and its tools are limited, but
 nothing stops a determined session from reading a file outside it, and the kit is public: its history and the
 design references it once carried can be found. The proof rests on the record (the transcript, the audit's report,
@@ -21,7 +25,7 @@ the branch's diff and CI), not on a sandbox. Say "audited" when reporting a proo
 | `PROMPT.md` | The run's fixed task: `launch.sh` fills in the proof's id, slug, base tag and branch |
 | `run-settings.json` | The run's Claude Code settings, its permission rules and its sandbox: a template that `launch.sh` fills with the clone's paths and writes into the clone's settings |
 | `leak-paths.txt` | The paths `launch.sh` deletes from the run's clone before the run starts |
-| `<id>/` | One proof's folder, on its proof branch only: `BRIEF.md`, `RUN.md`, `GAPS.md` and `BASE` |
+| `<id>/` | One proof's folder, on its proof branch only: `BRIEF.md`, `RUN.md`, `GAPS.md`, `BASE` and, with `--design`, `design/` |
 
 The scripts are in `scripts/proof/`: `launch.sh` prepares the clone and starts the run, `guard.mjs` checks the diff
 and `audit.mjs` checks the transcript, with `leak-content.mjs` (the content check), `shell.mjs` (a Bash call read as
@@ -108,6 +112,7 @@ scripts/proof/launch.sh --id b06 --slug harbour --brief <brief file> --model <mo
 | `--brief <file>` | Required. The brief, copied into the clone as `proof/<id>/BRIEF.md` |
 | `--model <id>` | Required. The model, as an exact id (`claude-<family>-<version>`); an alias such as `opus` is refused, so an unattended run can't change model under it |
 | `--base <tag>` | The tag to clone. Default `kit-b06-base` |
+| `--design <folder>` | A design handoff folder (a README, `looks.json`, `*.html` and `*.dc.html` mocks), copied into the clone as `proof/<id>/design/`, preserving names; `*.js` files (a design tool's own runtime, never the design) are skipped. Refused when the folder is missing, lies inside `$HOME/.claude`, or holds a file over 5 MB. What is copied and skipped is listed in `RUN.md` |
 | `--dest <folder>` | Required. Where the clone goes: a new folder, outside the repository the launcher runs in, outside the folder it runs from, and outside the home folder (under `/tmp`, say), so the run's rules can deny the home folder |
 | `--dry-run` | Prepare the clone and print the run's command; start nothing |
 

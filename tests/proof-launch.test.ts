@@ -245,6 +245,58 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
   });
 });
 
+describe("scripts/proof/launch.sh --design: a design handoff folder", () => {
+  const scratch3 = sandbox("proof-launch-design-");
+  afterAll(() => rmSync(scratch3, { recursive: true, force: true }));
+  const home3 = join(scratch3, "home");
+  const runFrom3 = join(scratch3, "run");
+  const proofs3 = join(scratch3, "proofs");
+  // The real handoff folder's own shape (a Claude Design export): a space in its parent, none in its own name.
+  const design3 = join(scratch3, "Automatos Play", "automatos-arcade");
+  [home3, runFrom3, proofs3, design3].forEach((folder) => mkdirSync(folder, { recursive: true }));
+  writeFileSync(join(design3, "README.md"), "# Arcade handoff\n");
+  writeFileSync(join(design3, "looks.json"), '{"presets":[]}\n');
+  writeFileSync(join(design3, "Automatos Arcade.dc.html"), "<html></html>\n");
+  writeFileSync(join(design3, "support.js"), "console.log('runtime');\n");
+  const brief3 = join(scratch3, "brief.md");
+  writeFileSync(brief3, "# Brief: Harbour\n\n## Theme\n\nacme/harbour, a made-up theme for the tests.\n");
+  const dest3 = join(proofs3, `${PROOF_ID}-${SLUG}`);
+  const inClone3 = (rel: string): string => join(dest3, rel);
+  const launch3 = (args: readonly string[]): SpawnSyncReturns<string> =>
+    spawnSync("bash", [join(ROOT, LAUNCH), ...args], {
+      cwd: runFrom3, env: { ...gitEnv(home3), PROOF_KIT_URL: kitUrl3 }, input: "", encoding: "utf8", timeout: SCRIPT_TIMEOUT_MS,
+    });
+
+  let kitUrl3 = "";
+  beforeAll(() => {
+    kitUrl3 = pathToFileURL(upstream(home3)).href;
+  }, SCRIPT_TIMEOUT_MS);
+
+  it("a dry run copies the handoff folder (its path holding a space) into proof/<id>/design/, skips *.js, and lists both in RUN.md", () => {
+    const result = launch3(["--id", PROOF_ID, "--slug", SLUG, "--brief", brief3, "--model", MODEL, "--dest", dest3, "--design", design3, "--dry-run"]);
+    expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
+    expect(readFileSync(inClone3(`proof/${PROOF_ID}/design/README.md`), "utf8")).toBe("# Arcade handoff\n");
+    expect(readFileSync(inClone3(`proof/${PROOF_ID}/design/looks.json`), "utf8")).toBe('{"presets":[]}\n');
+    expect(readFileSync(inClone3(`proof/${PROOF_ID}/design/Automatos Arcade.dc.html`), "utf8")).toBe("<html></html>\n");
+    expect(existsSync(inClone3(`proof/${PROOF_ID}/design/support.js`))).toBe(false);
+    const record = readFileSync(inClone3(`proof/${PROOF_ID}/RUN.md`), "utf8");
+    expect(record).toContain("## Design handoff");
+    expect(record).toContain("- README.md");
+    expect(record).toContain("- looks.json");
+    expect(record).toContain("- Automatos Arcade.dc.html");
+    expect(record).toContain("Skipped:");
+    expect(record).toContain("- support.js");
+  });
+
+  it("refuses a --design folder that does not exist, before writing anything", () => {
+    const missingDest = join(proofs3, "missing-design");
+    const result = launch3(["--id", PROOF_ID, "--slug", SLUG, "--brief", brief3, "--model", MODEL, "--dest", missingDest, "--design", join(scratch3, "no-such-design"), "--dry-run"]);
+    expect(result.status).toBe(EXIT_REFUSED);
+    expect(result.stderr).toContain("--design");
+    expect(existsSync(missingDest)).toBe(false);
+  });
+});
+
 describe("scripts/proof/launch.sh, a real run: .git/hooks and .git/config after it stops", () => {
   // A fake `claude` on PATH: consumes the prompt, writes a hook and changes .git/config as a run's shell commands
   // could (despite the sandbox and the permission rules, or through some other gap), then exits, so the launcher's

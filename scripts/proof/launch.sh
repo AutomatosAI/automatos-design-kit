@@ -4,16 +4,19 @@
 # that builds the theme a brief describes with the kit alone.
 #
 #   scripts/proof/launch.sh --id b06 --slug harbour --brief <file> --model <model id> --dest <folder> \
-#     [--base kit-b06-base] [--dry-run]
+#     [--base kit-b06-base] [--design <folder>] [--dry-run]
 #
 # It refuses, before it reads or writes anything else: no --model (an exact model id, never an alias), a bad id, slug
 # or base, a brief that is not a readable file, and a --dest that exists or lies inside this repository, inside the
 # folder it runs from, inside the home folder's Claude Code folder or inside the home folder (the run's rules deny the
-# home folder). Then it clones the base tag (one commit deep, that tag only), makes the branch proof/<id>-<slug>,
+# home folder); a --design that does not exist, lies inside the home folder's Claude Code folder, or holds a file
+# over 5 MB. Then it clones the base tag (one commit deep, that tag only), makes the branch proof/<id>-<slug>,
 # deletes every path proof/leak-paths.txt lists and commits the deletion, commits proof/<id>/{BRIEF.md,RUN.md,GAPS.md,
-# BASE}, gives the clone the git identity this machine commits with, writes the clone's Claude Code settings (the
-# base's proof/run-settings.json, filled in with the clone's paths: the run's permission rules and its sandbox, kept
-# out of git) and the run's task (proof/PROMPT.md, filled in) to <dest>.prompt.md, and prints the run's command.
+# BASE} and, with --design, proof/<id>/design/ (a copy of the design handoff folder, preserving names, skipping any
+# `*.js` file as a design tool's own runtime rather than the design, both listed in RUN.md), gives the clone the git
+# identity this machine commits with, writes the clone's Claude Code settings (the base's proof/run-settings.json,
+# filled in with the clone's paths: the run's permission rules and its sandbox, kept out of git) and the run's task
+# (proof/PROMPT.md, filled in) to <dest>.prompt.md, and prints the run's command.
 # Unless --dry-run, it runs that command in the clone, with npm's cache at <dest>.npm-cache (beside the clone, never
 # inside it), its stream-json transcript to <dest>.transcript.jsonl (beside it too), then adds the end time to RUN.md.
 # It sends nothing to any remote, and never reads or writes the home folder's Claude Code folder.
@@ -44,6 +47,10 @@ readonly NPM_USERCONFIG='/dev/null'
 readonly SETTINGS_PATH_PATTERN='^/[^"\\#&[:cntrl:]]*$'
 readonly SYMLINK_MAX=40
 readonly GIT_CONFIG_SNAPSHOT_SUFFIX='.git-config.snapshot'
+# A design handoff folder (--design): the largest file it may hold, and the files it never copies (a design tool's
+# own runtime, never the design itself).
+readonly DESIGN_MAX_BYTES=$((5 * 1024 * 1024))
+readonly DESIGN_SKIP_GLOB='*.js'
 # The version-manager layouts under $HOME whose node install prefix the sandbox may read (relative to $HOME, the
 # version a wildcard). A prefix that is $HOME itself, a direct child of it, or anything else not on this list gets no
 # allowRead at all: narrower than the prefix itself, which would otherwise hand the sandbox the home folder back.
@@ -54,14 +61,16 @@ readonly TOOLCHAIN_PREFIX_PATTERNS=(
   '^[.]asdf/installs/nodejs/[^/]+$'
 )
 
-ID='' SLUG='' BRIEF='' MODEL='' BASE="$DEFAULT_BASE" DEST='' DRY_RUN=0 CLAUDE_HOME='' BASE_COMMIT=''
+ID='' SLUG='' BRIEF='' MODEL='' BASE="$DEFAULT_BASE" DEST='' DESIGN='' DRY_RUN=0 CLAUDE_HOME='' BASE_COMMIT=''
 NPM_CACHE='' TOOLCHAIN_BIN='' TOOLCHAIN_NPM=''
+# The design folder's copied and skipped files, one `- <path>` line each (copy_design); written into RUN.md.
+DESIGN_COPIED='' DESIGN_SKIPPED=''
 
 say() { printf '[proof] %s\n' "$*"; }
 refuse() { printf '[proof] REFUSED: %s\n' "$*" >&2; exit 1; }
 usage() {
   printf '%s\n' 'usage: scripts/proof/launch.sh --id <id> --slug <slug> --brief <file> --model <model id> --dest <folder>' \
-    '                                [--base <tag>] [--dry-run]'
+    '                                [--base <tag>] [--design <folder>] [--dry-run]'
 }
 
 # --- the arguments ----------------------------------------------------------------------------------------------
@@ -76,6 +85,7 @@ parse_args() {
       --model) value_of "$@"; MODEL=$2; shift 2 ;;
       --base) value_of "$@"; BASE=$2; shift 2 ;;
       --dest) value_of "$@"; DEST=$2; shift 2 ;;
+      --design) value_of "$@"; DESIGN=$2; shift 2 ;;
       --dry-run) DRY_RUN=1; shift ;;
       -h|--help) usage; exit 0 ;;
       *) usage >&2; refuse "unknown argument: $1" ;;
@@ -115,6 +125,19 @@ check_brief() {
   local brief_dir
   brief_dir=$(real_dir "$(dirname "$BRIEF")")
   ! is_within "$brief_dir" "$CLAUDE_HOME" || refuse "--brief $BRIEF is inside the home folder's Claude Code folder; the launcher never reads there."
+}
+
+# --design is optional. Sets DESIGN to its real path once it exists, lies outside the home folder's Claude Code
+# folder and holds no file over DESIGN_MAX_BYTES; a path with spaces is fine (real_dir resolves it with cd, not glob).
+check_design() {
+  [ -n "$DESIGN" ] || return 0
+  local design_dir big
+  design_dir=$(real_dir "$DESIGN")
+  [ -n "$design_dir" ] || refuse "--design $DESIGN is not a folder."
+  ! is_within "$design_dir" "$CLAUDE_HOME" || refuse "--design $DESIGN is inside the home folder's Claude Code folder; the launcher never reads there."
+  big=$(find "$design_dir" -type f -size "+${DESIGN_MAX_BYTES}c" -print 2>/dev/null | head -1)
+  [ -z "$big" ] || refuse "--design $DESIGN holds a file over 5 MB ($big): keep a design handoff small."
+  DESIGN="$design_dir"
 }
 
 # Sets DEST to its absolute path once every rule holds.
@@ -217,6 +240,34 @@ remove_leaks() {
   say "removed the leak paths ($LEAK_LIST) in one commit"
 }
 
+# A design handoff folder (--design): copied into proof/<id>/design/, preserving names, before the proof-folder
+# commit. A design tool's own runtime, never the design itself, is skipped (support.js, and any other *.js file);
+# DESIGN_COPIED and DESIGN_SKIPPED hold what happened, one `- <path>` line each, for RUN.md.
+copy_design() {
+  [ -n "$DESIGN" ] || return 0
+  local dest_dir="$DEST/proof/$ID/design" file rel
+  mkdir -p "$dest_dir"
+  while IFS= read -r -d '' file; do
+    rel=${file#"$DESIGN"/}
+    case "$rel" in
+      $DESIGN_SKIP_GLOB) DESIGN_SKIPPED="${DESIGN_SKIPPED}- $rel"$'\n' ;;
+      *)
+        mkdir -p "$dest_dir/$(dirname "$rel")"
+        cp -- "$file" "$dest_dir/$rel"
+        DESIGN_COPIED="${DESIGN_COPIED}- $rel"$'\n'
+        ;;
+    esac
+  done < <(find "$DESIGN" -type f -print0 | sort -z)
+  say "design: copied $(printf '%s' "$DESIGN_COPIED" | grep -c '^-' || true) file(s) from $DESIGN into proof/$ID/design/, skipped $(printf '%s' "$DESIGN_SKIPPED" | grep -c '^-' || true)"
+}
+
+# The run's "What the run did" section, with a "Design handoff" list when --design copied or skipped anything.
+design_section() {
+  [ -n "$DESIGN_COPIED$DESIGN_SKIPPED" ] || return 0
+  printf '\n## Design handoff\n\n%s, copied into proof/%s/design/, preserving names. %s files (a design tool runtime, never the design itself) are skipped.\n\nCopied:\n\n%s\nSkipped:\n\n%s' \
+    "--design $DESIGN" "$ID" "$DESIGN_SKIP_GLOB" "${DESIGN_COPIED:-(none)$'\n'}" "${DESIGN_SKIPPED:-(none)$'\n'}"
+}
+
 # --- the proof folder -------------------------------------------------------------------------------------------
 write_run_record() {
   local started
@@ -242,6 +293,7 @@ the run stops; the owner copies the turns and the cost from the audit's first li
 ## What the run did
 
 To fill: the steps, in order, and what was left unfinished.
+$(design_section)
 EOF
 }
 
@@ -261,9 +313,14 @@ write_proof_folder() {
   mkdir -p "$DEST/proof/$ID"
   cp "$BRIEF" "$DEST/proof/$ID/BRIEF.md"
   printf '%s\n' "$BASE" > "$DEST/proof/$ID/BASE"
+  copy_design
   write_run_record
   write_gaps
-  git -C "$DEST" add -- "proof/$ID/BRIEF.md" "proof/$ID/RUN.md" "proof/$ID/GAPS.md" "proof/$ID/BASE"
+  if [ -n "$DESIGN" ]; then
+    git -C "$DEST" add -- "proof/$ID/BRIEF.md" "proof/$ID/RUN.md" "proof/$ID/GAPS.md" "proof/$ID/BASE" "proof/$ID/design"
+  else
+    git -C "$DEST" add -- "proof/$ID/BRIEF.md" "proof/$ID/RUN.md" "proof/$ID/GAPS.md" "proof/$ID/BASE"
+  fi
   git -C "$DEST" commit --quiet -s -m "proof($ID): the brief, the run's records and the base tag for themes/$SLUG"
   say "wrote proof/$ID/BRIEF.md, RUN.md, GAPS.md and BASE"
 }
@@ -379,6 +436,7 @@ main() {
   check_names
   find_claude_home
   check_brief
+  check_design
   check_dest
   find_toolchain
   check_settings_path --dest "$DEST"

@@ -9,6 +9,10 @@ result we want to read, so write it down rather than work around it in silence.
 Build the theme that `proof/{{ID}}/BRIEF.md` describes, in `themes/{{SLUG}}/`, using only this repository and its
 documented commands.
 
+- When `proof/{{ID}}/design/` exists, it is a design handoff: follow it for look and layout. Where the brief and the
+  design disagree, the brief wins. Record every place the design asks for something the kit can't do, or that the
+  brief and the design disagree on, as a gap in `proof/{{ID}}/GAPS.md`.
+
 - Start from the kit's own instructions: `README.md`, `AGENTS.md`, `CLAUDE.md`, `guides/`, `skills/` (start with
   `skills/build-automatos-theme/SKILL.md`), `docs/cli.md`, `docs/cli-design.md` and `docs/cli-harness.md`.
 - Use the kit's command line, `npx automatos-theme` (`new`, `check design`, `check`, `pack`, `brief`, `clone`,
