@@ -2,6 +2,12 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.1.2
+
+Marketplace listing previews: `theme.json` lists seven, one chat screen per look (ARC, FORGE, GHOST, NOVA,
+SIGNAL; ARC's is the listing's cover), plus ARC's voice session and its LOOK drawer, at 1440 by 900 from the kit's
+showcase shots. Nothing HUD draws changes.
+
 ## 1.1.1
 
 Polish for the product images:
