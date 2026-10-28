@@ -1,13 +1,18 @@
 /**
- * A theme `new` writes builds wherever it is written. A theme in the kit (themes/play, the templates) extends the
- * kit's shared compiler options with `"extends": "../../tsconfig.base.json"`, a path that holds only two folders
- * under the kit's root, so a theme written anywhere else (another repository, a temp folder) would not build: Vite
- * reads the tsconfig.json and refuses one whose base is missing. So the written tsconfig.json holds
- * tsconfig.base.json's compilerOptions itself, read from the kit the command runs from, with the template's own
- * fields (its include list) as they are; an option the template sets wins over the base's.
+ * A theme `new` writes builds wherever it is written. A theme in the kit (themes/play, themes/hud, the templates)
+ * extends the kit's shared compiler options with `"extends": "../../tsconfig.base.json"`, a path that holds only two
+ * folders under the kit's root.
+ *
+ * - In the kit's own themes/ (the default `--to` when the command runs at the kit's root), the theme keeps that
+ *   tsconfig.json as its template has it (minimal's own, full's copied from Play), as Play's and HUD's do: the kit's
+ *   CI holds every workspace to extending the base.
+ * - Anywhere else (another repository, a temp folder), the base is not two folders up, and Vite reads the
+ *   tsconfig.json and refuses one whose base is missing. So the written tsconfig.json holds tsconfig.base.json's
+ *   compilerOptions itself, read from the kit the command runs from, with the template's own fields (its include
+ *   list) as they are; an option the template sets wins over the base's.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 
 /** The kit's shared compiler options, at its root. */
 export const BASE_TSCONFIG = 'tsconfig.base.json'
@@ -34,4 +39,25 @@ export function writeStandaloneTsconfig(target: string, kitRoot: string): void {
   const theme = JSON.parse(readFileSync(path, 'utf8')) as TsConfig
   const base = JSON.parse(readFileSync(join(kitRoot, BASE_TSCONFIG), 'utf8')) as TsConfig
   writeFileSync(path, `${JSON.stringify(standaloneTsconfig(theme, base), null, JSON_INDENT)}\n`)
+}
+
+function realOrSelf(path: string): string {
+  try {
+    return realpathSync(path)
+  } catch {
+    return path
+  }
+}
+
+/** Whether `target` is a folder right inside `themesFolder` (the kit's themes/), where the base is two folders up. */
+export function isKitTheme(target: string, themesFolder: string): boolean {
+  return realOrSelf(dirname(resolve(target))) === realOrSelf(resolve(themesFolder))
+}
+
+/**
+ * The tsconfig.json of the theme `new` wrote at `target`: left extending the base, as its template wrote it, when
+ * `target` is in the kit's `themesFolder`; made to stand alone, with the base's options from `kitRoot`, anywhere else.
+ */
+export function writeThemeTsconfig(target: string, kitRoot: string, themesFolder: string): void {
+  if (!isKitTheme(target, themesFolder)) writeStandaloneTsconfig(target, kitRoot)
 }

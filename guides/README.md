@@ -18,6 +18,7 @@ guide and core disagree, core wins and the guide is fixed.
 | [looks.md](looks.md) | The look schema and its two knob kinds, presets, the first-paint table, the tone rule, recolouring the host's pages, and `check design` |
 | [sdk.md](sdk.md) | Every name of `@automatos/theme-sdk`, by area, storage included |
 | [pitfalls.md](pitfalls.md) | What went wrong building Play, and the rule or check that now catches each one |
+| [from-design-to-theme.md](from-design-to-theme.md) | The nine steps from a design session to an installed, listed theme: design, brief, base, launch, judge, fix, release, install, list |
 
 ## How they fit with the rest of the kit
 

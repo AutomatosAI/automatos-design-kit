@@ -300,8 +300,9 @@ describe("kit workflow", () => {
     expect(jobBlock(sample, "three")).toBe("");
   });
 
-  it("has the kit job, then the harness job (PRD-261 B-02f)", () => {
-    expect(jobNames(text)).toEqual(["kit", "harness"]);
+  // The proof job runs on proof/ branches only; tests/proof.test.ts holds its shape.
+  it("has the kit job, then the harness job (PRD-261 B-02f), then the proof job (PRD-261 B-06a)", () => {
+    expect(jobNames(text)).toEqual(["kit", "harness", "proof"]);
   });
 
   it("runs on pull requests and on pushes to main, read-only", () => {

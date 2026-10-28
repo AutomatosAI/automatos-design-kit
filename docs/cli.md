@@ -222,10 +222,13 @@ Writes a new theme folder that builds, packs and passes `check` as it is (`src/n
 | `--mascot none` | `full` only: no clips, no `mascot` block, no `@automatos/mascot`; the chat still says what Auto is doing. |
 | `--to <folder>` | Where to write. Default: `themes/<name>` under the folder the command runs in. |
 
-The first version is 0.1.0. The written `tsconfig.json` holds the kit's shared compiler options itself, where a kit
-theme's extends `../../tsconfig.base.json`. A theme that bundles a kit library (`full` names `@automatos/look-kit`,
-and `@automatos/mascot` unless `--mascot none`) is built from that library's folder two levels up, `packages/<name>/`
-beside `themes/<name>/`, so keep such a theme in the kit's layout.
+The first version is 0.1.0. In the kit's own `themes/` (the default `--to`, run from the kit's root) the written
+`tsconfig.json` extends `../../tsconfig.base.json`, as Play's and HUD's do, which the kit's CI asks of every
+workspace; anywhere else it holds the kit's shared compiler options itself, so the theme builds outside the kit.
+
+A theme that bundles a kit library (`full` names `@automatos/look-kit`, and `@automatos/mascot` unless
+`--mascot none`) is built from that library's folder two levels up, `packages/<name>/` beside `themes/<name>/`, so
+keep such a theme in the kit's layout.
 
 It refuses, writing nothing and printing every reason:
 

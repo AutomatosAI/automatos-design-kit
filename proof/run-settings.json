@@ -1,0 +1,54 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/{{CLONE}}/**)",
+      "Edit(/{{CLONE}}/**)",
+      "Bash(npm ci)",
+      "Bash(npm install)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(npm test *)",
+      "Bash(npx automatos-theme *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "WebFetch",
+      "WebSearch",
+      "Bash(node *)",
+      "Bash(npm exec *)",
+      "Bash(npm x *)",
+      "Bash(npx -c *)",
+      "Bash(npm publish *)",
+      "Bash(git push *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Read(~/**)",
+      "Edit(~/**)",
+      "Edit(/{{CLONE}}/.claude/**)",
+      "Edit(/{{CLONE}}/.git/hooks/**)",
+      "Edit(/{{CLONE}}/.git/config)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "autoAllowBashIfSandboxed": false,
+    "excludedCommands": [],
+    "filesystem": {
+      "allowRead": ["{{TOOLCHAIN_BIN}}", "{{TOOLCHAIN_NPM}}"],
+      "allowWrite": ["{{CLONE}}", "{{NPM_CACHE}}"],
+      "denyWrite": ["{{CLONE}}/.claude", "{{CLONE}}/.git/hooks", "{{CLONE}}/.git/config"],
+      "denyRead": ["~/"]
+    },
+    "network": {
+      "allowedDomains": ["registry.npmjs.org"],
+      "allowLocalBinding": true
+    }
+  }
+}
