@@ -162,7 +162,9 @@ is never packed).
 - **Fonts.** Rajdhani 700 and Chakra Petch 600 in `assets/fonts/`, listed in `theme.json` `fonts`, under the SIL Open
   Font License 1.1 with their licences. Geist and Geist Mono are the host's.
 - **Bundled.** `@automatos/look-kit` and `@automatos/mascot`, packed under `source/packages/<name>/src/`.
-- **Previews.** None: `theme.json` lists no `previews`.
+- **Previews.** Seven listing images in `assets/previews/`, 1440 by 900, from the kit's showcase shots: HUD's chat in
+  each look (`arc`, `forge`, `ghost`, `nova`, `signal`; ARC's first, the listing's cover), ARC's voice session
+  (`arc-voice`) and its LOOK drawer (`arc-looks`), listed in `theme.json` `previews` (from 1.1.2).
 
 ## In the phone app
 
