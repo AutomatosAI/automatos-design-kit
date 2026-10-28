@@ -48,28 +48,42 @@ this page.
 The run is held twice: Claude Code's permission rules hold its own tools, and a sandbox holds its shell. Both come
 from `run-settings.json`, a template: `launch.sh` fills in `{{CLONE}}` (the clone's real path; in a permission rule
 `/{{CLONE}}` becomes the `//`-prefixed absolute form), `{{NPM_CACHE}}` (`<dest>.npm-cache`, beside the clone) and
-`{{TOOLCHAIN}}` (below, or drops its line), and refuses settings with a placeholder left. Neither layer is perfect on
-its own; the audit reads the record of both.
+`{{TOOLCHAIN_BIN}}`/`{{TOOLCHAIN_NPM}}` (below, or drops their line together), and refuses settings with a
+placeholder left. Neither layer is perfect on its own; the audit reads the record of both.
 
 - **The sandbox** holds Bash and every process it starts: npm, the build, the tests, any script a `package.json`
-  names. They write only to the clone and to npm's cache (`allowWrite`), never to the clone's `.claude/`, where the
-  settings are (`denyWrite`); they read nothing in the home folder (`denyRead`); and they reach only the npm registry
-  (`registry.npmjs.org`): any other host is refused. They may listen and connect on localhost, for a dev server
-  (`allowLocalBinding`, on macOS; on Linux a sandboxed command has a localhost of its own). `failIfUnavailable` stops
-  the run when the sandbox can't start, `allowUnsandboxedCommands: false` takes away the retry outside it, and
-  `autoAllowBashIfSandboxed: false` keeps the Bash rules the gate (by default a sandboxed command needs no allow
-  rule). npm runs with no user config (`npm_config_userconfig=/dev/null`), so the home folder's `.npmrc` and its
-  tokens stay out, and the clone's git config holds the identity the run commits with.
-- **node under the home folder**: when node's install prefix is inside the home folder (`~/.nvm/versions/node/<v>`,
-  say), the launcher puts it in the sandbox's `allowRead` (`{{TOOLCHAIN}}`), so npm and node can load. The sandbox's
-  documented rule is that the narrower path wins, so that prefix is readable while the rest of the home folder stays
-  denied; it is unproven until the first real launch, and if npm or node fail to start, look there first.
+  names. They write only to the clone and to npm's cache (`allowWrite`), never to the clone's `.claude/` (where the
+  settings are), `.git/hooks/` or `.git/config` (`denyWrite`); they read nothing in the home folder (`denyRead`); and
+  they reach only the npm registry (`registry.npmjs.org`): any other host is refused. They may listen and connect on
+  localhost, for a dev server (`allowLocalBinding`, on macOS; on Linux a sandboxed command has a localhost of its
+  own). `failIfUnavailable` stops the run when the sandbox can't start, `allowUnsandboxedCommands: false` takes away
+  the retry outside it, and `autoAllowBashIfSandboxed: false` keeps the Bash rules the gate (by default a sandboxed
+  command needs no allow rule). npm runs with no user config (`npm_config_userconfig=/dev/null`), so the home
+  folder's `.npmrc` and its tokens stay out, and the clone's git config holds the identity the run commits with
+  (`.git/index` and `.git/objects` stay writable, for that commit; `.git/hooks` and `.git/config` do not).
+- **node under the home folder**: when node's install prefix is inside the home folder, the launcher checks it
+  against the version managers it knows (`~/.nvm/versions/node/<v>`, `~/.volta/tools/image/node/<v>`,
+  `~/.local/share/fnm/node-versions/<v>/installation`, `~/.asdf/installs/nodejs/<v>`) and, only then, puts the node
+  binary's own folder and `<prefix>/lib/node_modules/npm` in the sandbox's `allowRead`
+  (`{{TOOLCHAIN_BIN}}`/`{{TOOLCHAIN_NPM}}`) — never the whole prefix, and never the home folder itself or a direct
+  child of it, which a made-up `node` could claim to be: that would hand the sandbox the home folder back. A prefix
+  that isn't one of those layouts gets no `allowRead` at all, with a warning that npm or node may fail to start. The
+  sandbox's documented rule is that the narrower path wins, so these two paths are readable while the rest of the
+  home folder stays denied; it is unproven until the first real launch, and if npm or node fail to start, look there
+  first.
 - **The permission rules** hold Claude Code's tools: Read and Edit inside the clone only (an `Edit` rule covers the
   Write tool too, and a `Read` rule Glob and Grep; `Write(...)` and `Glob(...)` path rules never match), the home
-  folder denied (`Read(~/**)`, `Edit(~/**)`), the web denied, and Bash only for the commands listed, with `node`,
-  `npm exec`, `npm x`, `npx -c`, `npm publish`, `git push`, `curl` and `wget` denied. Under
-  `--permission-mode dontAsk` a call no rule allows is refused without a prompt, and the file tools' writes to the
-  clone's `.claude/` and `.git/` are refused whatever the rules say.
+  folder denied (`Read(~/**)`, `Edit(~/**)`), the clone's `.claude/`, `.git/hooks/` and `.git/config` denied to Edit
+  too (matching the sandbox's `denyWrite`, since nothing else stops the Edit tool writing them), the web denied, and
+  Bash only for the commands listed, with `node`, `npm exec`, `npm x`, `npx -c`, `npm publish`, `git push`, `curl`
+  and `wget` denied. Under `--permission-mode dontAsk` a call no rule allows is refused without a prompt. The
+  launcher also makes the clone's `.claude/settings.json` unwritable (`chmod a-w`) before it starts the run, so even
+  a write neither layer catches fails at the filesystem.
+- **`.git/hooks` and `.git/config`, after the run**: the launcher snapshots `.git/config` once the clone has its
+  commit identity, and, when the run stops, removes any non-sample file `.git/hooks` has gained and restores
+  `.git/config` if it no longer matches, saying so either way, before anything else touches the clone's git with a
+  host command — a hook or a config value a later `git` command on this machine could otherwise run or be
+  redirected by.
 - **What is left**: Bash's read-only commands (`cat`, `ls`, `grep`, `find`) and every process in the sandbox can still
   read outside the clone wherever it isn't the home folder: the system's folders, another checkout under `/tmp`. The
   audit's outside-path flag catches a path a call names outside the clone, and its content check catches a leak

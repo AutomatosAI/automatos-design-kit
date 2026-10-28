@@ -28,7 +28,10 @@
       "Bash(curl *)",
       "Bash(wget *)",
       "Read(~/**)",
-      "Edit(~/**)"
+      "Edit(~/**)",
+      "Edit(/{{CLONE}}/.claude/**)",
+      "Edit(/{{CLONE}}/.git/hooks/**)",
+      "Edit(/{{CLONE}}/.git/config)"
     ]
   },
   "sandbox": {
@@ -38,9 +41,9 @@
     "autoAllowBashIfSandboxed": false,
     "excludedCommands": [],
     "filesystem": {
-      "allowRead": ["{{TOOLCHAIN}}"],
+      "allowRead": ["{{TOOLCHAIN_BIN}}", "{{TOOLCHAIN_NPM}}"],
       "allowWrite": ["{{CLONE}}", "{{NPM_CACHE}}"],
-      "denyWrite": ["{{CLONE}}/.claude"],
+      "denyWrite": ["{{CLONE}}/.claude", "{{CLONE}}/.git/hooks", "{{CLONE}}/.git/config"],
       "denyRead": ["~/"]
     },
     "network": {

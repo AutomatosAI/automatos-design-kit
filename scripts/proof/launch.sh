@@ -43,9 +43,19 @@ readonly NPM_USERCONFIG='/dev/null'
 # A path the settings take as it is: absolute, and no character JSON or sed would read as more than itself.
 readonly SETTINGS_PATH_PATTERN='^/[^"\\#&[:cntrl:]]*$'
 readonly SYMLINK_MAX=40
+readonly GIT_CONFIG_SNAPSHOT_SUFFIX='.git-config.snapshot'
+# The version-manager layouts under $HOME whose node install prefix the sandbox may read (relative to $HOME, the
+# version a wildcard). A prefix that is $HOME itself, a direct child of it, or anything else not on this list gets no
+# allowRead at all: narrower than the prefix itself, which would otherwise hand the sandbox the home folder back.
+readonly TOOLCHAIN_PREFIX_PATTERNS=(
+  '^[.]nvm/versions/node/[^/]+$'
+  '^[.]volta/tools/image/node/[^/]+$'
+  '^[.]local/share/fnm/node-versions/[^/]+/installation$'
+  '^[.]asdf/installs/nodejs/[^/]+$'
+)
 
 ID='' SLUG='' BRIEF='' MODEL='' BASE="$DEFAULT_BASE" DEST='' DRY_RUN=0 CLAUDE_HOME='' BASE_COMMIT=''
-NPM_CACHE='' TOOLCHAIN=''
+NPM_CACHE='' TOOLCHAIN_BIN='' TOOLCHAIN_NPM=''
 
 say() { printf '[proof] %s\n' "$*"; }
 refuse() { printf '[proof] REFUSED: %s\n' "$*" >&2; exit 1; }
@@ -139,17 +149,33 @@ real_file() {
   printf '%s/%s' "$(real_dir "$(dirname "$path")")" "$(basename "$path")"
 }
 
-# Sets TOOLCHAIN: node's install prefix (two folders up from its real binary, ~/.nvm/versions/node/<version> say) when
-# it lies inside the home folder, which the sandbox's denyRead takes, so its allowRead can give it back to npm and
-# node; empty otherwise. allowRead carving that prefix out of denyRead is the sandbox's documented rule, but unproven
-# here until the first real launch; failIfUnavailable stops the run if the sandbox can't start at all.
+# Sets TOOLCHAIN_BIN and TOOLCHAIN_NPM: the node binary's own real folder and <prefix>/lib/node_modules/npm, when
+# node's install prefix (two folders up from its real binary) lies inside the home folder at a layout
+# TOOLCHAIN_PREFIX_PATTERNS knows; both empty otherwise, with a warning when the prefix is under the home folder but
+# not one of those layouts (a made-up node under ~/bin, say, whose prefix is the home folder itself). Only these two
+# narrow paths go in the sandbox's allowRead, carving them out of denyRead, which is the sandbox's documented rule
+# but unproven here until the first real launch; failIfUnavailable stops the run if the sandbox can't start at all.
 find_toolchain() {
-  local node prefix home
+  local node real_node prefix home relative pattern
   node=$(command -v node || true)
-  case "$node" in /*) ;; *) TOOLCHAIN=''; return 0 ;; esac
-  prefix=$(dirname "$(dirname "$(real_file "$node")")")
+  case "$node" in /*) ;; *) return 0 ;; esac
+  real_node=$(real_file "$node")
+  prefix=$(dirname "$(dirname "$real_node")")
   home=$(real_dir "$HOME")
-  if [ -n "$home" ] && is_within "$prefix" "$home"; then TOOLCHAIN=$prefix; else TOOLCHAIN=''; fi
+  [ -n "$home" ] && is_within "$prefix" "$home" || return 0
+  if [ "$prefix" = "$home" ]; then
+    say "warning: node's install prefix is the home folder itself ($prefix); the sandbox will not read it, so npm or node may fail to start."
+    return 0
+  fi
+  relative=${prefix#"$home"/}
+  for pattern in "${TOOLCHAIN_PREFIX_PATTERNS[@]}"; do
+    if [[ "$relative" =~ $pattern ]]; then
+      TOOLCHAIN_BIN=$(dirname "$real_node")
+      TOOLCHAIN_NPM="$prefix/lib/node_modules/npm"
+      return 0
+    fi
+  done
+  say "warning: node's install prefix ($prefix) is under the home folder but not a known version-manager layout (nvm, volta, fnm or asdf); the sandbox will not read it, so npm or node may fail to start."
 }
 
 # Refuses a path the settings can't hold as it is (they are filled in with sed, and are JSON).
@@ -255,23 +281,55 @@ copy_identity() {
   git -C "$DEST" config user.email "$email"
 }
 
+# .git/config once it holds the run's commit identity, so it can be checked and restored after the run; the run's
+# own commits still write .git/index and .git/objects, which this never touches.
+snapshot_git_config() {
+  cp "$DEST/.git/config" "$DEST$GIT_CONFIG_SNAPSHOT_SUFFIX"
+}
+
+# The non-sample files .git/hooks holds: a hook written despite the sandbox's and the permission rules' denyWrite,
+# which could run on this machine the next time one of these hooks fires.
+hook_files() {
+  find "$DEST/.git/hooks" -type f ! -name '*.sample'
+}
+
+# Checks .git/hooks and .git/config right after the run, before any git command touches the clone again, and resets
+# whichever changed, saying so: a hook or a config value a later git command on this machine could run or be
+# redirected by otherwise.
+check_git_integrity() {
+  local hooks hook
+  hooks=$(hook_files)
+  if [ -n "$hooks" ]; then
+    say "the run left non-sample files in .git/hooks; removing them before any git command touches the clone again:"
+    while IFS= read -r hook; do say "  $hook"; rm -f "$hook"; done <<< "$hooks"
+  fi
+  if ! cmp -s "$DEST/.git/config" "$DEST$GIT_CONFIG_SNAPSHOT_SUFFIX"; then
+    say "the run changed .git/config; resetting it to its snapshot before any git command touches the clone again."
+    cp "$DEST$GIT_CONFIG_SNAPSHOT_SUFFIX" "$DEST/.git/config"
+  fi
+  rm -f "$DEST$GIT_CONFIG_SNAPSHOT_SUFFIX"
+}
+
 # The run's settings: the base's template filled in with absolute paths. {{CLONE}} is the clone's real path (in a
-# permission rule, /{{CLONE}} is the //-prefixed absolute form), {{NPM_CACHE}} npm's cache beside it, {{TOOLCHAIN}}
-# node's prefix when it is inside the home folder (its line is dropped otherwise). Under --permission-mode dontAsk a
-# call its rules don't allow is denied, with no prompt; the sandbox holds Bash and every process it starts.
+# permission rule, /{{CLONE}} is the //-prefixed absolute form), {{NPM_CACHE}} npm's cache beside it,
+# {{TOOLCHAIN_BIN}}/{{TOOLCHAIN_NPM}} node's own folder and its npm's when node's prefix is a known layout inside the
+# home folder (their line is dropped otherwise). Under --permission-mode dontAsk a call its rules don't allow is
+# denied, with no prompt; the sandbox holds Bash and every process it starts.
 fill_settings() {
-  local toolchain_line='/{{TOOLCHAIN}}/d'
-  [ -z "$TOOLCHAIN" ] || toolchain_line="s#{{TOOLCHAIN}}#$TOOLCHAIN#g"
+  local toolchain_line='/{{TOOLCHAIN_BIN}}/d'
+  [ -z "$TOOLCHAIN_BIN" ] || toolchain_line="s#{{TOOLCHAIN_BIN}}#$TOOLCHAIN_BIN#g; s#{{TOOLCHAIN_NPM}}#$TOOLCHAIN_NPM#g"
   sed -e "$toolchain_line" -e "s#{{CLONE}}#$DEST#g" -e "s#{{NPM_CACHE}}#$NPM_CACHE#g" "$DEST/$RUN_SETTINGS"
 }
 
 # The run's settings, kept out of git by .git/info/exclude, npm's cache folder, and the kit's skills linked in as
-# Claude Code skills.
+# Claude Code skills. settings.json is made unwritable (chmod a-w) once it is filled in, so even a write neither the
+# sandbox nor the permission rules catch fails at the filesystem.
 write_settings() {
   [ -f "$DEST/$RUN_SETTINGS" ] || refuse "$BASE has no $RUN_SETTINGS: the launcher needs a base that holds the run's settings."
   mkdir -p "$DEST/$SETTINGS_DIR" "$NPM_CACHE"
   fill_settings > "$DEST/$SETTINGS_DIR/settings.json"
   case "$(cat "$DEST/$SETTINGS_DIR/settings.json")" in *'{{'*) refuse "$RUN_SETTINGS has a placeholder the launcher does not fill." ;; esac
+  chmod a-w "$DEST/$SETTINGS_DIR/settings.json"
   [ ! -d "$DEST/skills" ] || ln -s ../skills "$DEST/$SETTINGS_DIR/skills"
   mkdir -p "$DEST/.git/info"
   printf '/%s/\n' "$SETTINGS_DIR" >> "$DEST/.git/info/exclude"
@@ -302,12 +360,14 @@ record_end() {
 
 start_run() {
   command -v claude >/dev/null || refuse "claude is not on PATH: install Claude Code, or prepare with --dry-run."
+  snapshot_git_config
   say "running; the transcript goes to $DEST$TRANSCRIPT_SUFFIX. This waits until the run stops."
   local status=0
   ( cd "$DEST" && CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 npm_config_cache="$NPM_CACHE" npm_config_userconfig="$NPM_USERCONFIG" \
       claude -p --model "$MODEL" --output-format stream-json --verbose \
       --setting-sources project --permission-mode dontAsk --no-session-persistence < "$DEST$PROMPT_SUFFIX" ) \
     > "$DEST$TRANSCRIPT_SUFFIX" || status=$?
+  check_git_integrity
   record_end "$status"
   say "the run stopped (claude exited $status). Next: audit it, then fill RUN.md (proof/README.md, After the run):"
   say "  node scripts/proof/audit.mjs $DEST$TRANSCRIPT_SUFFIX $DEST --deny <your deny file>"
@@ -322,7 +382,8 @@ main() {
   check_dest
   find_toolchain
   check_settings_path --dest "$DEST"
-  check_settings_path "node's prefix" "$TOOLCHAIN"
+  check_settings_path "node's prefix (bin)" "$TOOLCHAIN_BIN"
+  check_settings_path "node's prefix (npm)" "$TOOLCHAIN_NPM"
   command -v git >/dev/null || refuse "git is not on PATH."
   clone_base
   remove_leaks

@@ -8,7 +8,8 @@
 // tests/proof-settings.test.ts.
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import {
-  existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, statSync, writeFileSync,
+  chmodSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, statSync,
+  writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -39,7 +40,7 @@ const PLACEHOLDER = /\{\{([A-Z]+)\}\}/g;
 const readText = (rel: string): string => readFileSync(join(ROOT, rel), "utf8");
 /** The parts of the run's filled-in settings these tests read; the template is tests/proof-settings.test.ts's. */
 interface RunSettings {
-  readonly permissions: { readonly allow: readonly string[] };
+  readonly permissions: { readonly allow: readonly string[]; readonly deny: readonly string[] };
   readonly sandbox: { readonly filesystem: Readonly<Record<string, readonly string[]>> };
 }
 const script = readText(LAUNCH);
@@ -202,9 +203,20 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
     const settings = JSON.parse(text) as RunSettings;
     expect(settings.permissions.allow.slice(0, 2)).toEqual([`Read(/${clone}/**)`, `Edit(/${clone}/**)`]);
     expect(settings.permissions.allow[0].startsWith("Read(//")).toBe(true);
-    expect(settings.sandbox.filesystem).toEqual({ allowWrite: [clone, `${clone}.npm-cache`], denyWrite: [`${clone}/.claude`], denyRead: ["~/"] });
+    expect(settings.permissions.deny).toEqual(expect.arrayContaining([
+      `Edit(/${clone}/.claude/**)`, `Edit(/${clone}/.git/hooks/**)`, `Edit(/${clone}/.git/config)`,
+    ]));
+    expect(settings.sandbox.filesystem).toEqual({
+      allowWrite: [clone, `${clone}.npm-cache`],
+      denyWrite: [`${clone}/.claude`, `${clone}/.git/hooks`, `${clone}/.git/config`],
+      denyRead: ["~/"],
+    });
     expect(`${clone}.npm-cache`.startsWith(`${clone}/`)).toBe(false);
     expect(statSync(`${clone}.npm-cache`).isDirectory()).toBe(true);
+  });
+
+  it("makes the clone's settings.json unwritable before the run would start", () => {
+    expect(statSync(inClone(".claude/settings.json")).mode & 0o222).toBe(0);
   });
 
   it("gives the clone's own git config the identity this machine commits with, which the sandbox keeps the run from reading", () => {
@@ -230,6 +242,60 @@ describe("scripts/proof/launch.sh --dry-run, against a throwaway kit", () => {
     const again = launch(valid(join(dryRuns, "play")).map((arg) => (arg === SLUG ? "play" : arg)), runFrom, { PROOF_KIT_URL: prepared.kitUrl });
     expect(again.status).toBe(EXIT_REFUSED);
     expect(again.stderr).toContain("themes/play is in kit-b06-base already");
+  });
+});
+
+describe("scripts/proof/launch.sh, a real run: .git/hooks and .git/config after it stops", () => {
+  // A fake `claude` on PATH: consumes the prompt, writes a hook and changes .git/config as a run's shell commands
+  // could (despite the sandbox and the permission rules, or through some other gap), then exits, so the launcher's
+  // post-run check has something to catch and reset.
+  const FAKE_CLAUDE = [
+    "#!/bin/sh", "cat > /dev/null", "mkdir -p .git/hooks",
+    "printf '#!/bin/sh\\necho hooked\\n' > .git/hooks/post-commit", "chmod +x .git/hooks/post-commit",
+    'git config user.email "attacker@example.com"', 'printf \'{"type":"result","num_turns":1}\\n\'', "exit 0", "",
+  ].join("\n");
+
+  const scratch2 = sandbox("proof-launch-run-");
+  afterAll(() => rmSync(scratch2, { recursive: true, force: true }));
+  const home2 = join(scratch2, "home");
+  const runFrom2 = join(scratch2, "run");
+  const proofs2 = join(scratch2, "proofs");
+  const bin2 = join(scratch2, "bin");
+  [home2, runFrom2, proofs2, bin2].forEach((folder) => mkdirSync(folder, { recursive: true }));
+  const brief2 = join(scratch2, "brief.md");
+  writeFileSync(brief2, "# Brief: Harbour\n\n## Theme\n\nacme/harbour, a made-up theme for the tests.\n");
+  const dest2 = join(proofs2, `${PROOF_ID}-${SLUG}`);
+  const prepared2 = { result: undefined as SpawnSyncReturns<string> | undefined };
+  const result2 = (): SpawnSyncReturns<string> => {
+    if (prepared2.result === undefined) throw new Error("the run did not run");
+    return prepared2.result;
+  };
+
+  beforeAll(() => {
+    writeFileSync(join(bin2, "claude"), FAKE_CLAUDE);
+    chmodSync(join(bin2, "claude"), 0o755);
+    const kitUrl = pathToFileURL(upstream(scratch2)).href;
+    const args = ["--id", PROOF_ID, "--slug", SLUG, "--brief", brief2, "--model", MODEL, "--dest", dest2];
+    prepared2.result = spawnSync("bash", [join(ROOT, LAUNCH), ...args], {
+      cwd: runFrom2,
+      env: { ...gitEnv(home2), PROOF_KIT_URL: kitUrl, PATH: `${bin2}:${process.env.PATH ?? ""}` },
+      input: "", encoding: "utf8", timeout: SCRIPT_TIMEOUT_MS,
+    });
+  }, SCRIPT_TIMEOUT_MS);
+
+  it("runs and stops cleanly, the fake claude counted as the run", () => {
+    expect(result2().status, `${result2().stdout}${result2().stderr}`).toBe(0);
+  });
+
+  it("removes the hook the run wrote and restores .git/config, saying so before anything else touches the clone's git", () => {
+    expect(readdirSync(join(dest2, ".git", "hooks")).filter((name) => !name.endsWith(".sample"))).toEqual([]);
+    expect(git(dest2, ["config", "--local", "user.email"], home2).trim()).toBe("kit-test@example.com");
+    expect(result2().stdout).toContain("the run left non-sample files in .git/hooks");
+    expect(result2().stdout).toContain("the run changed .git/config");
+  });
+
+  it("leaves no .git-config.snapshot file beside the clone once the check has run", () => {
+    expect(existsSync(`${dest2}.git-config.snapshot`)).toBe(false);
   });
 });
 
