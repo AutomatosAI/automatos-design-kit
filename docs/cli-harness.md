@@ -108,7 +108,7 @@ list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
 
 | Theme | Width | Shots |
 |---|---|---|
-| HUD | 1440 | `chat-arc`, `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
+| HUD | 1440 | `chat-arc`, `chat-forge`, `chat-ghost`, `chat-nova`, `chat-signal` (one per look: HUD's listing previews), `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
 | HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc` |
 | Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember` |
 | Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember` |

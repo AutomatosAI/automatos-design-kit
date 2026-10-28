@@ -115,6 +115,10 @@ const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: '
 /** Every showcase shot, theme by theme, the desktop's before the phone's. */
 export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('hud', DESKTOP, 'chat', 'arc', CHAT, ON_TRANSCRIPT),
+  planned('hud', DESKTOP, 'chat', 'forge', CHAT, ON_TRANSCRIPT),
+  planned('hud', DESKTOP, 'chat', 'ghost', CHAT, ON_TRANSCRIPT),
+  planned('hud', DESKTOP, 'chat', 'nova', CHAT, ON_TRANSCRIPT),
+  planned('hud', DESKTOP, 'chat', 'signal', CHAT, ON_TRANSCRIPT),
   planned('hud', DESKTOP, 'voice-listening', 'arc', CHAT, LISTENING),
   planned('hud', DESKTOP, 'voice-speaking', 'forge', CHAT, SPEAKING),
   planned('hud', DESKTOP, 'look-editor', 'arc', LOOK_EDITOR),
