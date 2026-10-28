@@ -60,4 +60,5 @@ them in its own code, as Play does.
 `tests/references.test.ts` checks that the converted schema and presets pass the kit's copy of core's look
 validators and equal `looks.json` value for value; that Command's brief marks each obsolete ground rule; that no file
 here is over 2 MB; and that no file outside `references/` names `designs/command`, so that folder can be taken out
-without breaking anything else.
+without breaking anything else. The one exception is the proof's leak list (`proof/leak-paths.txt`), which names it
+so a proof run's launcher can take it out (with this test) before the run starts.

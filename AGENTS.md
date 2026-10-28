@@ -77,6 +77,20 @@ core wins and the kit is fixed.
   tests run on the harness through `packages/theme-harness/test/template-*.test.tsx`.
 - `templates/ralph/`: a template for running a theme wave with Ralph (an explicit model id, a terminal start, CI as
   the test). `references/designs/`: design references (Ember and Command) to read, never to build from.
+- `proof/`: the proof protocol (PRD-261 B-06): a fresh agent, given a clean clone of the kit at a base tag and a
+  brief, builds a new theme with the kit alone. `README.md` is the protocol (what the run may read and change, how to
+  launch it, how the run is contained, what the guard, the audit and CI prove, what `RUN.md` and `GAPS.md` hold, the
+  gap categories); `BRIEF.template.md` the sections a brief has; `PROMPT.md` the run's fixed task;
+  `run-settings.json` the run's Claude Code settings (its permission rules and its sandbox), a template the launcher
+  fills with the clone's paths; `leak-paths.txt` the paths the launcher deletes from the run's clone. A proof branch,
+  `proof/<id>-<slug>`, adds `proof/<id>/` (`BRIEF.md`, `RUN.md`, `GAPS.md`, `BASE`) and `themes/<slug>/`, and is
+  never merged as it is.
+- `scripts/proof/`: `launch.sh` (prepares the clone, outside this repository, and starts the run with its model
+  pinned), `guard.mjs` (a proof branch changes only its theme and proof folders; `--ci` is kit.yml's `proof` job) and
+  `audit.mjs` (what the run's transcript shows: first a leak file's text in any tool result, matched against the
+  base in the clone's history by `leak-content.mjs`, the authoritative check; then what its calls reached for, read
+  as the shell reads them by `shell.mjs`: paths outside the clone, leak paths, other refs, the web, a deny list kept
+  outside the repository).
 
 ## What CI runs
 
@@ -94,9 +108,10 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   `eslint.config.js`), so a pattern the Marketplace review would report fails CI first. Play's and HUD's fail on a
   warning too (`--max-warnings 0`).
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
-- `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the release, review
-  and sign scripts under `scripts/`. It also runs `automatos-theme new` on each template, `full` with and without
-  its mascot, in a temporary folder, and builds, packs and checks each theme it writes (`tests/template-*.test.ts`).
+- `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the release, review,
+  sign and proof scripts under `scripts/`. It also runs `automatos-theme new` on each template, `full` with and
+  without its mascot, in a temporary folder, and builds, packs and checks each theme it writes
+  (`tests/template-*.test.ts`).
 - Its `harness` job installs and builds as the `kit` job does (the released-themes check is the `kit` job's alone),
   then installs the two browsers, and runs `automatos-theme shots` over `themes/play`, then over `themes/hud` (into
   the shots' `hud/` folder), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
@@ -111,6 +126,12 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   density, with reduced motion and a fixed clock, on Chromium and with no axe scan, into
   `packages/theme-harness/dist/showcase/`. The job uploads the shots, their `axe.json` files and the smoke's shots as
   `kit-harness`, and the showcase as `kit-showcase`.
+- Its `proof` job runs only on a pull request from a `proof/` branch (`proof/README.md`). On the branch's own head
+  and history, `main`'s copy of `scripts/proof/guard.mjs --ci` (never the branch's) reads the branch's one
+  `proof/<id>/BASE`, fetches that base tag and fails on a change outside `themes/<slug>/` and `proof/<id>/` (but the
+  new workspace's lock entries and the launcher's deletion of the leak paths); then the job installs, builds, runs
+  `automatos-theme check` on the new theme and shoots it in the browser harness, uploaded as `kit-proof-shots`. The `kit` job builds, lints, typechecks, tests
+  and packs the new theme with every other workspace; the `harness` job shoots Play and HUD only.
 
 ## Adding a dependency
 

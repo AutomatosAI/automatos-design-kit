@@ -1,8 +1,9 @@
 // PRD-261 B-01d: the design references in references/. Command's looks, converted from its looks.json (look schema
 // v0, with booleans) to look schema v1 (choices and numbers only), pass the kit's copy of core's look validators and
 // equal v0 value for value; Command's brief marks each ground rule of the pilot's standalone app "Obsolete"; no file
-// there is over 2 MB; and no tracked file outside references/ names the Command folder, so it can be taken out on its
-// own. These checks read files only; nothing is built.
+// there is over 2 MB; and no tracked file outside references/ names the Command folder, but the proof's leak list
+// (proof/leak-paths.txt, PRD-261 B-06a), so it can be taken out on its own. These checks read files only; nothing is
+// built.
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -19,6 +20,11 @@ const REFERENCES = "references";
 const COMMAND_NAME = ["designs", "command"].join("/");
 const COMMAND = join(ROOT, REFERENCES, COMMAND_NAME);
 const DESIGN_READMES = ["README.md", "designs/ember/README.md", `${COMMAND_NAME}/README.md`];
+/**
+ * PRD-261 B-06a: the list of paths a proof run's launcher deletes from its clone. It names the Command folder (and
+ * this test, which reads it) so that the folder is taken out on its own; tests/proof.test.ts holds the list.
+ */
+const PROOF_LEAK_LIST = "proof/leak-paths.txt";
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 const PRESET_SUFFIX = ".look.json";
 const V0_LOOK_SCHEMA = "automatos-interface-look/v0";
@@ -239,8 +245,8 @@ describe("references/ as files", () => {
     expect(files.filter((rel) => rel.endsWith("/support.js"))).toEqual([]);
   });
 
-  it("is the only place a tracked file names the Command folder", () => {
-    const outside = trackedFiles().filter((rel) => !rel.startsWith(`${REFERENCES}/`));
+  it("is the only place a tracked file names the Command folder, but the proof's leak list, which removes it", () => {
+    const outside = trackedFiles().filter((rel) => !rel.startsWith(`${REFERENCES}/`) && rel !== PROOF_LEAK_LIST);
     expect(outside.length).toBeGreaterThan(0);
     const naming = outside.filter((rel) => existsSync(join(ROOT, rel)))
       .filter((rel) => readFileSync(join(ROOT, rel)).includes(COMMAND_NAME));

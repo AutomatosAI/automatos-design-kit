@@ -175,6 +175,10 @@ change Play's package or every theme made from a template), the `automatos` publ
 class core keeps on `<html>` (`studio`, `classic`, `dark`, `light`, `system`), and a name whose renames would merge
 two of Play's names into one.
 
+A theme folder under the kit's `themes/` keeps its template's `tsconfig.json`, extending `../../tsconfig.base.json`
+as Play's and HUD's do (the kit's CI holds every workspace to that); a folder anywhere else gets a `tsconfig.json`
+that holds the kit's shared compiler options itself, so it builds outside the kit.
+
 A theme folder under `themes/` is a new npm workspace, so it changes `package-lock.json`: push the branch and run
 `kit-lockfile.yml` (the kit's `AGENTS.md`, "Adding a dependency").
 
