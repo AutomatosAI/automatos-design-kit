@@ -6,6 +6,7 @@
  * create a Mission); the stand-ins make none and keep each click here instead, for a test to read back
  * (cardActions). Every stand-in's root carries data-protected-surface with the card's name, so a test can find it
  * and a theme's stylesheet can be checked against it (core's components/theme-host/protected-surface.tsx:29).
+ * AiLabelFence has no root: it draws its children alone, as core's does since #1365.
  */
 import type { MarkdownViewProps } from '@automatos/theme-sdk'
 import { log } from '../cell.ts'
@@ -28,7 +29,6 @@ export type CardName =
   | 'trial-exhausted-banner'
   | 'first-run-nudge'
   | 'header-utilities'
-  | 'ai-label-fence'
   | 'core-page'
 
 /** One click on a card: which card, what it was about (a grant, a Mission, a chat), and what the owner chose. */

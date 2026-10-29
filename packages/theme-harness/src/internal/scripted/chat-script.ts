@@ -7,7 +7,7 @@
  * A send with no turn left is answered as a refused request (status 500), as a request nothing answers fails.
  * A turn recorded with hold: true stays open until Stop, or until a test goes on with it (continueHeldTurn: more
  * frames, then its end, as core's stream arrives in parts). It also holds the conversations the lists show, New
- * chat presses, whether the host's AI label is on screen, whether the screen is still opening its conversation,
+ * chat presses, whether the page has the host's AI label, whether the screen is still opening its conversation,
  * whether a turn is still ending, the Mission being planned, and the words every send carried and every load of a
  * conversation list, for a test to read back. resetChatScript puts each one back.
  */
@@ -321,7 +321,11 @@ export function activeChatId(): string | null {
   return activeChat.get()
 }
 
-/** Whether the host's AI label is on screen from now on (PRD-264 EUAI-11b): Send and Try again refuse while not. */
+/**
+ * Whether the page has the host's AI label from now on, mounted and so on screen (core's lib/ai-label/store.ts
+ * shownLabels, PRD-264 EUAI-11b): Send and Try again refuse while not. A label a theme hides is still on screen, drawn
+ * again in the host's own layer (core #1365), so hiding it changes nothing and the harness doesn't model it.
+ */
 export function setAiLabelShown(shown: boolean): void {
   aiLabel.set(shown)
 }
@@ -329,10 +333,6 @@ export function setAiLabelShown(shown: boolean): void {
 /** The label right now, as Send and Try again ask it at the moment they are called. */
 export function aiLabelShown(): boolean {
   return aiLabel.get()
-}
-
-export function useAiLabelShown(): boolean {
-  return aiLabel.use()
 }
 
 /** Whether the chat screen is still opening its conversation from now on (the session, a link or a load settling). */

@@ -5,16 +5,17 @@
  * else a new chat; New chat shows a fresh one; a theme's draft link read for the message box), then in a child
  * keyed by conversation.key for that conversation's turn as the SDK's frozen view model (:345, over
  * internal/chat-view.ts). Only a conversation it handed out opens, and a component calls it one way for its life
- * (:383). Send and Try again start nothing while a turn runs or while the host's AI label is off screen
- * (PRD-264 EUAI-11b, internal/ai-label-gate.ts). The lists (:398, :410), New chat (:415) and the receipt helpers
- * (:420-460 over lib/chat/receipts.ts) answer as core's do.
+ * (:383). Send and Try again start nothing while a turn runs or on a page with no host AI label (PRD-264 EUAI-11b,
+ * internal/ai-label-gate.ts at 3d8c72e7b58d32866f058a171d68bbbb8a335504: a label a theme hides is still on screen,
+ * drawn again in the host's own layer, so it never stops a turn). The lists (:398, :410), New chat (:415) and the
+ * receipt helpers (:420-460 over lib/chat/receipts.ts) answer as core's do.
  *
  * The backend is scripted (src/internal/scripted/chat-script.ts; chat-turn.ts plays a turn): chatControls, which
  * host.ts gathers, set the recorded turns each send takes (setChatScript, from a fixture read with recordedTurns and
  * scriptOf) and go on with one held open (continueHeldTurn), the conversations (setConversations, conversationsOf;
  * a stored reply may name who wrote it, provenance, or be a failure the server saved, savedError), the host's AI
- * label (setAiLabelShown), a screen still opening its conversation (setChatOpening: conversation null), a turn
- * still ending (setTurnEnding: Send and Try again start nothing, as while core's chat hook is still loading) and
+ * label on the page (setAiLabelShown), a screen still opening its conversation (setChatOpening: conversation null), a
+ * turn still ending (setTurnEnding: Send and Try again start nothing, as while core's chat hook is still loading) and
  * the Mission being planned (setPlanningMissionId, core's Mission store), and read back what was sent (chatSent,
  * turnsLeft), how often New chat was pressed (startedChats) and each load of a conversation list
  * (conversationsAsked); resetChat puts them back.

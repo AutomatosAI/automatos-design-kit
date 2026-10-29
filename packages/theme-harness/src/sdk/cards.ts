@@ -2,9 +2,10 @@
  * PRD-261 B-02c: the fake of SDK area `cards`. It mirrors core's frontend/lib/theme-sdk/cards.ts (at
  * 101a0bf33f64fb4f89af81b4293415be60b661ac), which re-exports the host's cards from host-cards/*: here each is a
  * stand-in (src/sdk/cards/*.tsx) with the props of packages/theme-sdk/areas/cards.d.ts and data-protected-surface on
- * its root. The approvals are checked as core checks them; no card makes a call: each click is kept, for a test to
- * read through cardsControls.cardActions (host.ts gathers the controls), as are MarkdownView's props
- * (cardsControls.markdownViews); resetCards forgets them.
+ * its root, but AiLabelFence, which draws its children alone, as core's does since #1365 (frame-cards.tsx). The
+ * approvals are checked as core checks them; no card makes a call: each click is kept, for a test to read through
+ * cardsControls.cardActions (host.ts gathers the controls), as are MarkdownView's props (cardsControls.markdownViews);
+ * resetCards forgets them.
  */
 import { cardActions, markdownViews, resetCardsLog } from '../internal/scripted/cards-log.ts'
 
