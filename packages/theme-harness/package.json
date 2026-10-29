@@ -10,6 +10,7 @@
     "./setup": "./src/setup.ts",
     "./host": "./src/host.ts",
     "./router": "./src/host/router.ts",
+    "./png": "./src/png.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

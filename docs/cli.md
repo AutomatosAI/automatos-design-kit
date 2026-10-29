@@ -40,6 +40,7 @@ commands) to stderr and exits 2.
 | [`pack --watch`](#pack---watch) | The theme's build and `pack`, again after each change under `src/` | none |
 | [`check`](#check) | The server's review checks on the folder, packed as `pack` packs it | none |
 | [`check design`](#check-design) | The look schema, presets, first-paint table and declared colour pairs, before any code | none |
+| [`check handoff`](#check-handoff) | A design handoff's `looks.json`: its shape, its knobs and presets through core's look validators, its colour pairs, before any of the theme exists | none |
 | [`brief`](cli-design.md#brief) | A theme's brief from a brand kit file: grounds, accents and text pairs with their AA ratios, fonts, logos, voice | none |
 | [`new`](#new) | A new theme folder from `templates/minimal`, or from Play without its brand | none |
 | [`clone`](cli-design.md#clone) | A core page's source, checked by its hash, as a read-only reference, and the page made a clone in `theme.json` | the public core repo on GitHub |
@@ -203,6 +204,32 @@ A malformed file is `BAD_CONTRAST_PAIRS`; a link where one of these files or fol
 file where a folder goes `NOT_A_FOLDER`. A theme folder itself named `design` is checked as `check design ./design`.
 
 Exit codes: 0 when no line is an error; 1 when one is; 2 usage error, or the path is not a folder.
+
+## `check handoff`
+
+```text
+usage:    automatos-theme check handoff <design folder>
+example:  npx automatos-theme check handoff "design/Harbour handoff"
+```
+
+Checks a design handoff before any of the theme is built (`src/check/handoff.ts`), so what the host can't take is
+fixed in the design. It reads the folder's `looks.json`, in the shape `automatos-theme-handoff/v1`
+([guides/designing-a-theme.md](../guides/designing-a-theme.md#the-handoff)), builds nothing and sends nothing. Three
+lines, then the verdict:
+
+- `handoff`: the file's shape (`BAD_HANDOFF`): its schema, the theme's id (`publisher/name`, not the reserved
+  `automatos` publisher), one to twelve presets, each with a tone (`light` or `dark`), a value for its knobs and the
+  same named `#rrggbb` colours as every other preset, a default that is one of them, the pairs (`text`, `ground` and
+  an optional `min` from 1 to 21), and the optional `phone` block (`colours` `looks` or `schemes`, `fonts` a different
+  face for each of `serif`, `sans` and `mono`, `mascot` `clips`, `stills` or `none`).
+- `looks`: the knobs and presets through core's own look validators and codes, as the theme's `looks/schema.json` and
+  `looks/presets/` would be; each path names `looks.json`.
+- `contrast`: every pair on every preset's colours, by the look runtime's own ratio. A pair under its `min` (default
+  4.5) is `CONTRAST_UNDER_MIN`, naming the preset, both colours and the ratio; a pair naming a colour the presets
+  don't have is `CONTRAST_NOT_MEASURED`. `not_measured` with no pairs.
+
+Exit codes: 0 when no line is an error; 1 when one is (a folder with no `looks.json` included); 2 usage error, or the
+path is not a folder.
 
 ## `new`
 
