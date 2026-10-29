@@ -141,8 +141,9 @@ the label's corner clear. A covered or hidden label is drawn again by the host i
 review; no selector may name `data-ai-label`. The chat keeps working either way: `cards.AiLabelFence` wraps the
 composer, and Send refuses only on a page where no label is mounted.
 
-**Sending from somewhere else.** Send called from a timer, or from a chat in the frame on a page with no label,
-starts no turn. Send only from the chat page's composer.
+**Sending from somewhere else.** Send refuses on a page where the host mounts no AI label (a page that is no chat
+route), so a chat drawn in the frame sends nothing there. Send from the chat page's composer, or from a theme route,
+which has the label too.
 
 ## Releases
 

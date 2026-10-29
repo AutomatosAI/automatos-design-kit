@@ -19,8 +19,8 @@ core wins and the kit is fixed.
   `frontend/lib/theme-host/package-manifest.ts`. `theme.json` uses schema `automatos-theme/v1`; only
   whitelisted files; JS + CSS at most 3 MB, the entry at most 300 KB, each clip at most 1 MB.
 - CSS: every rule sits under `html.<htmlClass>` (or `:where(html.<htmlClass>)`); no `!important`, no
-  `@import`, no selector naming `data-protected-surface`; every `@keyframes` name and `@font-face`
-  family starts with `<htmlClass>-`.
+  `@import`, no selector naming `data-protected-surface` or `data-ai-label`; every `@keyframes` name and
+  `@font-face` family starts with `<htmlClass>-`.
 - Modules: `react`, `react/jsx-runtime`, `react-dom`, `react-dom/client` and `@automatos/theme-sdk` come
   from the host's import map and stay external. Nothing else is external.
 - SDK types: `@automatos/theme-sdk` declarations are vendored from core's `frontend/packages/theme-sdk`,
