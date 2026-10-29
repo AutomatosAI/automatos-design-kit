@@ -56,6 +56,19 @@ describe('the CSS scope check, beyond the corpus', () => {
     expect(errors.map((error) => error.path)).toEqual([`${STYLE_PATH}:3`])
   })
 
+  it("says which protected name a refused rule holds, and why: the host's AI label as the approval cards", () => {
+    const [label] = cssScopeErrors('html.hello [data-ai-label-caption] { opacity: 0; }', HTML_CLASS)
+    expect(label?.message).toBe(
+      `${STYLE_PATH} line 1: the rule "html.hello [data-ai-label-caption]" names data-ai-label: `
+      + 'a theme may not style the AI label, which every chat must show as the app draws it.',
+    )
+    const [cards] = cssScopeErrors('html.hello [data-protected-surface] { opacity: 0; }', HTML_CLASS)
+    expect(cards?.message).toBe(
+      `${STYLE_PATH} line 1: the rule "html.hello [data-protected-surface]" names data-protected-surface: `
+      + 'a theme may not style the approval cards, which must always show as the app draws them.',
+    )
+  })
+
   it('stops at 20 errors', () => {
     const css = Array.from({ length: 30 }, (_, index) => `.a${index} { color: red; }`).join('\n')
     expect(cssScopeErrors(css, HTML_CLASS)).toHaveLength(20)

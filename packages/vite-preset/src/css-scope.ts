@@ -4,14 +4,14 @@
  * A line-for-line port of core's orchestrator/services/themes/css_scope.py (PRD-261 §4.3 item 8).
  * Every rule sits under `html.<htmlClass>` (or `:where()`/`:is()` of it); nested rules may name `&`
  * only at a selector's start; every `@keyframes` name and `@font-face` family starts with
- * `<htmlClass>-`; no selector names `data-protected-surface`; no `!` outside strings and comments
- * (so no `!important`); no `@import` or other at-rule beyond @media, @supports, @layer, @container,
- * @font-face and @keyframes; and anything the tokenizer could read differently from a browser is a
- * refusal. The corpus cases `cssScope` (packages/theme-cli/test/fixtures/core/cases.json) hold this
- * port to the server's verdicts.
+ * `<htmlClass>-`; no selector names `data-protected-surface` or the host's AI label (`data-ai-label`,
+ * with its `-text` and `-caption`); no `!` outside strings and comments (so no `!important`); no
+ * `@import` or other at-rule beyond @media, @supports, @layer, @container, @font-face and @keyframes;
+ * and anything the tokenizer could read differently from a browser is a refusal. The corpus cases
+ * `cssScope` (packages/theme-cli/test/fixtures/core/cases.json) hold this port to the server's verdicts.
  */
 import {
-  isAnchoredNestedSelectorList, isScopedSelectorList, isThemeName, namesProtectedSurface, PROTECTED_SURFACE_NAME,
+  isAnchoredNestedSelectorList, isScopedSelectorList, isThemeName, PROTECTED_NAMES, protectedNameIn,
 } from './css-selectors.ts'
 import { echo, themeError, type ThemeError } from './echo.ts'
 
@@ -248,10 +248,10 @@ class Scanner {
 
   private ruleFrame(prelude: string, parent: Frame, at: number): Frame {
     const contained = parent.kind === 'contained' || parent.scoped
-    if (namesProtectedSurface(prelude)) {
+    const protectedName = protectedNameIn(prelude)
+    if (protectedName !== null) {
       this.error('CSS_UNSCOPED', at, (
-        `the rule "${echo(prelude)}" names ${PROTECTED_SURFACE_NAME}: `
-        + 'a theme may not style the approval cards, which must always show as the app draws them.'
+        `the rule "${echo(prelude)}" names ${protectedName}: ${PROTECTED_NAMES.get(protectedName)}`
       ))
     } else if (contained && !isAnchoredNestedSelectorList(prelude)) {
       this.error('CSS_UNSCOPED', at, (
