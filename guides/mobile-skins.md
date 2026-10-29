@@ -73,6 +73,12 @@ The 24 tokens a scheme may name are Studio's: `--background`, `--foreground`, `-
   collection, 1 to 64 tables, every one inside the file (`BAD_FILE_TYPE`), at most 400 KB (`FILE_TOO_LARGE`). A
   `.woff2` in `assets/fonts/mobile/`, or a `.ttf` beside the web's fonts in `assets/fonts/`, is no file a package may
   hold (`NOT_ALLOWED`).
+- **Where the phone's fonts come from.** The web's fonts are `.woff2` (Fontsource packages on npm ship only those), and
+  the phone takes none, so the phone's come from a second source: the family's TrueType file, such as the Google Fonts
+  repository's `ofl/<family>/<Family>-Regular.ttf` (a variable font, `<Family>[wght].ttf`, is one face and fits). Rename
+  it to the block's pattern (letters, digits, `.`, `_` and `-`: no brackets) and keep its licence beside the web's in
+  `assets/fonts/`. Each role takes its own file, so one face can't fill two roles: give the face to the role it reads
+  best in and leave the other roles to Studio's.
 - **`clips`** needs `assets/mascot/<state>.mp4` and `<state>.png` for every state of the top-level `mascot.states`;
   **`stills`** needs the `.png`. Each missing file is `MISSING_FILE`. A clip is at most 1 MB and a still 512 KB; the
   phone plays no `.webm` ([mascot-placement.md](mascot-placement.md) has the web's files).

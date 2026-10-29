@@ -50,6 +50,31 @@ them. The voice button's control is one too (`voice-control`): style the button 
 and `--voice-button-*` custom properties, and leave the "AI voice assistant" caption and the stop control as the host
 draws them.
 
+**A global rule reaches the host's parts.** Every rule sits under `html.<htmlClass>`, but that is the whole page:
+the host's own pages, the approval cards, the voice button and the header utilities are under it too. A bare element
+selector (`button`, `a`, `h2`), a global `:focus-visible` outline or a reduced-motion rule on `*` restyles them. Give
+the theme's own elements classes and write every rule on a class (a CSS module does it for you), the focus ring
+included. Play's page-wide focus ring is wrapped in `:where()`, so it has no weight at all and any focus style of the
+host's wins; a new theme needs none.
+
+**Inherited type reaches the host's parts.** A theme's window or bar sets its own face, size, weight or letter
+case; a host part placed inside it inherits them unless it sets its own, which restyles it. Place every host part
+(the header utilities, an approval card, the voice button, a banner) in a strip that sets Studio's own type again:
+
+```css
+.hostPart {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: hsl(var(--foreground));
+}
+```
+
+The minimal template's header utilities sit in one (`templates/minimal/src/frame/frame.module.css`, `.utilities`).
+
 **Capturing audio yourself.** `getUserMedia`, `SpeechRecognition` and `speechSynthesis` in a theme's code are refused
 (`JS_GET_USER_MEDIA`, `JS_SPEECH_RECOGNITION`, `JS_SPEECH_SYNTHESIS` in `source/`, `audioCapture` in `dist/`), in a
 comment or a string too. Talk to Auto through the SDK's `voice` area: `VoiceButton`, `useVoice`, `readVoiceLevels`
@@ -57,9 +82,12 @@ comment or a string too. Talk to Auto through the SDK's `voice` area: `VoiceButt
 
 ## Motion
 
-**Motion that can't stop.** A clip that loops longer than five seconds needs a pause control beside it (WCAG 2.2.2).
-Play's Pause Auto control keeps the choice through the SDK's `storage` area, and until the host knows the saved choice
-Auto shows his still and the control is disabled, so nothing loops before the choice is read.
+**Motion that can't stop.** Anything that moves, blinks or loops for longer than five seconds needs a pause control
+(WCAG 2.2.2): a mascot's clip, a sprite's frames, a blinking cursor, a line that types out. Play's Pause Auto control
+keeps the choice through the SDK's `storage` area, and until the host knows the saved choice Auto shows his still and
+the control is disabled, so nothing loops before the choice is read. A theme with more than a mascot moving gives one
+control that stops all of it, named for what it does ("Pause animation"), a toggle with `aria-pressed`, kept the same
+way; a line that types out shows whole while paused, and a Skip button shows the rest at once.
 
 **Reduced motion.** `useMediaPreferences().reducedMotion` is true when the person asks for it, and always on the
 server. Under an installed theme the host also marks `<html>` with `data-theme-motion="reduce"` and sets
@@ -94,12 +122,24 @@ aliases, no extra plugins, nothing from outside `src/` but the kit libraries it 
 render nothing of the theme then. Drawing both the host's version and the theme's for a render that one of them then
 loses has shown two shells on one page.
 
+**A query's filters, each render.** The page areas' hooks key the host's queries by value, so filters written as a
+new object in every render ask for nothing new while their values are the same. A module-level constant reads more
+plainly; neither refetches in a loop.
+
+**Font URLs at build time.** A theme's `@font-face` names its file as `url("../assets/fonts/<file>.woff2")`, relative to
+`dist/theme.css` in the installed package. The build can't find that path from `src/` and says so once for each font
+("didn't resolve at build time, it will remain unchanged"): that is expected, and the browser resolves it.
+
 ## The chat and the AI label
 
-**Hiding the AI label stops the chat.** The host draws "Auto is an AI" beside every chat and checks that a person can
-see it. A theme rule that hides, fades, shrinks or moves it disables every composer inside `cards.AiLabelFence` and
-says the theme hides the notice; Send and Try again refuse, sending nothing. Wrap only the composer in the fence
-(the approval cards in a reply stay clickable), and leave room for the label.
+**Covering the AI label.** The host draws "Auto is an AI" at the window's bottom right (bottom left beside Auto's
+floating widget) on every chat route, and checks that a person can see it: its words painted, readable on the ground
+under them, and on top, hit-tested with every element made hittable, so even a layer the pointer passes through covers
+it ([contract.md](contract.md#the-ai-label)). A full-screen effect (scan lines, a vignette, a glow, a noise texture)
+drawn over the page does exactly that. Draw such effects inside the theme's own boxes, behind their content, and keep
+the label's corner clear. A covered or hidden label is drawn again by the host in its own layer and flagged in the
+review; no selector may name `data-ai-label`. The chat keeps working either way: `cards.AiLabelFence` wraps the
+composer, and Send refuses only on a page where no label is mounted.
 
 **Sending from somewhere else.** Send called from a timer, or from a chat in the frame on a page with no label,
 starts no turn. Send only from the chat page's composer.

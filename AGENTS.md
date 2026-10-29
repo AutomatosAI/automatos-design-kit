@@ -165,7 +165,19 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   guard), and the JS rules refuse paths that leave `source/`, so the reproducible build can't pull in files
   from outside the package.
 
+## Building a theme with the kit
+
+A theme author works in a copy of the kit and runs its commands locally: that is what they are for. `npm ci` (or
+`npx -y npm@11.21.1 ci` on an npm older than 11.6), `npx automatos-theme new <publisher>/<name>`, the theme's own
+`npm run build`, `lint`, `typecheck` and `test`, `automatos-theme dev`, `check design`, `check`, `pack` and `install`.
+The steps are `README.md`'s "Make your own theme"; from a design, `guides/from-design-to-theme.md`. Every fact a
+theme needs is in `guides/`; the order of work is `skills/build-automatos-theme`. A theme folder under `themes/` is a
+new npm workspace: in your copy, run `npm install` once when `npm ci` says the lockfile is out of sync.
+
 ## Rules
+
+The rules below are the kit's own, for changes to the kit itself (its packages, templates, guides, workflows and the
+released themes).
 
 - Nothing runs on the maintainer's machine. CI is the test.
 - Every dependency is pinned to an exact version (the root tests enforce it). A new dependency needs

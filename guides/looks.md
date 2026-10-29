@@ -37,6 +37,10 @@ There is no other kind: a knob whose `kind` is anything else is refused (`BAD_KN
 knob with two choices, such as `on` and `off`. A colour is a choice knob whose choices name colours the prepaint
 table paints, never a free value.
 
+Each knob has one `default`, a value of its own: it can't depend on another knob ("scan lines as the palette has
+them"). Where two knobs go together, the presets carry it: each preset sets every knob, so a palette's preset turns
+its own scan lines on, and a person who changes the palette keeps the scan lines they chose.
+
 ## A look, and the presets
 
 A look is `{schema, interface, id, name, sub, <every knob>}`:
