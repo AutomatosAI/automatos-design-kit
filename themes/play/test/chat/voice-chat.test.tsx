@@ -130,11 +130,14 @@ describe('the voice button in the message box', () => {
     expect(screen.queryByRole('note', { name: AI_VOICE_CAPTION })).toBeNull()
   })
 
-  it("stays on while a theme hides the host's AI label, which switches off the words and Send", () => {
+  it('stays on, as do the words and Send: no AI label locks the chat, and Send with no host label sends nothing', () => {
     host.setAiLabelShown(false)
     render(<PlayChat />)
-    expect(box()).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
+    expect(box()).toBeEnabled()
+    fireEvent.change(box(), { target: { value: 'Plan my week' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect(host.chatSent()).toEqual([])
+    expect(box()).toHaveValue('Plan my week')
     expect(press()).toBeEnabled()
     fireEvent.pointerDown(press())
     expect(host.voicePresses()).toHaveLength(1)

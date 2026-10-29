@@ -220,7 +220,7 @@ describe('useChatController: a recorded turn', () => {
     ])
   })
 
-  it('starts nothing while a turn runs, or while the host\'s AI label is off screen (PRD-264 EUAI-11b)', async () => {
+  it('starts nothing while a turn runs, or on a page with no host AI label (PRD-264 EUAI-11b)', async () => {
     const onSent = vi.fn<(accepted: boolean) => void>()
     setChatScript(scriptOf(TURNS, ['partial']))
     renderChat({ onSent })

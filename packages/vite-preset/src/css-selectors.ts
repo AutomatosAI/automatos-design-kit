@@ -20,6 +20,16 @@ const QUOTES: ReadonlySet<string> = new Set(['"', "'"])
  * data-protected-surface-inner too.
  */
 export const PROTECTED_SURFACE_NAME = 'data-protected-surface'
+/**
+ * The host's AI label (PRD-264 EUAI-11a), its words and its copy in the host's own layer; this prefix covers
+ * data-ai-label, data-ai-label-text and data-ai-label-caption.
+ */
+export const AI_LABEL_NAME = 'data-ai-label'
+/** Each name no theme rule may hold, and why, as the refusal says it (css_scope.py's PROTECTED_NAMES, in its order). */
+export const PROTECTED_NAMES: ReadonlyMap<string, string> = new Map([
+  [PROTECTED_SURFACE_NAME, 'a theme may not style the approval cards, which must always show as the app draws them.'],
+  [AI_LABEL_NAME, 'a theme may not style the AI label, which every chat must show as the app draws it.'],
+])
 /** A backslash before a character stands for that character. */
 const ESCAPED_CHAR = /\\([\s\S])/g
 /** A selector's pieces: an escape, a string, a bracket or comma, or a run of anything else. */
@@ -105,9 +115,15 @@ export function isAnchoredNestedSelectorList(prelude: string): boolean {
   return splitTopLevel(prelude).every((part) => isAnchoredNestedSelector(part))
 }
 
-/** True when the selector names a protected surface's attribute anywhere, in any case or escape. */
-export function namesProtectedSurface(selector: string): boolean {
-  return selector.replace(ESCAPED_CHAR, '$1').toLowerCase().includes(PROTECTED_SURFACE_NAME)
+/**
+ * The protected name (PROTECTED_NAMES) the selector holds anywhere, in any case or escape, or null.
+ *
+ * HTML attribute names match case-insensitively, and `\-` reads as `-`, so both are undone before the check. A
+ * string that happens to hold the name is refused too: refusing more is safe.
+ */
+export function protectedNameIn(selector: string): string | null {
+  const plain = selector.replace(ESCAPED_CHAR, '$1').toLowerCase()
+  return [...PROTECTED_NAMES.keys()].find((name) => plain.includes(name)) ?? null
 }
 
 /** `text` without one pair of matching quotes around it (a CSS string), else as given. */
