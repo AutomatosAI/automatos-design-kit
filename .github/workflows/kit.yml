@@ -126,6 +126,11 @@ jobs:
       - name: HUD shots
         run: npx automatos-theme shots themes/hud --out packages/theme-harness/dist/shots/hud
 
+      # Every other theme under themes/ (one the kit or a copy of it adds), each in its own folder of the upload, so a
+      # new theme is drawn in a browser on every pull request, not only Play and HUD (scripts/shots/other-themes.mjs).
+      - name: Other themes' shots
+        run: node scripts/shots/other-themes.mjs
+
       # PRD-261 B-02i: `automatos-theme dev themes/play` (the smoke config's web server) builds the harness, serves it
       # on 127.0.0.1:4319, and /chat renders there on Chromium; its shot and any trace go to
       # packages/theme-harness/dist/shots/dev-smoke/, so the upload below carries them.

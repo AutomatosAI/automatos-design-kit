@@ -114,7 +114,8 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   (`tests/template-*.test.ts`).
 - Its `harness` job installs and builds as the `kit` job does (the released-themes check is the `kit` job's alone),
   then installs the two browsers, and runs `automatos-theme shots` over `themes/play`, then over `themes/hud` (into
-  the shots' `hud/` folder), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
+  the shots' `hud/` folder), then over every other theme under `themes/` (each into `themes/<name>/`,
+  `scripts/shots/other-themes.mjs`), in `theme-harness`'s browser harness. Each fails on a missing shot, a request to any
   other origin or a critical axe violation. Then the dev smoke (`packages/theme-harness/shots/dev-smoke.config.ts`):
   `automatos-theme dev themes/play` serves the harness on 127.0.0.1 and `/chat` renders there on Chromium, and so
   does the phone view on `/phone`. Then the phone shots (`packages/theme-harness/shots/phone-shots.config.ts`):
