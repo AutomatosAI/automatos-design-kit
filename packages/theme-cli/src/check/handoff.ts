@@ -60,11 +60,22 @@ export interface HandoffRow {
   readonly errors: readonly ThemeError[]
 }
 
-const at = (path: string): string => `${HANDOFF_FILE}#${path}`
-const bad = (path: string, message: string): ThemeError => themeError(HANDOFF_CODES.shape, at(path), `${at(path)}: ${message}`)
+const at = (path: string): string => (path ? `${HANDOFF_FILE}#${path}` : HANDOFF_FILE)
+const bad = (path: string, message: string): ThemeError => themeError(HANDOFF_CODES.shape, at(path), message)
+/** The fields of the shape Claude Design wrote before the handoff format: a file in it is rewritten, not patched. */
+const OLDER_SHAPE_FIELDS = ['$schema', 'tokens', 'contrastPairs', 'phoneSkin']
+export const OLDER_SHAPE = (
+  `this ${HANDOFF_FILE} is in an older shape (knobs as {type, options}, colours at the top of each preset, contrastPairs ` +
+  `as [text, ground, min], phoneSkin). Rewrite it as ${HANDOFF_SCHEMA}: knobs as {kind, choices, default}, each ` +
+  'preset as {name, sub, tone, knobs, colours}, pairs as {text, ground, min} and phone as {colours, fonts, mascot} ' +
+  '(guides/designing-a-theme.md, "The handoff").'
+)
 
 function unknownFields(record: JsonRecord, known: readonly string[], path: string): ThemeError[] {
-  return Object.keys(record).filter((key) => !known.includes(key)).map((key) => bad(path ? `${path}.${key}` : key, `"${echo(key)}" is not a field of a handoff here.`))
+  const unknown = Object.keys(record).filter((key) => !known.includes(key))
+  if (unknown.length === 0) return []
+  const named = unknown.map((key) => `"${echo(key)}"`).join(', ')
+  return [bad(path, `${named} ${unknown.length === 1 ? 'is not a field' : 'are not fields'} of a handoff here; its fields are ${known.join(', ')}.`)]
 }
 
 function idErrors(theme: unknown): ThemeError[] {
@@ -130,6 +141,7 @@ function phoneErrors(phone: unknown): ThemeError[] {
 /** Every refusal of the handoff's shape. */
 export function shapeErrors(data: unknown): ThemeError[] {
   if (!isRecord(data)) return [bad('', 'the handoff is a JSON object.')]
+  if (data.schema === undefined && OLDER_SHAPE_FIELDS.some((field) => Object.hasOwn(data, field))) return [bad('', OLDER_SHAPE)]
   return [
     ...unknownFields(data, FIELDS, ''),
     ...(data.schema === HANDOFF_SCHEMA ? [] : [bad('schema', `the schema is ${HANDOFF_SCHEMA}.`)]),
@@ -216,7 +228,8 @@ export function checkHandoffText(text: string | null, meter: ContrastMeter): Han
   const first: HandoffRow = shape.length > 0
     ? { name: 'handoff', level: LEVEL_ERROR, text: `${HANDOFF_FILE} isn't a handoff this kit can build from.`, errors: shape }
     : { name: 'handoff', level: LEVEL_PASS, text: `${HANDOFF_FILE} is a ${HANDOFF_SCHEMA} handoff.`, errors: [] }
-  if (!isRecord(data)) return [first]
+  // An older shape is rewritten whole, so its knobs and pairs aren't measured in the meantime.
+  if (!isRecord(data) || shape.some((error) => error.message === OLDER_SHAPE)) return [first]
   return [first, looksRow(data), contrastRow(data, meter)]
 }
 

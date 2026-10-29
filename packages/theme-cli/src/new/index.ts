@@ -24,7 +24,7 @@
  * The command reads the kit's own folders and writes only `--to`; it sends nothing anywhere.
  */
 import { existsSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import type { CommandDeps } from '../cli-main.ts'
@@ -128,16 +128,27 @@ function writeTheme(command: NewCommand, names: ThemeNames, kitRoot: string): { 
   return { written: made.files.length }
 }
 
+/** The folder as the next lines name it: from the folder the command ran in when inside it, else in full. */
+function shownPath(target: string, cwd: string): string {
+  const from = relative(cwd, target)
+  if (from === '') return '.'
+  return from.startsWith('..') || isAbsolute(from) ? target : from
+}
+
 /** What to do next, from the folder the command ran in: build, see, check, pack, install. */
 export function nextLines(command: NewCommand, cwd: string): string[] {
-  const shown = relative(cwd, command.target) || '.'
+  const shown = shownPath(command.target, cwd)
+  const steps: readonly (readonly [string, string])[] = [
+    [`(cd ${shown} && npm run build)`, 'build it'],
+    [`npx automatos-theme dev ${shown}`, 'see it, at http://127.0.0.1:4319/ (and /phone)'],
+    [`npx automatos-theme check ${shown}`, "the server's checks, before you install"],
+    [`npx automatos-theme pack ${shown} --out out`, 'the .autotheme file: Settings > Appearance > Themes > Install theme'],
+  ]
+  const width = Math.max(...steps.map(([run]) => run.length))
   return [
     'next:',
-    `  (cd ${shown} && npm run build)                build it`,
-    `  npx automatos-theme dev ${shown}              see it, at http://127.0.0.1:4319/ (and /phone)`,
-    `  npx automatos-theme check ${shown}            the server's checks, before you install`,
-    `  npx automatos-theme pack ${shown} --out out   the .autotheme file: Settings > Appearance > Themes > Install theme`,
-    `${shown} is a new npm workspace of the kit: if npm ci later says package-lock.json is out of sync, run npm install once.`,
+    ...steps.map(([run, what]) => `  ${run.padEnd(width)}   ${what}`),
+    'A theme folder under the kit\'s themes/ is a new npm workspace: if npm ci later says package-lock.json is out of sync, run npm install once.',
   ]
 }
 

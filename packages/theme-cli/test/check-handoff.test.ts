@@ -10,7 +10,7 @@ import { join } from 'node:path'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { run, type CommandDeps } from '../src/cli-main.ts'
 import { contrastMeter, type ContrastMeter } from '../src/check/contrast.ts'
-import { checkHandoffText, HANDOFF_USAGE, type HandoffRow } from '../src/check/handoff.ts'
+import { checkHandoffText, HANDOFF_USAGE, OLDER_SHAPE, type HandoffRow } from '../src/check/handoff.ts'
 import { removeTempFolders, tempFolder } from './check-support.ts'
 
 type Json = Record<string, unknown>
@@ -70,6 +70,16 @@ describe('the shape', () => {
     const item = row(handoff(change), 'handoff')
     expect(item?.level).toBe('error')
     expect(codes(item)).toContain('BAD_HANDOFF')
+  })
+})
+
+describe('a looks.json in the older shape', () => {
+  it('says once how to rewrite it, and measures nothing until it is', () => {
+    const older = { $schema: 'automatos-interface-look/v1', knobs: { palette: { type: 'enum', options: ['a'] } },
+      tokens: ['page'], presets: { a: { name: 'A', page: '#000000' } }, contrastPairs: [['page', 'page', 4.5]] }
+    const result = rows(older)
+    expect(result.map((item) => item.name)).toEqual(['handoff'])
+    expect(result[0].errors.map((error) => error.message)).toEqual([OLDER_SHAPE])
   })
 })
 

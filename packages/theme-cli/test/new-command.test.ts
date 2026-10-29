@@ -75,6 +75,15 @@ describe('the arguments', () => {
     })
   })
 
+  it('names the folder in full in its next lines when it is outside the folder the command ran in', () => {
+    const cwd = tempFolder()
+    const outside = join(tempFolder(), 'elsewhere')
+    const ran = ranNew(['new', 'acme/sample', '--to', outside], cwd)
+    expect(ran.code).toBe(0)
+    expect(ran.out.join('\n')).toContain(`npx automatos-theme check ${outside}`)
+    expect(ran.out.join('\n')).not.toContain('..')
+  })
+
   it('writes to themes/<name> in the folder it runs in unless --to says where', () => {
     const cwd = tempFolder()
     expect(parseNew(['new', 'acme/sample', '--template', 'minimal'], cwd)?.target).toBe(join(cwd, 'themes', 'sample'))
