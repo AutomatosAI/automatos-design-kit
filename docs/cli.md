@@ -207,8 +207,8 @@ Exit codes: 0 when no line is an error; 1 when one is; 2 usage error, or the pat
 ## `new`
 
 ```text
-usage:    automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]
-example:  npx automatos-theme new acme/harbour --template minimal
+usage:    automatos-theme new <publisher/name> [--template minimal|full] [--mascot none] [--to <folder>]
+example:  npx automatos-theme new acme/harbour
 example:  npx automatos-theme new acme/night-owl --template full --mascot none
 ```
 
@@ -217,7 +217,7 @@ Writes a new theme folder that builds, packs and passes `check` as it is (`src/n
 | Argument | Meaning |
 |---|---|
 | `<publisher/name>` | The theme's id, as `theme.json` holds it. The name is also its class on `<html>` and its folder's name. |
-| `--template minimal` | `templates/minimal`: a frame with the host's pages inside it, a look editor, a style sheet, a 404, three choice knobs and two presets, the look data written by hand. Its `{{id}}`, `{{publisher}}`, `{{slug}}`, `{{name}}` and `{{htmlClass}}` are filled in. |
+| `--template minimal` | The default, when `--template` is left out: the one a theme of its own design starts from. `templates/minimal`: a frame with the host's pages inside it, a look editor, a style sheet, a 404, three choice knobs and two presets, the look data written by hand. Its `{{id}}`, `{{publisher}}`, `{{slug}}`, `{{name}}` and `{{htmlClass}}` are filled in. |
 | `--template full` | Play without its brand, made from `themes/play` each time `new` runs: every slot, page and route Play has, renamed to the theme's names, and a clone of core's `/agents` page. Play's listing previews are not copied. |
 | `--mascot none` | `full` only: no clips, no `mascot` block, no `@automatos/mascot`; the chat still says what Auto is doing. |
 | `--to <folder>` | Where to write. Default: `themes/<name>` under the folder the command runs in. |
@@ -239,8 +239,12 @@ It refuses, writing nothing and printing every reason:
 - a `--to` that exists already, or that lies inside the kit's `themes/play`, `themes/hud`, `templates` or `packages`;
 - for `full`, a rename that would merge two of Play's names or paths into one.
 
-On success it prints the folder, the template and the file count, then what to do next: build it, check it, and (a
-folder under `themes/` being a new workspace) get `package-lock.json` from the `kit-lockfile.yml` dispatch.
+On success it prints the folder, the template and the file count, then the commands that come next, from the folder it
+ran in: build it, see it in the browser harness (`dev`), check it, and pack it into the file Settings › Appearance ›
+Themes installs. A folder under `themes/` is a new npm workspace of the kit, so `package-lock.json` no longer lists
+every workspace: the theme builds and checks as it is, and the next `npm ci` says the lockfile is out of sync. Run
+`npm install` once to bring it up to date in your copy of the kit (the kit's own repository writes its lockfile with
+the `kit-lockfile.yml` dispatch instead, AGENTS.md, "Adding a dependency").
 
 Exit codes: 0 written; 1 refused; 2 usage error (including `--mascot` with anything but `none`, or with `minimal`).
 
