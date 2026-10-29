@@ -108,31 +108,48 @@ On the hosted edition, a theme installs from Marketplace › Themes once it is l
 
 ## Make your own theme
 
-The kit runs on Node 22.18 or later and npm 11.6 or later (`package.json` `engines`); Node runs the CLI's TypeScript
-directly. From a clone of the kit:
+You need Git, Node 22.18 or later and npm 11.6 or later (`package.json` `engines`); Node runs the CLI's TypeScript
+directly. Node 22 ships npm 10, which can't install the kit (it stops with an `edgesOut` error): check with
+`npm --version`, and if it is older than 11.6, install with `npx -y npm@11.21.1 ci` in place of `npm ci` below, or
+upgrade once with `npm install -g npm@11.21.1`. From a clone of the kit:
 
 ```sh
-npm ci                                                   # the kit's dependencies, exactly as package-lock.json has them
-npx automatos-theme new acme/harbour --template minimal  # writes themes/harbour, a theme that builds and packs as it is
-npx automatos-theme dev themes/harbour                   # in a terminal of its own: the harness on http://127.0.0.1:4319/ until Ctrl-C
-(cd themes/harbour && npm run build)                     # the theme's own build: dist/ with the kit's preset
-npx automatos-theme check design themes/harbour          # the look data: schema, presets, first-paint table, colour pairs
-npx automatos-theme check themes/harbour                 # the server's review checks, in the server's report shape
-npx automatos-theme pack themes/harbour --out out        # out/acme.harbour-0.1.0.autotheme and its .sha256.json
-npx automatos-theme install out/acme.harbour-0.1.0.autotheme --to http://localhost:8000 --choose
+npm ci                                            # the kit's dependencies, exactly as package-lock.json has them
+npx automatos-theme new acme/harbour              # writes themes/harbour from the minimal template; it builds and packs as it is
+(cd themes/harbour && npm run build)              # the theme's own build: dist/ with the kit's preset
+npx automatos-theme dev themes/harbour            # in a terminal of its own: your theme on http://127.0.0.1:4319/ (and /phone) until Ctrl-C
+npx automatos-theme check design themes/harbour   # the look data: schema, presets, first-paint table, colour pairs
+npx automatos-theme check themes/harbour          # the server's review checks, in the server's report shape
+npx automatos-theme pack themes/harbour --out out # out/acme.harbour-0.1.0.autotheme and its .sha256.json
 ```
 
-- `new --template minimal` writes a frame with the host's pages inside it, a look editor, a style sheet and two
-  presets; `--template full` starts from Play without its brand.
+Then install `out/acme.harbour-0.1.0.autotheme` in Automatos: Settings › Appearance › Themes › Install theme, or
+`npx automatos-theme install out/acme.harbour-0.1.0.autotheme --to http://localhost:8000 --choose` on a local edition.
+
+- `new` starts from `templates/minimal` (a frame with the host's pages inside it, a look editor, a style sheet and two
+  presets); `--template full` starts from Play without its brand. Both build, check and pack before you change a line.
 - `dev` draws the theme in the kit's browser harness, a mock host with made-up data and nothing of Automatos running,
   and builds it again after each change under `src/`. `/phone` is the phone view.
 - `install` sends the package to a local Automatos (`--to` takes the API's address, or the web app's where the web app
   serves `/automatos-host.json`), opts you in to it and, with `--choose`, makes it your theme there. No other command
   above sends anything anywhere.
+- The build prints "didn't resolve at build time" once for each font a theme ships. That is expected: a font's URL
+  (`../assets/fonts/…`) is resolved by the browser against `dist/theme.css` in the installed package.
+- `themes/harbour` is a new npm workspace of the kit, so the next `npm ci` says `package-lock.json` is out of sync:
+  run `npm install` once in your copy. (The kit's own repository writes its lockfile with the `kit-lockfile.yml`
+  dispatch instead, `AGENTS.md`, "Adding a dependency".)
 
-A theme folder under `themes/` is a new npm workspace, so committing one changes `package-lock.json`, which is never
-edited by hand: the `kit-lockfile.yml` dispatch writes it (`AGENTS.md`, "Adding a dependency"). For an agent,
-[`skills/`](skills/README.md) has skills for building a theme, writing its looks and passing the Marketplace review.
+### From a design
+
+A theme usually starts as a design. [guides/designing-a-theme.md](guides/designing-a-theme.md) is what the designer
+needs (Claude Design or any other tool): what the host draws and the theme only places, what data a theme can show,
+and the shapes of looks and knobs the kit takes, with a prompt to start a design session from.
+[guides/from-design-to-theme.md](guides/from-design-to-theme.md) is the path from that design to an installed theme:
+the handoff, `automatos-theme check handoff`, one prompt to Claude Code in a clone of the kit, and the checks.
+
+For an agent, [`skills/`](skills/README.md) has the order of work (building a theme, writing its looks, its mascot, its
+phone skin, passing the Marketplace review) and [`guides/`](guides/README.md) has every fact it needs: nothing outside
+this repository is needed to build, check, pack and install a theme.
 
 ## The tools
 
