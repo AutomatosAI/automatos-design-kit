@@ -75,7 +75,8 @@ The 24 tokens a scheme may name are Studio's: `--background`, `--foreground`, `-
   hold (`NOT_ALLOWED`).
 - **Where the phone's fonts come from.** The web's fonts are `.woff2` (Fontsource packages on npm ship only those), and
   the phone takes none, so the phone's come from a second source: the family's TrueType file, such as the Google Fonts
-  repository's `ofl/<family>/<Family>-Regular.ttf` (a variable font, `<Family>[wght].ttf`, is one face and fits). Rename
+  repository's `ofl/<family>/<Family>-Regular.ttf`. A variable font (`<Family>[wght].ttf`) is one face, but only one under
+  400 KB fits, and many are larger: take a static weight's file then. Rename
   it to the block's pattern (letters, digits, `.`, `_` and `-`: no brackets) and keep its licence beside the web's in
   `assets/fonts/`. Each role takes its own file, so one face can't fill two roles: give the face to the role it reads
   best in and leave the other roles to Studio's.

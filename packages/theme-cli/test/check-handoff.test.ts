@@ -66,6 +66,8 @@ describe('the shape', () => {
     ['presets naming other colours', (base: Json) => { ((base.presets as Json & { ink: Json }).ink.colours as Json).glow = '#FFFFFF'; return base }],
     ['a colour that is not #rrggbb', (base: Json) => { ((base.presets as Json & { ink: Json }).ink.colours as Json).text = 'white'; return base }],
     ['one face for two phone roles', (base: Json) => ({ ...base, phone: { fonts: { serif: 'Body', sans: 'Body' } } })],
+    ['a phone font that is no name', (base: Json) => ({ ...base, phone: { fonts: { serif: 42 } } })],
+    ['an empty phone font', (base: Json) => ({ ...base, phone: { fonts: { serif: '' } } })],
   ])('refuses %s', (_name, change) => {
     const item = row(handoff(change), 'handoff')
     expect(item?.level).toBe('error')
@@ -135,6 +137,14 @@ describe('the command', () => {
     const result = await ran(['check', 'handoff', folderWith(handoff())])
     expect(result.code).toBe(0)
     expect(result.out.at(-1)).toMatch(/^verdict: pass/)
+  })
+
+  it('exits 1 with a line, not a stack, on a looks.json it cannot read', async () => {
+    const folder = folderWith(null)
+    mkdirSync(join(folder, 'looks.json'))
+    const result = await ran(['check', 'handoff', folder])
+    expect(result.code).toBe(1)
+    expect(result.err.join('\n')).toMatch(/looks\.json can't be read/)
   })
 
   it('exits 1 on a folder with no looks.json', async () => {

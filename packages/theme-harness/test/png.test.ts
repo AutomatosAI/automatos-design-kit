@@ -31,6 +31,17 @@ describe('the PNG writer', () => {
     expect([file.readUInt32BE(16), file.readUInt32BE(20), file[24], file[25]]).toEqual([4, 4, 8, 6])
   })
 
+  it('refuses pixels that are not the picture\'s size', () => {
+    expect(() => encodePng({ width: 2, height: 2, pixels: Buffer.alloc(15) })).toThrow('a 2 by 2 RGBA picture is 16')
+  })
+
+  it('refuses a picture larger than it takes, before it inflates anything', () => {
+    const file = encodePng(checkerboard(2))
+    const huge = Buffer.from(file)
+    huge.writeUInt32BE(100_000, 16)
+    expect(() => decodePng(huge)).toThrow('pixels a side')
+  })
+
   it('refuses a file that is not a PNG', () => {
     expect(() => decodePng(Buffer.from('not a png'))).toThrow('not a PNG')
   })

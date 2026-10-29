@@ -84,6 +84,13 @@ describe('the arguments', () => {
     expect(ran.out.join('\n')).not.toContain('..')
   })
 
+  it('names a folder with a space as one shell word, and one starting with a dash as ./<name>', () => {
+    const spaced = join(tempFolder(), 'my themes', 'sample')
+    expect(ranNew(['new', 'acme/sample', '--to', spaced], tempFolder()).out.join('\n')).toContain(`check '${spaced}'`)
+    const cwd = tempFolder()
+    expect(ranNew(['new', 'acme/sample', '--to=-sample'], cwd).out.join('\n')).toContain('check ./-sample')
+  })
+
   it('writes to themes/<name> in the folder it runs in unless --to says where', () => {
     const cwd = tempFolder()
     expect(parseNew(['new', 'acme/sample', '--template', 'minimal'], cwd)?.target).toBe(join(cwd, 'themes', 'sample'))

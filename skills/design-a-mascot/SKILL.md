@@ -54,6 +54,10 @@ Not for the ring's and the glow's colours: they come from the look
 
 ## Steps
 
+A mascot drawn in code skips steps 3 and 4 (it has no clips) and step 5's clip choosing: its frames are the theme's
+own code, and its files are the phone's stills alone, `assets/mascot/<state>.png`, when `mobile.mascot` is `stills`.
+Its proof (step 8) holds each still to the drawing, pixel for pixel, instead of to a sha256.
+
 1. **The states.** Auto's twelve, or your list. Done when `theme.json` `mascot.states` lists them, each name valid
    ([states.md](references/states.md)).
 2. **The poses.** For each state, a still that reads as that state on its own: it is the clip's poster, all there is

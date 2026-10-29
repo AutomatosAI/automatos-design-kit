@@ -128,11 +128,20 @@ function writeTheme(command: NewCommand, names: ThemeNames, kitRoot: string): { 
   return { written: made.files.length }
 }
 
-/** The folder as the next lines name it: from the folder the command ran in when inside it, else in full. */
+/** The path as one shell word: quoted when it holds a character a POSIX shell would split or expand. */
+export function shellWord(path: string): string {
+  return /^[\w./-]+$/.test(path) ? path : `'${path.replace(/'/g, `'\\''`)}'`
+}
+
+/**
+ * The folder as the next lines name it, one shell word: from the folder the command ran in when inside it (`./` before
+ * a name that starts with a dash, so no command reads it as an option), else in full.
+ */
 function shownPath(target: string, cwd: string): string {
   const from = relative(cwd, target)
   if (from === '') return '.'
-  return from.startsWith('..') || isAbsolute(from) ? target : from
+  if (from.startsWith('..') || isAbsolute(from)) return shellWord(target)
+  return shellWord(from.startsWith('-') ? `./${from}` : from)
 }
 
 /** What to do next, from the folder the command ran in: build, see, check, pack, install. */

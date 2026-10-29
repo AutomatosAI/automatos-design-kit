@@ -149,7 +149,7 @@ the handoff, `automatos-theme check handoff`, one prompt to Claude Code in a clo
 
 For an agent, [`skills/`](skills/README.md) has the order of work (building a theme, writing its looks, its mascot, its
 phone skin, passing the Marketplace review) and [`guides/`](guides/README.md) has every fact it needs: nothing outside
-this repository is needed to build, check, pack and install a theme.
+this repository is needed to build, check and pack a theme. Installing it needs an Automatos to install into.
 
 ## The tools
 

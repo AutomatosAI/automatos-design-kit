@@ -129,6 +129,7 @@ jobs:
       # Every other theme under themes/ (one the kit or a copy of it adds), each in its own folder of the upload, so a
       # new theme is drawn in a browser on every pull request, not only Play and HUD (scripts/shots/other-themes.mjs).
       - name: Other themes' shots
+        if: ${{ !cancelled() }}
         run: node scripts/shots/other-themes.mjs
 
       # PRD-261 B-02i: `automatos-theme dev themes/play` (the smoke config's web server) builds the harness, serves it

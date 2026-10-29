@@ -88,7 +88,7 @@ function colourErrors(colours: unknown, path: string, names: readonly string[] |
   const wrong = Object.entries(colours).filter(([, value]) => typeof value !== 'string' || !HEX.test(value))
   const errors = wrong.map(([name]) => bad(`${path}.${name}`, 'a colour is #rrggbb.'))
   const keys = Object.keys(colours).sort()
-  if (names !== null && keys.join() !== [...names].sort().join()) errors.push(bad(path, 'every preset names the same colours.'))
+  if (names !== null && JSON.stringify(keys) !== JSON.stringify([...names].sort())) errors.push(bad(path, 'every preset names the same colours.'))
   return errors
 }
 
@@ -134,6 +134,7 @@ function phoneErrors(phone: unknown): ThemeError[] {
     ...(phone.colours === undefined || PHONE_COLOURS.includes(String(phone.colours)) ? [] : [bad('phone.colours', 'looks or schemes.')]),
     ...(phone.mascot === undefined || PHONE_MASCOTS.includes(String(phone.mascot)) ? [] : [bad('phone.mascot', 'clips, stills or none.')]),
     ...Object.keys(fonts).filter((role) => !PHONE_ROLES.includes(role)).map((role) => bad(`phone.fonts.${role}`, 'a font\'s role is serif, sans or mono.')),
+    ...Object.entries(fonts).filter(([, face]) => typeof face !== 'string' || face.trim() === '').map(([role]) => bad(`phone.fonts.${role}`, 'a font is a face\'s name.')),
     ...(new Set(faces).size === faces.length ? [] : [bad('phone.fonts', 'each role takes a face of its own: the phone takes one file per role.')]),
   ]
 }
@@ -267,7 +268,13 @@ export async function handoffCommand(argv: readonly string[], output: Output, de
     return EXIT_USAGE
   }
   const file = join(folder, HANDOFF_FILE)
-  const text = existsSync(file) ? readFileSync(file, 'utf8') : null
+  let text: string | null = null
+  try {
+    text = existsSync(file) ? readFileSync(file, 'utf8') : null
+  } catch (error) {
+    output.err(`${file} can't be read: ${error instanceof Error ? error.message : String(error)}`)
+    return EXIT_FAILED
+  }
   const rows = checkHandoffText(text, await contrastMeter())
   handoffLines(folder, rows).forEach((line) => output.out(line))
   return rows.some((item) => item.level === LEVEL_ERROR) ? EXIT_FAILED : EXIT_OK
