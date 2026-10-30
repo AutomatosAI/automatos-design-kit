@@ -73,14 +73,21 @@ at a higher `version` in `theme.json`.
 
 ## 7. List
 
-A Marketplace listing is a submission and a person's review ([pass-marketplace-review](../skills/pass-marketplace-review/SKILL.md),
-`npx automatos-theme submit`). A listed version shows as **Official** only when its publisher is the reserved
-`automatos` and its signature verifies with an Automatos key ([docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md)).
+A theme merged into this kit under a publisher `release/publishers.json` lists is listed by that merge: the publish
+run reviews the package, signs it and sends it to the Marketplace, which approves it, before the release is made
+([docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md)); a later version is listed by the merge that raises it. Any
+other theme's listing is a submission and a person's review
+([pass-marketplace-review](../skills/pass-marketplace-review/SKILL.md), `npx automatos-theme submit`). A listed
+version shows as **Official** only when its publisher is the reserved `automatos` and its signature verifies with an
+Automatos key.
 
 ## The kit's own proof
 
 The proof protocol ([proof/README.md](../proof/README.md)) is the kit's test of itself, not the way to make a theme:
 a fresh agent in a sandboxed clone at a tagged base builds a theme from a brief and a handoff
 (`scripts/proof/launch.sh --design`), and every gap it finds is a fix to the kit. A proof branch never merges as it is;
-a theme it built is released as Play and HUD are ([docs/releasing.md](../docs/releasing.md)) once the release workflow's
-tag pattern admits it.
+a branch from `main` that takes only `themes/<slug>/` and `proof/<id>/` from it, with the new workspace's lockfile
+entries, merges instead, and the merge releases the theme as it releases Play, HUD and Arcade: `theme-publish.yml`
+takes any theme whose version has no `<slug>-v*` tag yet and whose publisher `release/publishers.json` lists, so
+`<publisher>/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag pushed by hand
+([docs/releasing.md](../docs/releasing.md), "Merge to publish").

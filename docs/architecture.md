@@ -43,7 +43,7 @@ host's, and the build tools stay out.
                     |                       |                          |
    automatos-theme check          automatos-theme install     automatos-theme submit
    review stage port, theme-rules,     local Automatos          Marketplace: a person reviews with
-   --rebuild: scripts/review/                                    theme-review.yml, signs with theme-sign.yml
+   --rebuild: scripts/review/                                    theme-review.yml; a kit theme: theme-publish.yml
    rebuild.ts
 
  automatos-theme dev / shots  -->  @automatos/theme-harness: vite.harness.config.ts builds app/ (the mock host)
@@ -213,9 +213,14 @@ into `theme.json` ([cli-design.md](cli-design.md#skin)).
 - `scripts/review/` is the Marketplace review job (`theme-review.yml`): no network, the package checks (the CLI's
   reader port), the digest against the admin queue's, `source/` present, the JS rules on `source/`, and the
   reproducible build.
-- `scripts/sign/` signs an approved version's `{id, version, digest, files}` with Ed25519 (`theme-sign.yml`), prints
-  the `.sig.json` envelope, and verifies an envelope against a package and `keys/theme-signing.json`.
-- `scripts/release/released-unchanged.mjs` keeps a released theme version's files as its tag has them.
+- `scripts/sign/` signs a version's `{id, version, digest, files}` with Ed25519 from pack's `.sha256.json`, once the
+  package's bytes match it (`from-pack.ts`, the publish run's `Sign` step), writes the `.sig.json` envelope, and
+  verifies an envelope against a package and `keys/theme-signing.json`.
+- `scripts/release/` holds the tag rule and each theme's packed paths (`themes.mjs`), the pick of the themes a merge
+  publishes (`bumped.mjs`), the reading of the Marketplace's answer (`publish-answer.ts`), and
+  `released-unchanged.mjs`, which keeps a released theme version's files as its tag has them.
+- `.github/workflows/theme-publish.yml` publishes what a merge to `main` raised: build and review with no secrets,
+  then sign, list on the Marketplace and release in the `theme-publish` environment.
 - `.github/workflows/kit.yml` runs that guard, then `npm ci` and the root `build`, `lint`, `typecheck`, `test` and
   `pack` scripts over every workspace, `packages/*` before `themes/*`; its `harness` job runs `shots` over Play and
   HUD and a smoke of `dev`.

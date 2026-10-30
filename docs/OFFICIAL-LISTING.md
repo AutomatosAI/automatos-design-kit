@@ -1,124 +1,150 @@
-# Listing Play as the official theme
+# Listing a theme on the Marketplace
 
-How a Play version reaches each Automatos edition, and the run that lists it as the official theme on the
-hosted edition. Every step is done by a person; kit CI checks the workflows, not the run. `<v>` is Play's
-version as `themes/play/theme.json` gives it (for example `1.1.1`).
+How a kit theme version reaches each Automatos edition. The merge is the approval: a pull request that raises a
+theme's `version`, once it is merged to `main` and the `Kit` workflow has passed on it, is reviewed, signed, listed on
+the hosted Marketplace and released here by `theme-publish.yml`, with nobody running anything. `<slug>` is the theme's
+folder under `themes/`, `<publisher>` the part of its `theme.json` id before the slash, and `<v>` its version.
 
-- **Local and open-source editions** install Play from its GitHub release: the `automatos.play-<v>.autotheme`
-  asset, and its `<v>.sig.json` once the version is signed, through Settings › Appearance › Themes › Install
-  theme.
-- **The hosted edition** gets Play from its Marketplace listing (Marketplace › Themes), with the **Official**
-  badge.
+- **Local and open-source editions** install a version from its GitHub release: the `<publisher>.<slug>-<v>.autotheme`
+  asset, its `.sha256` and its `<v>.sig.json`, through Settings › Appearance › Themes › Install theme.
+- **The hosted edition** gets it from its Marketplace listing (Marketplace › Themes). A theme is **Official** when its
+  publisher is the reserved `automatos` publisher and the version shown carries a signature that verifies with an
+  active key of the Automatos keys file. Every publisher the run publishes for is signed the same way; only
+  `automatos` themes read as Official.
 
-A theme is Official when its publisher is the reserved `automatos` publisher **and** the version shown carries
-a signature that verifies with an active key of the Automatos keys file. So on the hosted edition Play turns
-Official at step 5, when its signature is pasted, not at approval.
-
-**HUD** (`automatos/hud`, `themes/hud`) follows the same steps, with its own names in place of Play's: the tag
-`hud-v<v>` (on a commit of `main`, naming `themes/hud/theme.json`'s version), the release asset
-`automatos.hud-<v>.autotheme` and its `.sha256`, the envelope `themes/hud/signatures/<v>.sig.json`, the review run
-`--ref hud-v<v>` with that asset's URL, and `tag` set to `hud-v<v>` to attach a signature again. Theme release reads
-the theme from the tag, so the same workflow releases both.
-
-**Arcade** (`automatos/arcade`, `themes/arcade`) follows the same steps too: the tag `arcade-v<v>` (on a commit of
-`main`, naming `themes/arcade/theme.json`'s version), the release asset `automatos.arcade-<v>.autotheme` and its
-`.sha256`, the envelope `themes/arcade/signatures/<v>.sig.json`, the review run `--ref arcade-v<v>` with that asset's
-URL, and `tag` set to `arcade-v<v>` to attach a signature again.
+Play, HUD and **Arcade** (`automatos/arcade`, `themes/arcade`) are all published this way. Arcade has no `arcade-v*`
+tag yet, so the first `theme-publish.yml` run on `main` picks its version, 1.0.0: it reviews, signs and lists it, and
+releases `arcade-v1.0.0` with `automatos.arcade-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Push no
+`arcade-v*` tag by hand for it: `theme-release.yml` would release it unlisted and unsigned, and it would then need a
+backfill (below).
 
 ## The workflows
 
-| Workflow (Actions tab) | File | Started by | Inputs |
+| Workflow (Actions tab) | File | Started by | What it does |
 |---|---|---|---|
-| Theme release | `theme-release.yml` | a pushed tag `play-v<v>` (or `hud-v<v>`, or `arcade-v<v>`) on a commit of `main` (the release); a push to `main` that adds `themes/play/signatures/<v>.sig.json` (or HUD's or Arcade's), or Run workflow on `main` (the signature) | `tag`, by hand only |
-| Theme review | `theme-review.yml` | Run workflow at the tag: `--ref play-v<v>` | `package_url`, `expected_digest` |
-| Theme sign | `theme-sign.yml` | Run workflow on `main`; it waits for a required reviewer of the `theme-signing` environment | `request` |
+| Theme publish | `theme-publish.yml` | `Kit` passing on a push to `main`; Run workflow on `main` with `tag` (a backfill) | Picks, builds, reviews, signs, publishes and releases each theme whose version moved |
+| Theme release | `theme-release.yml` | a release tag a person pushes | Releases that tag here, unlisted and unsigned |
+| Theme review | `theme-review.yml` | Run workflow at a tag, with a package URL and its digest | Reviews one package with no network, for a submission a person reviews in the admin queue |
 
-## Once, before the first signature: the signing environment and key
+## What a merge does
 
-- The `theme-signing` environment (Settings › Environments): deployment branches `main` only; required
-  reviewers are the named signers, and either one may approve a run. "Prevent self-review" is off for now.
-- One Ed25519 key, held only as that environment's secret `THEME_SIGNING_KEY` (a PKCS#8 PEM), with an
-  offline backup: losing it means re-signing every official version.
-- Its public half, in `keys/theme-signing.json` here and in the core repo's
-  `orchestrator/services/themes/data/signing-keys.json`, the two files identical and holding one key:
-  `{"keyId": "ed25519:<16 hex>", "spki": "<base64>", "status": "active", "added": "<YYYY-MM-DD>"}`. A Theme
-  sign run prints both values (`Public key (SPKI, base64)` and `Key id`). If this repo's file held no active key,
-  Theme release would attach no signature: it stops with "No signing key yet".
+1. **Pick** (`scripts/release/bumped.mjs`, Node alone): each folder under `themes/` is a theme, and its `theme.json`
+   id must be `<publisher>/<slug>`, its slug the folder's name. A theme is picked when its version is above its
+   newest `<slug>-v*` tag (or it has none) and its publisher is listed in `release/publishers.json` (today
+   `automatos` alone). A theme of another publisher is built and tested with the kit, never published.
+2. **Build**, one job per theme, with no secrets, no environment and a read-only token: at the merged commit it
+   installs the kit with `npm ci --ignore-scripts`, builds, packs the theme, checks the `.sha256` against pack's
+   `.sha256.json`, and runs `scripts/review/main.ts` on the package in `docker run --network none`, as
+   `theme-review.yml` does. The review's text is the summary the Marketplace keeps as the version's review note.
+3. **Publish**, one job per theme, in the `theme-publish` environment, installing nothing: it checks the package's
+   bytes against pack's summary (`scripts/sign/from-pack.ts check`), compares them with any release the tag has
+   already, signs `{id, version, digest, files}` with `THEME_SIGNING_KEY` (`from-pack.ts sign`; the signed text is
+   core's canonical text of the version), verifies the envelope against `keys/theme-signing.json`, then posts three
+   parts to `THEME_PUBLISH_API_URL` + `/api/marketplace/themes/publish` with `THEME_PUBLISH_KEY` as its bearer key:
+   `package` (the `.autotheme` file), `signature` (the `.sig.json` envelope) and `review_summary` (the review's text).
+4. **The Marketplace** checks the key, the publisher, the signature and the package, runs its own review of it,
+   keeps the summary as the review note, approves the version and stores its signature, and answers `published`; for
+   bytes it already holds, approved and signed, it answers `unchanged`.
+5. **Release**: on `published`, or `unchanged`, the run releases `<slug>-v<v>` at the commit it built, with the
+   `.autotheme`, its `.sha256` and its `<v>.sig.json`, or adds the `.sig.json` to the release the tag has already.
+   A release's assets are never replaced. The run makes the tag itself; a tag made with the run's token starts no
+   workflow, so `theme-release.yml` never runs for it.
 
-Done on 2026-10-26: both files hold Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active. No version is
-signed with it yet; the first signatures come from Theme sign runs (step 4).
+Several themes moved in one merge each build and publish on their own. Push no release tag by hand for a version a
+merge will publish: `theme-release.yml` would release it unlisted and unsigned, and the publish run would then see
+the version as released and pick nothing. A version released that way is listed with a backfill (below).
 
-## The run
+## What blocks a publish
 
-### 0. Preconditions
+The run fails, releases nothing and says why (the Marketplace's error code, never a key) when:
 
-- The hosted edition runs a core that reads this Play version (host contract 1.1.0 with the theme `mobile`
-  block; from Play 1.2.0, theme SDK 1.2.0 with the `voice` area, and the declared `minWidth` honoured) and verifies a
-  signature when it is pasted, and the public key above is merged in both repos and deployed.
-- On hosted, a read-only query finds no theme version holding a signature stored before verification existed
-  (`select count(*) from theme_packages where signature is not null` is 0); clear or re-sign any it finds.
-- `play-v<v>` is pushed on a commit of `main`, and Theme release has published its release with
-  `automatos.play-<v>.autotheme` and its `.sha256`.
+- `Kit` failed on the merged commit, or the run was not started by a push to this repository's `main` (a fork's
+  branch named `main` starts nothing).
+- `bumped.mjs` refuses: a folder that isn't its id's slug, an id or version outside core's patterns, a `theme.json`
+  or `release/publishers.json` it can't read. Nothing is picked from that run.
+- The build, the pack or the checksum fails, or the review doesn't pass: its text must name the package's digest
+  with `Outcome: pass`.
+- The downloaded package isn't the bytes pack described; the tag's release holds other bytes than the ones rebuilt;
+  the tag is at another commit than the one built.
+- `THEME_SIGNING_KEY` is missing, or isn't the private half of an active key in `keys/theme-signing.json`.
+- `THEME_PUBLISH_API_URL` isn't an `https://` address, or `THEME_PUBLISH_KEY` is missing.
+- The Marketplace refuses the post:
+  - **400**: the request wasn't the multipart form the endpoint takes.
+  - **401**: the publish key is missing or wrong.
+  - **403**: the publisher isn't one the endpoint publishes for, or belongs to someone else (`PUBLISHER_TAKEN`), or
+    the Marketplace is off.
+  - **409**: the version is not above the highest one held, is closed (`VERSION_CLOSED`), or is being published
+    already (`PUBLISH_BUSY`).
+  - **413**: the request is over the size the endpoint takes.
+  - **422**: a refused package or `source/` (`PACKAGE_REFUSED`), a signature no active key verifies or that does
+    not bind this id, version and digest, a summary that doesn't name this digest with `Outcome: pass`, a `blocked`
+    verdict, a disabled digest, or a missing part (`PART_MISSING`).
+  - **429**: the endpoint's daily publish quota is spent (`PUBLISH_QUOTA`).
+  - **503**: the endpoint is not configured (`PUBLISH_NOT_CONFIGURED`), its reviews are busy (`REVIEWS_BUSY`), or
+    its store or keys can't be read.
 
-### 1. Rehearse
+After a 503 for busy reviews or a 429, run the failed jobs again later (Actions › the run › Re-run failed jobs).
+A run that stopped after the Marketplace's answer and before the release is run again the same way: the Marketplace
+answers `unchanged` for the same bytes, and the release is made then.
 
-Go through steps 2 to 6 with a throwaway version, `automatos/hello-drill` 0.0.1 (the kit's hello test theme
-under that id and version, at its own https URL; it has no release, so step 5 ends at **Save signature**). Then
-take it down: in the admin queue, **Deactivate**, with a reason. Never rehearse with Play: a submitted version
-number is spent (the same version with other bytes, or a lower version, is refused).
+## The `theme-publish` environment, once
 
-### 2. Submit
+Settings › Environments › New environment, `theme-publish`:
 
-In hosted workspace A, as a platform admin: Marketplace › Themes, under Publish theme,
-**Choose a .autotheme file** (the release's `automatos.play-<v>.autotheme`), then **Submit for review**. The
-version is pending with the verdict pass or review required, never blocked. Review required with "LLM stage
-did not run" is expected when Play's `source/` and `dist/` exceed the LLM stage's chunk cap; approval still
-works (raise `THEME_LLM_MAX_CHUNKS` for the run only if the reviewer wants the LLM read). The admin queue
-(`/admin/themes`) shows the version's digest.
+- Deployment branches and tags: selected branches, `main` only. No required reviewers: the merge is the approval.
+  Only maintainers merge, `.github/CODEOWNERS` names an owner for every path a published package is built from, and
+  pull requests never see the environment's secrets.
+- Secret `THEME_SIGNING_KEY`: Automatos's Ed25519 theme-signing key as a PKCS#8 PEM, the private half of the active
+  key in `keys/theme-signing.json`, with an offline backup. Losing it means signing every listed version again
+  with a new key.
+- Secret `THEME_PUBLISH_KEY`: 32 random bytes as hex (`openssl rand -hex 32`). The Marketplace holds only its
+  lower-case hex sha256 (`printf %s "$key" | sha256sum`), as `THEME_PUBLISH_KEY_SHA256`; it acts as a service user
+  of its own and may do nothing but publish versions of the listed publishers.
+- Variable `THEME_PUBLISH_API_URL`: the core API's `https://` address, with no path.
 
-### 3. Review at the tag
+Each secret is read by one step of the publish job alone (Sign, and Publish to the Marketplace), and no other
+workflow may name either; the root tests enforce it. The Marketplace's side is its own configuration:
+`THEME_PUBLISH_KEY_SHA256`, `THEME_PUBLISH_PUBLISHERS` (the publishers `release/publishers.json` lists) and
+`THEME_PUBLISH_ACTOR` (the service user); with any of them unset the endpoint answers 503.
+
+The signing key's public half is in `keys/theme-signing.json` here and in the core repo's
+`orchestrator/services/themes/data/signing-keys.json`, the two files identical:
+`{"keyId": "ed25519:<16 hex>", "spki": "<base64>", "status": "active", "added": "<YYYY-MM-DD>"}`. Both hold
+Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active since 2026-10-26.
+
+## Rotate and revoke
+
+- **Rotate the publish key**: make a new one and add its sha256 to `THEME_PUBLISH_KEY_SHA256` beside the old one
+  (comma-separated, two at most), deploy, replace the `THEME_PUBLISH_KEY` secret, then drop the old hash and deploy.
+- **Revoke the publish key**: remove its hash from `THEME_PUBLISH_KEY_SHA256` and deploy; with no hash left the
+  endpoint answers 503 and nothing publishes. Delete the secret, and deactivate in the admin queue any version it
+  published that you don't trust.
+- **Rotate the signing key**: make a new Ed25519 key, add its public half as a second active key to both keys files
+  (a pull request to each repository, then a core deploy), and replace the `THEME_SIGNING_KEY` secret. The next
+  publish signs with it. Set the old key `retired` in both files only when nothing still needs its signatures: a
+  retired key verifies nothing.
+- **Revoke the signing key**: set it `revoked` in both keys files and deploy, and delete the secret. Nothing it
+  signed verifies any more, so no version it signed reads as Official; make a new key as above before the next
+  publish.
+
+## Backfill
+
+A version released before this flow existed, or by a tag pushed by hand, is listed by running the workflow on
+`main` with its tag:
 
 ```sh
-gh workflow run theme-review.yml --ref play-v<v> -f package_url=https://github.com/AutomatosAI/automatos-design-kit/releases/download/play-v<v>/automatos.play-<v>.autotheme -f expected_digest=<digest>
+gh workflow run theme-publish.yml --ref main -f tag=play-v1.2.1
+gh workflow run theme-publish.yml --ref main -f tag=hud-v1.1.2
 ```
 
-`<digest>` is the 64-hex digest the admin queue shows. `--ref play-v<v>` runs the review with the kit as it was
-at the tag (the scripts and lockfile Play was built with), whatever `main` holds by then. In the admin queue's
-Isolated review (kit job) section, paste the job summary under "Paste the Theme review job summary", choose
-**Pass**, **Save review note**, and confirm your identity when asked.
+The tag must exist and be on `main`. The run takes its scripts and keys file from `main`, rebuilds the theme at the
+tag (the kit, the lockfile and the review as the tag had them), and holds the rebuilt `.autotheme` to the release's
+own asset, byte for byte, before anything is signed or sent: any difference fails the run. It then reviews, signs and
+publishes the version, and adds only its `<v>.sig.json` to the release.
 
-### 4. Approve and sign
+## After a publish
 
-**Approve** (confirm your identity). In the Signature section, **Copy request**, then run Theme sign on `main`
-with the whole request as its `request` input: Actions › Theme sign › Run workflow (branch `main`), or
-
-```sh
-gh workflow run theme-sign.yml --ref main -f request='<the whole request JSON>'
-```
-
-A required reviewer of `theme-signing` approves the run's use of the environment (either reviewer may). The
-run's summary prints the request id, the signature, the key id and the envelope.
-
-### 5. Paste, then attach the envelope to the release
-
-In the Signature section, under "Paste the signature the workflow printed", paste it and **Save signature**:
-the version shows a verified signature by `ed25519:…`, and the listing turns Official. Then open one pull
-request here that adds the envelope line the run printed as `themes/play/signatures/<v>.sig.json` (the folder
-is not packed, so Play's released files stay as they are). Its merge to `main` runs Theme release's signature
-job: it builds the tagged commit, verifies the envelope against that build and uploads it to the `play-v<v>`
-release (`gh release upload --clobber`). A failure there means the release asset did not rebuild to the signed
-bytes: stop and find out why. To attach it again later: Actions › Theme release › Run workflow on `main` with
-`tag` set to `play-v<v>`.
-
-### 6. Install from the listing
-
-In hosted workspace B (another account, with `workspace:manage`): Marketplace › Themes shows Play with the
-**Official** badge and its previews per preset. **Add to my workspace** (confirm your identity),
-**Use this theme**, reload: Play renders with its looks, Auto and the pause control. Then, as that member,
-`GET /api/themes/mobile/<install id>` answers `source: fromLooks`, the look's tone and tokens, no fonts, and
-Auto's twelve states with clip and still URLs that load.
-
-### 7. Evidence
-
-Keep with the release's record: the run links of steps 3 to 5, screenshots of steps 5 and 6, and the output of
-a read-only query showing one approved, reviewed and signed package row with two installations referencing it.
+The run's summary shows the review's text for each theme; the release carries the `.autotheme`, its `.sha256` and
+its `.sig.json`; Marketplace › Themes lists the version, with the **Official** badge for an `automatos` theme. In a
+hosted workspace with `workspace:manage`, **Add to my workspace** and **Use this theme** install it; then
+`GET /api/themes/mobile/<install id>` answers the theme's phone skin.

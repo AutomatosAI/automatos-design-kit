@@ -1,39 +1,37 @@
 # Releasing a theme
 
-How a kit theme version becomes a GitHub release, and how it is then reviewed and signed, exactly as the workflows
-in `.github/workflows/` do it. The kit releases three themes, Play (`themes/play`, `automatos/play`), HUD
-(`themes/hud`, `automatos/hud`) and Arcade (`themes/arcade`, `automatos/arcade`). Every step below is started by a
-person; kit CI checks the workflows, not the runs.
-The run that lists a version as the official theme on the hosted edition, with the admin queue's side of each step,
-is [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
+How a kit theme version becomes a release, exactly as the workflows in `.github/workflows/` do it. Every folder under
+`themes/` is a theme (Play, `themes/play`, `automatos/play`; HUD, `themes/hud`, `automatos/hud`; Arcade,
+`themes/arcade`, `automatos/arcade`). A merge to `main` that raises a theme's version publishes it: `theme-publish.yml`
+reviews, signs and lists it on the hosted Marketplace and releases it here, with nobody running anything. Kit CI checks
+the workflows, not the runs. The flow end to end, the environment and its keys, what blocks a publish and how to
+backfill: [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
 
 | Workflow | File | Started by | What it does |
 |---|---|---|---|
 | Kit | `kit.yml` | every pull request and push to `main` | The released-themes guard, then build, lint, typecheck, test and pack; the harness shots |
-| Theme release | `theme-release.yml` | a pushed `play-v*`, `hud-v*` or `arcade-v*` tag; a push to `main` that adds a signature; Run workflow on `main` | Builds the tagged theme, publishes its release, attaches its signature |
+| Theme publish | `theme-publish.yml` | `Kit` passing on a push to `main`; Run workflow on `main` with a tag | Builds, reviews, signs, lists and releases each theme whose version moved |
+| Theme release | `theme-release.yml` | a release tag a person pushes | Builds the tagged theme and releases it, unlisted and unsigned |
 | Theme review | `theme-review.yml` | Run workflow, at the tag | Reviews one package with no network and no secrets |
-| Theme sign | `theme-sign.yml` | Run workflow on `main`, approved by a required reviewer | Signs an approved version |
 | Kit lockfile | `kit-lockfile.yml` | Run workflow on a branch | Resolves `package-lock.json` for a dependency change |
 
 ## 1. Make the change under a new version
 
 A released version never changes. While a theme's `theme.json` names a version that has a release tag, kit CI's
 first step (`scripts/release/released-unchanged.mjs`, before anything is installed) fails if any of that theme's
-packed paths differs from the tag:
+packed paths differs from the tag. For every folder `themes/<slug>` the packed paths are (`scripts/release/themes.mjs`
+`packedPathsOf`): its `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `dist/`,
+`boot/`, `looks/`, `assets/` and `src/`, and the `src/` of each kit library its `package.json` names under
+`dependencies` (Play's and HUD's: `packages/look-kit/src`, `packages/mascot/src`; Arcade's: `packages/mascot/src`
+alone, since its `package.json` names no look-kit).
 
-| Theme | Packed paths the guard holds to the tag |
-|---|---|
-| Play | `themes/play/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `src/`; `packages/look-kit/src`, `packages/mascot/src` |
-| HUD | `themes/hud/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `boot/`, `looks/`, `src/`; `packages/look-kit/src`, `packages/mascot/src` |
-| Arcade | `themes/arcade/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `boot/`, `looks/`, `src/`; `packages/mascot/src` |
+These are the paths `pack` collects, and the kit libraries it writes into `source/`. A folder git ignores (Play's
+`dist/`, `boot/` and `looks/`, built from `src/`) holds nothing to compare; HUD and Arcade both commit `boot/` and
+`looks/`, and only their `dist/` is built. So a change to `packages/look-kit/src` or `packages/mascot/src` needs a new
+version of each released theme that bundles it: one to `packages/look-kit/src` a new version of Play and HUD, and one
+to `packages/mascot/src` a new version of every released theme.
 
-These are the paths `pack` collects that each theme folder commits, and the `src/` of each kit library the theme
-bundles. Play's `dist/`, `boot/` and `looks/` are gitignored and built from `src/` by its build; HUD and Arcade both
-commit `boot/` and `looks/`, and only their `dist/` is built. Play and HUD both bundle `packages/look-kit/src` and
-`packages/mascot/src`; Arcade bundles `packages/mascot/src` alone. So a change to `packages/look-kit/src` needs a
-new version of Play and HUD, and a change to `packages/mascot/src` needs a new version of every released theme.
-
-The guard reads each theme's version from its `theme.json` and lists the theme's tags on `origin` with
+The guard reads each theme's version from its `theme.json` and lists the theme's `<slug>-v*` tags on `origin` with
 `git ls-remote`:
 
 - the version has a tag: the packed paths must be as that tag has them, or the job fails and lists each changed path;
@@ -42,8 +40,8 @@ The guard reads each theme's version from its `theme.json` and lists the theme's
   release;
 - the theme has no release tag yet: it passes.
 
-Each theme is checked against its own tags alone, Play first, and the job fails when either fails. A failure to list,
-fetch or compare is a failure, never a pass.
+Each theme is checked against its own tags alone, in folder order, and the job fails when any fails. A failure to
+list, fetch or compare is a failure, never a pass.
 
 So a change to a released theme, in one pull request:
 
@@ -53,46 +51,50 @@ So a change to a released theme, in one pull request:
    `CHANGELOG.md` is packed, so write it before the tag: after the release it can only change with another version.
 3. Let kit CI pass. Its `kit` job packs every theme and uploads the packages as the `kit-themes` artifact.
 
-The theme's `signatures/` folder is never packed and is not among the packed paths, so committing a signature later
-never trips the guard.
+The theme's `signatures/` folder is never packed and is not among the packed paths.
 
-## 2. Tag and release
+## 2. Merge to publish
 
-Merge to `main`, then push the tag on a commit of `main`: `play-v<major>.<minor>.<patch>` for Play,
-`hud-v<major>.<minor>.<patch>` for HUD, `arcade-v<major>.<minor>.<patch>` for Arcade.
+The tag rule: a release tag is `<slug>-v<major>.<minor>.<patch>` (`^([a-z0-9-]+)-v\d+\.\d+\.\d+$`), naming the
+folder `themes/<slug>`, whose `theme.json` id is `<publisher>/<slug>` with the publisher listed in
+`release/publishers.json`. `scripts/release/themes.mjs` holds it; `bumped.mjs` and both release workflows apply it.
 
-```sh
-git tag play-v<version> <commit on main>
-git push origin play-v<version>
-```
+Merge the pull request. When `Kit` passes on the push to `main`, `theme-publish.yml` picks each theme whose version is
+above its newest tag and whose publisher is listed, then builds, reviews, signs and publishes it, and releases
+`<slug>-v<version>` at the merged commit ([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "What a merge does"). The
+release holds `<publisher>.<slug>-<version>.autotheme`, its `.autotheme.sha256` and `<version>.sig.json`, titled
+with `theme.json`'s `name` and the version ("Play 1.2.1", "HUD 1.1.2", "Arcade 1.0.0"), with notes giving the package
+digest and the file's sha256, then the pictures `theme.json` lists under `previews`, each shown from the tag
+(`scripts/release/preview-notes.ts`). A local or open-source edition installs the release asset with Settings ›
+Appearance › Themes › Install theme.
 
-GitHub runs no path filter for a tag push, so every `play-v*`, `hud-v*` and `arcade-v*` tag runs
-`theme-release.yml`'s `release` job (permissions: `contents: write` and nothing else; no secrets). In order, it:
+Arcade has no release tag yet, so its first release is the publish run's: the first run on `main` that sees
+`automatos/arcade` 1.0.0 picks it, lists it and releases `arcade-v1.0.0`. Push no `arcade-v*` tag by hand for it.
+
+A tag pushed by hand still releases through `theme-release.yml`'s `release` job (permissions: `contents: write` and
+nothing else; no secrets), unlisted and unsigned. In order, it:
 
 1. checks out the tagged commit with all history, sets up Node 22 and pins npm 11.21.1, as `kit.yml` does;
-2. checks the tag matches `^(play|hud|arcade)-v[0-9]+\.[0-9]+\.[0-9]+$`, and takes the theme (`play`, `hud` or
-   `arcade`) and the version from it;
-3. checks that `themes/<theme>/theme.json`'s `id` is `automatos/<theme>`, that the tagged commit is on
-   `origin/main`, and that `theme.json`'s `version` is the tag's;
+2. checks the tag matches the tag rule (in the shell, `^([a-z0-9-]+)-v[0-9]+\.[0-9]+\.[0-9]+$`), and takes the
+   slug and the version from it;
+3. runs `scripts/release/bumped.mjs --tag <tag>`: the tagged commit is on `origin/main`, and its
+   `themes/<slug>/theme.json` is a listed publisher's `<publisher>/<slug>` at the tag's version;
 4. installs with `npm ci --ignore-scripts`, runs the root `build`, then the theme's `pack` script
-   (`npm run pack --workspace themes/<theme>`, which writes into `themes/<theme>/out/`);
-5. writes `automatos.<theme>-<version>.autotheme.sha256` with `sha256sum` and checks it against the `zipSha256` that
-   `pack` recorded in `automatos.<theme>-<version>.sha256.json`;
-6. looks for `themes/<theme>/signatures/<version>.sig.json` at the tag. When there is one, `keys/theme-signing.json`
-   must hold an active key (otherwise the job stops: "No signing key yet") and `scripts/sign/verify.ts` must verify
-   the envelope against the package just built; when there is none, the release goes out unsigned;
-7. publishes the release with `gh release create <tag> --verify-tag`: the `.autotheme`, its `.autotheme.sha256` and
-   any signature, titled with `theme.json`'s `name` and the version ("Play 1.1.1", "HUD 1.0.0", "Arcade 1.0.0"), and
-   notes giving
-   the package digest (the one an admin queue shows) and the file's sha256, then the pictures `theme.json` lists
-   under `previews`, each shown from the tag (`scripts/release/preview-notes.ts`; a theme that lists none shows none).
+   (`npm run pack --workspace themes/<slug>`, which writes into `themes/<slug>/out/`);
+5. writes `<publisher>.<slug>-<version>.autotheme.sha256` with `sha256sum` and checks it against the `zipSha256`
+   that `pack` recorded in `<publisher>.<slug>-<version>.sha256.json`;
+6. attaches `themes/<slug>/signatures/<version>.sig.json` if the tagged commit holds one, once `keys/theme-signing.json`
+   holds an active key and `scripts/sign/verify.ts` verifies it against the package just built;
+7. publishes the release with `gh release create <tag> --verify-tag`, titled and noted as above.
 
-A local or open-source edition installs the release asset with Settings › Appearance › Themes › Install theme.
+Such a version is then seen as released, so no merge publishes it; list it with a backfill
+([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "Backfill"), which also adds its `.sig.json`.
 
 ## 3. Review
 
-A Marketplace version is reviewed by a person, who runs `theme-review.yml` at the tag, so the review uses the kit's
-scripts and lockfile as they were when the theme was built:
+A kit theme's version is reviewed by the publish run, at the merged commit (section 2). Any other Marketplace version
+is reviewed by a person, who runs `theme-review.yml` at the tag, so the review uses the kit's scripts and lockfile as
+they were when the theme was built:
 
 ```sh
 gh workflow run theme-review.yml --ref play-v<version> \
@@ -121,50 +123,32 @@ To see the same checks before submitting, run `automatos-theme check <theme fold
 
 ## 4. Sign
 
-Approving a version in the admin queue records a signature request. A person runs `theme-sign.yml` on `main` with
-the whole request as its input:
+The publish job signs; nothing else does, and it signs only a package the run built from `main`. Its `Sign` step,
+`node scripts/sign/from-pack.ts sign <package> <package.sha256.json> <out.sig.json>`, installs nothing and is the one
+step that reads the `THEME_SIGNING_KEY` secret of the `theme-publish` environment (an Ed25519 key, PKCS#8 PEM), which
+no other workflow may name:
 
-```sh
-gh workflow run theme-sign.yml --ref main -f request='<the whole request JSON from the admin queue>'
-```
+- it holds the package to `pack`'s summary first: the file's sha256 is the summary's `zipSha256`, and
+  `{id, version, digest, files}` rebuilt from the package's own members is the summary's, with file hashes that add
+  up to its digest and id and version inside core's manifest patterns;
+- it signs the canonical JSON of that payload (sorted keys, no spaces, ASCII: core's
+  `canonical_text(signing_payload(package))`, byte for byte, as `tests/fixtures/signing-vector.json` proves), and
+  writes the one-line envelope `{form: "automatos-theme-signature/v1", algorithm: "ed25519", keyId, id, version,
+  digest, signature}` as `<version>.sig.json`;
+- it refuses when the secret is absent or isn't an Ed25519 key, and when any line it would print holds a line break
+  or `::`; it prints the key id, never the key.
 
-- The job runs only on `main`, in the `theme-signing` environment, whose deployment branches are `main` only and
-  whose required reviewers are the named signers: the run waits until one of them approves its use of the key.
-- It installs nothing. Its one step, `node scripts/sign/cli.ts`, reads the request from `SIGN_REQUEST` and the
-  Ed25519 key (a PKCS#8 PEM) from the environment secret `THEME_SIGNING_KEY`, which no other workflow may name.
-- It refuses when the secret is absent, when the request is malformed or its file hashes don't add up to its
-  digest, when the id or version breaks core's manifest patterns, when `requestId` is not a UUID, and when any line
-  it would print holds a line break or `::`.
-- It prints the request id and the base64 signature over the canonical JSON of `{id, version, digest, files}` (to
-  paste into the admin queue), the key id, and the one-line `.sig.json` envelope to keep next to the package:
-  `{form: "automatos-theme-signature/v1", algorithm: "ed25519", keyId, id, version, digest, signature}`.
+The next step verifies the envelope with `scripts/sign/verify.ts` against `keys/theme-signing.json`, and the
+Marketplace verifies it again against its own copy of the keys before it stores the signature.
 
-## 5. Attach the signature to the release
-
-Commit the envelope the sign run printed as `themes/<theme>/signatures/<version>.sig.json`, in a pull request to
-`main`. When it merges, the push to `main` runs `theme-release.yml`'s `signature` job, which:
-
-1. takes the one signature file that push added or changed (exactly one, or it stops) and makes the tag from it:
-   `themes/play/signatures/<version>.sig.json` names `play-v<version>`, and the same for HUD's and Arcade's; the
-   tag must exist;
-2. keeps the envelope and `keys/theme-signing.json` from the triggering commit, so a key published after the tag
-   counts and a revoked one stops counting, and checks the keys file holds an active key;
-3. checks out the **tagged** commit (never `main`'s head), checks it as the release job does, installs, builds and
-   packs it, and checks the `.sha256` against `pack`'s record;
-4. verifies the envelope against that build with `scripts/sign/verify.ts`; a mismatch fails the run, since the release
-   asset must rebuild to the signed bytes on another runner;
-5. uploads the envelope to the tag's release with `gh release upload --clobber`.
-
-To attach a signature again, run the workflow by hand on `main` with the `tag` input set (`play-v<version>`,
-`hud-v<version>` or `arcade-v<version>`). The job runs only on `main`, so a run on another branch can't bring its
-own keys file.
+## 5. The keys file
 
 `keys/theme-signing.json` is `{"schema":1,"keys":[{keyId, spki, status, added}]}`, `status` one of `active`, `retired`
 and `revoked`. It holds one key: Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active, added 2026-10-26.
-Nothing is signed with it yet; the first signatures come from Theme sign runs (section 4). If the file held no active
-key, no signature would verify, and both jobs stop when a signature is there to check. A change to the keys is a pull
-request to `main`, with the same bytes in core's `orchestrator/services/themes/data/signing-keys.json`
-([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "Once, before the first signature").
+If it held no active key, no signature would verify: the publish run stops at its verify step, and `theme-release.yml`
+stops when a committed signature is there to check. A change to the keys is a pull request to `main`, with the same
+bytes in core's `orchestrator/services/themes/data/signing-keys.json` ([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md),
+"Rotate and revoke").
 
 ## Changing a dependency
 

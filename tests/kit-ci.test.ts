@@ -108,8 +108,8 @@ function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>):
 
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
-// PRD-261 C-06r (PB-4): a released theme version (Play's, HUD's) never changes. The check runs right after the npm
-// pin (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
+// PRD-261 C-06r (PB-4): each released theme's version never changes, for every folder under themes/. The check runs
+// right after the npm pin (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
 const RELEASED_STEP = "Check released themes are unchanged";
 const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
 const RELEASED_CHECK = `node ${RELEASED_SCRIPT}`;
@@ -331,8 +331,9 @@ describe("kit workflow", () => {
     expect(text).toMatch(/name: kit-lockfile\n\s+path: package-lock\.json\n\s+if-no-files-found: error/);
   });
 
-  // PRD-261 C-06r: the script lists origin's play-v* and hud-v* tags and fetches the matching one itself,
-  // anonymously (tests/released-unchanged.test.ts runs it against git repositories).
+  // PRD-261 C-06r: the script lists origin's <slug>-v* tags for each theme and fetches the matching one itself,
+  // anonymously (tests/released-unchanged.test.ts and tests/released-unchanged-themes.test.ts run it against git
+  // repositories).
   it("checks released themes are unchanged after a credential-free checkout, with Node alone and no secret or token", () => {
     const step = stepLines(text, RELEASED_STEP);
     const lines = text.split("\n");
@@ -354,10 +355,12 @@ describe("AGENTS.md", () => {
     ROOT_SCRIPTS.forEach((name) => expect(text).toContain(`\`${name}\``));
   });
 
-  it("says either required reviewer of theme-signing may approve, with Prevent self-review off for now", () => {
+  // theme-sign.yml and its theme-signing environment are retired: a merge publishes, through theme-publish.yml.
+  it("says a merge publishes through theme-publish.yml, whose environment's two secrets are each read by one step", () => {
     const text = readText("AGENTS.md").replace(/\s+/g, " ");
-    expect(text).toContain("either one may approve");
-    expect(text).toContain('"Prevent self-review" is off for now');
-    expect(text).not.toMatch(/self-review prevented|second signer|two signers/i);
+    ["`theme-publish.yml`: a merge to `main` publishes, and the merge is the approval", "the `theme-publish` environment (main only, no reviewers)",
+      "`THEME_SIGNING_KEY`", "`THEME_PUBLISH_KEY`", "each secret is read by one step alone", "`release/publishers.json`"]
+      .forEach((part) => expect(text).toContain(part));
+    expect(text).not.toMatch(/theme-sign\.yml|`theme-signing`|second signer|two signers/i);
   });
 });

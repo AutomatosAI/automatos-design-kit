@@ -2,8 +2,8 @@
 // look data, boot/ and looks/, is committed, not generated, held to its catalogue by its own tests, ARCADE_WRITE=1),
 // its pack checks the design first and writes the package to out/, which git ignores and CI uploads with every other
 // package; and released-unchanged.mjs guards everything the pack collects for Arcade, the committed boot/ and
-// looks/ among it, once arcade-v<version> is tagged. Unlike Play and HUD, Arcade bundles @automatos/mascot alone,
-// not @automatos/look-kit.
+// looks/ among it, once arcade-v<version> is tagged; it checks every folder under themes/, each by its own tag. Unlike
+// Play and HUD, Arcade bundles @automatos/mascot alone, not @automatos/look-kit.
 import { readFileSync, realpathSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { join, relative, sep } from "node:path";
@@ -13,11 +13,11 @@ import { bundledPackages } from "@automatos/vite-preset";
 import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
 import { PACKAGE_EXTENSION, packageBaseName } from "../packages/theme-cli/src/pack.ts";
 import { SOURCE_DIR } from "../packages/theme-cli/src/source.ts";
+import { packedPathsOf, parseTag, tagPrefixOf, themeFolders } from "../scripts/release/themes.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const ARCADE_DIR = "themes/arcade";
 const WORKFLOW = ".github/workflows/kit.yml";
-const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
 /** The folders Arcade commits that its pack collects (collect.ts PACKED_FOLDERS less the built dist/). */
 const ARCADE_COMMITTED_FOLDERS = ["assets", "boot", "looks"];
 
@@ -41,13 +41,6 @@ function ignoredPaths(paths: readonly string[]): string[] {
   const run = spawnSync("git", ["check-ignore", ...paths], { cwd: ROOT, encoding: "utf8" });
   if (run.status !== 0 && run.status !== 1) throw new Error(`git check-ignore failed (${String(run.status)}): ${run.stderr}`);
   return run.stdout.split("\n").filter(Boolean);
-}
-
-/** One of released-unchanged.mjs's packed-path lists, read back as plain text (the script spells each path out). */
-function packedPathsNamed(list: string): string[] {
-  const match = new RegExp(`\\b${list}\\s*=\\s*\\[([^\\]]*)\\]`).exec(readText(RELEASED_SCRIPT));
-  if (match === null) throw new Error(`can't find ${list} in ${RELEASED_SCRIPT}`);
-  return [...match[1].matchAll(/'([^']*)'/g)].map(([, path]) => path);
 }
 
 describe("Arcade's package in CI", () => {
@@ -77,7 +70,7 @@ describe("Arcade's package in CI", () => {
 });
 
 describe("released-unchanged.mjs guards everything pack collects for Arcade", () => {
-  const packedPaths = packedPathsNamed("ARCADE_PACKED_PATHS");
+  const packedPaths = packedPathsOf(ROOT, "arcade");
   const committedFolders = PACKED_FOLDERS.filter((name) => trackedFiles().some((rel) => rel.startsWith(`${ARCADE_DIR}/${name}/`)));
 
   it("guards every top file and committed folder collect.ts names, boot/ and looks/ among them, and src/", () => {
@@ -89,13 +82,13 @@ describe("released-unchanged.mjs guards everything pack collects for Arcade", ()
     const root = realpathSync(ROOT);
     const bundled = bundledPackages(join(root, ARCADE_DIR)).map((item) => relative(root, join(item.dir, SOURCE_DIR)).split(sep).join("/"));
     expect(bundled).toEqual(["packages/mascot/src"]);
-    bundled.forEach((path) => expect(packedPaths).toContain(path));
+    expect(packedPaths.filter((path) => path.startsWith("packages/"))).toEqual(bundled);
     expect(packedPaths).not.toContain("packages/look-kit/src");
   });
 
-  it("is named in the script's theme table by its own tag", () => {
-    const script = readText(RELEASED_SCRIPT);
-    const named = [...script.matchAll(/\{ name: '[^']+', dir: '([^']+)', tag: '([^']+)'/g)].map(([, dir, tag]) => [dir, tag]);
-    expect(named).toContainEqual([ARCADE_DIR, "arcade-v"]);
+  it("is a folder the script checks, by its own arcade-v tag, which the tag rule admits", () => {
+    expect(themeFolders(ROOT)).toContain("arcade");
+    expect(tagPrefixOf("arcade")).toBe("arcade-v");
+    expect(parseTag("arcade-v1.0.0")).toEqual({ slug: "arcade", version: "1.0.0" });
   });
 });

@@ -1,8 +1,9 @@
 /**
- * The release notes' previews (theme-release.yml, "Publish the release"): each picture the theme's theme.json lists
- * under `previews`, as a Markdown image of that file at the release's tag, so the release page shows the theme. The
- * images are the tagged commit's own files, which GitHub serves from the repository at the tag, so the page shows the
- * pictures released with the package. A theme that lists none adds nothing.
+ * The release notes' previews (theme-release.yml's "Publish the release", theme-publish.yml's "Write the release
+ * notes"): each picture the theme's theme.json lists under `previews`, as a Markdown image of that file at the
+ * release's tag, so the release page shows the theme. The images are the tagged commit's own files, which GitHub
+ * serves from the repository at the tag, so the page shows the pictures released with the package. A theme that
+ * lists none adds nothing.
  *
  *   node scripts/release/preview-notes.ts <theme folder> <tag> <owner/repo>
  *
@@ -24,8 +25,8 @@ const THEME_FILE = 'theme.json'
 const PREVIEW_PATH = /^assets\/previews\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:png|jpe?g|webp)$/
 /** The theme folder as the workflow names it ($THEMES_DIR/<theme>): relative, plain names, no `..`. */
 const THEME_DIR = /^[a-z0-9][a-z0-9_-]*(?:\/[a-z0-9][a-z0-9_-]*)*$/
-/** theme-release.yml's tags: <theme>-v<major>.<minor>.<patch>. */
-const TAG = /^[a-z][a-z0-9-]*-v\d+\.\d+\.\d+$/
+/** The release tags: <slug>-v<major>.<minor>.<patch> (scripts/release/themes.mjs TAG_PATTERN). */
+const TAG = /^[a-z0-9-]+-v\d+\.\d+\.\d+$/
 const REPO = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/
 const PICTURE_EXTENSION = /\.(?:png|jpe?g|webp)$/
 

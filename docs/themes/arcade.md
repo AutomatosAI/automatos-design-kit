@@ -106,8 +106,9 @@ host's looks API (`theme.json`'s `mobile` block is the skin for an app version w
 In the kit, from `themes/arcade`: `npm run build` (`vite build` with the kit's preset), `npm run lint`,
 `npm run typecheck`, `npm test` and `npm run pack` (`automatos-theme check design .`, then
 `automatos-theme pack . --out out`, which writes `automatos.arcade-<version>.autotheme` and its `.sha256.json`). Kit
-CI's `harness` job shoots Arcade among every other theme under `themes/` (`scripts/shots/other-themes.mjs`). An
-`arcade-v<version>` tag releases it ([releasing.md](../releasing.md)); its review, signature and listing follow
-Play's steps with Arcade's names ([OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
+CI's `harness` job shoots Arcade among every other theme under `themes/` (`scripts/shots/other-themes.mjs`). A merge
+to `main` that raises its version reviews, signs and lists it, and releases it as `arcade-v<version>`, as it does Play
+and HUD; 1.0.0 has no tag yet, so the first publish run releases it as `arcade-v1.0.0` ([releasing.md](../releasing.md),
+[OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/arcade/CHANGELOG.md`](../../themes/arcade/CHANGELOG.md), newest first.

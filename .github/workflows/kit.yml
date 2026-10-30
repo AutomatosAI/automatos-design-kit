@@ -37,16 +37,16 @@ jobs:
       - name: Pin npm
         run: npm install -g npm@11.21.1
 
-      # PRD-261 C-06r (PB-4): a released theme version never changes. While themes/play/theme.json names a
-      # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md, CHANGELOG.md
-      # and every LICENSE spelling under themes/play, and packages/look-kit/src and packages/mascot/src, which
-      # Play bundles) must be as the tag has them; a change needs a version above every release. HUD is held
-      # the same way by its hud-v<version> tags, its committed boot and looks among its packed paths. Arcade is
-      # held the same way by its arcade-v<version> tags, its committed boot and looks among its packed paths too
-      # (it bundles packages/mascot/src alone, not packages/look-kit/src). The checkout above fetches no tags,
-      # so the script lists origin's play-v*, hud-v* and arcade-v* tags (git ls-remote) and fetches the
-      # matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing installed: it
-      # runs before the install, so a change to a released theme fails first.
+      # PRD-261 C-06r (PB-4): a released theme version never changes. Every folder under themes/ is a theme,
+      # released by its <slug>-v<version> tags (the tag rule scripts/release/themes.mjs holds). While a theme's
+      # theme.json names a tagged version, its packed paths (theme.json, README.md, CHANGELOG.md and every LICENSE
+      # spelling, dist, boot, looks, assets and src under themes/<slug>, and the src of each kit library its
+      # package.json names) must be as the tag has them; a change needs a version above every release. Play and
+      # HUD bundle packages/look-kit/src and packages/mascot/src; Arcade bundles packages/mascot/src alone, not
+      # packages/look-kit/src; HUD's and Arcade's committed boot and looks are among their packed paths. The
+      # checkout above fetches no tags, so the script lists origin's <slug>-v* tags for each folder (git
+      # ls-remote) and fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone,
+      # nothing installed: it runs before the install, so a change to a released theme fails first.
       - name: Check released themes are unchanged
         run: node scripts/release/released-unchanged.mjs
 
