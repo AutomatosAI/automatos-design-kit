@@ -1,5 +1,6 @@
 /**
- * The showcase shots: clean images of the kit's two themes, HUD and Play, for READMEs, docs and the product site,
+ * The showcase shots: clean images of the kit's themes, HUD, Play and Arcade, for READMEs, docs, the product site and
+ * the Marketplace listings' previews,
  * made in kit CI's harness job (shots/showcase.config.ts runs shots/showcase.spec.ts) and uploaded as the
  * `kit-showcase` artefact. No DOM and no React, so the spec (Node) and the tests read the same plan.
  *
@@ -29,14 +30,14 @@ import type { DemoExtra } from './demo.ts'
 import { CHAT_PAGE, DESKTOP_HEIGHT, type Viewport } from './shot-groups.ts'
 
 /** The kit's themes the showcase draws, by their folder under themes/. */
-export const SHOWCASE_THEMES = Object.freeze(['hud', 'play'] as const)
+export const SHOWCASE_THEMES = Object.freeze(['hud', 'play', 'arcade'] as const)
 export type ShowcaseTheme = (typeof SHOWCASE_THEMES)[number]
 
 /**
  * Each theme's `automatos-theme dev` port: one server per theme, beside the shots' 4318 and `dev`'s own 4319, so the
  * showcase never meets the smoke's or the phone shots' server.
  */
-export const SHOWCASE_PORTS: Readonly<Record<ShowcaseTheme, number>> = Object.freeze({ hud: 4320, play: 4321 })
+export const SHOWCASE_PORTS: Readonly<Record<ShowcaseTheme, number>> = Object.freeze({ hud: 4320, play: 4321, arcade: 4322 })
 /** Where the shots go, under the harness package: their own folder, apart from the regression shots' dist/shots. */
 export const SHOWCASE_FOLDER = 'dist/showcase'
 export const SHOWCASE_EDITION: HarnessEdition = 'saas'
@@ -74,6 +75,8 @@ export interface ShowcaseShot {
 
 const LOOK_EDITOR_SLOT = 'lookEditor@1'
 const CONVERSATIONS_ROUTE = 'conversations'
+const QUESTS_ROUTE = 'quests'
+const DELIVERABLES_PAGE = '/deliverables'
 /**
  * Play's hello: the first open's heading (themes/play/src/components/play/chat/first-open.tsx HELLO_TITLE), and Auto's
  * caption while he plays it (packages/mascot/src/media.ts), which no shot after the hello shows.
@@ -83,6 +86,8 @@ export const PLAY_HELLO = "Hi, I'm Auto."
 const CHAT: View = Object.freeze<View>({ kind: 'page', key: CHAT_PAGE, path: pagePath(CHAT_PAGE) })
 const LOOK_EDITOR: View = Object.freeze<View>({ kind: 'slot', key: LOOK_EDITOR_SLOT, path: slotPath(LOOK_EDITOR_SLOT) })
 const CONVERSATIONS: View = Object.freeze<View>({ kind: 'route', key: CONVERSATIONS_ROUTE, path: routePath(CONVERSATIONS_ROUTE) })
+const QUESTS: View = Object.freeze<View>({ kind: 'route', key: QUESTS_ROUTE, path: routePath(QUESTS_ROUTE) })
+const INVENTORY: View = Object.freeze<View>({ kind: 'page', key: DELIVERABLES_PAGE, path: pagePath(DELIVERABLES_PAGE) })
 
 type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading' | 'demo'>>
 
@@ -135,6 +140,16 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('play', PHONE, 'menu', 'ember', CHAT, afterHello(MENU)),
   planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, afterHello(ON_TRANSCRIPT, 'older-chats')),
   planned('play', PHONE, 'voice-listening', 'ember', CHAT, afterHello(LISTENING)),
+  planned('arcade', DESKTOP, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
+  planned('arcade', DESKTOP, 'chat', 'dungeon', CHAT, ON_TRANSCRIPT),
+  planned('arcade', DESKTOP, 'chat', 'neon', CHAT, ON_TRANSCRIPT),
+  planned('arcade', DESKTOP, 'chat', 'nightcity', CHAT, ON_TRANSCRIPT),
+  planned('arcade', DESKTOP, 'chat', 'handheld', CHAT, ON_TRANSCRIPT),
+  planned('arcade', DESKTOP, 'quests', 'overworld', QUESTS),
+  planned('arcade', DESKTOP, 'inventory', 'overworld', INVENTORY),
+  planned('arcade', DESKTOP, 'look-editor', 'overworld', LOOK_EDITOR),
+  planned('arcade', PHONE, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
+  planned('arcade', PHONE, 'chat', 'handheld', CHAT, ON_TRANSCRIPT),
 ])
 
 /** A shot's file name: `<theme>-<width>-<what>-<look>.png`. */

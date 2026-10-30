@@ -83,7 +83,7 @@ Exit codes: 0 every shot passed; the failing step's own exit code; 1 no `theme.j
 ### The showcase shots
 
 `shots` is a regression set: every view of every preset on the local edition, at one pixel per CSS pixel, scanned
-with axe. The showcase is a separate, short set of clean images of the kit's own themes, HUD and Play, for READMEs,
+with axe. The showcase is a separate, short set of clean images of the kit's own themes, HUD, Play and Arcade, for READMEs,
 docs and the product site. It is not a command: kit CI's `harness` job runs it after the shots, and it runs the same
 way from the kit's root:
 

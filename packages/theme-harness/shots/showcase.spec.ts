@@ -1,5 +1,5 @@
 /**
- * The showcase shots (showcase.config.ts serves HUD and Play with `automatos-theme dev`; src/host/showcase.ts has the
+ * The showcase shots (showcase.config.ts serves HUD, Play and Arcade with `automatos-theme dev`; src/host/showcase.ts has the
  * plan): one test per image, so a failure names its file.
  *
  * Each test fixes the page's clock (SHOWCASE_TIME), sizes the page to its shot's viewport, opens the shot's address on

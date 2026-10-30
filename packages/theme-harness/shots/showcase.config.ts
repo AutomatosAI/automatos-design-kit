@@ -1,7 +1,8 @@
 /**
- * The showcase shots, on Chromium (src/host/showcase.ts has the plan): clean images of HUD and Play for READMEs, docs
- * and the product site. Its web servers are `automatos-theme dev` (the theme CLI's own executable, by Node) over
- * themes/hud and over themes/play, one each on its own port (SHOWCASE_PORTS), each answering 503 until its build is in.
+ * The showcase shots, on Chromium (src/host/showcase.ts has the plan): clean images of HUD, Play and Arcade for
+ * READMEs, docs, the product site and the listings' previews. Its web servers are `automatos-theme dev` (the theme CLI's
+ * own executable, by Node) over themes/hud, themes/play and themes/arcade, one each on its own port (SHOWCASE_PORTS),
+ * each answering 503 until its build is in.
  * showcase.spec.ts opens each shot's address on its theme's server. Kit CI's harness job runs it after the phone shots,
  * whose server on 4319 has stopped by then:
  *
