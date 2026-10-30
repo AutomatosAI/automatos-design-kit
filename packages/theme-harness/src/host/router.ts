@@ -12,9 +12,10 @@
  * - The shots' plan: each view's file name, and the files a set must hold, read from the theme folder (the groups, and
  *   the address each shot opens, are src/host/shot-groups.ts's).
  * - The widths: the two desktop widths, a phone's (PHONE_VIEWPORT), and the one just below the theme's minWidth.
- * - The settings the toolbar switches (the voice phase among them), as the query string a reload or a shot opens the
- *   harness with, and two the address alone sets, for the showcase shots: the host's edition (`edition=saas`) and the
- *   demo extras over the sample data (`demo=healthy-agents,older-chats,hello-played`, src/host/demo.ts).
+ * - The settings the toolbar switches (the voice phase and the day's brief among them), as the query string a reload
+ *   or a shot opens the harness with, and two the address alone sets, for the showcase shots: the host's edition
+ *   (`edition=saas`) and the demo extras over the sample data (`demo=healthy-agents,older-chats,hello-played`,
+ *   src/host/demo.ts).
  * - The page's two addresses (PAGE_PATHS): `/`, the mock host, and PHONE_PATH, the phone view (app/phone/), whose
  *   own settings are src/phone/settings.ts's.
  */
@@ -229,6 +230,8 @@ export interface HarnessSettings {
   readonly transcript: boolean
   /** The host's voice session: none ('idle'), or a made-up one in that phase (src/host/voice.ts). */
   readonly voice: HarnessVoicePhase
+  /** True: the day's brief (src/host/sample-data.ts); false (`brief=off`): no brief today, the workspace's brief off. */
+  readonly brief: boolean
   /** False hides the toolbar (the shots draw the theme alone). */
   readonly toolbar: boolean
   /**
@@ -249,6 +252,7 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
   forcedColors: false,
   transcript: false,
   voice: 'idle',
+  brief: true,
   toolbar: true,
   edition: 'local',
   demo: NO_DEMO,
@@ -256,7 +260,7 @@ export const DEFAULT_SETTINGS: HarnessSettings = Object.freeze({
 
 const PARAM = Object.freeze({
   path: 'path', preset: 'preset', width: 'width', tone: 'tone', motion: 'motion', forced: 'forced', chat: 'chat', voice: 'voice',
-  toolbar: 'toolbar', edition: 'edition', demo: 'demo',
+  toolbar: 'toolbar', edition: 'edition', demo: 'demo', brief: 'brief',
 })
 const TRANSCRIPT = 'transcript'
 const REDUCE = 'reduce'
@@ -297,6 +301,7 @@ export function readSettings(search: string): HarnessSettings {
     forcedColors: params.get(PARAM.forced) === ACTIVE,
     transcript: params.get(PARAM.chat) === TRANSCRIPT,
     voice: voiceOf(params.get(PARAM.voice)),
+    brief: params.get(PARAM.brief) !== OFF,
     toolbar: params.get(PARAM.toolbar) !== OFF,
     edition: editionOf(params.get(PARAM.edition)),
     demo: demoOf(params.get(PARAM.demo)),
@@ -314,6 +319,7 @@ export function settingsQuery(settings: HarnessSettings): string {
   if (settings.forcedColors) params.set(PARAM.forced, ACTIVE)
   if (settings.transcript) params.set(PARAM.chat, TRANSCRIPT)
   if (settings.voice !== DEFAULT_SETTINGS.voice) params.set(PARAM.voice, settings.voice)
+  if (!settings.brief) params.set(PARAM.brief, OFF)
   if (!settings.toolbar) params.set(PARAM.toolbar, OFF)
   if (settings.edition !== DEFAULT_SETTINGS.edition) params.set(PARAM.edition, settings.edition)
   if (demoText(settings.demo) !== '') params.set(PARAM.demo, demoText(settings.demo))
