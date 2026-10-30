@@ -90,12 +90,15 @@ jobs:
   # `automatos-theme dev` serves Play's harness and /chat renders. Then the phone view's shots: `automatos-theme dev`
   # over a made-up theme with a `mobile` block, its /phone on three screens, Light and Dark, and the skin designer with
   # a failing pair, each with an axe scan of the phone. Then the showcase shots: chosen views of HUD and Play on the
-  # hosted edition, at twice the pixel density, on Chromium. The shots, axe.json files and the smoke's shot are
-  # uploaded either way as kit-harness, and the showcase as kit-showcase.
+  # hosted edition, at twice the pixel density, on Chromium. Then PRD-261 B-02h's Lighthouse, report only: each theme
+  # under themes/ served in turn by `automatos-theme dev` and measured on the same Chromium. The shots, axe.json files
+  # and the smoke's shot are uploaded either way as kit-harness, the showcase as kit-showcase, and the Lighthouse
+  # reports as kit-lighthouse.
   harness:
     name: Harness shots and axe
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The shots and the showcase take about 11 minutes; the Lighthouse step has 20 of its own on top.
+    timeout-minutes: 45
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -156,6 +159,19 @@ jobs:
       - name: Showcase shots
         run: npx playwright test --config packages/theme-harness/shots/showcase.config.ts
 
+      # PRD-261 B-02h (QB-13c), report only: Lighthouse over every theme under themes/ drawn in the harness
+      # (scripts/lighthouse/main.ts). `automatos-theme dev` serves each theme in turn on 127.0.0.1:4322 (Play's look
+      # data from the Build step, HUD's committed), and Lighthouse's own command (the root package.json pins it)
+      # measures the theme's home view and its /chat page, in its default look with the toolbar off, at 1440 x 900
+      # (Lighthouse's desktop preset) and 390 x 844 (its mobile scoring), on the Chromium installed above, headless.
+      # The HTML and JSON reports go to packages/theme-harness/dist/lighthouse/, uploaded as kit-lighthouse, and the
+      # scores to the job summary as one table. No bar is applied yet. It never fails the build: the script exits 0
+      # whatever the scores or a run's failure, and the step continues on an error or its timeout.
+      - name: Lighthouse (report only)
+        continue-on-error: true
+        timeout-minutes: 20
+        run: node scripts/lighthouse/main.ts
+
       - name: Upload shots
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -171,6 +187,15 @@ jobs:
           name: kit-showcase
           path: packages/theme-harness/dist/showcase/
           if-no-files-found: error
+
+      # Report only, like the step: a run with no report warns and never fails the job.
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-lighthouse
+          path: packages/theme-harness/dist/lighthouse/
+          if-no-files-found: warn
 
   # PRD-261 B-06a: a proof run's pull request (proof/README.md), from a branch named proof/<id>-<slug> only. The checkout
   # is the pull request's own head with its history, not the merge with main, so the guard sees the proof's diff alone.

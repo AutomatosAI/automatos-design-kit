@@ -133,8 +133,12 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   shots (`packages/theme-harness/shots/showcase.config.ts`): `automatos-theme dev` over HUD and over Play, each on its
   own port, and chosen views of each in chosen looks on the hosted edition (no first-run nudge), at twice the pixel
   density, with reduced motion and a fixed clock, on Chromium and with no axe scan, into
-  `packages/theme-harness/dist/showcase/`. The job uploads the shots, their `axe.json` files and the smoke's shots as
-  `kit-harness`, and the showcase as `kit-showcase`.
+  `packages/theme-harness/dist/showcase/`. Then Lighthouse, report only (`scripts/lighthouse/main.ts`, PRD-261 B-02h):
+  `automatos-theme dev` serves each theme under `themes/` in turn, and Lighthouse (pinned in the root `package.json`)
+  measures its home view and its `/chat` page at 1440 × 900 and at the phone's 390 × 844 on the same Chromium, its
+  scores a table in the job summary; no score fails the build, and the step continues on any error. The job uploads
+  the shots, their `axe.json` files and the smoke's shots as `kit-harness`, the showcase as `kit-showcase`, and the
+  Lighthouse reports as `kit-lighthouse`.
 - Its `proof` job runs only on a pull request from a `proof/` branch (`proof/README.md`). On the branch's own head
   and history, `main`'s copy of `scripts/proof/guard.mjs --ci` (never the branch's) reads the branch's one
   `proof/<id>/BASE`, fetches that base tag and fails on a change outside `themes/<slug>/` and `proof/<id>/` (but the
@@ -157,6 +161,13 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   then runs `scripts/review/main.ts` in `docker run --network none`: a no-network probe, the
   package checks, the digest, the JS rules on `source/` and the reproducible build. The job summary
   holds the text the reviewer pastes into the admin queue's report note, with its outcome.
+- That text ends with a report-only "Previews and accessibility" section (PRD-261 B-02j,
+  `scripts/review/report.ts`): each preset's previews with their sizes and the preset that claims each,
+  and contrast, not measured while core's look schema declares no text and ground pairs (a `mobile`
+  block's pairs are in core's own review report). Once the review has passed, the job runs an axe pass
+  outside the container (`scripts/review/axe.ts`): the package laid out as a theme folder in a folder of
+  its own, drawn by `automatos-theme shots`, and what axe found added to the job summary after the text.
+  Neither is a check, so neither changes the outcome; the axe steps continue on any error.
 - A Marketplace package ships `source/`: the theme's `src/` exactly as built (`source/entry.ts` is
   `src/entry.ts`), and the `src/` of each kit library it bundles as `source/packages/<name>/src/`. The
   review rebuilds it with this kit's preset and lockfile, from the theme folder, each library's `src/`

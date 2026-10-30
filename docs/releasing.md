@@ -110,6 +110,13 @@ digest against `expected_digest`, `source/` present, the JS rules on `source/`, 
 the reviewer and fails nothing. The job summary holds the text the reviewer pastes into the admin queue's report
 note, with its outcome.
 
+The text ends with a report-only "Previews and accessibility" section: each preset's previews with their sizes and
+the preset that claims each (a preset with none, a preview no preset claims and a file theme.json doesn't list are
+named), and contrast, "not measured" while the look schema declares no text and ground pairs. Once the review has
+passed, the job draws the package in the kit's browser harness on the runner, outside the container, and adds what
+axe found over those shots to the job summary after the text. Neither changes the outcome: the person reviewing
+decides.
+
 To see the same checks before submitting, run `automatos-theme check <theme folder> --rebuild` ([cli.md](cli.md)).
 
 ## 4. Sign

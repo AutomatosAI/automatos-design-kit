@@ -59,6 +59,11 @@ const SHOWCASE_RUN = `npx playwright test --config ${SHOWCASE_CONFIG}`;
 const SHOWCASE_OUT = "packages/theme-harness/dist/showcase";
 const SHOWCASE_UPLOAD = "Upload showcase";
 const SHOWCASE_PLAN = "packages/theme-harness/src/host/showcase.ts";
+// PRD-261 B-02h: Lighthouse over the themes drawn in the harness, report only, after the showcase; its reports are
+// uploaded last, as kit-lighthouse (tests/lighthouse-ci.test.ts holds the step and the upload).
+const LIGHTHOUSE_STEP = "Lighthouse (report only)";
+const LIGHTHOUSE_RUN = "node scripts/lighthouse/main.ts";
+const LIGHTHOUSE_UPLOAD = "Upload Lighthouse reports";
 const HARNESS_PREFIX = "packages/theme-harness/";
 const escapedPath = (path: string): string => path.replace(/[/.]/g, (char) => `\\${char}`);
 
@@ -98,7 +103,7 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
   const kit = jobBlock(text, "kit");
   const harness = jobBlock(text, "harness");
 
-  it("installs and builds as the kit job does, installs both browsers, shoots Play, HUD, the dev smoke, then the phone", () => {
+  it("installs and builds as the kit job does, installs both browsers, shoots Play, HUD, the dev smoke, the phone, then Lighthouse", () => {
     expect(workflowRuns(harness)).toEqual([
       PIN_NPM,
       workflowRuns(kit)[KIT_INSTALL_AT],
@@ -110,17 +115,18 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
       DEV_SMOKE_RUN,
       PHONE_SHOTS_RUN,
       SHOWCASE_RUN,
+      LIGHTHOUSE_RUN,
     ]);
   });
 
-  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), the phone shots and the showcase, before the uploads", () => {
+  it("runs HUD's shots after Play's, then the dev smoke (PRD-261 B-02i), the phone shots, the showcase and Lighthouse, before the uploads", () => {
     const steps = stepNames(harness);
     const shots = steps.indexOf("Shots");
     const upload = steps.indexOf("Upload shots");
     expect(shots).toBeGreaterThanOrEqual(0);
     expect(upload).toBeGreaterThan(shots);
-    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, OTHER_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP, SHOWCASE_STEP]);
-    expect(steps.slice(upload)).toEqual(["Upload shots", SHOWCASE_UPLOAD]);
+    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP, SHOWCASE_STEP, LIGHTHOUSE_STEP]);
+    expect(steps.slice(upload)).toEqual(["Upload shots", SHOWCASE_UPLOAD, LIGHTHOUSE_UPLOAD]);
   });
 
   it("shoots HUD into a folder of the upload that none of Play's groups or the smoke's folder takes", () => {
