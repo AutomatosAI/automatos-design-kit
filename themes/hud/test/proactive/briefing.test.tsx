@@ -191,6 +191,21 @@ describe('folding back', () => {
     expect(region(TODAY_TITLE)).toBeInTheDocument()
   })
 
+  it("holds the 60 s while the focus is inside it, and Escape there gives the focus to the screen's heading", async () => {
+    await renderChat()
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    showBrief()
+    const listen = within(briefing()).getByRole('button', { name: LISTEN })
+    act(() => listen.focus())
+    act(() => {
+      vi.advanceTimersByTime(BRIEFING_MS * 2)
+    })
+    expect(briefing()).toBeInTheDocument()
+    fireEvent.keyDown(listen, { key: 'Escape' })
+    noBriefing()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveFocus()
+  })
+
   it('folds on a key pressed anywhere outside it, the message box included', async () => {
     await renderChat()
     showBrief()

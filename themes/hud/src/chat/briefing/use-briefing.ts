@@ -23,9 +23,9 @@ export interface Briefing {
   readonly fold: () => void
 }
 
-/** One brief, whatever copy of it the host hands out. */
+/** One brief, whatever copy of it the host hands out: its day and its state, not when the copy was made. */
 export function briefKey(brief: Brief): string {
-  return `${brief.date}|${brief.state_hash}|${brief.generated_at}`
+  return `${brief.date}|${brief.state_hash}`
 }
 
 export function useBriefing(): Briefing {

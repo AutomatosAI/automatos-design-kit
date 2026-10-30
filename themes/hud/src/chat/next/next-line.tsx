@@ -10,17 +10,16 @@ import { type NextSuggestion, useNextSuggestion } from './use-next'
  * credits banner and the voice deck, over the message box (chat-footer.tsx); on the phone under the top line, never
  * over TYPE · HOLD TO TALK (phone/status-line.tsx). The newest open suggestion's title (Auto's words, marked
  * data-ai-generated and drawn as text), then START and HIDE as SAY chips, the words a person can say to Auto, and each
- * a button that can be tapped too, named by the suggestion ("Start: …"). HIDE opens the reasons to pick from (or Just
- * hide); Escape shuts them. Started, the line says so; refused, it says why. Never spoken: HUD calls no speech API,
- * and the line is in no live region, so a screen reader reads it only when it gets there. Nothing for no suggestion.
+ * a button that can be tapped too, its name its words and the suggestion ("Say “start”: …", so a voice-control user
+ * can say what they see). HIDE opens the reasons to pick from (or Just hide); Escape shuts them. Started, the line says
+ * so, HUD's own words as a status; refused, it says why. Never spoken: HUD calls no speech API, and the suggestion's
+ * words are in no live region, so a screen reader reads them only when it gets there. Nothing for no suggestion.
  */
 
 export const NEXT_LABEL = 'Next'
 export const NEXT_MARK = '▸'
 export const SAY_START = 'Say “start”'
 export const SAY_HIDE = 'Say “hide”'
-export const START_NAME = 'Start'
-export const HIDE_NAME = 'Hide'
 export const STARTED_LINE = 'Started. Auto is on it.'
 export const HIDE_REASONS_LABEL = 'Why hide it?'
 export const JUST_HIDE = 'Just hide'
@@ -72,7 +71,7 @@ function SayChips({ suggestion, next }: { readonly suggestion: Suggestion; reado
       <button
         type="button"
         className={styles.say}
-        aria-label={`${START_NAME}: ${suggestion.title}`}
+        aria-label={`${SAY_START}: ${suggestion.title}`}
         aria-busy={next.busy}
         disabled={next.busy}
         onClick={next.start}
@@ -83,7 +82,7 @@ function SayChips({ suggestion, next }: { readonly suggestion: Suggestion; reado
         ref={hideRef}
         type="button"
         className={styles.say}
-        aria-label={`${HIDE_NAME}: ${suggestion.title}`}
+        aria-label={`${SAY_HIDE}: ${suggestion.title}`}
         aria-expanded={asking}
         aria-controls={asking ? reasonsId : undefined}
         disabled={next.busy}

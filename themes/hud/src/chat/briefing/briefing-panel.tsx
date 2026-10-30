@@ -1,4 +1,4 @@
-import { type FocusEvent, useId, useRef, useState } from 'react'
+import { useId, useRef } from 'react'
 import { type Brief, BriefVoice } from '@automatos/theme-sdk'
 
 import { Panel } from '../../components/panel'
@@ -6,7 +6,7 @@ import { useEntrance } from '../entrance'
 import { briefDay, briefSections, emptyLine, type ShownSection } from './brief-rows'
 import { BriefingRow } from './briefing-row'
 import styles from './briefing.module.css'
-import { useBriefSpeaking, useFoldAway } from './use-fold'
+import { useFoldAway, usePanelHold } from './use-fold'
 
 /**
  * HUD 1.2.0 (PRD-268): BRIEFING, the day's brief as HUD draws it, in place of what it folds back into (the screen
@@ -47,25 +47,14 @@ function BriefSectionRows({ shown }: { readonly shown: ShownSection }) {
   )
 }
 
-/** True while the focus is inside the element the handlers go on. */
-function useFocusWithin() {
-  const [focused, setFocused] = useState(false)
-  const onFocus = (): void => setFocused(true)
-  const onBlur = (event: FocusEvent<HTMLElement>): void => {
-    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false)
-  }
-  return { focused, onFocus, onBlur }
-}
-
 export function BriefingPanel({ brief, onFold }: BriefingPanelProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const { focused, onFocus, onBlur } = useFocusWithin()
-  const speaking = useBriefSpeaking(ref)
+  const { speaking, focused } = usePanelHold(ref)
   useFoldAway(onFold, speaking || focused, ref)
   const entrance = useEntrance()
   const sections = briefSections(brief)
   return (
-    <div ref={ref} className={styles.briefing} data-hud-enter={entrance} onFocus={onFocus} onBlur={onBlur}>
+    <div ref={ref} className={styles.briefing} data-hud-enter={entrance}>
       <Panel title={BRIEFING_TITLE} value={briefDay(brief.date)} live={brief.counts.needs_you > 0}>
         <div className={styles.head}>
           <p className={styles.greeting} data-ai-generated="true">

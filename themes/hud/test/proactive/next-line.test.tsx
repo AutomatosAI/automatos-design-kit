@@ -1,7 +1,7 @@
 // HUD 1.2.0 (PRD-268): the `▸ NEXT` line on the harness's fake proactive area. On the desktop between the host's
 // credits banner and the voice deck, over the message box; on the phone under the top line, never over the controls.
 // The newest open suggestion, its title as Auto's words, START and HIDE as SAY chips that can be tapped, each named by
-// it: START through the SDK, "Started. Auto is on it." for 4 s, then the next; HIDE asks why first; a refusal stays put
+// its words and the suggestion: START through the SDK, "Started. Auto is on it." for 4 s, then the next; HIDE asks why first; a refusal stays put
 // with one line. Never spoken: in no live region, and nothing asked of the host's voice. Nothing without a suggestion;
 // no movement under reduced motion. Roles, names and attributes only; every value is made up.
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { HudChatPage } from '../../src/chat/hud-chat.tsx'
 import {
-  HIDE_NAME, HIDE_REASONS_LABEL, JUST_HIDE, NEXT_LABEL, SAY_HIDE, SAY_START, START_NAME, STARTED_LINE,
+  HIDE_REASONS_LABEL, JUST_HIDE, NEXT_LABEL, SAY_HIDE, SAY_START, STARTED_LINE,
 } from '../../src/chat/next/next-line.tsx'
 import { STARTED_MS } from '../../src/chat/next/use-next.ts'
 import { CONTROLS_LABEL } from '../../src/chat/phone/phone-controls.tsx'
@@ -20,8 +20,8 @@ import { OTHER_SUGGESTION_ID, SUGGESTION_ID, SUGGESTIONS } from './support.ts'
 const FIRST = SUGGESTIONS[0].title
 const SECOND = SUGGESTIONS[1].title
 const next = (): HTMLElement => screen.getByRole('group', { name: NEXT_LABEL })
-const startChip = (title = FIRST): HTMLElement => within(next()).getByRole('button', { name: `${START_NAME}: ${title}` })
-const hideChip = (title = FIRST): HTMLElement => within(next()).getByRole('button', { name: `${HIDE_NAME}: ${title}` })
+const startChip = (title = FIRST): HTMLElement => within(next()).getByRole('button', { name: `${SAY_START}: ${title}` })
+const hideChip = (title = FIRST): HTMLElement => within(next()).getByRole('button', { name: `${SAY_HIDE}: ${title}` })
 const giveSuggestions = (): void => act(() => host.setPageQuery('useSuggestions', { data: SUGGESTIONS }))
 
 /** The footer child holding `element`. */
@@ -74,7 +74,7 @@ describe('where the line sits', () => {
 })
 
 describe('the line', () => {
-  it("shows the newest open suggestion as Auto's words, with SAY chips named by it", async () => {
+  it("shows the newest open suggestion as Auto's words, with SAY chips named by their words and it", async () => {
     await renderChat()
     giveSuggestions()
     expect(within(next()).getByText(FIRST)).toHaveAttribute('data-ai-generated', 'true')
