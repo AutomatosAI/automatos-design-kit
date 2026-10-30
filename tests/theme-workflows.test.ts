@@ -3,19 +3,29 @@
 // install runs in `docker run --network none`. theme-sign.yml is retired: the publish run signs what a merge to
 // main built (theme-publish.yml; tests/theme-publish.test.ts), and only its Sign step reads THEME_SIGNING_KEY.
 // Nothing is run here. C-05m adds the verify script; no private key is
-// committed anywhere. C-06a's theme-release.yml, which releases Play and HUD from their tags, has its
+// committed anywhere. C-06a's theme-release.yml, which releases Play, HUD and Arcade from their tags, has its
 // own file, tests/theme-release.test.ts; the listing run (docs/OFFICIAL-LISTING.md) stays here. The
-// workflow-reading helpers are tests/support/workflow-steps.ts.
+// workflow-reading helpers are tests/support/workflow-steps.ts. PRD-261 B-02j: after the review, and only
+// once it has passed, theme-review.yml runs a report-only axe pass outside the container; every step up to
+// the review still runs in it, and the axe pass's steps can't change the job's result.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { ROOT, readText, section, stepsOf, trackedFiles, usesLines } from "./support/workflow-steps.ts";
+import { ROOT, readText, section, stepNamed, stepsOf, trackedFiles, usesLines } from "./support/workflow-steps.ts";
 
 const WORKFLOWS = ".github/workflows";
 const REVIEW = `${WORKFLOWS}/theme-review.yml`;
 const PUBLISH = `${WORKFLOWS}/theme-publish.yml`;
 const LISTING = "docs/OFFICIAL-LISTING.md";
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
+const REVIEW_STEP = "Review (no network)";
+const BROWSERS_STEP = "Install browsers for the axe pass (report only)";
+const AXE_STEP = "Axe over harness shots of the package (report only)";
+const AXE_SCRIPT = "scripts/review/axe.ts";
+/** The browsers the harness shots run on, installed as kit.yml's harness job installs them. */
+const INSTALL_BROWSERS = "npx playwright install --with-deps chromium webkit";
+/** What the review itself takes on a cold runner (install, image, rebuild), with room to spare. */
+const REVIEW_MINUTES = 10;
 const OTHER_TRIGGERS = /^ {2}(?:push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|repository_dispatch|issue_comment):/m;
 const SIGNING_SECRET = "secrets.THEME_SIGNING_KEY";
 /** A PEM private key's armour label, built so that this file doesn't spell it out. */
@@ -65,7 +75,11 @@ describe("theme-review.yml (C-02b)", () => {
   const text = readText(REVIEW);
   const steps = stepsOf(text);
   const install = steps.findIndex((step) => /\bnpm ci\b/.test(step.run));
-  const afterInstall = steps.slice(install + 1);
+  const reviewAt = steps.findIndex((step) => step.name === REVIEW_STEP);
+  /** The install's next steps, up to and including the review: the container's. */
+  const isolated = steps.slice(install + 1, reviewAt + 1);
+  /** The steps after the review: the report-only axe pass (B-02j). */
+  const reportOnly = steps.slice(reviewAt + 1);
 
   it("is run by a person, with the package URL and its expected digest", () => {
     expect(text).toMatch(/^on:\n {2}workflow_dispatch:\n {4}inputs:\n/m);
@@ -98,9 +112,10 @@ describe("theme-review.yml (C-02b)", () => {
     expect(steps[install].run).toBe("npm ci --ignore-scripts --no-audit --no-fund");
   });
 
-  it("runs every step after the install in docker run --network none", () => {
-    expect(afterInstall.length).toBeGreaterThan(0);
-    afterInstall.forEach((step) => {
+  it("runs every step from the install to the review in docker run --network none", () => {
+    expect(reviewAt).toBeGreaterThan(install);
+    expect(isolated.length).toBeGreaterThan(0);
+    isolated.forEach((step) => {
       expect(step.body, step.name).not.toMatch(/^\s*(?:-\s+)?uses:/m);
       expect(step.run, step.name).toMatch(/\bdocker run\b/);
       expect(step.run.match(/\bdocker run\b/g)?.length, step.name).toBe(step.run.match(/--network none\b/g)?.length);
@@ -108,7 +123,7 @@ describe("theme-review.yml (C-02b)", () => {
   });
 
   it("mounts the kit read-only and runs the kit's review script", () => {
-    const review = afterInstall.map((step) => step.run).join("\n");
+    const review = isolated.map((step) => step.run).join("\n");
     expect(review).toContain('-v "$GITHUB_WORKSPACE:/kit:ro"');
     expect(review).toContain("node scripts/review/main.ts");
     expect(existsSync(join(ROOT, "scripts/review/main.ts"))).toBe(true);
@@ -123,6 +138,41 @@ describe("theme-review.yml (C-02b)", () => {
 
   it("passes the inputs through env, never into a script", () => {
     steps.forEach((step) => expect(step.run, step.name).not.toContain("${{"));
+  });
+
+  it("runs only the report-only axe pass after the review (B-02j), on success only, each step continuing on an error", () => {
+    expect(reportOnly.map((step) => step.name)).toEqual([BROWSERS_STEP, AXE_STEP]);
+    reportOnly.forEach((step) => {
+      expect(step.body, step.name).toMatch(/\n {8}if: success\(\)\n/);
+      expect(step.body, step.name).toMatch(/\n {8}continue-on-error: true\n/);
+      expect(step.body, step.name).toMatch(/\n {8}timeout-minutes: \d+\n/);
+    });
+  });
+
+  it("runs the axe pass outside the container, with no action, on the browsers kit.yml's harness job installs", () => {
+    reportOnly.forEach((step) => {
+      expect(step.run, step.name).not.toMatch(/\bdocker\b/);
+      expect(step.body, step.name).not.toMatch(/^\s*(?:-\s+)?uses:/m);
+    });
+    expect(stepNamed(steps, BROWSERS_STEP).run).toBe(INSTALL_BROWSERS);
+    expect(readText(".github/workflows/kit.yml")).toContain(`run: ${INSTALL_BROWSERS}`);
+  });
+
+  it("gives the axe pass the downloaded package and a work folder of its own, never the review's", () => {
+    const run = stepNamed(steps, AXE_STEP).run;
+    expect(run).toContain('REVIEW_PACKAGE="$RUNNER_TEMP/review/package.autotheme"');
+    expect(run).toContain('AXE_WORK="$RUNNER_TEMP/review-axe"');
+    expect(run).toContain('REVIEW_SUMMARY="$GITHUB_STEP_SUMMARY"');
+    expect(run).toMatch(new RegExp(`\\bnode ${AXE_SCRIPT.replace(/[/.]/g, (char) => `\\${char}`)}$`));
+    expect(run).not.toMatch(/\$RUNNER_TEMP\/review\/work\b|\/review-summary\.md/);
+    expect(stepNamed(steps, REVIEW_STEP).run).not.toContain("review-axe");
+    expect(existsSync(join(ROOT, AXE_SCRIPT))).toBe(true);
+  });
+
+  it("leaves the job room for the review and both of the axe pass's own timeouts", () => {
+    const job = Number(/^ {4}timeout-minutes: (\d+)$/m.exec(text)?.[1]);
+    const own = reportOnly.map((step) => Number(/\n {8}timeout-minutes: (\d+)\n/.exec(step.body)?.[1]));
+    expect(job).toBeGreaterThanOrEqual(REVIEW_MINUTES + own.reduce((sum, minutes) => sum + minutes, 0));
   });
 });
 
@@ -183,5 +233,14 @@ describe("docs/OFFICIAL-LISTING.md, how a merge lists a theme", () => {
     ["401", "403", "409", "422", "503"].forEach((status) => expect(doc).toContain(`**${status}**`));
     expect(doc).toMatch(/^gh workflow run theme-publish\.yml --ref main -f tag=play-v1\.2\.1$/m);
     expect(doc).toMatch(/^gh workflow run theme-publish\.yml --ref main -f tag=hud-v1\.1\.2$/m);
+  });
+
+  it("says Arcade is published the same way, its first version by the first publish run, with its own tag and assets", () => {
+    ["**Arcade**", "`automatos/arcade`", "`themes/arcade`", "`arcade-v1.0.0`", "`automatos.arcade-1.0.0.autotheme`",
+      "`1.0.0.sig.json`"].forEach((part) => expect(doc).toContain(part));
+    expect(doc).toMatch(/Push no\s+`arcade-v\*` tag by hand/);
+    expect(doc).not.toMatch(/`--ref arcade-v<v>`|`tag` set to `arcade-v<v>`|themes\/arcade\/signatures\//);
+    ["## Install Arcade", "`arcade-v<version>`", "`automatos.arcade-<version>.autotheme`"]
+      .forEach((part) => expect(readText("README.md")).toContain(part));
   });
 });

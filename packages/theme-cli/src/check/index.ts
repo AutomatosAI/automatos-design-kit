@@ -57,6 +57,8 @@ const JSON_INDENT = 2
 const TEMP_PREFIX = 'automatos-check-'
 /** design.ts DESIGN_SUBCOMMAND, kept here so that `check` loads design.ts only when it runs. */
 const DESIGN_SUBCOMMAND = 'design'
+/** handoff.ts HANDOFF_SUBCOMMAND, kept here for the same reason. */
+const HANDOFF_SUBCOMMAND = 'handoff'
 
 /** The review job's rebuild (scripts/review/rebuild.ts), as `--rebuild` runs it. */
 export interface Rebuilder {
@@ -233,8 +235,12 @@ export async function runCheck(
   }
 }
 
-/** The command table's runner (cli-main.ts): `check`, or `check design`, in the folder `deps.cwd`; neither uses the network. */
+/** The command table's runner (cli-main.ts): `check`, `check design` or `check handoff`, in `deps.cwd`; none uses the network. */
 export async function checkCommand(argv: readonly string[], output: Output, deps: CommandDeps): Promise<number> {
+  if (argv[1] === HANDOFF_SUBCOMMAND) {
+    const { handoffCommand } = await import('./handoff.ts')
+    return handoffCommand(argv, output, deps)
+  }
   if (argv[1] !== DESIGN_SUBCOMMAND) return runCheck(argv, output, deps.cwd)
   const { designCommand } = await import('./design.ts')
   return designCommand(argv, output, deps)

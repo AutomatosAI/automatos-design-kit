@@ -1,10 +1,11 @@
 # Releasing a theme
 
 How a kit theme version becomes a release, exactly as the workflows in `.github/workflows/` do it. Every folder under
-`themes/` is a theme (Play, `themes/play`, `automatos/play`; HUD, `themes/hud`, `automatos/hud`). A merge to `main`
-that raises a theme's version publishes it: `theme-publish.yml` reviews, signs and lists it on the hosted Marketplace
-and releases it here, with nobody running anything. Kit CI checks the workflows, not the runs. The flow end to end, the
-environment and its keys, what blocks a publish and how to backfill: [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
+`themes/` is a theme (Play, `themes/play`, `automatos/play`; HUD, `themes/hud`, `automatos/hud`; Arcade,
+`themes/arcade`, `automatos/arcade`). A merge to `main` that raises a theme's version publishes it: `theme-publish.yml`
+reviews, signs and lists it on the hosted Marketplace and releases it here, with nobody running anything. Kit CI checks
+the workflows, not the runs. The flow end to end, the environment and its keys, what blocks a publish and how to
+backfill: [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
 
 | Workflow | File | Started by | What it does |
 |---|---|---|---|
@@ -21,11 +22,14 @@ first step (`scripts/release/released-unchanged.mjs`, before anything is install
 packed paths differs from the tag. For every folder `themes/<slug>` the packed paths are (`scripts/release/themes.mjs`
 `packedPathsOf`): its `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `dist/`,
 `boot/`, `looks/`, `assets/` and `src/`, and the `src/` of each kit library its `package.json` names under
-`dependencies` (Play's and HUD's: `packages/look-kit/src`, `packages/mascot/src`).
+`dependencies` (Play's and HUD's: `packages/look-kit/src`, `packages/mascot/src`; Arcade's: `packages/mascot/src`
+alone, since its `package.json` names no look-kit).
 
 These are the paths `pack` collects, and the kit libraries it writes into `source/`. A folder git ignores (Play's
-`dist/`, `boot/` and `looks/`, built from `src/`) holds nothing to compare; HUD commits `boot/` and `looks/`. So a
-change to `packages/look-kit/src` or `packages/mascot/src` needs a new version of each released theme that bundles it.
+`dist/`, `boot/` and `looks/`, built from `src/`) holds nothing to compare; HUD and Arcade both commit `boot/` and
+`looks/`, and only their `dist/` is built. So a change to `packages/look-kit/src` or `packages/mascot/src` needs a new
+version of each released theme that bundles it: one to `packages/look-kit/src` a new version of Play and HUD, and one
+to `packages/mascot/src` a new version of every released theme.
 
 The guard reads each theme's version from its `theme.json` and lists the theme's `<slug>-v*` tags on `origin` with
 `git ls-remote`:
@@ -59,10 +63,13 @@ Merge the pull request. When `Kit` passes on the push to `main`, `theme-publish.
 above its newest tag and whose publisher is listed, then builds, reviews, signs and publishes it, and releases
 `<slug>-v<version>` at the merged commit ([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "What a merge does"). The
 release holds `<publisher>.<slug>-<version>.autotheme`, its `.autotheme.sha256` and `<version>.sig.json`, titled
-with `theme.json`'s `name` and the version ("Play 1.2.1", "HUD 1.1.2"), with notes giving the package digest and the
-file's sha256, then the pictures `theme.json` lists under `previews`, each shown from the tag
+with `theme.json`'s `name` and the version ("Play 1.2.1", "HUD 1.1.2", "Arcade 1.0.0"), with notes giving the package
+digest and the file's sha256, then the pictures `theme.json` lists under `previews`, each shown from the tag
 (`scripts/release/preview-notes.ts`). A local or open-source edition installs the release asset with Settings ›
 Appearance › Themes › Install theme.
+
+Arcade has no release tag yet, so its first release is the publish run's: the first run on `main` that sees
+`automatos/arcade` 1.0.0 picks it, lists it and releases `arcade-v1.0.0`. Push no `arcade-v*` tag by hand for it.
 
 A tag pushed by hand still releases through `theme-release.yml`'s `release` job (permissions: `contents: write` and
 nothing else; no secrets), unlisted and unsigned. In order, it:
@@ -104,6 +111,13 @@ digest against `expected_digest`, `source/` present, the JS rules on `source/`, 
 `source/` with the kit's preset. The outcome is `pass` only when every check passed; a JS-rule warning is listed for
 the reviewer and fails nothing. The job summary holds the text the reviewer pastes into the admin queue's report
 note, with its outcome.
+
+The text ends with a report-only "Previews and accessibility" section: each preset's previews with their sizes and
+the preset that claims each (a preset with none, a preview no preset claims and a file theme.json doesn't list are
+named), and contrast, "not measured" while the look schema declares no text and ground pairs. Once the review has
+passed, the job draws the package in the kit's browser harness on the runner, outside the container, and adds what
+axe found over those shots to the job summary after the text. Neither changes the outcome: the person reviewing
+decides.
 
 To see the same checks before submitting, run `automatos-theme check <theme folder> --rebuild` ([cli.md](cli.md)).
 

@@ -12,6 +12,12 @@ folder under `themes/`, `<publisher>` the part of its `theme.json` id before the
   active key of the Automatos keys file. Every publisher the run publishes for is signed the same way; only
   `automatos` themes read as Official.
 
+Play, HUD and **Arcade** (`automatos/arcade`, `themes/arcade`) are all published this way. Arcade has no `arcade-v*`
+tag yet, so the first `theme-publish.yml` run on `main` picks its version, 1.0.0: it reviews, signs and lists it, and
+releases `arcade-v1.0.0` with `automatos.arcade-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Push no
+`arcade-v*` tag by hand for it: `theme-release.yml` would release it unlisted and unsigned, and it would then need a
+backfill (below).
+
 ## The workflows
 
 | Workflow (Actions tab) | File | Started by | What it does |

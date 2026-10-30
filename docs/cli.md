@@ -40,6 +40,7 @@ commands) to stderr and exits 2.
 | [`pack --watch`](#pack---watch) | The theme's build and `pack`, again after each change under `src/` | none |
 | [`check`](#check) | The server's review checks on the folder, packed as `pack` packs it | none |
 | [`check design`](#check-design) | The look schema, presets, first-paint table and declared colour pairs, before any code | none |
+| [`check handoff`](#check-handoff) | A design handoff's `looks.json`: its shape, its knobs and presets through core's look validators, its colour pairs, before any of the theme exists | none |
 | [`brief`](cli-design.md#brief) | A theme's brief from a brand kit file: grounds, accents and text pairs with their AA ratios, fonts, logos, voice | none |
 | [`new`](#new) | A new theme folder from `templates/minimal`, or from Play without its brand | none |
 | [`clone`](cli-design.md#clone) | A core page's source, checked by its hash, as a read-only reference, and the page made a clone in `theme.json` | the public core repo on GitHub |
@@ -204,11 +205,37 @@ file where a folder goes `NOT_A_FOLDER`. A theme folder itself named `design` is
 
 Exit codes: 0 when no line is an error; 1 when one is; 2 usage error, or the path is not a folder.
 
+## `check handoff`
+
+```text
+usage:    automatos-theme check handoff <design folder>
+example:  npx automatos-theme check handoff "design/Harbour handoff"
+```
+
+Checks a design handoff before any of the theme is built (`src/check/handoff.ts`), so what the host can't take is
+fixed in the design. It reads the folder's `looks.json`, in the shape `automatos-theme-handoff/v1`
+([guides/designing-a-theme.md](../guides/designing-a-theme.md#the-handoff)), builds nothing and sends nothing. Three
+lines, then the verdict:
+
+- `handoff`: the file's shape (`BAD_HANDOFF`): its schema, the theme's id (`publisher/name`, not the reserved
+  `automatos` publisher), one to twelve presets, each with a tone (`light` or `dark`), a value for its knobs and the
+  same named `#rrggbb` colours as every other preset, a default that is one of them, the pairs (`text`, `ground` and
+  an optional `min` from 1 to 21), and the optional `phone` block (`colours` `looks` or `schemes`, `fonts` a different
+  face for each of `serif`, `sans` and `mono`, `mascot` `clips`, `stills` or `none`).
+- `looks`: the knobs and presets through core's own look validators and codes, as the theme's `looks/schema.json` and
+  `looks/presets/` would be; each path names `looks.json`.
+- `contrast`: every pair on every preset's colours, by the look runtime's own ratio. A pair under its `min` (default
+  4.5) is `CONTRAST_UNDER_MIN`, naming the preset, both colours and the ratio; a pair naming a colour the presets
+  don't have is `CONTRAST_NOT_MEASURED`. `not_measured` with no pairs.
+
+Exit codes: 0 when no line is an error; 1 when one is (a folder with no `looks.json` included); 2 usage error, or the
+path is not a folder.
+
 ## `new`
 
 ```text
-usage:    automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]
-example:  npx automatos-theme new acme/harbour --template minimal
+usage:    automatos-theme new <publisher/name> [--template minimal|full] [--mascot none] [--to <folder>]
+example:  npx automatos-theme new acme/harbour
 example:  npx automatos-theme new acme/night-owl --template full --mascot none
 ```
 
@@ -217,7 +244,7 @@ Writes a new theme folder that builds, packs and passes `check` as it is (`src/n
 | Argument | Meaning |
 |---|---|
 | `<publisher/name>` | The theme's id, as `theme.json` holds it. The name is also its class on `<html>` and its folder's name. |
-| `--template minimal` | `templates/minimal`: a frame with the host's pages inside it, a look editor, a style sheet, a 404, three choice knobs and two presets, the look data written by hand. Its `{{id}}`, `{{publisher}}`, `{{slug}}`, `{{name}}` and `{{htmlClass}}` are filled in. |
+| `--template minimal` | The default, when `--template` is left out: the one a theme of its own design starts from. `templates/minimal`: a frame with the host's pages inside it, a look editor, a style sheet, a 404, three choice knobs and two presets, the look data written by hand. Its `{{id}}`, `{{publisher}}`, `{{slug}}`, `{{name}}` and `{{htmlClass}}` are filled in. |
 | `--template full` | Play without its brand, made from `themes/play` each time `new` runs: every slot, page and route Play has, renamed to the theme's names, and a clone of core's `/agents` page. Play's listing previews are not copied. |
 | `--mascot none` | `full` only: no clips, no `mascot` block, no `@automatos/mascot`; the chat still says what Auto is doing. |
 | `--to <folder>` | Where to write. Default: `themes/<name>` under the folder the command runs in. |
@@ -239,8 +266,12 @@ It refuses, writing nothing and printing every reason:
 - a `--to` that exists already, or that lies inside the kit's `themes/play`, `themes/hud`, `templates` or `packages`;
 - for `full`, a rename that would merge two of Play's names or paths into one.
 
-On success it prints the folder, the template and the file count, then what to do next: build it, check it, and (a
-folder under `themes/` being a new workspace) get `package-lock.json` from the `kit-lockfile.yml` dispatch.
+On success it prints the folder, the template and the file count, then the commands that come next, from the folder it
+ran in: build it, see it in the browser harness (`dev`), check it, and pack it into the file Settings › Appearance ›
+Themes installs. A folder under `themes/` is a new npm workspace of the kit, so `package-lock.json` no longer lists
+every workspace: the theme builds and checks as it is, and the next `npm ci` says the lockfile is out of sync. Run
+`npm install` once to bring it up to date in your copy of the kit (the kit's own repository writes its lockfile with
+the `kit-lockfile.yml` dispatch instead, AGENTS.md, "Adding a dependency").
 
 Exit codes: 0 written; 1 refused; 2 usage error (including `--mascot` with anything but `none`, or with `minimal`).
 

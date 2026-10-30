@@ -156,11 +156,51 @@ with its licence.
   `@keyframes` (or `@-webkit-keyframes`) and `@charset`;
 - every `@keyframes` name and `@font-face` family starts with `<htmlClass>-`;
 - no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards, and the voice
-  button's control (`voice-control`: the AI voice caption and the stop control), are the host's.
+  button's control (`voice-control`: the AI voice caption and the stop control), are the host's;
+- no selector names `data-ai-label` (nor its host-drawn copy, `data-ai-label-caption`), in any case or escape: the AI
+  label is the host's.
 
 The kit's Vite preset puts every rule under the theme's class, renames its keyframes and font families, and checks
 the result as the server does, so a build that passes it passes this check; [pitfalls.md](pitfalls.md) has what the
 check does not cover.
+
+## The host's parts
+
+What the host draws and a theme only places. Each is a component of the SDK's `cards` or `voice` area, drawn as Studio
+draws it: a theme never restyles, recolours, covers, hides or imitates one. A theme rule that names no element (only
+the theme's own classes) can't reach one; inherited type can, so place each in a strip that sets Studio's face, size
+and text colour again ([pitfalls.md](pitfalls.md), "Inherited type reaches the host's parts").
+
+| Part | The SDK's | Where it goes |
+|---|---|---|
+| Header utilities (Help, notifications, the theme menu, the account) | `HeaderUtilities` | Once in every frame, at every width the frame draws. |
+| Tool and Mission approvals | `ToolApproval`, `MissionApproval` (protected surfaces) | In the reply that raised them, and after the conversation when their reply left it. |
+| Ticket, withdraw and Mission cards | `TaskCard`, `WithdrawOfferCard`, `MissionSuggestionCard`, `MissionCreatedCard` | In the reply, or after the conversation. |
+| The voice button | `VoiceButton` (its caption and Stop are the protected surface `voice-control`) | Wherever the design wants it, outside `AiLabelFence`, with room under it for the caption and Stop. |
+| Banners | `TrialExhaustedBanner`, `FirstRunNudge` | Over or beside the chat. |
+| Files | `FilePreview`, `MadeBy` | Wherever a file is shown. |
+
+Three things look like host parts and aren't:
+
+- **The message box** is the theme's own: the SDK has no composer. A theme draws its field and its Send and Stop
+  buttons, inside the host's `AiLabelFence`, and sends with its chat controller's `send` ([sdk.md](sdk.md)).
+- **The search button** is the theme's own; `openGlobalSearch()` opens the host's search.
+- **A reply's text** is the theme's to set. `MarkdownView` renders and sanitises the Markdown; its type and colours
+  are the theme's, through the class passed as `className` and rules under that class
+  ([pitfalls.md](pitfalls.md), "The host's Markdown is small").
+
+### The AI label
+
+The host draws "Auto is an AI" (or "<agent> is an AI" while a picked agent answers) on every chat route (`/chat` and
+every theme route under `/x/`), after the page and outside the theme's frame. It is a tiny caption in the look's
+`--muted-foreground`, fixed to the window's bottom right, 8 px from the bottom and 12 px from the side; on a page where
+the host shows Auto's floating widget it takes the bottom left. No slot reaches it and no theme draws a copy.
+
+The host checks that a person can see it: its words are painted, readable on the ground under them, and on top. The
+check hit-tests the words with every element made hittable, so a layer the pointer passes through (scan lines, a
+vignette, a glow) still covers it. When a theme hides it, the host draws the same words again in its own layer, logs
+which theme hid it and how, and the Marketplace review flags it; the chat keeps working. Keep the label's corner of
+every page clear of the theme's own layers, and its ground readable under `--muted-foreground`.
 
 ## The `mobile` block
 

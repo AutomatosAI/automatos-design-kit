@@ -27,13 +27,18 @@ The guides are the facts; this skill is the order of work.
 1. [guides/contract.md](../../guides/contract.md): the package, `theme.json`, the slots, the pages, the routes, CSS.
 2. [guides/sdk.md](../../guides/sdk.md): every SDK name, by area.
 3. [guides/pitfalls.md](../../guides/pitfalls.md): what went wrong building Play. Read it before the first line of CSS.
-4. As your theme needs them: [page-inventory.md](../../guides/page-inventory.md), [looks.md](../../guides/looks.md),
-   [mascot-placement.md](../../guides/mascot-placement.md).
-5. [references/theme-folder.md](references/theme-folder.md): the folder, its files and the entry, to copy.
+4. As your theme needs them: [page-inventory.md](../../guides/page-inventory.md) (what replacing `/chat` or
+   `/deliverables` takes on), [looks.md](../../guides/looks.md), [mascot-placement.md](../../guides/mascot-placement.md)
+   (a mascot drawn in code included), [mobile-skins.md](../../guides/mobile-skins.md).
+5. From a design: [from-design-to-theme.md](../../guides/from-design-to-theme.md), and
+   [designing-a-theme.md](../../guides/designing-a-theme.md) for what the design can and can't ask of the host. Check
+   the handoff first: `automatos-theme check handoff <folder>`.
+6. [references/theme-folder.md](references/theme-folder.md): the folder, its files and the entry, to copy.
 
-`themes/play` is a complete theme on the same contract, and `themes/hud` a second one (its frame around the host's
-pages, its look data committed). When a guide doesn't answer, read how Play or HUD does it, then the
-core source if you have it. Core wins over this kit: if the two disagree, say so; don't work around it.
+Every fact a theme needs is in `guides/`. `themes/play` is a complete theme on the same contract, and `themes/hud` a
+second one (its frame around the host's pages, its own chat, its look data committed): when a guide doesn't answer,
+read how Play or HUD does it, and say which guide should have. Core wins over this kit: if the two disagree, say so;
+don't work around it. Run the kit's commands locally as you go (`AGENTS.md`, "Building a theme with the kit").
 
 ## The order of work
 
@@ -45,7 +50,7 @@ Work one surface at a time, and finish each before the next.
 2. **Design data.** The look schema, the presets, the first-paint table and the colour pairs, with
    [write-a-look-schema-and-presets](../write-a-look-schema-and-presets/SKILL.md). Done when
    `automatos-theme check design themes/<slug>` passes with no error.
-3. **The folder.** Start it with `automatos-theme new <publisher>/<slug> --template minimal` (the frame, the look
+3. **The folder.** Start it with `automatos-theme new <publisher>/<slug>` (the minimal template: the frame, the look
    editor, the style sheet and two presets, already passing `check`) or `--template full` (Play de-branded, every
    page and route Play has; add `--mascot none` for no Auto), then make it the brief's. Run `new` before step 2, so
    the design data starts from the template's and lives in the folder. Or copy the layout in
@@ -103,11 +108,15 @@ When it is ready for others, follow [pass-marketplace-review](../pass-marketplac
   you need is copied into `src/vendor/` as source with its licence; the preset refuses `node_modules`. The kit's
   `@automatos/look-kit` and `@automatos/mascot` are bundled from their `src/` when the theme's `package.json` names
   them under `dependencies`, at their version (`guides/pitfalls.md`).
-- **A new theme folder is a new workspace.** It changes `package-lock.json`, which is never edited by hand: the
-  `kit-lockfile.yml` dispatch writes it (`AGENTS.md`, "Adding a dependency"). Pin every dependency exactly, and add
-  none without the maintainer's OK.
-- **CSS under your class**, every variable under your own prefix, every colour from the look, no `!important`
+- **A new theme folder is a new workspace.** In your copy of the kit, run `npm install` once when `npm ci` says
+  `package-lock.json` is out of sync; in the kit's own repository the `kit-lockfile.yml` dispatch writes it (`AGENTS.md`,
+  "Adding a dependency"). Pin every dependency exactly.
+- **CSS under your class**, every rule on a class of your own (no bare element, no global `:focus-visible`, nothing on
+  `*`), every variable under your own prefix, every colour from the look, no `!important`
   ([pitfalls.md](../../guides/pitfalls.md)).
+- **The host's parts are placed, never restyled** ([contract.md](../../guides/contract.md#the-hosts-parts)): each in a
+  strip that sets Studio's own type again, nothing drawn over them, and the AI label's corner of the window kept
+  clear of the theme's own layers. The message box is yours, inside `AiLabelFence`; the voice button sits outside it.
 - **Protected surfaces stay the host's**: the approval cards and the AI label. Place them; never restyle, cover or
   hide them. A composer goes inside `cards.AiLabelFence`.
 - **Untrusted text is text.** Chat replies, Deliverables and imported looks are untrusted: Markdown through

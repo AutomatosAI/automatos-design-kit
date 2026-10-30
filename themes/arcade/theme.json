@@ -1,0 +1,105 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "automatos/arcade",
+  "name": "Arcade",
+  "version": "1.0.0",
+  "description": "Automatos as a 16-bit role-playing game: your agents are a party on a quest board, Auto is the guide in the dialogue box, and your Deliverables fill an inventory.",
+  "engines": {
+    "automatos": "^1.1.0",
+    "sdk": "^1.2.0"
+  },
+  "base": "studio",
+  "htmlClass": "arcade",
+  "minWidth": 360,
+  "tone": "from-look",
+  "slots": [
+    "frame@1",
+    "lookEditor@1",
+    "styleSheet@1",
+    "notFound@1",
+    "empty-state.mascot@1"
+  ],
+  "pages": {
+    "/chat": {
+      "mode": "own",
+      "keepCorePage": [
+        "repo",
+        "runtime",
+        "mode"
+      ]
+    },
+    "/deliverables": {
+      "mode": "own",
+      "keepCorePage": [
+        "tab",
+        "post",
+        "artifact_type"
+      ]
+    }
+  },
+  "routes": [
+    "quests"
+  ],
+  "nav": [
+    {
+      "id": "arcade-quests",
+      "label": "Quests",
+      "path": "/x/quests"
+    },
+    {
+      "id": "arcade-options",
+      "label": "Options",
+      "path": "/looks"
+    },
+    {
+      "id": "arcade-sprites",
+      "label": "Sprite gallery",
+      "path": "/looks/style"
+    }
+  ],
+  "uses": [
+    "cards",
+    "chat",
+    "context",
+    "deliverables",
+    "events",
+    "looks",
+    "navigation",
+    "pages-agents",
+    "pages-assignments",
+    "pages-command-center",
+    "storage",
+    "theme",
+    "voice"
+  ],
+  "look": "overworld",
+  "fonts": [
+    "assets/fonts/press-start-2p-latin-400-normal.woff2",
+    "assets/fonts/pixelify-sans-latin-400-normal.woff2",
+    "assets/fonts/pixelify-sans-latin-600-normal.woff2"
+  ],
+  "mascot": {
+    "states": [
+      "hello",
+      "idle",
+      "listening",
+      "thinking",
+      "working",
+      "searching",
+      "reading",
+      "celebrate",
+      "oops",
+      "sleeping",
+      "lost",
+      "loading"
+    ]
+  },
+  "mobile": {
+    "fromLooks": true,
+    "fonts": {
+      "serif": "assets/fonts/mobile/press-start-2p-regular.ttf",
+      "sans": "assets/fonts/mobile/pixelify-sans-wght.ttf"
+    },
+    "mascot": "stills"
+  }
+}

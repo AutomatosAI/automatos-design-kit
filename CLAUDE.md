@@ -22,6 +22,11 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
 - `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference. Its look
   data (`looks/`, `boot/prepaint.json`) is committed and held to its catalogue by its tests; `scripts/compile-looks.mjs`
   is Play's alone. HUD is published as Play is: a merge that raises its version releases `hud-v<version>`.
+- `themes/arcade`: Arcade (`automatos/arcade`), the kit's third theme, built here with the kit from a Claude Design
+  handoff on the minimal template. Its look data (`looks/`, `boot/prepaint.json` and `design/contrast.json`) is
+  committed and held to its catalogue by its own tests (`ARCADE_WRITE=1`), the same way as HUD's; unlike Play and
+  HUD it bundles `@automatos/mascot` alone, not `@automatos/look-kit`. It is published the same way: a merge that
+  raises its version releases `arcade-v<version>` (its first, 1.0.0, is the first publish run's).
 
 ## Stack
 
@@ -31,13 +36,16 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 
 ## Traps
 
-- Nothing runs on the maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test.
+- Changing the kit itself (its packages, templates, guides, workflows, Play, HUD or Arcade): nothing runs on the
+  maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test. Building a theme of your own with the kit
+  is different: run its commands locally (`AGENTS.md`, "Building a theme with the kit").
 - A theme's build may read only its own `src/` and the `src/` of the kit libraries it names under
   `dependencies` (`packages/look-kit`, `packages/mascot`; the vite preset's source guard refuses `node_modules`
   and anything else); an outside library it needs is vendored into `src/vendor/` as source, at the version core
   pins. `pack` writes each bundled library's `src/` as `source/packages/<name>/src/`.
 - `package-lock.json` is committed and installed with `npm ci`. Never hand-edit it — a new dependency goes
-  through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency").
+  through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency"). In a copy of the kit where you
+  build your own theme, `npm install` brings it up to date for the new theme's workspace.
 - `theme-review.yml` is a person-run `workflow_dispatch` job; `theme-publish.yml` publishes a merged version bump by
   itself, signing in its `theme-publish` environment (`docs/OFFICIAL-LISTING.md`). Core never calls GitHub.
 - This repo is public: no secrets, no internal plans, no customer or pricing material, no API keys (including

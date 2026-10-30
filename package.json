@@ -31,6 +31,7 @@
     "@types/react": "19.3.0",
     "eslint": "9.39.5",
     "jsdom": "29.1.1",
+    "lighthouse": "13.5.0",
     "postcss": "8.5.31",
     "react": "19.2.9",
     "react-dom": "19.2.9",

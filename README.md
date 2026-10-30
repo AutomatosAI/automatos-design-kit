@@ -16,10 +16,10 @@ and voice, packed into one `.autotheme` file.
   <a href="https://github.com/AutomatosAI/automatos-design-kit/releases">Releases</a>
 </p>
 
-## Two themes ship with the kit
+## Three themes ship with the kit
 
-Play and HUD are Automatos's own themes, and they build, check and pack with the same tools as any theme. Each talks
-to Auto by voice, ships five looks, and draws a phone layout in a phone's browser from 360 px wide.
+Play, HUD and Arcade are Automatos's own themes, and they build, check and pack with the same tools as any theme.
+Each talks to Auto by voice, ships five looks, and draws a phone layout in a phone's browser from 360 px wide.
 
 <table>
   <tr>
@@ -43,10 +43,17 @@ to Auto by voice, ships five looks, and draws a phone layout in a phone's browse
     <td><img src="docs/assets/showcase/hud-1440-voice-listening-arc.png" width="520" alt="HUD's chat on a desktop in the ARC look while a voice session listens: MIC LIVE in the top bar, LISTENING under Auto, the words heard so far and a waveform around the voice button"></td>
     <td><img src="docs/assets/showcase/hud-390-voice-listening-forge.png" width="150" alt="HUD at a phone's width in the FORGE look while a voice session listens: Auto in the core, the words heard, a waveform, and TYPE, the voice button and STOP"></td>
   </tr>
+  <tr>
+    <td colspan="2">
+      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.0.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
+      role-playing game. Agents as a party, Auto as the guide in the dialogue box, Deliverables in an inventory,
+      Missions as quests on a map. <a href="themes/arcade">Source</a>
+    </td>
+  </tr>
 </table>
 
-Both are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
-`play-v<version>` tags and HUD from `hud-v<version>` tags.
+All three are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
+`play-v<version>` tags, HUD from `hud-v<version>` tags and Arcade from `arcade-v<version>` tags.
 
 ## Voice in both themes
 
@@ -96,43 +103,61 @@ app does, and a skin designer that exports it ([guides/mobile-skins.md](guides/m
 
 On a local or open-source edition of Automatos:
 
-1. Download `automatos.play-<version>.autotheme` or `automatos.hud-<version>.autotheme` from
-   [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
+1. Download `automatos.play-<version>.autotheme`, `automatos.hud-<version>.autotheme` or
+   `automatos.arcade-<version>.autotheme` from [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
 2. As a workspace owner or admin, open Settings › Appearance › Themes › Install theme and choose the file. When the
    release carries a `<version>.sig.json`, add it with **Add its signature file**.
 3. Choose the theme there, or from the theme menu. An upload without a signature that verifies is private: each
    member opts in to its code before it runs for them.
 
 On the hosted edition, a theme installs from Marketplace › Themes once it is listed there.
-[Install Play](#install-play) and [Install HUD](#install-hud), below, have the checksums, signatures and listing.
+[Install Play](#install-play), [Install HUD](#install-hud) and [Install Arcade](#install-arcade), below, have the
+checksums, signatures and listing.
 
 ## Make your own theme
 
-The kit runs on Node 22.18 or later and npm 11.6 or later (`package.json` `engines`); Node runs the CLI's TypeScript
-directly. From a clone of the kit:
+You need Git, Node 22.18 or later and npm 11.6 or later (`package.json` `engines`); Node runs the CLI's TypeScript
+directly. Node 22 ships npm 10, which can't install the kit (it stops with an `edgesOut` error): check with
+`npm --version`, and if it is older than 11.6, install with `npx -y npm@11.21.1 ci` in place of `npm ci` below, or
+upgrade once with `npm install -g npm@11.21.1`. From a clone of the kit:
 
 ```sh
-npm ci                                                   # the kit's dependencies, exactly as package-lock.json has them
-npx automatos-theme new acme/harbour --template minimal  # writes themes/harbour, a theme that builds and packs as it is
-npx automatos-theme dev themes/harbour                   # in a terminal of its own: the harness on http://127.0.0.1:4319/ until Ctrl-C
-(cd themes/harbour && npm run build)                     # the theme's own build: dist/ with the kit's preset
-npx automatos-theme check design themes/harbour          # the look data: schema, presets, first-paint table, colour pairs
-npx automatos-theme check themes/harbour                 # the server's review checks, in the server's report shape
-npx automatos-theme pack themes/harbour --out out        # out/acme.harbour-0.1.0.autotheme and its .sha256.json
-npx automatos-theme install out/acme.harbour-0.1.0.autotheme --to http://localhost:8000 --choose
+npm ci                                            # the kit's dependencies, exactly as package-lock.json has them
+npx automatos-theme new acme/harbour              # writes themes/harbour from the minimal template; it builds and packs as it is
+(cd themes/harbour && npm run build)              # the theme's own build: dist/ with the kit's preset
+npx automatos-theme dev themes/harbour            # in a terminal of its own: your theme on http://127.0.0.1:4319/ (and /phone) until Ctrl-C
+npx automatos-theme check design themes/harbour   # the look data: schema, presets, first-paint table, colour pairs
+npx automatos-theme check themes/harbour          # the server's review checks, in the server's report shape
+npx automatos-theme pack themes/harbour --out out # out/acme.harbour-0.1.0.autotheme and its .sha256.json
 ```
 
-- `new --template minimal` writes a frame with the host's pages inside it, a look editor, a style sheet and two
-  presets; `--template full` starts from Play without its brand.
+Then install `out/acme.harbour-0.1.0.autotheme` in Automatos: Settings › Appearance › Themes › Install theme, or
+`npx automatos-theme install out/acme.harbour-0.1.0.autotheme --to http://localhost:8000 --choose` on a local edition.
+
+- `new` starts from `templates/minimal` (a frame with the host's pages inside it, a look editor, a style sheet and two
+  presets); `--template full` starts from Play without its brand. Both build, check and pack before you change a line.
 - `dev` draws the theme in the kit's browser harness, a mock host with made-up data and nothing of Automatos running,
   and builds it again after each change under `src/`. `/phone` is the phone view.
 - `install` sends the package to a local Automatos (`--to` takes the API's address, or the web app's where the web app
   serves `/automatos-host.json`), opts you in to it and, with `--choose`, makes it your theme there. No other command
   above sends anything anywhere.
+- The build prints "didn't resolve at build time" once for each font a theme ships. That is expected: a font's URL
+  (`../assets/fonts/…`) is resolved by the browser against `dist/theme.css` in the installed package.
+- `themes/harbour` is a new npm workspace of the kit, so the next `npm ci` says `package-lock.json` is out of sync:
+  run `npm install` once in your copy. (The kit's own repository writes its lockfile with the `kit-lockfile.yml`
+  dispatch instead, `AGENTS.md`, "Adding a dependency".)
 
-A theme folder under `themes/` is a new npm workspace, so committing one changes `package-lock.json`, which is never
-edited by hand: the `kit-lockfile.yml` dispatch writes it (`AGENTS.md`, "Adding a dependency"). For an agent,
-[`skills/`](skills/README.md) has skills for building a theme, writing its looks and passing the Marketplace review.
+### From a design
+
+A theme usually starts as a design. [guides/designing-a-theme.md](guides/designing-a-theme.md) is what the designer
+needs (Claude Design or any other tool): what the host draws and the theme only places, what data a theme can show,
+and the shapes of looks and knobs the kit takes, with a prompt to start a design session from.
+[guides/from-design-to-theme.md](guides/from-design-to-theme.md) is the path from that design to an installed theme:
+the handoff, `automatos-theme check handoff`, one prompt to Claude Code in a clone of the kit, and the checks.
+
+For an agent, [`skills/`](skills/README.md) has the order of work (building a theme, writing its looks, its mascot, its
+phone skin, passing the Marketplace review) and [`guides/`](guides/README.md) has every fact it needs: nothing outside
+this repository is needed to build, check and pack a theme. Installing it needs an Automatos to install into.
 
 ## The tools
 
@@ -187,6 +212,7 @@ layout in full.
 | [`packages/eslint-plugin`](packages/eslint-plugin/README.md) | `@automatos/eslint-plugin`: the same rules as ESLint rules, for a theme's `lint` |
 | [`themes/play`](themes/play/README.md) | Play (`automatos/play`): Automatos with Auto the mascot ([docs/themes/play.md](docs/themes/play.md)) |
 | [`themes/hud`](themes/hud/README.md) | HUD (`automatos/hud`): Automatos as a command deck ([docs/themes/hud.md](docs/themes/hud.md)) |
+| [`themes/arcade`](themes/arcade/README.md) | Arcade (`automatos/arcade`): Automatos as a 16-bit role-playing game ([docs/themes/arcade.md](docs/themes/arcade.md)) |
 | [`templates/`](templates/) | What `automatos-theme new` starts a theme from: `minimal` (a frame, a look editor, a style sheet, two presets) and `full` (Play without its brand); [`templates/ralph`](templates/ralph/README.md), a template for running a theme wave with an agent loop |
 | [`guides/`](guides/README.md) | The host contract, the page inventory, the SDK, looks, where the mascot goes, phone skins, and the pitfalls |
 | [`skills/`](skills/README.md) | Agent skills for building a theme, writing its looks and passing the Marketplace review |
@@ -209,7 +235,8 @@ The kit's reference:
   kit takes from core and at which commit, and the harness's mock host.
 - [docs/releasing.md](docs/releasing.md): how a theme version is released, reviewed and signed, and how a dependency
   changes.
-- [docs/themes/play.md](docs/themes/play.md) and [docs/themes/hud.md](docs/themes/hud.md): the two themes.
+- [docs/themes/play.md](docs/themes/play.md), [docs/themes/hud.md](docs/themes/hud.md) and
+  [docs/themes/arcade.md](docs/themes/arcade.md): the three themes.
 - [docs/PLAY-HISTORY.md](docs/PLAY-HISTORY.md): where Play's code came from.
 - [docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md): the run that lists a theme as official.
 
@@ -237,6 +264,13 @@ How a Play version is released, reviewed, signed and listed: [docs/OFFICIAL-LIST
 HUD is released the same way: a `hud-v<version>` tag puts `automatos.hud-<version>.autotheme` and its `.sha256` on
 the same releases page, and a local or open-source edition installs it with Settings › Appearance › Themes › Install
 theme. Its review, signature and listing follow Play's steps, with HUD's tag and names
+([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
+
+## Install Arcade
+
+Arcade is released the same way: an `arcade-v<version>` tag puts `automatos.arcade-<version>.autotheme` and its
+`.sha256` on the same releases page, and a local or open-source edition installs it with Settings › Appearance ›
+Themes › Install theme. Its review, signature and listing follow Play's steps, with Arcade's tag and names
 ([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
 
 ## Licence

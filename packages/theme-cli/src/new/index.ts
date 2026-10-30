@@ -1,6 +1,7 @@
 /**
- * `automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]` (PRD-261 B-03f):
- * a new theme folder, from one of the kit's templates, that builds, packs and checks as it is.
+ * `automatos-theme new <publisher/name> [--template minimal|full] [--mascot none] [--to <folder>]` (PRD-261 B-03f):
+ * a new theme folder, from one of the kit's templates, that builds, packs and checks as it is. With no `--template`
+ * it is `minimal`, the one a theme of its own design starts from.
  *
  * - `minimal` (templates/minimal): the frame only, with the host's pages inside it, a look editor and a style sheet,
  *   its look data written by hand. Its placeholders are filled with the theme's names (placeholders.ts).
@@ -23,7 +24,7 @@
  * The command reads the kit's own folders and writes only `--to`; it sends nothing anywhere.
  */
 import { existsSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
+import { isAbsolute, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import type { CommandDeps } from '../cli-main.ts'
@@ -35,9 +36,11 @@ import { fullTheme } from './full.ts'
 import { copyTemplate, placeholderValues, themeNames, writeFolder, type ThemeNames } from './placeholders.ts'
 import { writeThemeTsconfig } from './tsconfig.ts'
 
-export const NEW_USAGE = 'usage: automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]'
+export const NEW_USAGE = 'usage: automatos-theme new <publisher/name> [--template minimal|full] [--mascot none] [--to <folder>]'
 export const TEMPLATES = ['minimal', 'full'] as const
 export type TemplateName = (typeof TEMPLATES)[number]
+/** The template a theme starts from when `--template` is left out: the frame alone, for a design of its own. */
+export const DEFAULT_TEMPLATE: TemplateName = 'minimal'
 /** contract.py RESERVED_PUBLISHERS: the publishers only core's own themes may name. */
 export const RESERVED_PUBLISHERS: readonly string[] = ['automatos']
 export const NO_MASCOT = 'none'
@@ -76,10 +79,11 @@ export function parseNew(argv: readonly string[], cwd: string): NewCommand | nul
       options: { template: { type: 'string' }, mascot: { type: 'string' }, to: { type: 'string' } },
     })
     const [command, id, ...extra] = positionals
-    if (command !== 'new' || id === undefined || extra.length > 0 || !isTemplate(values.template)) return null
-    if (values.mascot !== undefined && (values.mascot !== NO_MASCOT || values.template !== 'full')) return null
+    const template = values.template ?? DEFAULT_TEMPLATE
+    if (command !== 'new' || id === undefined || extra.length > 0 || !isTemplate(template)) return null
+    if (values.mascot !== undefined && (values.mascot !== NO_MASCOT || template !== 'full')) return null
     const target = resolve(cwd, values.to ?? join(THEMES_DIR, id.split('/').at(-1) ?? id))
-    return { id, template: values.template, mascot: values.mascot !== NO_MASCOT, target }
+    return { id, template, mascot: values.mascot !== NO_MASCOT, target }
   } catch {
     return null
   }
@@ -124,12 +128,36 @@ function writeTheme(command: NewCommand, names: ThemeNames, kitRoot: string): { 
   return { written: made.files.length }
 }
 
-/** What to do next, from the folder the command ran in. */
-function nextLines(command: NewCommand, cwd: string): string[] {
-  const shown = relative(cwd, command.target) || '.'
+/** The path as one shell word: quoted when it holds a character a POSIX shell would split or expand. */
+export function shellWord(path: string): string {
+  return /^[\w./-]+$/.test(path) ? path : `'${path.replace(/'/g, `'\\''`)}'`
+}
+
+/**
+ * The folder as the next lines name it, one shell word: from the folder the command ran in when inside it (`./` before
+ * a name that starts with a dash, so no command reads it as an option), else in full.
+ */
+function shownPath(target: string, cwd: string): string {
+  const from = relative(cwd, target)
+  if (from === '') return '.'
+  if (from.startsWith('..') || isAbsolute(from)) return shellWord(target)
+  return shellWord(from.startsWith('-') ? `./${from}` : from)
+}
+
+/** What to do next, from the folder the command ran in: build, see, check, pack, install. */
+export function nextLines(command: NewCommand, cwd: string): string[] {
+  const shown = shownPath(command.target, cwd)
+  const steps: readonly (readonly [string, string])[] = [
+    [`(cd ${shown} && npm run build)`, 'build it'],
+    [`npx automatos-theme dev ${shown}`, 'see it, at http://127.0.0.1:4319/ (and /phone)'],
+    [`npx automatos-theme check ${shown}`, "the server's checks, before you install"],
+    [`npx automatos-theme pack ${shown} --out out`, 'the .autotheme file: Settings > Appearance > Themes > Install theme'],
+  ]
+  const width = Math.max(...steps.map(([run]) => run.length))
   return [
-    `next: build it (npm run build in ${shown}), then automatos-theme check ${shown}.`,
-    `In the kit, ${THEMES_DIR}/<name> is a new workspace: package-lock.json comes from the kit-lockfile.yml dispatch (AGENTS.md, "Adding a dependency").`,
+    'next:',
+    ...steps.map(([run, what]) => `  ${run.padEnd(width)}   ${what}`),
+    'A theme folder under the kit\'s themes/ is a new npm workspace: if npm ci later says package-lock.json is out of sync, run npm install once.',
   ]
 }
 

@@ -1,0 +1,12 @@
+{
+  "schema": "arcade-look/v1",
+  "interface": "arcade",
+  "id": "nightcity",
+  "name": "Night City",
+  "sub": "Navy rain, sodium-amber accent",
+  "palette": "nightcity",
+  "scanlines": "soft",
+  "pixelScale": "3",
+  "windowStyle": "classic",
+  "textSpeed": "normal"
+}

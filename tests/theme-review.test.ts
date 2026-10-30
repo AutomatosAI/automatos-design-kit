@@ -217,6 +217,7 @@ describe("the summary keeps package text inside its lines", () => {
       outcome: "fail",
       checks: [{ name: "JS rules", status: "fail", detail: `1 finding.${FORGED}`, items: [`JS_FETCH source/a.ts:1 ${FORGED}`] }],
       findings: [],
+      previewsAndAccessibility: null,
     };
   }
 

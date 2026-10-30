@@ -1,9 +1,10 @@
 /**
  * PRD-261 B-02c: the host cards' stand-ins (src/sdk/cards/*.tsx, re-exported by src/sdk/cards.ts) take the props of
  * the vendored packages/theme-sdk/areas/cards.d.ts (the fixtures in fixtures/cards/*.json are typed as those props
- * here, so tsc holds them to the declarations), each root carries data-protected-surface, the approvals refuse a
- * payload whose id is not an id as core's do, and every click is kept (cardActions). The edition and the trial the
- * chrome reads come from a mock of src/internal/scripted/host-inputs.ts.
+ * here, so tsc holds them to the declarations), each root carries data-protected-surface (AiLabelFence has none: it
+ * draws its children alone, as core's does since #1365), the approvals refuse a payload whose id is not an id as
+ * core's do, and every click is kept (cardActions). The edition and the trial the chrome reads come from a mock of
+ * src/internal/scripted/host-inputs.ts.
  */
 import type {
   HostTrial,
@@ -49,6 +50,8 @@ vi.mock('../src/internal/scripted/host-inputs.ts', () => ({
 
 const { cardActions } = cardsControls
 const { setAiLabelShown } = chatControls
+/** A theme's message box, inside the fence. */
+const COMPOSER = 'Message Auto'
 const TOOL: ToolApprovalData = toolFixture as ToolApprovalData
 const MISSION: MissionApprovalData = missionFixture as MissionApprovalData
 const TASK: TaskCardData = taskFixture
@@ -69,7 +72,6 @@ const EVERY_CARD: Array<[string, ReactElement]> = [
   ['trial-exhausted-banner', <TrialExhaustedBanner errorCode="credits_exhausted" />],
   ['first-run-nudge', <FirstRunNudge />],
   ['header-utilities', <HeaderUtilities />],
-  ['ai-label-fence', <AiLabelFence><button type="button">Send</button></AiLabelFence>],
   ['core-page', <CorePage>Theme page</CorePage>],
 ]
 
@@ -287,7 +289,7 @@ describe('content and chrome', () => {
     expect(button('Account').querySelector('[data-harness-part="avatar"]')).toHaveStyle({ width: '36px', height: '36px' })
   })
 
-  it('HeaderUtilities keeps each click; AiLabelFence leaves the composer on while the label shows; CorePage shows its children', () => {
+  it('HeaderUtilities keeps each click; AiLabelFence leaves the composer on; CorePage shows its children', () => {
     render(<><HeaderUtilities /><AiLabelFence><button type="button">Send</button></AiLabelFence><CorePage>Theme page</CorePage></>)
     fireEvent.click(screen.getByRole('button', { name: 'Help' }))
     expect(cardActions()).toEqual([{ card: 'header-utilities', id: 'Help', action: 'opened' }])
@@ -295,15 +297,25 @@ describe('content and chrome', () => {
     expect(surface('core-page')).toHaveTextContent('Theme page')
   })
 
-  it('AiLabelFence: every control inside is disabled while the host\'s AI label is off screen', () => {
+  it("AiLabelFence draws a theme's composer as it is, with no element of its own, and never disables it (core #1365)", () => {
     setAiLabelShown(false)
-    render(<AiLabelFence label="widget"><button type="button">Send</button></AiLabelFence>)
-    expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled()
-    expect(surface('ai-label-fence')).toHaveAttribute('data-label', 'widget')
+    const { container } = render(<AiLabelFence><textarea aria-label={COMPOSER} /></AiLabelFence>)
+    const composer = screen.getByRole('textbox', { name: COMPOSER })
+    expect(composer.parentElement).toBe(container)
+    expect(container.querySelector('fieldset')).toBeNull()
+    expect(composer).toBeEnabled()
   })
 
-  it('AiLabelFence draws no box, as core\'s (display: contents), so a theme may fence parts of one row', () => {
-    render(<AiLabelFence><button type="button">Send</button></AiLabelFence>)
-    expect(surface('ai-label-fence')).toHaveStyle({ display: 'contents' })
+  it('AiLabelFence takes the label and held a theme hands it and changes nothing: no composer waits on the host label', () => {
+    setAiLabelShown(false)
+    render(
+      <>
+        <AiLabelFence label="widget" held><textarea aria-label={COMPOSER} /></AiLabelFence>
+        <AiLabelFence held><button type="button">Send</button></AiLabelFence>
+      </>,
+    )
+    expect(screen.getByRole('textbox', { name: COMPOSER })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
+    expect(document.querySelector(`[${PROTECTED_SURFACE_ATTR}]`)).toBeNull()
   })
 })

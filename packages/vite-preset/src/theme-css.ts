@@ -10,7 +10,7 @@
  * `<htmlClass>-…` first (theme-names.ts).
  *
  * The step does not decide what passes: css-scope.ts checks the result exactly as the server will,
- * so a selector the wrap can't fix (one naming data-protected-surface, say) still fails the build.
+ * so a selector the wrap can't fix (one naming data-protected-surface or data-ai-label, say) still fails the build.
  */
 import postcss, { type AtRule, type Container, type Document, type Plugin, type Root, type Rule } from 'postcss'
 import { isScopedSelector } from './css-selectors.ts'

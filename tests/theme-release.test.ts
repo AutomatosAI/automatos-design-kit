@@ -1,8 +1,8 @@
 // PRD-261 C-06a: theme-release.yml, read as a file, with its bash steps that need no network run as the runner's
 // bash runs them. A tag a person pushes, <slug>-v<v>, releases the theme in themes/<slug>, unlisted and unsigned:
 // the tag rule is the one theme-publish.yml's backfill holds a tag to (scripts/release/bumped.mjs --tag), so any
-// listed publisher's theme releases the same way, Play and HUD among them. The envelope-PR signature job is gone:
-// the publish run signs and attaches a .sig.json (tests/theme-publish.test.ts).
+// listed publisher's theme releases the same way, Play, HUD and Arcade among them. The envelope-PR signature job is
+// gone: the publish run signs and attaches a .sig.json (tests/theme-publish.test.ts).
 import { spawnSync } from "node:child_process";
 import { devNull, tmpdir } from "node:os";
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -19,7 +19,7 @@ const PUBLISH = ".github/workflows/theme-publish.yml";
 const KIT = ".github/workflows/kit.yml";
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 /** The kit's released themes, each by its tag's slug, with theme.json's name. */
-const RELEASED = [{ slug: "play", name: "Play" }, { slug: "hud", name: "HUD" }] as const;
+const RELEASED = [{ slug: "play", name: "Play" }, { slug: "hud", name: "HUD" }, { slug: "arcade", name: "Arcade" }] as const;
 const WORKFLOW_ENV = ["THEMES_DIR", "PACK_FOLDER", "SIGNATURES_FOLDER", "KEYS_FILE", "TAG_PATTERN"];
 const VERIFY_RUN = 'node scripts/sign/verify.ts "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$SIGNATURE" "$KEYS"';
 /** The release scripts the tag check runs, copied into a throwaway repository to run it there. */
@@ -145,8 +145,9 @@ describe("theme-release.yml (C-06a): the workflow", () => {
 describe("theme-release.yml (C-06a): each theme from its tag", () => {
   it.each<[string, number, Readonly<Record<string, string>>]>([
     ["play-v1.1.1", 0, { TAG: "play-v1.1.1", VERSION: "1.1.1" }], ["hud-v1.0.0", 0, { TAG: "hud-v1.0.0", VERSION: "1.0.0" }],
-    ["hud-v10.0.12", 0, { TAG: "hud-v10.0.12", VERSION: "10.0.12" }], ["arcade-v0.1.0", 0, { TAG: "arcade-v0.1.0", VERSION: "0.1.0" }],
-    ["nav-vibe-v2.0.0", 0, { TAG: "nav-vibe-v2.0.0", VERSION: "2.0.0" }], ["hud-v1.0", 1, {}], ["hud-v1.0.0-rc.1", 1, {}],
+    ["hud-v10.0.12", 0, { TAG: "hud-v10.0.12", VERSION: "10.0.12" }], ["arcade-v1.0.0", 0, { TAG: "arcade-v1.0.0", VERSION: "1.0.0" }],
+    ["arcade-v0.1.0", 0, { TAG: "arcade-v0.1.0", VERSION: "0.1.0" }], ["nav-vibe-v2.0.0", 0, { TAG: "nav-vibe-v2.0.0", VERSION: "2.0.0" }],
+    ["hud-v1.0", 1, {}], ["hud-v1.0.0-rc.1", 1, {}],
     ["v1.0.0", 1, {}], ["Hud-v1.0.0", 1, {}], ["hud_x-v1.0.0", 1, {}], ["hud-v1.0.0\n", 1, {}], ["kit-b06-base", 1, {}],
   ])("Check the tag takes %j: exit %i, writing the tag and its version", (tag, status, written) => {
     const ran = runStep(stepNamed(release, "Check the tag").run, { TAG: tag });

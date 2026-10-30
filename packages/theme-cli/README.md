@@ -147,9 +147,10 @@ Limits:
 
 ## new
 
-`automatos-theme new <publisher/name> --template minimal|full [--mascot none] [--to <folder>]` starts a theme from one of
-the kit's templates, in a folder that builds, packs and passes `check` as it is. The folder is `--to`, or
-`themes/<name>` from the folder the command runs in (the kit's root, for a theme in the kit).
+`automatos-theme new <publisher/name> [--template minimal|full] [--mascot none] [--to <folder>]` starts a theme from
+one of the kit's templates (`minimal` when `--template` is left out), in a folder that builds, packs and passes `check`
+as it is. The folder is `--to`, or `themes/<name>` from the folder the command runs in (the kit's root, for a theme in
+the kit).
 
 - `--template minimal` (`templates/minimal`): the frame only, with the host's own pages inside it, a look editor and a
   style sheet, the 404, three choice knobs and two presets. Its look data (`looks/`, `boot/prepaint.json`,

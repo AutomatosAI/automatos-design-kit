@@ -1,90 +1,93 @@
 # From a design to an installed theme
 
-The nine steps from a design session to a theme a member can install, generic for any theme: design, brief, base,
-launch, judge, fix, release, install, list. Each step is a sentence or two and the exact commands; the proof protocol
-([proof/README.md](../proof/README.md)) carries steps 4 and 5. Arcade is the worked example throughout, since it is
-public: a made-up theme, not a released one, so its id and commands below are illustrative, not a real `themes/`
-folder.
+The way a theme is made: a design session draws it, the kit checks the design, one prompt to an agent in a clone of
+the kit builds it, the kit checks and packs it, and Automatos installs it. Each step is a sentence or two and the exact
+commands. Nothing outside this repository is needed: the guides hold every fact, the skills the order of work.
 
 ## 1. Design
 
-A Claude Design session draws the theme before any code. The handoff a brief and a run can read is: a `README.md`
-of the frame's rules and which pages it covers; `looks.json` with the knobs and their presets, each knob's values,
-and the WCAG contrast pairs the kit will hold the built theme to; and an HTML mock per screen (`*.html`, or `*.dc.html`
-when the session exports Claude Design's own format). The host's own parts — the approval cards, the voice button,
-the pages the theme does not replace — are placed in the mock as the host draws them, never restyled or redrawn as
-the theme's own markup ([pitfalls.md](pitfalls.md), "Styling the approval cards"). A phone skin, when the brief asks
-for one, is data only in the handoff too: colours, fonts and Auto's clips, never a drawn phone screen
-([mobile-skins.md](mobile-skins.md), "What a skin is, and isn't").
+Start the design session with the prompt in [designing-a-theme.md](designing-a-theme.md#a-prompt-for-a-design-session),
+then the theme's own description: what it is for, its mood, its pages, its looks, its mascot, whether it has a phone
+skin. The session hands over one folder: a `README.md` of rules and pages, `looks.json` in the
+`automatos-theme-handoff/v1` shape, and an HTML mock per screen ([designing-a-theme.md](designing-a-theme.md#the-handoff)).
+The host's own parts (the approval cards, the voice button, the header utilities, the AI label's corner) are placed in
+the mock as Studio draws them, never redrawn as the theme's.
 
-## 2. Brief
-
-The brief ([proof/BRIEF.template.md](../proof/BRIEF.template.md)) is what a build is told to build; the design is
-what it was drawn as. The two must agree on the theme's id, its slots, which pages it replaces or adds, and its phone
-skin (or the absence of one) — a brief that names a slot the design never draws, or a design that draws a page the
-brief does not mention, is a gap to fix before launching, not one to leave for the run to find.
-
-## 3. Base
-
-The owner tags the commit the run builds against, so every proof launched from it starts from the same kit:
+## 2. Check the design
 
 ```sh
-git tag kit-b06-base <commit on main>
-git push origin kit-b06-base
+npx automatos-theme check handoff "path/to/handoff"
 ```
 
-## 4. Launch
+It reads `looks.json` with the host's own look rules (knob names and kinds, choices, defaults, presets, their names
+and lines) and measures every declared colour pair on every preset. Fix the design until it passes: a knob the host
+can't take, or a pair under its minimum, is cheaper to change in the design than in the theme.
+
+## 3. Build
+
+In a clone of the kit with its dependencies installed (`README.md`, "Make your own theme"), open an agent (Claude Code
+reads `CLAUDE.md`, `AGENTS.md` and `skills/`) and give it one prompt:
+
+```text
+Build a new Automatos theme called <Name> (<publisher>/<name>) with this kit, from the design handoff in
+<path/to/handoff> (README.md for the rules and pages, looks.json for the knobs, presets and colour pairs, the HTML
+mock for the look and layout). First read README.md, AGENTS.md, guides/ and skills/build-automatos-theme/SKILL.md.
+Start it with `npx automatos-theme new <publisher>/<name>`. The host's parts are placed, never restyled.
+Show only data the SDK gives; where the design wants more, leave it out and say so in the theme's README.
+When `npx automatos-theme check themes/<name>` passes, pack it with `npx automatos-theme pack themes/<name> --out out`.
+```
+
+The agent follows [skills/build-automatos-theme](../skills/build-automatos-theme/SKILL.md): the look data first
+(`check design`), then the frame, the look editor and the style sheet, the pages, the mascot and the phone skin, each
+with its tests on the kit's harness.
+
+## 4. See it
 
 ```sh
-scripts/proof/launch.sh --id arcade --slug arcade --brief briefs/arcade/BRIEF.md --design "design/Arcade handoff" \
-  --model claude-opus-5-5 --dest /tmp/proofs/arcade-01
+npx automatos-theme dev themes/<name>
 ```
 
-`--design` is optional and takes the handoff folder from step 1, copied into the run's clone as `proof/<id>/design/`
-([proof/README.md](../proof/README.md), "Launching a run"). The run is unattended and sandboxed: its model is pinned
-by the flag, it reads and writes only inside its clone, and its shell runs in a sandbox that denies the home folder
-and reaches only the npm registry (proof/README.md, "Isolation").
+The kit's browser harness draws the theme on made-up data at `http://127.0.0.1:4319/`, every page and slot, in every
+look, with `/phone` for the phone skin; it builds again after each change under `src/`.
+`npx automatos-theme shots themes/<name>` photographs every view on Chromium and WebKit with an accessibility scan.
 
-## 5. Judge
+## 5. Check and pack
 
 ```sh
-node scripts/proof/audit.mjs /tmp/proofs/arcade-01.transcript.jsonl /tmp/proofs/arcade-01 --deny <file kept outside the repo>
-git push origin proof/arcade-arcade
+(cd themes/<name> && npm run build)
+npx automatos-theme check themes/<name> --rebuild
+npx automatos-theme pack themes/<name> --out out
 ```
 
-The audit reads the transcript for a leak file's text in any tool result (the authoritative check) and for what each
-call reached for; push the proof branch and open a pull request, which runs the kit's own CI (`guard.mjs`, the build,
-`automatos-theme check`, and the harness's shots on Chromium and WebKit with an axe scan — `proof/README.md`, "What
-each check proves"). Compare the shots the `kit-proof-shots` artifact uploads with the design's mock, page by page
-and preset by preset.
+`check` runs the server's review checks in the server's words; `--rebuild` rebuilds the package's `source/` and
+compares it with `dist/` byte for byte, as the Marketplace's review does. `pack` writes
+`out/<publisher>.<name>-<version>.autotheme`.
 
-## 6. Fix
+## 6. Install
 
-Every row of the run's `proof/<id>/GAPS.md` is a fix to the kit, not to the theme: a missing guide, a CLI command
-that failed or misled, a template that lacked what the brief needed, a check that passed something wrong or refused
-something right, or a brief or environment problem the triage can defer. Each fix ships with a test that fails
-without it, same as any other kit change.
+Settings › Appearance › Themes › Install theme, with the `.autotheme` file, on any edition; or, on a local edition,
+`npx automatos-theme install out/<publisher>.<name>-<version>.autotheme --to http://localhost:8000 --choose`. An upload
+without a signature that verifies is private, and each member opts in to its code. Look at it at desktop and phone
+width, in every look, and in Automatos Go when it carries a phone skin. A changed theme installs over the old one only
+at a higher `version` in `theme.json`.
 
-## 7. Release
+## 7. List
 
-The proof branch can never merge as it stands — its first commit deletes the leak paths
-([proof/README.md](../proof/README.md), "After the run"). Open a new branch from `main` that takes only
-`themes/<slug>/` and `proof/<id>/` from the proof branch, with the new workspace's lockfile entries, and merge it.
-The merge releases the theme: `theme-publish.yml` takes any theme whose version has no `<slug>-v*` tag yet and whose
-publisher `release/publishers.json` lists, so `automatos/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag
-pushed by hand ([docs/releasing.md](../docs/releasing.md), "Merge to publish"). The tag rule is any
-`<slug>-v<major>.<minor>.<patch>`; a theme of a publisher the list doesn't name needs that publisher added first.
+A theme merged into this kit under a publisher `release/publishers.json` lists is listed by that merge: the publish
+run reviews the package, signs it and sends it to the Marketplace, which approves it, before the release is made
+([docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md)); a later version is listed by the merge that raises it. Any
+other theme's listing is a submission and a person's review
+([pass-marketplace-review](../skills/pass-marketplace-review/SKILL.md), `npx automatos-theme submit`). A listed
+version shows as **Official** only when its publisher is the reserved `automatos` and its signature verifies with an
+Automatos key.
 
-## 8. Install
+## The kit's own proof
 
-A local or open-source edition installs the release asset by hand: Settings › Appearance › Themes › Install theme
-with the `.autotheme` file. The install is private and opts the workspace in to code that has not been reviewed
-(`automatos-theme install`'s own `opt-in` step does the same thing from the command line). Check it in the browser at
-desktop and phone width, and, when the theme carries a phone skin, in Automatos Go.
-
-## 9. List
-
-The same merge lists it: the publish run reviews the package, signs it and sends it to the Marketplace, which
-approves it, before the release is made ([docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md)); a later version
-is listed by the merge that raises it. A listed version turns **Official** only when its publisher is the reserved
-`automatos` publisher and its signature verifies with an active key of the Automatos keys file.
+The proof protocol ([proof/README.md](../proof/README.md)) is the kit's test of itself, not the way to make a theme:
+a fresh agent in a sandboxed clone at a tagged base builds a theme from a brief and a handoff
+(`scripts/proof/launch.sh --design`), and every gap it finds is a fix to the kit. A proof branch never merges as it is;
+a branch from `main` that takes only `themes/<slug>/` and `proof/<id>/` from it, with the new workspace's lockfile
+entries, merges instead, and the merge releases the theme as it releases Play, HUD and Arcade: `theme-publish.yml`
+takes any theme whose version has no `<slug>-v*` tag yet and whose publisher `release/publishers.json` lists, so
+`<publisher>/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag pushed by hand
+([docs/releasing.md](../docs/releasing.md), "Merge to publish").
