@@ -157,8 +157,8 @@ describe('automatos-theme previews', () => {
       + 'starting with a letter or digit, at most 128 characters.'
     )],
     ['one name picked twice', [`night=${shotOf('night')}`, `night=${shotOf('default')}`], () => '"night" is picked twice: each preview is one shot.'],
-    ['more than 16 previews', Array.from({ length: 17 }, (_, index) => `night-s${index}=${shotOf('night')}`), () => (
-      'theme.json: "previews" must list up to 16 different assets/previews/*.png files.'
+    ['more than 24 previews', Array.from({ length: 25 }, (_, index) => `night-s${index}=${shotOf('night')}`), () => (
+      'theme.json: "previews" must list up to 24 different assets/previews/*.png files.'
     )],
   ]
 

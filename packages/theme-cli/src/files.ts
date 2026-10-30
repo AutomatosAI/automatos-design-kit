@@ -5,18 +5,23 @@
  * orchestrator/services/themes/package.py (and `check_woff2` of
  * orchestrator/modules/documents/brand_fonts.py). Each path matches at most one kind; a path that
  * matches none can't be in a package. The caps are the server's default caps:
- * package 10 MB, JS plus CSS 3 MB, the entry 300 KB, each mascot clip 1 MB.
+ * package 32 MB, JS plus CSS 3 MB, the entry 300 KB, each mascot clip 1 MB. The package cap holds every
+ * screenshot a theme may list (24 web and 24 phone at 512 KB, 24 MB) beside its code (contract.py CAP_SETTINGS).
  *
  * A phone's font (the `mobile` block, host 1.1.0) is `assets/fonts/mobile/<NAME>.ttf` or `.otf`, one
  * sfnt face each (`sfntProblem`, package.py `_sfnt_problem`): a .woff2 in that folder, or a .ttf beside
  * the web's woff2 fonts, matches no kind.
+ *
+ * A phone screenshot (theme.json's `phonePreviews`, for the Marketplace) is `assets/previews/phone/<NAME>.png` or
+ * `.jpg`, a PNG or a JPEG by its first bytes (package.py `IS_PNG`, `IS_JPEG`); a `.jpeg`, a `.webp` or a folder
+ * below matches no kind.
  */
 
 export const KB = 1024
 export const MB = 1024 * KB
 
 export const CAPS = Object.freeze({
-  package: 10 * MB,
+  package: 32 * MB,
   code: 3072 * KB,
   entry: 300 * KB,
   clip: 1024 * KB,
@@ -77,6 +82,8 @@ function sniff(test: (data: Uint8Array) => boolean, what: string): ByteCheck {
 }
 
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+/** SOI, then the first marker's 0xFF (package.py JPEG_SIGNATURE). */
+const JPEG_SIGNATURE = [0xff, 0xd8, 0xff]
 const WEBM_SIGNATURE = [0x1a, 0x45, 0xdf, 0xa3]
 
 function startsWith(data: Uint8Array, signature: readonly number[]): boolean {
@@ -84,6 +91,7 @@ function startsWith(data: Uint8Array, signature: readonly number[]): boolean {
 }
 
 const IS_PNG = sniff((data) => startsWith(data, PNG_SIGNATURE), 'a PNG image')
+const IS_JPEG = sniff((data) => startsWith(data, JPEG_SIGNATURE), 'a JPEG image')
 const IS_WEBP = sniff((data) => ascii(data, 0, 4) === 'RIFF' && ascii(data, 8, 12) === 'WEBP', 'a WebP image')
 const IS_WEBM = sniff((data) => startsWith(data, WEBM_SIGNATURE), 'a WebM video')
 const IS_MP4 = sniff((data) => ascii(data, 4, 8) === 'ftyp', 'an MP4 video')
@@ -169,6 +177,8 @@ export const FILE_KINDS: readonly FileKind[] = Object.freeze([
   kind('brand', String.raw`assets/brand/${NAME}\.png`, 'image/png', IMAGE_MAX_BYTES, 'FILE_TOO_LARGE', IS_PNG),
   kind('brand', String.raw`assets/brand/${NAME}\.webp`, 'image/webp', IMAGE_MAX_BYTES, 'FILE_TOO_LARGE', IS_WEBP),
   kind('preview', String.raw`assets/previews/${NAME}\.png`, 'image/png', IMAGE_MAX_BYTES, 'FILE_TOO_LARGE', IS_PNG),
+  kind('phone-preview', String.raw`assets/previews/phone/${NAME}\.png`, 'image/png', IMAGE_MAX_BYTES, 'FILE_TOO_LARGE', IS_PNG),
+  kind('phone-preview', String.raw`assets/previews/phone/${NAME}\.jpg`, 'image/jpeg', IMAGE_MAX_BYTES, 'FILE_TOO_LARGE', IS_JPEG),
   kind('source', String.raw`source/(?:${NAME}/){0,7}${NAME}\.${SOURCE_EXTENSIONS}`, TEXT_TYPE, SOURCE_MAX_BYTES),
   kind('doc', String.raw`(?:README\.md|CHANGELOG\.md|LICENSE(?:\.md|\.txt)?)`, TEXT_TYPE, TEXT_MAX_BYTES),
 ])

@@ -102,7 +102,8 @@ assets/fonts/<name>.woff2                web fonts, with their licences (.txt, .
 assets/fonts/mobile/<name>.ttf|.otf      a phone's fonts (the mobile block)
 assets/mascot/<state>.webm|.mp4|.png     the mascot's clips and stills
 assets/brand/<name>.png|.webp            the wordmark
-assets/previews/<name>.png               the Marketplace listing's previews
+assets/previews/<name>.png               the Marketplace listing's previews (web screenshots)
+assets/previews/phone/<name>.png|.jpg    its phone screenshots, of Automatos Go
 source/<path under src/>                 the theme's src/, byte for byte
 source/packages/<name>/src/<path>        each bundled kit library's src/, byte for byte
 ```
@@ -126,10 +127,10 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `3d8c72e7b58d32866f058a171d68bbbb8a335504` (host contract
-1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; core `main` on 28 Oct 2026, after pull request #1365,
-which made the AI label the host's alone: no selector may name it, and a hidden one is redrawn, never a chat lock), the
-commit `packages/theme-cli/src/core/README.md` names:
+kit is fixed. The kit vendors core's contract at commit `40a2e00715f069b7f1bbade0d00b287409a16b74` (host contract
+1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; the head of core pull request #1373 on 30 Oct 2026,
+which lets a theme list phone screenshots, `phonePreviews`, up to 24 web and 24 phone screenshots, in a package of up
+to 32 MB), the commit `packages/theme-cli/src/core/README.md` names:
 
 - **The validators**, copied with only their import paths edited, into `packages/theme-cli/src/core/`: core's
   `frontend/lib/theme-host/` `css-value.ts`, `look-schema.ts`, `package-manifest.ts`, `mobile-manifest.ts` and
@@ -143,8 +144,8 @@ commit `packages/theme-cli/src/core/README.md` names:
 - **The corpora**: core's shared test cases (`test/fixtures/core/cases.json`), its review corpus
   (`review-cases.json`) and its hello test theme (`hello/`). `test/core-corpus.test.ts` holds `pack`'s checks to the
   server's verdicts and `test/review-corpus.test.ts` holds `check` to the server's review stage.
-- **The SDK's types**: `packages/theme-sdk` is core's `frontend/packages/theme-sdk` at the same commit, every
-  declaration unchanged.
+- **The SDK's types**: `packages/theme-sdk` is core's `frontend/packages/theme-sdk` at the commit its README names
+  (SDK 1.2.0, the same files at the commit above), every declaration unchanged.
 - **Ports**, where core's code is Python: the zip reader and its file kinds (`src/members.ts`, `src/files.ts`,
   `src/check-package.ts`), the CSS scope check (`@automatos/vite-preset/css-scope`), the review stage
   (`src/check/`), and the host's first paint (`src/mobile-paint.ts`, `src/check/contrast.ts`).
