@@ -23,6 +23,8 @@ import {
 } from '../internal/voice-session.ts'
 
 export { VoiceButton } from './voice-button.tsx'
+/** SDK 1.3.0 (PRD-268): Listen for the day's brief, brief-voice.tsx. */
+export { BriefVoice } from './brief-voice.tsx'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 

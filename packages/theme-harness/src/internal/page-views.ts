@@ -5,7 +5,9 @@
  * `{ run, runAsync, isRunning, error, result, reset }` (:24), the data and results deep, frozen copies (:77).
  * There is no backend: a read answers what a test set for its hook (host.setPageQuery; until then it is
  * loading, as before any answer), and a write resolves with what a test set (host.setPageAction; until then
- * null). Every read and every run is kept, with its arguments (host.pageAsks(), host.pageRuns()).
+ * null). Every read and every run is kept, with its arguments (host.pageAsks(), host.pageRuns()). SDK 1.3.0's
+ * proactive area (src/sdk/proactive.ts) answers the same way; a read may also answer 'idle', no data and not loading,
+ * as core's useBrief does while the host holds no brief for the day (the workspace's brief is off, or not opened yet).
  */
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { log, refuse } from './cell.ts'
@@ -38,6 +40,7 @@ export type PageQueryHook =
   | 'useActivityFeed' | 'useActivityStats' | 'useActivitySchedule' | 'useQuestions' | 'useNeedsYou' | 'useWatches'
   | 'useDocuments' | 'useDocumentStats' | 'useTeams' | 'useDocumentTeamCounts' | 'useCloudConnections'
   | 'useWorkflowPlaybooks' | 'useWorkflowPlaybook' | 'usePlaybookExecutions'
+  | 'useBrief' | 'useReadiness' | 'useSuggestions'
 
 /** The page areas' writes, by hook name. */
 export type PageActionHook =
@@ -45,6 +48,7 @@ export type PageActionHook =
   | 'useReplanMission' | 'useRerunMission' | 'useSaveAsRoutine' | 'useUpdateMissionSettings'
   | 'useUploadDocument' | 'useDeleteDocument' | 'useTriggerSync' | 'useSelectRootFolder'
   | 'useCreatePlaybook' | 'useUpdatePlaybook' | 'useDeletePlaybook' | 'useExecutePlaybook'
+  | 'useCheckReadiness' | 'useStartSuggestion' | 'useHideSuggestion' | 'useAnswerCalibration'
 
 /** What a read's data is, as the SDK types it. */
 export type PageData<K extends PageQueryHook> = NonNullable<ReturnType<Sdk[K]>['data']>
@@ -53,8 +57,8 @@ type ActionOf<K extends PageActionHook> = ReturnType<Sdk[K]>
 export type PageVariables<K extends PageActionHook> = Parameters<ActionOf<K>['run']>[0]
 export type PageResult<K extends PageActionHook> = NonNullable<ActionOf<K>['result']>
 
-/** How a read answers: its data, its error's message, or still loading. */
-export type PageQueryAnswer<T> = { readonly data: T } | { readonly error: string } | 'loading'
+/** How a read answers: its data, its error's message, still loading, or 'idle': asked nothing, no data and not loading. */
+export type PageQueryAnswer<T> = { readonly data: T } | { readonly error: string } | 'loading' | 'idle'
 /** How a write answers a run: its result (or a promise of it); a throw or a rejection is its error. */
 export type PageActionAnswer<V, R> = (variables: V) => R | Promise<R>
 
@@ -71,6 +75,7 @@ export interface PageRun {
 }
 
 const LOADING = 'loading'
+const IDLE_ANSWER = 'idle'
 const answers = new Map<string, PageQueryAnswer<unknown>>()
 const actions = new Map<string, PageActionAnswer<unknown, unknown>>()
 const asks = log<PageAsk>()
@@ -134,8 +139,9 @@ export function usePageQuery<T>(hook: PageQueryHook, args: readonly unknown[], r
   }, [hook, key, idle])
   const refetch = useCallback(() => refetches.add(hook), [hook])
   return useMemo(() => {
-    if (idle) return Object.freeze({ data: null, isLoading: false, isFetching: false, error: refusal, refetch })
-    return viewOf<T>(answers.get(hook), refetch)
+    const answer = answers.get(hook)
+    if (idle || answer === IDLE_ANSWER) return Object.freeze({ data: null, isLoading: false, isFetching: false, error: refusal, refetch })
+    return viewOf<T>(answer, refetch)
   }, [now, hook, idle, refusal, refetch])
 }
 
@@ -200,7 +206,7 @@ export function checkedWholeId(value: unknown, what: string): number {
 
 /** The controls of the page areas, gathered by host.ts. */
 export const pageControls = Object.freeze({
-  /** How `hook`'s reads answer from now on: `{ data }`, `{ error }` (its message) or 'loading'. */
+  /** How `hook`'s reads answer from now on: `{ data }`, `{ error }` (its message), 'loading' or 'idle' (no data, not loading). */
   setPageQuery<K extends PageQueryHook>(hook: K, answer: PageQueryAnswer<PageData<K>>): void {
     answers.set(hook, answer)
     changed()

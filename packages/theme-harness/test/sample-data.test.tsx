@@ -3,18 +3,21 @@
 // (the reads HUD's TODAY, NEEDS YOU and NEXT UP panels make). Until they are given every read is loading, as in a
 // theme's tests; once given, the roster, its counts, one running Mission, the day's numbers (in any window asked),
 // what needs you across its five kinds, the runs coming up, the workspace's Missions and its Deliverables answer; and
-// the harness page gives them before it draws the mock host (app/main.tsx).
+// the harness page gives them before it draws the mock host (app/main.tsx). SDK 1.3.0's proactive area: the day's
+// brief, made from the same rows, what Auto depends on and the open suggestions; and no brief today (the workspace's
+// brief off: core's open answers brief_off and the host stays quiet), which a theme draws as a normal day.
 import {
   DELIVERABLE_FEED_FILTERS, type ActivitySchedule, type ActivityStats, type NeedsYou, type NeedsYouAskRow, type NeedsYouTicketRow,
-  useActivityFeed, useActivitySchedule, useActivityStats, useAgents, useAgentStats, useDeliverables, useMissions, useNeedsYou,
+  useActivityFeed, useActivitySchedule, useActivityStats, useAgents, useAgentStats, useBrief, useCalibration, useDeliverables, useMissions,
+  useNeedsYou, useReadiness, useSuggestions,
 } from '@automatos/theme-sdk'
-import { render, screen } from '@testing-library/react'
+import { act, render, renderHook, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '../src/host.ts'
-import { giveSampleData, SAMPLE_PAGE_DATA } from '../src/host/sample-data.ts'
+import { giveSampleData, SAMPLE_PAGE_DATA, showBrief } from '../src/host/sample-data.ts'
 
 const LOADING = 'loading'
 /** HUD's MISSION panel's read (themes/hud/src/chat/panels/mission-panel.tsx RUNNING_MISSION). */
@@ -163,5 +166,44 @@ describe("the harness page's sample data", () => {
     const drawHost = main.slice(main.indexOf('function drawHost('))
     expect(drawHost.indexOf('giveSampleData()')).toBeGreaterThan(0)
     expect(drawHost.indexOf('giveSampleData()')).toBeLessThan(drawHost.indexOf('root.render('))
+  })
+})
+
+describe("the harness page's sample proactive data (SDK 1.3.0)", () => {
+  const proactive = () => ({ brief: useBrief(), readiness: useReadiness(), suggestions: useSuggestions(), calibration: useCalibration() })
+
+  it("answers the day's brief, what Auto depends on and the open suggestions, and offers no calibration, as core's server", () => {
+    giveSampleData()
+    const { result } = renderHook(proactive)
+    expect(result.current.brief.data?.greeting).toBe('Morning.')
+    expect(result.current.readiness.data?.items.map((item) => item.state)).toEqual(['ready', 'ready', 'not_checked', 'needs_setup'])
+    expect(result.current.suggestions.data?.map((row) => row.proposed_action.kind)).toEqual(['board_task', 'chat'])
+    expect(result.current.calibration).toMatchObject({ data: null, available: false })
+  })
+
+  it('makes the brief from the same rows: what needs you, the suggestions, the runs today, and what the brief needs that is not ready', () => {
+    const { brief, needsYou, suggestions, activitySchedule, readiness } = SAMPLE_PAGE_DATA
+    expect(brief.counts.needs_you).toBe(needsYou.total)
+    expect(brief.sections.needs_you).toHaveLength(needsYou.total)
+    expect(brief.sections.suggestions.map((row) => row.id)).toEqual(suggestions.map((row) => row.id))
+    expect(brief.sections.today.map((row) => row.title)).toEqual(activitySchedule.scheduled.map((item) => item.name))
+    const unready = readiness.items.filter((item) => item.state !== 'ready' && item.needed_by.includes('brief'))
+    expect(brief.sections.unchecked.map((row) => row.title)).toEqual(unready.map((item) => item.label))
+    expect(brief.date).toBe(SAMPLE_PAGE_DATA.agentStats.timestamp.slice(0, 10))
+  })
+
+  it('has no brief today when the brief is off: no data, not loading and no error, the normal state of such a day', () => {
+    giveSampleData()
+    const { result } = renderHook(() => useBrief())
+    act(() => showBrief(false))
+    expect([result.current.data, result.current.isLoading, result.current.error]).toEqual([null, false, null])
+    act(() => showBrief(true))
+    expect(result.current.data?.state_hash).toBe(SAMPLE_PAGE_DATA.brief.state_hash)
+  })
+
+  it("gives every Mission where it stands, what happens next and what Try again does (SDK 1.3.0's Mission rows)", () => {
+    const rows = SAMPLE_PAGE_DATA.missions.missions
+    expect(rows.map((mission) => mission.display_state)).toEqual(['working', 'needs_you', 'needs_you', 'working', 'done', 'done', 'failed'])
+    expect(rows.filter((mission) => mission.retry).map((mission) => [mission.state, mission.retry])).toEqual([['failed', 'rerun_mission']])
   })
 })

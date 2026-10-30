@@ -4,9 +4,10 @@
  * area, re-exported here. Each area names its SDK names, so an area module's own controls and helpers never
  * reach the surface, and test/surface.test.ts holds the union to the vendored types' value exports, nothing
  * missing and nothing extra. Chat, deliverables and cards are PRD-261 B-02c's fakes over fake fixtures; voice is
- * theme voice's (SDK 1.2.0).
+ * theme voice's (SDK 1.2.0); proactive, the cards' proactive defaults, BriefVoice and DISPLAY_STATE_LABELS are
+ * PRD-268's (SDK 1.3.0).
  */
-export { SDK_VERSION, defineTheme } from './theme.ts'
+export { SDK_VERSION, defineTheme, DISPLAY_STATE_LABELS } from './theme.ts'
 export {
   useWorkspace, useRole, useEdition, useTrial, useHealth, useOnline, useMediaPreferences, useTone, useThemeLayout,
 } from './context.ts'
@@ -26,7 +27,8 @@ export {
 } from './deliverables.ts'
 export {
   ToolApproval, MissionApproval, TaskCard, WithdrawOfferCard, MissionSuggestionCard, MissionCreatedCard, FilePreview, MarkdownView,
-  MadeBy, TrialExhaustedBanner, FirstRunNudge, HeaderUtilities, AiLabelFence, CorePage,
+  MadeBy, TrialExhaustedBanner, FirstRunNudge, HeaderUtilities, AiLabelFence, CorePage, BriefCard, SuggestionCard, StatusLabel,
+  ReadinessList, CalibrationCard, ReplyChips,
 } from './cards.ts'
 export { useLook, saveLook, listLooks, exportLook, importLook, useLookScope } from './looks.ts'
 export { assetUrl } from './assets.ts'
@@ -47,4 +49,7 @@ export {
   useActivityFeed, useActivityStats, useActivitySchedule, useQuestions, useNeedsYou, useWatches, useBoardEventStream,
 } from './pages-command-center.ts'
 export { readThemeState, writeThemeState, removeThemeState, subscribeThemeState, useThemeState, THEME_STATE_LIMITS } from './storage.ts'
-export { VoiceButton, useVoice, readVoiceLevels } from './voice.ts'
+export { VoiceButton, useVoice, readVoiceLevels, BriefVoice } from './voice.ts'
+export {
+  useBrief, useReadiness, useCheckReadiness, useSuggestions, useStartSuggestion, useHideSuggestion, useCalibration, useAnswerCalibration,
+} from './proactive.ts'

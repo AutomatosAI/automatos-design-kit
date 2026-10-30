@@ -1,0 +1,73 @@
+{
+  "_comment": "Made-up open suggestions, newest first, as useSuggestions gives them (SDK 1.3.0). Fake data only.",
+  "suggestions": [
+    {
+      "id": "00000000-0000-4000-8000-00000000a001",
+      "workspace_id": "workspace-1",
+      "user_id": 1,
+      "source_type": "check_in",
+      "source_agent_id": null,
+      "run_id": null,
+      "title": "Check the laptop prices again before Friday",
+      "detail": "Two of the three shortlisted laptops changed price this week. A fresh check keeps the shortlist honest.",
+      "evidence": [
+        {
+          "type": "deliverable",
+          "id": "d-report-1"
+        }
+      ],
+      "proposed_action": {
+        "kind": "board_task",
+        "payload": {
+          "title": "Check the laptop prices again"
+        }
+      },
+      "subject_key": "harness:a001",
+      "severity": "today",
+      "status": "open",
+      "occurrences": 1,
+      "last_seen_at": "2026-10-14T08:40:00+00:00",
+      "started_ref": null,
+      "decided_via": null,
+      "hide_reason": null,
+      "decided_at": null,
+      "est_credits": 40,
+      "created_at": "2026-10-14T08:40:00+00:00",
+      "delivered_at": "2026-10-14T08:40:00+00:00",
+      "expires_at": "2026-10-17T09:00:00+00:00"
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000a002",
+      "workspace_id": "workspace-1",
+      "user_id": 1,
+      "source_type": "check_in",
+      "source_agent_id": null,
+      "run_id": null,
+      "title": "Draft the October newsletter outline",
+      "detail": "The newsletter plan is waiting for approval, and an outline would make it quicker to judge.",
+      "evidence": [
+        {
+          "type": "mission",
+          "id": "harness-mission-2"
+        }
+      ],
+      "proposed_action": {
+        "kind": "chat",
+        "payload": null
+      },
+      "subject_key": "harness:a002",
+      "severity": "can_wait",
+      "status": "open",
+      "occurrences": 1,
+      "last_seen_at": "2026-10-14T08:20:00+00:00",
+      "started_ref": null,
+      "decided_via": null,
+      "hide_reason": null,
+      "decided_at": null,
+      "est_credits": null,
+      "created_at": "2026-10-14T08:20:00+00:00",
+      "delivered_at": "2026-10-14T08:20:00+00:00",
+      "expires_at": "2026-10-17T09:00:00+00:00"
+    }
+  ]
+}

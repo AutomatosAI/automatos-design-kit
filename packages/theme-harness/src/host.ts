@@ -4,8 +4,9 @@
  * holds its own state and controls; this gathers them, and `host.reset()` puts every area back as a test
  * starts: the local edition's one operator in WORKSPACE_DEFAULTS, online, the backend up, a desktop width,
  * the light tone, no look runtime, no package files, STORAGE_DEFAULTS with no theme state kept, no voice session (the
- * host's voice on the page, VOICE_DEFAULTS), nothing asked and nothing refused. Call it in a beforeEach; a control
- * set inside act() renders what reads it again.
+ * host's voice on the page, VOICE_DEFAULTS), no calibration offered and the brief not being read (SDK 1.3.0's
+ * proactive area: its reads loading until a test answers them, src/sdk/proactive.ts), nothing asked and nothing
+ * refused. Call it in a beforeEach; a control set inside act() renders what reads it again.
  */
 import { forgetNetworkCalls, networkCalls } from './internal/network.ts'
 import { pageControls, resetPages } from './internal/page-views.ts'
@@ -22,6 +23,8 @@ import { chatControls, resetChat } from './sdk/chat.ts'
 import { deliverablesControls, resetDeliverables } from './sdk/deliverables.ts'
 import { cardsControls, resetCards } from './sdk/cards.ts'
 import { resetVoice, voiceControls } from './sdk/voice.ts'
+import { proactiveControls, resetProactive } from './sdk/proactive.ts'
+import { briefVoiceControls, resetBriefVoice } from './sdk/brief-voice.tsx'
 
 export { WORKSPACE_DEFAULTS, ROLE_DEFAULTS, DEFAULT_WIDTH, DEFAULT_MIN_WIDTH } from './sdk/context.ts'
 export { STORAGE_DEFAULTS, THEME_STATE_KEY_PREFIX, type StorageStandIn } from './sdk/storage.ts'
@@ -49,7 +52,8 @@ export { CREDITS_EXHAUSTED_CODE } from './internal/scripted/chat-turn.ts'
  */
 const RESETS: readonly (() => void)[] = Object.freeze([
   resetStorage, resetContext, resetNavigation, resetNotices, resetEvents, resetLooks, resetAssets,
-  resetPages, resetCommandCenter, resetDocuments, resetChat, resetDeliverables, resetCards, resetVoice, forgetNetworkCalls,
+  resetPages, resetCommandCenter, resetDocuments, resetChat, resetDeliverables, resetCards, resetVoice, resetProactive, resetBriefVoice,
+  forgetNetworkCalls,
 ])
 
 export const host = Object.freeze({
@@ -71,6 +75,8 @@ export const host = Object.freeze({
   ...deliverablesControls,
   ...cardsControls,
   ...voiceControls,
+  ...proactiveControls,
+  ...briefVoiceControls,
   /** Every fetch and XMLHttpRequest the harness refused since the last reset, oldest first. */
   networkCalls,
 })

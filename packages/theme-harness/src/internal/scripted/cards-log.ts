@@ -6,7 +6,10 @@
  * create a Mission); the stand-ins make none and keep each click here instead, for a test to read back
  * (cardActions). Every stand-in's root carries data-protected-surface with the card's name, so a test can find it
  * and a theme's stylesheet can be checked against it (core's components/theme-host/protected-surface.tsx:29).
- * AiLabelFence has no root: it draws its children alone, as core's does since #1365.
+ * AiLabelFence has no root: it draws its children alone, as core's does since #1365. SDK 1.3.0's proactive defaults
+ * (BriefCard, SuggestionCard, StatusLabel, ReadinessList, CalibrationCard, ReplyChips) are not protected surfaces in
+ * core, so their stand-ins carry core's own data attributes instead; the voice area's BriefVoice is one (`brief-voice`).
+ * Their presses are kept here by the same names.
  */
 import type { MarkdownViewProps } from '@automatos/theme-sdk'
 import { log } from '../cell.ts'
@@ -30,6 +33,13 @@ export type CardName =
   | 'first-run-nudge'
   | 'header-utilities'
   | 'core-page'
+  | 'brief-card'
+  | 'suggestion-card'
+  | 'status-label'
+  | 'readiness-list'
+  | 'calibration-card'
+  | 'reply-chips'
+  | 'brief-voice'
 
 /** One click on a card: which card, what it was about (a grant, a Mission, a chat), and what the owner chose. */
 export interface CardAction {
