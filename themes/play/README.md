@@ -44,7 +44,10 @@ Play. Every card is the host's (the SDK's cards area): Play places them and draw
   where his hello still plays; on the phone he stands over the message box. In a conversation it is its own message's
   card (`message-list.tsx`, `play-brief.tsx` `BriefReply`). Listen is the host's `BriefVoice` inside the card. A row's
   action runs through `hooks/use-brief-action.ts`: Start and Hide on a suggestion's row through the area's Start and
-  Hide, anything else to where the row opens on the SDK's paths. No brief is a normal day: while the workspace's
+  Hide, anything else to where the row opens on the SDK's paths. A row without an action is text, and "Show N more"
+  is a line, as on core's own brief card: a suggestion's row has no page to open, and the brief carries only the rows
+  it shows. The card belongs to the empty chat and the Auto thread: once a message is sent from the empty chat, that
+  new conversation is not the brief's and the card gives way to it. No brief is a normal day: while the workspace's
   proactive mode is off, or before the host has opened the day's brief, the empty chat is the first open as before.
 - **The suggestion** (`useSuggestions`, the host's `SuggestionCard`): the newest open one, pinned as one line between
   `PlayTrialBanner` and `MessageBox` (`pinned-suggestion.tsx`); its title opens the full card in place. It steps aside

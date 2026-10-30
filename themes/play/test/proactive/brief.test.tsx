@@ -5,7 +5,7 @@
 // fake area's Start (host.pageRuns()) and the fake router (host.navigations()). Auto himself is a stand-in that
 // shows his state.
 import { removeThemeState, ticketHref, writeThemeState } from '@automatos/theme-sdk'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
 import { EXAMPLES, HELLO_TITLE } from '../../src/components/play/chat/first-open.tsx'
@@ -162,10 +162,10 @@ describe("a brief row's action", () => {
     expect(host.pageRuns()).toContainEqual({ hook: 'useStartSuggestion', variables: { id: LISTED_ID } })
   })
 
-  it("Open goes where the row opens, on the SDK's path", () => {
+  it("Open goes where the row opens, on the SDK's path", async () => {
     host.setPageQuery('useBrief', { data: BRIEF })
     render(<PlayChat />)
     fireEvent.click(within(brief()).getByRole('button', { name: `Open: ${TICKET_ROW.title}` }))
-    expect(host.navigations()).toContainEqual({ method: 'push', href: ticketHref('41') })
+    await waitFor(() => expect(host.navigations()).toContainEqual({ method: 'push', href: ticketHref('41') }))
   })
 })

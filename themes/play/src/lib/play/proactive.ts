@@ -15,8 +15,8 @@ import type { Brief, HostChatMessage, HostMissionSuggestion, Suggestion } from '
  */
 
 /** True when `message` is the day's brief's message: Auto's, finished, its words exactly the brief's prose. */
-export function isBriefMessage(message: HostChatMessage, brief: Brief | null | undefined): brief is Brief {
-  if (!brief || message.role !== 'assistant' || message.writing) return false
+export function isBriefMessage(message: HostChatMessage, brief: Brief): boolean {
+  if (message.role !== 'assistant' || message.writing) return false
   const prose = brief.prose.trim()
   return prose !== '' && message.text.trim() === prose
 }

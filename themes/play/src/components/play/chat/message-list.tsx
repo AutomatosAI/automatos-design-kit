@@ -90,7 +90,7 @@ interface MessageItemProps {
 /** Your words in a bubble, the day's brief as its card, or Auto's reply. */
 function MessageItem({ message, newest, streaming, onRetry, trialBlocked, brief }: MessageItemProps) {
   if (message.role === 'user') return <p className={styles.bubble}>{message.text}</p>
-  if (isBriefMessage(message, brief)) return <BriefReply message={message} brief={brief} />
+  if (brief !== null && isBriefMessage(message, brief)) return <BriefReply message={message} brief={brief} />
   return (
     <AutoReply
       message={message}

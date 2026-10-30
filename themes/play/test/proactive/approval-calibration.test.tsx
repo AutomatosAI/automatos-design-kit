@@ -106,8 +106,11 @@ describe('calibration, on day one', () => {
     host.setCalibration(CALIBRATION)
     render(<PlayChat />)
     const bubble = screen.getByRole('article', { name: CALIBRATION_LABEL })
+    const box = screen.getByRole('textbox', { name: PLACEHOLDER })
+    box.blur()
+    expect(box).not.toHaveFocus()
     fireEvent.click(within(bubble).getByRole('button', { name: "Something's off" }))
-    expect(screen.getByRole('textbox', { name: PLACEHOLDER })).toHaveFocus()
+    expect(box).toHaveFocus()
     fireEvent.click(within(bubble).getByRole('button', { name: 'Sounds right' }))
     await waitFor(() => expect(host.pageRuns()).toContainEqual({
       hook: 'useAnswerCalibration', variables: { calibration_id: CALIBRATION.id, answer: 'accept' },

@@ -10,8 +10,8 @@ cards where PRD-268 puts them in Play:
 - **The day's brief.** On an empty chat the host's brief card stands where "Hi, I'm Auto." stood, under the page header,
   with Auto in the mascot column on a desktop (his hello still plays there) and over the message box on the phone. In a
   conversation the brief's own message is drawn as the card, its prose inside it once. A row's action works: Start and
-  Hide on a suggestion's row, Open, Answer and Set up where the row goes. With no brief (the workspace's proactive mode
-  off, or not opened yet) the empty chat is the first open as before.
+  Hide on a suggestion's row, Open, Answer and Set up where the row goes; a row without one is text. With no brief (the
+  workspace's proactive mode off, or not opened yet) the empty chat is the first open as before.
 - **The suggestion.** The newest open suggestion is one line between the credits banner and the message box, on a
   desktop and the phone; its title opens the full card in place, and Escape or leaving it folds it back. It steps aside
   while a turn's Mission suggestion waits for an answer, and never repeats one the brief on screen lists.
