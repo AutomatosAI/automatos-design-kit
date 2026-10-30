@@ -110,6 +110,29 @@ Auto's reply of that exchange grows, until the member says something else. So a 
 its conversation like any message, never from `useVoice().heard` and `.reply` beside it: in core that would show them
 twice. `test/voice-turns.test.tsx` holds the rule.
 
+The proactive area (SDK 1.3.0, `src/sdk/proactive.ts`) answers as the page areas do: `useBrief`, `useReadiness` and
+`useSuggestions` are loading until a test sets them (`host.setPageQuery`), and `useCheckReadiness`,
+`useStartSuggestion` and `useHideSuggestion` are kept as runs with core's variables (`host.pageRuns()`), an id that
+isn't a suggestion's or a reason Hide doesn't know refused first. The day's brief exists only while the workspace's
+proactive mode is shadow or live; otherwise core's open answers `brief_off` and the host stays quiet, so `useBrief` has
+no data and is not loading: `host.setPageQuery('useBrief', 'idle')`. A theme treats that as a normal day.
+`useCalibration` and `useAnswerCalibration` are inert, as core's are until its server offers calibration, unless a test
+offers one (`host.setCalibration`). The cards area's proactive defaults are stand-ins after core's components
+(`src/sdk/cards/brief-card.tsx`, `suggestion-card.tsx`, `status-label.tsx`, `readiness-list.tsx`,
+`calibration-card.tsx`, `reply-chips.tsx`): each checks its props as core's wrapper does, draws core's words, glyphs and
+data attributes (`data-brief-date`, `data-section`, `data-row-id`, `data-suggestion-id` with `data-state`,
+`data-display-state`, `data-readiness-id`, `data-calibration-id`, `data-reply-chips`) over the look's Studio tokens,
+marks Auto's words `data-ai-generated` with the tiny "Auto is an AI" caption outside them, and keeps its presses (Start
+and Hide through the area's hooks, the rest as `cardActions()`). Until a test sets Start's answer, Start answers the
+suggestion started, opening its chat. `DISPLAY_STATE_LABELS` (the theme area) is core's table of each row state's
+glyph, word, HUD word and colour role. The voice area's `BriefVoice` (`src/sdk/brief-voice.tsx`) is Listen for the
+brief the host holds, disabled until it holds one and while a voice session runs, in the protected surface
+`brief-voice`; its root carries `data-voice-speaking="true"` while Auto reads (a press of Listen, or
+`host.setBriefReading(true)`). Nothing plays. An approval whose payload carries `approval_view` shows who asked, the
+action, its target, the preview and the rule before its buttons, and answers keys 1 and 3 while it has focus
+(`fixtures/streams/turns.json`'s `approvalView` turn raises one). `test/proactive.test.tsx`,
+`test/proactive-cards.test.tsx`, `test/proactive-panels.test.tsx` and `test/proactive-types.test.ts` hold them.
+
 ## The fake host
 
 `host` (`@automatos/theme-harness/host`, `src/host.ts`) sets what the host would say and reads back what a theme
@@ -117,7 +140,7 @@ asked of it. `host.reset()` puts it all back: the local edition's one operator i
 the backend up, a 1280-pixel window over a 1024-pixel `minWidth`, the light tone, the OS motion setting as
 `matchMedia` says (jsdom has none: motion allowed), no look runtime, no package files, `STORAGE_DEFAULTS` with no
 theme state kept, no voice session (the host's voice on the page as `VOICE_DEFAULTS` offers it: quick-ask, and Live
-not set up), and nothing asked.
+not set up), no calibration offered and the brief not being read, and nothing asked.
 
 | Area | Controls | Read back |
 |---|---|---|
@@ -132,6 +155,7 @@ not set up), and nothing asked.
 | chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
 | voice (SDK 1.2.0) | `setVoice` (any of the session's fields, `chatId` among them), `setVoicePhase` (the phase, its engine, and the microphone as that engine has it), `setVoiceMic`, `setVoiceWords` (`heard`, `reply`), `setVoiceError`, `setVoiceAvailable` (`VOICE_DEFAULTS` with changes; `null` for no host voice on the page), `setVoiceLevels`, `voiceTurnSaved` (a conversation's saved rows landed: the session's words leave it) | `voiceStops()` (every `stop()`: useVoice's, the button's), `voicePresses()` (each press that reached the host: start, release or stop, with its engine and conversation) |
+| proactive (SDK 1.3.0) | the page areas' `setPageQuery` and `setPageAction` (a read may also answer `'idle'`: no brief today), `setCalibration` (a Calibration@1, or `null` for none, the default), `setBriefReading` (Auto reads the brief, or stops) | `pageAsks()`, `pageRuns()`, `cardActions()` |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside
@@ -204,8 +228,12 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   does: the roster and its counts (`fixtures/agents/`), one running Mission (`fixtures/activity/feed.json`), the day's
   numbers (`useActivityStats`, `stats.json`), six rows across what needs you's five kinds (`useNeedsYou`,
   `needs-you.json`) and four runs a few hours after the fixtures' made-up morning (`useActivitySchedule`,
-  `schedule.json`), so a theme's agent, Mission and Command Center panels show rows. A read answers by its hook,
-  whatever its filter, window or range (in a theme's tests a read stays loading until the test sets it).
+  `schedule.json`), so a theme's agent, Mission and Command Center panels show rows; each Mission carries where it
+  stands, its next step and what Try again does (SDK 1.3.0). The proactive area's reads answer too
+  (`fixtures/proactive/`): the day's brief, made from the same rows (what needs you, two suggestions, the day's runs,
+  two things since the last brief and the one thing the brief needs that isn't ready), what Auto depends on, and two
+  open suggestions; no calibration, as core's server offers none yet. A read answers by its hook, whatever its filter,
+  window or range (in a theme's tests a read stays loading until the test sets it).
 - **The host's fonts** (`app/fonts/core`, core's own files; its README names core's commit and pins each file's
   sha256): Geist, Geist Mono and Newsreader, which core supplies to every page. The page (`app/index.html`) declares
   their `@font-face` rules with the weights and styles core declares, and binds `--font-geist-sans`,
@@ -221,7 +249,8 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   and the Deliverable it made, a conversation the backend holds, linked with `?chatId=` as core's deep link opens one)
   and the voice (`src/host/voice.ts`: no session, or a made-up quick-ask session on the conversation on screen, which
   every `VoiceButton` owns, listening with the member's words so far, thinking, speaking with Auto's reply, or failed;
-  on the transcript its words end the conversation's messages, as core's chat adds them). While the member or Auto speaks,
+  on the transcript its words end the conversation's messages, as core's chat adds them), and Brief today (the sample
+  brief, or, off, no brief today as with the workspace's brief off, `brief=off`). While the member or Auto speaks,
   `readVoiceLevels` answers a level that moves with the clock, so a theme's waveform animates; under the toolbar's
   reduced motion it holds still, so a shot reads the same levels on every run (the shots' `animations: 'disabled'`
   stops CSS animations, not a theme's own animation frames). A page cannot turn the browser's media features on, so the
@@ -254,7 +283,9 @@ drawn and scanned. Then, for a theme whose `theme.json` `uses` names the SDK's `
 `/chat` page (or, with none, every view) on the transcript in the default look at 1440 px, with reduced motion, in each
 phase of the made-up voice session but idle, `<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and
 `-error/`, so the theme's voice button is shot with the host's AI voice caption and stop control, its waveform held
-still, and the session's words in the conversation as core draws them. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
+still, and the session's words in the conversation as core draws them. And for a theme whose `uses` names the SDK's
+`proactive` area, the day with no brief: the `/chat` page (or every view) in the default look at 1440 px with the brief
+off, `<preset>/1440-no-brief/`; every other group has the sample brief, so the shots show both. A theme whose `minWidth` is wider gets none: below it the host draws its own pages, which the group
 just below it already shoots. Each PNG gets an axe scan of the theme's stage (`shots/axe.ts`); a set's scans go to its
 `axe.json`. A set fails when its folder does not hold exactly one PNG per slot, page and route that `theme.json`
 declares (a chat group: the chat page's), less what the page reports the theme did not register (a route's `/` is `_`

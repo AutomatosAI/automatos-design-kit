@@ -71,7 +71,9 @@ is wider gets no 390 set: below `minWidth` the host draws its own pages, which t
 whose `theme.json` `uses` names the SDK's `voice` area (SDK 1.2.0) gets its voice states too: its `/chat` page (or every
 view, with none) on the transcript in its default look at 1440 px, in each phase of a made-up voice session on that
 conversation, in `<preset>/1440-voice-listening/`, `-thinking/`, `-speaking/` and `-error/`, with the voice levels held
-still and the session's words at the end of the conversation, as core's chat adds them. Each set's
+still and the session's words at the end of the conversation, as core's chat adds them. A theme whose `uses` names the
+SDK's `proactive` area (SDK 1.3.0) gets the day with no brief too: its `/chat` page (or every view) in its default look
+at 1440 px with the brief off, in `<preset>/1440-no-brief/`; every other set has the harness's sample brief. Each set's
 browser window is sized to the set's width (900 px tall, or the phone's 844), so the theme's own media queries see the
 width it is shot at. The harness draws the theme on core's base layer (Tailwind's preflight and core's base styles),
 the looks pages full bleed and the 404 with no frame, as core does, and answers the page areas' reads with made-up
