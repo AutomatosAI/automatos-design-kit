@@ -23,6 +23,7 @@ const KIT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 export const HELLO_DIR = join(KIT_DIR, 'packages/theme-cli/test/fixtures/core/hello')
 export const PLAY_DIR = join(KIT_DIR, 'themes/play')
 export const HUD_DIR = join(KIT_DIR, 'themes/hud')
+export const ARCADE_DIR = join(KIT_DIR, 'themes/arcade')
 
 /** A theme.json core accepts, for a made-up theme with this `mobile` block (null: none). */
 export function skinManifest(mobile: Json | null, changes: Json = {}): Json {

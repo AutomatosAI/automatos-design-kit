@@ -1,16 +1,20 @@
 /**
- * A theme the phone draws in its own built-in layout (automatos/play and automatos/hud: the app's
- * src/styles/themes/follow.ts BUILT_IN_THEME_STYLES): Automatos Go switches to its native Play or HUD layout, painted
- * from the member's looks, and reads none of the theme's `mobile` block. That layout is compiled into the app, so the
- * harness can't draw it. Nor are the theme's own web screens a stand-in, whatever the theme's own minWidth: Automatos
- * Go runs no theme code, and those screens are what a phone's browser draws at or above that width. So the phone says
- * so, in the look's tone.
+ * A theme the phone draws in its own built-in layout (automatos/play, automatos/hud and automatos/arcade: the
+ * app's src/styles/themes/follow.ts BUILT_IN_THEME_STYLES): Automatos Go switches to its native Play, HUD or Arcade
+ * layout, painted from the member's looks, and reads none of the theme's `mobile` block. That layout is compiled into
+ * the app, so the harness can't draw it. Nor are the theme's own web screens a stand-in, whatever the theme's own
+ * minWidth: Automatos Go runs no theme code, and those screens are what a phone's browser draws at or above that
+ * width. So the phone says so, in the look's tone.
  */
 import type { CSSProperties } from 'react'
 import type { PhoneScheme } from '../../src/phone/settings.ts'
 import type { BuiltInStyle } from '../../src/phone/skin.ts'
 
-export const BUILT_IN_NAMES: Readonly<Record<BuiltInStyle, string>> = Object.freeze({ play: 'Play', hud: 'HUD' })
+export const BUILT_IN_NAMES: Readonly<Record<BuiltInStyle, string>> = Object.freeze({
+  play: 'Play',
+  hud: 'HUD',
+  arcade: 'Arcade',
+})
 
 /** What the phone shows for a built-in layout. */
 export function builtInScreenText(style: BuiltInStyle): string {

@@ -319,8 +319,8 @@ own rule (`src/phone/skin.ts`):
   where each of the 24 tokens lands: its colour, whether the theme set it, and the parts that draw it.
 - **A theme with no painting** (no block, or a block that paints no ground and text): the same layout in Studio's own
   colours, saying why the phone offers it none.
-- **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
-  member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
+- **`automatos/play`, `automatos/hud` and `automatos/arcade`**: the phone switches to its own built-in Play, HUD or
+  Arcade layout, painted from the member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
   phone says so. The theme's own web screens are no stand-in, whatever the theme's own `minWidth`: Automatos Go runs
   no theme code, and those screens are what a phone's browser draws at or above that width (the shots' phone-width
   groups photograph them for a theme whose `minWidth` fits a phone, above). The contrast panel still measures the
