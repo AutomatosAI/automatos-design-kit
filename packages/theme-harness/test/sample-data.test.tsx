@@ -2,11 +2,11 @@
 // rows in the shots, not their loading line: HUD's AGENTS and MISSION panels, and panels on the Command Center's day
 // (the reads HUD's TODAY, NEEDS YOU and NEXT UP panels make). Until they are given every read is loading, as in a
 // theme's tests; once given, the roster, its counts, one running Mission, the day's numbers (in any window asked),
-// what needs you across its five kinds and the runs coming up answer; and the harness page gives them before it draws
-// the mock host (app/main.tsx).
+// what needs you across its five kinds, the runs coming up, the workspace's Missions and its Deliverables answer; and
+// the harness page gives them before it draws the mock host (app/main.tsx).
 import {
-  type ActivitySchedule, type ActivityStats, type NeedsYou, type NeedsYouAskRow, type NeedsYouTicketRow,
-  useActivityFeed, useActivitySchedule, useActivityStats, useAgents, useAgentStats, useNeedsYou,
+  DELIVERABLE_FEED_FILTERS, type ActivitySchedule, type ActivityStats, type NeedsYou, type NeedsYouAskRow, type NeedsYouTicketRow,
+  useActivityFeed, useActivitySchedule, useActivityStats, useAgents, useAgentStats, useDeliverables, useMissions, useNeedsYou,
 } from '@automatos/theme-sdk'
 import { render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
@@ -79,6 +79,22 @@ function DayPanels() {
   )
 }
 
+/** The Deliverables list's filters with nothing filtered out, as an Inventory's All tab asks. */
+const EVERY_DELIVERABLE = Object.freeze({ ...DELIVERABLE_FEED_FILTERS, source_type_exclude: null })
+
+/** A theme's own Missions and Deliverables pages, each as a line: the Missions by state and goal, the list's count. */
+function WorkPanels() {
+  const missions = useMissions().data
+  const list = useDeliverables(EVERY_DELIVERABLE)
+  const rows = list.data?.pages.flatMap((page) => page.deliverables) ?? null
+  return (
+    <ul>
+      <li data-testid="missions">{missions === null ? LOADING : missions.missions.map((mission) => `${mission.state} ${mission.goal}`).join(', ')}</li>
+      <li data-testid="deliverables">{rows === null ? LOADING : `${rows.length} Deliverables: ${rows.map((row) => row.title).join(', ')}`}</li>
+    </ul>
+  )
+}
+
 const line = (id: string): string => screen.getByTestId(id).textContent ?? ''
 
 beforeEach(() => {
@@ -119,6 +135,20 @@ describe("the harness page's sample data", () => {
       { hook: 'useActivityStats', args: ['1d'] }, { hook: 'useActivityStats', args: ['30d'] },
       { hook: 'useNeedsYou', args: [] }, { hook: 'useActivitySchedule', args: ['7d'] },
     ])
+  })
+
+  it("answers the workspace's Missions in every state a Missions page groups, and the Deliverables list", async () => {
+    host.setWorkspace({ name: 'Harness workspace', socialsAvailable: false })
+    giveSampleData()
+    render(<WorkPanels />)
+    expect(line('missions').split(', ')).toEqual([
+      'running Compare three laptops and write a shortlist', 'awaiting_approval Plan the chemistry revision week',
+      'awaiting_human Draft the bake sale poster', 'running Book the library study rooms',
+      'completed Build the climate debate slides', 'completed Write the shelf sorter script',
+      'failed Check student discounts on the shortlist',
+    ])
+    expect(SAMPLE_PAGE_DATA.missions.missions[0].id).toBe('harness-mission-1')
+    expect(await screen.findByText(/^6 Deliverables: Laptop shortlist/)).toBeInTheDocument()
   })
 
   it("times every run a few hours after the fixtures' made-up morning, so the shots read the same each run", () => {
