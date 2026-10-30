@@ -18,7 +18,7 @@ import { FAILURE_TEXT, HarnessHost, prepareHost, THEME_FALLBACK_NOTICE } from '.
 import { host } from '../src/host.ts'
 import { CORE_BASE_STYLE_ID } from '../src/host/core-base.ts'
 import { HARNESS_IMPORT_MAP, HARNESS_SDK_ENTRY, harnessImportMap, importMapAliases } from '../src/host/import-map.ts'
-import { HTML_ATTRS, paintLook, PREVIEW_STYLE_ID, type PrepaintTable } from '../src/host/prepaint.ts'
+import { HTML_ATTRS, paintLook, paintNames, PREVIEW_STYLE_ID, type PrepaintTable } from '../src/host/prepaint.ts'
 import { declaredOf, loadTheme, readServedTheme, reportOf, type HarnessTheme, type ServedTheme } from '../src/host/register.ts'
 import {
   DEFAULT_SETTINGS, HARNESS_ORIGIN, offOrigin, readSettings, settingsQuery, viewOfPath, viewSlug, type HarnessSettings,
@@ -252,6 +252,15 @@ describe('what the build and the shots read', () => {
 
   it("paints the table's default look for a look that does not fit it", () => {
     expect(paintLook(PREPAINT, { ground: 'noon' })).toEqual({ [GROUND]: '#101010', [GLOW]: '1' })
+  })
+
+  it("leaves off a value the browser's first paint drops (a gradient, over 200 characters), as core's boot does", () => {
+    const wash = '--sample-wash'
+    const long = '--sample-long'
+    const night = { [GROUND]: '#101010', [wash]: 'linear-gradient(120deg,#101010 0%,#2a2a2a 100%)', [long]: `${'1px '.repeat(50)}1` }
+    const table: PrepaintTable = { ...PREPAINT, knobs: { ground: { ...PREPAINT.knobs.ground, night } } }
+    expect(paintLook(table, DUSK)).toEqual({ [GROUND]: '#101010' })
+    expect(paintNames(table)).not.toContain(wash)
   })
 
   it('names the view each path shows', () => {

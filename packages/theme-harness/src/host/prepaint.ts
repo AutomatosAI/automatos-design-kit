@@ -5,7 +5,10 @@
  *   frontend/lib/theme-host/looks/paint.ts:24-91 (at 101a0bf33f64fb4f89af81b4293415be60b661ac) with
  *   boot-sanitize.ts:166-186's fit check: each choice knob's table in the table's order, then the pair tables,
  *   then each numeric rule as rgba(<rgb>,<alpha>); the table's default look when the look doesn't fit it; only
- *   names that pass CSS_VAR_NAME_PATTERN (boot-sanitize.ts:42). A name the table paints for another look comes off.
+ *   names that pass CSS_VAR_NAME_PATTERN (boot-sanitize.ts:42), and only values the browser's first paint keeps
+ *   (boot-sanitize.ts `isCssValue`, theme-cli's port `isBootValue`): a gradient or a value over 200 characters is
+ *   left off here as the browser leaves it off, with every value built on it, so a shot shows what a user sees.
+ *   A name the table paints for another look comes off.
  * - The tone: the table's tone rule (host 1.1.0) for the active look under a theme whose tone follows its look;
  *   the theme's own tone under 'light' or 'dark'; the user's under 'user'.
  * - The classes: the base's (core's lib/ui-style.ts:76 styleHtmlClasses: 'studio' for Studio, none for Classic), the
@@ -17,6 +20,7 @@
  *   paints the system colours over the page, as a browser in forced colours would. The shots ask the browser itself
  *   for reduced motion (Playwright's emulation) and draw no forced-colours set: that is the toolbar's preview only.
  */
+import { isBootValue } from '@automatos/theme-cli/mobile-paint'
 import type { PrepaintNumericRule, PrepaintTable, PrepaintVars, ThemeTone } from '../../../../scripts/looks/boot-types.ts'
 
 export type { PrepaintTable, ThemeTone } from '../../../../scripts/looks/boot-types.ts'
@@ -56,11 +60,11 @@ export function lookFits(table: PrepaintTable, look: LookValues): boolean {
   return knobs && pairs && table.numeric.every((rule) => numericFits(rule, look))
 }
 
-/** paint.ts:29. */
+/** paint.ts:29, over the cells sanitizeVars (boot-sanitize.ts:105) leaves: a name it takes and a value it keeps. */
 function paintable(vars: PrepaintVars | undefined): [string, string][] {
   if (vars === undefined) return []
   return Object.keys(vars)
-    .filter((name) => CSS_VAR_NAME_PATTERN.test(name) && typeof vars[name] === 'string')
+    .filter((name) => CSS_VAR_NAME_PATTERN.test(name) && isBootValue(vars[name]))
     .map((name): [string, string] => [name, vars[name]])
 }
 

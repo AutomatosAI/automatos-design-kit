@@ -191,7 +191,8 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   `app/not-found.tsx` draws it. Below `minWidth`, and after a failed load or a throw while drawing, the host's own
   page stands alone, the latter with core's notice.
 - **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
-  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there. A value the
+  browser's first paint drops (a gradient, over 200 characters: theme-cli's `isBootValue`) is left off here too.
 - **Core's base layer** (`src/host/core-base.ts`): the mock host puts the base every core page draws on first in the
   page's `<head>`, before the theme's stylesheet: Tailwind 3.3.3's preflight with core's theme values
   (`src/vendor/tailwind-preflight/`, MIT, its licence beside it: every box `border-box`, borders reset to `0 solid`, no

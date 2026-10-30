@@ -2,7 +2,9 @@
  * The isolated review of one Marketplace theme version (PRD-261 C-02b, D3-a: a person-run kit job).
  *
  * In order: no network (probe.ts); the package read and checked as core's reader checks it (the
- * kit's port, `@automatos/theme-cli/check`); its digest against the one the admin queue named;
+ * kit's port, `@automatos/theme-cli/check`), and as core's reader refuses what the browser would leave
+ * out of its first paint and looks (theme-cli's first-paint.ts: a prepaint value the first paint
+ * drops, a look-schema knob the table never paints); its digest against the one the admin queue named;
  * source/ present; the JS rules on source/ (`@automatos/theme-rules`); the reproducible build
  * (rebuild.ts). The outcome is `pass` only when every check passed; a JS-rule warning is listed for
  * the reviewer and fails nothing. The reviewer pastes the summary (summary.ts) into the admin
@@ -15,6 +17,7 @@ import { checkPackage } from '@automatos/theme-cli/check'
 import { readZip } from '@automatos/theme-cli/zip'
 import { jsRuleFindings, sourceScripts, SOURCE_PREFIX, type JsFinding } from '@automatos/theme-rules'
 import { packageDigest, sha256Hex } from '../../packages/theme-cli/src/digest.ts'
+import { firstPaintErrors } from '../../packages/theme-cli/src/first-paint.ts'
 import type { ProbeResult } from './probe.ts'
 import { compareDist, DIST_PREFIX, rebuildDist, type DistComparison, type Files } from './rebuild.ts'
 import { previewsAndAccessibility, type PreviewsAndAccessibility } from './report.ts'
@@ -75,6 +78,9 @@ export interface Read {
   readonly check: Check
 }
 
+/** The Package check's sentence for a package the browser would draw only in part (theme-cli first-paint.ts). */
+export const FIRST_PAINT_REFUSED = "The browser would leave part of its first paint or its looks out, so core's reader refuses it."
+
 /** The zip read and checked as core's reader checks it (axe.ts reads the package with it too). */
 export function readPackage(zip: Buffer): Read {
   let entries: ReturnType<typeof readZip>
@@ -89,6 +95,10 @@ export function readPackage(zip: Buffer): Read {
     return { files: null, manifest: null, check: check('Package', 'fail', "Core's reader would refuse it.", items) }
   }
   const files = new Map(Array.from(checked.files, ([path, file]): [string, Uint8Array] => [path, file.data]))
+  const dropped = firstPaintErrors(files).map((error) => `${error.code} ${error.path}: ${error.message}`)
+  if (dropped.length > 0) {
+    return { files: null, manifest: null, check: check('Package', 'fail', FIRST_PAINT_REFUSED, dropped) }
+  }
   return { files, manifest: checked.manifest, check: check('Package', 'pass', `${files.size} files pass the server's checks (kit port).`) }
 }
 

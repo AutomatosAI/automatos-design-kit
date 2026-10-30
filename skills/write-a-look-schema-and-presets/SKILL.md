@@ -18,7 +18,8 @@ look editor or any other code is written. The format, field by field, is [guides
 ## Steps
 
 1. **List the knobs.** For each thing a person may change, one knob. A knob is a `choice` (a set of named options:
-   grounds, accents, type pairs, on and off) or a `number` (a range: a glow, a radius). There is no other kind.
+   grounds, accents, type pairs, on and off) or a `number` (a range painted as an alpha: a glow). There is no other
+   kind. A size, such as a corner radius, is a choice of sizes.
    A colour the person picks is a choice of named colours, never a free value. At most 32 knobs, 64 choices each.
 2. **Write `looks/schema.json`.** Schema `automatos-look-schema/v1`, a `look.schema` id for the theme's looks (such as
    `acme-harbour-look/v1`), an optional `look.interface`, and the knobs with their labels and defaults.
@@ -26,8 +27,10 @@ look editor or any other code is written. The format, field by field, is [guides
    token's name by accident. Decide which of Studio's tokens the look paints too, so the host's own pages take the
    look: write those as `H S% L%` triplets ([looks.md](../../guides/looks.md), "Recolouring the host's pages").
 4. **Write `boot/prepaint.json`.** For each choice knob, each choice's variables; a pair table for each variable that
-   depends on two knobs, with a cell for every pair of choices; a numeric rule for a number knob the first paint must
-   paint; the `defaults`, a complete look. Under `"tone": "from-look"`, add the tone rule: the choice knob that sets
+   depends on two knobs, with a cell for every pair of choices; a numeric rule for each number knob; the `defaults`, a
+   complete look. Every knob of the schema is painted here, or the host's looks leave it out and every look fails
+   (`KNOB_NOT_PAINTED`). A value calls no gradient and no `color-mix()`: the browser's first paint drops it
+   (`BAD_CSS_VALUE`), so paint colours and stops, and compose gradients in the theme's CSS. Under `"tone": "from-look"`, add the tone rule: the choice knob that sets
    light or dark (usually the ground) and the tone of each of its choices.
 5. **Derive the text colours.** A colour that shows as text gets its own variable per ground, readable on that ground
    and on its surfaces; the raw colour stays for fills and icons. Do the same for the focus ring (3:1) and for every
