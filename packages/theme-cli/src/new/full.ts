@@ -8,9 +8,9 @@
  *    mascot package point at the theme's copies too;
  * 3. the template's `patches`;
  * 4. the renames (rename.ts), over every path and every text, refused when two of Play's names or paths would merge;
- * 5. theme.json and package.json made the new theme's: its id, name, first version and class, no previews (they are
- *    Play's pictures), the template's pages and SDK areas added, a build with no look compiler (the look data is the
- *    theme's own from now on);
+ * 5. theme.json and package.json made the new theme's: its id, name, first version and class, no previews and no
+ *    phone screenshots (they are Play's pictures, and `copy` takes none of assets/previews/), the template's pages and
+ *    SDK areas added, a build with no look compiler (the look data is the theme's own from now on);
  * 6. Play's look data as Play's build writes it (look-data.ts), renamed;
  * 7. the template's `files` (the README, the CHANGELOG, the clips' NOTICE), their placeholders filled.
  */
@@ -91,9 +91,17 @@ function renamed(file: FolderFile, rename: Renamer): FolderFile {
   return isTextFile(file.path) ? { path, data: encoder.encode(rename.text(textOf(file))) } : { path, data: file.data }
 }
 
+/** theme.json's lists of Play's own pictures: its web previews and its phone screenshots. */
+export const PLAY_PICTURE_FIELDS: readonly string[] = Object.freeze(['previews', 'phonePreviews'])
+
+/** Play's theme.json without the lists of its own pictures, which the new theme doesn't hold. */
+export function withoutPictures(manifest: Readonly<Json>): Json {
+  return Object.fromEntries(Object.entries(manifest).filter(([field]) => !PLAY_PICTURE_FIELDS.includes(field)))
+}
+
 /** theme.json made the new theme's. */
 function themeManifest(file: FolderFile, template: FullTemplate, options: FullOptions): FolderFile {
-  const { previews: _previews, ...play } = JSON.parse(textOf(file)) as Json
+  const play = withoutPictures(JSON.parse(textOf(file)) as Json)
   const base = options.mascot ? play : manifestWithoutMascot(play)
   const uses = Array.isArray(base.uses) ? (base.uses as string[]) : []
   return jsonFile(MANIFEST, {

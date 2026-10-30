@@ -3,11 +3,12 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `3d8c72e7b58d32866f058a171d68bbbb8a335504`, core `main` on 28 Oct 2026, after
-the merge of pull request #1365 (the AI label: the server's CSS scope check refuses a selector naming `data-ai-label`,
-and the core corpus gains its `cssScope` cases; the host contract stays 1.1.0 and the SDK 1.2.0). Every file here,
-`host.ts` included, is the same as at `2e57484810204fb9b3481c86a0faed7c6eb3d0ae`, the kit's previous pin (main at the
-merge of pull request #1334, 26 Oct 2026: theme voice, SDK 1.2.0 with the `voice` area).
+Source: `AutomatosAI/automatos-ai` at `40a2e00715f069b7f1bbade0d00b287409a16b74`, the head of pull request #1373 on
+30 Oct 2026 (phone screenshots: `theme.json`'s `phonePreviews`, PNG or JPEG files in `assets/previews/phone/`, up to
+24 web and 24 phone screenshots, and a 32 MB package cap; the core corpus gains their `manifests` and `packages`
+cases; the host contract stays 1.1.0 and the SDK 1.2.0). Every file here but `package-manifest.ts` (`host.ts`
+included) is the same as at `3d8c72e7b58d32866f058a171d68bbbb8a335504`, the kit's previous pin (main at the merge of
+pull request #1365, 28 Oct 2026: the AI label).
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -49,15 +50,16 @@ commit above:
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `b87148b88f1d2bd8d520fe2ffcf31c4206502603244f6a9782b009155842f4c8`), written as JSON with
+(that file's sha256 there: `109aaedbbfa8eab5577a7ad63b35cd2756b191ec5e310062e711fab9297abead`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
 `HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
-contract.py changed only its reserved `htmlClass` names and its `SDK_VERSION` (1.2.0). `tests/guides.test.ts` holds the file to the sha256 below and
-to the copies of the same lists in `package-manifest.ts`.
+contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.2.0) and its package cap (32 MB).
+`tests/guides.test.ts` holds the file to the sha256 below and to the copies of the same lists in
+`package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `8923fcfe3f29cb8ca1316c378c8a53d3cb4a207bd7fe65536121539707c7ea1a` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `271a457eaf03d5153ceec45f4fe8f4095917e1702203f0032ecd2411308b7728` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
@@ -126,13 +128,16 @@ change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFit
 `src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite.
 
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
-and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the
-`mobile` block's included (PRD-261 M-02: `src/files.ts` the `.ttf` and `.otf` fonts in `assets/fonts/mobile/`,
+and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the phone
+screenshots' included (`src/files.ts` the PNG and JPEG kinds of `assets/previews/phone/` and the 32 MB package cap,
+`src/check-package.ts` the files `phonePreviews` names), and the
+`mobile` block's (PRD-261 M-02: `src/files.ts` the `.ttf` and `.otf` fonts in `assets/fonts/mobile/`,
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (the boot's `sanitizePrepaint`
 and fit check, shared with `check design`, and the server's `paint_look`), the first paint `fromLooks` needs), and
 `@automatos/vite-preset/css-scope` ports the scope check; the corpus cases `packages` and `cssScope` hold both ports
 to the server's verdicts. The review stage is Python too (`review_stage.py`, `scan.py`, `sdk_uses.py`,
-`audio_capture.py`, `drift.py`, the preview rule of `listings.py`, and `mobile_contrast.py`, the WCAG AA measure of a
+`audio_capture.py`, `drift.py`, the preview rule of `listings.py` (one rule for web previews and phone screenshots,
+`src/check/previews.ts`), and `mobile_contrast.py`, the WCAG AA measure of a
 `mobile` block's colour pairs): `src/check/` ports it over the two data files, the audio capture check included
 (`src/check/audio.ts`, over `@automatos/theme-rules`' `AUDIO_APIS`, the JS rules' own patterns), and the contrast check
 (`src/check/mobile-contrast.ts`, which paints `fromLooks` through `src/mobile-paint.ts` and takes its ratio from

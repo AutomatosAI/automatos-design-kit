@@ -47,7 +47,7 @@ commands) to stderr and exits 2.
 | [`skin`](cli-design.md#skin) | A phone skin (`skin.json`, the `mobile` block the harness's skin designer exports), checked as `pack` and `check` would and written into `theme.json` | none |
 | [`dev`](cli-harness.md#dev) | The browser harness for one theme, served on `127.0.0.1`, rebuilt after each change | `127.0.0.1` only |
 | [`shots`](cli-harness.md#shots) | Every slot, page and route the theme serves, shot on Chromium and WebKit with an axe scan | `127.0.0.1` only |
-| [`previews`](cli-harness.md#previews) | Picked shots copied into `assets/previews/`, and `theme.json` `previews` set to them | none |
+| [`previews`](cli-harness.md#previews) | Picked shots copied into `assets/previews/`, and `theme.json` `previews` set to them; with `--phone`, Automatos Go screenshots into `assets/previews/phone/` and `phonePreviews` | none |
 | [`install`](#install) | A package installed privately in a local Automatos, opted in to and optionally chosen | the address given |
 | [`submit`](#submit) | A package sent to the Automatos Marketplace for review | `AUTOMATOS_API_URL` |
 
@@ -101,7 +101,8 @@ more than 8 levels deep, over 1 MB or not UTF-8 (`SOURCE_NOT_ALLOWED`), a `src/`
 (`SOURCE_PACKAGE`). A theme with no `src/` at all still packs, with one warning: its package installs privately, but
 the Marketplace review can't rebuild it.
 
-Finally the zip must be at most 10 MB (`PACKAGE_TOO_LARGE`). The zip is plain and reproducible (`src/zip.ts`): every
+Finally the zip must be at most 32 MB (`PACKAGE_TOO_LARGE`), core's default `THEME_MAX_PACKAGE_MB`: room for 24 web
+and 24 phone screenshots at 512 KB beside the code. The zip is plain and reproducible (`src/zip.ts`): every
 member deflated, in path order, one fixed time (1980-01-01 00:00), no folder entries, no zip64. `pack` reads the
 written zip back and compares its digest before it reports success.
 
@@ -164,7 +165,7 @@ The first line names the core commit whose checks these are. Then one line per c
 | `uses` | `theme.json` `uses` against the SDK names `dist/` imports: an import of a name the SDK doesn't export is an error; an area used but not declared, a `uses` entry that is no SDK area, or a namespace or dynamic import is a warning |
 | `audioCapture` | `dist/` naming the browser's audio APIs itself (`getUserMedia`, `SpeechRecognition`, `speechSynthesis`), core's TV-C7 check: any is an error naming each, since a theme's voice goes through the SDK's `voice` area |
 | `clonedFrom` | Each page in `"mode": "clone"` against the core release's hash of the file it copied; a changed or missing file is a warning |
-| `previews` | Each preview by the preset the listing shows it under; one no preset claims is a warning |
+| `previews` | Each web preview and phone screenshot by the preset the listing shows it under, and the listing's cover and phone cover; one no preset claims is a warning |
 | `jsRules` | The Marketplace review's JS rules on `source/` (`@automatos/theme-rules`): a finding that refuses the package is an error, one listed for the reviewer a warning; no `source/` is `not_measured` |
 | `reproducibleBuild` | Only with `--rebuild`: `dist/` rebuilt from `source/`, byte for byte, or an error naming the files that differ |
 | `contrast` | The WCAG AA pairs of the `mobile` block, per scheme or per preset; a pair under its minimum is an error; no block is `not_measured` |

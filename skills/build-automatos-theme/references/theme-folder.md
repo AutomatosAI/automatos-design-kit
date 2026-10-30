@@ -16,7 +16,7 @@ themes/harbour/
   .gitignore          /out/ (and /looks/, /boot/ only if a build writes them)
   design/contrast.json  the colour pairs check design measures (never packed)
   looks/schema.json, looks/presets/*.look.json, boot/prepaint.json   the look data (guides/looks.md)
-  assets/             fonts, mascot clips and stills, brand, previews (guides/contract.md)
+  assets/             fonts, mascot clips and stills, brand, previews and phone screenshots (guides/contract.md)
   src/entry.ts        the entry: defineTheme({ register })
   src/vendor/         outside libraries, copied as source with their licences
   test/               tests on the harness

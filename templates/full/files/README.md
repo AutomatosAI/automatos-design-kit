@@ -31,5 +31,7 @@ on every preset.
 - `npm run pack`: `automatos-theme check design`, then `automatos-theme pack` into `out/`.
 
 A new theme folder under `themes/` is a new workspace: it changes `package-lock.json`, which the kit's
-`kit-lockfile.yml` dispatch writes (the kit's `AGENTS.md`, "Adding a dependency"). The listing's previews are not
-copied from Play: shoot the theme's own (`automatos-theme shots`) and list them in `theme.json`.
+`kit-lockfile.yml` dispatch writes (the kit's `AGENTS.md`, "Adding a dependency"). The listing's previews and phone
+screenshots are not copied from Play: shoot the theme's own (`automatos-theme shots`, then `automatos-theme previews
+--from`), take its phone screenshots in Automatos Go (`automatos-theme previews --phone`), and list them in
+`theme.json`.

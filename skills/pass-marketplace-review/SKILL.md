@@ -21,8 +21,8 @@ last step of [build-automatos-theme](../build-automatos-theme/SKILL.md).
    - `audioCapture`: the bundle opening the microphone, listening or speaking by itself (`getUserMedia`,
      `SpeechRecognition`, `speechSynthesis`) is an error. Talk to Auto through the SDK's `voice` area.
    - `clonedFrom`: a cloned page whose core file has changed since is a warning.
-   - `previews`: a preview that belongs to no preset is a warning. The listing keeps `theme.json`'s order, and its
-     cover is the first preview listed.
+   - `previews`: a web preview or a phone screenshot that belongs to no preset is a warning. The listing keeps
+     `theme.json`'s order, and its cover is the first preview listed, its phone cover the first phone screenshot.
    - `jsRules`: the JS rules over `source/` (below).
    - `contrast`: the server measures only the `mobile` block's colour pairs; check your own pairs with
      `automatos-theme check design`.

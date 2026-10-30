@@ -210,3 +210,12 @@ measures them (`packages/theme-cli/src/check/mobile-contrast.ts`, a port of core
 6. **Check.** `automatos-theme check <theme folder>`: the `contrast` line measures the block as the review will.
 7. **Pack.** `automatos-theme pack <theme folder>` refuses what core refuses, the block's files included, and writes
    the `.autotheme` file.
+
+## Showing the phone on the Marketplace
+
+The Marketplace storefront shows each look with a phone screenshot beside its web preview. Those are pictures, not
+the skin: install the theme, take screenshots in Automatos Go with the phone held upright, one look at a time, and
+name each `<look>` or `<look>-<screen>` (`ember.png`, `ember-chat.jpg`). Then
+`automatos-theme previews <theme folder> --phone <folder>` copies them into `assets/previews/phone/` and lists them
+in `theme.json` as `phonePreviews`, up to 24, each a PNG or JPEG of at most 512 KB
+([contract.md](contract.md#screenshots-for-the-marketplace), [docs/cli-harness.md](../docs/cli-harness.md#previews)).

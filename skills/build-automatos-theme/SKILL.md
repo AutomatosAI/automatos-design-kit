@@ -92,6 +92,8 @@ your setup lets you run commands, the same checks are:
   harness, for every preset, with an axe scan.
 - `automatos-theme previews themes/<slug> --from shots --pick <preset>=<shot>`: the shots you pick become the
   listing's previews (`<preset>.png`, `<preset>-<screen>.png`), in that order, the first the cover; commit them.
+  `--phone <folder>` in place of `--from` does the same with Automatos Go screenshots, PNG or JPEG, for the listing's
+  phone screenshots (`phonePreviews`, in `assets/previews/phone/`); up to 24 of each.
 - `automatos-theme install <file.autotheme> --to http://localhost:3000 --choose`: installs it privately on a local
   edition (`--to` takes the web app's address or the API's) and makes it your theme, so you can try it in the real
   app.

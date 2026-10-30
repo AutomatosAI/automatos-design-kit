@@ -11,7 +11,7 @@ transparent ground. The reader is `automatos-theme pack` and `automatos-theme ch
 | `assets/mascot/<state>.webm` | clip | 1024 KB | its first bytes are WebM's header (`1A 45 DF A3`) |
 | `assets/mascot/<state>.mp4` | clip | 1024 KB | an `ftyp` box at byte 4 |
 | `assets/mascot/<state>.png` | still | 512 KB | the PNG signature |
-| the whole package | package | 10 MB | the `.autotheme` file's own size |
+| the whole package | package | 32 MB | the `.autotheme` file's own size |
 
 - A clip over its cap is `CLIP_TOO_LARGE`, a still over its cap `FILE_TOO_LARGE`, bytes that are not what the name
   says `BAD_FILE_TYPE`, and a package over its cap `PACKAGE_TOO_LARGE`.
@@ -20,7 +20,8 @@ transparent ground. The reader is `automatos-theme pack` and `automatos-theme ch
 - 1024 KB is the server's default clip cap (core's `contract.py` `CAP_SETTINGS`); a server can be set to another.
   The still's cap is fixed.
 - The caps are per file, and the package's is for everything: twelve states at the full caps would be 30 MB. Budget
-  the mascot with the code (JS plus CSS at most 3 MB), the fonts and the previews. Play's 36 files come to about 4 MB.
+  the mascot with the code (JS plus CSS at most 3 MB), the fonts and the screenshots (up to 24 web and 24 phone at
+  512 KB, 24 MB). Play's 36 files come to about 4 MB.
 
 ## What the reader does not check
 

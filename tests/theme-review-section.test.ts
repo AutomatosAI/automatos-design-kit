@@ -7,7 +7,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { previewsLines, previewsReport } from "../scripts/review/previews.ts";
+import { phonePreviewsLines, phonePreviewsReport, previewsLines, previewsReport } from "../scripts/review/previews.ts";
 import {
   AXE_AFTER, CONTRAST_NOT_MEASURED, MOBILE_BLOCK, NO_MOBILE_BLOCK, previewsAndAccessibility, SECTION_HEAD, SECTION_NOT_READ,
   sectionLines,
@@ -32,6 +32,16 @@ const PREVIEW_FILES = Object.fromEntries(Object.entries(SIZES).map(([name, size]
 const bytesOf = (name: string): number => previewBytes(SIZES[name]).length;
 const THEME_FILES = { "src/entry.js": `import './theme.css'\n${HELLO_ENTRY}`, "src/theme.css": HELLO_CSS };
 const LOOK_SCHEMA = "packages/theme-cli/src/core/look-schema.ts";
+const PHONE = `${P}phone/`;
+/** A JPEG's first bytes (SOI and an APP0 marker), then `size` more, which core's reader checks a .jpg for. */
+const jpegBytes = (size: number): Uint8Array => Uint8Array.from([0xff, 0xd8, 0xff, 0xe0, ...new Array<number>(size).fill(0)]);
+/** Phone screenshots: one per look, one no preset claims, and one theme.json doesn't list. */
+const PHONE_FILES: Readonly<Record<string, Uint8Array>> = {
+  [`${PHONE}night-chat.jpg`]: jpegBytes(20), [`${PHONE}default.png`]: previewBytes(12),
+  [`${PHONE}stray.jpg`]: jpegBytes(6), [`${PHONE}old.jpg`]: jpegBytes(10),
+};
+const PHONE_LISTED = [`${PHONE}night-chat.jpg`, `${PHONE}default.png`, `${PHONE}stray.jpg`];
+const phoneBytes = (name: string): number => PHONE_FILES[`${PHONE}${name}`].length;
 
 afterEach(() => {
   removeSeededFolders();
@@ -100,6 +110,46 @@ describe("a seeded package's section", () => {
   it("measures no contrast only while core's look schema declares no text and ground pairs (schema, look and knobs alone)", () => {
     const schema = readFileSync(join(ROOT, LOOK_SCHEMA), "utf8");
     expect(schema).toContain("const SCHEMA_FIELDS: readonly string[] = ['schema', 'look', 'knobs']");
+  });
+});
+
+describe("a seeded package's phone screenshots", () => {
+  it("lists them per preset after the web previews, by the same rule, and leaves them out of the web's unlisted", async () => {
+    const packed = await packSeeded({
+      files: { ...THEME_FILES, ...PREVIEW_FILES, ...PHONE_FILES }, manifest: { previews: LISTED, phonePreviews: PHONE_LISTED }, entry: "src/entry.js",
+    });
+    const report = await review(packed);
+    expect(report.outcome).toBe("pass");
+    const section = report.previewsAndAccessibility;
+    expect(section?.previews).toEqual(EXPECTED_PREVIEWS);
+    expect(section?.phonePreviews).toEqual({
+      cover: `${PHONE}night-chat.jpg`,
+      presets: [
+        { id: "default", default: true, previews: [{ path: `${PHONE}default.png`, bytes: phoneBytes("default.png"), screen: null }] },
+        { id: "night", default: false, previews: [{ path: `${PHONE}night-chat.jpg`, bytes: phoneBytes("night-chat.jpg"), screen: "chat" }] },
+      ],
+      unclaimed: [{ path: `${PHONE}stray.jpg`, bytes: phoneBytes("stray.jpg"), screen: null }],
+      unlisted: [{ path: `${PHONE}old.jpg`, bytes: phoneBytes("old.jpg"), screen: null }],
+    });
+    const phoneLines = [
+      `Phone screenshots: 3 phone screenshots listed; the listing's phone cover is ${PHONE}night-chat.jpg, the first theme.json lists.`,
+      "  - default (default look): 1 phone screenshot",
+      `      ${PHONE}default.png, ${phoneBytes("default.png")} bytes`,
+      "  - night: 1 phone screenshot",
+      `      ${PHONE}night-chat.jpg, ${phoneBytes("night-chat.jpg")} bytes, screen chat`,
+      `  - claimed by no preset (the listing shows it apart): ${PHONE}stray.jpg, ${phoneBytes("stray.jpg")} bytes`,
+      `  - not listed in theme.json (packed, never shown): ${PHONE}old.jpg, ${phoneBytes("old.jpg")} bytes`,
+    ];
+    expect(section && phonePreviewsLines(section.phonePreviews)).toEqual(phoneLines);
+    const lines = sectionLines(section ?? null);
+    expect(lines.indexOf(`  ${phoneLines[0]}`)).toBeGreaterThan(lines.indexOf(`  ${previewsLines(EXPECTED_PREVIEWS)[0]}`));
+    expect(lines.indexOf(`  ${phoneLines[0]}`)).toBeLessThan(lines.indexOf(`  ${CONTRAST_NOT_MEASURED}`));
+  });
+
+  it("adds no phone line for a package with no phone screenshot", () => {
+    const files = new Map<string, Uint8Array>([["looks/presets/default.look.json", new Uint8Array()]]);
+    expect(phonePreviewsLines(phonePreviewsReport({}, files))).toEqual([]);
+    expect(sectionLines(previewsAndAccessibility({}, files)).some((line) => line.includes("Phone screenshots"))).toBe(false);
   });
 });
 

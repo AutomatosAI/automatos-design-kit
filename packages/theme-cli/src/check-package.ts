@@ -4,7 +4,8 @@
  * The passes of core's orchestrator/services/themes/package.py `read_theme_package`, in its order:
  * the paths (members.ts), then each file's size and bytes, then the content: theme.json against
  * the manifest rules (incl. lookEditor@1 and styleSheet@1, PA-14), the entry and the code caps,
- * the look schema and presets, the prepaint table, the files the manifest names, the default
+ * the look schema and presets, the prepaint table, the files the manifest names (its web and phone
+ * screenshots, `previews` and `phonePreviews`, among them), the default
  * look, and dist/theme.css against the server's CSS scope check, then the `mobile` block (host 1.1.0,
  * package.py `_mobile_link_errors`): `fromLooks` paints a phone's ground and its text from the prepaint
  * table's defaults (mobile-paint.ts), and a `clips` or `stills` mascot has every state's files. Each
@@ -25,6 +26,9 @@ export const ENTRY_PATH = 'dist/entry.js'
 export const MOBILE_CANNOT_PAINT = 'MOBILE_CANNOT_PAINT'
 
 const MOBILE_FIELD = 'mobile'
+/** theme.json's lists of Marketplace screenshots: the web's, and Automatos Go's (manifest.py `LISTED_FILES`). */
+export const PREVIEWS_FIELD = 'previews'
+export const PHONE_PREVIEWS_FIELD = 'phonePreviews'
 const MOBILE_FONTS = 'fonts'
 const MOBILE_FROM_LOOKS = 'fromLooks'
 const PREPAINT_DEFAULTS = 'defaults'
@@ -86,11 +90,15 @@ function mobileFontFiles(manifest: Manifest): string[] {
   return isRecord(fonts) ? Object.values(fonts).filter((path): path is string => typeof path === 'string') : []
 }
 
-/** The package files a checked manifest names: its previews, fonts, wordmark and mobile fonts (manifest.py `referenced_files`). */
+/**
+ * The package files a checked manifest names: its web and phone previews, fonts, wordmark and mobile fonts
+ * (manifest.py `referenced_files`).
+ */
 function referencedFiles(manifest: Manifest): string[] {
   const list = (field: string): string[] => (Array.isArray(manifest[field]) ? (manifest[field] as string[]) : [])
   const brand = manifest.brand as { readonly wordmark?: string } | undefined
-  return [...list('previews'), ...list('fonts'), ...(brand?.wordmark ? [brand.wordmark] : []), ...mobileFontFiles(manifest)]
+  const previews = [...list(PREVIEWS_FIELD), ...list(PHONE_PREVIEWS_FIELD)]
+  return [...previews, ...list('fonts'), ...(brand?.wordmark ? [brand.wordmark] : []), ...mobileFontFiles(manifest)]
 }
 
 /** The files the manifest names exist, its default look is a preset, and its CSS is scoped. */

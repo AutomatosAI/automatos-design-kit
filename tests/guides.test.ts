@@ -13,9 +13,10 @@ import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { COMMANDS } from "../packages/theme-cli/src/cli-main.ts";
+import { CAPS, MB } from "../packages/theme-cli/src/files.ts";
 import { MOBILE_AA_TEXT, MOBILE_AA_UI, MOBILE_CONTRAST_PAIRS } from "../packages/theme-cli/src/core/mobile-manifest.ts";
 import {
-  HOST_OWNED_ROUTES, KNOWN_SLOTS, PAGE_SOURCES, REQUIRED_SLOTS, RESERVED_HTML_CLASSES,
+  HOST_OWNED_ROUTES, KNOWN_SLOTS, PAGE_SOURCES, REQUIRED_SLOTS, RESERVED_HTML_CLASSES, validateManifest,
 } from "../packages/theme-cli/src/core/package-manifest.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -49,6 +50,9 @@ const MOBILE_TOKEN_NAMES = [
   "--background-gradient-from", "--background-gradient-to", "--glass-border-hover", "--cc-hover", "--cc-hover-border",
 ];
 const MOBILE_HEADING = "## The `mobile` block";
+const SCREENSHOTS_HEADING = "## Screenshots for the Marketplace";
+/** The two lists of screenshots, each in its folder, and the naming rule that files each under a look. */
+const SCREENSHOT_NAMES = ["previews", "phonePreviews", "assets/previews/<name>.png", "assets/previews/phone/<name>.png", "<look>-<screen>"];
 // contract.md's htmlClass row, and the sentence in it naming the classes the host keeps.
 const HTML_CLASS_ROW = "| `htmlClass` |";
 const HOST_KEEPS = /The host keeps ([^;|]+);/;
@@ -162,6 +166,34 @@ describe("contract.md names the htmlClass names the host keeps", () => {
     const row = guide("contract.md").split("\n").find((line) => line.startsWith(HTML_CLASS_ROW)) ?? "";
     const kept = HOST_KEEPS.exec(row)?.[1] ?? "";
     expect(Array.from(kept.matchAll(/`([a-z][a-z0-9-]*)`/g), (match) => match[1])).toEqual([...RESERVED_HTML_CLASSES]);
+  });
+});
+
+/** The most `field` may list, as the vendored validator's refusal of a far longer list says it. */
+function mostListed(field: string): number {
+  const listed = Array.from({ length: 100 }, (_, index) => `assets/previews/phone/s${index}.png`);
+  const refusal = validateManifest({ [field]: listed }).errors.find((error) => error.path === field)?.message ?? "";
+  return Number(/up to (\d+) different/.exec(refusal)?.[1]);
+}
+
+describe("contract.md documents the Marketplace's screenshots and the package cap pack holds a package to", () => {
+  const text = guide("contract.md");
+  const section = sectionOf(text, SCREENSHOTS_HEADING);
+
+  it("states the package cap of files.ts, which is core's", () => {
+    expect(text).toContain(`The whole package is at most ${CAPS.package / MB} MB`);
+  });
+
+  it.each(SCREENSHOT_NAMES)("its screenshots section names %s", (name) => expect(section).toContain(name));
+
+  it("gives each list the most the vendored validator takes", () => {
+    const most = [mostListed("previews"), mostListed("phonePreviews")];
+    expect(most).toEqual([most[0], most[0]]);
+    expect(most[0]).toBeGreaterThan(0);
+    ["`previews`", "`phonePreviews`"].forEach((field) => {
+      const row = section.split("\n").find((line) => line.startsWith(`| ${field} |`)) ?? "";
+      expect(row.endsWith(`| ${most[0]} |`), field).toBe(true);
+    });
   });
 });
 

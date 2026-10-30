@@ -3,7 +3,8 @@
  * checks, so the outcome (`pass` only when every check passed, review.ts) never counts it, and the person reviewing
  * decides what it means. Three parts:
  *
- * - the previews per preset (previews.ts): present, size, and which preset claims each;
+ * - the previews per preset (previews.ts): present, size, and which preset claims each; then the phone screenshots
+ *   (theme.json's `phonePreviews`) the same way, when the package holds any;
  * - contrast from the package's presets against declared pairs: not measured, since core's look schema
  *   (looks/schema.json: `schema`, `look` and `knobs`, nothing else) declares no text and ground pairs, so nothing in a
  *   package says which of a preset's colours is text on which ground (the kit's own design/contrast.json is never
@@ -13,7 +14,7 @@
  *   runs this (scripts/review/axe.ts), and its result follows this text in the job summary, never feeding back into it.
  */
 import type { Files, Manifest } from '../../packages/theme-cli/src/check/report.ts'
-import { previewsLines, previewsReport, type PreviewsReport } from './previews.ts'
+import { phonePreviewsLines, phonePreviewsReport, previewsLines, previewsReport, type PreviewsReport } from './previews.ts'
 
 export const SECTION_TITLE = 'Previews and accessibility'
 export const SECTION_HEAD = `${SECTION_TITLE} (report only: the outcome above does not count it; the person reviewing decides):`
@@ -40,6 +41,8 @@ export interface ContrastReport {
 
 export interface PreviewsAndAccessibility {
   readonly previews: PreviewsReport
+  /** The phone screenshots, by the same rule as the web previews. */
+  readonly phonePreviews: PreviewsReport
   readonly contrast: ContrastReport
 }
 
@@ -48,9 +51,9 @@ export function contrastReport(manifest: Manifest): ContrastReport {
   return { status: NOT_MEASURED, reason: CONTRAST_NOT_MEASURED, mobileBlock: manifest[MOBILE_FIELD] !== undefined }
 }
 
-/** The section's previews and contrast, from the package's theme.json and files. */
+/** The section's web previews, phone screenshots and contrast, from the package's theme.json and files. */
 export function previewsAndAccessibility(manifest: Manifest, files: Files): PreviewsAndAccessibility {
-  return { previews: previewsReport(manifest, files), contrast: contrastReport(manifest) }
+  return { previews: previewsReport(manifest, files), phonePreviews: phonePreviewsReport(manifest, files), contrast: contrastReport(manifest) }
 }
 
 /** The section as plain lines: its head, then each part indented under it; one line when the package was not read. */
@@ -59,6 +62,7 @@ export function sectionLines(section: PreviewsAndAccessibility | null): string[]
   const { contrast } = section
   const parts = [
     ...previewsLines(section.previews),
+    ...phonePreviewsLines(section.phonePreviews),
     contrast.reason,
     `  ${contrast.mobileBlock ? MOBILE_BLOCK : NO_MOBILE_BLOCK}`,
     AXE_AFTER,

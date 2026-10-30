@@ -11,6 +11,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { CAPS, MB } from "../packages/theme-cli/src/files.ts";
 import { ROOT, readText, section, stepNamed, stepsOf, trackedFiles, usesLines } from "./support/workflow-steps.ts";
 
 const WORKFLOWS = ".github/workflows";
@@ -134,6 +135,12 @@ describe("theme-review.yml (C-02b)", () => {
     expect(download).toBeGreaterThanOrEqual(0);
     expect(download).toBeLessThan(install);
     expect(steps[download].run).toContain("--proto '=https'");
+  });
+
+  it("downloads at most the package cap pack holds a package to (core's THEME_MAX_PACKAGE_MB), and names it when over", () => {
+    const run = steps.find((step) => /\bcurl\b/.test(step.run))?.run ?? "";
+    expect(Number(/^\s*max_bytes=(\d+)$/m.exec(run)?.[1])).toBe(CAPS.package);
+    expect(run).toContain(`The package is larger than ${CAPS.package / MB} MiB`);
   });
 
   it("passes the inputs through env, never into a script", () => {

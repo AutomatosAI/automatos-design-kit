@@ -8,7 +8,7 @@
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { readFullTemplate } from '../src/new/full-spec.ts'
-import { FULL_TEMPLATE_DIR } from '../src/new/full.ts'
+import { FULL_TEMPLATE_DIR, withoutPictures } from '../src/new/full.ts'
 import { KIT_ROOT } from '../src/new/index.ts'
 import { manifestWithoutMascot, relativeSpecifier } from '../src/new/no-mascot.ts'
 import { themeNames } from '../src/new/placeholders.ts'
@@ -24,6 +24,15 @@ describe("templates/full/template.json", () => {
     expect(template.copy).not.toContain('assets/previews')
     expect(template.noMascot.package).toBe('@automatos/mascot')
     expect(template.noMascot.drop).toEqual(expect.arrayContaining(['assets/mascot']))
+  })
+})
+
+describe("the new theme's theme.json", () => {
+  it("leaves out Play's own pictures, its web previews and its phone screenshots, and keeps every other field", () => {
+    const play = {
+      id: 'automatos/play', previews: ['assets/previews/ember.png'], phonePreviews: ['assets/previews/phone/ember-chat.jpg'], look: 'ember',
+    }
+    expect(withoutPictures(play)).toEqual({ id: 'automatos/play', look: 'ember' })
   })
 })
 
