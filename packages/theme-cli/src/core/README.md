@@ -108,6 +108,18 @@ hold both readings. The package is named in `src/check/contrast.ts` (its import 
 `contrast.ts` alone (it imports nothing); only `check design` loads `hsl.ts`: `check/index.ts` imports `design.ts`
 when that command runs.
 
+`check design` and `check` also refuse what core's browser would leave out of a theme's first paint and looks, which
+core's prepaint and look validators at the commit above accept (`src/first-paint.ts`): a knob or pair cell's value the
+first paint's gate drops (`BAD_CSS_VALUE`: boot-sanitize.ts `isCssValue`, ported as `src/mobile-paint.ts`
+`bootValueProblem`, which also says why), and a `looks/schema.json` knob the table, as `bootTable` keeps it, never
+paints (`KNOB_NOT_PAINTED`: `frontend/lib/theme-host/looks/spec.ts` `lookSpecOf` builds the look spec from the table
+alone). `check design` lists them on its prepaint line; `check` refuses the theme before its review, as core's reader
+refuses a package. The codes, paths and sentences are core's reader's once core ships the same two checks
+(`orchestrator/services/themes/first_paint.py`, and `prepaint_drop_errors` in `css_value.py` with its TypeScript twin
+`prepaintDropErrors` in `css-value.ts`). `pack`'s reader port (`src/check-package.ts`) stays core's at the commit above,
+which the vendored corpus's `packages` cases hold it to. The browser harness paints only the values `isBootValue`
+keeps (theme-harness `src/host/prepaint.ts`).
+
 `design/contrast.json` is kit-only. `pack` never packs `design/` (it is not one of the package's folders) and the
 server never reads it, so its pairs are measured by the kit alone: the server measures only the `mobile` block's ten
 Studio pairs (PRD-261 M-03), and declared pairs for every look stay kit-only for v1 (PRD-261 QB-40). The kit's own
@@ -125,7 +137,10 @@ row moves too; when its lists change, the guides change with them). `test/core-c
 the core corpus, and `test/review-corpus.test.ts` holds `check` to the review corpus. Read `boot.ts`'s
 `THEME_BOOT_SCRIPT` and `boot-sanitize.ts`'s `sanitizePrepaint` and `lookFitsPrepaint` at the new commit too: port a
 change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFits`) and a change to the paint into
-`src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite.
+`src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite. Once the commit carries core's
+`first_paint.py`, the vendored `css-value.ts` brings `prepaintDropErrors` and the gate with it: then `src/first-paint.ts`
+takes them from there, its two checks move into `src/check-package.ts` as the reader's (so `pack` refuses them too,
+held by the corpus's new `packages` and `prepaintDrops` cases), and `check` drops its own step.
 
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
 and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the phone

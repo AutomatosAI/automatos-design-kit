@@ -8,6 +8,8 @@
  *   core's codes; then its defaults and every preset must fit the table as the host keeps it
  *   (mobile-paint.ts `bootTable` and `lookFits`, the host's first-paint rule): the host drops a
  *   table whose defaults don't fit what is left, and paints the defaults for a look that doesn't fit.
+ *   What the browser would leave out is an error too (first-paint.ts, core's codes): a cell's value its
+ *   first paint drops (a gradient, over 200 characters), and a schema knob the table never paints.
  *   `not_measured` when the theme has no table.
  * - `contrast`: every pair design/contrast.json declares, on every preset as the first paint paints
  *   it from the kept table (contrast.ts `firstPaint`), by the look runtime's own ratio. A pair under
@@ -32,6 +34,7 @@ import {
   CUSTOM_PROPERTY_PATTERN, echo, hasOwn, isFiniteNumber, isRecord, own, prepaintErrors, PREPAINT_PATH, themeError,
   type JsonRecord, type ThemeError,
 } from '../core/css-value.ts'
+import { firstPaintErrors } from '../first-paint.ts'
 import { parseJson } from '../json.ts'
 import { lookFileErrors, presetFiles, SCHEMA_PATH } from '../looks.ts'
 import { pathErrors, type PackageEntry } from '../members.ts'
@@ -223,7 +226,8 @@ function fitErrors(table: BootTable | null, presets: readonly Preset[]): ThemeEr
   )))
 }
 
-function prepaintRow(table: Read<BootTable | null>, presets: readonly Preset[], blocked: readonly ThemeError[]): DesignRow {
+/** The prepaint line: `dropped` is what the browser would leave out of the table and its looks (first-paint.ts). */
+function prepaintRow(table: Read<BootTable | null>, presets: readonly Preset[], blocked: readonly ThemeError[], dropped: readonly ThemeError[]): DesignRow {
   if (blocked.length > 0) return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} can't be read.`, blocked)
   if (table.state === 'absent') {
     const none = `No ${PREPAINT_PATH}: no look is painted before the theme's code runs, so no preset's colours can be read as data.`
@@ -231,6 +235,9 @@ function prepaintRow(table: Read<BootTable | null>, presets: readonly Preset[], 
   }
   if (table.state === 'refused') return row('prepaint', LEVEL_ERROR, `${PREPAINT_PATH} doesn't pass core's prepaint checks.`, table.errors)
   const errors = fitErrors(table.value, presets)
+  if (dropped.length > 0) {
+    return row('prepaint', LEVEL_ERROR, `The browser keeps less of ${PREPAINT_PATH} and its looks than the files hold.`, [...dropped, ...errors])
+  }
   if (errors.length > 0) return row('prepaint', LEVEL_ERROR, `${errors.length} look(s) don't fit ${PREPAINT_PATH}.`, errors)
   return row('prepaint', LEVEL_PASS, (
     `${PREPAINT_PATH} passes core's prepaint checks; its defaults and ${presets.length} preset(s) fit what the host keeps of it.`
@@ -322,7 +329,7 @@ export function checkDesignFiles(entries: readonly PackageEntry[], meter: Contra
   const table = tableOf(files)
   const contrast = contrastRow({ pairs: pairsOf(files), table, presets, blocked: blockedAt(DESIGN_CONTRAST_PATH) }, meter)
   const looks = looksRow(files, blockedAt(LOOKS_FOLDER))
-  const rows = [looks, prepaintRow(table, presets, blockedAt(PREPAINT_PATH)), ...contrast.rows]
+  const rows = [looks, prepaintRow(table, presets, blockedAt(PREPAINT_PATH), firstPaintErrors(files)), ...contrast.rows]
   return { rows, measures: contrast.measures }
 }
 
