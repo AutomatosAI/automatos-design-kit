@@ -324,7 +324,9 @@ declared views and presets) on Chromium, one test each: one view in one look at 
 `edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
 inside the fixtures' made-up day, the time zone and locale fixed too, the host's Auto widget stand-in hidden for the
 shot, and the demo extras a workspace in use shows (`demo=`: every agent active; on Play's conversations its hello
-already played; older conversations on Play's list). A test fails when the theme did not start, lacks the shot's look,
+already played; older conversations on Play's list). The day's brief is on but for HUD's chat, voice and panel shots
+(`brief=off`, its screen once the brief folded back); a shot's step may open the theme's phone menu, press the host's
+Listen and wait until Auto reads the brief (`listen`), or scroll its heading into view (`scroll-to-heading`). A test fails when the theme did not start, lacks the shot's look,
 is not on the shot's view, draws the nudge, is not in the shot's voice phase or shows Play's hello after it played. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
 the job uploads the folder as `kit-showcase`.

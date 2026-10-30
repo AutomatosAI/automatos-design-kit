@@ -20,6 +20,12 @@
  * No axe scan: the regression shots scan the same views. HUD draws no Command Centre of its own (its theme.json
  * declares no such page, so the host's page would stand in its frame), so none is shot.
  *
+ * The day's brief (SDK 1.3.0's proactive area) is on by default, as the harness page opens; a shot may ask for the day
+ * without one (`brief: false`, the address's `brief=off`). HUD's chat and voice shots are its screen once the brief has
+ * folded back, so they keep the brief off; its briefing shots draw BRIEFING on every look at both widths, one of them
+ * after a press of the host's Listen (`listen`: Auto reading it, `▸ SPEAKING`), and its MISSIONS and SYSTEMS shots
+ * scroll the panel's heading into view first (`scroll-to-heading`).
+ *
  * Each shot's file is `<theme>-<width>-<what>-<look>.png` (showcaseFile), in SHOWCASE_FOLDER of the harness package.
  */
 import {
@@ -50,8 +56,11 @@ export const SHOWCASE_LOCALE = 'en-GB'
 export const SHOWCASE_DESKTOP: Viewport = Object.freeze({ width: SHOT_WIDTHS[0], height: DESKTOP_HEIGHT })
 export const SHOWCASE_PHONE: Viewport = PHONE_VIEWPORT
 
-/** What the spec does on the page before the shot: nothing, or open the theme's phone menu (its Menu button). */
-export type ShowcaseStep = 'none' | 'open-menu'
+/**
+ * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); press the
+ * host's Listen for the day's brief and wait until Auto reads it; or scroll the shot's heading into view.
+ */
+export type ShowcaseStep = 'none' | 'open-menu' | 'listen' | 'scroll-to-heading'
 
 /** One showcase image: a theme's view in one look and viewport, with the host's chat and voice as given. */
 export interface ShowcaseShot {
@@ -66,6 +75,8 @@ export interface ShowcaseShot {
   /** True opens the chat on the laptop-shortlist conversation; false on a new chat. */
   readonly transcript: boolean
   readonly voice: HarnessVoicePhase
+  /** True: the day's brief (the harness page's default); false: no brief today (`brief=off`). */
+  readonly brief: boolean
   readonly step: ShowcaseStep
   /** A heading the view must show (the first open's greeting), when the shot is one the theme names so. */
   readonly heading?: string
@@ -82,6 +93,11 @@ const DELIVERABLES_PAGE = '/deliverables'
  * caption while he plays it (packages/mascot/src/media.ts), which no shot after the hello shows.
  */
 export const PLAY_HELLO = "Hi, I'm Auto."
+/** The host's Listen for the day's brief, by its name (src/sdk/brief-voice.tsx LISTEN_TO_THE_BRIEF). */
+export const BRIEF_LISTEN = 'Listen to the brief'
+/** HUD's MISSIONS and SYSTEMS panels, by their headings (themes/hud/src/chat/panels/missions-panel.tsx, systems-panel.tsx). */
+export const HUD_MISSIONS = 'Missions'
+export const HUD_SYSTEMS = 'Systems'
 
 const CHAT: View = Object.freeze<View>({ kind: 'page', key: CHAT_PAGE, path: pagePath(CHAT_PAGE) })
 const LOOK_EDITOR: View = Object.freeze<View>({ kind: 'slot', key: LOOK_EDITOR_SLOT, path: slotPath(LOOK_EDITOR_SLOT) })
@@ -93,7 +109,7 @@ const AGENTS_ROUTE = 'agents'
 const TODAY: View = Object.freeze<View>({ kind: 'route', key: TODAY_ROUTE, path: routePath(TODAY_ROUTE) })
 const TEAM: View = Object.freeze<View>({ kind: 'route', key: AGENTS_ROUTE, path: routePath(AGENTS_ROUTE) })
 
-type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading' | 'demo'>>
+type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'brief' | 'step' | 'heading' | 'demo'>>
 
 /** Every shot's extra: the roster with every agent active, as HUD's AGENTS panel lists it. */
 const HEALTHY: readonly DemoExtra[] = Object.freeze(['healthy-agents'])
@@ -103,7 +119,8 @@ function planned(
   theme: ShowcaseTheme, viewport: Viewport, what: string, look: string, view: View, changes: ShotChanges = {},
 ): ShowcaseShot {
   const made: ShowcaseShot = {
-    theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, step: 'none', demo: HEALTHY,
+    theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, brief: DEFAULT_SETTINGS.brief, step: 'none',
+    demo: HEALTHY,
   }
   return Object.freeze({ ...made, ...changes })
 }
@@ -120,21 +137,38 @@ const ON_TRANSCRIPT: ShotChanges = Object.freeze<ShotChanges>({ transcript: true
 const LISTENING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'listening' })
 const SPEAKING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'speaking' })
 const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-menu' })
+/** HUD's screen once the brief has folded back: its chat and voice shots. */
+const FOLDED: ShotChanges = Object.freeze<ShotChanges>({ ...ON_TRANSCRIPT, brief: false })
+const FOLDED_LISTENING: ShotChanges = Object.freeze<ShotChanges>({ ...LISTENING, brief: false })
+const FOLDED_SPEAKING: ShotChanges = Object.freeze<ShotChanges>({ ...SPEAKING, brief: false })
+/** HUD's BRIEFING on the conversation, and while Auto reads it. */
+const BRIEFING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, brief: true })
+const BRIEFING_READ: ShotChanges = Object.freeze<ShotChanges>({ ...BRIEFING, step: 'listen' })
+/** A HUD panel scrolled into view, on the folded screen. */
+const PANEL = (heading: string): ShotChanges => Object.freeze<ShotChanges>({ ...FOLDED, step: 'scroll-to-heading', heading })
+/** HUD's five looks, for the shots drawn on each. */
+const HUD_LOOKS = Object.freeze(['arc', 'forge', 'ghost', 'nova', 'signal'] as const)
 
 /** Every showcase shot, theme by theme, the desktop's before the phone's. */
 export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
-  planned('hud', DESKTOP, 'chat', 'arc', CHAT, ON_TRANSCRIPT),
-  planned('hud', DESKTOP, 'chat', 'forge', CHAT, ON_TRANSCRIPT),
-  planned('hud', DESKTOP, 'chat', 'ghost', CHAT, ON_TRANSCRIPT),
-  planned('hud', DESKTOP, 'chat', 'nova', CHAT, ON_TRANSCRIPT),
-  planned('hud', DESKTOP, 'chat', 'signal', CHAT, ON_TRANSCRIPT),
-  planned('hud', DESKTOP, 'voice-listening', 'arc', CHAT, LISTENING),
-  planned('hud', DESKTOP, 'voice-speaking', 'forge', CHAT, SPEAKING),
+  planned('hud', DESKTOP, 'chat', 'arc', CHAT, FOLDED),
+  planned('hud', DESKTOP, 'chat', 'forge', CHAT, FOLDED),
+  planned('hud', DESKTOP, 'chat', 'ghost', CHAT, FOLDED),
+  planned('hud', DESKTOP, 'chat', 'nova', CHAT, FOLDED),
+  planned('hud', DESKTOP, 'chat', 'signal', CHAT, FOLDED),
+  planned('hud', DESKTOP, 'voice-listening', 'arc', CHAT, FOLDED_LISTENING),
+  planned('hud', DESKTOP, 'voice-speaking', 'forge', CHAT, FOLDED_SPEAKING),
   planned('hud', DESKTOP, 'look-editor', 'arc', LOOK_EDITOR),
-  planned('hud', PHONE, 'chat', 'arc', CHAT, ON_TRANSCRIPT),
-  planned('hud', PHONE, 'voice-listening', 'forge', CHAT, LISTENING),
+  ...HUD_LOOKS.map((look) => planned('hud', DESKTOP, 'briefing', look, CHAT, BRIEFING)),
+  planned('hud', DESKTOP, 'briefing-speaking', 'arc', CHAT, BRIEFING_READ),
+  planned('hud', DESKTOP, 'missions', 'arc', CHAT, PANEL(HUD_MISSIONS)),
+  planned('hud', DESKTOP, 'systems', 'arc', CHAT, PANEL(HUD_SYSTEMS)),
+  planned('hud', PHONE, 'chat', 'arc', CHAT, FOLDED),
+  planned('hud', PHONE, 'voice-listening', 'forge', CHAT, FOLDED_LISTENING),
   planned('hud', PHONE, 'look-editor', 'arc', LOOK_EDITOR),
-  planned('hud', PHONE, 'voice-speaking', 'arc', CHAT, SPEAKING),
+  planned('hud', PHONE, 'voice-speaking', 'arc', CHAT, FOLDED_SPEAKING),
+  ...HUD_LOOKS.map((look) => planned('hud', PHONE, 'briefing', look, CHAT, BRIEFING)),
+  planned('hud', PHONE, 'briefing-speaking', 'arc', CHAT, BRIEFING_READ),
   planned('play', DESKTOP, 'first-open', 'ember', CHAT, { heading: PLAY_HELLO }),
   planned('play', DESKTOP, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, afterHello(SPEAKING)),
@@ -178,13 +212,13 @@ export function showcaseOrigin(theme: ShowcaseTheme): string {
 
 /**
  * The address a shot opens on its theme's server: its view's path in its look at its width, with reduced motion, its
- * conversation and voice phase, no toolbar, on the hosted edition, with its demo extras.
+ * conversation, voice phase and brief, no toolbar, on the hosted edition, with its demo extras.
  */
 export function showcaseUrl(shot: ShowcaseShot): string {
-  const { view, look, viewport, transcript, voice, demo } = shot
+  const { view, look, viewport, transcript, voice, brief, demo } = shot
   const settings = {
-    ...DEFAULT_SETTINGS, path: view.path, preset: look, width: viewport.width, reducedMotion: true, transcript, voice, toolbar: false,
-    edition: SHOWCASE_EDITION, demo,
+    ...DEFAULT_SETTINGS, path: view.path, preset: look, width: viewport.width, reducedMotion: true, transcript, voice, brief,
+    toolbar: false, edition: SHOWCASE_EDITION, demo,
   }
   return `${showcaseOrigin(shot.theme)}/${settingsQuery(settings)}`
 }

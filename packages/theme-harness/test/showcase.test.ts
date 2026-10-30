@@ -5,6 +5,8 @@
 // with reduced motion and no toolbar, on its theme's own server, under a clock fixed inside the fixtures' made-up day,
 // with the demo extras a workspace in use shows: every agent active; Play's hello played before each of its
 // conversations (its first open keeps it), under the key and state Play keeps it in; older conversations on its list.
+// The day's brief is on but for HUD's chat, voice and panel shots, its screen once the brief has folded back; HUD's
+// briefing shots draw it on every look at both widths, one at each width while Auto reads it.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -13,7 +15,7 @@ import { declaredIn, DEV_PORT, HARNESS_PORT, PHONE_VIEWPORT, PRESET_SUFFIX, read
 import { HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
 import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 import {
-  PLAY_HELLO, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
+  BRIEF_LISTEN, HUD_MISSIONS, HUD_SYSTEMS, PLAY_HELLO, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
   showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
 } from '../src/host/showcase.ts'
 
@@ -30,6 +32,9 @@ const OLDER_CHATS = join(HARNESS_DIR, 'fixtures/conversations/showcase.json')
 const PLAY_SESSION = join(THEMES_DIR, 'play/src/lib/mascot/session.ts')
 const PLAY_FIRST_OPEN = join(THEMES_DIR, 'play/src/components/play/chat/first-open.tsx')
 const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
+/** The host's Listen stand-in, which names its button, and HUD's two panels the showcase scrolls to. */
+const BRIEF_VOICE = join(HARNESS_DIR, 'src/sdk/brief-voice.tsx')
+const HUD_PANELS = join(THEMES_DIR, 'hud/src/chat/panels')
 
 /** The shot list, as the showcase is asked for: HUD's, Play's, Arcade's, then Candy's, the desktop's before the phone's. */
 const EXPECTED_FILES = [
@@ -41,10 +46,24 @@ const EXPECTED_FILES = [
   'hud-1440-voice-listening-arc.png',
   'hud-1440-voice-speaking-forge.png',
   'hud-1440-look-editor-arc.png',
+  'hud-1440-briefing-arc.png',
+  'hud-1440-briefing-forge.png',
+  'hud-1440-briefing-ghost.png',
+  'hud-1440-briefing-nova.png',
+  'hud-1440-briefing-signal.png',
+  'hud-1440-briefing-speaking-arc.png',
+  'hud-1440-missions-arc.png',
+  'hud-1440-systems-arc.png',
   'hud-390-chat-arc.png',
   'hud-390-voice-listening-forge.png',
   'hud-390-look-editor-arc.png',
   'hud-390-voice-speaking-arc.png',
+  'hud-390-briefing-arc.png',
+  'hud-390-briefing-forge.png',
+  'hud-390-briefing-ghost.png',
+  'hud-390-briefing-nova.png',
+  'hud-390-briefing-signal.png',
+  'hud-390-briefing-speaking-arc.png',
   'play-1440-first-open-ember.png',
   'play-1440-chat-ember.png',
   'play-1440-voice-speaking-ember.png',
@@ -124,7 +143,7 @@ describe('the showcase shots', () => {
     expect(url.pathname).toBe('/')
     expect(readSettings(url.search)).toEqual({
       path: shot.view.path, preset: shot.look, width: shot.viewport.width, tone: 'light', reducedMotion: true, forcedColors: false,
-      transcript: shot.transcript, voice: shot.voice, toolbar: false, edition: 'saas', demo: shot.demo,
+      transcript: shot.transcript, voice: shot.voice, brief: shot.brief, toolbar: false, edition: 'saas', demo: shot.demo,
     })
   })
 
@@ -143,6 +162,42 @@ describe('the showcase shots', () => {
     expect(voiced.length).toBeGreaterThan(0)
     expect(voiced.every((shot) => shot.view.key === '/chat' && shot.transcript)).toBe(true)
     expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'open-menu').map(showcaseFile)).toEqual(['play-390-menu-ember.png'])
+  })
+
+  it("draw HUD's BRIEFING on every look at both widths, with the brief, and Auto reading it at each width", () => {
+    const hudChats = SHOWCASE_SHOTS.filter((shot) => shot.theme === 'hud' && shot.view.key === '/chat')
+    const briefed = hudChats.filter((shot) => shot.brief).map(showcaseFile)
+    const looks = ['arc', 'forge', 'ghost', 'nova', 'signal']
+    expect(briefed).toEqual([
+      ...looks.map((look) => `hud-1440-briefing-${look}.png`), 'hud-1440-briefing-speaking-arc.png',
+      ...looks.map((look) => `hud-390-briefing-${look}.png`), 'hud-390-briefing-speaking-arc.png',
+    ])
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'listen').map(showcaseFile)).toEqual([
+      'hud-1440-briefing-speaking-arc.png', 'hud-390-briefing-speaking-arc.png',
+    ])
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'listen').every((shot) => shot.brief && shot.voice === 'idle')).toBe(true)
+  })
+
+  it("draw HUD's other chat shots once its brief has folded back, MISSIONS and SYSTEMS scrolled into view", () => {
+    const folded = SHOWCASE_SHOTS.filter((shot) => shot.theme === 'hud' && shot.view.key === '/chat' && !shot.brief)
+    expect(folded.map((shot) => shot.what)).toEqual([
+      'chat', 'chat', 'chat', 'chat', 'chat', 'voice-listening', 'voice-speaking', 'missions', 'systems',
+      'chat', 'voice-listening', 'voice-speaking',
+    ])
+    const scrolled = SHOWCASE_SHOTS.filter((shot) => shot.step === 'scroll-to-heading')
+    expect(scrolled.map((shot) => [showcaseFile(shot), shot.heading])).toEqual([
+      ['hud-1440-missions-arc.png', HUD_MISSIONS],
+      ['hud-1440-systems-arc.png', HUD_SYSTEMS],
+    ])
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.theme !== 'hud').every((shot) => shot.brief)).toBe(true)
+  })
+})
+
+describe('the names the steps look for', () => {
+  it("are the host's Listen and HUD's MISSIONS and SYSTEMS headings", () => {
+    expect(readFileSync(BRIEF_VOICE, 'utf8')).toContain(`export const LISTEN_TO_THE_BRIEF = '${BRIEF_LISTEN}'`)
+    expect(readFileSync(join(HUD_PANELS, 'missions-panel.tsx'), 'utf8')).toContain(`export const MISSIONS_TITLE = '${HUD_MISSIONS}'`)
+    expect(readFileSync(join(HUD_PANELS, 'systems-panel.tsx'), 'utf8')).toContain(`export const SYSTEMS_TITLE = '${HUD_SYSTEMS}'`)
   })
 })
 
