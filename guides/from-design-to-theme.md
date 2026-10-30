@@ -71,7 +71,7 @@ The proof branch can never merge as it stands — its first commit deletes the l
 ([proof/README.md](../proof/README.md), "After the run"). Open a new branch from `main` that takes only
 `themes/<slug>/` and `proof/<id>/` from the proof branch, with the new workspace's lockfile entries, and merge it.
 The merge releases the theme: `theme-publish.yml` takes any theme whose version has no `<slug>-v*` tag yet and whose
-publisher `release/publishers.json` lists, so `pixelcade/arcade` 0.1.0 is released as `arcade-v0.1.0` with no tag
+publisher `release/publishers.json` lists, so `automatos/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag
 pushed by hand ([docs/releasing.md](../docs/releasing.md), "Merge to publish"). The tag rule is any
 `<slug>-v<major>.<minor>.<patch>`; a theme of a publisher the list doesn't name needs that publisher added first.
 

@@ -24,8 +24,8 @@ folder under `themes/`, `<publisher>` the part of its `theme.json` id before the
 
 1. **Pick** (`scripts/release/bumped.mjs`, Node alone): each folder under `themes/` is a theme, and its `theme.json`
    id must be `<publisher>/<slug>`, its slug the folder's name. A theme is picked when its version is above its
-   newest `<slug>-v*` tag (or it has none) and its publisher is listed in `release/publishers.json` (`automatos` and
-   `pixelcade`). A theme of another publisher is built and tested with the kit, never published.
+   newest `<slug>-v*` tag (or it has none) and its publisher is listed in `release/publishers.json` (today
+   `automatos` alone). A theme of another publisher is built and tested with the kit, never published.
 2. **Build**, one job per theme, with no secrets, no environment and a read-only token: at the merged commit it
    installs the kit with `npm ci --ignore-scripts`, builds, packs the theme, checks the `.sha256` against pack's
    `.sha256.json`, and runs `scripts/review/main.ts` on the package in `docker run --network none`, as
