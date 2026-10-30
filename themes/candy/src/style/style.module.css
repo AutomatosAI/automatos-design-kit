@@ -201,18 +201,28 @@
   color: var(--candy-card-ink);
 }
 
+/*
+ * Each row sets its Gradient choice's values on itself (card-layers.ts); the card composes them here, since the
+ * page's own --candy-card-hi and --candy-card-glow were composed once, on <html>, from the active look's.
+ */
+.gradientCard {
+  --candy-row-hi: radial-gradient(circle at var(--candy-hi-x) var(--candy-hi-y), var(--candy-hi-colour), transparent var(--candy-hi-reach));
+  --candy-row-glow: radial-gradient(circle at 0% 100%, var(--candy-glow-pink), transparent 55%),
+    radial-gradient(circle at 100% 100%, var(--candy-glow-cyan), transparent 50%);
+}
+
 .gradientCard[data-set="1"] {
-  background: var(--candy-card-hi), var(--candy-card-glow),
+  background: var(--candy-row-hi), var(--candy-row-glow),
     linear-gradient(155deg, var(--candy-g1a) 0%, var(--candy-g1b) var(--candy-card-mid), var(--candy-g1c) 100%);
 }
 
 .gradientCard[data-set="2"] {
-  background: var(--candy-card-hi), var(--candy-card-glow),
+  background: var(--candy-row-hi), var(--candy-row-glow),
     linear-gradient(155deg, var(--candy-g2a) 0%, var(--candy-g2b) var(--candy-card-mid), var(--candy-g2c) 100%);
 }
 
 .gradientCard[data-set="3"] {
-  background: var(--candy-card-hi), var(--candy-card-glow),
+  background: var(--candy-row-hi), var(--candy-row-glow),
     linear-gradient(155deg, var(--candy-g3a) 0%, var(--candy-g3b) var(--candy-card-mid), var(--candy-g3c) 100%);
 }
 

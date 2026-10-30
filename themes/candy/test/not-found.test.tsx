@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { BACK_TO_TODAY, CHAT_WITH_AUTO, LOST_AUTO_SIZE, NOT_FOUND_TITLE, NotFound } from '../src/edges/not-found.tsx'
-import { PRESETS, type ThemeLook } from '../src/looks/spec.ts'
+
 import { TODAY_HREF } from '../src/routes.ts'
 
 beforeEach(() => {
@@ -35,11 +35,4 @@ describe('the 404', () => {
     expect(auto).toHaveAttribute('width', String(LOST_AUTO_SIZE))
   })
 
-  it("takes the active look's roundness", () => {
-    const rounder: ThemeLook = { ...PRESETS[0], roundness: 36 }
-    host.setLooks({ look: rounder })
-    const { container } = render(<NotFound />)
-    const screenRoot = container.firstElementChild as HTMLElement
-    expect(screenRoot.style.getPropertyValue('--candy-r')).toBe('36px')
-  })
 })

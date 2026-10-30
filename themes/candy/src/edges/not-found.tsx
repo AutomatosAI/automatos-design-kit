@@ -1,7 +1,6 @@
 import { CHAT_HREF, HostLink } from '@automatos/theme-sdk'
 
 import { Auto } from '../art/auto'
-import { useLookStyle } from '../frame/look-vars'
 import { TODAY_HREF } from '../routes'
 import { THEME_HEADING } from '../theme'
 import styles from './edges.module.css'
@@ -22,7 +21,7 @@ export const LOST_AUTO_SIZE = 140
 
 export function NotFound() {
   return (
-    <div className={styles.screen} style={useLookStyle()}>
+    <div className={styles.screen}>
       <div className={styles.band} aria-hidden="true" />
       <main className={`${ui.window} ${styles.lost}`}>
         <Auto state="lost" size={LOST_AUTO_SIZE} />

@@ -7,7 +7,7 @@
   "palette": "blush",
   "cards": "mix",
   "gradient": "rich",
-  "roundness": 28,
+  "roundness": "28",
   "glow": 6,
   "motion": "on"
 }
