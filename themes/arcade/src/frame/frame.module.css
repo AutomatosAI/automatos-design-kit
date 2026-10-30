@@ -1,0 +1,264 @@
+/*
+ * Arcade's frame: the desktop (status bar over the pause menu and the page) and, below 1024 px, the handheld (a
+ * console with a screen, a D-pad and the voice surround). Both keep their foot clear of their own windows' shadows,
+ * so the host's AI label, which the host draws at the bottom of the viewport, sits on the frame's ground.
+ */
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--arcade-page);
+  color: var(--arcade-tx);
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- The desktop's status bar ------------------------------------------------------------------------------ */
+
+.bar {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 72px;
+  padding: 0 24px;
+  background-color: var(--arcade-bar);
+  background-image: var(--arcade-scan);
+  box-shadow: 0 4px 0 var(--arcade-bd);
+  color: var(--arcade-bar-tx);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.wordmarkText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--arcade-display);
+  color: var(--arcade-bar-tx);
+}
+
+.wordmarkOver {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wordmarkName {
+  font-size: 16px;
+}
+
+.wordmark[data-compact="true"] .wordmarkName {
+  font-size: 9px;
+}
+
+.today {
+  display: flex;
+  gap: 16px;
+  margin: 0 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 14px;
+  background: var(--arcade-win);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+}
+
+.counterGame {
+  font-family: var(--arcade-display);
+  font-size: 10px;
+}
+
+.counterGame[data-tone="xp"] { color: var(--arcade-xp); }
+.counterGame[data-tone="qs"] { color: var(--arcade-qs); }
+.counterGame[data-tone="mp"] { color: var(--arcade-mp); }
+
+.counterValue {
+  font-size: 22px;
+}
+
+.counterWords {
+  font-size: 16px;
+  color: var(--arcade-tx2);
+}
+
+.today[data-compact="true"] {
+  gap: 6px;
+  margin: 0 0 0 auto;
+}
+
+.today[data-compact="true"] .counter {
+  gap: 5px;
+  min-height: 0;
+  padding: 4px 7px;
+}
+
+.today[data-compact="true"] .counterGame {
+  font-size: 8px;
+}
+
+.today[data-compact="true"] .counterValue {
+  font-size: 17px;
+}
+
+.utilities {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--arcade-win);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+/* --- The screen: the desktop's menu and page, the handheld's screen ---------------------------------------- */
+
+.screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.menu {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 240px;
+  margin: 30px 0 48px 30px;
+  padding: 18px 10px;
+  overflow-y: auto;
+}
+
+.menuGroup + .menuGroup {
+  margin-top: 6px;
+}
+
+.menuHead {
+  padding: 12px 12px 6px;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--arcade-target);
+  padding: 0 12px;
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+  font-size: 20px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.cursor {
+  width: 14px;
+  flex: none;
+  font-family: var(--arcade-display);
+  font-size: 11px;
+  visibility: hidden;
+}
+
+.menuItem[aria-current="page"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.menuItem[aria-current="page"] .cursor,
+.menuItem:hover .cursor,
+.menuItem:focus-visible .cursor {
+  visibility: visible;
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+.page,
+.fullBleed {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  outline: none;
+}
+
+.page {
+  overflow: auto;
+  padding: 30px 36px 48px 40px;
+}
+
+.fullBleed {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 36px 48px 40px;
+}
+
+.pageInner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- The handheld: the frame and its screen (the rest is handheld.module.css) ------------------------------ */
+
+.frame[data-layout="phone"] {
+  gap: 0;
+  padding: 14px 14px 40px;
+  background-color: var(--arcade-win);
+  background-image: var(--arcade-scan);
+  box-shadow: inset 0 0 0 3px var(--arcade-bd), inset 6px 6px 0 var(--arcade-bevl), inset -6px -6px 0 var(--arcade-bevd);
+}
+
+.frame[data-layout="phone"] .screen {
+  flex-direction: column;
+  overflow: hidden;
+  border: 10px solid var(--arcade-bar);
+  border-top-width: 0;
+  border-radius: 0 0 30px 10px;
+  background: var(--arcade-page);
+}
+
+.frame[data-layout="phone"] .page,
+.frame[data-layout="phone"] .fullBleed {
+  padding: 10px;
+}

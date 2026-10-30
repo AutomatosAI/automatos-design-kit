@@ -1,0 +1,136 @@
+{
+  "schema": "automatos-theme-contrast/v1",
+  "pairs": [
+    {
+      "text": "--arcade-tx",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-tx2",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-bar-tx",
+      "ground": "--arcade-bar"
+    },
+    {
+      "text": "--arcade-ac",
+      "ground": "--arcade-page"
+    },
+    {
+      "text": "--arcade-hp",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-xp",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-mp",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-qs",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-hlt",
+      "ground": "--arcade-hl"
+    },
+    {
+      "text": "--arcade-aci",
+      "ground": "--arcade-ac"
+    },
+    {
+      "text": "--arcade-bd",
+      "ground": "--arcade-page",
+      "min": 3
+    },
+    {
+      "text": "--arcade-tx",
+      "ground": "--arcade-page"
+    },
+    {
+      "text": "--arcade-tx2",
+      "ground": "--arcade-page"
+    },
+    {
+      "text": "--arcade-ac",
+      "ground": "--arcade-win"
+    },
+    {
+      "text": "--arcade-bd",
+      "ground": "--arcade-win",
+      "min": 3
+    },
+    {
+      "text": "--foreground",
+      "ground": "--background"
+    },
+    {
+      "text": "--card-foreground",
+      "ground": "--card"
+    },
+    {
+      "text": "--popover-foreground",
+      "ground": "--popover"
+    },
+    {
+      "text": "--primary-foreground",
+      "ground": "--primary"
+    },
+    {
+      "text": "--secondary-foreground",
+      "ground": "--secondary"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--background"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--card"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--muted"
+    },
+    {
+      "text": "--accent-foreground",
+      "ground": "--accent"
+    },
+    {
+      "text": "--destructive-foreground",
+      "ground": "--destructive"
+    },
+    {
+      "text": "--primary",
+      "ground": "--background"
+    },
+    {
+      "text": "--primary",
+      "ground": "--card"
+    },
+    {
+      "text": "--destructive",
+      "ground": "--background"
+    },
+    {
+      "text": "--destructive",
+      "ground": "--card"
+    },
+    {
+      "text": "--fg-3",
+      "ground": "--bg-1"
+    },
+    {
+      "text": "--fg-3",
+      "ground": "--paper"
+    },
+    {
+      "text": "--ring",
+      "ground": "--background",
+      "min": 3
+    }
+  ]
+}

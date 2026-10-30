@@ -1,0 +1,188 @@
+/*
+ * The handheld's parts below 1024 px (frame.module.css draws the console and its screen): the POWER strip, the
+ * screen's status strip, the menu in the screen's place, and the controls under the screen: the D-pad of four named
+ * 64 px targets and the round surround behind the host's voice button, which never clips the host's voice control.
+ */
+
+.power {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 8px;
+  border-radius: 10px 10px 0 0;
+  background: var(--arcade-bar);
+}
+
+.powerLight {
+  width: 8px;
+  height: 8px;
+  background: var(--arcade-ac);
+}
+
+.powerWord {
+  font-family: var(--arcade-display);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--arcade-bar-tx);
+}
+
+.screenBar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--arcade-bar);
+  border-bottom: 2px solid var(--arcade-bd);
+}
+
+.phoneMenu {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px;
+  overflow-y: auto;
+  outline: none;
+}
+
+.phoneUtilities {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: hsl(var(--card));
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.phoneActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.phoneMenuList {
+  margin: 6px;
+  padding: 8px;
+}
+
+.controls {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.brand {
+  margin: 0;
+  text-align: center;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.controlRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 64px);
+}
+
+.pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 0;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+  font-size: 13px;
+  line-height: 1.1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pad[data-place="up"] { grid-area: 1 / 2; }
+.pad[data-place="left"] { grid-area: 2 / 1; }
+.pad[data-place="right"] { grid-area: 2 / 3; }
+.pad[data-place="down"] { grid-area: 3 / 2; }
+
+.pad[aria-current="page"],
+.pad[aria-expanded="true"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.pad:active {
+  transform: translate(2px, 2px);
+}
+
+.pad:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+.padArrow {
+  font-family: var(--arcade-display);
+  font-size: 10px;
+}
+
+.padHub {
+  grid-area: 2 / 2;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.voice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.surround {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 132px;
+  min-height: 132px;
+}
+
+.surroundRing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: var(--arcade-bar);
+  box-shadow: 0 0 0 4px var(--arcade-bd), 6px 6px 0 4px var(--arcade-sh), inset 0 0 0 18px var(--arcade-bar), inset 0 0 0 22px var(--arcade-ac);
+}
+
+.voiceSlot {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.voiceWord {
+  margin: 0;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}

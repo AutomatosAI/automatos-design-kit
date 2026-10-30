@@ -1,0 +1,12 @@
+{
+  "schema": "arcade-look/v1",
+  "interface": "arcade",
+  "id": "handheld",
+  "name": "Handheld",
+  "sub": "Four shades of an olive screen",
+  "palette": "handheld",
+  "scanlines": "soft",
+  "pixelScale": "3",
+  "windowStyle": "classic",
+  "textSpeed": "normal"
+}
