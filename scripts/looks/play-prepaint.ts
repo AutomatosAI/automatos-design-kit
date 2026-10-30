@@ -1,7 +1,9 @@
 // Copied from core (AutomatosAI/automatos-ai) `frontend/lib/theme-host/builtin/play-prepaint.ts` at commit
 // ebedc7eb8d7f7f9d032706728a7f420a9e833392 (the same at 0dd8b846e41772c8dd7ef159e4373bcb9419b06a, host
 // 1.1.0), the builder core's builtin Play boots from. Only the import paths changed: core's `@/lib/...`
-// modules are Play's copies under themes/play/src/lib/, and the table types are ./boot-types.ts.
+// modules are Play's copies under themes/play/src/lib/, and the table types are ./boot-types.ts. Since Play
+// 1.3.0 (PRD-268 §6.12.2) each ground's entry also carries the status tokens Play's look paints
+// (engine.ts studioStatusTokens), which builtin Play never had.
 // compile-looks writes its result as the package's boot/prepaint.json, so the installed package paints
 // from the same table as builtin Play. Core's comment below is unchanged; it describes builtin Play, whose
 // tone rides its own cookie. The package's table also carries the tone rule (host 1.1.0), which
@@ -27,6 +29,7 @@ import {
   shellVars,
   studioAccentTokens,
   studioGroundTokens,
+  studioStatusTokens,
 } from '../../themes/play/src/lib/looks/engine.ts'
 import { DEFAULT_LOOK } from '../../themes/play/src/lib/looks/presets.ts'
 import { GLOW_MAX, GLOW_MIN, type Look } from '../../themes/play/src/lib/looks/types.ts'
@@ -66,7 +69,11 @@ function table<K extends string, V>(keys: readonly K[], value: (key: K) => V): R
 
 function knobTables(): Readonly<Record<KnobField, PrepaintKnobTable>> {
   return {
-    ground: table(GROUND_KEYS, (key) => ({ ...groundVars(key), ...studioGroundTokens(key) })),
+    ground: table(GROUND_KEYS, (key) => ({
+      ...groundVars(key),
+      ...studioGroundTokens(key),
+      ...studioStatusTokens(key),
+    })),
     accent: table(ACCENT_KEYS, accentVars),
     font: table(TYPE_STYLE_KEYS, fontVars),
     shell: table(SHELL_KEYS, shellVars),

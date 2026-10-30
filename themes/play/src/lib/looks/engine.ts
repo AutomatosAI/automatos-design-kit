@@ -22,6 +22,7 @@ import {
   type TypeStyleKey,
 } from './catalogue'
 import { DEFAULT_LOOK } from './presets'
+import { statusTokensFor } from './status-tokens'
 import { GLOW_MAX, GLOW_MIN, LOOK_INTERFACE, LOOK_SCHEMA, type Look, type ValidationResult } from './types'
 
 /**
@@ -147,6 +148,20 @@ export function lookToStudioTokens(look: Look): CssVars {
 
 /** Every Studio token a look sets: the same set for every look. */
 export const STUDIO_TOKEN_NAMES: readonly string[] = Object.keys(lookToStudioTokens(DEFAULT_LOOK))
+
+/**
+ * Play 1.3.0 (PRD-268 §6.12.2, K13) — the status tokens a ground paints: Studio's Light or Dark values by the ground's
+ * tone (status-tokens.ts). Beside Studio's tokens, not inside lookToStudioTokens, which stays the runtime's own (its
+ * parity fixture and look-kit's tests hold it); the first-paint table paints both (scripts/looks/play-prepaint.ts).
+ */
+export function studioStatusTokens(key: GroundKey): CssVars {
+  return statusTokensFor(isDarkGround(key))
+}
+
+/** A look's status tokens: its ground's (studioStatusTokens). */
+export function lookToStatusTokens(look: Pick<Look, 'ground'>): CssVars {
+  return studioStatusTokens(look.ground)
+}
 
 /**
  * The one gate for a Play look from outside the code (storage, an imported file, pasted JSON):
