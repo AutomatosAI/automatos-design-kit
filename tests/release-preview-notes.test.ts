@@ -2,12 +2,15 @@
 // previews, each a Markdown image of the file at the release's tag, so a theme's release page shows the theme. Play
 // lists its hand-picked previews; a theme that lists none adds nothing; a list that names anything but a picture
 // under assets/previews/ fails the release. theme-release.yml's "Publish the release" appends the script's output.
+// The phone screenshots theme.json lists under phonePreviews follow the web previews, side by side at a phone's width;
+// a list that names anything but a PNG or a JPEG under assets/previews/phone/ fails the release too.
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  EXIT_FAILED, EXIT_OK, EXIT_USAGE, PREVIEWS_HEADING, previewNotes, previewPaths, runPreviewNotes,
+  EXIT_FAILED, EXIT_OK, EXIT_USAGE, PHONE_IMAGE_WIDTH, PHONE_PREVIEWS_HEADING, PREVIEWS_HEADING, phonePreviewPaths, previewNotes,
+  previewPaths, runPreviewNotes,
 } from "../scripts/release/preview-notes.ts";
 import { ROOT, readText, stepNamed, stepsOf, jobOf } from "./support/workflow-steps.ts";
 
@@ -55,6 +58,63 @@ describe("previewNotes", () => {
 
   it("is empty for no previews", () => {
     expect(previewNotes({ themeDir: "themes/acme", paths: [], tag: "acme-v1.0.0", repo: REPO })).toBe("");
+  });
+});
+
+describe("phonePreviewPaths", () => {
+  it("takes PNGs and JPEGs under assets/previews/phone/, and none when the field is left out", () => {
+    expect(phonePreviewPaths(undefined)).toEqual({ ok: true, paths: [] });
+    expect(phonePreviewPaths(["assets/previews/phone/a.png", "assets/previews/phone/b-2.jpg"]))
+      .toEqual({ ok: true, paths: ["assets/previews/phone/a.png", "assets/previews/phone/b-2.jpg"] });
+  });
+
+  it("refuses anything else, a web preview among them, naming each entry it refuses", () => {
+    expect(phonePreviewPaths({})).toEqual({ ok: false, error: "theme.json phonePreviews is not a list." });
+    const refused = phonePreviewPaths(["assets/previews/phone/a.png", "assets/previews/b.png", "assets/previews/phone/c.jpeg", "assets/previews/phone/d/e.png"]);
+    expect(refused.ok).toBe(false);
+    if (!refused.ok) {
+      ["\"assets/previews/b.png\"", "\"assets/previews/phone/c.jpeg\"", "\"assets/previews/phone/d/e.png\""].forEach((part) => expect(refused.error).toContain(part));
+      expect(refused.error).not.toContain("\"assets/previews/phone/a.png\"");
+      expect(refused.error).toContain("each is a PNG or a JPEG under assets/previews/phone/.");
+    }
+  });
+});
+
+describe("previewNotes with phone screenshots", () => {
+  const base = `https://github.com/${REPO}/raw/acme-v1.2.3/themes/acme`;
+  const phone = (name: string): string => `<img src="${base}/assets/previews/phone/${name}" alt="${name.replace(/\.(?:png|jpg)$/, "")}" width="${PHONE_IMAGE_WIDTH}">`;
+
+  it("puts the phone screenshots after the web previews, on one line, each a phone's width", () => {
+    const notes = previewNotes({
+      themeDir: "themes/acme", paths: ["assets/previews/day.png"], phonePaths: ["assets/previews/phone/day.jpg", "assets/previews/phone/night-chat.png"],
+      tag: "acme-v1.2.3", repo: REPO,
+    });
+    expect(notes.split("\n")).toEqual([
+      PREVIEWS_HEADING, "", `![day](${base}/assets/previews/day.png)`, "",
+      PHONE_PREVIEWS_HEADING, "", `${phone("day.jpg")} ${phone("night-chat.png")}`,
+    ]);
+  });
+
+  it("is the phone screenshots alone for a theme with no web previews", () => {
+    const notes = previewNotes({ themeDir: "themes/acme", paths: [], phonePaths: ["assets/previews/phone/day.jpg"], tag: "acme-v1.2.3", repo: REPO });
+    expect(notes.split("\n")).toEqual([PHONE_PREVIEWS_HEADING, "", phone("day.jpg")]);
+  });
+
+  it("prints both from a theme's theme.json, and fails on a phonePreviews entry it can't show", () => {
+    const root = mkdtempSync(join(tmpdir(), "preview-notes-"));
+    try {
+      mkdirSync(join(root, "themes", "acme"), { recursive: true });
+      const write = (fields: Record<string, unknown>): void => writeFileSync(join(root, "themes", "acme", "theme.json"), JSON.stringify(fields));
+      write({ previews: ["assets/previews/day.png"], phonePreviews: ["assets/previews/phone/day.jpg"] });
+      const notes = previewNotes({ themeDir: "themes/acme", paths: ["assets/previews/day.png"], phonePaths: ["assets/previews/phone/day.jpg"], tag: "acme-v1.2.3", repo: REPO });
+      expect(ran(["themes/acme", "acme-v1.2.3", REPO], root)).toEqual({ code: EXIT_OK, out: [notes], err: [] });
+      write({ phonePreviews: ["assets/previews/day.png"] });
+      const failed = ran(["themes/acme", "acme-v1.2.3", REPO], root);
+      expect([failed.code, failed.out]).toEqual([EXIT_FAILED, []]);
+      expect(failed.err[0]).toContain("theme.json phonePreviews holds \"assets/previews/day.png\"");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 

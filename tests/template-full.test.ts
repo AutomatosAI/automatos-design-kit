@@ -207,11 +207,12 @@ describe.each(VARIANTS)("new acme/bright --template full, %s", (_label, madeOf) 
     expect(readFileSync(join(made.themeDir, "dist", "theme.css"), "utf8")).toMatch(/@keyframes bright-/);
   });
 
-  it("is acme/bright in theme.json and package.json, at its first version, with no previews of Play's", () => {
+  it("is acme/bright in theme.json and package.json, at its first version, with no previews or phone screenshots of Play's", () => {
     const made = madeOf();
     const manifest = jsonOf<Record<string, unknown>>(made, "theme.json");
     expect([manifest.id, manifest.name, manifest.version, manifest.htmlClass]).toEqual([THEME_ID, "Bright", "0.1.0", "bright"]);
     expect(manifest.previews).toBeUndefined();
+    expect(manifest.phonePreviews).toBeUndefined();
     expect(made.files.some((file) => file.path.startsWith("assets/previews/"))).toBe(false);
     const pkg = jsonOf<{ name: string; scripts: Record<string, string> }>(made, "package.json");
     expect([pkg.name, pkg.scripts.build]).toEqual(["@acme/theme-bright", "vite build"]);
