@@ -97,7 +97,7 @@
 
 .dialogue[data-layout="phone"] .typed {
   min-height: 66px;
-  max-height: 22vh;
+  max-height: 14vh;
   font-size: 17px;
   line-height: 1.3;
 }

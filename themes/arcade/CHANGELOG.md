@@ -12,6 +12,8 @@ Arcade becomes one of Automatos's own themes, `automatos/arcade` (it was `pixelc
 - A quest marker on a tile at the map's edge, or on a map narrower than a few markers, stops half a marker in from
   the side instead of hanging outside the map.
 - A long Mission goal is cut to four lines in the quest window; the whole goal stays in its text and shows on hover.
+- On the handheld (a phone's browser), the D-pad's words fit their 64 px targets (Inventory overflowed at 13 px), and
+  the story keeps room for a few lines under the dialogue box, whose typed reply now scrolls within 14% of the screen.
 - The message box's fence follows core #1365: the host's `AiLabelFence` draws its children alone and disables
   nothing.
 

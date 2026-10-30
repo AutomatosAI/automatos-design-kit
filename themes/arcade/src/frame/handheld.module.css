@@ -110,7 +110,8 @@
   box-shadow: var(--arcade-chip-ring);
   color: var(--arcade-tx);
   font-family: var(--arcade-body);
-  font-size: 13px;
+  /* 12 px keeps the longest word, Inventory, inside its 64 px target. */
+  font-size: 12px;
   line-height: 1.1;
   text-decoration: none;
   cursor: pointer;
