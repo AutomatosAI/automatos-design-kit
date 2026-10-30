@@ -66,8 +66,8 @@ them (`ARCADE_WRITE=1`) and holds them to the engine pixel for pixel.
 
 ## On the phone
 
-Automatos Go has an Arcade layout of its own, built into the app beside Studio, Play and HUD: while `automatos/arcade`
-is the active theme, the phone switches to it, with the same five palettes and knobs, synced with the web through the
+From the Automatos Go release that adds it, the app has an Arcade layout of its own, built in beside Studio, Play and
+HUD: while `automatos/arcade` is the active theme, the phone switches to it, with the same five palettes and knobs, synced with the web through the
 host's looks API. The [phone guide](../../guides/mobile-skins.md#the-phones-layouts) says how the layouts work.
 
 `theme.json`'s `mobile` block is the skin for an app version without that layout: it paints Automatos Go's Studio

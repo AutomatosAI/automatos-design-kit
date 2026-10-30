@@ -1,9 +1,9 @@
 // PRD-261 C-06r (PB-4): scripts/release/released-unchanged.mjs, kit CI's check that a released theme version
 // never changes, run with Node against throwaway git repositories. Each case builds an upstream repository
-// (Play's and HUD's files, commits, play-v* and hud-v* tags), clones it as kit CI's checkout does (one commit
-// deep, no tags) and runs the script at the clone's root: for each theme it lists the upstream's tags with git
-// ls-remote, fetches the one theme.json's version names and compares the theme's packed paths with it. git
-// runs with no system or user config.
+// (Play's, HUD's and Arcade's files, commits, play-v*, hud-v* and arcade-v* tags), clones it as kit CI's checkout
+// does (one commit deep, no tags) and runs the script at the clone's root: for each theme it lists the upstream's
+// tags with git ls-remote, fetches the one theme.json's version names and compares the theme's packed paths with
+// it. git runs with no system or user config.
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { devNull, tmpdir } from "node:os";
@@ -89,6 +89,39 @@ const HUD_GUARDED_CHANGES: ReadonlyArray<readonly [string, Readonly<Record<strin
   ["a bundled kit package's source", { [BUNDLED_SOURCE]: "export const player = 2;\n" }],
 ];
 
+// Arcade, released by arcade-v<version>: like HUD it commits boot/ and looks/, but it bundles @automatos/mascot
+// alone, not @automatos/look-kit (its package.json names no look-kit dependency).
+const ARCADE_RELEASED = "1.0.0";
+const ARCADE_TAG = `arcade-v${ARCADE_RELEASED}`;
+const ARCADE_MANIFEST = "themes/arcade/theme.json";
+const ARCADE_SOURCE = "themes/arcade/src/entry.ts";
+const ARCADE_PREPAINT = "themes/arcade/boot/prepaint.json";
+const ARCADE_PRESET = "themes/arcade/looks/presets/overworld.look.json";
+/** One file under each of Arcade's packed paths but theme.json, which arcadeManifest() writes. */
+const ARCADE_PACKED_FILES = {
+  [ARCADE_SOURCE]: "export const entry = 1;\n",
+  [ARCADE_PREPAINT]: "{}\n",
+  [ARCADE_PRESET]: '{ "id": "overworld" }\n',
+  "themes/arcade/assets/fonts/README.md": "# fonts\n",
+  "themes/arcade/README.md": "# Arcade\n",
+  "themes/arcade/CHANGELOG.md": "## 1.0.0\n\n- Release.\n",
+};
+/** Files outside Arcade's packed paths: its tests, its design proofs, its package.json, its notice and signatures. */
+const ARCADE_OUTSIDE_CHANGES = {
+  "themes/arcade/package.json": '{ "name": "@automatos/theme-arcade", "version": "1.0.0", "description": "Arcade" }\n',
+  "themes/arcade/test/entry.test.ts": "// a test\n",
+  "themes/arcade/design/contrast.json": "{}\n",
+  "themes/arcade/NOTICE": "notice\n",
+  "themes/arcade/signatures/1.0.0.sig.json": "{}\n",
+};
+const ARCADE_GUARDED_CHANGES: ReadonlyArray<readonly [string, Readonly<Record<string, string>>]> = [
+  ["a source file", { [ARCADE_SOURCE]: "export const entry = 2;\n" }],
+  ["the committed first paint (boot/)", { [ARCADE_PREPAINT]: '{ "defaults": {} }\n' }],
+  ["a new committed preset (looks/)", { "themes/arcade/looks/presets/gold.look.json": '{ "id": "gold" }\n' }],
+  ["theme.json at the same version", { [ARCADE_MANIFEST]: arcadeManifest(ARCADE_RELEASED, { name: "Arcade, renamed" }) }],
+  ["a bundled kit package's source", { [BUNDLED_SOURCE]: "export const player = 2;\n" }],
+];
+
 const sandbox = mkdtempSync(join(tmpdir(), "released-unchanged-"));
 /** git with no system or user config, a fixed identity, plain messages and no prompts. */
 const GIT_ENV = {
@@ -127,6 +160,11 @@ function hudManifest(version: unknown, extra: Readonly<Record<string, unknown>> 
   return `${JSON.stringify({ schema: "automatos-theme/v1", id: "automatos/hud", version, ...extra }, null, 2)}\n`;
 }
 
+/** Arcade's theme.json at `version`. */
+function arcadeManifest(version: unknown, extra: Readonly<Record<string, unknown>> = {}): string {
+  return `${JSON.stringify({ schema: "automatos-theme/v1", id: "automatos/arcade", version, ...extra }, null, 2)}\n`;
+}
+
 /** Writes `files` (repo-relative path to text) and commits them. */
 function commit(repo: string, files: Readonly<Record<string, string>>): void {
   Object.entries(files).forEach(([rel, body]) => {
@@ -142,11 +180,18 @@ function removeAndCommit(repo: string, rel: string): void {
   git(repo, ["commit", "-q", "-m", `remove ${rel}`]);
 }
 
-/** A new upstream repository with one commit: Play at `version`, HUD at `hudVersion`, and files outside their packed paths. */
-function upstream(version: string = RELEASED, hudVersion: string = HUD_RELEASED): string {
+/**
+ * A new upstream repository with one commit: Play at `version`, HUD at `hudVersion`, Arcade at `arcadeVersion`, and
+ * files outside their packed paths.
+ */
+function upstream(version: string = RELEASED, hudVersion: string = HUD_RELEASED, arcadeVersion: string = ARCADE_RELEASED): string {
   const repo = mkdtempSync(join(sandbox, "upstream-"));
   git(repo, ["init", "-q", "-b", "main"]);
-  commit(repo, { [MANIFEST]: manifest(version), ...PACKED_FILES, ...OUTSIDE_FILES, [HUD_MANIFEST]: hudManifest(hudVersion), ...HUD_PACKED_FILES });
+  commit(repo, {
+    [MANIFEST]: manifest(version), ...PACKED_FILES, ...OUTSIDE_FILES,
+    [HUD_MANIFEST]: hudManifest(hudVersion), ...HUD_PACKED_FILES,
+    [ARCADE_MANIFEST]: arcadeManifest(arcadeVersion), ...ARCADE_PACKED_FILES,
+  });
   return repo;
 }
 
@@ -299,26 +344,29 @@ describe("scripts/release/released-unchanged.mjs", () => {
     expect(outcome.named).toEqual(Object.keys(files));
   });
 
-  it("passes on changes outside HUD's packed paths under its released version, and names both released themes", () => {
+  it("passes on changes outside HUD's and Arcade's packed paths under their released versions, and names all three released themes", () => {
     const repo = upstream();
     tag(repo, RELEASE_TAG);
     tag(repo, HUD_TAG);
-    commit(repo, { ...HUD_OUTSIDE_CHANGES, ...OUTSIDE_CHANGES });
+    tag(repo, ARCADE_TAG);
+    commit(repo, { ...HUD_OUTSIDE_CHANGES, ...ARCADE_OUTSIDE_CHANGES, ...OUTSIDE_CHANGES });
     const outcome = check(repo);
     expect(outcome.status, outcome.output).toBe(0);
     expect(outcome.output).toContain(`Play ${RELEASED} is released (${RELEASE_TAG})`);
     expect(outcome.output).toContain(`HUD ${HUD_RELEASED} is released (${HUD_TAG})`);
+    expect(outcome.output).toContain(`Arcade ${ARCADE_RELEASED} is released (${ARCADE_TAG})`);
   });
 
   it("guards a bundled kit package for every released theme that bundles it", () => {
     const repo = upstream();
     tag(repo, RELEASE_TAG);
     tag(repo, HUD_TAG);
+    tag(repo, ARCADE_TAG);
     commit(repo, { [BUNDLED_SOURCE]: "export const player = 2;\n" });
     const outcome = check(repo);
     expect(outcome.status, outcome.output).toBe(1);
-    expect(outcome.output.match(/^::error::released-unchanged: (?:Play|HUD) \S+ is released/gm)).toHaveLength(2);
-    expect(outcome.named).toEqual([BUNDLED_SOURCE, BUNDLED_SOURCE]);
+    expect(outcome.output.match(/^::error::released-unchanged: (?:Play|HUD|Arcade) \S+ is released/gm)).toHaveLength(3);
+    expect(outcome.named).toEqual([BUNDLED_SOURCE, BUNDLED_SOURCE, BUNDLED_SOURCE]);
   });
 
   it("passes on HUD bumped above its release, and fails on an untagged HUD below it", () => {
@@ -340,6 +388,49 @@ describe("scripts/release/released-unchanged.mjs", () => {
     const outcome = check(repo);
     expect(outcome.status, outcome.output).toBe(1);
     expect(outcome.output).toContain(`::error::released-unchanged: can't read ${HUD_MANIFEST}`);
+  });
+
+  it("passes before Arcade's first release: with no arcade-v* tag nothing of Arcade is released, whatever Play's and HUD's tags", () => {
+    const repo = upstream(RELEASED, HUD_RELEASED, "1.1.0");
+    tag(repo, RELEASE_TAG);
+    tag(repo, HUD_TAG);
+    commit(repo, { [ARCADE_SOURCE]: "export const entry = 2;\n", [ARCADE_PREPAINT]: '{ "defaults": {} }\n' });
+    const outcome = check(repo);
+    expect(outcome.status, outcome.output).toBe(0);
+    expect(outcome.output).toContain("no Arcade version is released");
+  });
+
+  it.each(ARCADE_GUARDED_CHANGES)("fails on a change to Arcade's %s under its released version, naming the path", (_, files) => {
+    const repo = upstream();
+    tag(repo, ARCADE_TAG, true);
+    commit(repo, files);
+    const outcome = check(repo);
+    expect(outcome.status, outcome.output).toBe(1);
+    expect(outcome.output).toMatch(new RegExp(`^::error::released-unchanged: Arcade ${ARCADE_RELEASED} is released \\(${ARCADE_TAG}\\)`, "m"));
+    expect(outcome.output).toContain("no Play version is released");
+    expect(outcome.output).toContain("no HUD version is released");
+    expect(outcome.named).toEqual(Object.keys(files));
+  });
+
+  it("passes on Arcade bumped above its release, and fails on an untagged Arcade below it", () => {
+    const repo = upstream();
+    tag(repo, ARCADE_TAG);
+    commit(repo, { [ARCADE_SOURCE]: "export const entry = 2;\n", [ARCADE_MANIFEST]: arcadeManifest("1.0.1") });
+    const bumped = check(repo);
+    expect(bumped.status, bumped.output).toBe(0);
+    expect(bumped.output).toContain(`above the latest release, ${ARCADE_TAG}`);
+    commit(repo, { [ARCADE_MANIFEST]: arcadeManifest("0.9.0") });
+    const below = check(repo);
+    expect(below.status, below.output).toBe(1);
+    expect(below.output).toMatch(/^::error::released-unchanged: Arcade 0\.9\.0 .* is not above the latest release, arcade-v1\.0\.0/m);
+  });
+
+  it("fails when Arcade's theme.json can't be read", () => {
+    const repo = upstream();
+    removeAndCommit(repo, ARCADE_MANIFEST);
+    const outcome = check(repo);
+    expect(outcome.status, outcome.output).toBe(1);
+    expect(outcome.output).toContain(`::error::released-unchanged: can't read ${ARCADE_MANIFEST}`);
   });
 
   it("takes no arguments", () => {

@@ -22,6 +22,11 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
 - `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference. Its look
   data (`looks/`, `boot/prepaint.json`) is committed and held to its catalogue by its tests; `scripts/compile-looks.mjs`
   is Play's alone. A `hud-v<version>` tag releases it as a `play-v<version>` tag releases Play.
+- `themes/arcade`: Arcade (`automatos/arcade`), the kit's third theme, built here with the kit from a Claude Design
+  handoff on the minimal template. Its look data (`looks/`, `boot/prepaint.json` and `design/contrast.json`) is
+  committed and held to its catalogue by its own tests (`ARCADE_WRITE=1`), the same way as HUD's; unlike Play and
+  HUD it bundles `@automatos/mascot` alone, not `@automatos/look-kit`. An `arcade-v<version>` tag releases it the
+  same way.
 
 ## Stack
 
@@ -31,7 +36,7 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 
 ## Traps
 
-- Changing the kit itself (its packages, templates, guides, workflows, Play or HUD): nothing runs on the
+- Changing the kit itself (its packages, templates, guides, workflows, Play, HUD or Arcade): nothing runs on the
   maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test. Building a theme of your own with the kit
   is different: run its commands locally (`AGENTS.md`, "Building a theme with the kit").
 - A theme's build may read only its own `src/` and the `src/` of the kit libraries it names under

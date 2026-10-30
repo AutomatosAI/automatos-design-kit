@@ -1,15 +1,16 @@
 # Releasing a theme
 
 How a kit theme version becomes a GitHub release, and how it is then reviewed and signed, exactly as the workflows
-in `.github/workflows/` do it. The kit releases two themes, Play (`themes/play`, `automatos/play`) and HUD
-(`themes/hud`, `automatos/hud`). Every step below is started by a person; kit CI checks the workflows, not the runs.
+in `.github/workflows/` do it. The kit releases three themes, Play (`themes/play`, `automatos/play`), HUD
+(`themes/hud`, `automatos/hud`) and Arcade (`themes/arcade`, `automatos/arcade`). Every step below is started by a
+person; kit CI checks the workflows, not the runs.
 The run that lists a version as the official theme on the hosted edition, with the admin queue's side of each step,
 is [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
 
 | Workflow | File | Started by | What it does |
 |---|---|---|---|
 | Kit | `kit.yml` | every pull request and push to `main` | The released-themes guard, then build, lint, typecheck, test and pack; the harness shots |
-| Theme release | `theme-release.yml` | a pushed `play-v*` or `hud-v*` tag; a push to `main` that adds a signature; Run workflow on `main` | Builds the tagged theme, publishes its release, attaches its signature |
+| Theme release | `theme-release.yml` | a pushed `play-v*`, `hud-v*` or `arcade-v*` tag; a push to `main` that adds a signature; Run workflow on `main` | Builds the tagged theme, publishes its release, attaches its signature |
 | Theme review | `theme-review.yml` | Run workflow, at the tag | Reviews one package with no network and no secrets |
 | Theme sign | `theme-sign.yml` | Run workflow on `main`, approved by a required reviewer | Signs an approved version |
 | Kit lockfile | `kit-lockfile.yml` | Run workflow on a branch | Resolves `package-lock.json` for a dependency change |
@@ -24,11 +25,13 @@ packed paths differs from the tag:
 |---|---|
 | Play | `themes/play/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `src/`; `packages/look-kit/src`, `packages/mascot/src` |
 | HUD | `themes/hud/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `boot/`, `looks/`, `src/`; `packages/look-kit/src`, `packages/mascot/src` |
+| Arcade | `themes/arcade/` `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `assets/`, `boot/`, `looks/`, `src/`; `packages/mascot/src` |
 
-These are the paths `pack` collects that each theme folder commits, and the `src/` of the two kit libraries both
-themes bundle. Play's `dist/`, `boot/` and `looks/` are gitignored and built from `src/` by its build; HUD commits
-`boot/` and `looks/`, and only its `dist/` is built. So a change to `packages/look-kit/src` or `packages/mascot/src`
-needs a new version of each theme that has been released.
+These are the paths `pack` collects that each theme folder commits, and the `src/` of each kit library the theme
+bundles. Play's `dist/`, `boot/` and `looks/` are gitignored and built from `src/` by its build; HUD and Arcade both
+commit `boot/` and `looks/`, and only their `dist/` is built. Play and HUD both bundle `packages/look-kit/src` and
+`packages/mascot/src`; Arcade bundles `packages/mascot/src` alone. So a change to `packages/look-kit/src` needs a
+new version of Play and HUD, and a change to `packages/mascot/src` needs a new version of every released theme.
 
 The guard reads each theme's version from its `theme.json` and lists the theme's tags on `origin` with
 `git ls-remote`:
@@ -56,19 +59,19 @@ never trips the guard.
 ## 2. Tag and release
 
 Merge to `main`, then push the tag on a commit of `main`: `play-v<major>.<minor>.<patch>` for Play,
-`hud-v<major>.<minor>.<patch>` for HUD.
+`hud-v<major>.<minor>.<patch>` for HUD, `arcade-v<major>.<minor>.<patch>` for Arcade.
 
 ```sh
 git tag play-v<version> <commit on main>
 git push origin play-v<version>
 ```
 
-GitHub runs no path filter for a tag push, so every `play-v*` and `hud-v*` tag runs `theme-release.yml`'s `release`
-job (permissions: `contents: write` and nothing else; no secrets). In order, it:
+GitHub runs no path filter for a tag push, so every `play-v*`, `hud-v*` and `arcade-v*` tag runs
+`theme-release.yml`'s `release` job (permissions: `contents: write` and nothing else; no secrets). In order, it:
 
 1. checks out the tagged commit with all history, sets up Node 22 and pins npm 11.21.1, as `kit.yml` does;
-2. checks the tag matches `^(play|hud)-v[0-9]+\.[0-9]+\.[0-9]+$`, and takes the theme (`play` or `hud`) and the
-   version from it;
+2. checks the tag matches `^(play|hud|arcade)-v[0-9]+\.[0-9]+\.[0-9]+$`, and takes the theme (`play`, `hud` or
+   `arcade`) and the version from it;
 3. checks that `themes/<theme>/theme.json`'s `id` is `automatos/<theme>`, that the tagged commit is on
    `origin/main`, and that `theme.json`'s `version` is the tag's;
 4. installs with `npm ci --ignore-scripts`, runs the root `build`, then the theme's `pack` script
@@ -79,7 +82,8 @@ job (permissions: `contents: write` and nothing else; no secrets). In order, it:
    must hold an active key (otherwise the job stops: "No signing key yet") and `scripts/sign/verify.ts` must verify
    the envelope against the package just built; when there is none, the release goes out unsigned;
 7. publishes the release with `gh release create <tag> --verify-tag`: the `.autotheme`, its `.autotheme.sha256` and
-   any signature, titled with `theme.json`'s `name` and the version ("Play 1.1.1", "HUD 1.0.0"), and notes giving
+   any signature, titled with `theme.json`'s `name` and the version ("Play 1.1.1", "HUD 1.0.0", "Arcade 1.0.0"), and
+   notes giving
    the package digest (the one an admin queue shows) and the file's sha256, then the pictures `theme.json` lists
    under `previews`, each shown from the tag (`scripts/release/preview-notes.ts`; a theme that lists none shows none).
 
@@ -134,7 +138,8 @@ Commit the envelope the sign run printed as `themes/<theme>/signatures/<version>
 `main`. When it merges, the push to `main` runs `theme-release.yml`'s `signature` job, which:
 
 1. takes the one signature file that push added or changed (exactly one, or it stops) and makes the tag from it:
-   `themes/play/signatures/<version>.sig.json` names `play-v<version>`; the tag must exist;
+   `themes/play/signatures/<version>.sig.json` names `play-v<version>`, and the same for HUD's and Arcade's; the
+   tag must exist;
 2. keeps the envelope and `keys/theme-signing.json` from the triggering commit, so a key published after the tag
    counts and a revoked one stops counting, and checks the keys file holds an active key;
 3. checks out the **tagged** commit (never `main`'s head), checks it as the release job does, installs, builds and
@@ -143,8 +148,9 @@ Commit the envelope the sign run printed as `themes/<theme>/signatures/<version>
    asset must rebuild to the signed bytes on another runner;
 5. uploads the envelope to the tag's release with `gh release upload --clobber`.
 
-To attach a signature again, run the workflow by hand on `main` with the `tag` input set (`play-v<version>` or
-`hud-v<version>`). The job runs only on `main`, so a run on another branch can't bring its own keys file.
+To attach a signature again, run the workflow by hand on `main` with the `tag` input set (`play-v<version>`,
+`hud-v<version>` or `arcade-v<version>`). The job runs only on `main`, so a run on another branch can't bring its
+own keys file.
 
 `keys/theme-signing.json` is `{"schema":1,"keys":[{keyId, spki, status, added}]}`, `status` one of `active`, `retired`
 and `revoked`. It holds one key: Automatos's theme-signing key, `ed25519:e138b6d0fa7aaaf3`, active, added 2026-10-26.

@@ -1,8 +1,9 @@
 // PRD-261 C-06a: theme-release.yml, read as a file, with its bash steps that need no network run as the runner's
-// bash runs them. A play-v<v> tag releases Play and a hud-v<v> tag HUD, the same way: the theme is the tag's slug,
-// and every name the job uses is made from it, so Play's names are the ones the workflow held before HUD
-// (themes/play, themes/play/out, automatos.play, themes/play/signatures). Moved out of tests/theme-workflows.test.ts,
-// which keeps the review and sign workflows, to hold both themes under the 400-line cap.
+// bash runs them. A play-v<v> tag releases Play, a hud-v<v> tag HUD and an arcade-v<v> tag Arcade, all the same
+// way: the theme is the tag's slug, and every name the job uses is made from it, so Play's names are the ones the
+// workflow held before HUD and Arcade (themes/play, themes/play/out, automatos.play, themes/play/signatures).
+// Moved out of tests/theme-workflows.test.ts, which keeps the review and sign workflows, to hold the themes under
+// the 400-line cap.
 import { spawnSync } from "node:child_process";
 import { devNull, tmpdir } from "node:os";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -18,7 +19,7 @@ const RELEASE = ".github/workflows/theme-release.yml";
 const KIT = ".github/workflows/kit.yml";
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 /** The themes this workflow releases, each by its tag's slug, with theme.json's name. */
-const RELEASED = [{ slug: "play", name: "Play" }, { slug: "hud", name: "HUD" }] as const;
+const RELEASED = [{ slug: "play", name: "Play" }, { slug: "hud", name: "HUD" }, { slug: "arcade", name: "Arcade" }] as const;
 const WORKFLOW_ENV = ["THEMES_DIR", "PACK_FOLDER", "SIGNATURES_FOLDER", "KEYS_FILE", "TAG_PATTERN"];
 const SHARED_STEPS = [
   "Set up Node", "Pin npm", "Name the theme", "Check the theme at the tag", "Install (from the lockfile)", "Build",
@@ -156,6 +157,7 @@ describe("theme-release.yml (C-06a): each theme from its tag", () => {
   it.each<[string, number, Readonly<Record<string, string>>]>([
     ["play-v1.1.1", 0, { TAG: "play-v1.1.1", VERSION: "1.1.1" }], ["hud-v1.0.0", 0, { TAG: "hud-v1.0.0", VERSION: "1.0.0" }],
     ["hud-v10.0.12", 0, { TAG: "hud-v10.0.12", VERSION: "10.0.12" }], ["hud-v1.0", 1, {}], ["hud-v1.0.0-rc.1", 1, {}],
+    ["arcade-v1.0.0", 0, { TAG: "arcade-v1.0.0", VERSION: "1.0.0" }],
     ["v1.0.0", 1, {}], ["xhud-v1.0.0", 1, {}], ["other-v1.0.0", 1, {}], ["hud-v1.0.0\n", 1, {}],
   ])("Check the tag takes %j: exit %i, writing the tag and its version", (tag, status, written) => {
     const ran = runStep(stepNamed(release, "Check the tag").run, { TAG: tag });

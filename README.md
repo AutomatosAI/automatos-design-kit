@@ -16,10 +16,10 @@ and voice, packed into one `.autotheme` file.
   <a href="https://github.com/AutomatosAI/automatos-design-kit/releases">Releases</a>
 </p>
 
-## Two themes ship with the kit
+## Three themes ship with the kit
 
-Play and HUD are Automatos's own themes, and they build, check and pack with the same tools as any theme. Each talks
-to Auto by voice, ships five looks, and draws a phone layout in a phone's browser from 360 px wide.
+Play, HUD and Arcade are Automatos's own themes, and they build, check and pack with the same tools as any theme.
+Each talks to Auto by voice, ships five looks, and draws a phone layout in a phone's browser from 360 px wide.
 
 <table>
   <tr>
@@ -43,10 +43,17 @@ to Auto by voice, ships five looks, and draws a phone layout in a phone's browse
     <td><img src="docs/assets/showcase/hud-1440-voice-listening-arc.png" width="520" alt="HUD's chat on a desktop in the ARC look while a voice session listens: MIC LIVE in the top bar, LISTENING under Auto, the words heard so far and a waveform around the voice button"></td>
     <td><img src="docs/assets/showcase/hud-390-voice-listening-forge.png" width="150" alt="HUD at a phone's width in the FORGE look while a voice session listens: Auto in the core, the words heard, a waveform, and TYPE, the voice button and STOP"></td>
   </tr>
+  <tr>
+    <td colspan="2">
+      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.0.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
+      role-playing game. Agents as a party, Auto as the guide in the dialogue box, Deliverables in an inventory,
+      Missions as quests on a map. <a href="themes/arcade">Source</a>
+    </td>
+  </tr>
 </table>
 
-Both are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
-`play-v<version>` tags and HUD from `hud-v<version>` tags.
+All three are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
+`play-v<version>` tags, HUD from `hud-v<version>` tags and Arcade from `arcade-v<version>` tags.
 
 ## Voice in both themes
 
@@ -96,15 +103,16 @@ app does, and a skin designer that exports it ([guides/mobile-skins.md](guides/m
 
 On a local or open-source edition of Automatos:
 
-1. Download `automatos.play-<version>.autotheme` or `automatos.hud-<version>.autotheme` from
-   [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
+1. Download `automatos.play-<version>.autotheme`, `automatos.hud-<version>.autotheme` or
+   `automatos.arcade-<version>.autotheme` from [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
 2. As a workspace owner or admin, open Settings › Appearance › Themes › Install theme and choose the file. When the
    release carries a `<version>.sig.json`, add it with **Add its signature file**.
 3. Choose the theme there, or from the theme menu. An upload without a signature that verifies is private: each
    member opts in to its code before it runs for them.
 
 On the hosted edition, a theme installs from Marketplace › Themes once it is listed there.
-[Install Play](#install-play) and [Install HUD](#install-hud), below, have the checksums, signatures and listing.
+[Install Play](#install-play), [Install HUD](#install-hud) and [Install Arcade](#install-arcade), below, have the
+checksums, signatures and listing.
 
 ## Make your own theme
 
@@ -204,6 +212,7 @@ layout in full.
 | [`packages/eslint-plugin`](packages/eslint-plugin/README.md) | `@automatos/eslint-plugin`: the same rules as ESLint rules, for a theme's `lint` |
 | [`themes/play`](themes/play/README.md) | Play (`automatos/play`): Automatos with Auto the mascot ([docs/themes/play.md](docs/themes/play.md)) |
 | [`themes/hud`](themes/hud/README.md) | HUD (`automatos/hud`): Automatos as a command deck ([docs/themes/hud.md](docs/themes/hud.md)) |
+| [`themes/arcade`](themes/arcade/README.md) | Arcade (`automatos/arcade`): Automatos as a 16-bit role-playing game ([docs/themes/arcade.md](docs/themes/arcade.md)) |
 | [`templates/`](templates/) | What `automatos-theme new` starts a theme from: `minimal` (a frame, a look editor, a style sheet, two presets) and `full` (Play without its brand); [`templates/ralph`](templates/ralph/README.md), a template for running a theme wave with an agent loop |
 | [`guides/`](guides/README.md) | The host contract, the page inventory, the SDK, looks, where the mascot goes, phone skins, and the pitfalls |
 | [`skills/`](skills/README.md) | Agent skills for building a theme, writing its looks and passing the Marketplace review |
@@ -226,7 +235,8 @@ The kit's reference:
   kit takes from core and at which commit, and the harness's mock host.
 - [docs/releasing.md](docs/releasing.md): how a theme version is released, reviewed and signed, and how a dependency
   changes.
-- [docs/themes/play.md](docs/themes/play.md) and [docs/themes/hud.md](docs/themes/hud.md): the two themes.
+- [docs/themes/play.md](docs/themes/play.md), [docs/themes/hud.md](docs/themes/hud.md) and
+  [docs/themes/arcade.md](docs/themes/arcade.md): the three themes.
 - [docs/PLAY-HISTORY.md](docs/PLAY-HISTORY.md): where Play's code came from.
 - [docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md): the run that lists a theme as official.
 
@@ -254,6 +264,13 @@ How a Play version is released, reviewed, signed and listed: [docs/OFFICIAL-LIST
 HUD is released the same way: a `hud-v<version>` tag puts `automatos.hud-<version>.autotheme` and its `.sha256` on
 the same releases page, and a local or open-source edition installs it with Settings › Appearance › Themes › Install
 theme. Its review, signature and listing follow Play's steps, with HUD's tag and names
+([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
+
+## Install Arcade
+
+Arcade is released the same way: an `arcade-v<version>` tag puts `automatos.arcade-<version>.autotheme` and its
+`.sha256` on the same releases page, and a local or open-source edition installs it with Settings › Appearance ›
+Themes › Install theme. Its review, signature and listing follow Play's steps, with Arcade's tag and names
 ([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
 
 ## Licence
