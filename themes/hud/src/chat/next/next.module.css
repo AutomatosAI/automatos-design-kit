@@ -1,0 +1,125 @@
+/*
+ * HUD 1.2.0: the `▸ NEXT` line (next-line.tsx). One mono line: `▸ NEXT` in the readable accent, the suggestion's title
+ * in the text, then the SAY chips, square outlines in the accent's line, mono capitals, 44 px high; the reasons under
+ * them when HIDE opens them. In the footer it spans the message box's column; on the phone it sits under the top line,
+ * padded as that line is, wrapping to two lines before it cuts. One entrance under data-hud-enter (a fade and a 4 px
+ * rise, 180 ms), never under reduced motion; nothing loops.
+ */
+
+.next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-2) var(--hud-space-3);
+  min-width: 0;
+  color: var(--hud-text);
+  font: 500 12px/1.4 var(--hud-font-mono);
+}
+
+.next[data-place="phone"] {
+  padding: 0 20px 6px;
+}
+
+.next[data-hud-enter="rise"] {
+  animation: hud-next-enter 180ms ease-out 1 both;
+}
+
+@keyframes hud-next-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.label {
+  flex: none;
+  color: var(--hud-accent-text);
+  font-weight: 600;
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+/* The suggestion's title: two lines at most, then cut. */
+.title {
+  flex: 1 1 12rem;
+  min-width: 0;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--hud-text);
+  font: 400 13px/1.4 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+.chips {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+/* A SAY chip: HUD's secondary button, square, an accent-line outline, mono capitals tracked .14em, 44 px high. */
+.say,
+.reason {
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.say:hover,
+.reason:hover {
+  border-color: var(--hud-accent);
+}
+
+.say:disabled,
+.reason:disabled {
+  color: var(--hud-text-2);
+  cursor: progress;
+}
+
+.reason {
+  color: var(--hud-text);
+}
+
+.reasons {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.started,
+.refused {
+  margin: 0;
+  font: 500 12px/1.4 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.started {
+  color: var(--hud-accent-text);
+}
+
+.started[data-place="phone"] {
+  padding: 0 20px 6px;
+}
+
+.refused {
+  flex-basis: 100%;
+  color: var(--hud-error-text);
+  text-transform: none;
+}

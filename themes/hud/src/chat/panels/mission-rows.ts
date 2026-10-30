@@ -6,8 +6,7 @@ import { STEP_MARKS } from './panel-rows'
  * What MISSION shows of a Mission, from either source: this conversation's Mission (the SDK's useMission: its
  * goal, its tasks in order, the server's count of the done ones) or the newest one running (an activity feed row:
  * its name and its run's steps). Each becomes the same shape: the name, the page it opens, the steps with their
- * status (✓ done, ▸ running, ○ to do, ✕ failed, – skipped), the step it is on, and whether it is live. Pure but for
- * the SDK's missionHref.
+ * status (✓ done, ▸ running, ○ to do, ✕ failed, – skipped) and the step it is on. Pure but for the SDK's missionHref.
  */
 
 export type StepStatus = 'completed' | 'running' | 'pending' | 'failed' | 'skipped'
@@ -27,7 +26,6 @@ export interface ShownMission {
   readonly steps: readonly ShownStep[]
   /** The step it is on ("2 / 3"), when known. */
   readonly progress: string | undefined
-  readonly live: boolean
 }
 
 /** A Mission id, as the SDK takes one: one path segment of letters, digits, '-' and '_'. */
@@ -51,7 +49,7 @@ function linkOf(id: string | null): string | null {
   return id !== null && MISSION_ID.test(id) ? missionHref(id) : null
 }
 
-/** The newest running Mission, from its activity feed row: always live. */
+/** The newest running Mission, from its activity feed row. */
 export function missionFromFeed(item: ActivityFeedItem): ShownMission {
   const progress = item.step_progress
   // A run's steps carry no id and never reorder.
@@ -65,11 +63,10 @@ export function missionFromFeed(item: ActivityFeedItem): ShownMission {
     href: linkOf(item.source_id),
     steps,
     progress: progress ? `${progress.current} / ${progress.total}` : undefined,
-    live: true,
   }
 }
 
-/** This conversation's Mission: its goal, its tasks in their order, the done ones of all; live while it works. */
+/** This conversation's Mission: its goal, its tasks in their order, the done ones of all. */
 export function missionFromDetail(mission: MissionDetail): ShownMission {
   const tasks = [...mission.tasks].sort((a, b) => a.sequence_number - b.sequence_number)
   const done = mission.task_progress?.done ?? tasks.filter((task) => TASK_STEP[task.state] === 'completed').length
@@ -79,6 +76,5 @@ export function missionFromDetail(mission: MissionDetail): ShownMission {
     href: linkOf(mission.id),
     steps: tasks.map((task) => ({ key: task.id, name: task.title, status: TASK_STEP[task.state] })),
     progress: total > 0 ? `${done} / ${total}` : undefined,
-    live: mission.state_type === 'active',
   }
 }

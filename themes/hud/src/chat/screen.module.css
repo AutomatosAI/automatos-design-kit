@@ -79,3 +79,15 @@
   flex-direction: column;
   gap: var(--hud-space-2);
 }
+
+/*
+ * HUD 1.2.0: BRIEFING in the transcript's slot (one column): the transcript's room under the core, as wide as the
+ * message box's column, scrolling on its own.
+ */
+.briefingSlot {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--hud-chat-column);
+  overflow-y: auto;
+}

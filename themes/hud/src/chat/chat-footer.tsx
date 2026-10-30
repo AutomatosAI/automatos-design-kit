@@ -3,12 +3,15 @@ import { type HostChatController, type HostChatDraft, TrialExhaustedBanner, useT
 
 import cards from './cards.module.css'
 import { Composer } from './composer'
+import { NextLine } from './next/next-line'
 
 /**
  * What sits under the transcript: the host's banner for used-up credits (work on the platform's AI keys is paused:
  * the workspace's credits say so, or the last send was refused with the typed credits_exhausted code), the voice deck
  * (src/voice/voice-deck.tsx: the waveform with the host's voice button), and the message box. The banner is the host's
  * own card; HUD only places it. The host's first-run nudge heads the column instead (screen.tsx), clear of the box.
+ * HUD 1.2.0 (PRD-268): the `▸ NEXT` line, what Auto suggests, sits between the banner and the voice deck
+ * (next/next-line.tsx).
  */
 
 const EXHAUSTED = 'exhausted'
@@ -45,6 +48,7 @@ export function ChatFooter({ chat, boxRef, sending, autoFocus, fill = null, voic
   return (
     <>
       <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
+      <NextLine place="footer" />
       {voice}
       <Composer
         boxRef={boxRef}

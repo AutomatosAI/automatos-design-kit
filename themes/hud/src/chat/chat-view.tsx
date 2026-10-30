@@ -10,6 +10,8 @@ import {
 
 import { usePhoneLayout } from '../lib/phone-layout'
 import { VoiceDeck } from '../voice/voice-deck'
+import { BriefingPanel } from './briefing/briefing-panel'
+import type { Briefing } from './briefing/use-briefing'
 import { ChatFooter } from './chat-footer'
 import type { ChatParts, Sending } from './chat-parts'
 import { chipWords } from './chip'
@@ -43,6 +45,9 @@ import { VoiceCore } from './voice-core'
  * In a window narrower than the desktop layout (src/lib/phone-layout.ts) the same chat is drawn as the design's phone
  * (phone/phone-chat.tsx); everything above is made once for both, so a window crossing the width keeps it.
  *
+ * HUD 1.2.0 (PRD-268): while the day's brief shows (the page's useBriefing), BRIEFING stands where the screen places
+ * it (screen.tsx; on a phone, the last exchange's place), until it folds back.
+ *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,
  * whose effects (Auto reading the status and the reply) run before the turn's own (a failure, a card waiting or
  * settled) in every commit.
@@ -53,11 +58,14 @@ export interface HudChatViewProps {
   readonly conversation: HostChatConversation
   /** How long without input before Auto naps (tests shorten it). */
   readonly idleMs?: number
+  /** The day's brief while BRIEFING shows, held by the page across conversations. */
+  readonly briefing: Briefing
 }
 
 interface ChatWithAutoProps {
   readonly turn: HudTurn
   readonly idleMs?: number
+  readonly briefing: Briefing
 }
 
 const BACKEND_OF: Readonly<Record<HostHealth['connection'], BackendStatus | undefined>> = {
@@ -107,12 +115,12 @@ function useSending(chat: HostChatController, auto: HudAutoDriver, box: RefObjec
 }
 
 /** The conversation's chat; Auto and the screen in the child (see above). */
-export function HudChatView({ conversation, idleMs }: HudChatViewProps) {
+export function HudChatView({ conversation, idleMs, briefing }: HudChatViewProps) {
   const turn = useHudTurn(conversation)
-  return <ChatWithAuto turn={turn} idleMs={idleMs} />
+  return <ChatWithAuto turn={turn} idleMs={idleMs} briefing={briefing} />
 }
 
-function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
+function ChatWithAuto({ turn, idleMs, briefing }: ChatWithAutoProps) {
   const { chat } = turn
   // The conversation as the chat hook holds it: Auto, the chip and the turn's end read this one.
   const live = liveMessages(chat.messages)
@@ -130,19 +138,29 @@ function ChatWithAuto({ turn, idleMs }: ChatWithAutoProps) {
     approvalWaiting: auto.state.approvalWaiting,
     voicePhase,
   })
-  const parts: ChatParts = { chat, live, auto, chip, sending, boxRef, fill, fillBox }
+  const parts: ChatParts = { chat, live, auto, chip, sending, boxRef, fill, fillBox, briefing }
   return phone ? <PhoneChat {...parts} /> : <DesktopChat {...parts} />
 }
 
 /** The desktop's core screen: the conversation's column between the side panels, laid out by its measured size. */
-function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
+function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, briefing }: ChatParts) {
   const { ref, layout } = useScreenLayout()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
   const autoFocus = chat.messages.length === 0
   const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={<VoiceDeck />} />
   const missionId = chat.planningMissionId
+  const brief = briefing.brief === null ? null : <BriefingPanel brief={briefing.brief} onFold={briefing.fold} />
   return (
-    <ChatScreen screenRef={ref} layout={layout} title={chat.title} core={core} footer={footer} missionId={missionId}>
+    <ChatScreen
+      screenRef={ref}
+      layout={layout}
+      title={chat.title}
+      core={core}
+      footer={footer}
+      missionId={missionId}
+      briefing={brief}
+      keepTranscript={chat.approvalWaiting}
+    >
       <Transcript
         messages={chat.messages}
         streaming={chat.streaming}

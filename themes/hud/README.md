@@ -20,7 +20,7 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   Esc stops), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
   how to start, with three starters that fill the message box. Over the message box, the host's voice button in the
-  design's waveform (below, Voice). It loads in its own chunk. A `/chat` link with `repo`, `runtime` or `mode` keeps the
+  design's waveform (below, Voice). From 1.2.0, Proactive Auto (below). It loads in its own chunk. A `/chat` link with `repo`, `runtime` or `mode` keeps the
   host's own chat page. In a phone's browser it is the phone's core screen (below).
 - Conversations at `/x/conversations`, HUD's own route (`routes`, with a nav entry): every conversation in Today,
   This week and Earlier panels, a search on the title and New chat. It loads in its own chunk; where HUD doesn't
@@ -29,6 +29,24 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   look, Reset and Delete, a live preview, and Share, to export a look as a file or import one.
 - The style sheet at `/looks/style` (`styleSheet@1`): what the active look paints, its knobs with the variable each
   drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components.
+
+## Proactive Auto
+
+From 1.2.0, on the SDK's proactive area (SDK 1.3.0), HUD draws what Auto noticed for you. Every word in it is the
+server's; HUD only places it, and never speaks it.
+
+- **BRIEFING**, the day's brief once the host has it: the greeting, the host's Listen (core reads the brief in Auto's
+  voice, with its AI caption and Stop) with `▸ SPEAKING` beside it while Auto reads, and the brief's sections, every row
+  numbered across them as Listen numbers them, with its why, its state and its action ("Open →", "Start →"). It takes
+  the right column at three columns, the column Today is in at two, and the transcript's slot at one column and on the
+  phone (never while a card waits for you), and folds back into Today and Needs you after 60 seconds or any press
+  outside it. With the workspace's brief off the screen is as before.
+- **`▸ NEXT`**, the newest open suggestion in one line with START and HIDE as SAY chips that can be tapped too, between
+  the credits banner and the voice deck on the desktop, under the top line on the phone.
+- **Missions**, under Mission: the Missions, the ones that need you first, each with its state, `▸` its next step, a
+  rail while it works and Try again on a failed one. **Systems**, at the foot of the right column: what Auto depends
+  on, each item's state and fix, and Check again.
+- Only what needs you glows: Needs you, or Briefing in its place.
 
 ## Voice
 

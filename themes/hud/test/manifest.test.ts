@@ -3,7 +3,8 @@
 // (vendored in the theme CLI). `uses` declares exactly the SDK areas the packed source imports (HUD's src/ and the
 // src/ of each kit library it bundles, which the package carries under source/packages/): every one, so core's
 // review warns of none undeclared, and only those, so it reports none declared and unused. HUD 1.1.0 uses the SDK's
-// voice area (SDK 1.2.0); HUD 1.1.3 runs on SDK 1.3.0 and peers the vendored SDK at 1.3.0. Files are read, not built.
+// voice area (SDK 1.2.0); HUD 1.1.3 runs on SDK 1.3.0 and peers the vendored SDK at 1.3.0; HUD 1.2.0 uses its proactive
+// area. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
@@ -123,7 +124,7 @@ describe('theme.json', () => {
       schema: 'automatos-theme/v1',
       id: 'automatos/hud',
       name: 'HUD',
-      version: '1.1.3',
+      version: '1.2.0',
       htmlClass: 'hud',
       minWidth: 360,
       base: 'studio',
@@ -132,9 +133,10 @@ describe('theme.json', () => {
     })
   })
 
-  it("runs on today's host contract and on SDK 1.3.0, the vendored SDK's version, with the voice area", () => {
+  it("runs on today's host contract and on SDK 1.3.0, the vendored SDK's version, with the voice and proactive areas", () => {
     expect(manifest.engines).toEqual(HUD_ENGINES)
     expect(manifest.uses).toContain('voice')
+    expect(manifest.uses).toContain('proactive')
     expect(`^${sdkPackage.version}`).toBe(manifest.engines.sdk)
   })
 

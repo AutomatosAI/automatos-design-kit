@@ -8,8 +8,10 @@ import styles from './panels.module.css'
  * MISSION, under AGENTS (the design's left column): this conversation's Mission first, once the chat plans one
  * (the chat's planningMissionId, read with the SDK's useMission), else the newest Mission running now, from the
  * SDK's activity feed. Its name links to its page, and its steps are each a glyph and its name (✓ done, ▸ running,
- * ○ to do, ✕ failed, – skipped; mission-rows.ts); the header's value is the step it is on. Live while it works. If
- * this conversation's Mission can't be read, the newest running one stands in; with none running it says so.
+ * ○ to do, ✕ failed, – skipped; mission-rows.ts); the header's value is the step it is on. If this conversation's
+ * Mission can't be read, the newest running one stands in; with none running it says so. HUD 1.2.0: it never glows,
+ * as working is not waiting for you (the one-live-border rule: only NEEDS YOU, or BRIEFING in its place, glows); the
+ * running step is in the readable accent. MISSIONS under it lists the Missions.
  */
 
 export const MISSION_TITLE = 'Mission'
@@ -46,7 +48,7 @@ function MissionBody({ mission }: { readonly mission: ShownMission }) {
 /** The panel with a Mission, or the note in its place. */
 function MissionView({ mission, note }: { readonly mission: ShownMission | null; readonly note: string }) {
   return (
-    <Panel title={MISSION_TITLE} value={mission?.progress} live={mission?.live ?? false}>
+    <Panel title={MISSION_TITLE} value={mission?.progress}>
       {mission === null ? <p className={styles.note}>{note}</p> : <MissionBody mission={mission} />}
     </Panel>
   )
