@@ -132,6 +132,22 @@ plainly; neither refetches in a loop.
 
 ## The chat and the AI label
 
+**The host's Markdown is small.** `cards.MarkdownView` sets its own size on its box: 14 px, or 12.5 px with
+`density="compact"`, with headings in `rem`. A reply in a theme's larger type then reads too small beside it. Set the
+size on the class you pass, and it takes the size of the line it sits in; the wrap puts your rule (`html.<htmlClass>
+.yourClass`) above the host's (`.md-view-compact`):
+
+```css
+.markdown {
+  font-family: var(--yourtheme-body);
+  font-size: inherit;
+  line-height: inherit;
+}
+```
+
+Its paragraphs, lists, links and code take your rules under that class (`.markdown a`, `.markdown code`): the reply's
+text is the theme's, unlike the host's cards ([contract.md](contract.md#the-hosts-parts)).
+
 **Covering the AI label.** The host draws "Auto is an AI" at the window's bottom right (bottom left beside Auto's
 floating widget) on every chat route, and checks that a person can see it: its words painted, readable on the ground
 under them, and on top, hit-tested with every element made hittable, so even a layer the pointer passes through covers
