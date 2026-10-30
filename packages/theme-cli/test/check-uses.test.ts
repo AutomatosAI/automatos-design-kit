@@ -1,7 +1,7 @@
 /**
  * The `uses` check gives core's answers: the `uses` cases of core's
  * orchestrator/tests/test_prd261_review_stage.py at the commit src/core/README.md names (the seeded
- * bad packages, the SDK storage area on this host's name list, and no name list at all), each on
+ * bad packages, the SDK storage, voice and proactive areas on this host's name list, and no name list at all), each on
  * the hello package changed the same way, through the whole review.
  */
 import { describe, expect, it } from 'vitest'
@@ -15,6 +15,18 @@ const VOICE_IMPORT = 'defineTheme, VoiceButton, readVoiceLevels, useVoice'
 const VOICE_AREA = 'voice'
 /** The SDK the voice area needs (1.2.0), on today's host contract. */
 const VOICE_ENGINES = { automatos: '^1.1.0', sdk: '^1.2.0' }
+/** core test_prd261_review_stage.py PROACTIVE_IMPORT, PROACTIVE_ENGINES and the areas its passing case declares. */
+const PROACTIVE_IMPORT = 'defineTheme, DISPLAY_STATE_LABELS, BriefCard, SuggestionCard, BriefVoice, useBrief, useSuggestions'
+const PROACTIVE_AREA = 'proactive'
+const PROACTIVE_NAMES = ['DISPLAY_STATE_LABELS', 'BriefCard', 'SuggestionCard', 'BriefVoice', 'useBrief', 'useSuggestions']
+const PROACTIVE_ENGINES = { automatos: '^1.1.0', sdk: '^1.3.0' }
+const PROACTIVE_USES = ['cards', PROACTIVE_AREA, 'theme', 'voice']
+/** SDK 1.3.0's proactive hooks and the cards area's proactive defaults (areas/proactive.d.ts, areas/cards.d.ts). */
+const PROACTIVE_HOOKS = [
+  'useBrief', 'useReadiness', 'useCheckReadiness', 'useSuggestions', 'useStartSuggestion', 'useHideSuggestion', 'useCalibration',
+  'useAnswerCalibration',
+]
+const PROACTIVE_CARDS = ['BriefCard', 'SuggestionCard', 'StatusLabel', 'ReadinessList', 'CalibrationCard', 'ReplyChips']
 
 async function usesOf(entry: string, uses?: readonly string[]): Promise<Readonly<Record<string, unknown>>> {
   const report = (await reviewHello({ entry, manifest: uses === undefined ? {} : { uses } })).report
@@ -107,8 +119,35 @@ describe("the SDK's voice area (SDK 1.2.0) on this host's name list", () => {
     expect(report.checks.uses).toMatchObject({ level: 'warning', undeclaredAreas: [VOICE_AREA] })
   })
 
-  it("the vendored name list holds the voice area's three names", () => {
-    expect([...(sdkSurface()?.[VOICE_AREA] ?? [])].sort()).toEqual(['VoiceButton', 'readVoiceLevels', 'useVoice'])
+  it("the vendored name list holds the voice area's names: SDK 1.2.0's three, and SDK 1.3.0's BriefVoice", () => {
+    expect([...(sdkSurface()?.[VOICE_AREA] ?? [])].sort()).toEqual(['BriefVoice', 'VoiceButton', 'readVoiceLevels', 'useVoice'])
+  })
+})
+
+describe("the SDK's proactive area (SDK 1.3.0) on this host's name list", () => {
+  it('a theme on engines.sdk ^1.3.0 with proactive in uses passes, its hooks, cards, BriefVoice and labels read by area', async () => {
+    const manifest = { engines: PROACTIVE_ENGINES, uses: PROACTIVE_USES }
+    const { report } = await reviewOnThisHost({ entry: entryImporting(PROACTIVE_IMPORT), manifest })
+    const uses = report.checks.uses
+    expect([report.verdict, uses.level, uses.unknownNames, uses.undeclaredAreas]).toEqual(['pass', 'pass', [], []])
+    expect(uses.usedAreas).toContain(PROACTIVE_AREA)
+    expect(uses.usedNames).toEqual(expect.arrayContaining(PROACTIVE_NAMES))
+  })
+
+  it('a proactive call without proactive in uses is a warning listing it', async () => {
+    const manifest = { uses: PROACTIVE_USES.filter((area) => area !== PROACTIVE_AREA) }
+    const { report } = await reviewOnThisHost({ entry: entryImporting(PROACTIVE_IMPORT), manifest })
+    const uses = report.checks.uses
+    expect([report.verdict, uses.level, uses.unknownNames]).toEqual(['review_required', 'warning', []])
+    expect(uses.undeclaredAreas).toEqual([PROACTIVE_AREA])
+    expect(uses.problems).toEqual([filled(UNDECLARED, 'areas', [PROACTIVE_AREA])])
+  })
+
+  it("the vendored name list holds the proactive area's eight hooks, the cards' six defaults and DISPLAY_STATE_LABELS", () => {
+    const surface = sdkSurface()
+    expect([...(surface?.[PROACTIVE_AREA] ?? [])].sort()).toEqual([...PROACTIVE_HOOKS].sort())
+    expect(surface?.cards).toEqual(expect.arrayContaining(PROACTIVE_CARDS))
+    expect(surface?.theme).toContain('DISPLAY_STATE_LABELS')
   })
 })
 
