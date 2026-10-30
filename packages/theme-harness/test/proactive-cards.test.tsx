@@ -74,7 +74,11 @@ describe('BriefCard', () => {
     const answer = screen.getByRole('button', { name: 'Answer: Which budget should the laptops stay under?' })
     fireEvent.click(answer)
     await waitFor(() => expect(answer).not.toBeDisabled())
-    fireEvent.click(screen.getByRole('button', { name: 'Open: Check the three laptop reviews' }))
+    // The row's action is also called 'Open', so its action button and its chevron share a name (as in core's brief-row.tsx).
+    const opens = screen.getAllByRole('button', { name: 'Open: Check the three laptop reviews' })
+    const chevron = opens.find((button) => button.hasAttribute('data-row-chevron'))
+    expect(chevron).toBeDefined()
+    fireEvent.click(chevron as HTMLElement)
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ opens: { type: 'ticket', id: '101' } }), 'needs_you')
     expect(screen.queryByRole('button', { name: 'Open: Post the bake sale reminder' })).toBeNull()
     const empty = { ...BRIEF, sections: { needs_you: [], suggestions: [], today: [], since: [], unchecked: [] } }
