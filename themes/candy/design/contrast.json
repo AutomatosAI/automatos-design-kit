@@ -1,0 +1,215 @@
+{
+  "schema": "automatos-theme-contrast/v1",
+  "pairs": [
+    {
+      "text": "--candy-text",
+      "ground": "--candy-page"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-win"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-chip"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-band-a"
+    },
+    {
+      "text": "--candy-quiet",
+      "ground": "--candy-win"
+    },
+    {
+      "text": "--candy-quiet",
+      "ground": "--candy-page"
+    },
+    {
+      "text": "--candy-accent-ink",
+      "ground": "--candy-accent"
+    },
+    {
+      "text": "--candy-accent",
+      "ground": "--candy-win",
+      "min": 3
+    },
+    {
+      "text": "--candy-accent",
+      "ground": "--candy-page",
+      "min": 3
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g1a"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g2a"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g3a"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-band-b"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-band-1"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-band-2"
+    },
+    {
+      "text": "--candy-text",
+      "ground": "--candy-band-3"
+    },
+    {
+      "text": "--candy-quiet",
+      "ground": "--candy-chip"
+    },
+    {
+      "text": "--candy-band-quiet",
+      "ground": "--candy-band-a"
+    },
+    {
+      "text": "--candy-band-quiet",
+      "ground": "--candy-band-b"
+    },
+    {
+      "text": "--candy-band-quiet",
+      "ground": "--candy-band-1"
+    },
+    {
+      "text": "--candy-band-quiet",
+      "ground": "--candy-band-2"
+    },
+    {
+      "text": "--candy-band-quiet",
+      "ground": "--candy-band-3"
+    },
+    {
+      "text": "--candy-accent-text",
+      "ground": "--candy-page"
+    },
+    {
+      "text": "--candy-accent-text",
+      "ground": "--candy-win"
+    },
+    {
+      "text": "--candy-accent-text",
+      "ground": "--candy-chip"
+    },
+    {
+      "text": "--candy-user-ink",
+      "ground": "--candy-user-a"
+    },
+    {
+      "text": "--candy-user-ink",
+      "ground": "--candy-user-b"
+    },
+    {
+      "text": "--candy-stage-ink",
+      "ground": "--candy-card-ink"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g1b"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g2b"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g3b"
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g1c",
+      "min": 3
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g2c",
+      "min": 3
+    },
+    {
+      "text": "--candy-card-ink",
+      "ground": "--candy-g3c",
+      "min": 3
+    },
+    {
+      "text": "--foreground",
+      "ground": "--background"
+    },
+    {
+      "text": "--card-foreground",
+      "ground": "--card"
+    },
+    {
+      "text": "--popover-foreground",
+      "ground": "--popover"
+    },
+    {
+      "text": "--primary-foreground",
+      "ground": "--primary"
+    },
+    {
+      "text": "--secondary-foreground",
+      "ground": "--secondary"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--background"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--card"
+    },
+    {
+      "text": "--muted-foreground",
+      "ground": "--muted"
+    },
+    {
+      "text": "--accent-foreground",
+      "ground": "--accent"
+    },
+    {
+      "text": "--destructive-foreground",
+      "ground": "--destructive"
+    },
+    {
+      "text": "--primary",
+      "ground": "--background"
+    },
+    {
+      "text": "--primary",
+      "ground": "--card"
+    },
+    {
+      "text": "--destructive",
+      "ground": "--background"
+    },
+    {
+      "text": "--destructive",
+      "ground": "--card"
+    },
+    {
+      "text": "--fg-3",
+      "ground": "--bg-1"
+    },
+    {
+      "text": "--fg-3",
+      "ground": "--paper"
+    },
+    {
+      "text": "--ring",
+      "ground": "--background",
+      "min": 3
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+/*
+ * The host's cards in the thread (cards.tsx): each in a host strip (ui.module.css .host) that sets Studio's own type
+ * again, as wide as the reply's column allows, with a small label in Candy's words over an approval. No rule here
+ * reaches inside a card.
+ */
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.choiceHead {
+  margin: 0;
+  font: 800 12px/1.3 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.choiceHead[data-waiting="true"] {
+  color: var(--candy-accent-text);
+}
+
+.hostCard {
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
+}
+
+.cardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}

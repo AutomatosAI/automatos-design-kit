@@ -1,0 +1,63 @@
+{
+  "schema": "automatos-look-schema/v1",
+  "look": {
+    "schema": "candy-look/v1",
+    "interface": "candy"
+  },
+  "knobs": {
+    "palette": {
+      "kind": "choice",
+      "label": "Palette",
+      "choices": [
+        "blush",
+        "lilac",
+        "nightbloom"
+      ],
+      "default": "blush"
+    },
+    "cards": {
+      "kind": "choice",
+      "label": "Card colours",
+      "choices": [
+        "mix",
+        "single"
+      ],
+      "default": "mix"
+    },
+    "gradient": {
+      "kind": "choice",
+      "label": "Gradient",
+      "choices": [
+        "soft",
+        "rich",
+        "vivid"
+      ],
+      "default": "rich"
+    },
+    "roundness": {
+      "kind": "number",
+      "label": "Roundness",
+      "min": 16,
+      "max": 40,
+      "integer": true,
+      "default": 28
+    },
+    "glow": {
+      "kind": "number",
+      "label": "Glow",
+      "min": 0,
+      "max": 10,
+      "integer": true,
+      "default": 6
+    },
+    "motion": {
+      "kind": "choice",
+      "label": "Motion",
+      "choices": [
+        "on",
+        "paused"
+      ],
+      "default": "on"
+    }
+  }
+}

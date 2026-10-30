@@ -1,0 +1,348 @@
+/*
+ * Today (/x/today): the header row (the title and the search pill), the hero (the day, the greeting, the line, the
+ * two buttons; the orb with Auto at its lower left), the four stat cards (the middle one 16 px taller), and the two
+ * windows (Needs you, Coming up). The frame draws the band behind it and gives it its gutters. Below 1024 px it is
+ * one column, as on the design's phone. Every colour is a look variable; every corner a pill, a circle or the
+ * Roundness knob.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+  color: var(--candy-text);
+  font-family: var(--candy-body);
+}
+
+.search {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  width: 300px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-search);
+  color: var(--candy-quiet);
+  font: 400 14px/1.2 var(--candy-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.search:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.searchRing {
+  flex: none;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--candy-accent);
+  border-radius: 50%;
+}
+
+/* The hero. */
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  min-height: 250px;
+}
+
+.heroText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.date {
+  margin: 0;
+  font: 700 15px/1.3 var(--candy-body);
+  color: var(--candy-band-quiet);
+}
+
+.greeting {
+  margin: 0;
+  font: 600 48px/1.05 var(--candy-title);
+  letter-spacing: -0.02em;
+  color: var(--candy-text);
+}
+
+.waiting {
+  max-width: 520px;
+  margin: 0;
+  font: 400 18px/1.45 var(--candy-body);
+  color: var(--candy-band-quiet);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* Room for the orb's ring, 26 px out on every side. */
+.orbSpot {
+  position: relative;
+  flex: none;
+  margin: 26px 60px 26px 26px;
+}
+
+.auto {
+  position: absolute;
+  left: -58px;
+  bottom: -14px;
+}
+
+/* The four numbers. */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  min-height: 168px;
+  padding: 20px 22px;
+}
+
+.stat[data-tall="true"] {
+  min-height: 184px;
+}
+
+.badge {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--candy-card-ink);
+  box-shadow: 0 6px 14px var(--candy-tint);
+}
+
+.badgeDot,
+.scheduleDot {
+  border-radius: 50%;
+  background: var(--candy-g1a);
+}
+
+.badgeDot {
+  width: 16px;
+  height: 16px;
+}
+
+.badgeDot[data-set="2"],
+.scheduleDot[data-set="2"] {
+  background: var(--candy-g2a);
+}
+
+.badgeDot[data-set="3"],
+.scheduleDot[data-set="3"] {
+  background: var(--candy-g3a);
+}
+
+.statLabel {
+  margin-top: auto;
+  padding-top: 16px;
+  font: 800 15px/1.3 var(--candy-body);
+}
+
+.statLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+}
+
+.statFigure {
+  font: 600 48px/1.05 var(--candy-title);
+}
+
+.statSub {
+  font: 800 13px/1.3 var(--candy-body);
+}
+
+/* The two windows. */
+
+.windows {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 24px;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panelTitle {
+  flex: 1;
+  min-width: 0;
+}
+
+.failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+}
+
+.row .rowAvatar {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.rowText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* One line, cut with an ellipsis; the whole title is on hover and in the Open link's name. */
+.rowTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font: 800 15px/1.3 var(--candy-body);
+  color: var(--candy-text);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.rowMeta {
+  font: 400 13px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.dotCircle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--candy-chip);
+}
+
+.scheduleDot {
+  width: 12px;
+  height: 12px;
+}
+
+.when {
+  flex: none;
+  font: 600 15px/1.2 var(--candy-title);
+  color: var(--candy-text);
+}
+
+/* Between the phone and the widest windows: the hero's text gets the room the orb's margin took. */
+@media (max-width: 1279px) {
+  .orbSpot {
+    margin-right: 26px;
+  }
+
+  .greeting {
+    font-size: 40px;
+  }
+}
+
+/* The design's phone: one column, the header's room for the host's utilities given back (the phone bar holds them). */
+@media (max-width: 1023px) {
+  .page .head {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .search {
+    flex: 1 1 220px;
+    width: auto;
+    max-width: 300px;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .greeting {
+    font-size: 34px;
+  }
+
+  .orbSpot {
+    align-self: center;
+    margin: 26px;
+  }
+
+  .auto {
+    left: -26px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .stat,
+  .stat[data-tall="true"] {
+    min-height: 150px;
+    padding: 18px;
+  }
+
+  .windows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    padding: 20px;
+  }
+}

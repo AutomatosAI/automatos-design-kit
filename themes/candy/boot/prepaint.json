@@ -1,0 +1,443 @@
+{
+  "knobs": {
+    "palette": {
+      "blush": {
+        "--candy-page": "#FBF0F4",
+        "--candy-band-a": "#FFD9E8",
+        "--candy-band-b": "#FFC2DA",
+        "--candy-band-1": "#FFC6E0",
+        "--candy-band-2": "#F2C9FF",
+        "--candy-band-3": "#FFD9C2",
+        "--candy-win": "#FFFFFF",
+        "--candy-chip": "#FCE8F1",
+        "--candy-text": "#2A1830",
+        "--candy-quiet": "#6E5670",
+        "--candy-line": "rgba(42,24,48,.09)",
+        "--candy-border": "#ECEAEC",
+        "--candy-band-quiet": "#634B65",
+        "--candy-accent": "#D62F7A",
+        "--candy-accent-ink": "#FFFFFF",
+        "--candy-accent-text": "#C2266C",
+        "--candy-user-a": "#D73178",
+        "--candy-user-b": "#B01E5F",
+        "--candy-user-ink": "#FFFFFF",
+        "--candy-stage-ink": "#4A1E8E",
+        "--candy-glow-base": "rgba(214,47,122,.04)",
+        "--candy-tint": "rgba(214,47,122,.14)",
+        "--candy-card-ink": "#FFFFFF",
+        "--candy-white22": "rgba(255,255,255,.22)",
+        "--candy-white28": "rgba(255,255,255,.28)",
+        "--candy-white55": "rgba(255,255,255,.55)",
+        "--candy-white85": "rgba(255,255,255,.85)",
+        "--candy-white12": "rgba(255,255,255,.12)",
+        "--candy-white45": "rgba(255,255,255,.45)",
+        "--candy-white92": "rgba(255,255,255,.92)",
+        "--candy-orb-blush": "rgba(255,190,220,.55)",
+        "--candy-orb-pink": "#FF9BC8",
+        "--candy-figure-shadow": "rgba(70,0,60,.45)",
+        "--candy-auto-body-a": "#FFA9CE",
+        "--candy-auto-body-b": "#E86DB8",
+        "--candy-auto-body-c": "#9A5CF0",
+        "--candy-auto-gloss": "#FFFFFF",
+        "--candy-auto-cyan": "#78CDFF",
+        "--candy-auto-shade": "#5A1478",
+        "--candy-auto-visor-a": "#3A1A4E",
+        "--candy-auto-visor-b": "#24102F",
+        "--candy-auto-eye": "#FFF3FB",
+        "--candy-auto-eye-glow": "#FFB3E0",
+        "--candy-auto-cheek": "#FF78AA",
+        "--candy-auto-stalk": "#C9A3D9",
+        "--candy-auto-ball-a": "#FFB3D4",
+        "--candy-auto-ball-b": "#B266F2",
+        "--candy-auto-ball-glow": "#FF78BE",
+        "--background": "338.18 57.89% 96.27%",
+        "--foreground": "285 33.33% 14.12%",
+        "--background-gradient-from": "338.18 57.89% 96.27%",
+        "--background-gradient-to": "338.18 57.89% 96.27%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "285 33.33% 14.12%",
+        "--popover": "0 0% 100%",
+        "--popover-foreground": "285 33.33% 14.12%",
+        "--secondary": "333 76.92% 94.9%",
+        "--secondary-foreground": "285 33.33% 14.12%",
+        "--muted": "333 76.92% 94.9%",
+        "--muted-foreground": "295.38 13.13% 38.82%",
+        "--primary": "333.08 67.24% 45.49%",
+        "--primary-foreground": "0 0% 100%",
+        "--ring": "333.08 67.24% 45.49%",
+        "--accent": "333 76.92% 94.9%",
+        "--accent-foreground": "285 33.33% 14.12%",
+        "--destructive": "353.08 68.42% 44.71%",
+        "--destructive-foreground": "0 0% 100%",
+        "--border": "300 5% 92.16%",
+        "--input": "300 5% 92.16%",
+        "--glass-border-hover": "300 5% 92.16%",
+        "--cc-hover": "333 76.92% 94.9%",
+        "--cc-hover-border": "300 5% 92.16%",
+        "--paper": "hsl(0 0% 100%)",
+        "--bg-1": "hsl(338.18 57.89% 96.27%)",
+        "--bg-2": "hsl(0 0% 100%)",
+        "--fg": "hsl(285 33.33% 14.12%)",
+        "--fg-2": "hsl(295.38 13.13% 38.82%)",
+        "--fg-3": "hsl(295.38 13.13% 38.82%)",
+        "--border-2": "hsl(295.38 13.13% 38.82%)"
+      },
+      "lilac": {
+        "--candy-page": "#F3F1FF",
+        "--candy-band-a": "#E2DCFF",
+        "--candy-band-b": "#D3E3FF",
+        "--candy-band-1": "#D9CCFF",
+        "--candy-band-2": "#C9DBFF",
+        "--candy-band-3": "#F6D2F0",
+        "--candy-win": "#FFFFFF",
+        "--candy-chip": "#EEEAFF",
+        "--candy-text": "#1E1A3E",
+        "--candy-quiet": "#5B5680",
+        "--candy-line": "rgba(30,26,62,.09)",
+        "--candy-border": "#ECEAEE",
+        "--candy-band-quiet": "#5B5680",
+        "--candy-accent": "#5B35D5",
+        "--candy-accent-ink": "#FFFFFF",
+        "--candy-accent-text": "#5B35D5",
+        "--candy-user-a": "#8E4AE8",
+        "--candy-user-b": "#5B2BCB",
+        "--candy-user-ink": "#FFFFFF",
+        "--candy-stage-ink": "#4A1E8E",
+        "--candy-glow-base": "rgba(91,53,213,.04)",
+        "--candy-tint": "rgba(91,53,213,.14)",
+        "--candy-card-ink": "#FFFFFF",
+        "--candy-white22": "rgba(255,255,255,.22)",
+        "--candy-white28": "rgba(255,255,255,.28)",
+        "--candy-white55": "rgba(255,255,255,.55)",
+        "--candy-white85": "rgba(255,255,255,.85)",
+        "--candy-white12": "rgba(255,255,255,.12)",
+        "--candy-white45": "rgba(255,255,255,.45)",
+        "--candy-white92": "rgba(255,255,255,.92)",
+        "--candy-orb-blush": "rgba(255,190,220,.55)",
+        "--candy-orb-pink": "#FF9BC8",
+        "--candy-figure-shadow": "rgba(70,0,60,.45)",
+        "--candy-auto-body-a": "#FFA9CE",
+        "--candy-auto-body-b": "#E86DB8",
+        "--candy-auto-body-c": "#9A5CF0",
+        "--candy-auto-gloss": "#FFFFFF",
+        "--candy-auto-cyan": "#78CDFF",
+        "--candy-auto-shade": "#5A1478",
+        "--candy-auto-visor-a": "#3A1A4E",
+        "--candy-auto-visor-b": "#24102F",
+        "--candy-auto-eye": "#FFF3FB",
+        "--candy-auto-eye-glow": "#FFB3E0",
+        "--candy-auto-cheek": "#FF78AA",
+        "--candy-auto-stalk": "#C9A3D9",
+        "--candy-auto-ball-a": "#FFB3D4",
+        "--candy-auto-ball-b": "#B266F2",
+        "--candy-auto-ball-glow": "#FF78BE",
+        "--background": "248.57 100% 97.25%",
+        "--foreground": "246.67 40.91% 17.25%",
+        "--background-gradient-from": "248.57 100% 97.25%",
+        "--background-gradient-to": "248.57 100% 97.25%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "246.67 40.91% 17.25%",
+        "--popover": "0 0% 100%",
+        "--popover-foreground": "246.67 40.91% 17.25%",
+        "--secondary": "251.43 100% 95.88%",
+        "--secondary-foreground": "246.67 40.91% 17.25%",
+        "--muted": "251.43 100% 95.88%",
+        "--muted-foreground": "247.14 19.63% 41.96%",
+        "--primary": "254.25 65.57% 52.16%",
+        "--primary-foreground": "0 0% 100%",
+        "--ring": "254.25 65.57% 52.16%",
+        "--accent": "251.43 100% 95.88%",
+        "--accent-foreground": "246.67 40.91% 17.25%",
+        "--destructive": "353.08 68.42% 44.71%",
+        "--destructive-foreground": "0 0% 100%",
+        "--border": "270 10.53% 92.55%",
+        "--input": "270 10.53% 92.55%",
+        "--glass-border-hover": "270 10.53% 92.55%",
+        "--cc-hover": "251.43 100% 95.88%",
+        "--cc-hover-border": "270 10.53% 92.55%",
+        "--paper": "hsl(0 0% 100%)",
+        "--bg-1": "hsl(248.57 100% 97.25%)",
+        "--bg-2": "hsl(0 0% 100%)",
+        "--fg": "hsl(246.67 40.91% 17.25%)",
+        "--fg-2": "hsl(247.14 19.63% 41.96%)",
+        "--fg-3": "hsl(247.14 19.63% 41.96%)",
+        "--border-2": "hsl(247.14 19.63% 41.96%)"
+      },
+      "nightbloom": {
+        "--candy-page": "#150B1F",
+        "--candy-band-a": "#43123F",
+        "--candy-band-b": "#2A1250",
+        "--candy-band-1": "#5A1450",
+        "--candy-band-2": "#3A1670",
+        "--candy-band-3": "#16335E",
+        "--candy-win": "#22142F",
+        "--candy-chip": "#352040",
+        "--candy-text": "#FBEFFA",
+        "--candy-quiet": "#CDB3D4",
+        "--candy-line": "rgba(255,255,255,.1)",
+        "--candy-border": "#382C44",
+        "--candy-band-quiet": "#CDB3D4",
+        "--candy-accent": "#FF6FB5",
+        "--candy-accent-ink": "#2A0618",
+        "--candy-accent-text": "#FF6FB5",
+        "--candy-user-a": "#FF6FB5",
+        "--candy-user-b": "#FF6FB5",
+        "--candy-user-ink": "#2A0618",
+        "--candy-stage-ink": "#4A1E8E",
+        "--candy-glow-base": "rgba(255,80,170,.04)",
+        "--candy-tint": "rgba(255,80,170,.14)",
+        "--candy-card-ink": "#FFFFFF",
+        "--candy-white22": "rgba(255,255,255,.22)",
+        "--candy-white28": "rgba(255,255,255,.28)",
+        "--candy-white55": "rgba(255,255,255,.55)",
+        "--candy-white85": "rgba(255,255,255,.85)",
+        "--candy-white12": "rgba(255,255,255,.12)",
+        "--candy-white45": "rgba(255,255,255,.45)",
+        "--candy-white92": "rgba(255,255,255,.92)",
+        "--candy-orb-blush": "rgba(255,190,220,.55)",
+        "--candy-orb-pink": "#FF9BC8",
+        "--candy-figure-shadow": "rgba(70,0,60,.45)",
+        "--candy-auto-body-a": "#FFA9CE",
+        "--candy-auto-body-b": "#E86DB8",
+        "--candy-auto-body-c": "#9A5CF0",
+        "--candy-auto-gloss": "#FFFFFF",
+        "--candy-auto-cyan": "#78CDFF",
+        "--candy-auto-shade": "#5A1478",
+        "--candy-auto-visor-a": "#3A1A4E",
+        "--candy-auto-visor-b": "#24102F",
+        "--candy-auto-eye": "#FFF3FB",
+        "--candy-auto-eye-glow": "#FFB3E0",
+        "--candy-auto-cheek": "#FF78AA",
+        "--candy-auto-stalk": "#C9A3D9",
+        "--candy-auto-ball-a": "#FFB3D4",
+        "--candy-auto-ball-b": "#B266F2",
+        "--candy-auto-ball-glow": "#FF78BE",
+        "--background": "270 47.62% 8.24%",
+        "--foreground": "305 60% 96.08%",
+        "--background-gradient-from": "270 47.62% 8.24%",
+        "--background-gradient-to": "270 47.62% 8.24%",
+        "--card": "271.11 40.3% 13.14%",
+        "--card-foreground": "305 60% 96.08%",
+        "--popover": "271.11 40.3% 13.14%",
+        "--popover-foreground": "305 60% 96.08%",
+        "--secondary": "279.38 33.33% 18.82%",
+        "--secondary-foreground": "305 60% 96.08%",
+        "--muted": "279.38 33.33% 18.82%",
+        "--muted-foreground": "287.27 27.73% 76.67%",
+        "--primary": "330.83 100% 71.76%",
+        "--primary-foreground": "330 75% 9.41%",
+        "--ring": "330.83 100% 71.76%",
+        "--accent": "279.38 33.33% 18.82%",
+        "--accent-foreground": "305 60% 96.08%",
+        "--destructive": "353.68 100% 73.92%",
+        "--destructive-foreground": "330 75% 9.41%",
+        "--border": "270 21.43% 21.96%",
+        "--input": "270 21.43% 21.96%",
+        "--glass-border-hover": "270 21.43% 21.96%",
+        "--cc-hover": "279.38 33.33% 18.82%",
+        "--cc-hover-border": "270 21.43% 21.96%",
+        "--paper": "hsl(271.11 40.3% 13.14%)",
+        "--bg-1": "hsl(270 47.62% 8.24%)",
+        "--bg-2": "hsl(271.11 40.3% 13.14%)",
+        "--fg": "hsl(305 60% 96.08%)",
+        "--fg-2": "hsl(287.27 27.73% 76.67%)",
+        "--fg-3": "hsl(287.27 27.73% 76.67%)",
+        "--border-2": "hsl(287.27 27.73% 76.67%)"
+      }
+    },
+    "cards": {
+      "mix": {},
+      "single": {}
+    },
+    "gradient": {
+      "soft": {
+        "--candy-card-hi": "radial-gradient(circle at 88% 8%,rgba(255,255,255,.34),transparent 46%)",
+        "--candy-card-glow": "none",
+        "--candy-card-mid": "100%"
+      },
+      "rich": {
+        "--candy-card-hi": "radial-gradient(circle at 88% 8%,rgba(255,255,255,.34),transparent 46%)",
+        "--candy-card-glow": "none",
+        "--candy-card-mid": "55%"
+      },
+      "vivid": {
+        "--candy-card-hi": "radial-gradient(circle at 92% 0%,rgba(255,255,255,.5),transparent 50%)",
+        "--candy-card-glow": "radial-gradient(circle at 0% 100%,rgba(255,170,210,.4),transparent 55%),radial-gradient(circle at 100% 100%,rgba(90,230,255,.35),transparent 50%)",
+        "--candy-card-mid": "55%"
+      }
+    },
+    "motion": {
+      "on": {
+        "--candy-play": "running"
+      },
+      "paused": {
+        "--candy-play": "paused"
+      }
+    }
+  },
+  "pairs": [
+    {
+      "a": "palette",
+      "b": "cards",
+      "table": {
+        "blush": {
+          "mix": {
+            "--candy-g1a": "#D73178",
+            "--candy-g1b": "#B01E5F",
+            "--candy-g1c": "#9C3BD0",
+            "--candy-g2a": "#8E4AE8",
+            "--candy-g2b": "#5B2BCB",
+            "--candy-g2c": "#3557D8",
+            "--candy-g3a": "#2675D3",
+            "--candy-g3b": "#0F5DAE",
+            "--candy-g3c": "#0B8FB0"
+          },
+          "single": {
+            "--candy-g1a": "#D73178",
+            "--candy-g1b": "#B01E5F",
+            "--candy-g1c": "#9C3BD0",
+            "--candy-g2a": "#D73178",
+            "--candy-g2b": "#B01E5F",
+            "--candy-g2c": "#9C3BD0",
+            "--candy-g3a": "#D73178",
+            "--candy-g3b": "#B01E5F",
+            "--candy-g3c": "#9C3BD0"
+          }
+        },
+        "lilac": {
+          "mix": {
+            "--candy-g1a": "#8E4AE8",
+            "--candy-g1b": "#5B2BCB",
+            "--candy-g1c": "#3557D8",
+            "--candy-g2a": "#2675D3",
+            "--candy-g2b": "#0F5DAE",
+            "--candy-g2c": "#0B8FB0",
+            "--candy-g3a": "#D73178",
+            "--candy-g3b": "#B01E5F",
+            "--candy-g3c": "#9C3BD0"
+          },
+          "single": {
+            "--candy-g1a": "#8E4AE8",
+            "--candy-g1b": "#5B2BCB",
+            "--candy-g1c": "#3557D8",
+            "--candy-g2a": "#8E4AE8",
+            "--candy-g2b": "#5B2BCB",
+            "--candy-g2c": "#3557D8",
+            "--candy-g3a": "#8E4AE8",
+            "--candy-g3b": "#5B2BCB",
+            "--candy-g3c": "#3557D8"
+          }
+        },
+        "nightbloom": {
+          "mix": {
+            "--candy-g1a": "#D73178",
+            "--candy-g1b": "#B01E5F",
+            "--candy-g1c": "#9C3BD0",
+            "--candy-g2a": "#8E4AE8",
+            "--candy-g2b": "#5B2BCB",
+            "--candy-g2c": "#3557D8",
+            "--candy-g3a": "#2675D3",
+            "--candy-g3b": "#0F5DAE",
+            "--candy-g3c": "#0B8FB0"
+          },
+          "single": {
+            "--candy-g1a": "#D73178",
+            "--candy-g1b": "#B01E5F",
+            "--candy-g1c": "#9C3BD0",
+            "--candy-g2a": "#D73178",
+            "--candy-g2b": "#B01E5F",
+            "--candy-g2c": "#9C3BD0",
+            "--candy-g3a": "#D73178",
+            "--candy-g3b": "#B01E5F",
+            "--candy-g3c": "#9C3BD0"
+          }
+        }
+      }
+    },
+    {
+      "a": "palette",
+      "b": "gradient",
+      "table": {
+        "blush": {
+          "soft": {
+            "--candy-band": "linear-gradient(160deg,#FFD9E8,#FFC2DA)",
+            "--candy-aura": "#FBF0F4"
+          },
+          "rich": {
+            "--candy-band": "linear-gradient(120deg,#FFC6E0 0%,#F2C9FF 52%,#FFD9C2 100%)",
+            "--candy-aura": "#FBF0F4"
+          },
+          "vivid": {
+            "--candy-band": "linear-gradient(120deg,#FFC6E0 0%,#F2C9FF 52%,#FFD9C2 100%)",
+            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#F9C6E4 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#FFE0C7 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#E5D4FF 0%,transparent 70%),#FBF0F4"
+          }
+        },
+        "lilac": {
+          "soft": {
+            "--candy-band": "linear-gradient(160deg,#E2DCFF,#D3E3FF)",
+            "--candy-aura": "#F3F1FF"
+          },
+          "rich": {
+            "--candy-band": "linear-gradient(120deg,#D9CCFF 0%,#C9DBFF 52%,#F6D2F0 100%)",
+            "--candy-aura": "#F3F1FF"
+          },
+          "vivid": {
+            "--candy-band": "linear-gradient(120deg,#D9CCFF 0%,#C9DBFF 52%,#F6D2F0 100%)",
+            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#DCD0FF 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#CFE8FF 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#FFD9EE 0%,transparent 70%),#F3F1FF"
+          }
+        },
+        "nightbloom": {
+          "soft": {
+            "--candy-band": "linear-gradient(160deg,#43123F,#2A1250)",
+            "--candy-aura": "#150B1F"
+          },
+          "rich": {
+            "--candy-band": "linear-gradient(120deg,#5A1450 0%,#3A1670 52%,#16335E 100%)",
+            "--candy-aura": "#150B1F"
+          },
+          "vivid": {
+            "--candy-band": "linear-gradient(120deg,#5A1450 0%,#3A1670 52%,#16335E 100%)",
+            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#5A1856 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#1E2B66 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#3E1460 0%,transparent 70%),#150B1F"
+          }
+        }
+      }
+    }
+  ],
+  "numeric": [
+    {
+      "var": "--candy-glow",
+      "knob": "glow",
+      "min": 0,
+      "max": 10,
+      "integer": true,
+      "scale": 33,
+      "capTable": null,
+      "caps": null,
+      "color": {
+        "knob": "palette",
+        "rgb": {
+          "blush": "214,47,122",
+          "lilac": "91,53,213",
+          "nightbloom": "255,80,170"
+        }
+      },
+      "template": "rgba-alpha"
+    }
+  ],
+  "defaults": {
+    "palette": "blush",
+    "cards": "mix",
+    "gradient": "rich",
+    "roundness": 28,
+    "glow": 6,
+    "motion": "on"
+  },
+  "tone": {
+    "knob": "palette",
+    "values": {
+      "blush": "light",
+      "lilac": "light",
+      "nightbloom": "dark"
+    }
+  }
+}
