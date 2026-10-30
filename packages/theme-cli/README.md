@@ -165,7 +165,7 @@ the kit).
   the SDK's `pages/agents` area.
   `templates/full/template.json` lists the renames and what the template adds. Play's look
   data is written once, by the kit's `scripts/compile-looks.mjs`, and is the theme's own from then on. Play's listing
-  previews are not copied, and Play itself is only read.
+  previews and phone screenshots are not copied, and Play itself is only read.
 - `--mascot none` (full only): no clips, no `mascot` block, no `@automatos/mascot`. The chat still says what Auto is
   doing, from the package's state machine and words, copied into the theme's `src/lib/auto/`.
 
@@ -221,9 +221,20 @@ then routes, as the harness orders them) on Chromium at 1440 px, the default loo
 
 Every pick is checked before anything is written, and every reason is printed: a name the server's reader would not
 take as `assets/previews/<name>.png`, a name no preset claims or picked twice, a shot outside the shots folder,
-missing, over 512 KB or not a PNG, and more than 16 previews. `theme.json` keeps its own layout: only `previews` is
+missing, over 512 KB or not a PNG, and more than 24 previews. `theme.json` keeps its own layout: only `previews` is
 written. A file in `assets/previews/` the new list doesn't name is left in place, with a warning, since `pack` still
 packs it. `check` then lists each preview under its preset and names the cover.
+
+`automatos-theme previews <theme folder> --phone <screenshots folder> [--pick <name>=<file>]...` does the same for
+the Marketplace's phone screenshots (`src/previews-phone.ts`): Automatos Go screenshots you took with the theme
+installed, copied into `assets/previews/phone/` and listed as `theme.json` `phonePreviews`, the first the listing's
+phone cover. `--pick ember-chat=IMG_0412.PNG` writes `assets/previews/phone/ember-chat.png`; the extension is the one
+the file's bytes give, `.png` for a PNG and `.jpg` for a JPEG. With no `--pick`, every `.png`, `.jpg` or `.jpeg` file
+right in the folder is a pick named by its file name, the default look's first. The same rules hold (the names the
+reader takes and a preset claims, each picked once, at most 512 KB, at most 24), with a PNG or a JPEG in place of a
+PNG; only `phonePreviews` is written, and a screenshot wider than it is tall is written with a warning
+(`src/picture-size.ts` reads its size from its header). Both modes share their checks and writing
+(`src/previews-pick.ts`).
 
 The previews are yours to pick and commit: a package's digest covers them, so they are never written by a build.
 Exit code 0 when written, 1 when refused (nothing written), 2 for a usage error.

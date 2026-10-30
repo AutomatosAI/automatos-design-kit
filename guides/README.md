@@ -11,10 +11,10 @@ guide and core disagree, core wins and the guide is fixed.
 
 | Guide | What it covers |
 |---|---|
-| [contract.md](contract.md) | The package and its files, `theme.json` field by field, the slots, the pages a theme may replace, its own routes, the host-owned routes, the modules, the CSS rules and the `mobile` block |
+| [contract.md](contract.md) | The package and its files, `theme.json` field by field, the Marketplace's web and phone screenshots, the slots, the pages a theme may replace, its own routes, the host-owned routes, the modules, the CSS rules and the `mobile` block |
 | [page-inventory.md](page-inventory.md) | The nine core pages a theme may replace: what each reads through the SDK, the core files a clone copies, and which placement slots reach it |
 | [mascot-placement.md](mascot-placement.md) | Where a mascot can go (the theme's own surfaces, the three placement slots), which pages each slot reaches, and where Play puts Auto |
-| [mobile-skins.md](mobile-skins.md) | The phone skin, `theme.json`'s `mobile` block: what it is and isn't, the app's four layouts and which theme gets each, its fields as the validator takes them, what Automatos Go draws from it, its ten contrast pairs, and the work from the skin designer through `skin`, `check` and `pack` |
+| [mobile-skins.md](mobile-skins.md) | The phone skin, `theme.json`'s `mobile` block: what it is and isn't, the app's four layouts and which theme gets each, its fields as the validator takes them, what Automatos Go draws from it, its ten contrast pairs, the work from the skin designer through `skin`, `check` and `pack`, and the phone screenshots the Marketplace shows |
 | [looks.md](looks.md) | The look schema and its two knob kinds, presets, the first-paint table, the tone rule, recolouring the host's pages, and `check design` |
 | [sdk.md](sdk.md) | Every name of `@automatos/theme-sdk`, by area, storage included |
 | [pitfalls.md](pitfalls.md) | What went wrong building Play, and the rule or check that now catches each one |

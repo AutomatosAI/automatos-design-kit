@@ -2,7 +2,8 @@
 
 The commands that run the kit's browser harness (`packages/theme-harness`), the mock host page that draws a theme
 from its folder with nothing of Automatos running: `dev` serves it as a local app, `shots` photographs every view on
-Chromium and WebKit with an axe scan, and `previews` copies picked shots into the theme's listing. The rest of the
+Chromium and WebKit with an axe scan, and `previews` copies picked shots (or Automatos Go screenshots) into the
+theme's listing. The rest of the
 command line (running it, the commands table, the environment) is in [cli.md](cli.md).
 
 ## `dev`
@@ -118,27 +119,39 @@ HUD draws no Command Centre page of its own (the host's page stands in its frame
 ## `previews`
 
 ```text
-usage:    automatos-theme previews <theme folder> --from <shots folder> [--pick <name>=<shot>]...
+usage:    automatos-theme previews <theme folder> (--from <shots folder> | --phone <screenshots folder>) [--pick <name>=<file>]...
 example:  npx automatos-theme previews themes/harbour --from shots \
           --pick day=chromium/day/1440/slot-frame-1.png --pick day-looks=chromium/day/1440/slot-lookEditor-1.png
+example:  npx automatos-theme previews themes/harbour --phone phone-shots \
+          --pick day-chat=IMG_0412.PNG --pick night-chat=IMG_0415.PNG
 ```
 
 Copies the shots you pick into the theme's listing previews and sets `theme.json` `previews` to them, in the order
-given (`src/previews.ts`). The Marketplace listing keeps that order and its cover is the first preview, so the first
-pick is the cover.
+given (`src/previews.ts`); with `--phone`, copies phone screenshots into its phone screenshots and sets
+`phonePreviews` (`src/previews-phone.ts`). The Marketplace listing keeps each list's order, and its cover is the first
+preview and its phone cover the first phone screenshot, so the first pick is the cover.
 
 | Argument | Meaning |
 |---|---|
-| `--from <shots folder>` | The folder `shots` wrote. Required. |
-| `--pick <name>=<shot>` | Repeatable. `<name>` is the preview's file stem, `<preset>` or `<preset>-<screen>`, written as `assets/previews/<name>.png`; `<shot>` is a PNG path under the shots folder. |
+| `--from <shots folder>` | The folder `shots` wrote: the picks are web previews. One of `--from` and `--phone` is required. |
+| `--phone <screenshots folder>` | A folder of Automatos Go screenshots, PNG or JPEG: the picks are phone screenshots. |
+| `--pick <name>=<file>` | Repeatable. `<name>` is the file stem, `<preset>` or `<preset>-<screen>`. With `--from` it is written as `assets/previews/<name>.png` and `<file>` is a PNG path under the shots folder; with `--phone` it is written as `assets/previews/phone/<name>.png` or `.jpg`, the extension the file's bytes give (a `.jpeg` or an `IMG_0412.PNG` is fine), and `<file>` is a path under the screenshots folder. |
 
-With no `--pick`, each preset gets `<preset>.png`: its first view (slots, then pages, then routes) on Chromium at
-1440 px, the default look first.
+With no `--pick` and `--from`, each preset gets `<preset>.png`: its first view (slots, then pages, then routes) on
+Chromium at 1440 px, the default look first. With no `--pick` and `--phone`, every `.png`, `.jpg` or `.jpeg` file right
+in the folder is a pick, named by its file name without the extension: name the screenshots `<preset>.png` or
+`<preset>-<screen>.jpg` as you save them. They are listed by look, the default look's first, then by name.
+
+The phone screenshots come from the phone, not from the harness: install the theme, open Automatos Go, and take
+each screen in each look with the phone held upright (the storefront draws them in a portrait phone frame, about
+9:19.5). Keep each under 512 KB: save a large screenshot as a JPEG.
 
 Every pick is checked before anything is written, and every reason is printed: a name core's reader would not take
-as a preview path, a name no preset claims (the longest matching preset id wins) or picked twice, a shot outside the
-shots folder, missing, not a PNG or over 512 KB, and more than 16 previews. `theme.json` keeps its own layout: only
-`previews` is rewritten. A file in `assets/previews/` the new list no longer names stays where it is, with a warning,
-since `pack` still packs it.
+as a path in the list's folder, a name no preset claims (the longest matching preset id wins) or picked twice, a file
+outside the folder given, missing, over 512 KB or not a PNG (with `--phone`, not a PNG or a JPEG), and more than 24
+in the list. `theme.json` keeps its own layout: only `previews`, or with `--phone` only `phonePreviews`, is
+rewritten, and the other list and its files are left alone. A file in `assets/previews/` (with `--phone`,
+`assets/previews/phone/`) the new list no longer names stays where it is, with a warning, since `pack` still packs
+it. A phone screenshot wider than it is tall is written with a warning; core checks no size.
 
 Exit codes: 0 written; 1 refused (nothing written); 2 usage error.

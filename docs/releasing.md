@@ -64,7 +64,8 @@ above its newest tag and whose publisher is listed, then builds, reviews, signs 
 `<slug>-v<version>` at the merged commit ([OFFICIAL-LISTING.md](OFFICIAL-LISTING.md), "What a merge does"). The
 release holds `<publisher>.<slug>-<version>.autotheme`, its `.autotheme.sha256` and `<version>.sig.json`, titled
 with `theme.json`'s `name` and the version ("Play 1.2.1", "HUD 1.1.2", "Arcade 1.0.0"), with notes giving the package
-digest and the file's sha256, then the pictures `theme.json` lists under `previews`, each shown from the tag
+digest and the file's sha256, then the pictures `theme.json` lists under `previews`, each shown from the tag, and the
+phone screenshots it lists under `phonePreviews`, side by side at a phone's width
 (`scripts/release/preview-notes.ts`). A local or open-source edition installs the release asset with Settings ›
 Appearance › Themes › Install theme.
 
@@ -103,8 +104,8 @@ gh workflow run theme-review.yml --ref play-v<version> \
 ```
 
 The job has no permissions and no secrets. It refuses a `package_url` that isn't `https://` and an
-`expected_digest` that isn't 64 lower-case hex characters, downloads the package (HTTPS only, at most 10 MiB, two
-minutes), installs the kit with `npm ci --ignore-scripts`, and then runs `scripts/review/main.ts` in
+`expected_digest` that isn't 64 lower-case hex characters, downloads the package (HTTPS only, at most 32 MiB, the
+package cap, two minutes), installs the kit with `npm ci --ignore-scripts`, and then runs `scripts/review/main.ts` in
 `docker run --network none` on a Node image pinned by digest: the kit mounted read-only, all capabilities dropped,
 no new privileges. The review's checks, in order: no network, the package (core's reader, as the kit ports it), the
 digest against `expected_digest`, `source/` present, the JS rules on `source/`, and the reproducible build of
@@ -114,7 +115,7 @@ note, with its outcome.
 
 The text ends with a report-only "Previews and accessibility" section: each preset's previews with their sizes and
 the preset that claims each (a preset with none, a preview no preset claims and a file theme.json doesn't list are
-named), and contrast, "not measured" while the look schema declares no text and ground pairs. Once the review has
+named), then its phone screenshots the same way when the package holds any, and contrast, "not measured" while the look schema declares no text and ground pairs. Once the review has
 passed, the job draws the package in the kit's browser harness on the runner, outside the container, and adds what
 axe found over those shots to the job summary after the text. Neither changes the outcome: the person reviewing
 decides.

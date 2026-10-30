@@ -17,7 +17,9 @@ core wins and the kit is fixed.
 
 - Format and checks: `orchestrator/services/themes/{package,manifest,contract,css_scope,digest}.py` and
   `frontend/lib/theme-host/package-manifest.ts`. `theme.json` uses schema `automatos-theme/v1`; only
-  whitelisted files; JS + CSS at most 3 MB, the entry at most 300 KB, each clip at most 1 MB.
+  whitelisted files; the package at most 32 MB, JS + CSS at most 3 MB, the entry at most 300 KB, each clip at
+  most 1 MB; up to 24 web previews (`previews`) and 24 phone screenshots (`phonePreviews`, PNG or JPEG in
+  `assets/previews/phone/`), at most 512 KB each.
 - CSS: every rule sits under `html.<htmlClass>` (or `:where(html.<htmlClass>)`); no `!important`, no
   `@import`, no selector naming `data-protected-surface` or `data-ai-label`; every `@keyframes` name and
   `@font-face` family starts with `<htmlClass>-`.
@@ -164,8 +166,9 @@ itself once `Kit` has passed on a push to `main`. Core never calls GitHub.
   holds the text the reviewer pastes into the admin queue's report note, with its outcome.
 - That text ends with a report-only "Previews and accessibility" section (PRD-261 B-02j,
   `scripts/review/report.ts`): each preset's previews with their sizes and the preset that claims each,
-  and contrast, not measured while core's look schema declares no text and ground pairs (a `mobile`
-  block's pairs are in core's own review report). Once the review has passed, the job runs an axe pass
+  then its phone screenshots the same way when the package holds any, and contrast, not measured while
+  core's look schema declares no text and ground pairs (a `mobile` block's pairs are in core's own review
+  report). Once the review has passed, the job runs an axe pass
   outside the container (`scripts/review/axe.ts`): the package laid out as a theme folder in a folder of
   its own, drawn by `automatos-theme shots`, and what axe found added to the job summary after the text.
   Neither is a check, so neither changes the outcome; the axe steps continue on any error.

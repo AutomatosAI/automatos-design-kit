@@ -141,6 +141,10 @@ Then install `out/acme.harbour-0.1.0.autotheme` in Automatos: Settings › Appea
 - `install` sends the package to a local Automatos (`--to` takes the API's address, or the web app's where the web app
   serves `/automatos-host.json`), opts you in to it and, with `--choose`, makes it your theme there. No other command
   above sends anything anywhere.
+- For the Marketplace, a listing shows screenshots per look: web previews from the harness
+  (`npx automatos-theme shots`, then `previews --from`) and phone screenshots taken in Automatos Go (`previews --phone`),
+  up to 24 of each, named `<look>` or `<look>-<screen>`
+  ([guides/contract.md](guides/contract.md#screenshots-for-the-marketplace)).
 - The build prints "didn't resolve at build time" once for each font a theme ships. That is expected: a font's URL
   (`../assets/fonts/…`) is resolved by the browser against `dist/theme.css` in the installed package.
 - `themes/harbour` is a new npm workspace of the kit, so the next `npm ci` says `package-lock.json` is out of sync:
@@ -162,7 +166,7 @@ this repository is needed to build, check and pack a theme. Installing it needs 
 ## The tools
 
 - **`automatos-theme`**, the command line: `new`, `dev`, `check`, `pack`, `install` and `submit`, with `shots`,
-  `previews`, `brief`, `clone` and `skin` ([docs/cli.md](docs/cli.md)).
+  `previews` (the listing's web previews and phone screenshots), `brief`, `clone` and `skin` ([docs/cli.md](docs/cli.md)).
 - **The browser harness**: a mock host page that draws a theme from its folder with nothing of Automatos running.
   `dev` serves it with a phone view and a skin designer; `shots` photographs every view on Chromium and WebKit with
   Playwright and scans each shot with axe. Kit CI runs it on every pull request

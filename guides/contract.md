@@ -24,12 +24,13 @@ server takes only the files below; any other path is `NOT_ALLOWED`.
 | `looks/schema.json`, `looks/presets/<id>.look.json` | The look format and its presets ([looks.md](looks.md)) | 64 KB each |
 | `assets/fonts/<name>.woff2` and its licence (`.txt`, `.md`) | Web fonts, one face per file | 400 KB a font |
 | `assets/mascot/<name>.{webm,mp4,png}` | The mascot's clips and stills ([mascot-placement.md](mascot-placement.md)) | 1 MB a clip, 512 KB a still |
-| `assets/brand/<name>.{png,webp}`, `assets/previews/<name>.png` | The wordmark, the listing's previews | 512 KB each |
+| `assets/brand/<name>.{png,webp}`, `assets/previews/<name>.png` | The wordmark, the listing's web previews | 512 KB each |
+| `assets/previews/phone/<name>.{png,jpg}` | The listing's phone screenshots, of Automatos Go ([below](#screenshots-for-the-marketplace)) | 512 KB each |
 | `source/**` | The theme's `src/`, which `pack` copies there for the Marketplace review | 1 MB a file, 8 levels deep |
 | `README.md`, `CHANGELOG.md`, `LICENSE` | The theme's own documents | 256 KB each |
 
-The whole package is at most 10 MB. A package that breaks a cap is refused with the cap's code (`ENTRY_TOO_LARGE`,
-`CODE_TOO_LARGE`, `CLIP_TOO_LARGE`, `FILE_TOO_LARGE`).
+The whole package is at most 32 MB (`PACKAGE_TOO_LARGE`). A package that breaks a cap is refused with the cap's code
+(`ENTRY_TOO_LARGE`, `CODE_TOO_LARGE`, `CLIP_TOO_LARGE`, `FILE_TOO_LARGE`).
 
 ## `theme.json`
 
@@ -52,11 +53,40 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `routes`, `nav` | no | The theme's own pages and their menu entries (below) |
 | `uses` | no | The SDK areas the code imports ([sdk.md](sdk.md)); the review warns when code and list disagree |
 | `look` | no | The id of the default preset |
-| `fonts`, `previews` | no | Up to 16 `assets/fonts/*.woff2`, up to 16 `assets/previews/*.png`. The listing shows a preview `<preset>.png` or `<preset>-<screen>.png` under that preset, in `theme.json`'s order, and its cover is the first; `automatos-theme previews` writes them from harness shots. |
+| `fonts` | no | Up to 16 `assets/fonts/*.woff2` |
+| `previews`, `phonePreviews` | no | The Marketplace's screenshots: up to 24 web previews `assets/previews/*.png` and up to 24 phone screenshots `assets/previews/phone/*.png` or `*.jpg`, each under the look its name gives, in `theme.json`'s order ([below](#screenshots-for-the-marketplace)). |
 | `brand` | no | `{"name", "wordmark"}`, the wordmark an `assets/brand/` image |
 | `mascot` | no | `{"states": [...]}`: up to 32 state names ([mascot-placement.md](mascot-placement.md)) |
 | `pricing` | no | A label of at most 40 characters |
 | `mobile` | no | The phone's theme (below) |
+
+## Screenshots for the Marketplace
+
+The Marketplace storefront shows a theme with its screenshots, per look: a web screen in a browser frame and, beside
+it, a phone screen of Automatos Go in a phone frame. `theme.json` lists them in two fields, each a list of package
+files:
+
+| Field | Files | Format | Most |
+|---|---|---|---|
+| `previews` | `assets/previews/<name>.png` | PNG | 24 |
+| `phonePreviews` | `assets/previews/phone/<name>.png` or `.jpg` | PNG or JPEG (not `.jpeg`), portrait, about 9:19.5 | 24 |
+
+- Every file is at most 512 KB and the format its extension says, read from its first bytes (`BAD_FILE_TYPE`
+  otherwise). A file a list names that the package doesn't hold is `MISSING_FILE`; a list that names a file twice,
+  names another folder or holds more than 24 is `BAD_ASSET_PATH`. No size in pixels is checked;
+  `automatos-theme previews --phone` warns of a phone screenshot that is wider than it is tall.
+- **One naming rule for both lists**: a file's name without its folder and extension is `<look>` or
+  `<look>-<screen>`, where `<look>` is a preset id, and the storefront shows it under that look (with that screen's
+  name). When two preset ids match, the longer wins: `ember-dark-chat.png` is `ember-dark`'s `chat`, not `ember`'s
+  `dark-chat`. A screenshot no preset claims is shown apart from every look, and `check` warns of it.
+- Each list keeps `theme.json`'s order. The listing card's cover is the first web preview the package holds, and its
+  phone cover the first phone screenshot.
+- Screenshots count toward the package's 32 MB, and pictures barely compress: 24 web and 24 phone screenshots at
+  512 KB are 24 MB, which leaves room for the 3 MB of code, the fonts and a mascot.
+
+`automatos-theme previews` writes either list: `--from` with the harness shots for `previews`, `--phone` with a
+folder of Automatos Go screenshots for `phonePreviews` ([docs/cli-harness.md](../docs/cli-harness.md#previews)).
+`check` lists both under their looks.
 
 ## Slots
 
