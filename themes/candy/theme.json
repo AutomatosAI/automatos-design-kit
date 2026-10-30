@@ -1,0 +1,122 @@
+{
+  "schema": "automatos-theme/v1",
+  "id": "automatos/candy",
+  "name": "Candy",
+  "version": "1.0.0",
+  "description": "Automatos bright, soft and glossy: every card its own gradient, round corners and round icons, today's numbers in a candy orb, and Auto in a glossy shell.",
+  "engines": {
+    "automatos": "^1.1.0",
+    "sdk": "^1.2.0"
+  },
+  "base": "studio",
+  "htmlClass": "candy",
+  "minWidth": 360,
+  "tone": "from-look",
+  "slots": [
+    "frame@1",
+    "lookEditor@1",
+    "styleSheet@1",
+    "notFound@1",
+    "asleep@1"
+  ],
+  "pages": {
+    "/chat": {
+      "mode": "own",
+      "keepCorePage": [
+        "repo",
+        "runtime",
+        "mode"
+      ]
+    },
+    "/deliverables": {
+      "mode": "own",
+      "keepCorePage": [
+        "tab",
+        "post",
+        "artifact_type"
+      ]
+    }
+  },
+  "routes": [
+    "today",
+    "agents"
+  ],
+  "nav": [
+    {
+      "id": "candy-today",
+      "label": "Today",
+      "path": "/x/today"
+    },
+    {
+      "id": "candy-agents",
+      "label": "Your team",
+      "path": "/x/agents"
+    },
+    {
+      "id": "candy-look",
+      "label": "Your look",
+      "path": "/looks"
+    },
+    {
+      "id": "candy-style",
+      "label": "Style sheet",
+      "path": "/looks/style"
+    }
+  ],
+  "uses": [
+    "cards",
+    "chat",
+    "context",
+    "deliverables",
+    "events",
+    "looks",
+    "navigation",
+    "pages-agents",
+    "pages-command-center",
+    "storage",
+    "theme",
+    "voice"
+  ],
+  "look": "blush",
+  "fonts": [
+    "assets/fonts/outfit-latin-600-normal.woff2",
+    "assets/fonts/outfit-latin-700-normal.woff2",
+    "assets/fonts/nunito-latin-400-normal.woff2",
+    "assets/fonts/nunito-latin-700-normal.woff2",
+    "assets/fonts/nunito-latin-800-normal.woff2"
+  ],
+  "mascot": {
+    "states": [
+      "hello",
+      "idle",
+      "listening",
+      "thinking",
+      "working",
+      "searching",
+      "reading",
+      "celebrate",
+      "oops",
+      "sleeping",
+      "lost",
+      "loading"
+    ]
+  },
+  "mobile": {
+    "fromLooks": true,
+    "fonts": {
+      "serif": "assets/fonts/mobile/candy-title.ttf",
+      "sans": "assets/fonts/mobile/candy-body.ttf"
+    },
+    "mascot": "stills"
+  },
+  "previews": [
+    "assets/previews/blush.png",
+    "assets/previews/lilac.png",
+    "assets/previews/nightbloom.png",
+    "assets/previews/blush-chat.png",
+    "assets/previews/blush-deliverables.png",
+    "assets/previews/blush-team.png",
+    "assets/previews/blush-look.png",
+    "assets/previews/nightbloom-chat.png"
+  ]
+}

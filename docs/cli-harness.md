@@ -86,7 +86,7 @@ Exit codes: 0 every shot passed; the failing step's own exit code; 1 no `theme.j
 ### The showcase shots
 
 `shots` is a regression set: every view of every preset on the local edition, at one pixel per CSS pixel, scanned
-with axe. The showcase is a separate, short set of clean images of the kit's own themes, HUD, Play and Arcade, for READMEs,
+with axe. The showcase is a separate, short set of clean images of the kit's own themes, HUD, Play, Arcade and Candy, for READMEs,
 docs and the product site. It is not a command: kit CI's `harness` job runs it after the shots, and it runs the same
 way from the kit's root:
 
@@ -115,6 +115,10 @@ list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
 | HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc` |
 | Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember` |
 | Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember` |
+| Arcade | 1440 | `chat-overworld`, `chat-dungeon`, `chat-neon`, `chat-nightcity`, `chat-handheld`, `quests-overworld`, `inventory-overworld`, `look-editor-overworld` |
+| Arcade | 390 | `chat-overworld`, `chat-handheld` |
+| Candy | 1440 | `today-blush`, `today-lilac`, `today-nightbloom` (one per look: Candy's listing covers), `chat-blush`, `deliverables-blush`, `team-blush`, `look-editor-blush`, `chat-nightbloom` |
+| Candy | 390 | `today-blush`, `chat-blush` |
 
 HUD draws no Command Centre page of its own (the host's page stands in its frame there), so the set has none.
 

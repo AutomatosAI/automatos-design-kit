@@ -91,9 +91,11 @@ looks, or two schemes of Studio's tokens), up to three fonts (`.ttf` or `.otf`, 
 labels) and the mascot's stills or clips. Don't draw phone screens for the app: they can't change. (A theme's own
 layout in a phone's **browser**, below its desktop width, is the web theme's and can be anything.)
 
-The app has four layouts built in (Studio, Play, HUD and Arcade); only Automatos's own themes switch the phone to
-theirs. A layout of your own would need an Automatos Go release, so it is a proposal to Automatos, not part of the
-handoff ([mobile-skins.md](mobile-skins.md#the-phones-layouts)).
+The app has five layouts built in (Studio, Play, HUD, Arcade and Candy); only Automatos's own themes switch the phone
+to theirs (`automatos/play`, `automatos/hud`, `automatos/arcade` and `automatos/candy`). Candy's layout ships in a later
+Automatos Go release; until then the app paints Candy's skin on Studio. A layout of your own would need an Automatos
+Go release, so it is a proposal to Automatos, not part of the handoff
+([mobile-skins.md](mobile-skins.md#the-phones-layouts)).
 
 ## The handoff
 

@@ -1,0 +1,13 @@
+{
+  "schema": "candy-look/v1",
+  "interface": "candy",
+  "id": "nightbloom",
+  "name": "Night bloom",
+  "sub": "Neon pinks after dark",
+  "palette": "nightbloom",
+  "cards": "mix",
+  "gradient": "vivid",
+  "roundness": 28,
+  "glow": 8,
+  "motion": "on"
+}

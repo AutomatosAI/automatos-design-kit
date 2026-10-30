@@ -1,0 +1,369 @@
+/*
+ * The thread (W2's window, P2's page): your bubbles on the right in the accent's gradient, Auto's on the left on the
+ * chip colour beside his 44 px face, the tool chips over them, a Deliverable as a row with its kind's gradient
+ * square and "Auto is writing" with three bouncing dots (the host's cards: cards.module.css). On the phone
+ * (data-layout="phone") there are no faces, and Auto's bubble and the Deliverable row sit on the window colour over
+ * the page. The dots bounce only while things may move (data-moving), on the look's Motion clock (--candy-play).
+ */
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+
+.scroller:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: -3px;
+}
+
+.scroller[data-layout="phone"] {
+  gap: 12px;
+  padding: 4px 16px 8px;
+}
+
+.empty {
+  margin: auto;
+  max-width: 380px;
+  text-align: center;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scroller[data-layout="phone"] .entries {
+  gap: 12px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* --- Your words ------------------------------------------------------------------------------------------- */
+
+.you {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.userBubble {
+  max-width: min(520px, 85%);
+  margin: 0;
+  padding: 14px 20px;
+  box-sizing: border-box;
+  border-radius: 24px 24px 8px 24px;
+  background: var(--candy-user);
+  color: var(--candy-user-ink);
+  font: 700 15px/1.45 var(--candy-body);
+  overflow-wrap: anywhere;
+}
+
+.scroller[data-layout="phone"] .userBubble {
+  padding: 12px 16px;
+  border-radius: 22px 22px 8px 22px;
+  font-size: 14px;
+}
+
+/* --- Auto's reply ----------------------------------------------------------------------------------------- */
+
+.auto {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.auto .face {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.scroller[data-layout="phone"] .face {
+  display: none;
+}
+
+.autoColumn {
+  flex: 1;
+  min-width: 0;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.autoBubble {
+  max-width: 100%;
+  padding: 14px 20px;
+  box-sizing: border-box;
+  border-radius: 8px 24px 24px 24px;
+  background: var(--candy-chip);
+  color: var(--candy-text);
+  font: 400 15px/1.5 var(--candy-body);
+  overflow-wrap: anywhere;
+}
+
+.scroller[data-layout="phone"] .autoBubble {
+  padding: 12px 16px;
+  border-radius: 8px 22px 22px 22px;
+  background: var(--candy-win);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* The host's Markdown sets its own size on its box: the reply takes the bubble's (pitfalls.md). */
+.markdown {
+  font-family: var(--candy-body);
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.markdown > :first-child {
+  margin-top: 0;
+}
+
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.note {
+  margin: 0;
+  font: 400 13px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+/* --- Chips: what the reply did, notices, failures --------------------------------------------------------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 4px 12px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--candy-chip);
+  color: var(--candy-text);
+  font: 700 13px/1.3 var(--candy-body);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.chip[data-tone="failed"],
+.chip[data-tone="notice"] {
+  box-shadow: inset 0 0 0 1.5px var(--candy-accent-text);
+}
+
+.scroller[data-layout="phone"] .chip {
+  min-height: 28px;
+  font-size: 12px;
+}
+
+.chipLink:hover {
+  text-decoration: underline;
+}
+
+.chipLink:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+.failure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Auto is writing --------------------------------------------------------------------------------------- */
+
+.writing {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--candy-chip);
+  color: var(--candy-quiet);
+  font: 700 13px/1.2 var(--candy-body);
+}
+
+.scroller[data-layout="phone"] .writing {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--candy-g1a);
+}
+
+.dot[data-set="2"] {
+  background: var(--candy-g2a);
+}
+
+.dot[data-set="3"] {
+  background: var(--candy-g3a);
+}
+
+.writing[data-moving="true"] .dot {
+  animation: candy-writing 1.2s ease-in-out infinite;
+  animation-play-state: var(--candy-play, running);
+}
+
+.writing[data-moving="true"] .dot[data-set="2"] {
+  animation-delay: 0.15s;
+}
+
+.writing[data-moving="true"] .dot[data-set="3"] {
+  animation-delay: 0.3s;
+}
+
+@keyframes candy-writing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
+/* --- A Deliverable made in the chat ------------------------------------------------------------------------ */
+
+.made {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--candy-line);
+  border-radius: var(--candy-rs);
+  background: var(--candy-win);
+}
+
+.scroller[data-layout="phone"] .made {
+  gap: 12px;
+  padding: 10px;
+  border-color: transparent;
+}
+
+.thumb {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--candy-card-1);
+}
+
+.thumb[data-set="2"] {
+  background: var(--candy-card-2);
+}
+
+.thumb[data-set="3"] {
+  background: var(--candy-card-3);
+}
+
+.scroller[data-layout="phone"] .thumb {
+  width: 48px;
+  height: 48px;
+}
+
+.thumbDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--candy-card-ink);
+}
+
+.madeText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.madeTitle {
+  font: 800 15px/1.3 var(--candy-body);
+  color: var(--candy-text);
+  overflow-wrap: anywhere;
+}
+
+.madeMeta {
+  font: 400 13px/1.3 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.open {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: var(--candy-target);
+  padding: 0 8px;
+}
+
+.turnEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-left: 56px;
+}
+
+.turnEnd:empty {
+  display: none;
+}
+
+.scroller[data-layout="phone"] .turnEnd {
+  padding-left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .writing[data-moving="true"] .dot {
+    animation: none;
+  }
+}

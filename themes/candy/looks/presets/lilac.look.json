@@ -1,0 +1,13 @@
+{
+  "schema": "candy-look/v1",
+  "interface": "candy",
+  "id": "lilac",
+  "name": "Lilac",
+  "sub": "Violet into blue, airy",
+  "palette": "lilac",
+  "cards": "mix",
+  "gradient": "vivid",
+  "roundness": 32,
+  "glow": 5,
+  "motion": "on"
+}

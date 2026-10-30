@@ -1,0 +1,53 @@
+/*
+ * Auto's two loops: he floats 4 px (at the concept's 120 px, 3.5 of his 104 units) over 3 s and blinks every 5 s.
+ * Both run only on a moving Auto (data-moving, set from useMotion), and both follow the look's Motion knob through
+ * --candy-play, so Paused in the look editor holds them where they are. His shadow is drawn behind him, never over
+ * anything else.
+ */
+
+.auto {
+  display: block;
+  flex: none;
+  overflow: visible;
+  filter: drop-shadow(0 6px 12px var(--candy-glow, transparent));
+}
+
+.float,
+.eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.auto[data-moving="true"] .float {
+  animation: candy-float 3s ease-in-out infinite alternate;
+  animation-play-state: var(--candy-play, running);
+}
+
+.auto[data-moving="true"] .eye {
+  animation: candy-blink 5s ease-in-out infinite;
+  animation-play-state: var(--candy-play, running);
+}
+
+.auto[data-moving="true"] .eye:last-of-type {
+  animation-delay: 0s;
+}
+
+@keyframes candy-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-3.5px);
+  }
+}
+
+@keyframes candy-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}

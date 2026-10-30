@@ -1,0 +1,315 @@
+/*
+ * The frame (desktop): the page's aura under everything, the band behind the top of the page with its curved lower
+ * left edge, the sidebar window on the left (20 px from the window's edges), and the page column 32 px to its right
+ * with the host's header utilities at its top right. The column's foot stays clear for the host's AI label. On the
+ * phone (data-layout="phone") the sidebar gives way to phone.module.css's bar, sheet and tab bar.
+ */
+
+.frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  gap: 32px;
+  min-height: 100dvh;
+  padding: 20px var(--candy-gutter) 0 20px;
+  box-sizing: border-box;
+  background: var(--candy-aura);
+  color: var(--candy-text);
+  font-family: var(--candy-body);
+  isolation: isolate;
+}
+
+.frame[data-layout="phone"] {
+  display: block;
+  padding: 0;
+}
+
+.band {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 260px;
+  right: 0;
+  height: 420px;
+  border-radius: 0 0 0 100% / 0 0 0 40%;
+  background: var(--candy-band);
+  pointer-events: none;
+}
+
+.frame[data-band="today"] .band {
+  height: 520px;
+  border-radius: 0 0 0 100% / 0 0 0 46%;
+}
+
+.frame[data-band="chat"] .band {
+  height: 360px;
+}
+
+.frame[data-layout="phone"] .band {
+  left: 0;
+  height: 300px;
+  border-radius: 0 0 50% 50% / 0 0 14% 14%;
+}
+
+.frame[data-layout="phone"][data-band="today"] .band {
+  height: 440px;
+  border-radius: 0 0 50% 50% / 0 0 18% 18%;
+}
+
+.sidebar {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  height: calc(100dvh - 40px);
+  min-height: 0;
+  padding: 26px 18px 22px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-radius: var(--candy-r);
+  background: var(--candy-win);
+  box-shadow: 0 24px 60px var(--candy-glow-base), 0 24px 60px var(--candy-glow, transparent);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0 8px;
+}
+
+.brandName {
+  font: 600 22px/1 var(--candy-title);
+  letter-spacing: -0.01em;
+}
+
+.mark {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 24px;
+}
+
+.markOne,
+.markTwo {
+  position: absolute;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.markOne {
+  left: 0;
+  background: linear-gradient(150deg, var(--candy-g1a), var(--candy-g1b));
+}
+
+.markTwo {
+  left: 10px;
+  background: linear-gradient(150deg, var(--candy-g2a), var(--candy-g3a));
+  opacity: 0.9;
+}
+
+.autoCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--candy-rs);
+  background: var(--candy-chip);
+}
+
+.autoText {
+  min-width: 0;
+}
+
+.autoName {
+  margin: 0;
+  font: 600 16px/1.2 var(--candy-title);
+}
+
+.autoLine {
+  margin: 2px 0 0;
+  font: 400 13px/1.3 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item,
+.more {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px 0 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--candy-text);
+  font: 700 15px/1.2 var(--candy-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.item:hover,
+.more:hover {
+  background: var(--candy-chip);
+}
+
+.item[aria-current="page"] {
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+}
+
+.item:focus-visible,
+.more:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+.itemDot,
+.moreGlyph {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--candy-chip);
+}
+
+.itemDotInner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--candy-g1a);
+}
+
+.itemDot[data-set="2"] .itemDotInner {
+  background: var(--candy-g2a);
+}
+
+.itemDot[data-set="3"] .itemDotInner {
+  background: var(--candy-g3a);
+}
+
+.item[aria-current="page"] .itemDot {
+  background: var(--candy-white28);
+}
+
+.item[aria-current="page"] .itemDotInner {
+  background: var(--candy-accent-ink);
+}
+
+.itemLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moreGlyph {
+  font: 800 16px/1 var(--candy-body);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.workspace {
+  padding: 0 10px;
+}
+
+.workspaceName {
+  margin: 0;
+  font: 700 14px/1.3 var(--candy-body);
+}
+
+.workspacePlan {
+  margin: 2px 0 0;
+  font: 400 12px/1.3 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.column {
+  position: relative;
+  min-width: 0;
+}
+
+.utilities {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+}
+
+.page,
+.fullBleed {
+  position: relative;
+  min-width: 0;
+  outline: none;
+}
+
+.page {
+  padding: 8px 0 var(--candy-label-room);
+}
+
+.page[data-header="host"] {
+  padding-top: 74px;
+}
+
+.fullBleed {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 20px);
+  padding: 8px 0 var(--candy-label-room);
+  box-sizing: border-box;
+}
+
+.frame[data-band="chat"] .fullBleed {
+  height: calc(100dvh - 20px);
+}
+
+.frame[data-layout="phone"] .page,
+.frame[data-layout="phone"] .fullBleed {
+  padding: 8px 16px 170px;
+}
+
+.frame[data-layout="phone"] .page[data-header="host"] {
+  padding-top: 8px;
+}
+
+.frame[data-layout="phone"][data-band="chat"] .fullBleed {
+  height: calc(100dvh - 68px);
+  padding: 0 0 var(--candy-label-room);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .more {
+    transition: none;
+  }
+}

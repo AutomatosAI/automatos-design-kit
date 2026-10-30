@@ -2,9 +2,9 @@
 
 How a kit theme version becomes a release, exactly as the workflows in `.github/workflows/` do it. Every folder under
 `themes/` is a theme (Play, `themes/play`, `automatos/play`; HUD, `themes/hud`, `automatos/hud`; Arcade,
-`themes/arcade`, `automatos/arcade`). A merge to `main` that raises a theme's version publishes it: `theme-publish.yml`
-reviews, signs and lists it on the hosted Marketplace and releases it here, with nobody running anything. Kit CI checks
-the workflows, not the runs. The flow end to end, the environment and its keys, what blocks a publish and how to
+`themes/arcade`, `automatos/arcade`; Candy, `themes/candy`, `automatos/candy`). A merge to `main` that raises a theme's
+version publishes it: `theme-publish.yml` reviews, signs and lists it on the hosted Marketplace and releases it here,
+with nobody running anything. Kit CI checks the workflows, not the runs. The flow end to end, the environment and its keys, what blocks a publish and how to
 backfill: [OFFICIAL-LISTING.md](OFFICIAL-LISTING.md).
 
 | Workflow | File | Started by | What it does |
@@ -22,11 +22,11 @@ first step (`scripts/release/released-unchanged.mjs`, before anything is install
 packed paths differs from the tag. For every folder `themes/<slug>` the packed paths are (`scripts/release/themes.mjs`
 `packedPathsOf`): its `theme.json`, `README.md`, `CHANGELOG.md`, `LICENSE`, `LICENSE.md`, `LICENSE.txt`, `dist/`,
 `boot/`, `looks/`, `assets/` and `src/`, and the `src/` of each kit library its `package.json` names under
-`dependencies` (Play's and HUD's: `packages/look-kit/src`, `packages/mascot/src`; Arcade's: `packages/mascot/src`
-alone, since its `package.json` names no look-kit).
+`dependencies` (Play's and HUD's: `packages/look-kit/src`, `packages/mascot/src`; Arcade's and Candy's:
+`packages/mascot/src` alone, since neither `package.json` names look-kit).
 
 These are the paths `pack` collects, and the kit libraries it writes into `source/`. A folder git ignores (Play's
-`dist/`, `boot/` and `looks/`, built from `src/`) holds nothing to compare; HUD and Arcade both commit `boot/` and
+`dist/`, `boot/` and `looks/`, built from `src/`) holds nothing to compare; HUD, Arcade and Candy commit `boot/` and
 `looks/`, and only their `dist/` is built. So a change to `packages/look-kit/src` or `packages/mascot/src` needs a new
 version of each released theme that bundles it: one to `packages/look-kit/src` a new version of Play and HUD, and one
 to `packages/mascot/src` a new version of every released theme.
@@ -71,6 +71,9 @@ Appearance › Themes › Install theme.
 
 Arcade has no release tag yet, so its first release is the publish run's: the first run on `main` that sees
 `automatos/arcade` 1.0.0 picks it, lists it and releases `arcade-v1.0.0`. Push no `arcade-v*` tag by hand for it.
+Candy is released the same way, by the merge that raises its version: it has no release tag yet, so the first run on
+`main` that sees `automatos/candy` 1.0.0 picks it, lists it and releases `candy-v1.0.0`. Push no `candy-v*` tag by hand
+for it.
 
 A tag pushed by hand still releases through `theme-release.yml`'s `release` job (permissions: `contents: write` and
 nothing else; no secrets), unlisted and unsigned. In order, it:

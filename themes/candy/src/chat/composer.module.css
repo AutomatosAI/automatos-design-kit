@@ -1,0 +1,125 @@
+/*
+ * The message box (W2's composer strip, P2's floating pill): a 56 px pill on the chip colour inside the thread's
+ * window (on the phone, the window colour over the page, with a tinted shadow), its words in Candy's body face, and a
+ * 44 px accent circle at its end for Send (↑) or Stop (■). The host's voice button sits to its right in a host strip,
+ * coloured only through its --voice-button-* properties, with room under it for the host's caption and Stop.
+ */
+
+.composer {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.composer[data-layout="phone"] {
+  gap: 10px;
+}
+
+.boxSlot {
+  flex: 1;
+  min-width: 0;
+}
+
+.box {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px 6px 6px 22px;
+  box-sizing: border-box;
+  border-radius: 28px;
+  background: var(--candy-chip);
+}
+
+.box:focus-within {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+.composer[data-layout="phone"] .box {
+  padding-left: 20px;
+  background: var(--candy-win);
+  box-shadow: 0 10px 26px var(--candy-tint);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  max-height: 160px;
+  margin: 0;
+  padding: 11px 0;
+  box-sizing: border-box;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: var(--candy-text);
+  font: 400 15px/1.45 var(--candy-body);
+}
+
+.input::placeholder {
+  color: var(--candy-quiet);
+  opacity: 1;
+}
+
+/* The pill around it shows the focus (.box:focus-within). */
+.input:focus {
+  outline: none;
+}
+
+.round {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--candy-target);
+  height: var(--candy-target);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+  cursor: pointer;
+}
+
+.round:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.round:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+.sendGlyph {
+  font: 700 20px/1 var(--candy-title);
+}
+
+.stopGlyph {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--candy-accent-ink);
+}
+
+.voice {
+  --voice-button-size: 56px;
+  --voice-button-radius: 50%;
+  --voice-button-bg: var(--candy-chip);
+  --voice-button-fg: var(--candy-accent-text);
+  --voice-button-active-bg: var(--candy-accent);
+  --voice-button-active-fg: var(--candy-accent-ink);
+  --voice-button-ring: var(--candy-accent-text);
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56px;
+  max-width: 240px;
+}
+
+.composer[data-layout="phone"] .voice {
+  --voice-button-bg: var(--candy-win);
+  max-width: 50%;
+}

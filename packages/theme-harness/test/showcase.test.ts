@@ -23,6 +23,7 @@ const THEMES_DIR = join(HARNESS_DIR, '../../themes')
 const PLAY_PRESETS = join(THEMES_DIR, 'play/src/lib/looks/presets.ts')
 const HUD_PRESETS = join(THEMES_DIR, 'hud/looks/presets')
 const ARCADE_PRESETS = join(THEMES_DIR, 'arcade/looks/presets')
+const CANDY_PRESETS = join(THEMES_DIR, 'candy/looks/presets')
 const TRANSCRIPT = join(HARNESS_DIR, 'fixtures/conversations/transcript.json')
 const OLDER_CHATS = join(HARNESS_DIR, 'fixtures/conversations/showcase.json')
 /** Where Play keeps its hello in theme state, and where its first open names it. */
@@ -30,7 +31,7 @@ const PLAY_SESSION = join(THEMES_DIR, 'play/src/lib/mascot/session.ts')
 const PLAY_FIRST_OPEN = join(THEMES_DIR, 'play/src/components/play/chat/first-open.tsx')
 const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
 
-/** The shot list, as the showcase is asked for: HUD's, then Play's, the desktop's before the phone's. */
+/** The shot list, as the showcase is asked for: HUD's, Play's, Arcade's, then Candy's, the desktop's before the phone's. */
 const EXPECTED_FILES = [
   'hud-1440-chat-arc.png',
   'hud-1440-chat-forge.png',
@@ -63,16 +64,27 @@ const EXPECTED_FILES = [
   'arcade-1440-look-editor-overworld.png',
   'arcade-390-chat-overworld.png',
   'arcade-390-chat-handheld.png',
+  'candy-1440-today-blush.png',
+  'candy-1440-today-lilac.png',
+  'candy-1440-today-nightbloom.png',
+  'candy-1440-chat-blush.png',
+  'candy-1440-deliverables-blush.png',
+  'candy-1440-team-blush.png',
+  'candy-1440-look-editor-blush.png',
+  'candy-1440-chat-nightbloom.png',
+  'candy-390-today-blush.png',
+  'candy-390-chat-blush.png',
 ]
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8')) as unknown
 }
 
-/** True when `theme` has a preset `look`: HUD's and Arcade's committed preset files, Play's catalogue entry. */
+/** True when `theme` has a preset `look`: HUD's, Arcade's and Candy's committed preset files, Play's catalogue entry. */
 function hasPreset(theme: ShowcaseTheme, look: string): boolean {
   if (theme === 'hud') return existsSync(join(HUD_PRESETS, `${look}${PRESET_SUFFIX}`))
   if (theme === 'arcade') return existsSync(join(ARCADE_PRESETS, `${look}${PRESET_SUFFIX}`))
+  if (theme === 'candy') return existsSync(join(CANDY_PRESETS, `${look}${PRESET_SUFFIX}`))
   return readFileSync(PLAY_PRESETS, 'utf8').includes(`id: '${look}'`)
 }
 
@@ -92,11 +104,11 @@ describe('the showcase shots', () => {
     const files = SHOWCASE_SHOTS.map(showcaseFile)
     expect(files).toEqual(EXPECTED_FILES)
     expect(new Set(files).size).toBe(files.length)
-    files.forEach((file) => expect(file).toMatch(/^(hud|play|arcade)-(1440|390)-[a-z]+(-[a-z]+)*-[a-z]+\.png$/))
+    files.forEach((file) => expect(file).toMatch(/^(hud|play|arcade|candy)-(1440|390)-[a-z]+(-[a-z]+)*-[a-z]+\.png$/))
   })
 
-  it("draw only the kit's HUD, Play and Arcade, at the desktop's 1440 × 900 or the phone's 390 × 844", () => {
-    expect(SHOWCASE_THEMES).toEqual(['hud', 'play', 'arcade'])
+  it("draw only the kit's HUD, Play, Arcade and Candy, at the desktop's 1440 × 900 or the phone's 390 × 844", () => {
+    expect(SHOWCASE_THEMES).toEqual(['hud', 'play', 'arcade', 'candy'])
     const sizes = new Set(SHOWCASE_SHOTS.map((shot) => `${shot.viewport.width}x${shot.viewport.height}`))
     expect([...sizes].sort()).toEqual([`1440x${DESKTOP_HEIGHT}`, `${PHONE_VIEWPORT.width}x${PHONE_VIEWPORT.height}`].sort())
   })

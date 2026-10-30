@@ -16,10 +16,11 @@ and voice, packed into one `.autotheme` file.
   <a href="https://github.com/AutomatosAI/automatos-design-kit/releases">Releases</a>
 </p>
 
-## Three themes ship with the kit
+## Four themes ship with the kit
 
-Play, HUD and Arcade are Automatos's own themes, and they build, check and pack with the same tools as any theme.
-Each talks to Auto by voice, ships five looks, and draws a phone layout in a phone's browser from 360 px wide.
+Play, HUD, Arcade and Candy are Automatos's own themes, and they build, check and pack with the same tools as any
+theme. Each talks to Auto by voice, ships its own looks (five each for Play, HUD and Arcade, three for Candy), and
+draws a phone layout in a phone's browser from 360 px wide.
 
 <table>
   <tr>
@@ -50,10 +51,18 @@ Each talks to Auto by voice, ships five looks, and draws a phone layout in a pho
       Missions as quests on a map. <a href="themes/arcade">Source</a>
     </td>
   </tr>
+  <tr>
+    <td colspan="2">
+      <b><a href="docs/themes/candy.md">Candy</a></b> 1.0.0 (<code>automatos/candy</code>): bright, soft and glossy.
+      Every card its own gradient, big round corners, today's numbers in a candy orb, and Auto in a glossy shell.
+      <a href="themes/candy">Source</a>
+    </td>
+  </tr>
 </table>
 
-All three are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
-`play-v<version>` tags, HUD from `hud-v<version>` tags and Arcade from `arcade-v<version>` tags.
+All four are released on [GitHub Releases](https://github.com/AutomatosAI/automatos-design-kit/releases), Play from
+`play-v<version>` tags, HUD from `hud-v<version>` tags, Arcade from `arcade-v<version>` tags and Candy from
+`candy-v<version>` tags.
 
 ## Voice in both themes
 
@@ -103,16 +112,17 @@ app does, and a skin designer that exports it ([guides/mobile-skins.md](guides/m
 
 On a local or open-source edition of Automatos:
 
-1. Download `automatos.play-<version>.autotheme`, `automatos.hud-<version>.autotheme` or
-   `automatos.arcade-<version>.autotheme` from [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
+1. Download `automatos.play-<version>.autotheme`, `automatos.hud-<version>.autotheme`,
+   `automatos.arcade-<version>.autotheme` or `automatos.candy-<version>.autotheme` from
+   [Releases](https://github.com/AutomatosAI/automatos-design-kit/releases).
 2. As a workspace owner or admin, open Settings › Appearance › Themes › Install theme and choose the file. When the
    release carries a `<version>.sig.json`, add it with **Add its signature file**.
 3. Choose the theme there, or from the theme menu. An upload without a signature that verifies is private: each
    member opts in to its code before it runs for them.
 
 On the hosted edition, a theme installs from Marketplace › Themes once it is listed there.
-[Install Play](#install-play), [Install HUD](#install-hud) and [Install Arcade](#install-arcade), below, have the
-checksums, signatures and listing.
+[Install Play](#install-play), [Install HUD](#install-hud), [Install Arcade](#install-arcade) and
+[Install Candy](#install-candy), below, have the checksums, signatures and listing.
 
 ## Make your own theme
 
@@ -217,6 +227,7 @@ layout in full.
 | [`themes/play`](themes/play/README.md) | Play (`automatos/play`): Automatos with Auto the mascot ([docs/themes/play.md](docs/themes/play.md)) |
 | [`themes/hud`](themes/hud/README.md) | HUD (`automatos/hud`): Automatos as a command deck ([docs/themes/hud.md](docs/themes/hud.md)) |
 | [`themes/arcade`](themes/arcade/README.md) | Arcade (`automatos/arcade`): Automatos as a 16-bit role-playing game ([docs/themes/arcade.md](docs/themes/arcade.md)) |
+| [`themes/candy`](themes/candy/README.md) | Candy (`automatos/candy`): Automatos bright, soft and glossy ([docs/themes/candy.md](docs/themes/candy.md)) |
 | [`templates/`](templates/) | What `automatos-theme new` starts a theme from: `minimal` (a frame, a look editor, a style sheet, two presets) and `full` (Play without its brand); [`templates/ralph`](templates/ralph/README.md), a template for running a theme wave with an agent loop |
 | [`guides/`](guides/README.md) | The host contract, the page inventory, the SDK, looks, where the mascot goes, phone skins, and the pitfalls |
 | [`skills/`](skills/README.md) | Agent skills for building a theme, writing its looks and passing the Marketplace review |
@@ -239,8 +250,8 @@ The kit's reference:
   kit takes from core and at which commit, and the harness's mock host.
 - [docs/releasing.md](docs/releasing.md): how a theme version is released, reviewed and signed, and how a dependency
   changes.
-- [docs/themes/play.md](docs/themes/play.md), [docs/themes/hud.md](docs/themes/hud.md) and
-  [docs/themes/arcade.md](docs/themes/arcade.md): the three themes.
+- [docs/themes/play.md](docs/themes/play.md), [docs/themes/hud.md](docs/themes/hud.md),
+  [docs/themes/arcade.md](docs/themes/arcade.md) and [docs/themes/candy.md](docs/themes/candy.md): the four themes.
 - [docs/PLAY-HISTORY.md](docs/PLAY-HISTORY.md): where Play's code came from.
 - [docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md): the run that lists a theme as official.
 
@@ -275,6 +286,13 @@ theme. Its review, signature and listing follow Play's steps, with HUD's tag and
 Arcade is released the same way: an `arcade-v<version>` tag puts `automatos.arcade-<version>.autotheme` and its
 `.sha256` on the same releases page, and a local or open-source edition installs it with Settings › Appearance ›
 Themes › Install theme. Its review, signature and listing follow Play's steps, with Arcade's tag and names
+([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
+
+## Install Candy
+
+Candy is released the same way: a `candy-v<version>` tag puts `automatos.candy-<version>.autotheme` and its `.sha256`
+on the same releases page, and a local or open-source edition installs it with Settings › Appearance › Themes ›
+Install theme. Its review, signature and listing follow Play's steps, with Candy's tag and names
 ([docs/OFFICIAL-LISTING.md](docs/OFFICIAL-LISTING.md)).
 
 ## Licence

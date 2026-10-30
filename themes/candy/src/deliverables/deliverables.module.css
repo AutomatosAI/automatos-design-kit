@@ -1,0 +1,343 @@
+/*
+ * The shelf (the design's W3): the header with its search pill, the kind pills, the grid of tiles (four across at
+ * 1440 px, two below 1024 px as the phone shelf has them at 390 px, one below 375 px), the states, Show more and the links to
+ * the host's other sections. Each tile is a window holding its kind's card gradient, the kind's initial in a round
+ * badge and its word in a pill, both in the card's ink with the gradient's darker stop as their text. Every colour
+ * is a look variable.
+ */
+
+.shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* --- The header and the controls ----------------------------------------------------------------------------- */
+
+.search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  width: 300px;
+  min-height: 46px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-search);
+  color: var(--candy-quiet);
+  cursor: text;
+}
+
+.search:focus-within {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.searchRing {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 2px solid var(--candy-accent);
+  border-radius: 50%;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--candy-text);
+  font: 400 14px/1.2 var(--candy-body);
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--candy-quiet);
+  opacity: 1;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pills .pill {
+  gap: 8px;
+  font-size: 14px;
+}
+
+.sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+/* --- The grid ------------------------------------------------------------------------------------------------ */
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  display: flex;
+  min-width: 0;
+}
+
+.tile {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px;
+  box-sizing: border-box;
+  container-type: inline-size;
+  color: var(--candy-text);
+  text-decoration: none;
+  transition: transform var(--candy-duration) ease, box-shadow var(--candy-duration) ease;
+}
+
+.tile:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.grid[data-still="true"] .tile,
+.grid[data-still="true"] .tile:hover {
+  transform: none;
+  transition: none;
+}
+
+.tile .block {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  aspect-ratio: 237 / 250;
+  padding: 14px;
+  box-sizing: border-box;
+  border-radius: var(--candy-rs);
+  box-shadow: none;
+}
+
+.initial {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--candy-card-ink);
+  color: var(--candy-g1b);
+  font: 700 18px/1 var(--candy-title);
+}
+
+/* One line, cut with an ellipsis: the badge, the title and the lines under it. */
+.badge,
+.tileTitle,
+.tileLine,
+.narrowLine {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.badge {
+  height: 28px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--candy-card-ink);
+  color: var(--candy-g1b);
+  font: 800 12px/28px var(--candy-body);
+}
+
+.initial[data-set="2"],
+.badge[data-set="2"] {
+  color: var(--candy-g2b);
+}
+
+.initial[data-set="3"],
+.badge[data-set="3"] {
+  color: var(--candy-g3b);
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 0 8px 6px;
+}
+
+.tileTitle {
+  font: 800 17px/1.3 var(--candy-body);
+}
+
+.tileLine,
+.narrowLine {
+  font: 400 13px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.tileText .narrowLine {
+  display: none;
+}
+
+/* A tile too narrow for the badge beside the initial (as on the phone shelf): its kind moves into the line. */
+@container (max-width: 189px) {
+  .block .badge,
+  .tileText .tileLine {
+    display: none;
+  }
+
+  .tileText .narrowLine {
+    display: -webkit-box;
+  }
+}
+
+/* --- The states and Show more -------------------------------------------------------------------------------- */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 44px 24px;
+  border-radius: var(--candy-r);
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-win);
+  text-align: center;
+}
+
+.stateLine {
+  margin: 0;
+  font: 600 20px/1.3 var(--candy-title);
+  color: var(--candy-text);
+}
+
+.more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.more:empty {
+  display: none;
+}
+
+/* --- Narrow windows: the phone shelf's two columns ------------------------------------------------------------ */
+
+@media (max-width: 1023px) {
+  .shelf {
+    gap: 16px;
+  }
+
+  .shelf .head {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .search {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+  .pills {
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin: -6px -16px -6px -6px;
+    padding: 6px 16px 6px 6px;
+    overflow-x: auto;
+  }
+
+  .pills .pill {
+    flex: none;
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .tile {
+    gap: 8px;
+    padding: 7px;
+    border-radius: var(--candy-rs);
+  }
+
+  .tile .block {
+    aspect-ratio: 3 / 2;
+    padding: 10px;
+    border-radius: calc(var(--candy-rs) - 6px);
+  }
+
+  .initial {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .tileLine,
+  .narrowLine {
+    font-size: 12px;
+  }
+
+  .tileText {
+    gap: 2px;
+    padding: 0 6px 4px;
+  }
+
+  .tileTitle {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 374px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tile .block {
+    aspect-ratio: 2 / 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tile:hover {
+    transform: none;
+    transition: none;
+  }
+}
