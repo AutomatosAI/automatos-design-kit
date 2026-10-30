@@ -1,7 +1,7 @@
 /**
  * The phone view's settings (app/phone/page.tsx, on the harness's PHONE_PATH), as the query string a reload opens it
  * with, with no DOM and no React: which of Automatos Go's screens, the user's Light / Dark, the member's look (for a
- * theme whose phone painting comes from its looks, or one the phone draws in its own Play, HUD or Arcade layout),
+ * theme whose phone painting comes from its looks, or one the phone draws in its own Play, HUD, Arcade or Candy layout),
  * reduced motion, and the skin designer's draft (src/phone/designer.ts) once it has one, as JSON. A missing or
  * malformed value is the default's.
  */
