@@ -127,10 +127,10 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `40a2e00715f069b7f1bbade0d00b287409a16b74` (host contract
-1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; the head of core pull request #1373 on 30 Oct 2026,
-which lets a theme list phone screenshots, `phonePreviews`, up to 24 web and 24 phone screenshots, in a package of up
-to 32 MB), the commit `packages/theme-cli/src/core/README.md` names:
+kit is fixed. The kit vendors core's contract at commit `b55c159162390e1e32cda4a58a4481c463f03ef3` (host contract
+1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; core main at b55c15916, the merge of #1373 on 30 Oct
+2026, which lets a theme list phone screenshots, `phonePreviews`, up to 24 web and 24 phone screenshots, in a
+package of up to 32 MB), the commit `packages/theme-cli/src/core/README.md` names:
 
 - **The validators**, copied with only their import paths edited, into `packages/theme-cli/src/core/`: core's
   `frontend/lib/theme-host/` `css-value.ts`, `look-schema.ts`, `package-manifest.ts`, `mobile-manifest.ts` and

@@ -3,12 +3,12 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `40a2e00715f069b7f1bbade0d00b287409a16b74`, the head of pull request #1373 on
-30 Oct 2026 (phone screenshots: `theme.json`'s `phonePreviews`, PNG or JPEG files in `assets/previews/phone/`, up to
-24 web and 24 phone screenshots, and a 32 MB package cap; the core corpus gains their `manifests` and `packages`
-cases; the host contract stays 1.1.0 and the SDK 1.2.0). Every file here but `package-manifest.ts` (`host.ts`
-included) is the same as at `3d8c72e7b58d32866f058a171d68bbbb8a335504`, the kit's previous pin (main at the merge of
-pull request #1365, 28 Oct 2026: the AI label).
+Source: `AutomatosAI/automatos-ai` at `b55c159162390e1e32cda4a58a4481c463f03ef3`, core main at b55c15916 (the merge
+of #1373, 30 Oct 2026: phone screenshots, `theme.json`'s `phonePreviews`, PNG or JPEG files in
+`assets/previews/phone/`, up to 24 web and 24 phone screenshots, and a 32 MB package cap; the core corpus gains their
+`manifests` and `packages` cases; the host contract stays 1.1.0 and the SDK 1.2.0). Every file here but
+`package-manifest.ts` (`host.ts` included) is the same as at `3d8c72e7b58d32866f058a171d68bbbb8a335504`, the kit's
+previous pin (main at the merge of pull request #1365, 28 Oct 2026: the AI label).
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -59,7 +59,7 @@ contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.2.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `271a457eaf03d5153ceec45f4fe8f4095917e1702203f0032ecd2411308b7728` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `cad8a2685367ff72d4cfa4d02f53b7ca7be34d1235362fab9b888f71680397fe` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
