@@ -89,8 +89,8 @@ jobs:
   # violation. HUD's shots go to their own folder, hud/, beside Play's. Then PRD-261 B-02i's dev smoke:
   # `automatos-theme dev` serves Play's harness and /chat renders. Then the phone view's shots: `automatos-theme dev`
   # over a made-up theme with a `mobile` block, its /phone on three screens, Light and Dark, and the skin designer with
-  # a failing pair, each with an axe scan of the phone. Then the showcase shots: chosen views of HUD and Play on the
-  # hosted edition, at twice the pixel density, on Chromium. Then PRD-261 B-02h's Lighthouse, report only: each theme
+  # a failing pair, each with an axe scan of the phone. Then the showcase shots: chosen views of HUD, Play and Arcade on
+  # the hosted edition, at twice the pixel density, on Chromium. Then PRD-261 B-02h's Lighthouse, report only: each theme
   # under themes/ served in turn by `automatos-theme dev` and measured on the same Chromium. The shots, axe.json files
   # and the smoke's shot are uploaded either way as kit-harness, the showcase as kit-showcase, and the Lighthouse
   # reports as kit-lighthouse.
@@ -151,8 +151,9 @@ jobs:
       - name: Phone shots
         run: npx playwright test --config packages/theme-harness/shots/phone-shots.config.ts
 
-      # The showcase: clean images of HUD and Play for READMEs, docs and the product site. Its config serves each theme
-      # with `automatos-theme dev` on a port of its own (127.0.0.1:4320 and :4321), then shoots chosen views in chosen
+      # The showcase: clean images of HUD, Play and Arcade for READMEs, docs, the product site and the listings'
+      # previews. Its config serves each theme with `automatos-theme dev` on a port of its own (127.0.0.1:4320, :4321
+      # and :4322), then shoots chosen views in chosen
       # looks on the hosted edition (so no first-run nudge), at twice the pixel density, with reduced motion and a fixed
       # clock, on Chromium, with no axe scan (the shots above scan the same views). The PNGs go to
       # packages/theme-harness/dist/showcase/, uploaded as kit-showcase, apart from kit-harness.

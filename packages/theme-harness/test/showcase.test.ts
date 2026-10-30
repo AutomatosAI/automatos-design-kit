@@ -22,6 +22,7 @@ const THEMES_DIR = join(HARNESS_DIR, '../../themes')
 /** Play's presets are built from its catalogue (its looks/ is generated): the ids it names. */
 const PLAY_PRESETS = join(THEMES_DIR, 'play/src/lib/looks/presets.ts')
 const HUD_PRESETS = join(THEMES_DIR, 'hud/looks/presets')
+const ARCADE_PRESETS = join(THEMES_DIR, 'arcade/looks/presets')
 const TRANSCRIPT = join(HARNESS_DIR, 'fixtures/conversations/transcript.json')
 const OLDER_CHATS = join(HARNESS_DIR, 'fixtures/conversations/showcase.json')
 /** Where Play keeps its hello in theme state, and where its first open names it. */
@@ -52,15 +53,26 @@ const EXPECTED_FILES = [
   'play-390-menu-ember.png',
   'play-390-conversations-ember.png',
   'play-390-voice-listening-ember.png',
+  'arcade-1440-chat-overworld.png',
+  'arcade-1440-chat-dungeon.png',
+  'arcade-1440-chat-neon.png',
+  'arcade-1440-chat-nightcity.png',
+  'arcade-1440-chat-handheld.png',
+  'arcade-1440-quests-overworld.png',
+  'arcade-1440-inventory-overworld.png',
+  'arcade-1440-look-editor-overworld.png',
+  'arcade-390-chat-overworld.png',
+  'arcade-390-chat-handheld.png',
 ]
 
 function readJson(path: string): unknown {
   return JSON.parse(readFileSync(path, 'utf8')) as unknown
 }
 
-/** True when `theme` has a preset `look`: HUD's committed preset file, Play's catalogue entry. */
+/** True when `theme` has a preset `look`: HUD's and Arcade's committed preset files, Play's catalogue entry. */
 function hasPreset(theme: ShowcaseTheme, look: string): boolean {
   if (theme === 'hud') return existsSync(join(HUD_PRESETS, `${look}${PRESET_SUFFIX}`))
+  if (theme === 'arcade') return existsSync(join(ARCADE_PRESETS, `${look}${PRESET_SUFFIX}`))
   return readFileSync(PLAY_PRESETS, 'utf8').includes(`id: '${look}'`)
 }
 
@@ -80,11 +92,11 @@ describe('the showcase shots', () => {
     const files = SHOWCASE_SHOTS.map(showcaseFile)
     expect(files).toEqual(EXPECTED_FILES)
     expect(new Set(files).size).toBe(files.length)
-    files.forEach((file) => expect(file).toMatch(/^(hud|play)-(1440|390)-[a-z]+(-[a-z]+)*-[a-z]+\.png$/))
+    files.forEach((file) => expect(file).toMatch(/^(hud|play|arcade)-(1440|390)-[a-z]+(-[a-z]+)*-[a-z]+\.png$/))
   })
 
-  it("draw only the kit's HUD and Play, at the desktop's 1440 × 900 or the phone's 390 × 844", () => {
-    expect(SHOWCASE_THEMES).toEqual(['hud', 'play'])
+  it("draw only the kit's HUD, Play and Arcade, at the desktop's 1440 × 900 or the phone's 390 × 844", () => {
+    expect(SHOWCASE_THEMES).toEqual(['hud', 'play', 'arcade'])
     const sizes = new Set(SHOWCASE_SHOTS.map((shot) => `${shot.viewport.width}x${shot.viewport.height}`))
     expect([...sizes].sort()).toEqual([`1440x${DESKTOP_HEIGHT}`, `${PHONE_VIEWPORT.width}x${PHONE_VIEWPORT.height}`].sort())
   })

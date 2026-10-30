@@ -101,5 +101,15 @@
       "sans": "assets/fonts/mobile/pixelify-sans-wght.ttf"
     },
     "mascot": "stills"
-  }
+  },
+  "previews": [
+    "assets/previews/overworld.png",
+    "assets/previews/dungeon.png",
+    "assets/previews/neon.png",
+    "assets/previews/nightcity.png",
+    "assets/previews/handheld.png",
+    "assets/previews/overworld-quests.png",
+    "assets/previews/overworld-inventory.png",
+    "assets/previews/overworld-options.png"
+  ]
 }

@@ -14,14 +14,23 @@
  * - useActivitySchedule: four runs, each a few hours after the fixtures' made-up morning (14 Oct 2026, 09:05 UTC,
  *   fixtures/agents/stats.json's timestamp), so the shots read the same on every run
  *   (fixtures/activity/schedule.json). The fake answers every range with them.
+ * - useMissions: seven Missions, two running (the feed's laptop shortlist among them), two waiting on you, two done
+ *   and one failed (fixtures/missions/list.json), which a theme's own Missions page lists. The fake answers every
+ *   filter with them.
+ * - The Deliverables list (useDeliverables): the six Deliverables of fixtures/deliverables/list.json, the laptop
+ *   shortlist the conversation made among them, filtered and paged as the backend does.
  */
-import type { ActivityFeed, ActivitySchedule, ActivityStats, AgentStatistics, NeedsYou, RosterAgent } from '@automatos/theme-sdk'
+import type {
+  ActivityFeed, ActivitySchedule, ActivityStats, AgentStatistics, DeliverableListResponse, MissionList, NeedsYou, RosterAgent,
+} from '@automatos/theme-sdk'
 import feed from '../../fixtures/activity/feed.json'
 import needsYou from '../../fixtures/activity/needs-you.json'
 import schedule from '../../fixtures/activity/schedule.json'
 import activityStats from '../../fixtures/activity/stats.json'
 import roster from '../../fixtures/agents/roster.json'
 import stats from '../../fixtures/agents/stats.json'
+import deliverables from '../../fixtures/deliverables/list.json'
+import missions from '../../fixtures/missions/list.json'
 import { host } from '../host.ts'
 
 /** A fixture as the SDK type it holds (read as JSON, its strings are wider than the type's unions). */
@@ -35,6 +44,8 @@ export const SAMPLE_PAGE_DATA = Object.freeze({
   activityStats: fixtureOf<ActivityStats>(activityStats),
   needsYou: fixtureOf<NeedsYou>(needsYou),
   activitySchedule: fixtureOf<ActivitySchedule>(schedule),
+  missions: fixtureOf<MissionList>(missions),
+  deliverables: fixtureOf<DeliverableListResponse>(deliverables),
 })
 
 /** Sets the fake host's answers to the reads above. */
@@ -45,4 +56,6 @@ export function giveSampleData(): void {
   host.setPageQuery('useActivityStats', { data: SAMPLE_PAGE_DATA.activityStats })
   host.setPageQuery('useNeedsYou', { data: SAMPLE_PAGE_DATA.needsYou })
   host.setPageQuery('useActivitySchedule', { data: SAMPLE_PAGE_DATA.activitySchedule })
+  host.setPageQuery('useMissions', { data: SAMPLE_PAGE_DATA.missions })
+  host.setDeliverables(SAMPLE_PAGE_DATA.deliverables)
 }

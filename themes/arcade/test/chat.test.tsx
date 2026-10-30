@@ -135,6 +135,21 @@ describe("the reply's size", () => {
     expect(rule).toContain('font-size: inherit')
     expect(rule).toContain('line-height: inherit')
   })
+
+  it('leaves the story room on the handheld: a floor under the story, a lower cap on the typed reply', () => {
+    const dir = dirname(fileURLToPath(import.meta.url))
+    const chatCss = readFileSync(join(dir, '../src/chat/chat.module.css'), 'utf8')
+    const dialogueCss = readFileSync(join(dir, '../src/chat/dialogue.module.css'), 'utf8')
+    expect(chatCss).toMatch(/\.chat\[data-layout="phone"\] \.story \{\s*min-height: 140px;/)
+    expect(dialogueCss).toMatch(/\.dialogue\[data-layout="phone"\] \.typed \{[^}]*max-height: 14vh;/)
+  })
+
+  it("sets the D-pad's words at 11 px, so Inventory fits its 64 px target", () => {
+    const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../src/frame/handheld.module.css'), 'utf8')
+    const pad = css.slice(css.indexOf('.pad {'), css.indexOf('}', css.indexOf('.pad {')))
+    expect(pad).toContain('font-size: 11px')
+    expect(css).toMatch(/grid-template-columns: repeat\(3, 64px\)/)
+  })
 })
 
 describe('the party', () => {

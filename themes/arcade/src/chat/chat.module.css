@@ -40,6 +40,11 @@
   gap: var(--arcade-gap-small);
 }
 
+/* On the handheld the story keeps room for a few lines under the dialogue box, which would otherwise take it all. */
+.chat[data-layout="phone"] .story {
+  min-height: 140px;
+}
+
 .opening {
   flex: 1;
   display: flex;

@@ -90,7 +90,8 @@ catalogue, not to `scripts/compile-looks.mjs`, which is Play's alone. Its `pack`
   the SIL Open Font License 1.1 with their licences (`assets/fonts/README.md` names each file's source and sha256).
 - **Bundled.** `@automatos/mascot` alone, packed under `source/packages/mascot/src/`: unlike Play and HUD, Arcade
   names no `@automatos/look-kit` dependency in its `package.json`.
-- **Previews.** None yet in `theme.json` `previews`.
+- **Previews.** Eight in `theme.json` `previews`, 1440 by 900 from the kit's showcase shots: the chat in each palette
+  (Overworld first, the listing's cover), then Quests, the Inventory and Options in Overworld.
 
 ## In the phone app
 

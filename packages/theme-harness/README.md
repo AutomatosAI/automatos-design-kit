@@ -284,9 +284,10 @@ into its folder's `axe.json`; a critical violation, a missing shot or a request 
 Its files, and a failed test's trace, go to `dist/shots/phone/`. `test/phone-skin-fixture.test.ts` holds the fixture
 to core's validator and to `automatos-theme skin`'s own check, so the shots draw a skin that passes.
 
-`shots/showcase.config.ts` makes the showcase (kit CI's `harness` job, after the phone shots): clean images of HUD
-and Play for READMEs, docs and the product site, not a regression set. Its web servers are `automatos-theme dev
-themes/hud` on `http://127.0.0.1:4320` and `automatos-theme dev themes/play` on `:4321`, and `shots/showcase.spec.ts`
+`shots/showcase.config.ts` makes the showcase (kit CI's `harness` job, after the phone shots): clean images of HUD,
+Play and Arcade for READMEs, docs, the product site and the listings' previews, not a regression set. Its web servers
+are `automatos-theme dev themes/hud` on `http://127.0.0.1:4320`, `themes/play` on `:4321` and `themes/arcade` on
+`:4322`, and `shots/showcase.spec.ts`
 shoots each image in `SHOWCASE_SHOTS` (`src/host/showcase.ts`, which `test/showcase.test.ts` holds to the themes'
 declared views and presets) on Chromium, one test each: one view in one look at 1440 × 900 or 390 × 844, with
 `edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
