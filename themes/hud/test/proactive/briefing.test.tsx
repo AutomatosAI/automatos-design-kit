@@ -113,6 +113,20 @@ describe('where BRIEFING stands', () => {
     expect(screen.getByRole('region', { name: LAST_EXCHANGE_LABEL })).toBeInTheDocument()
   })
 
+  it('never hides a card waiting for you on the phone: the last exchange keeps its slot', async () => {
+    setWindowWidth(PHONE_WIDTH)
+    openChat()
+    host.setChatScript([{ frames: [toolData({ tool_approval: TOOL_APPROVAL })], hold: true }])
+    render(<HudChatPage />)
+    await screen.findByRole('article', { name: 'You said' })
+    fireEvent.click(screen.getByRole('button', { name: 'Type' }))
+    ask()
+    await screen.findByRole('region', { name: 'Action approval needed' })
+    showBrief()
+    noBriefing()
+    expect(screen.getByRole('region', { name: LAST_EXCHANGE_LABEL })).toBeInTheDocument()
+  })
+
   it('never hides a card waiting for you: at one column the transcript keeps its slot', async () => {
     screenWidth(ONE_COLUMN)
     await renderChat([{ frames: [toolData({ tool_approval: TOOL_APPROVAL })], hold: true }])
@@ -254,7 +268,9 @@ describe("BRIEFING's rows", () => {
     expect(rows.map((row) => row.getAttribute('value'))).toEqual(['1', '2', '3', '4'])
     const labels = within(briefing()).getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)
     expect(labels).toEqual(['Needs you 7', 'Suggested 1', 'Today 1'])
-    expect(within(briefing()).getByText('Show 5 more')).toBeInTheDocument()
+    // A folded section shows the rows the brief carries under its exact count, and offers no "Show N more" it can't open.
+    expect(within(briefing()).getByRole('group', { name: 'Needs you 7' }).querySelectorAll('li')).toHaveLength(2)
+    expect(within(briefing()).queryByText('Show 5 more')).toBeNull()
     expect(briefing()).toHaveTextContent('Wed 14 Oct')
   })
 
@@ -307,6 +323,16 @@ describe('the one live border', () => {
     const live = document.querySelectorAll('[data-live="true"]')
     expect(live).toHaveLength(1)
     expect(live[0]).toBe(region(NEEDS_YOU_TITLE))
+  })
+
+  it('lights BRIEFING from what needs you now, as NEEDS YOU reads it, not from the count the brief was made with', async () => {
+    host.setPageQuery('useNeedsYou', { data: NEEDS })
+    await renderChat()
+    showBrief(EMPTY_BRIEF)
+    expect(briefing()).toHaveAttribute('data-live', 'true')
+    act(() => host.setPageQuery('useNeedsYou', { data: { ...NEEDS, total: 0 } }))
+    showBrief({ ...BRIEF })
+    expect(briefing()).not.toHaveAttribute('data-live')
   })
 
   it("moves to BRIEFING while it stands in NEEDS YOU's place", async () => {

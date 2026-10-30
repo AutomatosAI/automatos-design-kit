@@ -31,6 +31,8 @@ export interface ChatFooterProps {
   readonly fill?: HostChatDraft | null
   /** Over the message box: the voice deck. */
   readonly voice?: ReactNode
+  /** The suggestions BRIEFING on screen lists, which the NEXT line skips. */
+  readonly listed?: readonly string[]
 }
 
 /** The host's banner for used-up credits, while they are; the phone's screen places it over its controls. */
@@ -44,11 +46,11 @@ export function TrialBanner({ errorCode, trialExhausted }: { readonly errorCode:
   )
 }
 
-export function ChatFooter({ chat, boxRef, sending, autoFocus, fill = null, voice = null }: ChatFooterProps) {
+export function ChatFooter({ chat, boxRef, sending, autoFocus, fill = null, voice = null, listed }: ChatFooterProps) {
   return (
     <>
       <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
-      <NextLine place="footer" />
+      <NextLine place="footer" listed={listed} />
       {voice}
       <Composer
         boxRef={boxRef}

@@ -31,7 +31,13 @@ function useNow(ticking: boolean): Date {
   return now
 }
 
-export function StatusLine({ state }: { readonly state: MascotName }) {
+export interface StatusLineProps {
+  readonly state: MascotName
+  /** The suggestions BRIEFING on screen lists, which the NEXT line skips. */
+  readonly listed?: readonly string[]
+}
+
+export function StatusLine({ state, listed }: StatusLineProps) {
   const { data } = useActivityFeed(RUNNING_MISSION)
   const { phase } = useVoice()
   const mission = data?.items[0] ?? null
@@ -47,7 +53,7 @@ export function StatusLine({ state }: { readonly state: MascotName }) {
           </time>
         )}
       </p>
-      <NextLine place="phone" />
+      <NextLine place="phone" listed={listed} />
     </>
   )
 }

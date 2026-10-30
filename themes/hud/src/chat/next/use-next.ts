@@ -9,7 +9,8 @@ import {
 
 /**
  * HUD 1.2.0 (PRD-268): what the `▸ NEXT` line shows and does. It is the newest open suggestion (the SDK's
- * useSuggestions, newest first), one at a time. START starts it and HIDE hides it, with the reason the person picked
+ * useSuggestions, newest first), one at a time, that BRIEFING on screen doesn't already list with its own Start
+ * (`listed`), so one suggestion never shows twice. START starts it and HIDE hides it, with the reason the person picked
  * or none, through the SDK's own routes (useStartSuggestion, useHideSuggestion). Started, the line says so for
  * STARTED_MS in its place before the next open one takes it; hidden, the next takes it at once; refused (the spend
  * ceiling, the server unreachable), it says why in one line and stays put. A suggestion decided here leaves the line
@@ -35,6 +36,12 @@ export interface NextSuggestion {
 }
 
 const NONE: readonly Suggestion[] = []
+const NO_IDS: readonly string[] = []
+
+/** The newest open suggestion neither decided here nor `listed` by BRIEFING, or null. */
+function nextOf(list: readonly Suggestion[], decided: readonly string[], listed: readonly string[]): Suggestion | null {
+  return list.find((open) => open.status === 'open' && !decided.includes(open.id) && !listed.includes(open.id)) ?? null
+}
 
 function refusalOf(failure: unknown): string {
   return failure instanceof Error && failure.message ? failure.message : NEXT_REFUSED
@@ -52,14 +59,14 @@ function useJustStarted(): readonly [boolean, () => void] {
   return [startedAt !== null, markStarted]
 }
 
-export function useNextSuggestion(): NextSuggestion {
+export function useNextSuggestion(listed: readonly string[] = NO_IDS): NextSuggestion {
   const { data } = useSuggestions()
   const starter = useStartSuggestion()
   const hider = useHideSuggestion()
   const [decided, setDecided] = useState<readonly string[]>([])
   const [refused, setRefused] = useState<string | null>(null)
   const [started, markStarted] = useJustStarted()
-  const suggestion = (data ?? NONE).find((open) => open.status === 'open' && !decided.includes(open.id)) ?? null
+  const suggestion = nextOf(data ?? NONE, decided, listed)
   const id = suggestion?.id ?? null
   const decide = useCallback((done: string) => setDecided((known) => [...known, done]), [])
   const refuse = useCallback((failure: unknown) => setRefused(refusalOf(failure)), [])

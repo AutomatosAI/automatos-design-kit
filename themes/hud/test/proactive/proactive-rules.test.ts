@@ -7,13 +7,13 @@
 import { type BriefOpensType, chatHref, DISPLAY_STATE_LABELS, missionHref, QUESTIONS_HREF, ticketHref } from '@automatos/theme-sdk'
 import { describe, expect, it } from 'vitest'
 import {
-  BRIEF_SECTIONS, briefDay, briefRowHref, briefSections, emptyLine, EMPTY_BRIEF, rowNumber, rowTime, SECTION_LABELS, SETTINGS_HREF,
-  startsSuggestion,
+  BRIEF_SECTIONS, briefDay, briefRowHref, briefSections, briefSuggestionIds, emptyLine, EMPTY_BRIEF, rowNumber, rowTime,
+  SECTION_LABELS, SETTINGS_HREF, startsSuggestion,
 } from '../../src/chat/briefing/brief-rows.ts'
 import { foldsOn } from '../../src/chat/briefing/use-fold.ts'
 import { missionsInOrder, READINESS_MARKS, readinessMark, STATE_TONES, stateMark } from '../../src/chat/panels/status-marks.ts'
 import { readSource } from '../support/files.ts'
-import { BRIEF, briefRow, mission } from './support.ts'
+import { BRIEF, briefRow, mission, SUGGESTION_ID } from './support.ts'
 
 const COMMENT = /\/\*[\s\S]*?\*\//g
 const FLAT_RULE = /([^{}]+)\{([^{}]*)\}/g
@@ -35,7 +35,13 @@ describe("BRIEFING's sections", () => {
     expect(shown.map((section) => section.section)).toEqual(['needs_you', 'suggestions', 'today'])
     expect(shown.flatMap((section) => section.rows.map((row) => row.number))).toEqual([1, 2, 3, 4])
     expect(shown.map((section) => section.count)).toEqual([7, 1, 1])
-    expect(shown.map((section) => section.more)).toEqual(['Show 5 more', null, null])
+  })
+
+  it('carries a folded section as the brief does: its exact count over the rows it shows, and nothing to open', () => {
+    const [needsYou] = briefSections(BRIEF)
+    expect(needsYou.count).toBe(BRIEF.counts.needs_you)
+    expect(needsYou.rows.map((row) => row.row)).toEqual(BRIEF.sections.needs_you)
+    expect(Object.keys(needsYou).sort()).toEqual(['count', 'label', 'rows', 'section'])
   })
 
   it("takes each label from the brief, the SDK's default where it leaves one out, and counts unchecked rows itself", () => {
@@ -50,7 +56,6 @@ describe("BRIEFING's sections", () => {
     })
     expect(shown[3].count).toBe(1)
     expect(shown[3].rows[0].number).toBe(5)
-    expect(shown[0].more).toBeNull()
     expect(emptyLine(brief)).toBe(EMPTY_BRIEF)
   })
 
@@ -65,6 +70,11 @@ describe("BRIEFING's sections", () => {
     expect(at('settings', 'calendar')).toBe(SETTINGS_HREF)
     expect(at('suggestion', 'x')).toBeNull()
     expect(briefRowHref(briefRow({ id: 'r', title: 'Row' }))).toBeNull()
+  })
+
+  it('lists the suggestions BRIEFING carries with their own Start, and none without a brief', () => {
+    expect(briefSuggestionIds(BRIEF)).toEqual([SUGGESTION_ID])
+    expect(briefSuggestionIds(null)).toEqual([])
   })
 
   it("starts only a suggestion's row whose action is Start", () => {

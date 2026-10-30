@@ -15,7 +15,7 @@ import { STARTED_MS } from '../../src/chat/next/use-next.ts'
 import { CONTROLS_LABEL } from '../../src/chat/phone/phone-controls.tsx'
 import { PHONE_WIDTH, resetWindowWidth, setWindowWidth } from '../support/window-width.ts'
 import { box, openChat, renderChat, stubClips } from '../chat/support.tsx'
-import { OTHER_SUGGESTION_ID, SUGGESTION_ID, SUGGESTIONS } from './support.ts'
+import { BRIEF, OTHER_SUGGESTION_ID, SUGGESTION_ID, SUGGESTIONS } from './support.ts'
 
 const FIRST = SUGGESTIONS[0].title
 const SECOND = SUGGESTIONS[1].title
@@ -136,6 +136,29 @@ describe('the line', () => {
     })
     expect(within(next()).getByRole('alert')).toHaveTextContent('The spend ceiling for today is reached.')
     expect(within(next()).getByText(FIRST)).toBeInTheDocument()
+  })
+})
+
+describe('one suggestion, shown once', () => {
+  it('skips the suggestion BRIEFING lists with its own Start while BRIEFING shows, and shows it again once it folds', async () => {
+    await renderChat()
+    giveSuggestions()
+    act(() => host.setPageQuery('useBrief', { data: BRIEF }))
+    expect(BRIEF.sections.suggestions.map((row) => row.opens?.id)).toEqual([SUGGESTION_ID])
+    expect(next()).toHaveAttribute('data-suggestion-id', OTHER_SUGGESTION_ID)
+    expect(within(next()).queryByText(FIRST)).toBeNull()
+    fireEvent.pointerDown(document.body)
+    expect(next()).toHaveAttribute('data-suggestion-id', SUGGESTION_ID)
+  })
+
+  it('does the same on the phone', async () => {
+    setWindowWidth(PHONE_WIDTH)
+    openChat()
+    render(<HudChatPage />)
+    await screen.findByRole('article', { name: 'You said' })
+    giveSuggestions()
+    act(() => host.setPageQuery('useBrief', { data: BRIEF }))
+    expect(next()).toHaveAttribute('data-suggestion-id', OTHER_SUGGESTION_ID)
   })
 })
 

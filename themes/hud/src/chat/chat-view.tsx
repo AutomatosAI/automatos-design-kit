@@ -10,6 +10,7 @@ import {
 
 import { usePhoneLayout } from '../lib/phone-layout'
 import { VoiceDeck } from '../voice/voice-deck'
+import { briefSuggestionIds } from './briefing/brief-rows'
 import { BriefingPanel } from './briefing/briefing-panel'
 import type { Briefing } from './briefing/use-briefing'
 import { ChatFooter } from './chat-footer'
@@ -147,7 +148,10 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, b
   const { ref, layout } = useScreenLayout()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
   const autoFocus = chat.messages.length === 0
-  const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={<VoiceDeck />} />
+  // BRIEFING is on screen unless, at one column, a card waiting for you keeps the transcript in its slot.
+  const listed = briefSuggestionIds(layout.columns === 'one' && chat.approvalWaiting ? null : briefing.brief)
+  const voice = <VoiceDeck />
+  const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={voice} listed={listed} />
   const missionId = chat.planningMissionId
   const brief = briefing.brief === null ? null : <BriefingPanel brief={briefing.brief} onFold={briefing.fold} />
   return (

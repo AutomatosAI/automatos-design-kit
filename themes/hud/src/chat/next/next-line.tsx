@@ -95,8 +95,14 @@ function SayChips({ suggestion, next }: { readonly suggestion: Suggestion; reado
   )
 }
 
-export function NextLine({ place }: { readonly place: NextPlace }) {
-  const next = useNextSuggestion()
+export interface NextLineProps {
+  readonly place: NextPlace
+  /** The suggestions BRIEFING on screen lists with its own Start: the line skips them. */
+  readonly listed?: readonly string[]
+}
+
+export function NextLine({ place, listed }: NextLineProps) {
+  const next = useNextSuggestion(listed)
   const entrance = useEntrance()
   const { suggestion } = next
   if (next.started) {

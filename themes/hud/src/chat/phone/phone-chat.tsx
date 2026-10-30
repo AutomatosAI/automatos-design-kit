@@ -4,6 +4,7 @@ import { useVoice } from '@automatos/theme-sdk'
 import { isVoiceRunning } from '../../voice/session'
 import { PHONE_BARS } from '../../voice/wave'
 import { Waveform } from '../../voice/waveform'
+import { briefSuggestionIds } from '../briefing/brief-rows'
 import { BriefingPanel } from '../briefing/briefing-panel'
 import type { Briefing } from '../briefing/use-briefing'
 import type { ChatParts } from '../chat-parts'
@@ -127,7 +128,7 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
     </>
   )
   const core = <VoiceCore state={auto.mascot} chip={chip} size="small" onClipEnded={auto.onClipEnded} />
-  const line = <StatusLine state={auto.mascot} />
+  const line = <StatusLine state={auto.mascot} listed={briefSuggestionIds(chat.approvalWaiting ? null : briefing.brief)} />
   return <PhoneScreen title={chat.title} line={line} core={core} transcript={transcript} dock={dock} scrollRef={scrollRef} />
 }
 

@@ -11,15 +11,16 @@ Proactive Auto, on Theme SDK 1.3.0's proactive area (`uses` names `proactive`; `
   beside it while Auto reads, and the brief's sections with their labels and exact counts, every row numbered across
   the brief as Listen numbers the titles, each with its why, its time and its state as a glyph and a word, and its
   action named by the row: a link where it opens, or Start on a suggestion's row, which then says "✓ Started" in its
-  place. Where it stands: the right column at three columns, the column TODAY is in at two, and the transcript's slot
+  place. A section the brief folded shows the rows it carries under its exact count: Brief@1 holds no hidden rows, so
+  there is no "Show N more" to open. Where it stands: the right column at three columns, the column TODAY is in at two, and the transcript's slot
   at one column and on the phone (unless a card in the conversation waits for you). It folds back into TODAY and NEEDS
   YOU after 60 seconds (held while Auto reads it or the focus is in it), or at once on any press outside it, Escape
   anywhere; Tab never folds it. Folded, it stays folded for the tab's session in that workspace. No brief is a normal
   day: with the workspace's brief off the screen is as before.
-- `▸ NEXT`: the newest open suggestion (the SDK's `useSuggestions`) in one line, its title as Auto's words, with START
-  and HIDE as SAY chips that can be tapped too (HIDE asks why: Not now, Not useful, Wrong agent, or Just hide). On the
-  desktop it sits between the credits banner and the voice deck, over the message box; on the phone under the top line,
-  never over TYPE · HOLD TO TALK. Started, the line says "Started. Auto is on it." for 4 seconds; refused, it says why.
+- `▸ NEXT`: the newest open suggestion (the SDK's `useSuggestions`) that BRIEFING on screen doesn't already list, in
+  one line, its title as Auto's words, with START and HIDE as SAY chips that can be tapped too (HIDE asks why: Not now,
+  Not useful, Wrong agent, or Just hide). On the desktop it sits between the credits banner and the voice deck, over the
+  message box; on the phone under the top line, never over TYPE · HOLD TO TALK. Started, the line says "Started. Auto is on it." for 4 seconds; refused, it says why.
   It is never spoken.
 - MISSIONS, under MISSION (which stays one Mission's steps): the workspace's Missions, the ones that need you first, each
   linked, with where it stands as a glyph and a word (◆ NEEDS YOU, ● WORKING, ✓ READY, ✓ DONE, ✕ FAILED), `▸` its next
@@ -27,8 +28,9 @@ Proactive Auto, on Theme SDK 1.3.0's proactive area (`uses` names `proactive`; `
   again or replanned.
 - SYSTEMS, at the foot of the right column: what Auto depends on (the SDK's `useReadiness`), each item ✓ READY,
   ○ NOT CHECKED or ◆ NEEDS SETUP with its detail and its fix, and Check again.
-- One live border: only what needs you glows, NEEDS YOU while anything does, or BRIEFING while it stands in its place.
-  MISSION no longer glows while its Mission works.
+- One live border: only what needs you glows, NEEDS YOU while anything does, or BRIEFING while it stands in its place,
+  both from `useNeedsYou`, so something raised after the brief was made still lights BRIEFING. MISSION no longer glows
+  while its Mission works.
 - Every status is in the readable accent but failed (the error colour) and the quiet ones (the secondary text), never
   `--accent`. BRIEFING and the NEXT line enter once with a fade and a 4 px rise; under reduced motion nothing moves.
   Auto's words (the greeting, the brief's rows, the suggestion) carry `data-ai-generated`.

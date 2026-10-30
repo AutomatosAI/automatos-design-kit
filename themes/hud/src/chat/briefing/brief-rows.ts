@@ -16,10 +16,15 @@ import { MONTHS, WEEKDAYS } from '../panels/panel-rows'
 /**
  * HUD 1.2.0 (PRD-268): what BRIEFING shows of the day's brief (the SDK's Brief@1, from useBrief). Its sections in
  * Brief@1's order, each with the brief's own label and exact count; every row numbered across the sections in that
- * order, as the host's Listen numbers the titles it reads (so "start two" names a row); the line the brief gives for a
- * section it folded; where a row opens, on the SDK's routes; the brief's day and a row's time in HUD's mono words. The
+ * order, as the host's Listen numbers the titles it reads (so "start two" names a row); where a row opens, on the
+ * SDK's routes; the brief's day and a row's time in HUD's mono words. The
  * words are the brief's (the server's, in the person's language); the labels below are the SDK's own English defaults,
  * for a brief that leaves one out. Pure but for the SDK's href builders.
+ *
+ * A section the brief folded (more than five rows) carries only the rows it shows: Brief@1 holds no hidden rows, so
+ * BRIEFING has nothing to open in place, and it draws no "Show N more" (a line that offered an action it couldn't
+ * take). The section's exact count, beside its label, says how many there are; NEEDS YOU, once BRIEFING folds back,
+ * lists them with the rest on the board.
  */
 
 /** Brief@1's sections in its order: the order Listen numbers the rows in. */
@@ -51,8 +56,6 @@ export interface ShownSection {
   /** The exact count (the rows a section without one shows). */
   readonly count: number
   readonly rows: readonly NumberedRow[]
-  /** The brief's "Show N more" for a section it folded; null for one shown whole. */
-  readonly more: string | null
 }
 
 function rowsOf(brief: Brief, section: BriefSection): readonly BriefRow[] {
@@ -62,11 +65,6 @@ function rowsOf(brief: Brief, section: BriefSection): readonly BriefRow[] {
 function countOf(brief: Brief, section: BriefSection): number {
   if (section === 'unchecked') return rowsOf(brief, section).length
   return brief.counts[section] ?? rowsOf(brief, section).length
-}
-
-function moreOf(brief: Brief, section: BriefSection): string | null {
-  const folded = countOf(brief, section) > rowsOf(brief, section).length
-  return folded ? brief.labels?.more?.[section] ?? null : null
 }
 
 /** The sections with rows, in Brief@1's order, every row numbered across them. */
@@ -79,7 +77,6 @@ export function briefSections(brief: Brief): readonly ShownSection[] {
       label: brief.labels?.sections?.[section] ?? SECTION_LABELS[section],
       count: countOf(brief, section),
       rows: rowsOf(brief, section).map((row, at) => ({ number: before + at + 1, row })),
-      more: moreOf(brief, section),
     }
   })
 }
@@ -106,6 +103,11 @@ export function briefRowHref(row: BriefRow): string | null {
   const opens = row.opens
   if (!opens || !Object.prototype.hasOwnProperty.call(OPENS, opens.type)) return null
   return OPENS[opens.type](opens.id)
+}
+
+/** The suggestions BRIEFING lists in its Suggested section, by id, with their own Start; none without a brief. */
+export function briefSuggestionIds(brief: Brief | null): readonly string[] {
+  return (brief?.sections.suggestions ?? []).flatMap((row) => (row.opens?.type === 'suggestion' ? [row.opens.id] : []))
 }
 
 /** The id of the suggestion a row starts, or null for a row Start doesn't apply to. */
