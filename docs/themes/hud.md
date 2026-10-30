@@ -191,8 +191,8 @@ the web for ARC. Core's `docs/theme-host/mobile.md` notes that the Automatos Go 
 In the kit, from `themes/hud`: `npm run build` (`vite build` with the kit's preset), `npm run lint`,
 `npm run typecheck`, `npm test` and `npm run pack` (`automatos-theme check design .`, then
 `automatos-theme pack . --out out`, which writes `automatos.hud-<version>.autotheme` and its `.sha256.json`). Kit CI's
-`harness` job shoots HUD in the browser harness after Play. A `hud-v<version>` tag releases it
-([releasing.md](../releasing.md)); its review, signature and listing follow Play's steps with HUD's names
-([OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
+`harness` job shoots HUD in the browser harness after Play. A merge to `main` that raises its version reviews, signs
+and lists it, and releases it as `hud-v<version>`, as it does Play ([releasing.md](../releasing.md),
+[OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/hud/CHANGELOG.md`](../../themes/hud/CHANGELOG.md), newest first.

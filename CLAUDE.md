@@ -21,7 +21,7 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
   history.
 - `themes/hud`: HUD (`automatos/hud`), the kit's second theme, built here from the Command design reference. Its look
   data (`looks/`, `boot/prepaint.json`) is committed and held to its catalogue by its tests; `scripts/compile-looks.mjs`
-  is Play's alone. A `hud-v<version>` tag releases it as a `play-v<version>` tag releases Play.
+  is Play's alone. HUD is published as Play is: a merge that raises its version releases `hud-v<version>`.
 
 ## Stack
 
@@ -38,7 +38,8 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
   pins. `pack` writes each bundled library's `src/` as `source/packages/<name>/src/`.
 - `package-lock.json` is committed and installed with `npm ci`. Never hand-edit it — a new dependency goes
   through the `kit-lockfile.yml` dispatch (see `AGENTS.md`'s "Adding a dependency").
-- `theme-review.yml` and `theme-sign.yml` are person-run `workflow_dispatch` jobs; core never calls GitHub.
+- `theme-review.yml` is a person-run `workflow_dispatch` job; `theme-publish.yml` publishes a merged version bump by
+  itself, signing in its `theme-publish` environment (`docs/OFFICIAL-LISTING.md`). Core never calls GitHub.
 - This repo is public: no secrets, no internal plans, no customer or pricing material, no API keys (including
   the mascot pipeline's).
 - Stream recordings and fixtures hold everything Auto said. Record them from made-up test data only, and read

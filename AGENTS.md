@@ -58,9 +58,9 @@ core wins and the kit is fixed.
   deck frame (a top bar, a side rail, bracketed panels) around the host's pages, its own chat and Conversations, five
   presets and Auto. Its look data
   (`looks/` and `boot/prepaint.json`) is committed, made from its catalogue (`src/lib/looks/`) and held to it by its
-  own tests, not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first. Both themes
-  are released the same way, Play from a `play-v<version>` tag and HUD from a `hud-v<version>` tag
-  (`theme-release.yml`, `docs/OFFICIAL-LISTING.md`).
+  own tests, not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first. Every theme
+  is published the same way: a merge to `main` that raises its version lists, signs and releases it as
+  `<slug>-v<version>` (`theme-publish.yml`, `docs/OFFICIAL-LISTING.md`).
 - `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
   rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
   `vite build`; the files are generated, not committed.
@@ -94,12 +94,12 @@ core wins and the kit is fixed.
 
 ## What CI runs
 
-`.github/workflows/kit.yml`'s `kit` job first runs `scripts/release/released-unchanged.mjs`: once `play-v<version>`
-is tagged, a change to anything the kit's pack collects for Play — `theme.json`, its top docs (`README.md`,
-`CHANGELOG.md`, every `LICENSE` spelling), `assets/` and `src/` (the source of the package's generated
-`dist/`, `boot/` and `looks/` too), and `packages/look-kit/src/` and `packages/mascot/src/`, which Play bundles
-— fails until the version moves on. HUD is held the same way once `hud-v<version>` is tagged, its committed
-`boot/` and `looks/` among its packed paths; each theme is checked against its own tags only.
+`.github/workflows/kit.yml`'s `kit` job first runs `scripts/release/released-unchanged.mjs`: for every folder under
+`themes/`, once `<slug>-v<version>` is tagged, a change to anything the kit's pack collects for it — `theme.json`, its
+top docs (`README.md`, `CHANGELOG.md`, every `LICENSE` spelling), `dist/`, `boot/`, `looks/`, `assets/` and `src/`,
+and the `src/` of each kit library its `package.json` names (Play's and HUD's: `packages/look-kit/src/` and
+`packages/mascot/src/`) — fails until the version moves on; each theme is checked against its own tags only
+(`scripts/release/themes.mjs` holds the paths and the tag rule).
 It then installs and runs the root scripts `build`, `lint`, `typecheck`, `test` and `pack`. Each one runs
 the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
@@ -139,9 +139,10 @@ Pin it exactly in `package.json`, push the branch and run `kit-lockfile.yml` on 
 Commit its `kit-lockfile` artifact, checked against the run summary's digest, as `package-lock.json`;
 the pull request then has one CI run, installing with `npm ci`. Never hand-edit the lockfile.
 
-## Marketplace review and signing (person-run, PRD-261 C-02b and C-03a)
+## Marketplace review, publishing and signing (PRD-261 C-02b and C-03a)
 
-Two `workflow_dispatch` workflows a person runs from the Actions tab; core never calls GitHub.
+`theme-review.yml` is a `workflow_dispatch` workflow a person runs from the Actions tab; `theme-publish.yml` runs by
+itself once `Kit` has passed on a push to `main`. Core never calls GitHub.
 
 - `theme-review.yml` (inputs: the package's https URL and the digest the admin queue shows): no
   permissions, no secrets; downloads the package, installs the kit with `npm ci --ignore-scripts`,
@@ -152,15 +153,18 @@ Two `workflow_dispatch` workflows a person runs from the Actions tab; core never
   `src/entry.ts`), and the `src/` of each kit library it bundles as `source/packages/<name>/src/`. The
   review rebuilds it with this kit's preset and lockfile, from the theme folder, each library's `src/`
   laid out beside it as the kit lays them out, and the dist/ must match byte for byte.
-- `theme-sign.yml` (input: the whole signature request JSON from the admin queue, `requestId` included):
-  installs nothing; its one `Sign` step reads the `THEME_SIGNING_KEY` secret (Ed25519, PKCS#8 PEM) and
-  prints the request id and the base64 signature over the canonical JSON of `{id, version, digest,
-  files}` (`scripts/sign/`; core's signed form, which keeps `requestId` outside the signed text), which
-  the person pastes into the admin queue. It refuses when the secret is absent, when id or version
-  break core's manifest patterns, and when any printed line would hold a line break or `::`. The
-  `theme-signing` environment allows main only and has required reviewers, the named signers: either one may
-  approve a run, and "Prevent self-review" is off for now. No other workflow may name that secret; the root tests
-  enforce both workflows' shape.
+- `theme-publish.yml`: a merge to `main` publishes, and the merge is the approval. When `Kit` passes on a push to
+  this repository's `main` (or a person runs it on `main` with a release tag, a backfill), `scripts/release/bumped.mjs`
+  picks each theme whose version is above its newest `<slug>-v*` tag and whose publisher `release/publishers.json`
+  lists. A build job with no secrets installs with `npm ci --ignore-scripts`, packs the theme and reviews it with
+  `scripts/review/main.ts` in `docker run --network none`. The publish job, in the `theme-publish` environment (main
+  only, no reviewers), installs nothing: `scripts/sign/from-pack.ts` holds the package to pack's `.sha256.json` and
+  signs `{id, version, digest, files}` with `THEME_SIGNING_KEY` (Ed25519, PKCS#8 PEM; core's canonical text), and the
+  package, the envelope and the review's text go to the Marketplace's publish endpoint with `THEME_PUBLISH_KEY`;
+  each secret is read by one step alone and no other workflow may name either. On core's `published` or `unchanged`
+  it releases `<slug>-v<version>` with the `.autotheme`, its `.sha256` and its `.sig.json`, or adds the `.sig.json`
+  to the release there is; anything else fails the run and releases nothing. `theme-release.yml` releases a tag a
+  person pushes, unlisted and unsigned. The root tests enforce every workflow's shape.
 - The vite-preset builds only from the theme's `src/` and its bundled kit libraries' `src/` (its source
   guard), and the JS rules refuse paths that leave `source/`, so the reproducible build can't pull in files
   from outside the package.

@@ -1,0 +1,12 @@
+# A merge to main publishes, signs and releases what it changes (.github/workflows/theme-publish.yml), so every
+# path that goes into a published package, or decides how one is built, reviewed, signed or released, has a code
+# owner: the themes, the workflows, the scripts they run, the release lists, the build tools and their dependencies,
+# and the signing keys file. It binds once the ruleset for main requires a code owner's review.
+/themes/ @AutomatosAI
+/.github/ @AutomatosAI
+/scripts/ @AutomatosAI
+/release/ @AutomatosAI
+/packages/ @AutomatosAI
+/keys/ @AutomatosAI
+/package.json @AutomatosAI
+/package-lock.json @AutomatosAI

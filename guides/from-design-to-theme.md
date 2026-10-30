@@ -69,18 +69,11 @@ without it, same as any other kit change.
 
 The proof branch can never merge as it stands — its first commit deletes the leak paths
 ([proof/README.md](../proof/README.md), "After the run"). Open a new branch from `main` that takes only
-`themes/<slug>/` and `proof/<id>/` from the proof branch, merge it, then tag and release the theme as
-[docs/releasing.md](../docs/releasing.md) describes for Play and HUD:
-
-```sh
-git tag arcade-v0.1.0 <commit on main>
-git push origin arcade-v0.1.0
-```
-
-This is a known step, not yet done: `theme-release.yml`'s `TAG_PATTERN` only matches `play-v*` and `hud-v*`
-(`env.TAG_PATTERN: '^(play|hud)-v[0-9]+\.[0-9]+\.[0-9]+$'`). A new theme's tag needs that pattern widened to admit
-it first, in a pull request to `main`; the release job's "Name the theme" step already derives everything else
-(the folder, the package name, the signatures folder) from the tag's theme alone.
+`themes/<slug>/` and `proof/<id>/` from the proof branch, with the new workspace's lockfile entries, and merge it.
+The merge releases the theme: `theme-publish.yml` takes any theme whose version has no `<slug>-v*` tag yet and whose
+publisher `release/publishers.json` lists, so `pixelcade/arcade` 0.1.0 is released as `arcade-v0.1.0` with no tag
+pushed by hand ([docs/releasing.md](../docs/releasing.md), "Merge to publish"). The tag rule is any
+`<slug>-v<major>.<minor>.<patch>`; a theme of a publisher the list doesn't name needs that publisher added first.
 
 ## 8. Install
 
@@ -91,6 +84,7 @@ desktop and phone width, and, when the theme carries a phone skin, in Automatos 
 
 ## 9. List
 
-A Marketplace listing is a separate submission and review, [docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md).
-A listed version turns **Official** only when its publisher is the reserved `automatos` publisher and its signature
-verifies with an active key of the Automatos keys file — review and approval alone are not enough.
+The same merge lists it: the publish run reviews the package, signs it and sends it to the Marketplace, which
+approves it, before the release is made ([docs/OFFICIAL-LISTING.md](../docs/OFFICIAL-LISTING.md)); a later version
+is listed by the merge that raises it. A listed version turns **Official** only when its publisher is the reserved
+`automatos` publisher and its signature verifies with an active key of the Automatos keys file.

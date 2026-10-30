@@ -164,8 +164,8 @@ Automatos Go app does not read this answer yet.
 
 In the kit, from `themes/play`: `npm run build` (the look compiler, then `vite build`), `npm run lint`,
 `npm run typecheck`, `npm test` and `npm run pack` (`automatos-theme pack . --out out`, which writes
-`automatos.play-<version>.autotheme` and its `.sha256.json`). A `play-v<version>` tag releases it
-([releasing.md](../releasing.md)), and [OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md) lists it on the hosted
-edition.
+`automatos.play-<version>.autotheme` and its `.sha256.json`). A merge to `main` that raises its version lists it on
+the hosted edition and releases it as `play-v<version>` ([releasing.md](../releasing.md),
+[OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/play/CHANGELOG.md`](../../themes/play/CHANGELOG.md), newest first.
