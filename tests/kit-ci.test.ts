@@ -108,8 +108,8 @@ function outsideDependencies(pkg: PackageJson, localNames: ReadonlySet<string>):
 
 // npm 11.6.0+ fixes the edgesOut crash on optional peers (npm/cli#9787); CI pins it first.
 const PIN_NPM = "npm install -g npm@11.21.1";
-// PRD-261 C-06r (PB-4): a released theme version (Play's, HUD's) never changes. The check runs right after the npm
-// pin (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
+// PRD-261 C-06r (PB-4): each released theme's version never changes, for every folder under themes/. The check runs
+// right after the npm pin (tests/kit-lockfile-workflow.test.ts holds the first run to the pin) and before the install.
 const RELEASED_STEP = "Check released themes are unchanged";
 const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
 const RELEASED_CHECK = `node ${RELEASED_SCRIPT}`;
@@ -332,7 +332,8 @@ describe("kit workflow", () => {
   });
 
   // PRD-261 C-06r: the script lists origin's <slug>-v* tags for each theme and fetches the matching one itself,
-  // anonymously (tests/released-unchanged.test.ts runs it against git repositories).
+  // anonymously (tests/released-unchanged.test.ts and tests/released-unchanged-themes.test.ts run it against git
+  // repositories).
   it("checks released themes are unchanged after a credential-free checkout, with Node alone and no secret or token", () => {
     const step = stepLines(text, RELEASED_STEP);
     const lines = text.split("\n");
