@@ -41,10 +41,12 @@ jobs:
       # version tagged play-v<version>, Play's packed paths (src, assets, theme.json, README.md, CHANGELOG.md
       # and every LICENSE spelling under themes/play, and packages/look-kit/src and packages/mascot/src, which
       # Play bundles) must be as the tag has them; a change needs a version above every release. HUD is held
-      # the same way by its hud-v<version> tags, its committed boot and looks among its packed paths. The
-      # checkout above fetches no tags, so the script lists origin's play-v* and hud-v* tags (git ls-remote)
-      # and fetches the matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing
-      # installed: it runs before the install, so a change to a released theme fails first.
+      # the same way by its hud-v<version> tags, its committed boot and looks among its packed paths. Arcade is
+      # held the same way by its arcade-v<version> tags, its committed boot and looks among its packed paths too
+      # (it bundles packages/mascot/src alone, not packages/look-kit/src). The checkout above fetches no tags,
+      # so the script lists origin's play-v*, hud-v* and arcade-v* tags (git ls-remote) and fetches the
+      # matching one at depth 1. The kit is public, so it needs no token. Node alone, nothing installed: it
+      # runs before the install, so a change to a released theme fails first.
       - name: Check released themes are unchanged
         run: node scripts/release/released-unchanged.mjs
 

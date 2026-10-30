@@ -91,6 +91,10 @@ looks, or two schemes of Studio's tokens), up to three fonts (`.ttf` or `.otf`, 
 labels) and the mascot's stills or clips. Don't draw phone screens for the app: they can't change. (A theme's own
 layout in a phone's **browser**, below its desktop width, is the web theme's and can be anything.)
 
+The app has four layouts built in (Studio, Play, HUD and Arcade); only Automatos's own themes switch the phone to
+theirs. A layout of your own would need an Automatos Go release, so it is a proposal to Automatos, not part of the
+handoff ([mobile-skins.md](mobile-skins.md#the-phones-layouts)).
+
 ## The handoff
 
 What the design hands over, in one folder:
@@ -154,8 +158,8 @@ Follow these rules; the kit can build only what they allow.
    every knob together (up to 12, names and one-line descriptions of at most 40 characters, each light or dark).
    Every text colour reads at 4.5:1 on its ground and every border or icon at 3:1, on every preset.
 5. Under reduced motion nothing moves. Anything that moves for more than five seconds has a pause control.
-6. The phone app draws a skin of colours, up to three fonts and the mascot's stills or clips on its own layout: don't
-   design phone app screens. A narrow browser layout for the web theme is fine.
+6. The phone app draws a skin of colours, up to three fonts and the mascot's stills or clips on its own Studio layout:
+   don't design phone app screens, which need an app release. A narrow browser layout for the web theme is fine.
 7. Hand over a folder: README.md (rules and pages, where each host part sits), looks.json in the
    automatos-theme-handoff/v1 shape (schema, theme, default, knobs, presets with tone, knob values and #rrggbb
    colours, pairs, optional phone), and an HTML mock per screen at 1440 px wide (and 390 px for a narrow layout).

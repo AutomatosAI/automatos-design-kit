@@ -4,14 +4,14 @@
 //
 //   node scripts/release/released-unchanged.mjs
 //
-// Each theme the kit releases (THEMES below: Play and HUD) is released by its tag, <theme>-v<version>
-// (theme-release.yml: play-v<version>, hud-v<version>). While a theme's theme.json names a released version,
-// everything the kit's pack collects for it (its packed paths below: theme.json, its top docs — README.md,
-// CHANGELOG.md and every LICENSE spelling — assets/, the committed boot/ and looks/, and src/, and the src/ of
-// each kit package it bundles) must be as that tag has them: a change to any of it needs a new version (a new
-// release, such as 1.1.1). An untagged version passes only when it is above every release tag of that theme,
-// so with no release tag yet nothing of it is released and its check passes. Each theme is checked on its own
-// tags alone, Play first; the run fails when any theme fails.
+// Each theme the kit releases (THEMES below: Play, HUD and Arcade) is released by its tag, <theme>-v<version>
+// (theme-release.yml: play-v<version>, hud-v<version>, arcade-v<version>). While a theme's theme.json names a
+// released version, everything the kit's pack collects for it (its packed paths below: theme.json, its top
+// docs — README.md, CHANGELOG.md and every LICENSE spelling — assets/, the committed boot/ and looks/, and
+// src/, and the src/ of each kit package it bundles) must be as that tag has them: a change to any of it needs
+// a new version (a new release, such as 1.1.1). An untagged version passes only when it is above every release
+// tag of that theme, so with no release tag yet nothing of it is released and its check passes. Each theme is
+// checked on its own tags alone, Play first; the run fails when any theme fails.
 //
 // For each theme it lists origin's <theme>-v* tags with git ls-remote (kit CI's checkout fetches no tags),
 // fetches the tag the version names (at depth 1 in a shallow checkout such as kit CI's) and lists the packed
@@ -28,15 +28,16 @@ const REMOTE = 'origin'
  * folders match packages/theme-cli/src/collect.ts's PACKED_TOP_FILES (theme.json, README.md, CHANGELOG.md
  * and every LICENSE spelling it names) and the PACKED_FOLDERS members the theme folder commits: Play commits
  * assets/ alone (its dist/, boot/ and looks/ are gitignored, themes/play/.gitignore, and built from src/ at
- * pack time), HUD commits assets/, boot/ and looks/ (its dist/ alone is built). A gitignored folder needs no
- * path of its own. src/ is source.ts's SOURCE_DIR, packed as source/. packages/look-kit/src and
- * packages/mascot/src are the src/ of the two kit workspace packages both themes bundle (the @automatos/
- * packages each theme's package.json names under dependencies, PRD-261 B-01i): pack writes each one as
- * source/packages/<name>/src/, and the build bundles it into dist/. This script is plain Node with no
- * TypeScript loader, so it cannot read those files' constants at run time; the paths below are spelled out
- * in full (no shared prefix constant, no template literal) so tests/play-package-ci.test.ts and
- * tests/hud-package-ci.test.ts can read each list back as plain text and assert it stays a superset of them,
- * so the two can't silently drift apart.
+ * pack time), HUD and Arcade both commit assets/, boot/ and looks/ (their dist/ alone is built). A gitignored
+ * folder needs no path of its own. src/ is source.ts's SOURCE_DIR, packed as source/. packages/look-kit/src
+ * and packages/mascot/src are the src/ of the two kit workspace packages a theme can bundle (the @automatos/
+ * packages a theme's package.json names under dependencies, PRD-261 B-01i): pack writes each one as
+ * source/packages/<name>/src/, and the build bundles it into dist/. Play and HUD both bundle look-kit and
+ * mascot; Arcade bundles mascot alone (its package.json names no look-kit dependency). This script is plain
+ * Node with no TypeScript loader, so it cannot read those files' constants at run time; the paths below are
+ * spelled out in full (no shared prefix constant, no template literal) so tests/play-package-ci.test.ts,
+ * tests/hud-package-ci.test.ts and tests/arcade-package-ci.test.ts can read each list back as plain text and
+ * assert it stays a superset of them, so the three can't silently drift apart.
  */
 export const PLAY_PACKED_PATHS = [
   'themes/play/theme.json',
@@ -64,6 +65,19 @@ export const HUD_PACKED_PATHS = [
   'packages/look-kit/src',
   'packages/mascot/src',
 ]
+export const ARCADE_PACKED_PATHS = [
+  'themes/arcade/theme.json',
+  'themes/arcade/README.md',
+  'themes/arcade/CHANGELOG.md',
+  'themes/arcade/LICENSE',
+  'themes/arcade/LICENSE.md',
+  'themes/arcade/LICENSE.txt',
+  'themes/arcade/assets',
+  'themes/arcade/boot',
+  'themes/arcade/looks',
+  'themes/arcade/src',
+  'packages/mascot/src',
+]
 /**
  * The themes, in the order they are checked: the name messages give, the theme's folder, its release tag's
  * prefix (theme-release.yml's TAG_PATTERN: <theme>-v<major>.<minor>.<patch>) and its packed paths.
@@ -71,6 +85,7 @@ export const HUD_PACKED_PATHS = [
 export const THEMES = [
   { name: 'Play', dir: 'themes/play', tag: 'play-v', packedPaths: PLAY_PACKED_PATHS },
   { name: 'HUD', dir: 'themes/hud', tag: 'hud-v', packedPaths: HUD_PACKED_PATHS },
+  { name: 'Arcade', dir: 'themes/arcade', tag: 'arcade-v', packedPaths: ARCADE_PACKED_PATHS },
 ]
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/
 const GIT_OPTIONS = {

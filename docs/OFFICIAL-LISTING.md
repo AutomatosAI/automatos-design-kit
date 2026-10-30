@@ -20,11 +20,16 @@ Official at step 5, when its signature is pasted, not at approval.
 `--ref hud-v<v>` with that asset's URL, and `tag` set to `hud-v<v>` to attach a signature again. Theme release reads
 the theme from the tag, so the same workflow releases both.
 
+**Arcade** (`automatos/arcade`, `themes/arcade`) follows the same steps too: the tag `arcade-v<v>` (on a commit of
+`main`, naming `themes/arcade/theme.json`'s version), the release asset `automatos.arcade-<v>.autotheme` and its
+`.sha256`, the envelope `themes/arcade/signatures/<v>.sig.json`, the review run `--ref arcade-v<v>` with that asset's
+URL, and `tag` set to `arcade-v<v>` to attach a signature again.
+
 ## The workflows
 
 | Workflow (Actions tab) | File | Started by | Inputs |
 |---|---|---|---|
-| Theme release | `theme-release.yml` | a pushed tag `play-v<v>` (or `hud-v<v>`) on a commit of `main` (the release); a push to `main` that adds `themes/play/signatures/<v>.sig.json` (or HUD's), or Run workflow on `main` (the signature) | `tag`, by hand only |
+| Theme release | `theme-release.yml` | a pushed tag `play-v<v>` (or `hud-v<v>`, or `arcade-v<v>`) on a commit of `main` (the release); a push to `main` that adds `themes/play/signatures/<v>.sig.json` (or HUD's or Arcade's), or Run workflow on `main` (the signature) | `tag`, by hand only |
 | Theme review | `theme-review.yml` | Run workflow at the tag: `--ref play-v<v>` | `package_url`, `expected_digest` |
 | Theme sign | `theme-sign.yml` | Run workflow on `main`; it waits for a required reviewer of the `theme-signing` environment | `request` |
 

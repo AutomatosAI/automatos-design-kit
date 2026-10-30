@@ -17,12 +17,40 @@ among the rest of `theme.json`. When this guide and core disagree, core wins and
   painted for the phone (`fromLooks`); a font file for any of three roles; and which of Auto's files the phone shows.
 - **It is not** code, CSS, a layout or a page. The phone's screens are the app's own Studio layout, the same for every
   theme with a skin: a skin recolours it, sets its type and swaps Auto's pictures. It can't move, add or hide anything.
-- **Play and HUD read none of it.** `automatos/play` and `automatos/hud` switch the phone to its own built-in Play and
-  HUD layouts, painted from the member's looks (the app's rule, as `packages/theme-harness/src/phone/skin.ts` follows
-  it). Those layouts are part of the app. `automatos-theme skin` refuses both themes, and the harness offers no skin
-  designer for them.
+- **Automatos's own themes read none of it** where the app has their layout: `automatos/play`, `automatos/hud` and
+  `automatos/arcade` switch the phone to its built-in Play, HUD or Arcade layout, painted from the member's looks
+  (below, "The phone's layouts"). `automatos-theme skin` refuses a theme of the `automatos` publisher, and the harness
+  offers no skin designer for one.
 - **A theme with no skin** (no block, or a block that paints no ground and text) is not offered on the phone, which
   draws Studio's own colours instead.
+
+## The phone's layouts
+
+Every screen in Automatos Go is drawn by one of four layouts built into the app. A theme can't add a layout or change
+one: the app downloads no code, so a layout ships only in an app release, through the App Store's review.
+
+| Layout | What it draws | Which theme gets it |
+|---|---|---|
+| Studio | The app's own screens: the chat thread with Auto's replies and the host's cards, the Command Centre, Settings | Every theme not named below, through its skin: the skin recolours Studio, sets its type and swaps Auto's pictures |
+| Play | Play's companion: Auto on a stage over the chat, with conversations and a shelf of Deliverables | `automatos/play` |
+| HUD | HUD's command deck: Auto in the voice core, the transcript, square bracketed panels, a grid and scan lines | `automatos/hud` |
+| Arcade | Arcade's 16-bit game: Auto as a pixel sprite in a dialogue box, the story, pixel faces and windows | `automatos/arcade` |
+
+What that means for a theme of your own:
+
+- **The phone draws your theme on the Studio layout**, whatever your web theme's layout is. Design the phone as a skin:
+  your colours, up to three fonts and Auto's stills or clips on Studio's screens. The harness's phone view shows it.
+- **A layout is matched by theme id**, from a fixed list in the app. A package can't name a layout, and a theme that
+  copies Play's, HUD's or Arcade's look on the web still gets Studio on the phone.
+- **A new layout needs an app release.** If your design needs a phone layout of its own, describe it (each screen, and
+  the host data it shows) and propose it to Automatos in an issue on this repository. Until an app release carries it,
+  your theme's skin on Studio is what members see.
+- **Older app versions fall back to the skin.** An app version from before a layout existed paints that theme's
+  `mobile` block on the Studio layout instead, which is why Play, HUD and Arcade each keep one.
+
+The harness's phone view and `automatos-theme skin` follow the app's list at the Automatos Go commit
+[the theme CLI's README](../packages/theme-cli/README.md) names, so they learn a new layout when the kit moves to an app
+release that has it.
 
 ## The block
 

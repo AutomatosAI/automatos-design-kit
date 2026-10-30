@@ -1,0 +1,59 @@
+{
+  "schema": "automatos-look-schema/v1",
+  "look": {
+    "schema": "arcade-look/v1",
+    "interface": "arcade"
+  },
+  "knobs": {
+    "palette": {
+      "kind": "choice",
+      "label": "Palette",
+      "choices": [
+        "overworld",
+        "dungeon",
+        "neon",
+        "nightcity",
+        "handheld"
+      ],
+      "default": "overworld"
+    },
+    "scanlines": {
+      "kind": "choice",
+      "label": "Scanlines",
+      "choices": [
+        "off",
+        "soft",
+        "strong"
+      ],
+      "default": "soft"
+    },
+    "pixelScale": {
+      "kind": "choice",
+      "label": "Pixel scale",
+      "choices": [
+        "2",
+        "3"
+      ],
+      "default": "3"
+    },
+    "windowStyle": {
+      "kind": "choice",
+      "label": "Window",
+      "choices": [
+        "classic",
+        "thin"
+      ],
+      "default": "classic"
+    },
+    "textSpeed": {
+      "kind": "choice",
+      "label": "Text speed",
+      "choices": [
+        "instant",
+        "normal",
+        "slow"
+      ],
+      "default": "normal"
+    }
+  }
+}

@@ -1,0 +1,241 @@
+/*
+ * The Quests page: the map window (the overworld, the region names, the markers) beside the quest window, or the
+ * quest window under the map on the handheld.
+ */
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--arcade-gap);
+  align-items: start;
+  min-height: 100%;
+}
+
+.page[data-has-quest="true"] {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.mapWindow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.mapHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 6px;
+}
+
+.mapFrame {
+  position: relative;
+  min-height: 240px;
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 40 / 24;
+}
+
+.terrain {
+  position: absolute;
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+}
+
+.region {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 10px;
+  background: var(--arcade-win);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.region[data-region="active"] { left: 3%; top: 4%; }
+.region[data-region="needs"] { left: 60%; top: 4%; }
+.region[data-region="done"] { left: 60%; top: 60%; }
+
+.regionName {
+  font-family: var(--arcade-body);
+  font-size: 16px;
+  color: var(--arcade-tx);
+}
+
+/*
+ * A marker sits on its tile's centre, held inside the map: on a tile at the edge (or on a narrow map, where the
+ * button is wider than several tiles) it stops half a button in from the side rather than hanging outside.
+ */
+.marker {
+  --marker-half: calc(var(--arcade-target) / 2);
+
+  position: absolute;
+  left: clamp(var(--marker-half), var(--marker-x), calc(100% - var(--marker-half)));
+  top: clamp(var(--marker-half), var(--marker-y), calc(100% - var(--marker-half)));
+  display: grid;
+  place-items: center;
+  width: var(--arcade-target);
+  height: var(--arcade-target);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  transform: translate(-50%, -50%);
+  background: var(--arcade-win);
+  box-shadow: var(--arcade-chip-ring), var(--arcade-press-shadow);
+  font-family: var(--arcade-display);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.marker[data-tone="active"] { color: var(--arcade-ac); }
+.marker[data-tone="needs"] { color: var(--arcade-qs); }
+.marker[data-tone="failed"] { color: var(--arcade-hp); }
+.marker[data-tone="done"] { color: var(--arcade-tx2); }
+
+.marker[aria-pressed="true"] {
+  z-index: 1;
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.marker:focus-visible {
+  z-index: 2;
+  outline: 2px solid var(--arcade-tx);
+  outline-offset: 3px;
+}
+
+.quiet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 360px;
+  padding: 40px;
+  text-align: center;
+}
+
+.quest {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+}
+
+.questTitle {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--arcade-body);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--arcade-tx);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 0;
+  border-top: 2px solid var(--arcade-page);
+  border-bottom: 2px solid var(--arcade-page);
+  list-style: none;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.stepTitle {
+  font-family: var(--arcade-body);
+  font-size: 19px;
+  color: var(--arcade-tx);
+}
+
+.step[data-done="true"] .stepTitle {
+  color: var(--arcade-tx2);
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--arcade-body);
+  font-size: 18px;
+}
+
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blocks {
+  display: flex;
+  gap: 4px;
+}
+
+.block {
+  flex: 1;
+  height: 16px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.block[data-done="true"] {
+  background: var(--arcade-xp);
+}
+
+@media (max-width: 1023px) {
+  .page,
+  .page[data-has-quest="true"] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--arcade-gap-small);
+  }
+
+  .mapWindow,
+  .quest {
+    padding: 10px;
+  }
+
+  .region {
+    padding: 3px 5px;
+    gap: 4px;
+  }
+
+  .regionName {
+    font-size: 12px;
+  }
+
+  .marker {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .questTitle {
+    font-size: 20px;
+  }
+
+  .quiet {
+    min-height: 240px;
+    padding: 16px;
+  }
+}

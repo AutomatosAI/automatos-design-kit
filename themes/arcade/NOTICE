@@ -1,0 +1,18 @@
+Automatos Arcade
+Copyright 2026 Automatos AI
+
+The source code of this theme is licensed under the Apache License, Version 2.0
+(see LICENSE at the repository root).
+
+Auto's pixel sprite
+-------------------
+
+Arcade's Auto is drawn from code (src/art/), and the phone's stills in
+assets/mascot/ are written from that code by the tests, so both are under the
+code licence. They are not the Auto mascot animations Play and HUD ship.
+
+Fonts
+-----
+
+The pixel faces in assets/fonts/ (Press Start 2P and Pixelify Sans) are under
+the SIL Open Font License 1.1; each licence file sits beside its fonts.

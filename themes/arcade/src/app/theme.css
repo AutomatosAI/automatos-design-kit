@@ -1,0 +1,74 @@
+/*
+ * Arcade's tokens and faces. The kit's preset puts every rule here under html.arcade, so :root below is the theme's
+ * <html>; the CSS modules of the frame and the screens follow it into dist/theme.css.
+ *
+ * The look's colours are not set here: the host paints them on <html> before the first frame, from
+ * boot/prepaint.json (the palette's --arcade-* colours, its art's colours and Studio's own tokens, so the host's
+ * pages inside the frame take the palette too; the scanlines, the pixel scale and the window style as numbers).
+ * This file composes those numbers into the design's window and scanlines, and names the two pixel faces.
+ *
+ * Nothing here is a rule on an element the host draws: no bare element selectors, no global focus ring, no motion
+ * rule on *. The host's pages, cards, voice button and AI label keep Studio's own styling.
+ */
+
+@font-face {
+  font-family: arcade-press-start;
+  src: url("../assets/fonts/press-start-2p-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: arcade-pixelify;
+  src: url("../assets/fonts/pixelify-sans-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: arcade-pixelify;
+  src: url("../assets/fonts/pixelify-sans-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* The blocky display face: headings, labels, counters and buttons only, at 8, 10, 12 or 16 px. */
+  --arcade-display: arcade-press-start, ui-monospace, monospace;
+  /* The taller readable face: all running text, 15 to 25 px. */
+  --arcade-body: arcade-pixelify, var(--font-geist-sans), system-ui, sans-serif;
+  /* Studio's own face, for the strip the host's parts sit on. */
+  --arcade-host-font: var(--font-geist-sans), system-ui, sans-serif;
+
+  /*
+   * The window: Classic is a 2 px border, a 2 px gap and a 2 px border with a 1 px inner bevel and a 6 px drop
+   * shadow; Thin is a 2 px border with a 4 px shadow. The window style knob paints the widths, so one recipe draws
+   * both (Thin's gap and outer ring sit under its border).
+   */
+  --arcade-winsh:
+    inset var(--arcade-bevel) var(--arcade-bevel) 0 var(--arcade-bevl),
+    inset calc(var(--arcade-bevel) * -1) calc(var(--arcade-bevel) * -1) 0 var(--arcade-bevd),
+    0 0 0 2px var(--arcade-bd),
+    0 0 0 var(--arcade-ring2) var(--arcade-win),
+    0 0 0 var(--arcade-ring3) var(--arcade-bd),
+    var(--arcade-drop) var(--arcade-drop) 0 var(--arcade-spread) var(--arcade-sh);
+  --arcade-chip-ring: inset 0 0 0 2px var(--arcade-bd);
+  --arcade-press-shadow: 4px 4px 0 var(--arcade-sh);
+
+  /* Scanlines sit behind a window's text, never over it: they deepen the ground and leave every pair as measured. */
+  --arcade-scan: repeating-linear-gradient(
+    0deg,
+    var(--arcade-scan-color) 0,
+    var(--arcade-scan-color) var(--arcade-scan-line),
+    transparent var(--arcade-scan-line),
+    transparent var(--arcade-scan-period)
+  );
+
+  /* 24 px or more between windows, so the outer rings never touch. */
+  --arcade-gap: 36px;
+  --arcade-gap-small: 24px;
+  --arcade-target: 44px;
+}

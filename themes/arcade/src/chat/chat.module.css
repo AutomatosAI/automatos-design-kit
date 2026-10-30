@@ -1,0 +1,252 @@
+/*
+ * Arcade's chat: the story and the dialogue windows in a column, the party beside them (desktop) or over them (the
+ * handheld). The host's cards sit in host strips (ui.module.css .host) with room around them; nothing is drawn over
+ * them.
+ */
+
+.chat {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 316px;
+  gap: var(--arcade-gap);
+}
+
+.chat[data-layout="phone"] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nudge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 0;
+  z-index: 2;
+}
+
+.column {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--arcade-gap);
+}
+
+.chat[data-layout="phone"] .column {
+  flex: 1;
+  gap: var(--arcade-gap-small);
+}
+
+.opening {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+/* --- The story ---------------------------------------------------------------------------------------------- */
+
+.story {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.newChat {
+  flex: none;
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 8px;
+}
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 24px 24px;
+}
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.mark {
+  font-family: var(--arcade-display);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.line[data-tone="you"] .mark { color: var(--arcade-ac); }
+.line[data-tone="auto"] .mark { color: var(--arcade-tx2); }
+.line[data-tone="event"] .mark { color: var(--arcade-mp); }
+.line[data-tone="notice"] .mark { color: var(--arcade-qs); }
+.line[data-tone="failed"] .mark { color: var(--arcade-hp); }
+
+.lineText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--arcade-body);
+  font-size: 21px;
+  line-height: 1.35;
+  color: var(--arcade-tx);
+}
+
+.line[data-tone="event"] .lineText,
+.line[data-tone="notice"] .lineText {
+  font-size: 18px;
+  color: var(--arcade-tx2);
+}
+
+.plain {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.eventLink {
+  color: var(--arcade-tx);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.eventLink:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+/*
+ * The host's Markdown sets a small size on its own box (12.5 px compact); a reply takes the size of the line it sits in
+ * instead (21 px in the story, 25 px in the dialogue box, 17 px on the handheld), as the design sets running text. Only
+ * this class is named, never an element inside the host's Markdown.
+ */
+.markdown {
+  min-width: 0;
+  font-family: var(--arcade-body);
+  font-size: inherit;
+  line-height: inherit;
+  overflow-wrap: anywhere;
+}
+
+.markdown p,
+.markdown ul,
+.markdown ol {
+  margin: 0 0 0.5em;
+}
+
+.markdown a {
+  color: var(--arcade-ac);
+}
+
+.markdown code,
+.markdown pre {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75em;
+}
+
+.item {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(460px, calc(100% - 96px));
+  margin: 10px 6px 6px 84px;
+  padding: 16px 18px;
+}
+
+.itemText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.itemLabel {
+  color: var(--arcade-xp);
+}
+
+.itemTitle {
+  font-size: 24px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.itemMeta {
+  font-size: 17px;
+  color: var(--arcade-tx2);
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 0 84px;
+}
+
+.choiceHead[data-waiting="true"] {
+  color: var(--arcade-qs);
+}
+
+.cardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 84px;
+}
+
+.hostCard {
+  max-width: 560px;
+}
+
+.turnEnd {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.chat[data-layout="phone"] .line {
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+.chat[data-layout="phone"] .lineText {
+  font-size: 17px;
+}
+
+.chat[data-layout="phone"] .item,
+.chat[data-layout="phone"] .choice,
+.chat[data-layout="phone"] .cardStack {
+  width: auto;
+  margin-left: 4px;
+}
+
+.chat[data-layout="phone"] .scroller {
+  padding: 8px 12px 12px;
+}

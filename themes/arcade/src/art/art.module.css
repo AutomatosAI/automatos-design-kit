@@ -1,0 +1,86 @@
+/*
+ * Arcade's pixel art: every rect is filled from the look by its colour key (pixel-art.tsx), so the art takes each
+ * palette's colours. Sizes are whole multiples of the art's pixels at the look's pixel scale (--arcade-px, 2 or 3),
+ * so a pixel never blurs: Auto's 32 pixels at 1, 2 or 4 times the scale, a party robot's 16 at the scale, an item
+ * icon's 12 at the scale plus one.
+ */
+
+.art {
+  display: block;
+  flex: none;
+  shape-rendering: crispEdges;
+  image-rendering: pixelated;
+}
+
+.sprite {
+  display: inline-flex;
+  flex: none;
+}
+
+.art[data-art="auto"] rect[data-k="o"] { fill: var(--arcade-sp-o); }
+.art[data-art="auto"] rect[data-k="s"] { fill: var(--arcade-sp-s); }
+.art[data-art="auto"] rect[data-k="h"] { fill: var(--arcade-sp-h); }
+.art[data-art="auto"] rect[data-k="d"] { fill: var(--arcade-sp-d); }
+.art[data-art="auto"] rect[data-k="v"] { fill: var(--arcade-sp-v); }
+.art[data-art="auto"] rect[data-k="v2"] { fill: var(--arcade-sp-v2); }
+.art[data-art="auto"] rect[data-k="e"] { fill: var(--arcade-sp-e); }
+.art[data-art="auto"] rect[data-k="e2"] { fill: var(--arcade-sp-e2); }
+.art[data-art="auto"] rect[data-k="c"] { fill: var(--arcade-sp-c); }
+.art[data-art="auto"] rect[data-k="c2"] { fill: var(--arcade-sp-c2); }
+.art[data-art="auto"] rect[data-k="w"] { fill: var(--arcade-sp-w); }
+.art[data-art="auto"] rect[data-k="k"] { fill: var(--arcade-sp-k); }
+.art[data-art="auto"] rect[data-k="b"] { fill: var(--arcade-sp-b); }
+.art[data-art="auto"] rect[data-k="q"] { fill: var(--arcade-sp-q); }
+.art[data-art="auto"] rect[data-k="g"] { fill: var(--arcade-sp-g); }
+
+.art[data-art="icon"] rect[data-k="o"] { fill: var(--arcade-ic-o); }
+.art[data-art="icon"] rect[data-k="paper"] { fill: var(--arcade-ic-paper); }
+.art[data-art="icon"] rect[data-k="shade"] { fill: var(--arcade-ic-shade); }
+.art[data-art="icon"] rect[data-k="line"] { fill: var(--arcade-ic-line); }
+.art[data-art="icon"] rect[data-k="blue"] { fill: var(--arcade-ic-blue); }
+.art[data-art="icon"] rect[data-k="red"] { fill: var(--arcade-ic-red); }
+.art[data-art="icon"] rect[data-k="gold"] { fill: var(--arcade-ic-gold); }
+.art[data-art="icon"] rect[data-k="green"] { fill: var(--arcade-ic-green); }
+
+.art[data-art="agent"] rect[data-k="o"] { fill: var(--arcade-sp-o); }
+.art[data-art="agent"] rect[data-k="v"] { fill: var(--arcade-sp-v); }
+.art[data-art="agent"] rect[data-k="e"] { fill: var(--arcade-sp-e); }
+.art[data-art="agent"] rect[data-k="crest"] { fill: var(--arcade-sp-c); }
+.art[data-agent="1"] rect[data-k="body"] { fill: var(--arcade-ag1); }
+.art[data-agent="1"] rect[data-k="shade"] { fill: var(--arcade-ag1-d); }
+.art[data-agent="2"] rect[data-k="body"] { fill: var(--arcade-ag2); }
+.art[data-agent="2"] rect[data-k="shade"] { fill: var(--arcade-ag2-d); }
+.art[data-agent="3"] rect[data-k="body"] { fill: var(--arcade-ag3); }
+.art[data-agent="3"] rect[data-k="shade"] { fill: var(--arcade-ag3-d); }
+.art[data-agent="4"] rect[data-k="body"] { fill: var(--arcade-ag4); }
+.art[data-agent="4"] rect[data-k="shade"] { fill: var(--arcade-ag4-d); }
+
+.art[data-art="map"] rect[data-k="g1"] { fill: var(--arcade-map-g1); }
+.art[data-art="map"] rect[data-k="g2"] { fill: var(--arcade-map-g2); }
+.art[data-art="map"] rect[data-k="t1"] { fill: var(--arcade-map-t1); }
+.art[data-art="map"] rect[data-k="t2"] { fill: var(--arcade-map-t2); }
+.art[data-art="map"] rect[data-k="w1"] { fill: var(--arcade-map-w1); }
+.art[data-art="map"] rect[data-k="w2"] { fill: var(--arcade-map-w2); }
+.art[data-art="map"] rect[data-k="p1"] { fill: var(--arcade-map-p1); }
+.art[data-art="map"] rect[data-k="p2"] { fill: var(--arcade-map-p2); }
+.art[data-art="map"] rect[data-k="r1"] { fill: var(--arcade-map-r1); }
+.art[data-art="map"] rect[data-k="r2"] { fill: var(--arcade-map-r2); }
+.art[data-art="map"] rect[data-k="sn"] { fill: var(--arcade-map-sn); }
+.art[data-art="map"] rect[data-k="roof"] { fill: var(--arcade-map-roof); }
+.art[data-art="map"] rect[data-k="wall"] { fill: var(--arcade-map-wall); }
+
+/* Auto: 32 pixels. */
+.art[data-size="still"] { width: 32px; height: 32px; }
+.art[data-size="mark"] { width: 40px; height: 40px; }
+.art[data-size="phone"] { width: 64px; height: 64px; }
+.art[data-size="small"] { width: calc(32px * var(--arcade-px)); height: calc(32px * var(--arcade-px)); }
+.art[data-size="large"],
+.art[data-size="portrait"] { width: calc(64px * var(--arcade-px)); height: calc(64px * var(--arcade-px)); }
+
+/* A party robot: 16 pixels. */
+.art[data-size="agent"] { width: calc(16px * var(--arcade-px)); height: calc(16px * var(--arcade-px)); }
+.art[data-size="agent-small"] { width: 32px; height: 32px; }
+
+/* An item icon: 12 pixels. */
+.art[data-size="icon"] { width: calc(12px * (var(--arcade-px) + 1)); height: calc(12px * (var(--arcade-px) + 1)); }
+.art[data-size="icon-small"] { width: 36px; height: 36px; }
