@@ -51,9 +51,9 @@ core wins and the kit is fixed.
   tones, the chat's events and the Pause Auto control).
 - `themes/*`: theme packages. A theme bundles its own `src/` and the `src/` of each kit library it names, at the
   library's version, under `dependencies` in its `package.json` (Play and HUD both name `@automatos/look-kit` and
-  `@automatos/mascot`; Arcade names `@automatos/mascot` alone). The preset's source guard refuses anything else,
-  `node_modules` included, so an outside library it needs is copied into `src/vendor/` as source with its licence,
-  at the version core pins.
+  `@automatos/mascot`; Arcade and Candy name `@automatos/mascot` alone). The preset's source guard refuses anything
+  else, `node_modules` included, so an outside library it needs is copied into `src/vendor/` as source with its
+  licence, at the version core pins.
 - `themes/play`: Play, copied from core at one pinned commit (`docs/PLAY-HISTORY.md` names it and the lines changed;
   Play's README points there). Core's PRD-261 A-19 merge removed builtin Play from core, so Play lives only in this
   kit and a Play change is made here alone. Play's `CHANGELOG.md` lists what each version changed.
@@ -67,9 +67,16 @@ core wins and the kit is fixed.
   a 16-bit role-playing game, agents as a party, Auto as the guide in the dialogue box, Deliverables in an inventory,
   Missions as quests on a map. Its look data (`looks/`, `boot/prepaint.json` and `design/contrast.json`) is
   committed, made from its catalogue (`src/looks/catalogue.ts`) and held to it by its own tests
-  (`ARCADE_WRITE=1`), not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first. All
-  three themes, and every theme under `themes/`, are published the same way: a merge to `main` that raises a theme's
-  version lists, signs and releases it as `<slug>-v<version>` (`theme-publish.yml`, `docs/OFFICIAL-LISTING.md`).
+  (`ARCADE_WRITE=1`), not by `scripts/compile-looks.mjs`; its `pack` runs `automatos-theme check design` first.
+- `themes/candy`: Candy (`automatos/candy`), the kit's fourth theme, built here with the kit from a Claude Design
+  handoff on the minimal template, as Arcade was: Automatos bright, soft and glossy, every card its own gradient (pink,
+  violet, blue), big round corners and round icons, today's numbers in a candy orb, and Auto in a glossy shell drawn
+  in code. Its look data (`looks/`, `boot/prepaint.json` and `design/contrast.json`) and Auto's phone stills
+  (`assets/mascot/*.png`) are committed, made from its code (`src/looks/catalogue.ts`, `src/art/auto-geometry.ts`) and
+  held to it by its own tests (`CANDY_WRITE=1`), not by `scripts/compile-looks.mjs`; like Arcade it bundles
+  `@automatos/mascot` alone, and its `pack` runs `automatos-theme check design` first. All four themes, and every
+  theme under `themes/`, are published the same way: a merge to `main` that raises a theme's version lists, signs and
+  releases it as `<slug>-v<version>` (`theme-publish.yml`, `docs/OFFICIAL-LISTING.md`).
 - `scripts/compile-looks.mjs`: Play's look data (`looks/`, and `boot/prepaint.json` with the glow rule and the tone
   rule, each ground's tone from `lib/looks/tone.ts`) from its catalogue and presets, run by Play's `build` before
   `vite build`; the files are generated, not committed.
@@ -107,16 +114,16 @@ core wins and the kit is fixed.
 `themes/`, once `<slug>-v<version>` is tagged, a change to anything the kit's pack collects for it — `theme.json`, its
 top docs (`README.md`, `CHANGELOG.md`, every `LICENSE` spelling), `dist/`, `boot/`, `looks/`, `assets/` and `src/`,
 and the `src/` of each kit library its `package.json` names (Play's and HUD's: `packages/look-kit/src/` and
-`packages/mascot/src/`; Arcade's: `packages/mascot/src/` alone, not `packages/look-kit/src/`) — fails until the
-version moves on; each theme is checked against its own tags only (`scripts/release/themes.mjs` holds the paths and
-the tag rule).
+`packages/mascot/src/`; Arcade's and Candy's: `packages/mascot/src/` alone, not `packages/look-kit/src/`) — fails
+until the version moves on; each theme is checked against its own tags only (`scripts/release/themes.mjs` holds the
+paths and the tag rule).
 It then installs and runs the root scripts `build`, `lint`, `typecheck`, `test` and `pack`. Each one runs
 the same script in every workspace that defines it, `packages/*` before `themes/*`.
 
 - A workspace with `*.test.ts` files defines `test` (vitest); one with a `tsconfig.json` defines `typecheck`.
 - A theme defines `lint`: eslint over its `src/` with `@automatos/eslint-plugin`'s recommended config (its
-  `eslint.config.js`), so a pattern the Marketplace review would report fails CI first. Play's, HUD's and Arcade's
-  fail on a warning too (`--max-warnings 0`).
+  `eslint.config.js`), so a pattern the Marketplace review would report fails CI first. Play's, HUD's, Arcade's and
+  Candy's fail on a warning too (`--max-warnings 0`).
 - A theme that produces a package defines `pack`; CI uploads every `*.autotheme*` it writes.
 - `tests/` at the root checks this contract (workspaces, exact pins, the workflows) and the release, review,
   sign and proof scripts under `scripts/`. It also runs `automatos-theme new` on each template, `full` with and

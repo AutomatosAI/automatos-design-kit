@@ -3,8 +3,8 @@
 // install runs in `docker run --network none`. theme-sign.yml is retired: the publish run signs what a merge to
 // main built (theme-publish.yml; tests/theme-publish.test.ts), and only its Sign step reads THEME_SIGNING_KEY.
 // Nothing is run here. C-05m adds the verify script; no private key is
-// committed anywhere. C-06a's theme-release.yml, which releases Play, HUD and Arcade from their tags, has its
-// own file, tests/theme-release.test.ts; the listing run (docs/OFFICIAL-LISTING.md) stays here. The
+// committed anywhere. C-06a's theme-release.yml, which releases Play, HUD, Arcade and Candy from their tags, has
+// its own file, tests/theme-release.test.ts; the listing run (docs/OFFICIAL-LISTING.md) stays here. The
 // workflow-reading helpers are tests/support/workflow-steps.ts. PRD-261 B-02j: after the review, and only
 // once it has passed, theme-review.yml runs a report-only axe pass outside the container; every step up to
 // the review still runs in it, and the axe pass's steps can't change the job's result.
@@ -248,6 +248,15 @@ describe("docs/OFFICIAL-LISTING.md, how a merge lists a theme", () => {
     expect(doc).toMatch(/Push no\s+`arcade-v\*` tag by hand/);
     expect(doc).not.toMatch(/`--ref arcade-v<v>`|`tag` set to `arcade-v<v>`|themes\/arcade\/signatures\//);
     ["## Install Arcade", "`arcade-v<version>`", "`automatos.arcade-<version>.autotheme`"]
+      .forEach((part) => expect(readText("README.md")).toContain(part));
+  });
+
+  it("says Candy is published the same way, its first version by the first publish run, with its own tag and assets", () => {
+    ["**Candy**", "`automatos/candy`", "`themes/candy`", "`candy-v1.0.0`", "`automatos.candy-1.0.0.autotheme`",
+      "`1.0.0.sig.json`"].forEach((part) => expect(doc).toContain(part));
+    expect(doc).toMatch(/Push no\s+`candy-v\*` tag by hand/);
+    expect(doc).not.toMatch(/`--ref candy-v<v>`|`tag` set to `candy-v<v>`|themes\/candy\/signatures\//);
+    ["## Install Candy", "`candy-v<version>`", "`automatos.candy-<version>.autotheme`"]
       .forEach((part) => expect(readText("README.md")).toContain(part));
   });
 });

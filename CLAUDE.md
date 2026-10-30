@@ -27,6 +27,12 @@ working notes on top of it for a Claude Code session; where the two differ, `AGE
   committed and held to its catalogue by its own tests (`ARCADE_WRITE=1`), the same way as HUD's; unlike Play and
   HUD it bundles `@automatos/mascot` alone, not `@automatos/look-kit`. It is published the same way: a merge that
   raises its version releases `arcade-v<version>` (its first, 1.0.0, is the first publish run's).
+- `themes/candy`: Candy (`automatos/candy`), the kit's fourth theme, built here with the kit from a Claude Design
+  handoff on the minimal template, as Arcade was: bright, soft and glossy, with today's numbers in a candy orb and Auto
+  in a glossy shell drawn in code. Its look data (`looks/`, `boot/prepaint.json`, `design/contrast.json`) and Auto's
+  phone stills (`assets/mascot/*.png`) are committed and held to its code by its own tests (`CANDY_WRITE=1`); like
+  Arcade it bundles `@automatos/mascot` alone, not `@automatos/look-kit`. It is published the same way: a merge that
+  raises its version releases `candy-v<version>` (its first, 1.0.0, is the first publish run's).
 
 ## Stack
 
@@ -36,7 +42,7 @@ the kit's own Vite build preset. `tsconfig.base.json` holds the shared compiler 
 
 ## Traps
 
-- Changing the kit itself (its packages, templates, guides, workflows, Play, HUD or Arcade): nothing runs on the
+- Changing the kit itself (its packages, templates, guides, workflows, Play, HUD, Arcade or Candy): nothing runs on the
   maintainer's machine; CI (`.github/workflows/kit.yml`) is the only test. Building a theme of your own with the kit
   is different: run its commands locally (`AGENTS.md`, "Building a theme with the kit").
 - A theme's build may read only its own `src/` and the `src/` of the kit libraries it names under

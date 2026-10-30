@@ -12,11 +12,16 @@ folder under `themes/`, `<publisher>` the part of its `theme.json` id before the
   active key of the Automatos keys file. Every publisher the run publishes for is signed the same way; only
   `automatos` themes read as Official.
 
-Play, HUD and **Arcade** (`automatos/arcade`, `themes/arcade`) are all published this way. Arcade has no `arcade-v*`
-tag yet, so the first `theme-publish.yml` run on `main` picks its version, 1.0.0: it reviews, signs and lists it, and
-releases `arcade-v1.0.0` with `automatos.arcade-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Push no
-`arcade-v*` tag by hand for it: `theme-release.yml` would release it unlisted and unsigned, and it would then need a
-backfill (below).
+Play, HUD, **Arcade** (`automatos/arcade`, `themes/arcade`) and **Candy** (`automatos/candy`, `themes/candy`) are all
+published this way. Arcade has no `arcade-v*` tag yet, so the first `theme-publish.yml` run on `main` picks its
+version, 1.0.0: it reviews, signs and lists it, and releases `arcade-v1.0.0` with `automatos.arcade-1.0.0.autotheme`,
+its `.sha256` and `1.0.0.sig.json`. Push no `arcade-v*` tag by hand for it: `theme-release.yml` would release it
+unlisted and unsigned, and it would then need a backfill (below).
+
+Candy is released by the merge that raises its version the same way. It has no `candy-v*` tag yet, so the first
+`theme-publish.yml` run on `main` that sees `automatos/candy` 1.0.0 reviews, signs and lists it, and releases
+`candy-v1.0.0` with `automatos.candy-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Push no
+`candy-v*` tag by hand for it either: it would be released unlisted and unsigned, and would then need a backfill.
 
 ## The workflows
 
