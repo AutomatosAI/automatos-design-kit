@@ -1,4 +1,4 @@
-// automatos/play and automatos/hud are Automatos Go's own built-in layouts (the app's follow.ts BUILT_IN_THEME_STYLES),
+// automatos/play, automatos/hud and automatos/arcade are Automatos Go's own built-in layouts (the app's follow.ts BUILT_IN_THEME_STYLES),
 // painted from the member's looks, reading none of the theme's mobile block. That layout is part of the app, so the
 // phone view says so in the phone and beside it, draws no part of the Studio layout, no token panel and no theme host
 // (Automatos Go runs no theme code), and still measures the block. That holds whatever the theme's own minWidth: each
@@ -13,7 +13,7 @@ import { builtInScreenText } from '../app/phone/built-in.tsx'
 import { host } from '../src/host.ts'
 import { PHONE_VIEWPORT, SHOT_WIDTHS, STAGE_ID } from '../src/host/router.ts'
 import { builtInStyleOf, type BuiltInStyle } from '../src/phone/skin.ts'
-import { HUD_DIR, PLAY_DIR, readFolder, renderPhone, servedTheme, type Json } from './phone-support.tsx'
+import { ARCADE_DIR, HUD_DIR, PLAY_DIR, readFolder, renderPhone, servedTheme, type Json } from './phone-support.tsx'
 
 function Frame({ children }: { readonly children?: ReactNode }) {
   return <div data-testid="theme-frame">{children}</div>
@@ -27,6 +27,7 @@ const entry = (): Promise<unknown> => Promise.resolve({
 const BUILT_IN: [string, string, BuiltInStyle, string][] = [
   ['automatos/play', PLAY_DIR, 'play', 'Play'],
   ['automatos/hud', HUD_DIR, 'hud', 'HUD'],
+  ['automatos/arcade', ARCADE_DIR, 'arcade', 'Arcade'],
 ]
 /** The minWidths each theme is drawn with besides its own: a phone's width, and the narrower desktop width. */
 const MIN_WIDTHS: number[] = [PHONE_VIEWPORT.width, SHOT_WIDTHS[1]]
@@ -74,8 +75,10 @@ describe.each(BUILT_IN)('%s', (id, dir, style, name) => {
 })
 
 describe('the built-in layouts', () => {
-  it('are Play and HUD alone', () => {
-    expect([builtInStyleOf('automatos/play'), builtInStyleOf('automatos/hud'), builtInStyleOf('example/skin'), builtInStyleOf(7)])
-      .toEqual(['play', 'hud', null, null])
+  it('are Play, HUD and Arcade alone', () => {
+    expect([
+      builtInStyleOf('automatos/play'), builtInStyleOf('automatos/hud'), builtInStyleOf('automatos/arcade'),
+      builtInStyleOf('example/skin'), builtInStyleOf(7),
+    ]).toEqual(['play', 'hud', 'arcade', null, null])
   })
 })
