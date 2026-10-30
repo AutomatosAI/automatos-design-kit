@@ -1,47 +1,33 @@
 name: Theme release
 
-# PRD-261 C-06a (PB-6): a kit theme as a GitHub release, Play from a play-v tag and HUD from a hud-v tag. A local
-# or open-source edition installs a theme from its release asset; the hosted edition gets Play from its
-# Marketplace listing (Q7), and HUD by the same steps. Both jobs build as kit.yml does (its Node and npm pins,
-# the lockfile, the root build), with install scripts off, then pack the one theme the tag names. The listing
-# run around a release: docs/OFFICIAL-LISTING.md.
+# PRD-261 C-06a (PB-6): a kit theme as a GitHub release, from a tag a person pushes. A merge that raises a theme's
+# version is released by theme-publish.yml, which also lists it on the hosted Marketplace and signs it, and makes
+# the tag itself (a tag made with the run's token starts no workflow, so that release never runs this one). This
+# workflow is for a tag pushed by hand: it builds as kit.yml does (its Node and npm pins, the lockfile, the root
+# build), with install scripts off, packs the one theme the tag names and releases it, unlisted and unsigned. A
+# backfill (theme-publish.yml run by hand with the tag) lists and signs it later and adds its .sig.json to this
+# release. The flow around a release: docs/OFFICIAL-LISTING.md.
 #
-# The theme: a tag <theme>-v<major>.<minor>.<patch> names the folder themes/<theme>, whose theme.json id is
-# automatos/<theme>. TAG_PATTERN and the tags below list the themes released here, play and hud. "Name the
-# theme" makes the rest from the tag's theme alone, in both jobs alike: the folder, the folder its pack script
-# writes (--out out), the package's name (automatos.<theme>, the id with its slash as a dot, as pack names it)
-# and its signatures folder. The release's title is theme.json's name and the version.
+# The theme: a tag <slug>-v<major>.<minor>.<patch> (TAG_PATTERN, the tag rule scripts/release/themes.mjs holds)
+# names the folder themes/<slug>. scripts/release/bumped.mjs --tag checks it as theme-publish.yml's backfill does:
+# the tag is on main, and theme.json's id is <publisher>/<slug>, with the publisher release/publishers.json lists,
+# at the tag's version. "Name the theme" makes the folder, the folder its pack script writes (--out out) and its
+# signatures folder from the tag's slug; the package's name (<publisher>.<slug>, the id with its slash as a dot, as
+# pack names it) comes from the check. The release's title is theme.json's name and the version.
 #
-# release: a pushed tag <theme>-v<major>.<minor>.<patch> whose commit is on main and which names the theme's
-# theme.json version. The release holds automatos.<theme>-<v>.autotheme and its .sha256, checked against the
-# zip sha256 pack records in its own summary (.sha256.json). If the tagged commit already holds
-# themes/<theme>/signatures/<v>.sig.json, scripts/sign/verify.ts checks it against the package just built and
-# the release carries it too.
-#
-# signature: a version is signed only after its release asset was reviewed, so its envelope is committed
-# later, as themes/<theme>/signatures/<v>.sig.json, by a pull request to main. That push, or a run by hand on
-# main with the tag, takes the envelope and keys/theme-signing.json from the triggering commit, checks out the
-# TAGGED commit (never main's head), builds and packs it, runs verify.ts against that build and uploads the
-# envelope to the tag's release with --clobber. A mismatch fails the run: the release asset has to rebuild to
-# the signed bytes on another runner. The keys come from the triggering commit, so a key published after the
-# tag counts and a revoked one stops counting.
+# The release holds <publisher>.<slug>-<v>.autotheme and its .sha256, checked against the zip sha256 pack records
+# in its own summary (.sha256.json). If the tagged commit holds themes/<slug>/signatures/<v>.sig.json,
+# scripts/sign/verify.ts checks it against the package just built and the release carries it too.
 #
 # keys/theme-signing.json holds Automatos's theme-signing key. If it holds no active key, no signature can
-# verify: a run with one to check stops with that reason and attaches nothing. No secrets: each job uses its own token, with contents: write
-# for the release and nothing else. GitHub does not evaluate path filters for tag pushes, so every play-v* and
-# hud-v* tag runs the release job, and a push to main runs this workflow only when it changes a signature.
+# verify: a run with one to check stops with that reason and attaches nothing. No secrets: the job uses its own
+# token, with contents: write for the release and nothing else. GitHub does not evaluate path filters for tag
+# pushes, so every tag that looks like <slug>-v<version> runs the job, and the job refuses one TAG_PATTERN doesn't
+# admit.
 
 on:
   push:
-    branches: [main]
-    tags: ["play-v*", "hud-v*"]
-    paths: ["themes/*/signatures/*.sig.json"]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "The released tag whose committed signature to attach: play-v<major>.<minor>.<patch> or hud-v<major>.<minor>.<patch>"
-        required: true
-        type: string
+    tags: ["*-v*"]
 
 permissions: {}
 
@@ -53,7 +39,7 @@ env:
   # Each theme's committed signatures, in this folder of its own, which pack never packs.
   SIGNATURES_FOLDER: signatures
   KEYS_FILE: keys/theme-signing.json
-  TAG_PATTERN: '^(play|hud)-v[0-9]+\.[0-9]+\.[0-9]+$'
+  TAG_PATTERN: '^([a-z0-9-]+)-v[0-9]+\.[0-9]+\.[0-9]+$'
 
 jobs:
   release:
@@ -87,40 +73,32 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           if ! [[ "$TAG" =~ $TAG_PATTERN ]]; then
-            echo "::error::A release tag is <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud)"; exit 1
+            echo "::error::A release tag is <slug>-v<major>.<minor>.<patch>: lower-case letters, digits and hyphens, then -v and the version"; exit 1
           fi
           echo "TAG=$TAG" >> "$GITHUB_ENV"
-          echo "VERSION=${TAG#*-v}" >> "$GITHUB_ENV"
+          echo "VERSION=${TAG##*-v}" >> "$GITHUB_ENV"
 
-      # The same in both jobs: everything else from the tag's theme.
+      # Everything else from the tag's slug: the version is what follows its last -v, the slug what comes before.
       - name: Name the theme
         shell: bash
         run: |
-          theme="${TAG%%-v*}"
+          theme="${TAG%-v*}"
           dir="$THEMES_DIR/$theme"
           {
             echo "THEME=$theme"
             echo "THEME_DIR=$dir"
             echo "PACK_DIR=$dir/$PACK_FOLDER"
-            echo "PACKAGE_NAME=automatos.$theme"
             echo "SIGNATURES_DIR=$dir/$SIGNATURES_FOLDER"
           } >> "$GITHUB_ENV"
 
-      # The same in both jobs: the tagged commit's theme is the tag's, on main, at the tag's version.
+      # The tag rule, as a backfill's tag is held to it (scripts/release/bumped.mjs --tag): the tagged commit is on
+      # main, and its themes/<slug>/theme.json is a listed publisher's <publisher>/<slug> at the tag's version. Its
+      # package's name is the id with its slash as a dot.
       - name: Check the theme at the tag
         shell: bash
         run: |
-          field() { node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[process.argv[2]]' "$THEME_DIR/theme.json" "$1"; }
-          if [ "$(field id)" != "automatos/$THEME" ]; then
-            echo "::error::$THEME_DIR/theme.json's id is not automatos/$THEME, so $TAG can't release it"; exit 1
-          fi
-          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
-            echo "::error::$TAG is not on main: $(field name) is released from main only"; exit 1
-          fi
-          version=$(field version)
-          if [ "$version" != "$VERSION" ]; then
-            echo "::error::$TAG does not name the version in $THEME_DIR/theme.json ($version)"; exit 1
-          fi
+          node scripts/release/bumped.mjs --tag "$TAG" > "$RUNNER_TEMP/theme.json"
+          echo "PACKAGE_NAME=$(node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[0].packageName' "$RUNNER_TEMP/theme.json")" >> "$GITHUB_ENV"
 
       # The kit's own dependencies, exactly as package-lock.json records them, with no install scripts.
       - name: Install (from the lockfile)
@@ -157,7 +135,7 @@ jobs:
             echo "SIGNATURE=$sig" >> "$GITHUB_ENV"
             echo "KEYS=$KEYS_FILE" >> "$GITHUB_ENV"
           else
-            echo "::notice::No $sig at the tag: the release goes out unsigned, and the signature job attaches the envelope once it is committed to main"
+            echo "::notice::No $sig at the tag: the release goes out unsigned; theme-publish.yml run by hand with this tag lists it, signs it and adds its .sig.json"
           fi
 
       - name: Check a signing key is published
@@ -167,7 +145,7 @@ jobs:
           active=$(node -p 'const held = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).keys; Array.isArray(held) ? held.filter((key) => key !== null && key.status === "active").length : 0' "$KEYS" 2> /dev/null) || {
             echo "::error::$KEYS_FILE can't be read as a keys file, so no signature can be verified and none is attached"; exit 1; }
           if [ "$active" -eq 0 ]; then
-            echo "::error::No signing key yet: $KEYS_FILE holds no active key, so no signature can be verified and none is attached. Publish the production key's public half there first (a pull request to main), then run this workflow on main with this tag."
+            echo "::error::No signing key yet: $KEYS_FILE holds no active key, so no signature can be verified and none is attached. Publish the production key's public half there first (a pull request to main)."
             exit 1
           fi
           echo "$KEYS_FILE holds $active active signing key(s)."
@@ -192,154 +170,3 @@ jobs:
           previews="$(node scripts/release/preview-notes.ts "$THEME_DIR" "$TAG" "$GH_REPO")"
           if [ -n "$previews" ]; then notes="$notes"$'\n\n'"$previews"; fi
           gh release create "$TAG" "${assets[@]}" --verify-tag --title "$title" --notes "$notes"
-
-  signature:
-    name: Attach a committed signature to its release
-    # Main's own files only: a run by hand on another branch could bring its own keys file.
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: write
-    steps:
-      # The triggering commit, with all history and tags: its envelope and keys, and the tag to build.
-      - name: Check out the triggering commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Set up Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "22"
-          package-manager-cache: false
-
-      # Same npm pin as kit.yml (npm/cli#9787).
-      - name: Pin npm
-        run: npm install -g npm@11.21.1
-
-      # The input reaches the shell through env only. On a push, the tag comes from the one signature the push
-      # added or changed: themes/<theme>/signatures/<v>.sig.json names <theme>-v<v>.
-      - name: Find the tag
-        shell: bash
-        env:
-          TAG_INPUT: ${{ inputs.tag }}
-          BEFORE: ${{ github.event.before }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
-            tag="$TAG_INPUT"
-          else
-            changed=$(git diff --no-renames --name-only --diff-filter=AM "$BEFORE" HEAD -- ":(glob)$THEMES_DIR/*/$SIGNATURES_FOLDER/*.sig.json") || {
-              echo "::error::Can't list the signatures this push changed"; exit 1; }
-            if [ -z "$changed" ] || [ "$(printf '%s\n' "$changed" | wc -l)" -ne 1 ]; then
-              echo "::error::A push attaches exactly one added or changed $THEMES_DIR/<theme>/$SIGNATURES_FOLDER/<version>.sig.json; attach any other with Run workflow on main and its tag"; exit 1
-            fi
-            theme=$(basename "$(dirname "$(dirname "$changed")")")
-            name=$(basename "$changed")
-            tag="$theme-v${name%.sig.json}"
-          fi
-          if ! [[ "$tag" =~ $TAG_PATTERN ]]; then
-            echo "::error::The tag must be <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud)"; exit 1
-          fi
-          if ! git rev-parse --quiet --verify "refs/tags/$tag^{commit}" > /dev/null; then
-            echo "::error::There is no tag $tag: release that version first"; exit 1
-          fi
-          echo "TAG=$tag" >> "$GITHUB_ENV"
-          echo "VERSION=${tag#*-v}" >> "$GITHUB_ENV"
-
-      # The same in both jobs: everything else from the tag's theme.
-      - name: Name the theme
-        shell: bash
-        run: |
-          theme="${TAG%%-v*}"
-          dir="$THEMES_DIR/$theme"
-          {
-            echo "THEME=$theme"
-            echo "THEME_DIR=$dir"
-            echo "PACK_DIR=$dir/$PACK_FOLDER"
-            echo "PACKAGE_NAME=automatos.$theme"
-            echo "SIGNATURES_DIR=$dir/$SIGNATURES_FOLDER"
-          } >> "$GITHUB_ENV"
-
-      # Kept before the checkout below replaces the working tree with the tagged commit.
-      - name: Keep the envelope and the keys
-        shell: bash
-        run: |
-          sig="$SIGNATURES_DIR/$VERSION.sig.json"
-          if [ ! -f "$sig" ]; then
-            echo "::error::$sig is not in this commit: commit the envelope the Theme sign run printed, then run again"; exit 1
-          fi
-          kept="$RUNNER_TEMP/signature"
-          mkdir -p "$kept"
-          cp "$sig" "$kept/$VERSION.sig.json"
-          cp "$KEYS_FILE" "$kept/theme-signing.json"
-          echo "SIGNATURE=$kept/$VERSION.sig.json" >> "$GITHUB_ENV"
-          echo "KEYS=$kept/theme-signing.json" >> "$GITHUB_ENV"
-
-      - name: Check a signing key is published
-        shell: bash
-        run: |
-          active=$(node -p 'const held = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).keys; Array.isArray(held) ? held.filter((key) => key !== null && key.status === "active").length : 0' "$KEYS" 2> /dev/null) || {
-            echo "::error::$KEYS_FILE can't be read as a keys file, so no signature can be verified and none is attached"; exit 1; }
-          if [ "$active" -eq 0 ]; then
-            echo "::error::No signing key yet: $KEYS_FILE holds no active key, so no signature can be verified and none is attached. Publish the production key's public half there first (a pull request to main), then run this workflow on main with this tag."
-            exit 1
-          fi
-          echo "$KEYS_FILE holds $active active signing key(s)."
-
-      # The release is rebuilt from its tag, never from main's head.
-      - name: Check out the tagged commit
-        shell: bash
-        run: git checkout --quiet --detach "refs/tags/$TAG"
-
-      # The same in both jobs: the tagged commit's theme is the tag's, on main, at the tag's version.
-      - name: Check the theme at the tag
-        shell: bash
-        run: |
-          field() { node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[process.argv[2]]' "$THEME_DIR/theme.json" "$1"; }
-          if [ "$(field id)" != "automatos/$THEME" ]; then
-            echo "::error::$THEME_DIR/theme.json's id is not automatos/$THEME, so $TAG can't release it"; exit 1
-          fi
-          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
-            echo "::error::$TAG is not on main: $(field name) is released from main only"; exit 1
-          fi
-          version=$(field version)
-          if [ "$version" != "$VERSION" ]; then
-            echo "::error::$TAG does not name the version in $THEME_DIR/theme.json ($version)"; exit 1
-          fi
-
-      # The kit's own dependencies, exactly as package-lock.json records them, with no install scripts.
-      - name: Install (from the lockfile)
-        run: npm ci --ignore-scripts --no-audit --no-fund
-
-      - name: Build
-        run: npm run build
-
-      - name: Pack the theme
-        run: npm run pack --workspace "$THEME_DIR"
-
-      # The .sha256 file, held to the zip sha256 pack recorded in its summary.
-      - name: Checksum
-        shell: bash
-        run: |
-          base="$PACKAGE_NAME-$VERSION"
-          cd "$PACK_DIR"
-          summary() { node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[process.argv[2]]' "$base.sha256.json" "$1"; }
-          sha256sum "$base.autotheme" > "$base.autotheme.sha256"
-          actual=$(cut -d ' ' -f 1 "$base.autotheme.sha256")
-          if [ "$actual" != "$(summary zipSha256)" ]; then
-            echo "::error::$base.autotheme's sha256 differs from the one pack recorded in $base.sha256.json"; exit 1
-          fi
-          echo "PACKAGE_SHA256=$actual" >> "$GITHUB_ENV"
-          echo "PACKAGE_DIGEST=$(summary digest)" >> "$GITHUB_ENV"
-
-      # Fails on a mismatch: these must be the bytes that were reviewed and signed.
-      - name: Verify the signature
-        run: node scripts/sign/verify.ts "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$SIGNATURE" "$KEYS"
-
-      - name: Attach the signature
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh release upload "$TAG" "$SIGNATURE" --clobber

@@ -1,8 +1,8 @@
-// PRD-261 C-02b and C-03a (D3, 19 Oct): the two person-run workflows, read as files.
-// theme-review.yml holds no secret, its token has no permissions, and every step after the
-// install runs in `docker run --network none`. theme-sign.yml reads one secret,
-// THEME_SIGNING_KEY, in its signing step only, and installs nothing. Nothing is run here. C-05m
-// adds the verify script and the key id and envelope the sign step prints; no private key is
+// PRD-261 C-02b and C-03a (D3, 19 Oct): the person-run review workflow, read as a file, and where the signing key
+// may be named. theme-review.yml holds no secret, its token has no permissions, and every step after the
+// install runs in `docker run --network none`. theme-sign.yml is retired: the publish run signs what a merge to
+// main built (theme-publish.yml; tests/theme-publish.test.ts), and only its Sign step reads THEME_SIGNING_KEY.
+// Nothing is run here. C-05m adds the verify script; no private key is
 // committed anywhere. C-06a's theme-release.yml, which releases Play and HUD from their tags, has its
 // own file, tests/theme-release.test.ts; the listing run (docs/OFFICIAL-LISTING.md) stays here. The
 // workflow-reading helpers are tests/support/workflow-steps.ts.
@@ -13,17 +13,20 @@ import { ROOT, readText, section, stepsOf, trackedFiles, usesLines } from "./sup
 
 const WORKFLOWS = ".github/workflows";
 const REVIEW = `${WORKFLOWS}/theme-review.yml`;
-const SIGN = `${WORKFLOWS}/theme-sign.yml`;
+const PUBLISH = `${WORKFLOWS}/theme-publish.yml`;
 const LISTING = "docs/OFFICIAL-LISTING.md";
 const PINNED_ACTION = /@[0-9a-f]{40}(?:\s+#.*)?$/;
 const OTHER_TRIGGERS = /^ {2}(?:push|pull_request|pull_request_target|schedule|workflow_run|workflow_call|repository_dispatch|issue_comment):/m;
 const SIGNING_SECRET = "secrets.THEME_SIGNING_KEY";
 /** A PEM private key's armour label, built so that this file doesn't spell it out. */
 const PEM_PRIVATE_LABEL = ["PRIVATE", "KEY"].join(" ");
+/** What the publish job runs next to a key, with nothing installed: the sign scripts and what they import. */
 const SIGN_SCRIPTS = [
-  "scripts/sign/cli.ts", "scripts/sign/sign.ts", "scripts/sign/request.ts", "scripts/sign/envelope.ts",
-  "scripts/sign/verify.ts", "packages/theme-cli/src/digest.ts", "packages/theme-cli/src/zip.ts",
+  "scripts/sign/from-pack.ts", "scripts/sign/sign.ts", "scripts/sign/request.ts", "scripts/sign/envelope.ts",
+  "scripts/sign/verify.ts", "scripts/release/publish-answer.ts", "packages/theme-cli/src/digest.ts", "packages/theme-cli/src/zip.ts",
 ];
+/** The publish job's two keys, each the secret of one of its steps. */
+const PUBLISH_SECRETS = ["THEME_SIGNING_KEY", "THEME_PUBLISH_KEY"];
 
 /** True when `text` names a PEM private key anywhere but a comment line of a file under .github. */
 function namesPrivateKey(rel: string, text: string): boolean {
@@ -123,71 +126,17 @@ describe("theme-review.yml (C-02b)", () => {
   });
 });
 
-describe("theme-sign.yml (C-03a signing step)", () => {
-  const text = readText(SIGN);
-  const steps = stepsOf(text);
-
-  it("is run by a person with the signing request as input", () => {
-    expect(text).toMatch(/^on:\n {2}workflow_dispatch:\n {4}inputs:\n {6}request:\n/m);
-    expect(text).not.toMatch(OTHER_TRIGGERS);
-  });
-
-  it("gives its token no permissions", () => {
-    expect(text).toMatch(/^permissions: \{\}$/m);
-    expect(text.match(/^\s*permissions:/gm)).toHaveLength(1);
-  });
-
-  it("runs only on main, in the theme-signing environment that holds the key", () => {
-    expect(text).toMatch(/^ {4}if: github\.ref == 'refs\/heads\/main'$/m);
-    expect(text).toMatch(/^ {4}environment: theme-signing$/m);
-  });
-
-  it("documents that the theme-signing environment also needs required reviewers, either of whom may approve (QB-22)", () => {
-    expect(text).toMatch(/^# .*must ALSO have$/m);
-    expect(text).toMatch(/required reviewers/);
-    expect(text).toMatch(/Prevent self-review/);
-    expect([/either one may approve/.test(text), /second signer|two signers/i.test(text)]).toEqual([true, false]);
-  });
-
-  it("reads THEME_SIGNING_KEY and no other secret, once, in the signing step's env", () => {
-    expect(text.match(/\bsecrets\.[A-Za-z0-9_]+/g)).toEqual([SIGNING_SECRET]);
-    const holders = steps.filter((step) => step.body.includes(SIGNING_SECRET));
-    expect(holders.map((step) => step.name)).toEqual(["Sign"]);
-    expect(holders[0].body).toMatch(/\n\s+env:\n(?:\s+[A-Z_]+: .+\n)*\s+THEME_SIGNING_KEY: \$\{\{ secrets\.THEME_SIGNING_KEY \}\}\n/);
-    expect(holders[0].run).toBe("node scripts/sign/cli.ts");
-    expect(existsSync(join(ROOT, "scripts/sign/cli.ts"))).toBe(true);
-  });
-
-  it("installs nothing, so no package from npm runs next to the key", () => {
-    steps.forEach((step) => expect(step.run, step.name).not.toMatch(/\b(?:npm|npx|yarn|pnpm)\b/));
-  });
-
-  it("pins every action and passes the request through env only", () => {
-    expect(usesLines(text).filter((line) => !PINNED_ACTION.test(line))).toEqual([]);
-    expect(text).toMatch(/persist-credentials: false/);
-    steps.forEach((step) => expect(step.run, step.name).not.toContain("${{"));
-  });
-
-  it("says verifying exists now (C-05m): the stale 'Verifying signatures is C-05' text is gone", () => {
-    const sign = readText("scripts/sign/sign.ts");
-    [text, sign].forEach((source) => {
-      expect(source).not.toMatch(/Verifying signatures is (?:PRD-261 )?C-05/);
-      expect(source).not.toMatch(/nothing verifies them yet/);
-      expect(source).toContain("verify.ts");
-    });
-    expect(existsSync(join(ROOT, "scripts/sign/verify.ts"))).toBe(true);
-  });
-});
-
-describe("the signing key stays in the sign workflow", () => {
-  it("no other workflow names THEME_SIGNING_KEY", () => {
+describe("the signing and publish keys stay in the publish workflow", () => {
+  it("no other workflow names THEME_SIGNING_KEY or THEME_PUBLISH_KEY, and theme-sign.yml is gone", () => {
+    expect(existsSync(join(ROOT, WORKFLOWS, "theme-sign.yml"))).toBe(false);
     const others = readdirSync(join(ROOT, WORKFLOWS))
-      .filter((name) => /\.ya?ml$/.test(name) && `${WORKFLOWS}/${name}` !== SIGN)
-      .filter((name) => readText(`${WORKFLOWS}/${name}`).includes("THEME_SIGNING_KEY"));
+      .filter((name) => /\.ya?ml$/.test(name) && `${WORKFLOWS}/${name}` !== PUBLISH)
+      .filter((name) => PUBLISH_SECRETS.some((secret) => readText(`${WORKFLOWS}/${name}`).includes(secret)));
     expect(others).toEqual([]);
+    expect(readText(PUBLISH).match(new RegExp(`\\b${SIGNING_SECRET.replace(".", "\\.")}\\b`, "g"))).toHaveLength(1);
   });
 
-  // The sign script runs with no install: only Node built-ins and files of this repo.
+  // The publish job's scripts run with no install: only Node built-ins and files of this repo.
   it("the sign scripts import only node: built-ins and relative files", () => {
     const specifiers = SIGN_SCRIPTS.flatMap((rel) => Array.from(
       readText(rel).matchAll(/^import\s+(?!type\b)[^'"]*?from\s+['"]([^'"]+)['"]/gm), (match) => match[1],
@@ -211,30 +160,28 @@ describe("the signing key stays in the sign workflow", () => {
   });
 });
 
-describe("docs/OFFICIAL-LISTING.md, the owner's run that lists Play (C-06b)", () => {
+describe("docs/OFFICIAL-LISTING.md, how a merge lists a theme", () => {
   const doc = readText(LISTING);
 
-  it("is linked from theme-sign.yml's header and the README, which gives a local edition the release, hosted the listing", () => {
-    expect(section(readText(SIGN), "name: Theme sign", /^on:$/)).toMatch(/^# .*docs\/OFFICIAL-LISTING\.md/m);
+  it("is linked from theme-publish.yml's header and the README, which gives a local edition the release, hosted the listing", () => {
+    expect(section(readText(PUBLISH), "name: Theme publish", /^on:$/)).toMatch(/^# .*docs\/OFFICIAL-LISTING\.md/m);
     ["](docs/OFFICIAL-LISTING.md)", "https://github.com/AutomatosAI/automatos-design-kit/releases", ".sig.json",
       "Settings › Appearance › Themes › Install theme", "Marketplace › Themes"].forEach((part) => expect(readText("README.md")).toContain(part));
+    ["## Install HUD", "`hud-v<version>`", "`automatos.hud-<version>.autotheme`"].forEach((part) => expect(readText("README.md")).toContain(part));
   });
 
-  it("lists steps 0 to 7 (workflows, inputs, admin-queue buttons, the review at the tag), no key or signature, never two signers", () => {
-    expect(doc.match(/^### \d+\. /gm)).toEqual(["0", "1", "2", "3", "4", "5", "6", "7"].map((n) => `### ${n}. `));
-    expect(doc).toMatch(/^gh workflow run theme-review\.yml --ref play-v<v> -f package_url=https:\S+ -f expected_digest=\S+$/m);
-    const buttons = ["Choose a .autotheme file", "Submit for review", "Save review note", "Approve", "Copy request", "Save signature",
-      "Deactivate", "Add to my workspace", "Use this theme"].map((label) => `**${label}**`);
-    ["theme-release.yml", "gh workflow run theme-sign.yml --ref main -f request=", "themes/play/signatures/<v>.sig.json",
-      "`tag` set to `play-v<v>`", "either one may approve", ...buttons].forEach((part) => expect(doc).toContain(part));
+  it("says the merge is the approval, and names the environment, its two secrets and its variable, no key or signature", () => {
+    ["The merge is the approval", "`theme-publish`", "`THEME_SIGNING_KEY`", "`THEME_PUBLISH_KEY`", "`THEME_PUBLISH_API_URL`",
+      "`release/publishers.json`", "`/api/marketplace/themes/publish`", "theme-publish.yml"].forEach((part) => expect(doc).toContain(part));
     expect(doc).not.toMatch(/[A-Za-z0-9+/]{43,}/);
+    expect(doc).not.toMatch(/theme-sign\.yml|`theme-signing`|Copy request|Save signature/);
     [doc, readText("README.md")].forEach((text) => expect(text).not.toMatch(/second signer|two signers/i));
   });
 
-  it("stays Play's run, and says HUD follows the same steps with its own tag, asset and signatures folder", () => {
-    expect(doc).toMatch(/^# Listing Play as the official theme$/m);
-    ["**HUD**", "follows the same steps", "`hud-v<v>`", "`automatos.hud-<v>.autotheme`", "`themes/hud/signatures/<v>.sig.json`",
-      "`--ref hud-v<v>`", "`tag` set to `hud-v<v>`"].forEach((part) => expect(doc).toContain(part));
-    ["## Install HUD", "`hud-v<version>`", "`automatos.hud-<version>.autotheme`"].forEach((part) => expect(readText("README.md")).toContain(part));
+  it("says what blocks a publish, how to rotate and revoke each key, and how a backfill runs", () => {
+    ["## What blocks a publish", "## Rotate and revoke", "## Backfill"].forEach((heading) => expect(doc).toMatch(new RegExp(`^${heading}$`, "m")));
+    ["401", "403", "409", "422", "503"].forEach((status) => expect(doc).toContain(`**${status}**`));
+    expect(doc).toMatch(/^gh workflow run theme-publish\.yml --ref main -f tag=play-v1\.2\.1$/m);
+    expect(doc).toMatch(/^gh workflow run theme-publish\.yml --ref main -f tag=hud-v1\.1\.2$/m);
   });
 });

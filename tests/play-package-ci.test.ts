@@ -11,11 +11,11 @@ import { describe, expect, it } from "vitest";
 import { bundledPackages } from "@automatos/vite-preset";
 import { PACKED_FOLDERS, PACKED_TOP_FILES } from "../packages/theme-cli/src/collect.ts";
 import { SOURCE_DIR } from "../packages/theme-cli/src/source.ts";
+import { packedPathsOf, PACKED_FOLDERS as GUARDED_FOLDERS, PACKED_TOP_FILES as GUARDED_TOP_FILES, SOURCE_DIR as GUARDED_SOURCE } from "../scripts/release/themes.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PLAY_DIR = "themes/play";
 const WORKFLOW = ".github/workflows/kit.yml";
-const RELEASED_SCRIPT = "scripts/release/released-unchanged.mjs";
 
 /** The one field of Play's package.json these checks read. */
 type PackageJson = { scripts?: Record<string, string> };
@@ -125,32 +125,30 @@ describe("Play's package in CI", () => {
   });
 });
 
-// PRD-261 C-06r (PB-4): released-unchanged.mjs keeps its own PLAY_PACKED_PATHS (plain Node, no TypeScript
-// loader to read collect.ts/source.ts at run time); read back here as text, it must stay a superset of
-// what pack actually collects for Play, so the two guarded sets can't silently drift apart. A folder
-// collect.ts packs but Play never commits (dist/, boot/, looks/: generated from src/, gitignored) needs
-// no path of its own, until the day one of them is tracked. (HUD's list: tests/hud-package-ci.test.ts.)
-function releasedUnchangedPackedPaths(): string[] {
-  const match = /\bPLAY_PACKED_PATHS\s*=\s*\[([^\]]*)\]/.exec(readText(RELEASED_SCRIPT));
-  if (match === null) throw new Error(`can't find PLAY_PACKED_PATHS in ${RELEASED_SCRIPT}`);
-  return [...match[1].matchAll(/'([^']*)'/g)].map(([, path]) => path);
-}
-
+// PRD-261 C-06r (PB-4): released-unchanged.mjs guards each theme's packed paths, scripts/release/themes.mjs's
+// packedPathsOf (plain Node, no TypeScript loader to read collect.ts/source.ts at run time). Its lists must stay
+// collect.ts's and source.ts's, and Play's paths must cover what pack actually collects for Play, so the two guarded
+// sets can't silently drift apart. A folder collect.ts packs but Play never commits (dist/, boot/, looks/: generated
+// from src/, gitignored) holds no tracked file, so guarding it costs nothing. (HUD's: tests/hud-package-ci.test.ts.)
 describe("released-unchanged.mjs guards everything pack collects for Play", () => {
-  const packedPaths = releasedUnchangedPackedPaths();
+  const packedPaths = packedPathsOf(ROOT, "play");
   const committedFolders = PACKED_FOLDERS.filter((name) =>
     trackedFiles().some((rel) => rel.startsWith(`${PLAY_DIR}/${name}/`)));
 
-  it("guards every top file and committed folder collect.ts names, and src/ (source.ts)", () => {
+  it("holds the same top files, folders and source folder as collect.ts and source.ts", () => {
+    expect([GUARDED_TOP_FILES, GUARDED_FOLDERS, GUARDED_SOURCE]).toEqual([PACKED_TOP_FILES, PACKED_FOLDERS, SOURCE_DIR]);
+  });
+
+  it("guards every top file and folder collect.ts names, and src/ (source.ts)", () => {
     expect(PACKED_TOP_FILES.length).toBeGreaterThan(0);
     expect(committedFolders).toContain("assets");
-    [...PACKED_TOP_FILES, ...committedFolders, SOURCE_DIR].forEach((name) => expect(packedPaths).toContain(`${PLAY_DIR}/${name}`));
+    [...PACKED_TOP_FILES, ...PACKED_FOLDERS, SOURCE_DIR].forEach((name) => expect(packedPaths).toContain(`${PLAY_DIR}/${name}`));
   });
 
   it("guards the src/ of each kit package Play bundles, which pack writes under source/packages/ (B-01i)", () => {
     const root = realpathSync(ROOT);
     const bundled = bundledPackages(join(root, PLAY_DIR)).map((item) => relative(root, join(item.dir, SOURCE_DIR)).split(sep).join("/"));
     expect(bundled).toEqual(["packages/look-kit/src", "packages/mascot/src"]);
-    bundled.forEach((path) => expect(packedPaths).toContain(path));
+    expect(packedPaths.filter((path) => path.startsWith("packages/"))).toEqual(bundled);
   });
 });

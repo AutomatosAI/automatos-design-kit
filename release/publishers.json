@@ -1,0 +1,4 @@
+{
+  "about": "The publishers whose themes a merge to main publishes to the hosted Marketplace (.github/workflows/theme-publish.yml, scripts/release/bumped.mjs). A theme under themes/ whose theme.json id names another publisher is built and tested, never published. The Marketplace's publish endpoint holds its own list and refuses a publisher it doesn't hold; docs/OFFICIAL-LISTING.md.",
+  "publishers": ["automatos", "pixelcade"]
+}

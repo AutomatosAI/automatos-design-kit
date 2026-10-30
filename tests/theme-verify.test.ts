@@ -14,7 +14,7 @@ import { sha256Hex } from "../packages/theme-cli/src/digest.ts";
 import { writeZip } from "../packages/theme-cli/src/zip.ts";
 import { ENVELOPE_MAX_BYTES, envelopeText, keyIdOf, makeEnvelope, parseEnvelope, type Envelope } from "../scripts/sign/envelope.ts";
 import { canonicalJson, checkPayload, isEchoSafe } from "../scripts/sign/request.ts";
-import { signRequest } from "../scripts/sign/sign.ts";
+import { signPayload } from "../scripts/sign/sign.ts";
 import {
   DEFAULT_KEYS_PATH, EXIT_NOT_VERIFIED, EXIT_USAGE, EXIT_VERIFIED, packagePayload, parseKeys, runVerify,
   verifyEnvelope, verifyPackage, type Verdict,
@@ -31,7 +31,6 @@ const NO_KEYS = '{"schema":1,"keys":[]}\n';
 /** The fixed DER prefixes of an Ed25519 public key (SPKI) and private key (PKCS#8, RFC 8410). */
 const SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 const PKCS8_PREFIX = Buffer.from("302e020100300506032b657004220420", "hex");
-const REQUEST_ID = "5d3c9a5e-8f2b-4c1d-9e7a-0b1c2d3e4f50";
 const THEME = { id: "automatos-e2e/hello", version: "1.0.0" };
 const ADDED = "2026-10-20";
 
@@ -93,7 +92,7 @@ function themePackage(theme: { id: string; version: string } = THEME, entry = "e
 function signedEnvelope(pkg: Buffer, rfc: RfcCase = SIGNER): Envelope {
   const payload = packagePayload(pkg);
   if (!payload.ok) throw new Error(payload.error);
-  const signed = signRequest(JSON.stringify({ requestId: REQUEST_ID, payload: payload.value }), pemOf(rfc));
+  const signed = signPayload(payload.value, pemOf(rfc));
   if (!signed.ok) throw new Error(signed.error);
   return signed.value.envelope;
 }
@@ -144,11 +143,12 @@ describe("the shared vector: RFC 8032 section 7.1 and the canonical text", () =>
 
   it("the canonical signing payload is one core would sign, and its text round-trips with an RFC seed", () => {
     const { value, text, sha256 } = VECTOR.canonical.cases[0];
-    expect(checkPayload(value).ok).toBe(true);
-    const signed = signRequest(JSON.stringify({ requestId: REQUEST_ID, payload: value, canonical: text, payloadSha256: sha256 }), pemOf(SIGNER));
+    const checked = checkPayload(value);
+    if (!checked.ok) throw new Error(checked.error);
+    const signed = signPayload(checked.value, pemOf(SIGNER));
     if (!signed.ok) throw new Error(signed.error);
     expect(verify(null, Buffer.from(text, "ascii"), publicKeyOf(SIGNER), Buffer.from(signed.value.signature, "base64"))).toBe(true);
-    expect(signed.value.keyId).toBe(SIGNER.keyId);
+    expect([signed.value.keyId, signed.value.payloadSha256]).toEqual([SIGNER.keyId, sha256]);
   });
 });
 

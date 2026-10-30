@@ -1,0 +1,386 @@
+name: Theme publish
+
+# A merge to main that raises a theme's version publishes it. Once the Kit workflow has passed on a push to this
+# repository's main, this workflow builds each theme whose theme.json version is above its newest <slug>-v<version>
+# tag and whose publisher release/publishers.json lists, reviews the package with no network, signs it, sends it to
+# the hosted Marketplace's publish endpoint and, on its answer, releases it here as <slug>-v<version> with the
+# .autotheme, its .sha256 and its .sig.json. The merge is the approval: nothing else signs a theme, and this run signs
+# only the bytes it built from main. The whole flow, the environment, its keys and what blocks a publish:
+# docs/OFFICIAL-LISTING.md.
+#
+# Triggers. workflow_run of Kit, acted on only when it succeeded on a push to main of this repository (its event, its
+# head branch and its head repository, so a fork's branch named main never starts it), at that run's commit. Or Run
+# workflow on main with a tag, a backfill: the tag must exist and be on main, and the theme is rebuilt at the tag;
+# when its release exists already, the rebuilt .autotheme must be byte for byte the release's or the run fails, and
+# only the .sig.json is added, never a replaced asset.
+#
+# pick: Node alone, nothing installed. scripts/release/bumped.mjs names the themes, one line of JSON, and the commit
+# whose scripts the publish job runs (the Kit run's commit, or main's for a backfill).
+# build, one per theme: no secrets, no environment, a read-only token and no checkout credentials. At the theme's
+# commit it installs the kit from the lockfile with install scripts off, builds, packs the theme, checks the .sha256
+# against pack's summary and runs scripts/review/main.ts on the package in docker run --network none, as
+# theme-review.yml does; a review that doesn't pass fails the run. It uploads the package, its summary, its .sha256,
+# the review's text and the release's title and notes as theme-<slug>.
+# publish, one per theme: the theme-publish environment, main only, nothing installed. It checks the downloaded
+# package against its summary, compares it with an existing release, signs it (THEME_SIGNING_KEY, read by the Sign
+# step alone), verifies the envelope against keys/theme-signing.json, and posts the package, the envelope and the
+# review's text to the publish endpoint at the THEME_PUBLISH_API_URL variable (THEME_PUBLISH_KEY, read by that step
+# alone). On published, or unchanged, it makes the release, or adds the .sig.json to the release there is; any other
+# answer fails the run and releases nothing.
+
+on:
+  workflow_run:
+    workflows: [Kit]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "A release tag on main to publish (a backfill): <slug>-v<major>.<minor>.<patch>"
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  # Each theme's pack script writes its package into this folder of its own (its package.json: --out out).
+  PACK_FOLDER: out
+  KEYS_FILE: keys/theme-signing.json
+  # The publish endpoint, under the THEME_PUBLISH_API_URL variable.
+  PUBLISH_PATH: /api/marketplace/themes/publish
+  # The review's container, as theme-review.yml pins it (the root tests hold the two equal).
+  REVIEW_IMAGE: node:22.18.0-bookworm-slim@sha256:752ea8a2f758c34002a0461bd9f1cee4f9a3c36d48494586f60ffce1fc708e0e
+
+jobs:
+  pick:
+    name: Pick the themes to publish
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      themes: ${{ steps.pick.outputs.themes }}
+      tools: ${{ steps.pick.outputs.tools }}
+    steps:
+      # All history and tags: a backfill's tag must be found here and on origin/main.
+      - name: Check out the commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      # The input reaches the script through env only; bumped.mjs refuses a tag outside the tag rule.
+      - name: Pick the themes
+        id: pick
+        shell: bash
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
+        run: |
+          picked="$RUNNER_TEMP/themes.json"
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            node scripts/release/bumped.mjs --tag "$TAG_INPUT" > "$picked"
+          else
+            node scripts/release/bumped.mjs > "$picked"
+          fi
+          echo "themes=$(cat "$picked")" >> "$GITHUB_OUTPUT"
+          echo "tools=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build and review ${{ matrix.theme.id }} ${{ matrix.theme.version }}
+    needs: pick
+    if: needs.pick.outputs.themes != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        theme: ${{ fromJSON(needs.pick.outputs.themes) }}
+    env:
+      THEME_DIR: ${{ matrix.theme.dir }}
+      THEME_ID: ${{ matrix.theme.id }}
+      VERSION: ${{ matrix.theme.version }}
+      TAG: ${{ matrix.theme.tag }}
+      PACKAGE_NAME: ${{ matrix.theme.packageName }}
+      COMMIT: ${{ matrix.theme.commit }}
+    steps:
+      - name: Check out the theme's commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ matrix.theme.commit }}
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      # Same npm pin as kit.yml (npm/cli#9787).
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
+      - name: Name the pack folder
+        shell: bash
+        run: echo "PACK_DIR=$THEME_DIR/$PACK_FOLDER" >> "$GITHUB_ENV"
+
+      # The kit's own dependencies, exactly as package-lock.json records them, with no install scripts.
+      - name: Install (from the lockfile)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack the theme
+        run: npm run pack --workspace "$THEME_DIR"
+
+      # The .sha256 file, held to the zip sha256 pack recorded in its summary.
+      - name: Checksum
+        shell: bash
+        run: |
+          base="$PACKAGE_NAME-$VERSION"
+          cd "$PACK_DIR"
+          summary() { node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[process.argv[2]]' "$base.sha256.json" "$1"; }
+          sha256sum "$base.autotheme" > "$base.autotheme.sha256"
+          actual=$(cut -d ' ' -f 1 "$base.autotheme.sha256")
+          if [ "$actual" != "$(summary zipSha256)" ]; then
+            echo "::error::$base.autotheme's sha256 differs from the one pack recorded in $base.sha256.json"; exit 1
+          fi
+          echo "PACKAGE_SHA256=$actual" >> "$GITHUB_ENV"
+          echo "PACKAGE_DIGEST=$(summary digest)" >> "$GITHUB_ENV"
+
+      - name: Pull the review image
+        run: docker pull "$REVIEW_IMAGE"
+
+      # theme-review.yml's review of this package: a container with no network, the kit read-only, a work folder for
+      # the package and the rebuild, and the job summary. Its plain text, main.ts's stdout, is the review summary the
+      # Marketplace keeps as the version's review note. A review that doesn't pass exits 1 and fails the run.
+      - name: Review (no network)
+        shell: bash
+        run: |
+          review="$RUNNER_TEMP/review"
+          mkdir -p "$review"
+          cp "$PACK_DIR/$PACKAGE_NAME-$VERSION.autotheme" "$review/package.autotheme"
+          touch "$GITHUB_STEP_SUMMARY"
+          docker run --rm --network none \
+            --user "$(id -u):$(id -g)" --cap-drop ALL --security-opt no-new-privileges \
+            --memory 4g --pids-limit 512 \
+            -e HOME=/tmp -e EXPECTED_DIGEST="$PACKAGE_DIGEST" -e KIT_COMMIT="$COMMIT" \
+            -e REVIEW_PACKAGE=/review/package.autotheme -e REVIEW_WORK=/review/work \
+            -e REVIEW_SUMMARY=/review-summary.md \
+            -v "$GITHUB_WORKSPACE:/kit:ro" -v "$review:/review" \
+            -v "$GITHUB_STEP_SUMMARY:/review-summary.md" \
+            -w /kit "$REVIEW_IMAGE" node scripts/review/main.ts > "$review/summary.txt"
+
+      # What the Marketplace holds a review summary to: this package's digest, and the outcome pass.
+      - name: Check the review
+        shell: bash
+        run: |
+          text="$RUNNER_TEMP/review/summary.txt"
+          if ! grep -Fxq "Outcome: pass" "$text" || ! grep -Fxq "Package digest:  $PACKAGE_DIGEST" "$text"; then
+            echo "::error::The review's text doesn't name $PACKAGE_DIGEST with Outcome: pass, so nothing is published"; exit 1
+          fi
+
+      # theme-release.yml's title and notes, made here at the theme's commit: the title is theme.json's name and the
+      # version, and the notes end with the pictures theme.json lists under previews (scripts/release/preview-notes.ts).
+      - name: Write the release notes
+        shell: bash
+        env:
+          GH_REPO: ${{ github.repository }}
+        run: |
+          out="$RUNNER_TEMP/publish"
+          mkdir -p "$out"
+          title="$(node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).name' "$THEME_DIR/theme.json") $VERSION"
+          notes="$title. A local edition installs it with Settings › Appearance › Themes › Install theme. Package digest (the one an admin queue shows): $PACKAGE_DIGEST. sha256 of the .autotheme file: $PACKAGE_SHA256."
+          previews="$(node scripts/release/preview-notes.ts "$THEME_DIR" "$TAG" "$GH_REPO")"
+          if [ -n "$previews" ]; then notes="$notes"$'\n\n'"$previews"; fi
+          printf '%s' "$title" > "$out/release-title.txt"
+          printf '%s\n' "$notes" > "$out/release-notes.md"
+
+      - name: Gather the package and its review
+        shell: bash
+        run: |
+          base="$PACK_DIR/$PACKAGE_NAME-$VERSION"
+          cp "$base.autotheme" "$base.autotheme.sha256" "$base.sha256.json" "$RUNNER_TEMP/publish/"
+          cp "$RUNNER_TEMP/review/summary.txt" "$RUNNER_TEMP/publish/review.txt"
+
+      - name: Upload the package and its review
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: theme-${{ matrix.theme.slug }}
+          path: ${{ runner.temp }}/publish/
+          if-no-files-found: error
+
+  publish:
+    name: Publish ${{ matrix.theme.id }} ${{ matrix.theme.version }}
+    needs: [pick, build]
+    if: github.ref == 'refs/heads/main' && needs.pick.outputs.themes != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: theme-publish
+    # One publish of a theme at a time, never cancelled half way. The group is the publish job's, not the workflow's:
+    # every pull request's Kit run starts this workflow too, and is skipped at pick, so a workflow-wide group would let
+    # those runs push a waiting publish out of the queue.
+    concurrency:
+      group: theme-publish-${{ matrix.theme.slug }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        theme: ${{ fromJSON(needs.pick.outputs.themes) }}
+    env:
+      THEME_ID: ${{ matrix.theme.id }}
+      VERSION: ${{ matrix.theme.version }}
+      TAG: ${{ matrix.theme.tag }}
+      PACKAGE_NAME: ${{ matrix.theme.packageName }}
+      COMMIT: ${{ matrix.theme.commit }}
+    steps:
+      # The scripts and keys file of the commit pick ran at: the Kit run's, or main's for a backfill.
+      - name: Check out the kit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ needs.pick.outputs.tools }}
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Download the package
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: theme-${{ matrix.theme.slug }}
+          path: ${{ runner.temp }}/publish
+
+      # Before anything is signed: the bytes are the ones pack described, for the picked id and version, and the
+      # payload rebuilt from the package's own members is its summary's (scripts/sign/from-pack.ts check).
+      - name: Check the package against its summary
+        shell: bash
+        run: |
+          dir="$RUNNER_TEMP/publish"
+          base="$dir/$PACKAGE_NAME-$VERSION"
+          summary() { node -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))[process.argv[2]]' "$base.sha256.json" "$1"; }
+          actual=$(sha256sum "$base.autotheme" | cut -d ' ' -f 1)
+          if [ "$actual" != "$(summary zipSha256)" ] || [ "$actual" != "$(cut -d ' ' -f 1 "$base.autotheme.sha256")" ]; then
+            echo "::error::$PACKAGE_NAME-$VERSION.autotheme's sha256 differs from its summary or its .sha256"; exit 1
+          fi
+          if [ "$(summary id)" != "$THEME_ID" ] || [ "$(summary version)" != "$VERSION" ]; then
+            echo "::error::The package isn't $THEME_ID $VERSION, the theme picked"; exit 1
+          fi
+          node scripts/sign/from-pack.ts check "$base.autotheme" "$base.sha256.json"
+          {
+            echo "PACKAGE=$base.autotheme"
+            echo "SUMMARY=$base.sha256.json"
+            echo "REVIEW=$dir/review.txt"
+            echo "ENVELOPE=$dir/$VERSION.sig.json"
+            echo "PACKAGE_SHA256=$actual"
+            echo "PACKAGE_DIGEST=$(summary digest)"
+          } >> "$GITHUB_ENV"
+
+      # A release the tag has already must hold these exact bytes; with none, a tag already there must be the
+      # commit built. Either way it is checked before anything is signed or sent.
+      - name: Find the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          held="$RUNNER_TEMP/released"
+          mkdir -p "$held"
+          if gh api "repos/$GH_REPO/releases/tags/$TAG" --jq '.assets[].name' > "$held/assets.txt" 2> "$held/error.txt"; then
+            gh release download "$TAG" --pattern "$PACKAGE_NAME-$VERSION.autotheme" --dir "$held"
+            if [ "$(sha256sum "$held/$PACKAGE_NAME-$VERSION.autotheme" | cut -d ' ' -f 1)" != "$PACKAGE_SHA256" ]; then
+              echo "::error::The $TAG release holds other bytes than the ones rebuilt here, so nothing is published or replaced"; exit 1
+            fi
+            signed=false
+            if grep -Fxq "$VERSION.sig.json" "$held/assets.txt"; then signed=true; fi
+            { echo "RELEASE=existing"; echo "RELEASE_SIGNED=$signed"; } >> "$GITHUB_ENV"
+          elif grep -Fq "(HTTP 404)" "$held/error.txt"; then
+            tagged=$(git ls-remote origin "refs/tags/$TAG" "refs/tags/$TAG^{}" | tail -n 1 | cut -f 1)
+            if [ -n "$tagged" ] && [ "$tagged" != "$COMMIT" ]; then
+              echo "::error::$TAG is at another commit than the one built ($COMMIT), so nothing is published"; exit 1
+            fi
+            { echo "RELEASE=none"; echo "RELEASE_SIGNED=false"; } >> "$GITHUB_ENV"
+          else
+            echo "::error::Can't read the $TAG release, so nothing is published"; exit 1
+          fi
+
+      # The one step that reads THEME_SIGNING_KEY. from-pack.ts checks the package against its summary again, signs
+      # the payload it builds from it (core's canonical text) and writes the envelope; it prints the key id, never the key.
+      - name: Sign
+        env:
+          THEME_SIGNING_KEY: ${{ secrets.THEME_SIGNING_KEY }}
+        run: node scripts/sign/from-pack.ts sign "$PACKAGE" "$SUMMARY" "$ENVELOPE"
+
+      # The key that signed must be one keys/theme-signing.json publishes as active, or core would refuse it too.
+      - name: Verify the signature
+        run: node scripts/sign/verify.ts "$PACKAGE" "$ENVELOPE" "$KEYS_FILE"
+
+      # The one step that reads THEME_PUBLISH_KEY. It reaches curl on stdin as a header, never on a command line, and
+      # nothing prints it; the answer is read by scripts/release/publish-answer.ts, which prints core's status or its
+      # error code.
+      - name: Publish to the Marketplace
+        id: publish
+        shell: bash
+        env:
+          THEME_PUBLISH_KEY: ${{ secrets.THEME_PUBLISH_KEY }}
+          THEME_PUBLISH_API_URL: ${{ vars.THEME_PUBLISH_API_URL }}
+        run: |
+          api="${THEME_PUBLISH_API_URL%/}"
+          case "$api" in https://?*) ;; *) echo "::error::The theme-publish environment's THEME_PUBLISH_API_URL variable must be the core API's https:// address, so nothing was published"; exit 1;; esac
+          if [ -z "$THEME_PUBLISH_KEY" ]; then
+            echo "::error::The theme-publish environment has no THEME_PUBLISH_KEY secret, so nothing was published"; exit 1
+          fi
+          answer="$RUNNER_TEMP/publish-answer.json"
+          set +e
+          code=$(printf 'Authorization: Bearer %s\n' "$THEME_PUBLISH_KEY" | curl --silent --show-error --proto '=https' \
+            --max-time 300 --header @- --output "$answer" --write-out '%{http_code}' \
+            --form "package=@$PACKAGE;type=application/octet-stream;filename=$PACKAGE_NAME-$VERSION.autotheme" \
+            --form "signature=<$ENVELOPE" --form "review_summary=<$REVIEW" "$api$PUBLISH_PATH")
+          sent=$?
+          set -e
+          unset THEME_PUBLISH_KEY
+          node scripts/release/publish-answer.ts "$sent" "$code" "$answer" "$THEME_ID" "$VERSION" "$PACKAGE_DIGEST" >> "$GITHUB_OUTPUT"
+
+      # Published or unchanged: the release, made at the commit built with the package, its .sha256 and its .sig.json;
+      # or, when the tag has a release already, its .sig.json added. A release's assets are never replaced.
+      - name: Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PUBLISHED: ${{ steps.publish.outputs.status }}
+        run: |
+          dir="$RUNNER_TEMP/publish"
+          case "$PUBLISHED" in published|unchanged) ;; *) echo "::error::The Marketplace did not publish $THEME_ID $VERSION, so nothing is released"; exit 1;; esac
+          if [ "$RELEASE" = none ]; then
+            gh release create "$TAG" "$PACKAGE" "$PACKAGE.sha256" "$ENVELOPE" --target "$COMMIT" \
+              --title "$(cat "$dir/release-title.txt")" --notes-file "$dir/release-notes.md"
+          elif [ "$RELEASE_SIGNED" = false ]; then
+            gh release upload "$TAG" "$ENVELOPE"
+          else
+            held="$RUNNER_TEMP/released/signature"
+            gh release download "$TAG" --pattern "$VERSION.sig.json" --dir "$held"
+            if ! cmp -s "$ENVELOPE" "$held/$VERSION.sig.json"; then
+              echo "::error::The $TAG release carries another $VERSION.sig.json; it is left as it is"; exit 1
+            fi
+            echo "The $TAG release carries this signature already."
+          fi

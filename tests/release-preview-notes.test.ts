@@ -77,6 +77,10 @@ describe("the command, on the kit's themes", () => {
     }
   });
 
+  it("takes any tag the tag rule admits, a slug that starts with a digit or holds -v among them", () => {
+    ["3d-v1.0.0", "nav-vibe-v2.0.0"].forEach((tag) => expect(ran(["themes/play", tag, REPO]).code).toBe(EXIT_OK));
+  });
+
   it("is a usage error for a bad argument, and a failure for a folder with no theme.json", () => {
     [[], ["themes/play", "play-v1.1.1"], ["../themes/play", "play-v1.1.1", REPO], ["themes/play", "main", REPO],
       ["themes/play", "play-v1.1.1", "not a repo"]].forEach((args) => expect(ran(args).code).toBe(EXIT_USAGE));
