@@ -5,11 +5,11 @@ violet, blue), big round corners, every icon a circle, today's numbers in a cand
 It is the kit's fourth theme, built here with the kit from a Claude Design handoff, starting from the minimal
 template, as Arcade was ([`guides/from-design-to-theme.md`](../../guides/from-design-to-theme.md)).
 [`themes/candy/README.md`](../../themes/candy/README.md) has how it is built. This page reads
-`themes/candy/theme.json` at version 1.0.0.
+`themes/candy/theme.json` at version 1.0.1.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/candy`, `1.0.0` |
+| `id`, `version` | `automatos/candy`, `1.0.1` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.2.0"}`: SDK 1.2.0, the SDK with the voice area |
 | `base` | `studio`: the host's Studio design wherever Candy draws nothing of its own |
 | `htmlClass` | `candy`: every rule of `dist/theme.css` sits under `html.candy` |
@@ -72,7 +72,7 @@ Six knobs (`looks/schema.json`, look format `candy-look/v1`):
 | `palette` | Palette | choice | `blush`, `lilac`, `nightbloom` | `blush` |
 | `cards` | Card colours | choice | `mix` (Mixed: the three gradients in turn), `single` (One colour) | `mix` |
 | `gradient` | Gradient | choice | `soft`, `rich`, `vivid` | `rich` |
-| `roundness` | Roundness | number | 16 to 40 px, whole numbers | 28 |
+| `roundness` | Roundness | choice | `16` to `40`: px, each whole number a choice (a slider in the editor) | `28` |
 | `glow` | Glow | number | 0 to 10, whole numbers | 6 |
 | `motion` | Motion | choice | `on`, `paused` | `on` |
 
@@ -80,8 +80,11 @@ One preset per palette: Blush (the default; pink on white), Lilac (violet into b
 pinks after dark, the one dark palette). Every literal colour is in `src/looks/catalogue.ts`; `test/look-data.test.ts`
 writes `looks/`, `boot/prepaint.json` and `design/contrast.json` from it (`CANDY_WRITE=1 npx vitest run
 test/look-data.test.ts`) and holds them equal to the catalogue, not to `scripts/compile-looks.mjs`, which is Play's
-alone. Roundness is the one knob the first paint can't draw (a number knob paints only as a colour's alpha there), so
-the frame sets it on its root from the active look. Its `pack` script runs `automatos-theme check design .` before
+alone. Two rules of core's own shape the data, and the tests hold both. Core's look runtime knows only the knobs the
+first-paint table paints (a choice knob per table, a number knob per numeric rule), so Roundness is a choice of the
+whole numbers 16 to 40, each painting its corners, not a number knob the table couldn't paint. And core's first paint
+in the browser drops any value that calls a gradient (or runs past 200 characters), so the table paints colours, stops
+and places, and `src/app/theme.css` composes the cards, the band and the aura from them. Its `pack` script runs `automatos-theme check design .` before
 `automatos-theme pack`, measuring every pair of `design/contrast.json` (never packed) on every preset.
 
 ## Auto and the files
@@ -113,7 +116,7 @@ draws Candy's skin on Studio, as the app does ([`guides/mobile-skins.md`](../../
 
 ## Left out
 
-What the design wants and the SDK doesn't give, so Candy 1.0.0 leaves it out:
+What the design wants and the SDK doesn't give, so Candy leaves it out:
 
 - **The person's first name.** The SDK names the workspace, never the person, so Today greets with "Good morning",
   "Good afternoon" or "Good evening" alone.
@@ -138,7 +141,7 @@ CI's `harness` job shoots Candy among every other theme under `themes/` (`script
 showcase shoots ten clean images of it (`packages/theme-harness/src/host/showcase.ts`); the listing's eight previews
 (`theme.json` `previews`, Today in Blush the cover) are eight of them, at 1440 px. A merge
 to `main` that raises its version reviews, signs and lists it, and releases it as `candy-v<version>`, as it does Play,
-HUD and Arcade; 1.0.0 has no tag yet, so the first publish run releases it as `candy-v1.0.0`
+HUD and Arcade; the first publish run released 1.0.0 as `candy-v1.0.0`
 ([releasing.md](../releasing.md), [OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/candy/CHANGELOG.md`](../../themes/candy/CHANGELOG.md), newest first.

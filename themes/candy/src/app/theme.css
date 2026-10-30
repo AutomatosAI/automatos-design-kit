@@ -3,10 +3,11 @@
  * <html>; the CSS modules of the frame and the screens follow it into dist/theme.css.
  *
  * The look's colours are not set here: the host paints them on <html> before the first frame, from
- * boot/prepaint.json (the palette's --candy-* colours, the card gradients' stops, the band and the aura, the card's
- * layers for the Gradient knob, the glow's tint, Auto's colours and Studio's own tokens, so the host's pages inside
- * the frame take the palette too). This file composes them into the design's cards, shadows and type, and names the
- * two faces. Roundness is the frame's to set (src/frame/look-vars.ts); its default here is the design's 28 px.
+ * boot/prepaint.json (the palette's --candy-* colours, the card gradients' stops, the band's and the aura's stops,
+ * the card's layers for the Gradient knob, the corners, the glow's tint, Auto's colours and Studio's own tokens, so
+ * the host's pages inside the frame take the palette too). Core's first paint takes no gradient as a value, so this
+ * file composes the cards, the band, the aura and the shadows from those values, and names the two faces. The
+ * corners' defaults here are the design's 28 px, under the look's.
  *
  * Nothing here is a rule on an element the host draws: no bare element selectors, no global focus ring, no motion
  * rule on *. The host's pages, cards, voice button and AI label keep Studio's own styling.
@@ -59,7 +60,7 @@
   /* Studio's own face, for the strip the host's parts sit on. */
   --candy-host-font: var(--font-geist-sans), system-ui, sans-serif;
 
-  /* Roundness: windows and cards use --candy-r, inner tiles --candy-rs (r × 0.72). The frame sets both from the look. */
+  /* Roundness: windows and cards use --candy-r, inner tiles --candy-rs (r × 0.72). The look paints both. */
   --candy-r: 28px;
   --candy-rs: 20px;
 
@@ -67,6 +68,17 @@
   --candy-shadow-card: 0 22px 40px var(--candy-glow-base), 0 22px 40px var(--candy-glow, transparent);
   --candy-shadow-win: 0 16px 40px var(--candy-glow-base), 0 16px 40px var(--candy-glow, transparent);
   --candy-shadow-search: 0 8px 24px var(--candy-tint);
+
+  /* A card's layers: the white highlight where the Gradient knob puts it, and Vivid's two corner glows (clear else). */
+  --candy-card-hi: radial-gradient(circle at var(--candy-hi-x) var(--candy-hi-y), var(--candy-hi-colour), transparent var(--candy-hi-reach));
+  --candy-card-glow: radial-gradient(circle at 0% 100%, var(--candy-glow-pink), transparent 55%),
+    radial-gradient(circle at 100% 100%, var(--candy-glow-cyan), transparent 50%);
+  /* The band behind the top of a page, and the page's aura: three blobs (clear but on Vivid) over the page colour. */
+  --candy-band: linear-gradient(var(--candy-band-angle), var(--candy-band-from) 0%, var(--candy-band-via) var(--candy-band-via-at),
+    var(--candy-band-to) 100%);
+  --candy-aura: radial-gradient(55% 45% at 88% 0%, var(--candy-blob-1) 0%, transparent 70%),
+    radial-gradient(45% 40% at 100% 45%, var(--candy-blob-2) 0%, transparent 70%),
+    radial-gradient(50% 50% at 10% 100%, var(--candy-blob-3) 0%, transparent 70%), var(--candy-page);
 
   /* A card's ground, one per card gradient: the highlight, Vivid's glows, then the 155° gradient. */
   --candy-card-1: var(--candy-card-hi), var(--candy-card-glow),
