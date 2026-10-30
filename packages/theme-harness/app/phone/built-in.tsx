@@ -1,7 +1,7 @@
 /**
- * A theme the phone draws in its own built-in layout (automatos/play, automatos/hud and automatos/arcade: the
- * app's src/styles/themes/follow.ts BUILT_IN_THEME_STYLES): Automatos Go switches to its native Play, HUD or Arcade
- * layout, painted from the member's looks, and reads none of the theme's `mobile` block. That layout is compiled into
+ * A theme the phone draws in its own built-in layout (automatos/play, automatos/hud, automatos/arcade and
+ * automatos/candy: the app's src/styles/themes/follow.ts BUILT_IN_THEME_STYLES): Automatos Go switches to its native
+ * Play, HUD, Arcade or Candy layout, painted from the member's looks, and reads none of the theme's `mobile` block. That layout is compiled into
  * the app, so the harness can't draw it. Nor are the theme's own web screens a stand-in, whatever the theme's own
  * minWidth: Automatos Go runs no theme code, and those screens are what a phone's browser draws at or above that
  * width. So the phone says so, in the look's tone.
@@ -14,6 +14,7 @@ export const BUILT_IN_NAMES: Readonly<Record<BuiltInStyle, string>> = Object.fre
   play: 'Play',
   hud: 'HUD',
   arcade: 'Arcade',
+  candy: 'Candy',
 })
 
 /** What the phone shows for a built-in layout. */
