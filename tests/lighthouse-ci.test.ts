@@ -23,12 +23,12 @@ function readText(rel: string): string {
   return readFileSync(join(ROOT, rel), "utf8");
 }
 
-// One job's lines, from its key to the next job's key (or the end of the file).
+// One job's lines, from its key to the next job's key or the comment above it (or the end of the file).
 function jobBlock(text: string, job: string): string {
   const lines = text.split("\n");
   const start = lines.indexOf(`  ${job}:`);
   if (start < 0) return "";
-  const end = lines.findIndex((line, index) => index > start && /^ {2}[A-Za-z0-9_-]+:$/.test(line));
+  const end = lines.findIndex((line, index) => index > start && /^ {2}(?:[A-Za-z0-9_-]+:$|#)/.test(line));
   return lines.slice(start, end < 0 ? lines.length : end).join("\n");
 }
 
