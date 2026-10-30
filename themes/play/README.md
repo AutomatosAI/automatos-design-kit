@@ -34,6 +34,37 @@ the focus to once the screen shows.
   chat draws Auto small over the box, and every stylesheet's phone rules sit under the one `(max-width: 1023px)`
   query.
 
+## Proactive Auto (1.3.0)
+
+SDK 1.3.0's `proactive` area (`engines.sdk` `^1.3.0`, `proactive` in `uses`), placed as PRD-268 §6.12.4 places it in
+Play. Every card is the host's (the SDK's cards area): Play places them and draws none of them itself, and never speaks.
+
+- **The day's brief** (`useBrief`, the host's `BriefCard`): on an empty chat it stands in the first open's place
+  (`components/play/proactive/opening-cards.tsx`), with the page header and, on a desktop, Auto in the mascot column,
+  where his hello still plays; on the phone he stands over the message box. In a conversation it is its own message's
+  card (`message-list.tsx`, `play-brief.tsx` `BriefReply`). Listen is the host's `BriefVoice` inside the card. A row's
+  action runs through `hooks/use-brief-action.ts`: Start and Hide on a suggestion's row through the area's Start and
+  Hide, anything else to where the row opens on the SDK's paths. No brief is a normal day: while the workspace's
+  proactive mode is off, or before the host has opened the day's brief, the empty chat is the first open as before.
+- **The suggestion** (`useSuggestions`, the host's `SuggestionCard`): the newest open one, pinned as one line between
+  `PlayTrialBanner` and `MessageBox` (`pinned-suggestion.tsx`); its title opens the full card in place. It steps aside
+  while the turn's own Mission suggestion (`PlayMissionSuggestion`) is unanswered, and never repeats a suggestion the
+  brief on screen lists with its own Start.
+- **Approvals** stay the host's protected cards inline in Auto's reply, as before, with Auto listening while one waits;
+  an approval's `approval_view` (who asked, the action, its target, the preview, the rule) is drawn by the host's card.
+  Play draws no sheet over them.
+- **Calibration** (`useCalibration`, the host's `CalibrationCard`), once the server offers it: one of Auto's bubbles on
+  the empty chat, before the brief, while he says hello (`play-calibration.tsx`).
+- **Status colours.** The host's cards draw each state by its role's Studio token (`DISPLAY_STATE_LABELS`), never the
+  accent. Play's look paints those tokens: `lib/looks/status-tokens.ts` gives `--success`, `--warning`, `--warn-ink`,
+  `--info` and `--running` from Studio's Light or Dark values by the ground's tone, beside Studio's tokens, and the
+  first-paint table carries them; `test/lib/looks/status-tokens.test.ts` measures every role on the background and the
+  card for all 24 ground and accent pairs, Paper included.
+
+What SDK 1.3.0 can't give Play's own chat yet: a message's parts. So another day's brief in the Auto thread stays its
+prose, the thread's `suggestion@1` cards are not drawn (the pinned line is the suggestion's place), and Auto's reply
+chips (`ReplyChips`) have nothing to draw from; each waits for the message parts a theme's chat gets in a later SDK.
+
 ## Source
 
 `src/` keeps the layout of core's `frontend/` (`components/`, `lib/`, `hooks/`, `stores/` and `app/`), and the
@@ -51,8 +82,8 @@ copied into `src/vendor/` as source, at the versions core pins, with their licen
 
 ## Styles and assets
 
-The entry imports `app/play-fonts.css` and `app/play-theme.css`, then the components import their 26 CSS modules;
-the preset puts all 28 into `dist/theme.css`, every rule under `html.play` (D2-c), keyframes renamed `play-…`.
+The entry imports `app/play-fonts.css` and `app/play-theme.css`, then the components import their 27 CSS modules;
+the preset puts all 29 into `dist/theme.css`, every rule under `html.play` (D2-c), keyframes renamed `play-…`.
 `test/css.test.ts` runs the preset's wrap and the server's scope check over each file and over the whole sheet.
 
 - **The cascade (FX-01).** The wrap leaves a rule that is already under `html.play` as it is, so every rule of
@@ -120,6 +151,6 @@ table as the boot script does, against Play's engine.
   and `test/storage-port.test.ts`: no browser storage under `src/`, and Auto's pause, his hello and the seen
   Deliverables on the SDK's storage area, run on the theme harness's storage area (`@automatos/theme-harness`, core's
   ported), which the test holds to core's rules.
-- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.2.1.autotheme` and its `.sha256.json`, checked
+- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.3.0.autotheme` and its `.sha256.json`, checked
   as core's reader checks a package (the caps: the entry 300 KB, JS and CSS 3 MB, each clip 1 MB; the scope check on
   `dist/theme.css`). Kit CI uploads both as the `kit-themes` artifact.

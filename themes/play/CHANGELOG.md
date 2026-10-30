@@ -2,6 +2,30 @@
 
 Play's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.3.0
+
+Proactive Auto. Play needs SDK 1.3.0 (`engines.sdk` `^1.3.0`, `proactive` in `uses`) and places the host's proactive
+cards where PRD-268 puts them in Play:
+
+- **The day's brief.** On an empty chat the host's brief card stands where "Hi, I'm Auto." stood, under the page header,
+  with Auto in the mascot column on a desktop (his hello still plays there) and over the message box on the phone. In a
+  conversation the brief's own message is drawn as the card, its prose inside it once. A row's action works: Start and
+  Hide on a suggestion's row, Open, Answer and Set up where the row goes. With no brief (the workspace's proactive mode
+  off, or not opened yet) the empty chat is the first open as before.
+- **The suggestion.** The newest open suggestion is one line between the credits banner and the message box, on a
+  desktop and the phone; its title opens the full card in place, and Escape or leaving it folds it back. It steps aside
+  while a turn's Mission suggestion waits for an answer, and never repeats one the brief on screen lists.
+- **Approvals** stay inline in Auto's reply, as before, with Auto listening while one waits; the host's card now shows
+  who asked, the action, its target, its preview and the rule that asked.
+- **Calibration**, once the server offers it: what Auto knows so far, as his bubble on the empty chat, while he says
+  hello.
+- **Status colours.** Each look paints Studio's status tokens (`--success`, `--warning`, `--warn-ink`, `--info`,
+  `--running`) for its ground's tone, so a state reads the same under every look and never takes the accent; every role
+  passes on the background and the card for all 24 ground and accent pairs, Paper included.
+
+Not yet: a theme's chat gets no message parts in SDK 1.3.0, so an older day's brief in the Auto thread stays its prose,
+the thread's own suggestion cards aren't drawn, and Auto's reply chips have nothing to draw from.
+
 ## 1.2.1
 
 Polish for the product images:

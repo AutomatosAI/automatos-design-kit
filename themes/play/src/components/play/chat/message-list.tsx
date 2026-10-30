@@ -1,8 +1,10 @@
 'use client'
 
 import { type ReactNode, type RefObject, useEffect, useRef } from 'react'
-import type { HostChatMessage } from '@automatos/theme-sdk'
+import type { Brief, HostChatMessage } from '@automatos/theme-sdk'
 
+import { isBriefMessage } from '../../../lib/play/proactive'
+import { BriefReply } from '../proactive/play-brief'
 import { AutoReply } from './auto-reply'
 import styles from './chat.module.css'
 
@@ -17,6 +19,9 @@ import styles from './chat.module.css'
  * so (P260-FX-30). The messages are the SDK's (useChatController's view model,
  * PRD-261 A-14a): each reply carries its Deliverables, its approval cards and
  * whether Stop ended it.
+ *
+ * Play 1.3.0 (PRD-268 §6.12.4): the day's brief's own message draws as the brief's card (BriefReply), in its place in
+ * the conversation, so it scrolls with it; lib/play/proactive.ts isBriefMessage says which message that is.
  */
 
 /** How close to the bottom counts as "reading the newest line". */
@@ -68,9 +73,35 @@ export interface MessageListProps {
   readonly trialBlocked?: boolean
   /** Shown under the conversation, inside the scroll. */
   readonly after?: ReactNode
+  /** The day's brief, once the host holds one: its message draws as the card. */
+  readonly brief?: Brief | null
 }
 
-export function MessageList({ messages, streaming, onRetry, trialBlocked = false, after }: MessageListProps) {
+interface MessageItemProps {
+  readonly message: HostChatMessage
+  /** This message is the newest: it streams, and has Try again and the snag box. */
+  readonly newest: boolean
+  readonly streaming: boolean
+  readonly onRetry?: () => void
+  readonly trialBlocked: boolean
+  readonly brief: Brief | null
+}
+
+/** Your words in a bubble, the day's brief as its card, or Auto's reply. */
+function MessageItem({ message, newest, streaming, onRetry, trialBlocked, brief }: MessageItemProps) {
+  if (message.role === 'user') return <p className={styles.bubble}>{message.text}</p>
+  if (isBriefMessage(message, brief)) return <BriefReply message={message} brief={brief} />
+  return (
+    <AutoReply
+      message={message}
+      streaming={streaming && newest}
+      onRetry={newest ? onRetry : undefined}
+      snagHidden={trialBlocked && newest}
+    />
+  )
+}
+
+export function MessageList({ messages, streaming, onRetry, trialBlocked = false, after, brief = null }: MessageListProps) {
   const { scrollerRef, endRef } = useFollow(messages)
   const newest = messages[messages.length - 1]?.id
   return (
@@ -78,16 +109,14 @@ export function MessageList({ messages, streaming, onRetry, trialBlocked = false
       <ol className={styles.messageList} aria-label="Conversation">
         {messages.map((message) => (
           <li key={message.id} className={message.role === 'user' ? styles.userItem : styles.replyItem}>
-            {message.role === 'user' ? (
-              <p className={styles.bubble}>{message.text}</p>
-            ) : (
-              <AutoReply
-                message={message}
-                streaming={streaming && message.id === newest}
-                onRetry={message.id === newest ? onRetry : undefined}
-                snagHidden={trialBlocked && message.id === newest}
-              />
-            )}
+            <MessageItem
+              message={message}
+              newest={message.id === newest}
+              streaming={streaming}
+              onRetry={onRetry}
+              trialBlocked={trialBlocked}
+              brief={brief}
+            />
           </li>
         ))}
       </ol>
