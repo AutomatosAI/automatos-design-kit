@@ -125,7 +125,7 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
     const upload = steps.indexOf("Upload shots");
     expect(shots).toBeGreaterThanOrEqual(0);
     expect(upload).toBeGreaterThan(shots);
-    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP, SHOWCASE_STEP, LIGHTHOUSE_STEP]);
+    expect(steps.slice(shots + 1, upload)).toEqual([HUD_SHOTS_STEP, OTHER_SHOTS_STEP, DEV_SMOKE_STEP, PHONE_SHOTS_STEP, SHOWCASE_STEP, LIGHTHOUSE_STEP]);
     expect(steps.slice(upload)).toEqual(["Upload shots", SHOWCASE_UPLOAD, LIGHTHOUSE_UPLOAD]);
   });
 
