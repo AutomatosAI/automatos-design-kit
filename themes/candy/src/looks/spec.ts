@@ -6,6 +6,12 @@ import { PALETTES, type Palette } from './catalogue'
  * Candy's look format: the six knobs of the design's looks.json (palette, card colours, gradient, roundness, glow
  * and motion), each choice with the word the look editor shows, and the three presets, one per palette.
  *
+ * Core's look runtime takes a theme's knobs from its first-paint table alone: a choice knob for each table of
+ * boot/prepaint.json's `knobs`, a number knob for each knob a numeric rule paints. A knob the table doesn't paint is
+ * an unknown field to it, and every look carrying one is refused. So Roundness, a whole number of px from 16 to 40 in
+ * the design, is a choice knob of the 25 whole numbers ('16' to '40'), each painting its corners, which the editor
+ * draws as a slider; Glow is the one number knob, as the glow's numeric rule paints it.
+ *
  * The host checks every look against looks/schema.json and paints it from boot/prepaint.json; the SDK's useLook()
  * hands back the user's saved looks, never the presets, which ship in the package. test/look-data.test.ts writes
  * those files from this module and the catalogue and holds them equal, so the two never drift.
@@ -15,8 +21,8 @@ import { PALETTES, type Palette } from './catalogue'
 export const LOOK_SCHEMA = 'candy-look/v1'
 export const LOOK_INTERFACE = 'candy'
 
-export const CHOICE_KNOBS = ['palette', 'cards', 'gradient', 'motion'] as const
-export const NUMBER_KNOBS = ['roundness', 'glow'] as const
+export const CHOICE_KNOBS = ['palette', 'cards', 'gradient', 'roundness', 'motion'] as const
+export const NUMBER_KNOBS = ['glow'] as const
 export type ChoiceKnobName = (typeof CHOICE_KNOBS)[number]
 export type NumberKnobName = (typeof NUMBER_KNOBS)[number]
 export type KnobName = ChoiceKnobName | NumberKnobName
@@ -27,7 +33,7 @@ export interface ThemeLook extends HostLook {
   readonly palette: string
   readonly cards: string
   readonly gradient: string
-  readonly roundness: number
+  readonly roundness: string
   readonly glow: number
   readonly motion: string
 }
@@ -44,6 +50,8 @@ export interface ChoiceKnob {
   readonly label: string
   readonly choices: readonly Choice[]
   readonly default: string
+  /** Drawn as a slider over its choices, which are whole numbers in order: their range and the unit shown. */
+  readonly slider?: { readonly min: number; readonly max: number; readonly unit: string }
 }
 
 export interface NumberKnob {
@@ -67,6 +75,23 @@ export const PALETTE_KNOB: ChoiceKnob = {
   default: 'blush',
 }
 
+/** The corners' range in px, and the default (the design's 28). */
+export const ROUNDNESS_MIN = 16
+export const ROUNDNESS_MAX = 40
+const ROUNDNESS_DEFAULT = 28
+
+/** '16' to '40': each a whole number of px. */
+const ROUNDNESS_VALUES: readonly number[] = Array.from({ length: ROUNDNESS_MAX - ROUNDNESS_MIN + 1 }, (_, index) => ROUNDNESS_MIN + index)
+
+export const ROUNDNESS_KNOB: ChoiceKnob = {
+  kind: 'choice',
+  name: 'roundness',
+  label: 'Roundness',
+  choices: ROUNDNESS_VALUES.map((value) => ({ key: String(value), label: `${value} px` })),
+  default: String(ROUNDNESS_DEFAULT),
+  slider: { min: ROUNDNESS_MIN, max: ROUNDNESS_MAX, unit: 'px' },
+}
+
 export const KNOBS: readonly Knob[] = [
   PALETTE_KNOB,
   {
@@ -78,7 +103,7 @@ export const KNOBS: readonly Knob[] = [
     choices: [{ key: 'soft', label: 'Soft' }, { key: 'rich', label: 'Rich' }, { key: 'vivid', label: 'Vivid' }],
     default: 'rich',
   },
-  { kind: 'number', name: 'roundness', label: 'Roundness', min: 16, max: 40, default: 28, unit: 'px' },
+  ROUNDNESS_KNOB,
   { kind: 'number', name: 'glow', label: 'Glow', min: 0, max: 10, default: 6, unit: '' },
   {
     kind: 'choice', name: 'motion', label: 'Motion',
@@ -95,9 +120,9 @@ export const GRADIENT_NOTES: Readonly<Record<string, string>> = {
 
 /** Each palette's preset knobs, as the design's looks.json gives them. */
 const PRESET_KNOBS: Readonly<Record<string, Pick<ThemeLook, 'gradient' | 'roundness' | 'glow'>>> = {
-  blush: { gradient: 'rich', roundness: 28, glow: 6 },
-  lilac: { gradient: 'vivid', roundness: 32, glow: 5 },
-  nightbloom: { gradient: 'vivid', roundness: 28, glow: 8 },
+  blush: { gradient: 'rich', roundness: '28', glow: 6 },
+  lilac: { gradient: 'vivid', roundness: '32', glow: 5 },
+  nightbloom: { gradient: 'vivid', roundness: '28', glow: 8 },
 }
 
 function presetOf(palette: Palette): ThemeLook {
@@ -159,4 +184,18 @@ export function asNewLook(look: ThemeLook, saved: readonly HostLook[]): ThemeLoo
 export function clampKnob(knob: NumberKnob, value: number): number {
   if (!Number.isFinite(value)) return knob.default
   return Math.min(knob.max, Math.max(knob.min, Math.round(value)))
+}
+
+/** A slider's position as its choice knob's key: clamped to the range, whole. */
+export function sliderKey(knob: ChoiceKnob, value: number): string {
+  const range = knob.slider
+  if (range === undefined || !Number.isFinite(value)) return knob.default
+  return String(Math.min(range.max, Math.max(range.min, Math.round(value))))
+}
+
+/** The inner tiles' corners for a roundness: round(r × 0.72). */
+export const INNER_RATIO = 0.72
+
+export function innerRadius(r: number): number {
+  return Math.round(r * INNER_RATIO)
 }

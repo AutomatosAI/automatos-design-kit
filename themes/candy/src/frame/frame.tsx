@@ -3,7 +3,6 @@ import { HeaderUtilities, useHealth, useHostPathname } from '@automatos/theme-sd
 
 import { Asleep } from '../edges/asleep'
 import { useMotion } from '../motion/use-motion'
-import { useLookStyle } from './look-vars'
 import { bandOf, ownsHeader } from './menu'
 import { PhoneBar, PhoneMenu } from './phone-bar'
 import { usePhoneLayout } from './phone-layout'
@@ -22,7 +21,7 @@ import ui from '../ui/ui.module.css'
  * utilities), the page, and the floating tab bar with the host's voice button (not on the chat, which has its own).
  *
  * The frame owns the backend's health poll (asleep@1): while the backend is down the page gives way to the asleep
- * screen. It also sets the look's roundness on its root (look-vars.ts). The page keeps its place in the tree in both
+ * screen. The page keeps its place in the tree in both
  * layouts. The foot of the window stays clear: the host draws its AI label there, over the page's ground.
  */
 
@@ -58,7 +57,7 @@ export function Frame({ children, fullBleed = false, autoWidget }: FrameProps) {
   const band = bandOf(pathname)
   const { moving } = useMotion()
   const utilities = useRef<HTMLDivElement>(null)
-  const style = { ...useLookStyle(), ...useUtilitiesRoom(utilities) }
+  const style = useUtilitiesRoom(utilities)
   return (
     <div className={styles.frame} data-layout={phone ? 'phone' : 'desktop'} data-band={band} data-moving={moving ? 'true' : undefined} style={style}>
       <div className={styles.band} aria-hidden="true" />

@@ -7,7 +7,7 @@
   "palette": "nightbloom",
   "cards": "mix",
   "gradient": "vivid",
-  "roundness": 28,
+  "roundness": "28",
   "glow": 8,
   "motion": "on"
 }
