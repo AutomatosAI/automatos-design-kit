@@ -97,7 +97,9 @@ gives a fake of every name ([its README](../packages/theme-harness/README.md)).
 
 ## `cards`
 
-The host's own components, which a theme places and never redraws. Their buttons make the host's calls.
+The host's own components, which a theme places and never redraws. Their buttons make the host's calls. There is no
+message box among them: a theme's chat draws its own field and Send and Stop buttons inside `AiLabelFence`, and sends
+with `useChatController`'s `send` ([contract.md](contract.md#the-hosts-parts)).
 
 | Name | What it is |
 |---|---|
@@ -111,7 +113,7 @@ The host's own components, which a theme places and never redraws. Their buttons
 | `TrialExhaustedBanner` | The banner shown when the workspace's credits are used up. |
 | `FirstRunNudge` | The local edition's first-run nudge. |
 | `HeaderUtilities` | Help, notifications, the theme menu and the account. Every frame renders it. |
-| `AiLabelFence` | The host's fence around a theme's chat composer: its controls are disabled while the host's AI label can't be seen. Wrap the composer only. |
+| `AiLabelFence` | The host's fence around a theme's chat composer. Wrap the composer only, never the conversation, and keep the voice button outside it. The host keeps the AI label itself ([contract.md](contract.md#the-ai-label)). |
 | `CorePage` | The core page for this route inside the theme's page, or its children where there is none. |
 
 ## `looks`
@@ -178,7 +180,8 @@ conversation as well, which would show the words twice. The harness adds them as
 ## Page areas
 
 The data the core pages read, for a theme's own or cloned version of them ([page-inventory.md](page-inventory.md)).
-Each hook wraps the core hook the page reads, with the same endpoints, cache and polling, and hands back a frozen view:
+Each hook wraps the core hook the page reads, with the same endpoints, cache and polling (its filters are compared by
+value, so a new object with the same values each render asks for nothing new), and hands back a frozen view:
 a query is `{ data, isLoading, isFetching, error, refetch }` (data null until it answers, the error as its message),
 an action `{ run, runAsync, isRunning, error, result, reset }`. An id the host can't use is refused before anything is
 sent.

@@ -20,6 +20,23 @@ draws there ([mascot-placement.md](mascot-placement.md)).
 - Slots: none under either base.
 - The AI label is the host's on every chat, whoever draws the page; a theme's composer sits inside
   `cards.AiLabelFence` ([pitfalls.md](pitfalls.md)).
+- What a theme's own chat takes on, each of which the Studio chat does:
+  - **The conversation on screen**: `useChatController()` with no argument in the page, then
+    `useChatController(conversation)` in a child keyed by `conversation.key`; `null` while it opens.
+  - **The message box**: the theme's own field, Send and Stop (the SDK has none), inside `cards.AiLabelFence`, sending
+    with the controller's `send`; Try again with its `retry`.
+  - **The voice button** (`VoiceButton`) beside the box, outside the fence. A voice session's words arrive as two
+    ordinary messages (`voice-live-user`, `voice-live-assistant`) at the end of the conversation: draw them as any
+    message, and never `useVoice().heard` and `.reply` as well.
+  - **Every reply part**: its words through `cards.MarkdownView` with `skipHtml`; its tool lines and receipts
+    (`receiptLine`, `receiptLink`); its Deliverables (each linked to `/deliverables?deliverable=<id>`); its approvals
+    (`ToolApproval`, `MissionApproval`), withdraw offer and tickets; its failure with Try again; and, after the
+    conversation, the approvals whose reply left it (`looseApprovals`) and a Mission suggestion or the Mission made.
+  - **The banners**: `TrialExhaustedBanner` while credits are used up, and `FirstRunNudge`.
+  - **New chat** (`useStartChat`), and a way back to older conversations (`useConversationList`, or the host's search).
+  - **The board's live updates**: `useBoardEventStream(true)` while the page is mounted, so a reply that lands after
+    its turn shows.
+- A link carrying `?repo=`, `?runtime=` or `?mode=` draws the host's own chat instead (Pages, above).
 
 ## `/deliverables`: Deliverables
 
@@ -28,6 +45,18 @@ draws there ([mascot-placement.md](mascot-placement.md)).
   their labels) and `cards.FilePreview`, `cards.MarkdownView`, `cards.MadeBy`.
 - Slots: Studio base, `empty-state.mascot@1` on the Templates tab when there are no templates. Classic base, the page
   header (and the Blog tab's) and the Templates tab's empty state.
+- What a theme's own Deliverables page takes on:
+  - **One Deliverable.** `/deliverables?deliverable=<id>` (`DELIVERABLE_PARAM`) is the host's link to one Deliverable
+    (a chat's Deliverables link there), and there is no other page for it: the theme's page draws it, with
+    `useDeliverable(id, true)` and the host's renderers (`MarkdownView` for text, `useAuthenticatedBlobUrl` for a picture
+    or a video, `useFileDownload` and `deliverableDownloadUrl` for the file). Check the id first (letters, digits, `-`
+    and `_`, at most 128); show the list for one that isn't.
+  - **The host's other sections.** Links carrying `?tab=` (Blogs, Templates, Brand kit, Socials while offered),
+    `?post=` or `?artifact_type=` draw the host's own page (Pages, above), and `DELIVERABLE_EXPLORER_HREF` is the file
+    explorer: link to them (`visibleDeliverableTabs`, `DELIVERABLE_TAB_LABELS`), or they are out of reach under the
+    theme.
+  - **The list**: `useDeliverables(filters)` a page at a time, `DELIVERABLE_FEED_FILTERS` leaving out heartbeats, and
+    `fetchNextPage` for more. A list page that answers `success: false` is the query's error, not an empty list.
 
 ## `/assignments`: Missions and Playbooks
 

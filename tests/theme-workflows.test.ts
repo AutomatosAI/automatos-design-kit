@@ -3,7 +3,7 @@
 // install runs in `docker run --network none`. theme-sign.yml reads one secret,
 // THEME_SIGNING_KEY, in its signing step only, and installs nothing. Nothing is run here. C-05m
 // adds the verify script and the key id and envelope the sign step prints; no private key is
-// committed anywhere. C-06a's theme-release.yml, which releases Play and HUD from their tags, has its
+// committed anywhere. C-06a's theme-release.yml, which releases Play, HUD and Arcade from their tags, has its
 // own file, tests/theme-release.test.ts; the listing run (docs/OFFICIAL-LISTING.md) stays here. The
 // workflow-reading helpers are tests/support/workflow-steps.ts. PRD-261 B-02j: after the review, and only
 // once it has passed, theme-review.yml runs a report-only axe pass outside the container; every step up to
@@ -286,5 +286,13 @@ describe("docs/OFFICIAL-LISTING.md, the owner's run that lists Play (C-06b)", ()
     ["**HUD**", "follows the same steps", "`hud-v<v>`", "`automatos.hud-<v>.autotheme`", "`themes/hud/signatures/<v>.sig.json`",
       "`--ref hud-v<v>`", "`tag` set to `hud-v<v>`"].forEach((part) => expect(doc).toContain(part));
     ["## Install HUD", "`hud-v<version>`", "`automatos.hud-<version>.autotheme`"].forEach((part) => expect(readText("README.md")).toContain(part));
+  });
+
+  it("says Arcade follows the same steps too, with its own tag, asset and signatures folder", () => {
+    ["**Arcade**", "follows the same steps", "`arcade-v<v>`", "`automatos.arcade-<v>.autotheme`",
+      "`themes/arcade/signatures/<v>.sig.json`", "`--ref arcade-v<v>`", "`tag` set to `arcade-v<v>`"]
+      .forEach((part) => expect(doc).toContain(part));
+    ["## Install Arcade", "`arcade-v<version>`", "`automatos.arcade-<version>.autotheme`"]
+      .forEach((part) => expect(readText("README.md")).toContain(part));
   });
 });

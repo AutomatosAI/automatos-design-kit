@@ -61,9 +61,9 @@ shows the theme's page, so no core slot draws there.
 
 ### Not a place: the AI label
 
-The label that says Auto is an AI is drawn by the host beside every chat, outside the theme's page and frame. No slot
-reaches it, and a theme never draws a second copy. A theme that hides it pauses its own chat
-([pitfalls.md](pitfalls.md)).
+The label that says Auto is an AI is drawn by the host at the window's bottom corner on every chat route, outside the
+theme's page and frame ([contract.md](contract.md#the-ai-label)). No slot reaches it, a theme never draws a second
+copy, and no mascot, glow or effect sits over its corner.
 
 ## How Play places Auto
 
@@ -87,6 +87,26 @@ polite live region saying what he is doing.
 | Style sheet (`/looks/style`) | every state, as stills until you play the clips | regular | none: decorative |
 
 Play uses no placement slot: it replaces `/chat` and `/deliverables` and draws Auto in its own surfaces.
+
+## A mascot drawn in code
+
+A mascot need not be clips: a pixel sprite, an SVG figure or a canvas drawing is the theme's own code, drawn in its
+own surfaces. It keeps the same rules (below), and three things work differently:
+
+- **Its states.** `@automatos/mascot` still picks the state: name it under `dependencies` at its version and use its
+  reducer and events (`@automatos/mascot/reducer`, `/events`, `/types`: `MASCOT_STATES`, `mascotReducer`,
+  `mascotEventsFromStatus`, `mascotEventsFromReply`) with the chat's status and parts, as Play's and HUD's chats do.
+  `theme.json` `mascot.states` lists the states the theme draws.
+- **One-shots end on a timer.** The reducer ends a one-shot (`hello`, `celebrate`) on `{ type: 'clip-ended', state }`,
+  which a clip player sends at its clip's end. With no clip, send it yourself after the loop has played a few times
+  (two or three seconds), and under reduced motion after the same time, showing the still meanwhile.
+- **The pause control stops everything that moves**: the mascot's frames and any cursor, ticker or typing out
+  beside it ([pitfalls.md](pitfalls.md), "Motion that can't stop"). `MascotPauseButton` is named "Pause Auto"; a theme
+  pausing more than Auto draws its own toggle, named for what it does, kept the same way.
+- **The phone's stills** are each state's first frame as a PNG, `assets/mascot/<state>.png`. Draw them from the same
+  code in a test, with the harness's PNG writer (`@automatos/theme-harness/png`: `encodePng` and `decodePng`), and
+  hold the committed files to what the code draws, pixel for pixel
+  ([design-a-mascot](../skills/design-a-mascot/SKILL.md)).
 
 ## Rules every mascot keeps
 

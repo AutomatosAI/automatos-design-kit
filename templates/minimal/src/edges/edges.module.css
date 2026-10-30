@@ -7,6 +7,12 @@
   padding: var(--{{htmlClass}}-space-5) var(--{{htmlClass}}-space-6);
   background: var(--{{htmlClass}}-bg);
   color: var(--{{htmlClass}}-text);
+  font: var(--{{htmlClass}}-text-body);
+}
+
+.back:focus-visible {
+  outline: var(--{{htmlClass}}-ring);
+  outline-offset: 2px;
 }
 
 .wordmark {

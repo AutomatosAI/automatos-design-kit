@@ -1,0 +1,333 @@
+/*
+ * The Options screen (lookEditor@1) and the screen header the Sprite gallery shares: the knob rows beside the
+ * preview, then the save slots with import.
+ */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--arcade-gap);
+  padding-bottom: 12px;
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 20px;
+}
+
+.link {
+  font-family: var(--arcade-body);
+  font-size: 18px;
+  color: var(--arcade-ac);
+  text-underline-offset: 3px;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--arcade-gap);
+  align-items: start;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px 26px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 20px 150px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 0;
+  padding: 12px 0;
+  border: 0;
+  border-top: 2px solid var(--arcade-page);
+  min-width: 0;
+}
+
+.rowCursor {
+  grid-column: 1;
+  font-family: var(--arcade-display);
+  font-size: 10px;
+  color: var(--arcade-ac);
+  visibility: hidden;
+}
+
+.row:focus-within .rowCursor {
+  visibility: visible;
+}
+
+.rowLabel {
+  float: left;
+  grid-column: 2;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.choices {
+  grid-column: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.choice {
+  position: relative;
+  display: inline-flex;
+}
+
+.radio {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choiceFace {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--arcade-target);
+  padding: 0 14px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-size: 18px;
+}
+
+.radio:checked + .choiceFace {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.radio:focus-visible + .choiceFace {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+
+.previewSay {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.previewLine {
+  flex: 1;
+  min-height: 3em;
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.35;
+}
+
+.gameColours {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--arcade-display);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.gameColour[data-tone="hp"] { color: var(--arcade-hp); }
+.gameColour[data-tone="xp"] { color: var(--arcade-xp); }
+.gameColour[data-tone="mp"] { color: var(--arcade-mp); }
+.gameColour[data-tone="qs"] { color: var(--arcade-qs); }
+
+.sampleMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sampleItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--arcade-target);
+  padding: 0 12px;
+  font-size: 20px;
+}
+
+.sampleItem[data-selected="true"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.sampleCursor {
+  width: 11px;
+  font-family: var(--arcade-display);
+  font-size: 11px;
+}
+
+.accentLine {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--arcade-page);
+  color: var(--arcade-ac);
+  font-size: 19px;
+}
+
+.slotsWindow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 26px;
+}
+
+.slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 0;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.slot[aria-pressed="true"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.slot:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 3px;
+}
+
+.slotName {
+  font-size: 19px;
+}
+
+.slotSub {
+  font-size: 15px;
+}
+
+.importForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paste {
+  width: 100%;
+  padding: 10px;
+  resize: vertical;
+  border: 0;
+  border-radius: 0;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 13px;
+}
+
+.paste:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+.status {
+  min-height: 1.35em;
+  margin: 0;
+  font-size: 18px;
+  color: var(--arcade-tx2);
+}
+
+.alert {
+  padding: 12px 14px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-size: 18px;
+}
+
+.alertTitle {
+  margin: 0 0 6px;
+  color: var(--arcade-hp);
+}
+
+@media (max-width: 1023px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--arcade-gap-small);
+  }
+
+  .options,
+  .preview,
+  .slotsWindow {
+    padding: 12px;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .rowCursor {
+    display: none;
+  }
+
+  .rowLabel,
+  .choices {
+    grid-column: 1;
+  }
+
+  .choiceFace {
+    font-size: 15px;
+    padding: 0 9px;
+  }
+}

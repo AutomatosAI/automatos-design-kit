@@ -1,0 +1,105 @@
+/*
+ * The message box, on the host-styled strip inside the dialogue window: Studio's own face, size, radius and colour
+ * tokens (which the palette paints for its windows), so it reads as the host's part the design draws it as. The
+ * voice button sits beside it, as the host draws it.
+ */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: hsl(var(--card));
+  box-shadow: 0 0 0 1px hsl(var(--border) / 0.4);
+  font-family: var(--arcade-host-font);
+  color: hsl(var(--card-foreground));
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.boxSlot {
+  flex: 1;
+  min-width: 0;
+}
+
+.box {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  max-height: 160px;
+  padding: 11px 12px;
+  resize: none;
+  border: 1px solid hsl(var(--input));
+  border-radius: 8px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--arcade-host-font);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.input::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.input:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+
+.send,
+.stop {
+  flex: none;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-family: var(--arcade-host-font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.send {
+  border: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.send:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.stop {
+  border: 1px solid hsl(var(--border));
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+
+.send:focus-visible,
+.stop:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
+.hintPart {
+  white-space: nowrap;
+}

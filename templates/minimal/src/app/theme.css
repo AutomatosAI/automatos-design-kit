@@ -6,6 +6,12 @@
  * boot/prepaint.json (--{{htmlClass}}-bg, --{{htmlClass}}-text, --{{htmlClass}}-accent and the rest, and Studio's
  * own tokens, so the host's pages inside the frame take the look's colours too). This file adds what no look
  * changes: the type scale, the spacing and the focus ring.
+ *
+ * No rule here names an element the host draws: no bare element selector, no global :focus-visible, no rule on *.
+ * Under html.{{htmlClass}} such a rule would reach the host's own pages and cards too (the approval cards, the voice
+ * button, the header utilities), which a theme places and never restyles. Each control the theme draws takes the
+ * focus ring from its own module (--{{htmlClass}}-ring), and the host's parts sit in a strip that gives them Studio's
+ * own type back (frame.module.css .utilities).
  */
 
 :root {
@@ -27,33 +33,6 @@
   --{{htmlClass}}-control-height: 36px;
   --{{htmlClass}}-page-max: 1200px;
   --{{htmlClass}}-duration: 160ms;
-}
-
-:root body {
-  background: var(--{{htmlClass}}-bg);
-  color: var(--{{htmlClass}}-text);
-  font: var(--{{htmlClass}}-text-body);
-}
-
-/* One focus ring for every control the theme draws, in the accent's text colour: at least 3:1 on the page. */
-:focus-visible {
-  outline: 2px solid var(--{{htmlClass}}-accent-text);
-  outline-offset: 2px;
-}
-
-/*
- * Nothing of the theme moves while the person asks for reduced motion: the host marks <html> then, and the OS
- * setting says so too. :not(#{{htmlClass}}-none), an id no element has, outranks every module rule (they carry no
- * id), so the stop wins with no important mark, which the host refuses.
- */
-:root[data-theme-motion="reduce"] *:not(#{{htmlClass}}-none) {
-  transition: none;
-  animation: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root *:not(#{{htmlClass}}-none) {
-    transition: none;
-    animation: none;
-  }
+  /* The focus ring of every control the theme draws, in the accent's text colour: at least 3:1 on the page. */
+  --{{htmlClass}}-ring: 2px solid var(--{{htmlClass}}-accent-text);
 }

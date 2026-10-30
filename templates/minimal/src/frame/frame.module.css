@@ -14,6 +14,7 @@
 
 .sidebar {
   flex: none;
+  font: var(--{{htmlClass}}-text-body);
   width: var(--{{htmlClass}}-sidebar-width);
   display: flex;
   flex-direction: column;
@@ -116,10 +117,28 @@
   cursor: pointer;
 }
 
+/*
+ * The strip the host's header utilities sit on. They are the host's own: placed, never restyled. Studio's face, size
+ * and text colour are set here again, so nothing of the theme's type reaches them by inheritance. Wrap any other host
+ * part (an approval card, the voice button, a banner) in a strip like this one.
+ */
 .utilities {
   margin-left: auto;
   display: flex;
   align-items: center;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: hsl(var(--foreground));
+}
+
+.link:focus-visible,
+.search:focus-visible {
+  outline: var(--{{htmlClass}}-ring);
+  outline-offset: 2px;
 }
 
 .fullBleed {

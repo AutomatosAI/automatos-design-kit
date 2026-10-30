@@ -1,0 +1,12 @@
+{
+  "schema": "arcade-look/v1",
+  "interface": "arcade",
+  "id": "overworld",
+  "name": "Overworld",
+  "sub": "Night forest, grass-green accent",
+  "palette": "overworld",
+  "scanlines": "soft",
+  "pixelScale": "3",
+  "windowStyle": "classic",
+  "textSpeed": "normal"
+}

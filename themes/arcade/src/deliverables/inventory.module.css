@@ -1,0 +1,300 @@
+/*
+ * The Inventory: the tabs, the bag's grid of item slots (five across at 1440 px, two on the handheld), the info
+ * window under it and the links to the host's other sections; and one item's window.
+ */
+
+.bag {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  min-height: 100%;
+}
+
+.bagHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 18px;
+  padding: 6px;
+  overflow-x: auto;
+}
+
+.tab {
+  flex: none;
+  min-height: var(--arcade-target);
+  padding: 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: var(--arcade-win);
+  box-shadow: var(--arcade-chip-ring), var(--arcade-press-shadow);
+  color: var(--arcade-tx);
+  font-family: var(--arcade-display);
+  font-size: 10px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.tab[aria-pressed="true"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 3px;
+}
+
+.bagWindow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 210px;
+  height: 100%;
+  padding: 14px 16px 16px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+  color: var(--arcade-tx);
+  font-family: var(--arcade-body);
+  text-align: left;
+  text-decoration: none;
+}
+
+.slot[data-picked="true"] {
+  background: var(--arcade-hl);
+  color: var(--arcade-hlt);
+}
+
+.slot:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 3px;
+}
+
+.slotHead {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--arcade-display);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slotCursor {
+  visibility: hidden;
+}
+
+.slot[data-picked="true"] .slotCursor {
+  visibility: visible;
+}
+
+.slotIcon {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 6px 0;
+}
+
+.slotTitle {
+  font-size: 20px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.slotDate {
+  font-size: 16px;
+}
+
+.more {
+  align-self: center;
+}
+
+.empty,
+.failed {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.info {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 72px;
+  padding: 18px 24px;
+}
+
+.infoCursor {
+  font-family: var(--arcade-display);
+  font-size: 10px;
+  color: var(--arcade-ac);
+}
+
+.infoText {
+  margin: 0;
+  font-size: 21px;
+}
+
+.sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  font-family: var(--arcade-body);
+  font-size: 18px;
+}
+
+.sectionLink {
+  color: var(--arcade-ac);
+  text-underline-offset: 3px;
+}
+
+.sectionLink:focus-visible {
+  outline: 2px solid var(--arcade-ac);
+  outline-offset: 2px;
+}
+
+/* --- One item ----------------------------------------------------------------------------------------------- */
+
+.itemWindow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+}
+
+.itemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.itemHeadText {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.itemTitle {
+  margin: 0;
+  font-family: var(--arcade-body);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--arcade-tx);
+}
+
+.itemMeta,
+.summary {
+  margin: 0;
+  font-size: 18px;
+  color: var(--arcade-tx2);
+}
+
+.document {
+  padding: 20px 22px;
+  background: var(--arcade-page);
+  box-shadow: var(--arcade-chip-ring);
+}
+
+.prose {
+  font-family: var(--arcade-body);
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--arcade-tx);
+  overflow-wrap: anywhere;
+}
+
+.prose code,
+.prose pre {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75em;
+}
+
+.media {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+}
+
+.fileCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 1023px) {
+  .bag {
+    gap: 14px;
+  }
+
+  .tabs {
+    gap: 8px;
+  }
+
+  .tab {
+    padding: 0 10px;
+    font-size: 8px;
+    box-shadow: var(--arcade-chip-ring);
+  }
+
+  .bagWindow,
+  .itemWindow {
+    padding: 12px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .slot {
+    min-height: 150px;
+    padding: 10px;
+  }
+
+  .slotTitle {
+    font-size: 16px;
+  }
+
+  .slotDate {
+    font-size: 14px;
+  }
+
+  .info {
+    display: none;
+  }
+}

@@ -54,8 +54,10 @@ for the web theme's looks: that is [write-a-look-schema-and-presets](../write-a-
    as the theme in both schemes (or in every look, under `fromLooks`).
 5. **The fonts** (optional). One `.ttf` or `.otf` face per role (`serif` for titles, `sans` for body and chat text,
    `mono` for labels and figures), at most 400 KB, in `assets/fonts/mobile/`; a font's licence file goes in
-   `assets/fonts/`, as the web's do. `dev` lists `assets/` when it builds, so restart it to offer a file you just
-   added. Pick each role's file in the designer.
+   `assets/fonts/`, as the web's do. The web's `.woff2` files don't fit: take the family's TrueType file from its own
+   source (the Google Fonts repository has one for every family it serves), renamed to letters, digits, `.`, `_` and
+   `-` ([guides/mobile-skins.md](../../guides/mobile-skins.md), "Where the phone's fonts come from"). `dev` lists
+   `assets/` when it builds, so restart it to offer a file you just added. Pick each role's file in the designer.
 6. **Auto** (optional). `none`, `stills` (each state's `.png`) or `clips` (each state's `.mp4` and `.png`), for every
    state of the top-level `mascot.states`. The designer lists each file the mode needs and whether the theme has it.
    The phone shows Auto on First open.

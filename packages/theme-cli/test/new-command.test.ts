@@ -56,8 +56,8 @@ describe('the arguments', () => {
   it.each([
     [[]],
     [['new']],
-    [['new', 'acme/sample']],
     [['new', 'acme/sample', '--template', 'big']],
+    [['new', 'acme/sample', '--mascot', 'none']],
     [['new', 'acme/sample', 'extra', '--template', 'minimal']],
     [['new', 'acme/sample', '--template', 'minimal', '--mascot', 'none']],
     [['new', 'acme/sample', '--template', 'full', '--mascot', 'clips']],
@@ -66,6 +66,29 @@ describe('the arguments', () => {
     const cwd = tempFolder()
     expect(ranNew(argv, cwd)).toEqual({ code: 2, out: [], err: [NEW_USAGE] })
     expect(readdirSync(cwd)).toEqual([])
+  })
+
+  it('starts from the minimal template when --template is left out', () => {
+    const cwd = tempFolder()
+    expect(parseNew(['new', 'acme/sample'], cwd)).toEqual({
+      id: 'acme/sample', template: 'minimal', mascot: true, target: join(cwd, 'themes', 'sample'),
+    })
+  })
+
+  it('names the folder in full in its next lines when it is outside the folder the command ran in', () => {
+    const cwd = tempFolder()
+    const outside = join(tempFolder(), 'elsewhere')
+    const ran = ranNew(['new', 'acme/sample', '--to', outside], cwd)
+    expect(ran.code).toBe(0)
+    expect(ran.out.join('\n')).toContain(`npx automatos-theme check ${outside}`)
+    expect(ran.out.join('\n')).not.toContain('..')
+  })
+
+  it('names a folder with a space as one shell word, and one starting with a dash as ./<name>', () => {
+    const spaced = join(tempFolder(), 'my themes', 'sample')
+    expect(ranNew(['new', 'acme/sample', '--to', spaced], tempFolder()).out.join('\n')).toContain(`check '${spaced}'`)
+    const cwd = tempFolder()
+    expect(ranNew(['new', 'acme/sample', '--to=-sample'], cwd).out.join('\n')).toContain('check ./-sample')
   })
 
   it('writes to themes/<name> in the folder it runs in unless --to says where', () => {
@@ -126,6 +149,7 @@ describe('new --template minimal', () => {
     const target = join(cwd, 'owl')
     expect(ran.code).toBe(0)
     expect(ran.out[0]).toMatch(/: acme\/night-owl from the minimal template, \d+ files\.$/)
+    expect(ran.out.slice(1).join('\n')).toMatch(/npm run build[\s\S]*automatos-theme dev owl[\s\S]*automatos-theme check owl[\s\S]*pack owl --out out/)
     const written = readFolder(target)
     expect(written.map((file) => file.path)).toEqual(readFolder(join(KIT_ROOT, 'templates', 'minimal')).map((file) => file.path))
     expect(written.filter((file) => placeholdersIn(new TextDecoder().decode(file.data)).length > 0)).toEqual([])

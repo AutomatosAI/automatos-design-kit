@@ -42,12 +42,21 @@ Not for the ring's and the glow's colours: they come from the look
   chooser, the Pause control) and draw one file set for each of its twelve states, under the same names. Its
   captions (`captionFor`) speak as Auto ("Hi, I'm Auto."): keep them when the drawing is Auto, and write the theme's
   own words for the same states when it is not.
+- **Drawn in code, on Auto's states.** A pixel sprite, an SVG figure or a canvas drawing, stepping through frames
+  the theme draws, with `@automatos/mascot`'s state machine choosing the state. No clips: a one-shot ends on a timer
+  the theme sets, one pause control stops every moving thing, and the phone's stills are drawn from the same code in a
+  test with `@automatos/theme-harness/png` ([guides/mascot-placement.md](../../guides/mascot-placement.md), "A mascot
+  drawn in code").
 - **Your own states.** Up to 32 names in `theme.json` `mascot.states`, and your own code choosing among them. The
   kit's state machine knows only Auto's twelve.
 - **None.** No `mascot` block and no files (`--mascot none` with the full template). The chat still says in words
   what Auto is doing.
 
 ## Steps
+
+A mascot drawn in code skips steps 3 and 4 (it has no clips) and step 5's clip choosing: its frames are the theme's
+own code, and its files are the phone's stills alone, `assets/mascot/<state>.png`, when `mobile.mascot` is `stills`.
+Its proof (step 8) holds each still to the drawing, pixel for pixel, instead of to a sha256.
 
 1. **The states.** Auto's twelve, or your list. Done when `theme.json` `mascot.states` lists them, each name valid
    ([states.md](references/states.md)).

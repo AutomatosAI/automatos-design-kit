@@ -126,10 +126,10 @@ describe('on the desktop', () => {
     expect(hint()).not.toBeNull()
   })
 
-  it("is never locked: the box's AI label fence disables the box alone, and the box stays to type in", async () => {
+  it("is never locked, and neither is the box: the box's AI label fence disables nothing", async () => {
     host.setAiLabelShown(false)
     await renderChat()
-    expect(box()).toBeDisabled()
+    expect(box()).toBeEnabled()
     expect(within(deck()).getByRole('button', { name: HOLD_TO_TALK })).toBeEnabled()
     expect(within(deck()).getByRole('button', { name: HOLD_TO_TALK }).closest('fieldset')).toBeNull()
   })

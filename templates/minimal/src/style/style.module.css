@@ -89,6 +89,11 @@
   font: var(--{{htmlClass}}-text-body);
 }
 
+.input:focus-visible {
+  outline: var(--{{htmlClass}}-ring);
+  outline-offset: 2px;
+}
+
 .input::placeholder {
   color: var(--{{htmlClass}}-text-2);
 }

@@ -139,6 +139,7 @@ describe('what the wrap cannot fix still fails the check', () => {
     ['!important', '.a { color: red !important; }', 'CSS_IMPORTANT'],
     ['@import', '@import "other.css";', 'CSS_IMPORT'],
     ['a protected surface', '[data-protected-surface] { display: none; }', 'CSS_UNSCOPED'],
+    ["the host's AI label", '[data-ai-label] { display: none; }', 'CSS_UNSCOPED'],
     ['& outside the start of a nested selector', '.a { :not(&) { display: none; } }', 'CSS_UNSCOPED'],
     ['an at-rule the server does not list', '@page { margin: 0; }', 'CSS_AT_RULE'],
   ])('%s', (_name, source, code) => {

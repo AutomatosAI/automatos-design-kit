@@ -141,6 +141,14 @@ Beside `host`, the module names what a theme's own fixtures build the chat's par
 key the receipts frame rides under (what `liveReceiptsOf` reads), and `CREDITS_EXHAUSTED_CODE`, the `errorCode` of a
 request refused for used-up credits.
 
+## The PNG writer
+
+`@automatos/theme-harness/png` (`src/png.ts`) writes and reads 8-bit RGBA PNGs with Node's zlib: `encodePng({ width,
+height, pixels })` and `decodePng(file)`. A theme whose mascot is drawn in code writes the phone's stills
+(`assets/mascot/<state>.png`) from the same drawing in a test that names the node environment, and holds the committed
+files to the drawing by their decoded pixels, never their bytes, so another zlib version can't fail it
+([guides/mascot-placement.md](../../guides/mascot-placement.md), "A mascot drawn in code").
+
 ## Dependencies
 
 The test toolchain (vitest, jsdom, React, React DOM and Testing Library's `react`, `dom`, `user-event` and

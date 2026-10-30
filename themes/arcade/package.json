@@ -1,0 +1,37 @@
+{
+  "name": "@automatos/theme-arcade",
+  "version": "1.0.0",
+  "description": "Arcade, Automatos as a 16-bit role-playing game, built as an installable theme package (automatos/arcade).",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "pack": "automatos-theme check design . && automatos-theme pack . --out out"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "dependencies": {
+    "@automatos/mascot": "0.1.0"
+  },
+  "devDependencies": {
+    "@automatos/eslint-plugin": "0.1.0",
+    "@automatos/theme-cli": "0.1.0",
+    "@automatos/theme-harness": "0.1.0",
+    "@automatos/vite-preset": "0.1.0",
+    "eslint": "9.39.5"
+  },
+  "peerDependencies": {
+    "@automatos/theme-sdk": "1.2.0",
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

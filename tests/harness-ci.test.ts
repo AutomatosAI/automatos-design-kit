@@ -22,6 +22,8 @@ const SHOTS_OUT = "packages/theme-harness/dist/shots";
 /** HUD's shots, in a folder of their own inside the upload, so no group of HUD's can stand in for one of Play's. */
 const HUD_SHOTS_OUT = `${SHOTS_OUT}/hud`;
 const HUD_SHOTS_STEP = "HUD shots";
+const OTHER_SHOTS_STEP = "Other themes' shots";
+const OTHER_SHOTS_RUN = "node scripts/shots/other-themes.mjs";
 const SHOTS_CONFIG = "packages/theme-harness/shots/playwright.config.ts";
 // The shots' spec and their groups: one group shoots the chat page with motion allowed, so the Pause Auto control
 // (which reduced motion never draws) is in the upload; every other group keeps the config's reduced motion.
@@ -109,6 +111,7 @@ describe("kit workflow, harness job (PRD-261 B-02f, B-02i)", () => {
       "npx playwright install --with-deps chromium webkit",
       `npx automatos-theme shots themes/play --out ${SHOTS_OUT}`,
       `npx automatos-theme shots themes/hud --out ${HUD_SHOTS_OUT}`,
+      OTHER_SHOTS_RUN,
       DEV_SMOKE_RUN,
       PHONE_SHOTS_RUN,
       SHOWCASE_RUN,

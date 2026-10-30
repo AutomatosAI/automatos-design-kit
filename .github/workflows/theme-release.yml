@@ -1,14 +1,14 @@
 name: Theme release
 
-# PRD-261 C-06a (PB-6): a kit theme as a GitHub release, Play from a play-v tag and HUD from a hud-v tag. A local
-# or open-source edition installs a theme from its release asset; the hosted edition gets Play from its
-# Marketplace listing (Q7), and HUD by the same steps. Both jobs build as kit.yml does (its Node and npm pins,
-# the lockfile, the root build), with install scripts off, then pack the one theme the tag names. The listing
-# run around a release: docs/OFFICIAL-LISTING.md.
+# PRD-261 C-06a (PB-6): a kit theme as a GitHub release, Play from a play-v tag, HUD from a hud-v tag and Arcade
+# from an arcade-v tag. A local or open-source edition installs a theme from its release asset; the hosted
+# edition gets Play from its Marketplace listing (Q7), and HUD and Arcade by the same steps. Both jobs build as
+# kit.yml does (its Node and npm pins, the lockfile, the root build), with install scripts off, then pack the
+# one theme the tag names. The listing run around a release: docs/OFFICIAL-LISTING.md.
 #
 # The theme: a tag <theme>-v<major>.<minor>.<patch> names the folder themes/<theme>, whose theme.json id is
-# automatos/<theme>. TAG_PATTERN and the tags below list the themes released here, play and hud. "Name the
-# theme" makes the rest from the tag's theme alone, in both jobs alike: the folder, the folder its pack script
+# automatos/<theme>. TAG_PATTERN and the tags below list the themes released here, play, hud and arcade. "Name
+# the theme" makes the rest from the tag's theme alone, in both jobs alike: the folder, the folder its pack script
 # writes (--out out), the package's name (automatos.<theme>, the id with its slash as a dot, as pack names it)
 # and its signatures folder. The release's title is theme.json's name and the version.
 #
@@ -28,18 +28,19 @@ name: Theme release
 #
 # keys/theme-signing.json holds Automatos's theme-signing key. If it holds no active key, no signature can
 # verify: a run with one to check stops with that reason and attaches nothing. No secrets: each job uses its own token, with contents: write
-# for the release and nothing else. GitHub does not evaluate path filters for tag pushes, so every play-v* and
-# hud-v* tag runs the release job, and a push to main runs this workflow only when it changes a signature.
+# for the release and nothing else. GitHub does not evaluate path filters for tag pushes, so every play-v*,
+# hud-v* and arcade-v* tag runs the release job, and a push to main runs this workflow only when it changes a
+# signature.
 
 on:
   push:
     branches: [main]
-    tags: ["play-v*", "hud-v*"]
+    tags: ["play-v*", "hud-v*", "arcade-v*"]
     paths: ["themes/*/signatures/*.sig.json"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "The released tag whose committed signature to attach: play-v<major>.<minor>.<patch> or hud-v<major>.<minor>.<patch>"
+        description: "The released tag whose committed signature to attach: play-v<major>.<minor>.<patch>, hud-v<major>.<minor>.<patch> or arcade-v<major>.<minor>.<patch>"
         required: true
         type: string
 
@@ -53,7 +54,7 @@ env:
   # Each theme's committed signatures, in this folder of its own, which pack never packs.
   SIGNATURES_FOLDER: signatures
   KEYS_FILE: keys/theme-signing.json
-  TAG_PATTERN: '^(play|hud)-v[0-9]+\.[0-9]+\.[0-9]+$'
+  TAG_PATTERN: '^(play|hud|arcade)-v[0-9]+\.[0-9]+\.[0-9]+$'
 
 jobs:
   release:
@@ -87,7 +88,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           if ! [[ "$TAG" =~ $TAG_PATTERN ]]; then
-            echo "::error::A release tag is <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud)"; exit 1
+            echo "::error::A release tag is <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud, arcade)"; exit 1
           fi
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "VERSION=${TAG#*-v}" >> "$GITHUB_ENV"
@@ -240,7 +241,7 @@ jobs:
             tag="$theme-v${name%.sig.json}"
           fi
           if ! [[ "$tag" =~ $TAG_PATTERN ]]; then
-            echo "::error::The tag must be <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud)"; exit 1
+            echo "::error::The tag must be <theme>-v<major>.<minor>.<patch>, for a theme TAG_PATTERN names (play, hud, arcade)"; exit 1
           fi
           if ! git rev-parse --quiet --verify "refs/tags/$tag^{commit}" > /dev/null; then
             echo "::error::There is no tag $tag: release that version first"; exit 1
