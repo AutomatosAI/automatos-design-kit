@@ -31,10 +31,11 @@ export function useBriefAction(): (row: BriefRow) => Promise<unknown> {
       try {
         const step = briefStepOf(row, settingsHref)
         if (step === null) return Promise.reject(new Error(NOWHERE_TO_GO))
-        if (step.kind === 'start') return start({ id: step.id })
-        if (step.kind === 'hide') return hide({ id: step.id })
-        router.push(step.href)
-        return Promise.resolve(step.href)
+        if (step.kind === 'go') {
+          router.push(step.href)
+          return Promise.resolve(step.href)
+        }
+        return step.kind === 'start' ? start({ id: step.id }) : hide({ id: step.id })
       } catch (failure) {
         return Promise.reject(failure)
       }
