@@ -103,3 +103,13 @@
 .hintPart {
   white-space: nowrap;
 }
+
+/*
+ * On a phone's width the keyboard's keys mean nothing and the handheld's screen is short: the hint is not drawn, and
+ * the box still names it as its description for a screen reader.
+ */
+@media (max-width: 599px) {
+  .hint {
+    display: none;
+  }
+}

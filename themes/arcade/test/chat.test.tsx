@@ -144,10 +144,10 @@ describe("the reply's size", () => {
     expect(dialogueCss).toMatch(/\.dialogue\[data-layout="phone"\] \.typed \{[^}]*max-height: 14vh;/)
   })
 
-  it("sets the D-pad's words at 12 px, so Inventory fits its 64 px target", () => {
+  it("sets the D-pad's words at 11 px, so Inventory fits its 64 px target", () => {
     const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../src/frame/handheld.module.css'), 'utf8')
     const pad = css.slice(css.indexOf('.pad {'), css.indexOf('}', css.indexOf('.pad {')))
-    expect(pad).toContain('font-size: 12px')
+    expect(pad).toContain('font-size: 11px')
     expect(css).toMatch(/grid-template-columns: repeat\(3, 64px\)/)
   })
 })
