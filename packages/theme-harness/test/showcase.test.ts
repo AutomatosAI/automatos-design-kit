@@ -124,7 +124,7 @@ describe('the showcase shots', () => {
     expect(url.pathname).toBe('/')
     expect(readSettings(url.search)).toEqual({
       path: shot.view.path, preset: shot.look, width: shot.viewport.width, tone: 'light', reducedMotion: true, forcedColors: false,
-      transcript: shot.transcript, voice: shot.voice, toolbar: false, edition: 'saas', demo: shot.demo,
+      transcript: shot.transcript, voice: shot.voice, toolbar: false, edition: 'saas', demo: shot.demo, brief: true,
     })
   })
 
