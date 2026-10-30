@@ -102,7 +102,7 @@ jobs:
   build:
     name: Build and review ${{ matrix.theme.id }} ${{ matrix.theme.version }}
     needs: pick
-    if: needs.pick.outputs.themes != '[]'
+    if: needs.pick.result == 'success' && needs.pick.outputs.themes != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -228,7 +228,7 @@ jobs:
   publish:
     name: Publish ${{ matrix.theme.id }} ${{ matrix.theme.version }}
     needs: [pick, build]
-    if: github.ref == 'refs/heads/main' && needs.pick.outputs.themes != '[]'
+    if: github.ref == 'refs/heads/main' && needs.pick.result == 'success' && needs.pick.outputs.themes != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: theme-publish

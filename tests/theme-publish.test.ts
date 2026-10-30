@@ -39,8 +39,8 @@ describe("theme-publish.yml: when it runs", () => {
   });
 
   it("builds and publishes only what pick names, the publish on main only, after every build passed", () => {
-    expect(build).toContain("\n    needs: pick\n    if: needs.pick.outputs.themes != '[]'\n");
-    expect(publish).toContain("\n    needs: [pick, build]\n    if: github.ref == 'refs/heads/main' && needs.pick.outputs.themes != '[]'\n");
+    expect(build).toContain("\n    needs: pick\n    if: needs.pick.result == 'success' && needs.pick.outputs.themes != '[]'\n");
+    expect(publish).toContain("\n    needs: [pick, build]\n    if: github.ref == 'refs/heads/main' && needs.pick.result == 'success' && needs.pick.outputs.themes != '[]'\n");
     [build, publish].forEach((job) => expect(job).toContain("\n        theme: ${{ fromJSON(needs.pick.outputs.themes) }}\n"));
     expect(publish).toContain("\n      fail-fast: false\n");
   });
