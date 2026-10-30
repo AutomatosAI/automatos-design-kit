@@ -9,9 +9,13 @@
  * core's first-run nudge is on the page (the hosted edition draws none), when the voice phase it asks for is not on the
  * host's voice button, when a heading the shot names is not shown, and when a shot after Play's hello (the demo extra
  * `hello-played`) still shows "Hi, I'm Auto." anywhere. A shot whose step opens the phone menu presses
- * the theme's Menu button and waits for its dialog; one whose step is `listen` presses the host's Listen for the day's
- * brief and waits until Auto reads it (its root marked data-voice-speaking); one whose step is `scroll-to-heading`
- * scrolls the shot's heading into view. Then it writes `<theme>-<width>-<what>-<look>.png` into
+ * the theme's Menu button and waits for its dialog; one that opens the suggestion presses the title on the line pinned
+ * above the message box ("Open: <title>") and waits for the full card ("Auto suggests: <title>"); one that asks for an
+ * approval presses the button that opens the theme's message box when the shot names one (`opensComposer`: HUD's phone
+ * TYPE), types APPROVAL_ASK into the box (the shot's `composer`), sends it with Enter and waits for the host's approval
+ * card the recorded answer raises (the demo extra `approval-turn`); one whose step is `listen` presses the host's Listen
+ * for the day's brief and waits until Auto reads it (its root marked data-voice-speaking); one whose step is
+ * `scroll-to-heading` scrolls the shot's heading into view. Then it writes `<theme>-<width>-<what>-<look>.png` into
  * dist/showcase/ (Playwright makes the folder): the viewport as drawn, with animations off and the caret hidden. The
  * host's Auto widget stand-in (a labelled box where core draws its floating Auto) is hidden for the shot, since no host
  * draws that box.
@@ -21,7 +25,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
 import { DEFAULT_SETTINGS, STAGE_ID } from '../src/host/router.ts'
 import {
-  BRIEF_LISTEN, PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot,
+  APPROVAL_ASK, BRIEF_LISTEN, PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot,
 } from '../src/host/showcase.ts'
 import { harnessReport, openSettled, SETTLE } from './settle.ts'
 
@@ -31,6 +35,11 @@ const NUDGE = '[data-protected-surface="first-run-nudge"]'
 const HIDDEN_FOR_THE_SHOT = '[data-harness-stand-in="auto-widget"] { display: none; }'
 /** The theme's phone menu: its button and the dialog it opens (Play's phone-bar.tsx MENU_LABEL, phone-menu.tsx MENU_TITLE). */
 const MENU_NAME = 'Menu'
+/** The host's suggestion card (SuggestionCard): its pinned line, the title that opens it, and the full card. */
+const SUGGESTS = /^Auto suggests: /
+const OPEN_TITLE = /^Open: /
+/** The host's tool approval card, a protected surface. */
+const APPROVAL_CARD = '[data-protected-surface="tool-approval"]'
 /** The host's Listen while Auto reads the brief (src/sdk/brief-voice.tsx). */
 const BRIEF_READING = '[data-brief-voice="root"][data-voice-speaking="true"]'
 const SHOT_OPTIONS = Object.freeze({ animations: 'disabled', caret: 'hide', style: HIDDEN_FOR_THE_SHOT } as const)
@@ -56,15 +65,33 @@ async function openMenu(page: Page): Promise<void> {
   await expect(page.getByRole('dialog', { name: MENU_NAME, exact: true })).toBeVisible(SETTLE)
 }
 
+/** Opens the pinned suggestion's full card from the title on its line, and waits until the card shows. */
+async function openSuggestion(page: Page): Promise<void> {
+  await page.getByRole('group', { name: SUGGESTS }).getByRole('button', { name: OPEN_TITLE }).click()
+  await expect(page.getByRole('article', { name: SUGGESTS })).toBeVisible(SETTLE)
+}
+
+/** Sends APPROVAL_ASK from the theme's message box, and waits until the approval card its answer raises shows. */
+async function askForApproval(page: Page, shot: ShowcaseShot): Promise<void> {
+  if (shot.composer === undefined) throw new Error(`${showcaseFile(shot)} asks for an approval but names no message box`)
+  if (shot.opensComposer !== undefined) await page.getByRole('button', { name: shot.opensComposer, exact: true }).click()
+  const box = page.getByRole('textbox', { name: shot.composer, exact: true })
+  await box.fill(APPROVAL_ASK)
+  await box.press('Enter')
+  await expect(page.locator(APPROVAL_CARD).first()).toBeVisible(SETTLE)
+}
+
 /** Presses the host's Listen for the day's brief and waits until Auto reads it. */
 async function listen(page: Page): Promise<void> {
   await page.getByRole('button', { name: BRIEF_LISTEN, exact: true }).click()
   await expect(page.locator(BRIEF_READING)).toBeAttached(SETTLE)
 }
 
-/** The shot's step, before the shot. */
+/** Does the shot's step on the page. */
 async function takeStep(page: Page, shot: ShowcaseShot): Promise<void> {
   if (shot.step === 'open-menu') await openMenu(page)
+  if (shot.step === 'open-suggestion') await openSuggestion(page)
+  if (shot.step === 'ask-approval') await askForApproval(page, shot)
   if (shot.step === 'listen') await listen(page)
   if (shot.step === 'scroll-to-heading' && shot.heading !== undefined) {
     await page.getByRole('heading', { name: shot.heading, exact: true }).scrollIntoViewIfNeeded()

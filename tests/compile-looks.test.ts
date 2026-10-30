@@ -1,7 +1,8 @@
 // PRD-261 A-16c: scripts/compile-looks.mjs writes Play's look data from Play's own catalogue and presets.
 // The schema is core's play-look-schema.json byte for byte, the five presets pass it, the prepaint table
 // passes core's CSS-value check, and painting a look from the table (as core's boot script does) sets
-// exactly the variables Play's engine gives that look. One case runs the real script with Node.
+// exactly the variables Play's engine gives that look (since Play 1.3.0 its status tokens too, PRD-268 §6.12.2).
+// One case runs the real script with Node.
 // PRD-261 K-19c (host 1.1.0): the table carries the tone rule core's boot reads, each ground's tone as
 // toneOfGround gives it, and the presets ride the boot as core's server builds it. Both pass the vendored
 // check and the rules of core's boot gate, which are ported below as paint() ports the boot script: a
@@ -24,7 +25,7 @@ import { lookFiles, PREPAINT_FILE, PRESET_SUFFIX, PRESETS_FOLDER, SCHEMA_FILE, T
 import {
   ACCENT_KEYS, GROUND_KEYS, LIGHT_KEYS, SHELL_KEYS, TYPE_STYLE_KEYS,
 } from "../themes/play/src/lib/looks/catalogue.ts";
-import { GLOW_VAR, lookToCssVars, lookToStudioTokens, safeGlowAlpha } from "../themes/play/src/lib/looks/engine.ts";
+import { GLOW_VAR, lookToCssVars, lookToStatusTokens, lookToStudioTokens, safeGlowAlpha } from "../themes/play/src/lib/looks/engine.ts";
 import { DEFAULT_LOOK, PRESETS } from "../themes/play/src/lib/looks/presets.ts";
 import { toneOfGround } from "../themes/play/src/lib/looks/tone.ts";
 import { GLOW_MAX, GLOW_MIN, type Look } from "../themes/play/src/lib/looks/types.ts";
@@ -207,7 +208,7 @@ describe("compile-looks: boot/prepaint.json", () => {
       { ...DEFAULT_LOOK, id: "mine-3", ground: "indigo", accent: "rose", font: "bric", shell: "silver", light: "ice", glow: GLOW_MAX },
     ];
     looks.forEach((look) => {
-      const expected = { ...lookToCssVars(look), ...lookToStudioTokens(look) };
+      const expected = { ...lookToCssVars(look), ...lookToStudioTokens(look), ...lookToStatusTokens(look) };
       expect({ id: look.id, vars: paint(table, fields(look)) }).toEqual({ id: look.id, vars: expected });
     });
   });

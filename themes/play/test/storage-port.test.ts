@@ -112,9 +112,9 @@ describe("Play's own state", () => {
     expect(readSource('hooks/use-celebrate-new.ts')).not.toMatch(/\buseLookScope\b/)
   })
 
-  it('is declared: theme.json uses storage, Play 1.2.1 on SDK 1.2.0 and host 1.1.0', () => {
+  it('is declared: theme.json uses storage, Play 1.3.0 on SDK 1.3.0 and host 1.1.0', () => {
     const manifest = JSON.parse(readThemeFile('theme.json')) as { readonly uses: readonly string[] }
-    expect(manifest).toMatchObject({ version: '1.2.1', engines: { automatos: '^1.1.0', sdk: '^1.2.0' } })
+    expect(manifest).toMatchObject({ version: '1.3.0', engines: { automatos: '^1.1.0', sdk: '^1.3.0' } })
     expect(manifest.uses).toContain('storage')
   })
 })

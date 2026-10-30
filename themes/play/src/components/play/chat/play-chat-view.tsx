@@ -1,7 +1,8 @@
 'use client'
 
-import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { type ReactNode, type RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import {
+  type Brief,
   type HostChatController,
   type HostChatConversation,
   type HostChatDraft,
@@ -11,9 +12,13 @@ import {
 } from '@automatos/theme-sdk'
 
 import { type AutoMascotDriver, type BackendStatus, useAutoMascot } from '../../../hooks/use-auto-mascot'
+import { type PlayProactive, useCalibrationHello, usePlayProactive } from '../../../hooks/use-play-proactive'
 import { type PlayTurn, usePlayTurn } from '../../../hooks/use-play-turn'
 import { usePhoneLayout } from '../../../lib/play/phone-layout'
+import { briefOnScreen, briefSuggestionIds, missionSuggestionOpen } from '../../../lib/play/proactive'
 import { AutoMascot } from '../../mascot/auto-mascot'
+import { OpeningCards } from '../proactive/opening-cards'
+import { PlayPinnedSuggestion } from '../proactive/pinned-suggestion'
 import { MascotColumn, PageColumns, PageHeader } from '../shell/page-columns'
 
 import { LooseApprovalCards } from './approval-cards'
@@ -22,7 +27,7 @@ import { MessageBox, VOICE_HOTKEY } from './message-box'
 import { MessageList } from './message-list'
 import { liveMessages, replyProgress } from './reply'
 import { PlayTrialBanner, TurnEnd } from './turn-end'
-import { useAutoOnScreen } from './use-auto-on-screen'
+import { type AutoOnScreen, useAutoOnScreen } from './use-auto-on-screen'
 import styles from './composer.module.css'
 
 /**
@@ -63,6 +68,14 @@ import styles from './composer.module.css'
  * Play 1.2.1: Auto's hello (once per browser session, lib/mascot/session.ts) plays only on an empty chat, the first
  * open it belongs to. A conversation opened first in a session (a link to it in a new tab, a reload, one picked from
  * Conversations) no longer gets "Hi, I'm Auto." beside it; the session's hello waits for its first empty chat.
+ *
+ * Play 1.3.0 (PRD-268 §6.12.4), the proactive area: an empty chat with the day's brief, or Auto's calibration on day
+ * one, draws them in the first open's place (OpeningCards), with the page header and, on a desktop, Auto in the
+ * mascot column, where his hello still plays (and for a calibration always does); on a phone he stands over the box
+ * as in a conversation. With neither, the empty chat is the first open as before. In a conversation the brief is its
+ * own message's card (message-list.tsx). The newest open suggestion is pinned between PlayTrialBanner and MessageBox,
+ * stepping aside while the turn's Mission suggestion is unanswered and for a suggestion the brief on screen lists.
+ * Approvals stay inline in Auto's reply, with Auto listening while one waits; Play draws no sheet over them.
  */
 
 export interface PlayChatViewProps {
@@ -152,38 +165,92 @@ export function PlayChatView({ conversation, ...screen }: PlayChatViewProps) {
   return <ChatWithAuto turn={turn} {...screen} />
 }
 
+/** The first open, the cards in its place, or the conversation, by what the chat holds (see above). */
+interface ChatBodyProps {
+  readonly chat: HostChatController
+  readonly live: readonly HostChatMessage[]
+  readonly retry: () => void
+  readonly proactive: PlayProactive
+  /** The chat draws the first open: empty, with nothing from Auto in its place. */
+  readonly firstOpen: boolean
+  readonly shown: AutoOnScreen
+  readonly onClipEnded: AutoMascotDriver['onClipEnded']
+  readonly onSomethingOff: () => void
+}
+
+function ChatBody({ chat, live, retry, proactive, firstOpen, shown, onClipEnded, onSomethingOff }: ChatBodyProps) {
+  if (firstOpen) {
+    return (
+      <FirstOpenHero
+        state={shown.state} onClipEnded={onClipEnded} speaking={shown.speaking} voiceActive={shown.voiceActive}
+        {...shown.caption}
+      />
+    )
+  }
+  if (live.length === 0) {
+    return <OpeningCards brief={proactive.brief} calibration={proactive.calibration} onSomethingOff={onSomethingOff} />
+  }
+  return <ConversationMessages chat={chat} live={live} retry={retry} brief={proactive.brief} />
+}
+
+interface ChatFooterProps {
+  readonly chat: HostChatController
+  readonly firstOpen: boolean
+  /** Auto over the box, on a phone outside the first open; null otherwise. */
+  readonly strip: ReactNode
+  /** The suggestions the brief on screen lists with their Start: never pinned as well. */
+  readonly listed: readonly string[]
+  readonly onPick: (text: string) => void
+  /** The message box. */
+  readonly children: ReactNode
+}
+
+/** Under the chat: the first open's examples, Auto on a phone, the trial banner, the pinned suggestion, the box. */
+function ChatFooter({ chat, firstOpen, strip, listed, onPick, children }: ChatFooterProps) {
+  return (
+    <div className={styles.footer}>
+      {firstOpen && <ExampleChips onPick={onPick} />}
+      {strip}
+      <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
+      <PlayPinnedSuggestion hidden={missionSuggestionOpen(chat.suggestion, chat.planningMissionId)} listed={listed} />
+      {children}
+    </div>
+  )
+}
+
 function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) {
   const { chat } = turn
   // The conversation as the chat hook holds it, as the PRD-260 chat read it for Auto, his caption and the turn's end.
   const live = liveMessages(chat.messages)
+  const empty = live.length === 0
+  const proactive = usePlayProactive()
   const auto = usePlayAuto(turn, live, idleMs)
+  useCalibrationHello(auto.dispatch, empty ? (proactive.calibration?.id ?? null) : null)
   const composer = useComposer(auto, draft ?? null, onDraftTaken)
   const box = useRef<HTMLTextAreaElement>(null)
+  const focusBox = useCallback(() => box.current?.focus(), [])
   const { retry, onStop } = useSending(chat, auto, box)
   const shown = useAutoOnScreen(auto, live)
   const phone = usePhoneLayout()
-  const empty = live.length === 0
+  const firstOpen = empty && proactive.brief === null && proactive.calibration === null
+  const listed = briefSuggestionIds(briefOnScreen(proactive.brief, live))
   const figure = (size: 'regular' | 'small') => (
     <AutoMascot state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} size={size} {...shown.caption} />
   )
 
   return (
-    <PageColumns mascot={empty ? undefined : <MascotColumn>{figure('regular')}</MascotColumn>}>
-      {/* An empty chat has no page header: "Hi, I'm Auto." is its heading, so the first open fits a laptop window. */}
-      {!empty && <PageHeader title={chat.title} />}
-      <div className={styles.chat} data-empty={empty || undefined}>
-        {empty ? (
-          <FirstOpenHero
-            state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} voiceActive={shown.voiceActive}
-            {...shown.caption}
-          />
-        ) : (
-          <ConversationMessages chat={chat} live={live} retry={retry} />
-        )}
-        <div className={styles.footer}>
-          {empty && <ExampleChips onPick={composer.pick} />}
-          {phone && !empty && <div className={styles.strip}>{figure('small')}</div>}
-          <PlayTrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
+    <PageColumns mascot={firstOpen ? undefined : <MascotColumn>{figure('regular')}</MascotColumn>}>
+      {/* The first open has no page header: "Hi, I'm Auto." is its heading, so it fits a laptop window. */}
+      {!firstOpen && <PageHeader title={chat.title} />}
+      <div className={styles.chat} data-empty={firstOpen || undefined}>
+        <ChatBody
+          chat={chat} live={live} retry={retry} proactive={proactive} firstOpen={firstOpen} shown={shown}
+          onClipEnded={auto.onClipEnded} onSomethingOff={focusBox}
+        />
+        <ChatFooter
+          chat={chat} firstOpen={firstOpen} onPick={composer.pick} listed={listed}
+          strip={phone && !firstOpen ? <div className={styles.strip}>{figure('small')}</div> : null}
+        >
           <MessageBox
             ref={box}
             key={composer.fill ? `fill-${composer.fill.serial}` : 'box'}
@@ -196,7 +263,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
             autoFocus={empty || composer.fill !== null}
             voiceHotkey={phone ? null : VOICE_HOTKEY}
           />
-        </div>
+        </ChatFooter>
       </div>
     </PageColumns>
   )
@@ -206,10 +273,12 @@ interface ConversationMessagesProps {
   readonly chat: HostChatController
   readonly live: readonly HostChatMessage[]
   readonly retry: () => void
+  /** The day's brief: its message in the conversation draws as the card. */
+  readonly brief: Brief | null
 }
 
 /** The conversation, then what follows it: a failed turn's snag box, the Mission Auto suggests, loose approval cards. */
-function ConversationMessages({ chat, live, retry }: ConversationMessagesProps) {
+function ConversationMessages({ chat, live, retry, brief }: ConversationMessagesProps) {
   const { streaming, trialExhausted } = chat
   return (
     <MessageList
@@ -217,6 +286,7 @@ function ConversationMessages({ chat, live, retry }: ConversationMessagesProps) 
       streaming={streaming}
       onRetry={retry}
       trialBlocked={trialExhausted}
+      brief={brief}
       after={
         <TurnEnd
           status={chat.status}

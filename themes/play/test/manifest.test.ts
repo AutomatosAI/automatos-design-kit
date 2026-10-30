@@ -110,7 +110,7 @@ describe('theme.json', () => {
     expect(manifest).toMatchObject({
       schema: 'automatos-theme/v1',
       id: 'automatos/play',
-      version: '1.2.1',
+      version: '1.3.0',
       htmlClass: 'play',
       minWidth: 360,
       base: 'studio',

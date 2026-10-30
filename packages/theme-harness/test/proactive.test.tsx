@@ -61,7 +61,7 @@ describe("the proactive area's reads", () => {
 describe("the proactive area's writes", () => {
   it('Start and Hide are kept with the variables core sends, and answer what a test set', async () => {
     const started = { ...SAMPLE_PAGE_DATA.suggestions[0], status: 'started' as const }
-    host.setPageAction('useStartSuggestion', () => ({ suggestion: started, opens: { type: 'board_task', board_task_id: 7 } }))
+    host.setPageAction('useStartSuggestion', () => ({ suggestion: started, opens: { type: 'board_task' as const, board_task_id: 7 } }))
     const { result } = renderHook(() => ({ start: useStartSuggestion(), hide: useHideSuggestion() }))
     const answer = await act(() => result.current.start.runAsync({ id: SUGGESTION_ID }))
     await act(() => result.current.hide.runAsync({ id: SUGGESTION_ID, reason: 'not_now' }))

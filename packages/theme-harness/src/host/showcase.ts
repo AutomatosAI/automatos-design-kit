@@ -20,11 +20,17 @@
  * No axe scan: the regression shots scan the same views. HUD draws no Command Centre of its own (its theme.json
  * declares no such page, so the host's page would stand in its frame), so none is shot.
  *
- * The day's brief (SDK 1.3.0's proactive area) is on by default, as the harness page opens; a shot may ask for the day
- * without one (`brief: false`, the address's `brief=off`). HUD's chat and voice shots are its screen once the brief has
- * folded back, so they keep the brief off; its briefing shots draw BRIEFING on every look at both widths, one of them
- * after a press of the host's Listen (`listen`: Auto reading it, `▸ SPEAKING`), and its MISSIONS and SYSTEMS shots
- * scroll the panel's heading into view first (`scroll-to-heading`).
+ * The proactive area (SDK 1.3.0): every shot has the sample day's brief and its open suggestions (src/host/sample-data.ts)
+ * but the first open, which is the day without one (`brief: false`, the workspace's brief off), so Play greets as it
+ * does on a first open, and HUD's chat, voice, panel and approval shots, which are its screen once the brief has folded
+ * back. Play's proactive shots (PRD-268 US-K01) draw the brief on an empty chat in Ember and in Daylight (the Paper
+ * ground), the newest suggestion opened from its line pinned above the message box (`open-suggestion`), and an
+ * approval waiting in Auto's reply: the shot sends the member's words (`ask-approval`, into the theme's message box
+ * named by `composer`, after the button named by `opensComposer` where the box opens from one) and the demo extra
+ * `approval-turn` answers them with the recorded turn that raises one. HUD's (US-K02) draw BRIEFING on every look at
+ * both widths, one at each width after a press of the host's Listen (`listen`: Auto reading it, `▸ SPEAKING`), its
+ * MISSIONS and SYSTEMS panels with each heading scrolled into view first (`scroll-to-heading`), and the same approval
+ * (its suggestion, the `▸ NEXT` line, is on every one of its chat shots).
  *
  * Each shot's file is `<theme>-<width>-<what>-<look>.png` (showcaseFile), in SHOWCASE_FOLDER of the harness package.
  */
@@ -57,10 +63,12 @@ export const SHOWCASE_DESKTOP: Viewport = Object.freeze({ width: SHOT_WIDTHS[0],
 export const SHOWCASE_PHONE: Viewport = PHONE_VIEWPORT
 
 /**
- * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); press the
- * host's Listen for the day's brief and wait until Auto reads it; or scroll the shot's heading into view.
+ * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); open the
+ * pinned suggestion's full card from its line; send APPROVAL_ASK from the theme's message box and wait for the
+ * approval card the answer raises; press the host's Listen for the day's brief and wait until Auto reads it; or scroll
+ * the shot's heading into view.
  */
-export type ShowcaseStep = 'none' | 'open-menu' | 'listen' | 'scroll-to-heading'
+export type ShowcaseStep = 'none' | 'open-menu' | 'open-suggestion' | 'ask-approval' | 'listen' | 'scroll-to-heading'
 
 /** One showcase image: a theme's view in one look and viewport, with the host's chat and voice as given. */
 export interface ShowcaseShot {
@@ -75,9 +83,13 @@ export interface ShowcaseShot {
   /** True opens the chat on the laptop-shortlist conversation; false on a new chat. */
   readonly transcript: boolean
   readonly voice: HarnessVoicePhase
-  /** True: the day's brief (the harness page's default); false: no brief today (`brief=off`). */
+  /** True: the sample day's brief (the harness page's default); false: no brief today (`brief=off`, the workspace's brief off). */
   readonly brief: boolean
   readonly step: ShowcaseStep
+  /** The theme's message box, by its accessible name, that `ask-approval` types into. */
+  readonly composer?: string
+  /** A button that opens the theme's message box first, by its accessible name (HUD's phone opens it from TYPE). */
+  readonly opensComposer?: string
   /** A heading the view must show (the first open's greeting), when the shot is one the theme names so. */
   readonly heading?: string
   /** The demo extras over the sample data. */
@@ -88,6 +100,14 @@ const LOOK_EDITOR_SLOT = 'lookEditor@1'
 const CONVERSATIONS_ROUTE = 'conversations'
 const QUESTS_ROUTE = 'quests'
 const DELIVERABLES_PAGE = '/deliverables'
+/** Play's message box, by its name (themes/play/src/components/play/chat/message-box.tsx PLACEHOLDER). */
+export const PLAY_MESSAGE_BOX = 'Message Auto'
+/** HUD's message box and the phone's TYPE that opens it (themes/hud/src/chat/composer.tsx PLACEHOLDER, phone-controls.tsx TYPE_LABEL). */
+export const HUD_MESSAGE_BOX = 'Message Auto'
+export const HUD_TYPE = 'Type'
+/** What `ask-approval` sends: the made-up request the recorded approval turn answers. */
+export const APPROVAL_ASK = "Remind the parents' group about the bake sale"
+
 /**
  * Play's hello: the first open's heading (themes/play/src/components/play/chat/first-open.tsx HELLO_TITLE), and Auto's
  * caption while he plays it (packages/mascot/src/media.ts), which no shot after the hello shows.
@@ -109,7 +129,7 @@ const AGENTS_ROUTE = 'agents'
 const TODAY: View = Object.freeze<View>({ kind: 'route', key: TODAY_ROUTE, path: routePath(TODAY_ROUTE) })
 const TEAM: View = Object.freeze<View>({ kind: 'route', key: AGENTS_ROUTE, path: routePath(AGENTS_ROUTE) })
 
-type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'brief' | 'step' | 'heading' | 'demo'>>
+type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'brief' | 'step' | 'composer' | 'opensComposer' | 'heading' | 'demo'>>
 
 /** Every shot's extra: the roster with every agent active, as HUD's AGENTS panel lists it. */
 const HEALTHY: readonly DemoExtra[] = Object.freeze(['healthy-agents'])
@@ -137,6 +157,10 @@ const ON_TRANSCRIPT: ShotChanges = Object.freeze<ShotChanges>({ transcript: true
 const LISTENING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'listening' })
 const SPEAKING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'speaking' })
 const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-menu' })
+/** The first open: an empty chat on a day without a brief, so the greeting stands where the brief would. */
+const FIRST_OPEN: ShotChanges = Object.freeze<ShotChanges>({ heading: PLAY_HELLO, brief: false })
+const OPEN_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-suggestion' })
+const ASK_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'ask-approval', composer: PLAY_MESSAGE_BOX })
 /** HUD's screen once the brief has folded back: its chat and voice shots. */
 const FOLDED: ShotChanges = Object.freeze<ShotChanges>({ ...ON_TRANSCRIPT, brief: false })
 const FOLDED_LISTENING: ShotChanges = Object.freeze<ShotChanges>({ ...LISTENING, brief: false })
@@ -146,6 +170,10 @@ const BRIEFING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, bri
 const BRIEFING_READ: ShotChanges = Object.freeze<ShotChanges>({ ...BRIEFING, step: 'listen' })
 /** A HUD panel scrolled into view, on the folded screen. */
 const PANEL = (heading: string): ShotChanges => Object.freeze<ShotChanges>({ ...FOLDED, step: 'scroll-to-heading', heading })
+/** HUD's approval, on the folded screen, answered by the recorded approval turn; on the phone its box opens from TYPE. */
+const APPROVAL_DEMO: readonly DemoExtra[] = Object.freeze([...HEALTHY, 'approval-turn'])
+const HUD_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ ...FOLDED, step: 'ask-approval', composer: HUD_MESSAGE_BOX, demo: APPROVAL_DEMO })
+const HUD_PHONE_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ ...HUD_APPROVAL, opensComposer: HUD_TYPE })
 /** HUD's five looks, for the shots drawn on each. */
 const HUD_LOOKS = Object.freeze(['arc', 'forge', 'ghost', 'nova', 'signal'] as const)
 
@@ -163,21 +191,30 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('hud', DESKTOP, 'briefing-speaking', 'arc', CHAT, BRIEFING_READ),
   planned('hud', DESKTOP, 'missions', 'arc', CHAT, PANEL(HUD_MISSIONS)),
   planned('hud', DESKTOP, 'systems', 'arc', CHAT, PANEL(HUD_SYSTEMS)),
+  planned('hud', DESKTOP, 'approval', 'arc', CHAT, HUD_APPROVAL),
   planned('hud', PHONE, 'chat', 'arc', CHAT, FOLDED),
   planned('hud', PHONE, 'voice-listening', 'forge', CHAT, FOLDED_LISTENING),
   planned('hud', PHONE, 'look-editor', 'arc', LOOK_EDITOR),
   planned('hud', PHONE, 'voice-speaking', 'arc', CHAT, FOLDED_SPEAKING),
   ...HUD_LOOKS.map((look) => planned('hud', PHONE, 'briefing', look, CHAT, BRIEFING)),
   planned('hud', PHONE, 'briefing-speaking', 'arc', CHAT, BRIEFING_READ),
-  planned('play', DESKTOP, 'first-open', 'ember', CHAT, { heading: PLAY_HELLO }),
+  planned('hud', PHONE, 'approval', 'arc', CHAT, HUD_PHONE_APPROVAL),
+  planned('play', DESKTOP, 'first-open', 'ember', CHAT, FIRST_OPEN),
   planned('play', DESKTOP, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, afterHello(SPEAKING)),
   planned('play', DESKTOP, 'chat', 'daylight', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'look-editor', 'ember', LOOK_EDITOR),
+  planned('play', DESKTOP, 'brief', 'ember', CHAT),
+  planned('play', DESKTOP, 'brief', 'daylight', CHAT),
+  planned('play', DESKTOP, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
+  planned('play', DESKTOP, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
   planned('play', PHONE, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', PHONE, 'menu', 'ember', CHAT, afterHello(MENU)),
   planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, afterHello(ON_TRANSCRIPT, 'older-chats')),
   planned('play', PHONE, 'voice-listening', 'ember', CHAT, afterHello(LISTENING)),
+  planned('play', PHONE, 'brief', 'ember', CHAT),
+  planned('play', PHONE, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
+  planned('play', PHONE, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
   planned('arcade', DESKTOP, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'dungeon', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'neon', CHAT, ON_TRANSCRIPT),
