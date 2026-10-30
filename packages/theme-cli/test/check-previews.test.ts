@@ -76,7 +76,9 @@ describe('the previews check', () => {
   it('reads only listed previews the package holds', () => {
     const files = new Map([['assets/previews/default.png', PNG_SIGNATURE], ['looks/presets/default.look.json', new Uint8Array()]])
     const entry = previewsCheck({ previews: ['assets/previews/default.png', 'assets/previews/gone.png'], look: 'default' }, files)
-    expect(entry.presets).toEqual([{ id: 'default', default: true, previews: [{ screen: null, path: 'assets/previews/default.png' }] }])
+    expect(entry.presets).toEqual([
+      { id: 'default', default: true, previews: [{ screen: null, path: 'assets/previews/default.png' }], phonePreviews: [] },
+    ])
     expect(describePreviews(entry).items).toEqual([])
   })
 })
