@@ -114,7 +114,12 @@ first paint's gate drops (`BAD_CSS_VALUE`: boot-sanitize.ts `isCssValue`, ported
 `bootValueProblem`, which also says why), and a `looks/schema.json` knob the table, as `bootTable` keeps it, never
 paints (`KNOB_NOT_PAINTED`: `frontend/lib/theme-host/looks/spec.ts` `lookSpecOf` builds the look spec from the table
 alone). `check design` lists them on its prepaint line; `check` refuses the theme before its review, as core's reader
-refuses a package. The codes, paths and sentences are core's reader's once core ships the same two checks
+refuses a package, and so does the Marketplace review's Package check (`scripts/review/review.ts` `readPackage`, which
+theme-review.yml and theme-publish.yml run). Core's reader refuses three more there: a knob the kept table paints that
+the schema lacks (`KNOB_NOT_IN_SCHEMA`), defaults that don't fit what the gate keeps (`PREPAINT_DEFAULTS_UNFIT`, the
+code `check design` already gives it) and a knob name the gate drops (`BAD_PREPAINT`); the kit takes those with the
+re-vendoring below (`check design` already catches the first two, as `PRESET_NOT_IN_PREPAINT` and
+`PREPAINT_DEFAULTS_UNFIT`). The codes, paths and sentences are core's reader's once core ships the same two checks
 (`orchestrator/services/themes/first_paint.py`, and `prepaint_drop_errors` in `css_value.py` with its TypeScript twin
 `prepaintDropErrors` in `css-value.ts`). `pack`'s reader port (`src/check-package.ts`) stays core's at the commit above,
 which the vendored corpus's `packages` cases hold it to. The browser harness paints only the values `isBootValue`
