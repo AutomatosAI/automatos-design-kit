@@ -1,0 +1,130 @@
+/*
+ * Candy's chat, laid out (W2 and P2). On a desktop: the header row (the title, "+ New chat", room on its right for
+ * the host's utilities), then the thread's window beside the 320 px rail. Below 1024 px (data-layout="phone"):
+ * the stage strip edge to edge, the thread and the message box on the page's ground, no rail. The host's parts sit in
+ * host strips (ui.module.css .host); nothing is drawn over them, and the foot of the page stays clear for the host's
+ * AI label (the frame keeps --candy-label-room under the page).
+ */
+
+.chat {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.chat[data-layout="phone"] {
+  gap: 12px;
+}
+
+/* The host's first-run nudge: a zero-height anchor over the top of the chat, so it takes no room. */
+.nudge {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 0;
+}
+
+.head {
+  flex: none;
+}
+
+.head .title {
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.newChat {
+  flex: none;
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 14px;
+  box-shadow: var(--candy-shadow-search);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 22px;
+}
+
+.chat[data-layout="phone"] .body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The thread's window: the window colour, the look's corners, the message box at its foot. */
+.main {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--candy-r);
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-win);
+  color: var(--candy-text);
+}
+
+.chat[data-layout="phone"] .main {
+  flex: 1;
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.foot {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 22px 18px;
+  border-top: 1.5px solid var(--candy-line);
+}
+
+.chat[data-layout="phone"] .foot {
+  padding: 8px 14px 0;
+  border-top: 0;
+}
+
+.rail {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 4px;
+}
+
+.phoneTop {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phoneList {
+  display: flex;
+  max-height: 45dvh;
+  padding: 0 16px;
+}
+
+.opening {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 320px;
+}

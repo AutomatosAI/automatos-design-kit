@@ -1,0 +1,177 @@
+/*
+ * One Deliverable's sheet: a window over the shelf on a soft tint of the accent, its head (the kind's gradient with
+ * the initial, the kind, the title, who made it and the day, Close), then its summary, its content and its actions.
+ * The tint covers no part of the host's: it starts under the header row where the frame places the host's utilities
+ * (the phone bar on a narrow window) and stops short of the window's foot, kept clear for the host's AI label and
+ * Auto's widget (on a narrow window, above the tab bar and the host's voice button raised in it). Every colour is a
+ * look variable.
+ */
+
+.backdrop {
+  --candy-sheet-top: 88px;
+  --candy-sheet-foot: var(--candy-label-room);
+  position: fixed;
+  z-index: 30;
+  inset: var(--candy-sheet-top) 0 var(--candy-sheet-foot) 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px 24px;
+  box-sizing: border-box;
+  background: var(--candy-tint);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: min(820px, 100%);
+  max-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.head .block {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--candy-rs);
+  box-shadow: none;
+}
+
+.initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--candy-card-ink);
+  color: var(--candy-g1b);
+  font: 700 17px/1 var(--candy-title);
+}
+
+.initial[data-set="2"] {
+  color: var(--candy-g2b);
+}
+
+.initial[data-set="3"] {
+  color: var(--candy-g3b);
+}
+
+.headText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kind {
+  font: 800 12px/1.2 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.title {
+  margin: 0;
+  border-radius: 8px;
+  font: 600 24px/1.2 var(--candy-title);
+  color: var(--candy-text);
+  overflow-wrap: anywhere;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.title:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.meta {
+  margin: 0;
+  font: 400 13px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.summary {
+  margin: 0;
+  font: 400 15px/1.5 var(--candy-body);
+  color: var(--candy-text);
+  overflow-wrap: anywhere;
+}
+
+.document {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px 20px;
+  border-radius: var(--candy-rs);
+  box-shadow: inset 0 0 0 1px var(--candy-border);
+}
+
+.prose {
+  font-family: var(--candy-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--candy-text);
+  overflow-wrap: anywhere;
+}
+
+.preview {
+  min-width: 0;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.failed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (max-width: 1023px) {
+  .backdrop {
+    --candy-sheet-top: 68px;
+    --candy-sheet-foot: calc(env(safe-area-inset-bottom, 0px) + 140px);
+    padding: 12px;
+  }
+
+  .sheet {
+    gap: 14px;
+    padding: 18px 16px;
+  }
+
+  .head {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .head .block {
+    width: 52px;
+    height: 52px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+}

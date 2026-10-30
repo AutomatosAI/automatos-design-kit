@@ -1,0 +1,160 @@
+/*
+ * Auto's stage: on a desktop the rail's violet card (data-set="2", the look's corners) with Auto at 170 px over a
+ * soft light halo, his name, the state pill (the card's ink as its ground, the stage's ink as its words) and the
+ * Pause pill; on the phone a strip across the top with the bottom corners rounded at 40 px, a bar holding
+ * Conversations, the title and New chat, and Auto at 112 px. The halo sits behind Auto inside the card's own
+ * stacking context, never over anything else.
+ */
+
+.card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 330px;
+  padding: 24px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.strip {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 240px;
+  padding: 12px 16px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Over ui.card's own corners: the strip meets the phone's edges and rounds only its foot. */
+.strip[data-set] {
+  border-radius: 0 0 40px 40px;
+}
+
+.halo {
+  position: absolute;
+  z-index: -1;
+  top: 30px;
+  left: 50%;
+  width: 210px;
+  height: 210px;
+  margin-left: -105px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--candy-white28), transparent 70%);
+  pointer-events: none;
+}
+
+.strip .halo {
+  top: 58px;
+  width: 150px;
+  height: 150px;
+  margin-left: -75px;
+}
+
+.figure {
+  position: relative;
+}
+
+.name {
+  margin: 0;
+  font: 600 24px/1 var(--candy-title);
+  color: var(--candy-card-ink);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.statePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--candy-card-ink);
+  color: var(--candy-stage-ink);
+  font: 800 13px/1 var(--candy-body);
+  text-wrap: nowrap;
+}
+
+.bar {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stripTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font: 600 17px/1.2 var(--candy-title);
+  color: var(--candy-card-ink);
+  text-align: center;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
+.round {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--candy-target);
+  height: var(--candy-target);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--candy-white22);
+  color: var(--candy-card-ink);
+  font: 600 24px/1 var(--candy-title);
+  cursor: pointer;
+}
+
+.round[aria-expanded="true"] {
+  background: var(--candy-card-ink);
+  color: var(--candy-stage-ink);
+}
+
+.round:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* On the violet card the ring is the card's ink, which reads on every card gradient. */
+.round:focus-visible {
+  outline: 3px solid var(--candy-card-ink);
+  outline-offset: 2px;
+}
+
+.lines {
+  position: relative;
+  width: 18px;
+  height: 12px;
+  box-sizing: border-box;
+  border-top: 2.5px solid currentcolor;
+  border-bottom: 2.5px solid currentcolor;
+}
+
+.lines::after {
+  content: "";
+  position: absolute;
+  top: 2.25px;
+  right: 0;
+  left: 0;
+  border-top: 2.5px solid currentcolor;
+}

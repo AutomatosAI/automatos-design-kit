@@ -1,0 +1,229 @@
+/*
+ * Your team (/x/agents): the header row (the title and the search field), the filter pills with Manage agents at the
+ * end of their row, and the grid of agent cards: four columns from 1280 px, three from 1024 px, two below, one below
+ * 560 px. Each card is a window, centred: the avatar (a 4 px ring round a gradient centre), the name, the job, and
+ * the status and team chips at its foot. Every colour is a look variable; every corner a pill, a circle or the
+ * Roundness knob.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  color: var(--candy-text);
+  font-family: var(--candy-body);
+}
+
+.searchField {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  width: 300px;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-search);
+  cursor: text;
+}
+
+.searchField:focus-within {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.searchRing {
+  flex: none;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--candy-accent);
+  border-radius: 50%;
+}
+
+/* The field's ring is drawn on the pill around it (focus-within); a transparent outline keeps forced colours'. */
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--candy-text);
+  font: 400 14px/1.2 var(--candy-body);
+  outline: 2px solid transparent;
+}
+
+.searchInput::placeholder {
+  color: var(--candy-quiet);
+  opacity: 1;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.manage {
+  margin-left: auto;
+  padding: 4px 2px;
+}
+
+.failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 280px;
+  padding: 22px;
+  text-align: center;
+}
+
+.ring {
+  display: block;
+  flex: none;
+  box-sizing: border-box;
+  width: 92px;
+  height: 92px;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--candy-ring);
+}
+
+.ring[data-active="false"] {
+  background: var(--candy-border);
+}
+
+.face {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 4px solid var(--candy-win);
+  border-radius: 50%;
+  background: var(--candy-card-1);
+  color: var(--candy-card-ink);
+  font: 600 34px/1 var(--candy-title);
+}
+
+.face[data-set="2"] {
+  background: var(--candy-card-2);
+}
+
+.face[data-set="3"] {
+  background: var(--candy-card-3);
+}
+
+.face[data-set="none"] {
+  background: var(--candy-chip);
+  color: var(--candy-quiet);
+}
+
+.name {
+  margin: 4px 0 0;
+  font: 600 20px/1.1 var(--candy-title);
+  color: var(--candy-text);
+}
+
+/* The name's link covers the card, so the whole card opens the agent. */
+.nameLink {
+  color: inherit;
+  text-decoration: none;
+  outline: 2px solid transparent;
+}
+
+.nameLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--candy-r);
+}
+
+.nameLink:focus-visible::after {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.job {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  font: 400 14px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: auto 0 0;
+  padding-top: 12px;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The design's phone: the header's room for the host's utilities given back (the phone bar holds them). */
+@media (max-width: 1023px) {
+  .page .head {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .searchField {
+    flex: 1 1 220px;
+    width: auto;
+    max-width: 300px;
+  }
+
+  .card {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 559px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

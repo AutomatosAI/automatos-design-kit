@@ -1,0 +1,298 @@
+/*
+ * Candy's shared parts: the window (a white card with r corners and a tinted shadow), a gradient card (one of three),
+ * the page header row, the titles, the pill buttons (accent, window and quiet), a chip, a filter pill, a round
+ * avatar, a status word, a note, a screen-reader-only line, and the strip the host's own parts sit on. Every colour
+ * is a look variable; every corner a pill, a circle or the Roundness knob.
+ */
+
+.window {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--candy-r);
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-win);
+  color: var(--candy-text);
+}
+
+.card {
+  position: relative;
+  min-width: 0;
+  border-radius: var(--candy-r);
+  box-shadow: var(--candy-shadow-card);
+  color: var(--candy-card-ink);
+  transition: transform var(--candy-duration) ease, box-shadow var(--candy-duration) ease;
+}
+
+.card[data-set="1"] {
+  background: var(--candy-card-1);
+}
+
+.card[data-set="2"] {
+  background: var(--candy-card-2);
+}
+
+.card[data-set="3"] {
+  background: var(--candy-card-3);
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 46px var(--candy-glow-base), 0 26px 46px var(--candy-glow, transparent);
+}
+
+.pageHead {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 52px;
+  /* The room the host's header utilities take at the column's top right: the frame measures it (use-room.ts). */
+  padding-right: calc(var(--candy-utilities, 240px) + 16px);
+}
+
+.pageTitle {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: 600 34px/1 var(--candy-title);
+  letter-spacing: -0.01em;
+  color: var(--candy-text);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: 600 20px/1.2 var(--candy-title);
+  color: var(--candy-text);
+}
+
+.button,
+.secondary,
+.quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--candy-button);
+  padding: 0 26px;
+  border: 0;
+  border-radius: 999px;
+  font: 800 15px/1.2 var(--candy-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--candy-duration) ease;
+}
+
+.button {
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+  box-shadow: 0 12px 26px var(--candy-tint);
+}
+
+.secondary {
+  background: var(--candy-win);
+  color: var(--candy-text);
+}
+
+.quiet {
+  background: var(--candy-chip);
+  color: var(--candy-text);
+}
+
+.small {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.button:focus-visible,
+.secondary:focus-visible,
+.quiet:focus-visible,
+.focus:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.button:disabled,
+.secondary:disabled,
+.quiet:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--candy-win);
+  color: var(--candy-text);
+  font: 800 15px/1 var(--candy-body);
+  cursor: pointer;
+}
+
+.pill[aria-pressed="true"],
+.pill[aria-current="page"],
+.pill[aria-selected="true"] {
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+}
+
+.pill:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--candy-chip);
+  color: var(--candy-text);
+  font: 700 12px/1.2 var(--candy-body);
+  white-space: nowrap;
+}
+
+.chip[data-quiet="true"] {
+  background: transparent;
+  color: var(--candy-quiet);
+}
+
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: var(--candy-card-ink);
+  font: 600 17px/1 var(--candy-title);
+}
+
+.avatar[data-set="1"] {
+  background: var(--candy-card-1);
+}
+
+.avatar[data-set="2"] {
+  background: var(--candy-card-2);
+}
+
+.avatar[data-set="3"] {
+  background: var(--candy-card-3);
+}
+
+.avatar[data-set="none"] {
+  background: var(--candy-chip);
+  color: var(--candy-quiet);
+}
+
+.dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--candy-g1a);
+}
+
+.dot[data-set="2"] {
+  background: var(--candy-g2a);
+}
+
+.dot[data-set="3"] {
+  background: var(--candy-g3a);
+}
+
+.dot[data-set="accent"] {
+  background: var(--candy-accent);
+}
+
+.note {
+  margin: 0;
+  font: 400 15px/1.5 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.meta {
+  font: 400 13px/1.4 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.link {
+  border-radius: 999px;
+  font: 800 14px/1.2 var(--candy-body);
+  color: var(--candy-accent-text);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The host's parts sit here in Studio's own type, never in Candy's. */
+.host {
+  font-family: var(--candy-host-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  color: hsl(var(--foreground));
+}
+
+/*
+ * On a phone the host's utilities sit in the frame's top bar, so a page header keeps no room for them, and its title
+ * takes a line of its own, with the header's search or button under it.
+ */
+@media (max-width: 1023px) {
+  .pageHead {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .pageTitle {
+    flex-basis: 100%;
+    font-size: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .button,
+  .secondary,
+  .quiet {
+    transition: none;
+  }
+
+  .lift:hover {
+    transform: none;
+  }
+}

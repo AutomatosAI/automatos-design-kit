@@ -1,0 +1,222 @@
+/*
+ * The look editor's cards and pictures: the presets (each a picture of its palette over its name), the user's saved
+ * looks (a pill each, with Rename and Delete) and the preview's stage. Every colour is a look variable, or one of the
+ * custom properties the component sets from the catalogue for a preset's picture; every corner a pill or the
+ * Roundness knob.
+ */
+
+/* Presets: three cards, each a picture of its palette over its name. */
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.presetItem {
+  display: flex;
+  min-width: 0;
+}
+
+.preset {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--candy-rs);
+  background: var(--candy-win);
+  box-shadow: 0 0 0 1.5px var(--candy-line);
+  color: var(--candy-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.preset[aria-pressed="true"] {
+  box-shadow: 0 0 0 3px var(--candy-accent);
+  outline: 2px solid transparent;
+}
+
+.preset:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 4px;
+}
+
+.presetPicture {
+  position: relative;
+  display: block;
+  height: 96px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--candy-preset-page);
+}
+
+.presetBar {
+  position: absolute;
+  top: 14px;
+  width: 26%;
+  height: 68px;
+  border-radius: 14px;
+}
+
+.presetBar[data-bar="1"] {
+  left: 7%;
+  background: var(--candy-preset-1);
+}
+
+.presetBar[data-bar="2"] {
+  top: 8px;
+  left: 37%;
+  height: 80px;
+  background: var(--candy-preset-2);
+}
+
+.presetBar[data-bar="3"] {
+  left: 67%;
+  background: var(--candy-preset-3);
+}
+
+.presetName {
+  padding: 0 6px;
+  font: 800 15px/1.3 var(--candy-body);
+}
+
+.presetSub {
+  padding: 0 6px 4px;
+  font: 400 13px/1.35 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+/* The user's saved looks: a pill to pick each, with Rename and Delete. */
+
+.saved,
+.savedList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.savedHeading {
+  margin: 0;
+  font: 800 15px/1.3 var(--candy-body);
+  color: var(--candy-text);
+}
+
+.savedList {
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.savedRow,
+.renameForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.savedPick {
+  box-shadow: inset 0 0 0 1.5px var(--candy-line);
+}
+
+.nameField {
+  width: 220px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1.5px solid var(--candy-border);
+  border-radius: 999px;
+  background: var(--candy-page);
+  color: var(--candy-text);
+  font: 700 14px/1 var(--candy-body);
+}
+
+.nameField:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+/* The preview: the band, Auto and his bubble, three of Today's cards (the middle one taller), the user's bubble. */
+
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 420px;
+  padding: 22px;
+  border-radius: var(--candy-rs);
+  background: var(--candy-band);
+}
+
+.stageAuto {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.autoBubble,
+.userBubble {
+  margin: 0;
+  padding: 12px 16px;
+  font: 700 14px/1.4 var(--candy-body);
+}
+
+.autoBubble {
+  border-radius: 8px 20px 20px;
+  background: var(--candy-win);
+  color: var(--candy-text);
+}
+
+.userBubble {
+  align-self: flex-end;
+  border-radius: 20px 20px 8px;
+  background: var(--candy-user);
+  color: var(--candy-user-ink);
+}
+
+.previewCards {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.previewCards .previewCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  height: 150px;
+  padding: 14px;
+  border-radius: var(--candy-rs);
+}
+
+.previewCards .previewCard[data-set="2"] {
+  height: 176px;
+}
+
+.previewLabel {
+  font: 800 13px/1.2 var(--candy-body);
+}
+
+.previewCount {
+  font: 600 34px/1 var(--candy-title);
+}
+
+/* Narrow: the presets one under another (the controls window is the container). */
+
+@container (max-width: 460px) {
+  .presets {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

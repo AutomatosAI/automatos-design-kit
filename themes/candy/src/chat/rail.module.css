@@ -1,0 +1,80 @@
+/*
+ * Conversations (W2's rail window, and the phone's list under its stage): a window with its title in Outfit
+ * and a row per chat, a pill 44 px tall with a dot in one of the cards' colours, the title and how long ago; the
+ * conversation on screen on the chip colour. The rows scroll inside the window when they don't fit.
+ */
+
+.list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.listTitle {
+  margin: 0;
+  padding: 0 8px 8px;
+  font: 600 18px/1.2 var(--candy-title);
+  color: var(--candy-text);
+}
+
+.rows {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--candy-target);
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--candy-text);
+  text-decoration: none;
+}
+
+.row:hover,
+.row[aria-current="page"] {
+  background: var(--candy-chip);
+}
+
+.row:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: -3px;
+}
+
+.rowTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: 800 15px/1.3 var(--candy-body);
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowWhen {
+  flex: none;
+  font: 400 13px/1.3 var(--candy-body);
+  color: var(--candy-quiet);
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 4px 8px;
+}

@@ -1,0 +1,96 @@
+/*
+ * Candy's tokens and faces. The kit's preset puts every rule here under html.candy, so :root below is the theme's
+ * <html>; the CSS modules of the frame and the screens follow it into dist/theme.css.
+ *
+ * The look's colours are not set here: the host paints them on <html> before the first frame, from
+ * boot/prepaint.json (the palette's --candy-* colours, the card gradients' stops, the band and the aura, the card's
+ * layers for the Gradient knob, the glow's tint, Auto's colours and Studio's own tokens, so the host's pages inside
+ * the frame take the palette too). This file composes them into the design's cards, shadows and type, and names the
+ * two faces. Roundness is the frame's to set (src/frame/look-vars.ts); its default here is the design's 28 px.
+ *
+ * Nothing here is a rule on an element the host draws: no bare element selectors, no global focus ring, no motion
+ * rule on *. The host's pages, cards, voice button and AI label keep Studio's own styling.
+ */
+
+@font-face {
+  font-family: candy-outfit;
+  src: url("../assets/fonts/outfit-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: candy-outfit;
+  src: url("../assets/fonts/outfit-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: candy-nunito;
+  src: url("../assets/fonts/nunito-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: candy-nunito;
+  src: url("../assets/fonts/nunito-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: candy-nunito;
+  src: url("../assets/fonts/nunito-latin-800-normal.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Outfit 600 for titles and figures; Nunito 400, 700 and 800 for everything else (15 px body, 12 px at least). */
+  --candy-title: candy-outfit, var(--font-geist-sans), system-ui, sans-serif;
+  --candy-body: candy-nunito, var(--font-geist-sans), system-ui, sans-serif;
+  /* Studio's own face, for the strip the host's parts sit on. */
+  --candy-host-font: var(--font-geist-sans), system-ui, sans-serif;
+
+  /* Roundness: windows and cards use --candy-r, inner tiles --candy-rs (r × 0.72). The frame sets both from the look. */
+  --candy-r: 28px;
+  --candy-rs: 20px;
+
+  /* The shadows, tinted with the accent: a fixed .04 layer under the Glow knob's (0.04 + glow × 0.03). */
+  --candy-shadow-card: 0 22px 40px var(--candy-glow-base), 0 22px 40px var(--candy-glow, transparent);
+  --candy-shadow-win: 0 16px 40px var(--candy-glow-base), 0 16px 40px var(--candy-glow, transparent);
+  --candy-shadow-search: 0 8px 24px var(--candy-tint);
+
+  /* A card's ground, one per card gradient: the highlight, Vivid's glows, then the 155° gradient. */
+  --candy-card-1: var(--candy-card-hi), var(--candy-card-glow),
+    linear-gradient(155deg, var(--candy-g1a) 0%, var(--candy-g1b) var(--candy-card-mid), var(--candy-g1c) 100%);
+  --candy-card-2: var(--candy-card-hi), var(--candy-card-glow),
+    linear-gradient(155deg, var(--candy-g2a) 0%, var(--candy-g2b) var(--candy-card-mid), var(--candy-g2c) 100%);
+  --candy-card-3: var(--candy-card-hi), var(--candy-card-glow),
+    linear-gradient(155deg, var(--candy-g3a) 0%, var(--candy-g3b) var(--candy-card-mid), var(--candy-g3c) 100%);
+  /* The user's bubble: the accent's gradient (one colour on Night bloom). */
+  --candy-user: linear-gradient(150deg, var(--candy-user-a), var(--candy-user-b));
+  /* The orb: the three cards' starts and a pink, turned from 210°, under its gloss and a pink blush low on the right. */
+  --candy-orb: radial-gradient(circle at 34% 26%, var(--candy-white85) 0%, var(--candy-white12) 32%, transparent 60%),
+    radial-gradient(circle at 62% 78%, var(--candy-orb-blush) 0%, transparent 45%),
+    conic-gradient(from 210deg, var(--candy-g1a), var(--candy-g2a), var(--candy-g3a), var(--candy-orb-pink), var(--candy-g1a));
+  /* An active agent's ring. */
+  --candy-ring: conic-gradient(var(--candy-g1a), var(--candy-g2a), var(--candy-g3a), var(--candy-g1a));
+
+  /* Every control's focus ring: the accent's text colour, at least 3:1 on every ground. */
+  --candy-focus: 3px solid var(--candy-accent-text);
+
+  --candy-target: 44px;
+  --candy-button: 50px;
+  --candy-gutter: 36px;
+  --candy-duration: 160ms;
+  /* The host's AI label's corner: 150 × 26 at 8 px from the bottom, plus a margin. */
+  --candy-label-room: 52px;
+}

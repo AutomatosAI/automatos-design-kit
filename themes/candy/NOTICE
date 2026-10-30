@@ -1,0 +1,19 @@
+Automatos Candy
+Copyright 2026 Automatos AI
+
+The source code of this theme is licensed under the Apache License, Version 2.0
+(see LICENSE at the repository root).
+
+Auto in Candy
+-------------
+
+Candy's Auto is drawn from code (src/art/auto-geometry.ts), and the phone's
+stills in assets/mascot/ are written from that code by the tests, so both are
+under the code licence. They are not the Auto mascot animations Play and HUD
+ship.
+
+Fonts
+-----
+
+The faces in assets/fonts/ (Outfit and Nunito) are under the SIL Open Font
+License 1.1; each licence file sits beside its fonts.

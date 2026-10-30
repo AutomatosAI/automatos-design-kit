@@ -1,0 +1,184 @@
+/*
+ * The phone layout (below 1024 px): the top bar (menu button, mark, the host's utilities), the menu sheet over the
+ * page, and the floating tab bar: a 72 px pill 18 px from each side with Today, Chat, the host's voice button raised
+ * 18 px in a white surround with an accent ring, Shelf and Team. The bar floats above the host's AI label's corner
+ * (the label sits 8 px from the bottom, 26 px tall), never over it.
+ */
+
+.bar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 8px 12px 0 8px;
+}
+
+.menuButton {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--candy-target);
+  height: var(--candy-target);
+  border: 0;
+  border-radius: 50%;
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-search);
+  cursor: pointer;
+}
+
+.menuButton:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.burger {
+  width: 18px;
+  height: 12px;
+  border-top: 2.5px solid var(--candy-text);
+  border-bottom: 2.5px solid var(--candy-text);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.burger::after {
+  content: "";
+  position: absolute;
+  top: 2.25px;
+  left: 0;
+  right: 0;
+  border-top: 2.5px solid var(--candy-text);
+}
+
+.brand {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* A narrow phone keeps the mark alone: the host's utilities need the room. */
+@media (max-width: 479px) {
+  .brandName {
+    display: none;
+  }
+}
+
+.brandName {
+  font: 600 20px/1 var(--candy-title);
+}
+
+.utilities {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.sheet {
+  position: fixed;
+  z-index: 20;
+  top: 68px;
+  left: 12px;
+  right: 12px;
+  bottom: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 14px;
+  overflow-y: auto;
+  outline: none;
+}
+
+.tabBar {
+  position: fixed;
+  z-index: 10;
+  left: 18px;
+  right: 18px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 44px);
+  display: grid;
+  grid-template-columns: 1fr 1fr 76px 1fr 1fr;
+  align-items: center;
+  height: 72px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--candy-win);
+  box-shadow: var(--candy-shadow-win);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  justify-self: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: var(--candy-text);
+  text-decoration: none;
+}
+
+.tab[aria-current="page"] {
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+}
+
+.tab:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+.tabDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--candy-g1a);
+}
+
+.tabDot[data-set="2"] {
+  background: var(--candy-g2a);
+}
+
+.tabDot[data-set="3"] {
+  background: var(--candy-g3a);
+}
+
+.tab[aria-current="page"] .tabDot {
+  background: var(--candy-accent-ink);
+}
+
+.tabWord {
+  font: 800 12px/1 var(--candy-body);
+}
+
+.voice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  width: 64px;
+  height: 64px;
+  transform: translateY(-18px);
+}
+
+.voiceRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--candy-win);
+  box-shadow: 0 0 0 3px var(--candy-accent), var(--candy-shadow-search);
+}
+
+.voiceSlot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

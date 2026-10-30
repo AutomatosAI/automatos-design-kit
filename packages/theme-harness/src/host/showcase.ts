@@ -1,5 +1,5 @@
 /**
- * The showcase shots: clean images of the kit's themes, HUD, Play and Arcade, for READMEs, docs, the product site and
+ * The showcase shots: clean images of the kit's themes, HUD, Play, Arcade and Candy, for READMEs, docs, the product site and
  * the Marketplace listings' previews,
  * made in kit CI's harness job (shots/showcase.config.ts runs shots/showcase.spec.ts) and uploaded as the
  * `kit-showcase` artefact. No DOM and no React, so the spec (Node) and the tests read the same plan.
@@ -30,14 +30,14 @@ import type { DemoExtra } from './demo.ts'
 import { CHAT_PAGE, DESKTOP_HEIGHT, type Viewport } from './shot-groups.ts'
 
 /** The kit's themes the showcase draws, by their folder under themes/. */
-export const SHOWCASE_THEMES = Object.freeze(['hud', 'play', 'arcade'] as const)
+export const SHOWCASE_THEMES = Object.freeze(['hud', 'play', 'arcade', 'candy'] as const)
 export type ShowcaseTheme = (typeof SHOWCASE_THEMES)[number]
 
 /**
  * Each theme's `automatos-theme dev` port: one server per theme, beside the shots' 4318 and `dev`'s own 4319, so the
  * showcase never meets the smoke's or the phone shots' server.
  */
-export const SHOWCASE_PORTS: Readonly<Record<ShowcaseTheme, number>> = Object.freeze({ hud: 4320, play: 4321, arcade: 4322 })
+export const SHOWCASE_PORTS: Readonly<Record<ShowcaseTheme, number>> = Object.freeze({ hud: 4320, play: 4321, arcade: 4322, candy: 4323 })
 /** Where the shots go, under the harness package: their own folder, apart from the regression shots' dist/shots. */
 export const SHOWCASE_FOLDER = 'dist/showcase'
 export const SHOWCASE_EDITION: HarnessEdition = 'saas'
@@ -88,6 +88,10 @@ const LOOK_EDITOR: View = Object.freeze<View>({ kind: 'slot', key: LOOK_EDITOR_S
 const CONVERSATIONS: View = Object.freeze<View>({ kind: 'route', key: CONVERSATIONS_ROUTE, path: routePath(CONVERSATIONS_ROUTE) })
 const QUESTS: View = Object.freeze<View>({ kind: 'route', key: QUESTS_ROUTE, path: routePath(QUESTS_ROUTE) })
 const INVENTORY: View = Object.freeze<View>({ kind: 'page', key: DELIVERABLES_PAGE, path: pagePath(DELIVERABLES_PAGE) })
+const TODAY_ROUTE = 'today'
+const AGENTS_ROUTE = 'agents'
+const TODAY: View = Object.freeze<View>({ kind: 'route', key: TODAY_ROUTE, path: routePath(TODAY_ROUTE) })
+const TEAM: View = Object.freeze<View>({ kind: 'route', key: AGENTS_ROUTE, path: routePath(AGENTS_ROUTE) })
 
 type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading' | 'demo'>>
 
@@ -150,6 +154,16 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('arcade', DESKTOP, 'look-editor', 'overworld', LOOK_EDITOR),
   planned('arcade', PHONE, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
   planned('arcade', PHONE, 'chat', 'handheld', CHAT, ON_TRANSCRIPT),
+  planned('candy', DESKTOP, 'today', 'blush', TODAY),
+  planned('candy', DESKTOP, 'today', 'lilac', TODAY),
+  planned('candy', DESKTOP, 'today', 'nightbloom', TODAY),
+  planned('candy', DESKTOP, 'chat', 'blush', CHAT, ON_TRANSCRIPT),
+  planned('candy', DESKTOP, 'deliverables', 'blush', INVENTORY),
+  planned('candy', DESKTOP, 'team', 'blush', TEAM),
+  planned('candy', DESKTOP, 'look-editor', 'blush', LOOK_EDITOR),
+  planned('candy', DESKTOP, 'chat', 'nightbloom', CHAT, ON_TRANSCRIPT),
+  planned('candy', PHONE, 'today', 'blush', TODAY),
+  planned('candy', PHONE, 'chat', 'blush', CHAT, ON_TRANSCRIPT),
 ])
 
 /** A shot's file name: `<theme>-<width>-<what>-<look>.png`. */

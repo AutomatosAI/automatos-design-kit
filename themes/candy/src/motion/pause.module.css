@@ -1,0 +1,82 @@
+/*
+ * The Pause control: the sidebar's outlined row (the design's "Pause motion") and the stage's outlined pill. The
+ * icon is two bars while things move and a play triangle while they are paused, drawn in the text's colour.
+ */
+
+.row,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  font: 700 13px/1.2 var(--candy-body);
+  cursor: pointer;
+}
+
+.row {
+  width: 100%;
+  min-height: var(--candy-target);
+  padding: 0 12px;
+  border: 1.5px solid var(--candy-line);
+  background: transparent;
+  color: var(--candy-text);
+}
+
+.pill {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1.5px solid var(--candy-card-ink);
+  background: transparent;
+  color: var(--candy-card-ink);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.row:disabled,
+.pill:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.row:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 3px;
+}
+
+/* The pill sits on a gradient card: its ring is the card's white ink, which reads on every card gradient. */
+.pill:focus-visible {
+  outline: 3px solid var(--candy-card-ink);
+  outline-offset: 3px;
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--candy-chip);
+}
+
+.pill .icon {
+  display: none;
+}
+
+.bars {
+  width: 9px;
+  height: 9px;
+  border-left: 3px solid var(--candy-text);
+  border-right: 3px solid var(--candy-text);
+  box-sizing: border-box;
+}
+
+.play {
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid var(--candy-text);
+}
