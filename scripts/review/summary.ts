@@ -2,8 +2,10 @@
  * The review's summary: plain text the reviewer pastes into the admin queue's report note
  * (`POST /api/admin/themes/{id}/report-note`, `{summary, outcome}`; core keeps at most 20,000
  * characters), and the job summary that shows it on the workflow run inside a fenced block, so
- * nothing from the package renders as Markdown.
+ * nothing from the package renders as Markdown. After the checks, the report-only "Previews and
+ * accessibility" section (PRD-261 B-02j, report.ts), which the outcome line above never counts.
  */
+import { sectionLines } from './report.ts'
 import type { ReviewReport } from './review.ts'
 
 /** Core's report-note limit is 20,000 characters (admin_themes.py `SUMMARY_MAX`); stay well under. */
@@ -15,7 +17,7 @@ const LINE_MAX = 240
 const LINE_BREAK = /\r\n|[\n\r\v\f\x85\u2028\u2029]/
 
 /** One line of plain text: control characters made spaces, cut to LINE_MAX. */
-function plainLine(text: string): string {
+export function plainLine(text: string): string {
   const plain = text.replace(/[\x00-\x1f\x7f\x85\u2028\u2029]/g, ' ')
   return plain.length > LINE_MAX ? `${plain.slice(0, LINE_MAX - 1)}…` : plain
 }
@@ -55,14 +57,14 @@ function checkLines(report: ReviewReport): string[] {
 
 /** The text to paste, at most SUMMARY_MAX_CHARS characters. */
 export function summaryText(report: ReviewReport): string {
-  const lines = [...header(report), '', 'Checks:', ...checkLines(report)].map(plainLine)
+  const lines = [...header(report), '', 'Checks:', ...checkLines(report), '', ...sectionLines(report.previewsAndAccessibility)].map(plainLine)
   const text = lines.join('\n')
   if (text.length <= SUMMARY_MAX_CHARS) return text
   return `${text.slice(0, SUMMARY_MAX_CHARS - 40)}\n… (cut to fit the admin queue's note)`
 }
 
 /** A backtick fence longer than any run of backticks in `text`. */
-function fenceFor(text: string): string {
+export function fenceFor(text: string): string {
   const longest = Math.max(0, ...Array.from(text.matchAll(/`+/g), (match) => match[0].length))
   return '`'.repeat(Math.max(3, longest + 1))
 }
