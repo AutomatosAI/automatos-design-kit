@@ -188,3 +188,70 @@ jobs:
           name: kit-lighthouse
           path: packages/theme-harness/dist/lighthouse/
           if-no-files-found: warn
+
+  # PRD-261 B-06a: a proof run's pull request (proof/README.md), from a branch named proof/<id>-<slug> only. The checkout
+  # is the pull request's own head with its history, not the merge with main, so the guard sees the proof's diff alone.
+  # The guard is main's copy of scripts/proof/guard.mjs (taken from origin/main, so a proof branch can't change the
+  # check that judges it), run with --ci and Node alone, before any install: it reads the one proof/<id>/BASE the branch
+  # holds, takes the slug from the branch's name (HEAD_REF, passed through the environment, never into the script's
+  # text), fetches that base tag and fails on any change outside themes/<slug>/ and proof/<id>/, but the new workspace's
+  # lock entries and the launcher's deletion of the leak paths. The kit job above builds, lints, typechecks, tests and
+  # packs the new theme with every other workspace (themes/* are workspaces); the harness job shoots Play and HUD by
+  # name, so this job runs the server's checks on the new theme and shoots it in the browser harness, its shots and
+  # axe.json files uploaded as kit-proof-shots.
+  proof:
+    name: Proof guard, check and shots
+    if: startsWith(github.head_ref, 'proof/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Proof guard
+        id: guard
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          git show origin/main:scripts/proof/guard.mjs > "$RUNNER_TEMP/proof-guard.mjs"
+          node "$RUNNER_TEMP/proof-guard.mjs" --ci
+
+      - name: Pin npm
+        run: npm install -g npm@11.21.1
+
+      - name: Install (from the lockfile)
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      - name: Proof theme check
+        env:
+          PROOF_THEME: ${{ steps.guard.outputs.theme }}
+        run: npx automatos-theme check "$PROOF_THEME"
+
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Proof theme shots
+        env:
+          PROOF_THEME: ${{ steps.guard.outputs.theme }}
+        run: npx automatos-theme shots "$PROOF_THEME" --out packages/theme-harness/dist/shots/proof
+
+      - name: Upload proof shots
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kit-proof-shots
+          path: packages/theme-harness/dist/shots/proof/
+          if-no-files-found: error

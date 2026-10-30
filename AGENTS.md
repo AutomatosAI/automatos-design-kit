@@ -130,6 +130,12 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   scores a table in the job summary; no score fails the build, and the step continues on any error. The job uploads
   the shots, their `axe.json` files and the smoke's shots as `kit-harness`, the showcase as `kit-showcase`, and the
   Lighthouse reports as `kit-lighthouse`.
+- Its `proof` job runs only on a pull request from a `proof/` branch (`proof/README.md`). On the branch's own head
+  and history, `main`'s copy of `scripts/proof/guard.mjs --ci` (never the branch's) reads the branch's one
+  `proof/<id>/BASE`, fetches that base tag and fails on a change outside `themes/<slug>/` and `proof/<id>/` (but the
+  new workspace's lock entries and the launcher's deletion of the leak paths); then the job installs, builds, runs
+  `automatos-theme check` on the new theme and shoots it in the browser harness, uploaded as `kit-proof-shots`. The `kit` job builds, lints, typechecks, tests
+  and packs the new theme with every other workspace; the `harness` job shoots Play and HUD only.
 
 ## Adding a dependency
 
