@@ -20,6 +20,13 @@
  * No axe scan: the regression shots scan the same views. HUD draws no Command Centre of its own (its theme.json
  * declares no such page, so the host's page would stand in its frame), so none is shot.
  *
+ * The proactive area (SDK 1.3.0): every shot has the sample day's brief and its open suggestions (src/host/sample-data.ts)
+ * but the first open, which is the day without one (`brief: false`, the workspace's brief off), so Play greets as it
+ * does on a first open. Play's proactive shots (PRD-268 US-K01) draw the brief on an empty chat in Ember and in Daylight
+ * (the Paper ground), the newest suggestion opened from its line pinned above the message box (`open-suggestion`), and
+ * an approval waiting in Auto's reply: the shot sends the member's words (`ask-approval`, into the theme's message box
+ * named by `composer`) and the demo extra `approval-turn` answers them with the recorded turn that raises one.
+ *
  * Each shot's file is `<theme>-<width>-<what>-<look>.png` (showcaseFile), in SHOWCASE_FOLDER of the harness package.
  */
 import {
@@ -50,8 +57,12 @@ export const SHOWCASE_LOCALE = 'en-GB'
 export const SHOWCASE_DESKTOP: Viewport = Object.freeze({ width: SHOT_WIDTHS[0], height: DESKTOP_HEIGHT })
 export const SHOWCASE_PHONE: Viewport = PHONE_VIEWPORT
 
-/** What the spec does on the page before the shot: nothing, or open the theme's phone menu (its Menu button). */
-export type ShowcaseStep = 'none' | 'open-menu'
+/**
+ * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); open the
+ * pinned suggestion's full card from its line; or send APPROVAL_ASK from the theme's message box and wait for the
+ * approval card the answer raises.
+ */
+export type ShowcaseStep = 'none' | 'open-menu' | 'open-suggestion' | 'ask-approval'
 
 /** One showcase image: a theme's view in one look and viewport, with the host's chat and voice as given. */
 export interface ShowcaseShot {
@@ -66,7 +77,11 @@ export interface ShowcaseShot {
   /** True opens the chat on the laptop-shortlist conversation; false on a new chat. */
   readonly transcript: boolean
   readonly voice: HarnessVoicePhase
+  /** True: the sample day's brief; false: no brief today (the workspace's brief off). */
+  readonly brief: boolean
   readonly step: ShowcaseStep
+  /** The theme's message box, by its accessible name, that `ask-approval` types into. */
+  readonly composer?: string
   /** A heading the view must show (the first open's greeting), when the shot is one the theme names so. */
   readonly heading?: string
   /** The demo extras over the sample data. */
@@ -77,6 +92,11 @@ const LOOK_EDITOR_SLOT = 'lookEditor@1'
 const CONVERSATIONS_ROUTE = 'conversations'
 const QUESTS_ROUTE = 'quests'
 const DELIVERABLES_PAGE = '/deliverables'
+/** Play's message box, by its name (themes/play/src/components/play/chat/message-box.tsx PLACEHOLDER). */
+export const PLAY_MESSAGE_BOX = 'Message Auto'
+/** What `ask-approval` sends: the made-up request the recorded approval turn answers. */
+export const APPROVAL_ASK = "Remind the parents' group about the bake sale"
+
 /**
  * Play's hello: the first open's heading (themes/play/src/components/play/chat/first-open.tsx HELLO_TITLE), and Auto's
  * caption while he plays it (packages/mascot/src/media.ts), which no shot after the hello shows.
@@ -93,7 +113,7 @@ const AGENTS_ROUTE = 'agents'
 const TODAY: View = Object.freeze<View>({ kind: 'route', key: TODAY_ROUTE, path: routePath(TODAY_ROUTE) })
 const TEAM: View = Object.freeze<View>({ kind: 'route', key: AGENTS_ROUTE, path: routePath(AGENTS_ROUTE) })
 
-type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'step' | 'heading' | 'demo'>>
+type ShotChanges = Partial<Pick<ShowcaseShot, 'transcript' | 'voice' | 'brief' | 'step' | 'composer' | 'heading' | 'demo'>>
 
 /** Every shot's extra: the roster with every agent active, as HUD's AGENTS panel lists it. */
 const HEALTHY: readonly DemoExtra[] = Object.freeze(['healthy-agents'])
@@ -103,7 +123,8 @@ function planned(
   theme: ShowcaseTheme, viewport: Viewport, what: string, look: string, view: View, changes: ShotChanges = {},
 ): ShowcaseShot {
   const made: ShowcaseShot = {
-    theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, step: 'none', demo: HEALTHY,
+    theme, viewport, what, look, view, transcript: false, voice: DEFAULT_SETTINGS.voice, brief: DEFAULT_SETTINGS.brief, step: 'none',
+    demo: HEALTHY,
   }
   return Object.freeze({ ...made, ...changes })
 }
@@ -120,6 +141,10 @@ const ON_TRANSCRIPT: ShotChanges = Object.freeze<ShotChanges>({ transcript: true
 const LISTENING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'listening' })
 const SPEAKING: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, voice: 'speaking' })
 const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-menu' })
+/** The first open: an empty chat on a day without a brief, so the greeting stands where the brief would. */
+const FIRST_OPEN: ShotChanges = Object.freeze<ShotChanges>({ heading: PLAY_HELLO, brief: false })
+const OPEN_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-suggestion' })
+const ASK_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'ask-approval', composer: PLAY_MESSAGE_BOX })
 
 /** Every showcase shot, theme by theme, the desktop's before the phone's. */
 export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
@@ -135,15 +160,22 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('hud', PHONE, 'voice-listening', 'forge', CHAT, LISTENING),
   planned('hud', PHONE, 'look-editor', 'arc', LOOK_EDITOR),
   planned('hud', PHONE, 'voice-speaking', 'arc', CHAT, SPEAKING),
-  planned('play', DESKTOP, 'first-open', 'ember', CHAT, { heading: PLAY_HELLO }),
+  planned('play', DESKTOP, 'first-open', 'ember', CHAT, FIRST_OPEN),
   planned('play', DESKTOP, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, afterHello(SPEAKING)),
   planned('play', DESKTOP, 'chat', 'daylight', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'look-editor', 'ember', LOOK_EDITOR),
+  planned('play', DESKTOP, 'brief', 'ember', CHAT),
+  planned('play', DESKTOP, 'brief', 'daylight', CHAT),
+  planned('play', DESKTOP, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
+  planned('play', DESKTOP, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
   planned('play', PHONE, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', PHONE, 'menu', 'ember', CHAT, afterHello(MENU)),
   planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, afterHello(ON_TRANSCRIPT, 'older-chats')),
   planned('play', PHONE, 'voice-listening', 'ember', CHAT, afterHello(LISTENING)),
+  planned('play', PHONE, 'brief', 'ember', CHAT),
+  planned('play', PHONE, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
+  planned('play', PHONE, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
   planned('arcade', DESKTOP, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'dungeon', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'neon', CHAT, ON_TRANSCRIPT),
@@ -178,13 +210,13 @@ export function showcaseOrigin(theme: ShowcaseTheme): string {
 
 /**
  * The address a shot opens on its theme's server: its view's path in its look at its width, with reduced motion, its
- * conversation and voice phase, no toolbar, on the hosted edition, with its demo extras.
+ * conversation, voice phase and brief, no toolbar, on the hosted edition, with its demo extras.
  */
 export function showcaseUrl(shot: ShowcaseShot): string {
-  const { view, look, viewport, transcript, voice, demo } = shot
+  const { view, look, viewport, transcript, voice, brief, demo } = shot
   const settings = {
-    ...DEFAULT_SETTINGS, path: view.path, preset: look, width: viewport.width, reducedMotion: true, transcript, voice, toolbar: false,
-    edition: SHOWCASE_EDITION, demo,
+    ...DEFAULT_SETTINGS, path: view.path, preset: look, width: viewport.width, reducedMotion: true, transcript, voice, brief,
+    toolbar: false, edition: SHOWCASE_EDITION, demo,
   }
   return `${showcaseOrigin(shot.theme)}/${settingsQuery(settings)}`
 }

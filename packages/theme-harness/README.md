@@ -262,7 +262,9 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   edition is fixed for a build, so core's local-only first-run nudge is not drawn; the showcase shots draw so. So does
   `demo=`, a comma list of made-up extras over the sample data (`src/host/demo.ts`, given in `src/host/demo-data.ts`):
   `healthy-agents` (every agent of the roster active), `older-chats` (five older conversations,
-  `fixtures/conversations/showcase.json`, beside the transcript or a new chat) and `hello-played` (Play's hello played
+  `fixtures/conversations/showcase.json`, beside the transcript or a new chat), `approval-turn` (the next send is
+  answered with `fixtures/streams/turns.json`'s `approvalView` turn, which raises an approval with its view) and
+  `hello-played` (Play's hello played
   this session, in theme state, as Play's tests mark it). Without it the page draws the sample data alone.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
@@ -296,8 +298,9 @@ layer, in core's frames, with stand-ins that take the room core's cards take; th
 draws it the same way: core's browser lane does that.
 
 `shots/dev-smoke.config.ts` is the smoke of `automatos-theme dev` (kit CI's `harness` job, after the shots): its web
-server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium and checks
-that Play started, that its own `/chat` page is on the stage with Auto saying hello over the message box, and that
+server is `automatos-theme dev themes/play`, and `shots/dev-smoke.spec.ts` opens `/chat` there on Chromium, on a day
+without a brief (`brief=off`), and checks that Play started, that its own `/chat` page is on the stage with Auto saying
+hello over the message box, and that
 every request stayed on `http://127.0.0.1:4319`; then it opens `/phone` and checks the phone view says Play is the
 phone's built-in layout and draws Play's `/chat` there, beside the contrast panel. Its shots and a failed test's trace
 go to `dist/shots/dev-smoke/`.
@@ -324,8 +327,12 @@ declared views and presets) on Chromium, one test each: one view in one look at 
 `edition=saas` in the address (so no first-run nudge), at twice the pixel density, with reduced motion, a clock fixed
 inside the fixtures' made-up day, the time zone and locale fixed too, the host's Auto widget stand-in hidden for the
 shot, and the demo extras a workspace in use shows (`demo=`: every agent active; on Play's conversations its hello
-already played; older conversations on Play's list). A test fails when the theme did not start, lacks the shot's look,
-is not on the shot's view, draws the nudge, is not in the shot's voice phase or shows Play's hello after it played. No axe scan: the regression shots scan the same views. The PNGs go to
+already played; older conversations on Play's list). Every shot has the sample day's brief but Play's first open, the
+day without one (`brief=off`). A shot's step may open the theme's phone menu; open the pinned suggestion's full card
+from its line; or send words from the theme's message box (the shot's `composer`) and wait for the host's approval
+card the demo extra `approval-turn` raises in answer. A test fails when the theme did not start, lacks the shot's look,
+is not on the shot's view, draws the nudge, is not in the shot's voice phase, shows Play's hello after it played, or
+its step finds nothing to press or no card. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
 the job uploads the folder as `kit-showcase`.
 

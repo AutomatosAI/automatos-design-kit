@@ -101,7 +101,9 @@ pixel density, with reduced motion, a fixed clock (14 Oct 2026, 10:24 UTC, insid
 harness's own made-up data: the laptop-shortlist conversation and its Deliverable, the running Mission and the board's
 cards, and the made-up voice session, with the demo extras a workspace in use shows (`demo=` in the address): every
 agent active, Play's hello already played on each of its conversations (its first open keeps it), and five older
-conversations on Play's Conversations. The harness's labelled stand-in for core's floating Auto widget is hidden for
+conversations on Play's Conversations. Every shot has the sample day's brief and open suggestions but Play's first
+open, which is the day without one (`brief=off`). Play's approval shots send words from its message box, which the
+demo extra `approval-turn` answers with the recorded turn that raises an approval. The harness's labelled stand-in for core's floating Auto widget is hidden for
 the shot. The images are Chromium's alone and get no axe scan: the regression shots cover WebKit and the scans.
 
 The PNGs go to `packages/theme-harness/dist/showcase/`, each named `<theme>-<width>-<what>-<look>.png` (for example
@@ -113,8 +115,8 @@ list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
 |---|---|---|
 | HUD | 1440 | `chat-arc`, `chat-forge`, `chat-ghost`, `chat-nova`, `chat-signal` (one per look: HUD's listing previews), `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
 | HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc` |
-| Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember` |
-| Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember` |
+| Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember`, `brief-ember`, `brief-daylight` (the day's brief in the first open's place), `suggestion-ember` (the pinned suggestion opened), `approval-ember` (an approval waiting in Auto's reply) |
+| Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember`, `brief-ember`, `suggestion-ember`, `approval-ember` |
 | Arcade | 1440 | `chat-overworld`, `chat-dungeon`, `chat-neon`, `chat-nightcity`, `chat-handheld`, `quests-overworld`, `inventory-overworld`, `look-editor-overworld` |
 | Arcade | 390 | `chat-overworld`, `chat-handheld` |
 | Candy | 1440 | `today-blush`, `today-lilac`, `today-nightbloom` (one per look: Candy's listing covers), `chat-blush`, `deliverables-blush`, `team-blush`, `look-editor-blush`, `chat-nightbloom` |

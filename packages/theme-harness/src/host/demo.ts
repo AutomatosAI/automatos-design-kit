@@ -8,12 +8,15 @@
  *   an inactive one and one no CLI host can run, for the panels that list them.
  * - `older-chats`: the backend holds five older conversations too (fixtures/conversations/showcase.json), beside the
  *   transcript or a new chat, so a theme's conversation list reads as a workspace in use.
+ * - `approval-turn`: the next thing the member sends is answered with the recorded turn that raises an approval with
+ *   its approval view (fixtures/streams/turns.json `approvalView`: a send to the parents' group, waiting for the
+ *   member), so a showcase shot can draw the host's approval card where the theme places it (src/host/showcase.ts).
  * - `hello-played`: Play's hello has played earlier in this tab's session (theme state HELLO_KEY, true, for this
  *   session and the account, as themes/play/src/lib/mascot/session.ts keeps it and Play's own tests mark it), so a chat
  *   opens with Auto at rest.
  */
 
-export const DEMO_EXTRAS = Object.freeze(['healthy-agents', 'older-chats', 'hello-played'] as const)
+export const DEMO_EXTRAS = Object.freeze(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played'] as const)
 export type DemoExtra = (typeof DEMO_EXTRAS)[number]
 
 /** None: the sample data alone. */
