@@ -5,12 +5,12 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.2.1.
+`themes/hud/theme.json` at version 1.3.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.2.1` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.4.0, the vendored SDK (the proactive area HUD uses since 1.2.0 is SDK 1.3.0's, the voice area SDK 1.2.0's) |
+| `id`, `version` | `automatos/hud`, `1.3.0` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.4.0, the vendored SDK (since 1.3.0 HUD uses its names: a message's `knownParts`, BriefVoice's `onSpeakingRow` and `useRateBrief`; the rest of the proactive area is SDK 1.3.0's, the voice area SDK 1.2.0's) |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px HUD draws its phone layout (below) |
@@ -26,7 +26,7 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box, and in the transcript the brief and the suggestions Auto posts and his SAY chips (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
@@ -37,14 +37,19 @@ Esc stops); voice is beside it, never instead of it.
 
 HUD 1.2.0 draws the proactive surfaces from the SDK's proactive area (SDK 1.3.0: `useBrief`, `useSuggestions`,
 `useStartSuggestion`, `useHideSuggestion`, `useReadiness`, `useCheckReadiness`), the theme area's `DISPLAY_STATE_LABELS`
-(each state's glyph and HUD word) and the voice area's `BriefVoice`. Every word is the server's, in the person's
-language; Auto's words (the greeting, the brief's titles and whys, the suggestion's title) carry `data-ai-generated`.
-HUD calls no speech API and places the host's approval cards where it always has, never redrawing them.
+(each state's glyph and HUD word) and the voice area's `BriefVoice`. HUD 1.3.0 adds SDK 1.4.0's: each chat message's
+`knownParts` (its `brief@1`, `suggestion@1` and `reply_chips@1` parts, which the host checks), BriefVoice's
+`onSpeakingRow` and `useRateBrief`. Every word is the server's, in the person's language; Auto's words (the greeting,
+the brief's titles and whys, the suggestion's title and detail, the reply chips) carry `data-ai-generated`. HUD calls no
+speech API and places the host's approval cards where it always has, never redrawing them.
 
 | Part | Desktop | Phone |
 |---|---|---|
 | BRIEFING (`src/chat/briefing/`): the day's brief once the host has it. Its day as the panel's value, the greeting, the host's Listen (`BriefVoice`) with `▸ SPEAKING` beside it while its root says Auto reads, and the brief's sections in Brief@1's order, each its label and exact count (the brief's own, the SDK's English defaults behind them), every row numbered across them as Listen numbers the titles, each its why, its time, its state as a glyph and a word, and its action named by the row: a link where it opens, or Start on a suggestion's row, which says "✓ Started" in its place; a section the brief folded shows the rows it carries under its exact count (Brief@1 holds no hidden rows, so there is nothing to open in place and no "Show N more"); its own sentence for an empty day | At three columns (the screen 1180 px or wider) the right column; at two (940 to 1179 px) the column Today is in; at one (under 940 px) the transcript's slot, unless a card in the conversation waits for you | The last exchange's slot, unless a card waits for you |
-| The `▸ NEXT` line (`src/chat/next/`): the newest open suggestion that BRIEFING on screen doesn't already list with its own Start (so one never shows twice), its title, START and HIDE as SAY chips that can be tapped (each named by its words and the suggestion, "Say “start”: …"); HIDE asks why (Not now, Not useful, Wrong agent, Just hide; Escape shuts it); started, "Started. Auto is on it." for 4 s, then the next; refused, the reason in one line. In no live region: never spoken | Between the host's credits banner and the voice deck, over the message box | Under the top line, never over TYPE · HOLD TO TALK |
+| The `▸ NEXT` line (`src/chat/next/`): the newest open suggestion that the screen doesn't already show with its own Start, BRIEFING's, or from 1.3.0 the conversation's while the transcript shows (its suggestion cards and its brief's rows; on the phone, the last exchange's), so one never shows twice, its title, START and HIDE as SAY chips that can be tapped (each named by its words and the suggestion, "Say “start”: …"); HIDE asks why (Not now, Not useful, Wrong agent, Just hide; Escape shuts it); started, "Started. Auto is on it." for 4 s, then the next; refused, the reason in one line. In no live region: never spoken | Between the host's credits banner and the voice deck, over the message box | Under the top line, never over TYPE · HOLD TO TALK |
+| SAY chips (`src/chat/thread/say-replies.tsx`, 1.3.0): the answers Auto offers when he asks you to choose (a message's `reply_chips@1` part), under the conversation's newest message while it is his: `SAY`, then each answer in quotes as a square outline chip, named "Reply: <chip>". A tap sends the chip's words as your message, as Send does; a refused send leaves them; a newer message, yours or his, takes them away. In no live region: never spoken | In the transcript, the last thing in Auto's row, at three, two and one columns (not while BRIEFING stands in its slot) | In the last exchange |
+| The brief as a message (`src/chat/thread/thread-brief.tsx`, 1.3.0): the brief Auto posts into the conversation (a `brief@1` part, found by its part, never by its prose), in his row in his words' place: a panel titled Brief with the brief's day, the greeting, his Read once (never a second time as the message's text) and the brief's sections as BRIEFING draws them, Start on a suggestion's row. Listen and the thumbs stay in BRIEFING | In the transcript | In the last exchange, when the brief is in it |
+| A suggestion in the conversation (`src/chat/thread/thread-suggestion.tsx`, 1.3.0): a suggestion Auto posts (a `suggestion@1` part, its id), in his row, named "Auto suggests: <title>" as the host's own card is: `▸ AUTO SUGGESTS`, its title and detail, START and HIDE as the NEXT line's SAY chips. Drawn from `useSuggestions`, never from the thread, so only while that suggestion is open and the viewer's; started, "Started. Auto is on it." for 4 s, then gone. Auto's words are in no live region (only HUD's started and refused lines are statuses): never spoken | In the transcript | In the last exchange |
 | MISSIONS (`src/chat/panels/missions-panel.tsx`): the newest Missions, the ones that need you first, each its goal linked, its state as a glyph and a word, `▸` its next step, a 3 px rail in the readable accent while it works, and Try again on a failed one (a rerun from its goal and settings, or a replan, as the server says) | Under Mission (the left column; the right column at two) | None |
 | SYSTEMS (`src/chat/panels/systems-panel.tsx`): what Auto depends on, each item ✓ READY, ○ NOT CHECKED or ◆ NEEDS SETUP, its detail and its fix, Check again, and how many are ready | At the foot of the right column | None |
 
@@ -62,11 +67,19 @@ HUD calls no speech API and places the host's approval cards where it always has
 - **Colour.** Every status is in the readable accent (`--hud-accent-text`) but failed, in the error colour
   (`--hud-error-text`), and the quiet ones (done, a ready or unchecked item) in the secondary text; never `--accent`.
   The glyph and the word always carry the meaning.
-- **Motion.** BRIEFING and the NEXT line enter once, a fade and a 4 px rise over 180 ms; under the reduced-motion
-  setting, or with the look's motion off, nothing moves. Nothing loops, and the rail is still.
-- **Not yet.** Reply chips under Auto's last message (`SAY "WINDOW"`) and the brief as a message in the conversation
-  need message parts in a theme's own chat, which the SDK doesn't give yet; the brief's thumbs are the host's
-  BriefCard's alone; calibration waits for the server to offer it.
+- **Built in time with speech (1.3.0).** While the host's Listen reads the brief, BRIEFING follows the row it says Auto
+  reads (`onSpeakingRow`, the index across the brief's rows: HUD's number less one; the host's root carries it as
+  `data-voice-row`): a row he hasn't reached isn't drawn yet, a row is drawn as he reaches it, and `▸` stands beside the
+  number of the one he reads, announced as current; the rows he has read stay. Once he stops, every row is plain again.
+- **The brief's thumbs (1.3.0).** In BRIEFING's footer: USEFUL and NOT USEFUL, through `useRateBrief` (the brief's
+  `state_hash`, up or down; the host posts 1 or -1). One rating per brief per viewer: rated, the thumb given stays
+  pressed and neither takes a press again; the rating shown is the one the server keeps for this person
+  (`useRateBrief(state_hash).rating`, shared with the host's own brief card), so it is the same in every browser;
+  refused, the reason in one line, and it can be tried again; a new brief is rated afresh.
+- **Motion.** BRIEFING and the NEXT line enter once, a fade and a 4 px rise over 180 ms, and a BRIEFING row read aloud
+  fades and rises 4 px into place as Auto reaches it; under the reduced-motion setting, or with the look's motion off,
+  nothing moves: every row is drawn at once and only the reading marker moves. Nothing loops, and the rail is still.
+- **Not yet.** Calibration waits for the server to offer it.
 
 ## Voice
 

@@ -287,9 +287,12 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   `demo=`, a comma list of made-up extras over the sample data (`src/host/demo.ts`, given in `src/host/demo-data.ts`):
   `healthy-agents` (every agent of the roster active), `older-chats` (five older conversations,
   `fixtures/conversations/showcase.json`, beside the transcript or a new chat), `approval-turn` (the next send is
-  answered with `fixtures/streams/turns.json`'s `approvalView` turn, which raises an approval with its view) and
+  answered with `fixtures/streams/turns.json`'s `approvalView` turn, which raises an approval with its view),
   `hello-played` (Play's hello played
-  this session, in theme state, as Play's tests mark it). Without it the page draws the sample data alone.
+  this session, in theme state, as Play's tests mark it), `brief-thread` (the chat opens on Auto's thread holding the
+  day's brief as he posts it, its prose beside its `brief@1` part, in place of the transcript or a new chat) and
+  `brief-row` (Auto reads the day's brief from the page's start, on its third row, as the host's Listen marks it with
+  `data-voice-row` and tells a theme's `onSpeakingRow`). Without it the page draws the sample data alone.
 
 - **The phone view** (`/phone`, the toolbar's Phone view link; below).
 
@@ -356,11 +359,14 @@ day without one, and HUD's chat, voice, panel and approval shots (`brief=off`, i
 A shot's step may open the theme's phone menu; open the pinned suggestion's full card from its line; send words from
 the theme's message box (the shot's `composer`, after the button named by `opensComposer`: HUD's phone TYPE) and wait
 for the host's approval card the demo extra `approval-turn` raises in answer; press the host's Listen and wait until
-Auto reads the brief (`listen`); scroll its heading into view (`scroll-to-heading`); or scroll Play's reply chips
-(`show-replies`) or the suggestion card Play draws in the conversation (`show-thread-suggestion`) into view, the
-transcript's reply carrying both as message parts (SDK 1.4.0). A test fails when the theme did
+Auto reads the brief (`listen`); scroll its heading into view (`scroll-to-heading`); or scroll the theme's reply chips
+(`show-replies`, the group named Replies in Play and in HUD) or the suggestion card it draws in the conversation
+(`show-thread-suggestion`, an article "Auto suggests: …" in either) into view, the transcript's reply carrying both as
+message parts (SDK 1.4.0). HUD's shots of them also use the demo extras `brief-thread` (the brief as a message) and
+`brief-row` (BRIEFING while Auto reads a row). A test fails when the theme did
 not start, lacks the shot's look, is not on the shot's view, draws the nudge, is not in the shot's voice phase, shows
-Play's hello after it played, or its step finds nothing to press or no card. No axe scan: the regression shots scan the same views. The PNGs go to
+Play's hello after it played, does not mark the row Auto reads under `brief-row`, or its step finds nothing to press or
+no card. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
 the job uploads the folder as `kit-showcase`.
 

@@ -2,10 +2,13 @@
 // `demo=` names them (src/host/router.ts readSettings, settingsQuery), and app/host.tsx prepareHost gives them to the
 // fake host before the first render, as main.tsx starts the page. `healthy-agents`: every agent of the roster active;
 // `older-chats`: five older conversations beside the transcript, or a new chat; `approval-turn`: the next send answered
-// with the recorded turn that raises an approval; `hello-played`: Play's hello played this session, in theme state. With none the page draws the sample data, as the regression shots do. A sample theme
-// (made-up data) draws what it reads on its /chat page.
+// with the recorded turn that raises an approval; `hello-played`: Play's hello played this session, in theme state;
+// `brief-thread` (SDK 1.4.0): the chat on Auto's thread holding the day's brief as a brief@1 message; `brief-row`: Auto
+// reads the brief's third row from the page's start, as the host's Listen tells it. With none the page draws the
+// sample data, as the regression shots do. A sample theme (made-up data) draws what it reads on its /chat page.
 import {
-  defineTheme, readThemeState, useAgents, useConversationList, type ThemeRegistrationHost,
+  BriefVoice, defineTheme, readThemeState, useAgents, useChatController, useConversationList, type HostChatConversation,
+  type ThemeRegistrationHost,
 } from '@automatos/theme-sdk'
 import type { ThemePackageManifest } from '@automatos/theme-cli/manifest'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -15,8 +18,9 @@ import { HarnessHost, prepareHost } from '../app/host.tsx'
 import showcaseFixture from '../fixtures/conversations/showcase.json'
 import turnsFixture from '../fixtures/streams/turns.json'
 import { host } from '../src/host.ts'
-import { DEMO_EXTRAS, demoOf, demoText, HELLO_KEY, HELLO_STATE, NO_DEMO, type DemoExtra } from '../src/host/demo.ts'
+import { BRIEF_ROW_READ, DEMO_EXTRAS, demoOf, demoText, HELLO_KEY, HELLO_STATE, NO_DEMO, type DemoExtra } from '../src/host/demo.ts'
 import { APPROVAL_TURN, HEALTHY_ROSTER, OLDER_CONVERSATIONS } from '../src/host/demo-data.ts'
+import { BRIEF_THREAD, BRIEF_THREAD_CHAT_ID } from '../src/internal/scripted/auto-thread.ts'
 import type { HarnessTheme } from '../src/host/register.ts'
 import { DEFAULT_SETTINGS, readSettings, settingsQuery, type HarnessSettings } from '../src/host/router.ts'
 import { giveSampleData, SAMPLE_PAGE_DATA } from '../src/host/sample-data.ts'
@@ -32,10 +36,20 @@ function Frame({ children }: { readonly children?: ReactNode }) {
   return <div data-testid="frame">{children}</div>
 }
 
-/** What the page reads: each agent's status, the conversations' titles, and whether Play's hello has played. */
+/** The conversation on screen's messages, each by its role and the types of its known parts. */
+function Parts({ conversation }: { readonly conversation: HostChatConversation }) {
+  const { messages } = useChatController(conversation)
+  return <p data-testid="parts">{messages.map((message) => `${message.role}:${message.knownParts.map((part) => part.type).join('+')}`).join(' ')}</p>
+}
+
+/**
+ * What the page reads: each agent's status, the conversations' titles, whether Play's hello has played, the
+ * conversation on screen and its messages' parts, and the brief row the host's Listen marks.
+ */
 function ChatPage() {
   const agents = useAgents().data ?? []
   const list = useConversationList()
+  const { conversation } = useChatController()
   const titles = list.status === 'loaded' ? list.chats.map((chat) => chat.title) : []
   const hello = readThemeState(HELLO_KEY, HELLO_STATE).value
   return (
@@ -43,6 +57,9 @@ function ChatPage() {
       <p data-testid="agents">{agents.map((agent) => `${agent.name}:${agent.status}:${agent.unavailable ?? ''}`).join(' ')}</p>
       <p data-testid="titles">{titles.join(' | ')}</p>
       <p data-testid="hello">{String(hello)}</p>
+      <p data-testid="chat">{conversation?.chatId ?? 'new'}</p>
+      {conversation !== null && <Parts key={conversation.key} conversation={conversation} />}
+      <BriefVoice />
     </>
   )
 }
@@ -73,7 +90,7 @@ beforeEach(() => {
 
 describe('the demo extras in the address', () => {
   it('are none by default, and `demo=` names them in their own order, each once, a name it does not know dropped', () => {
-    expect(DEMO_EXTRAS).toEqual(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played'])
+    expect(DEMO_EXTRAS).toEqual(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played', 'brief-thread', 'brief-row'])
     expect(DEFAULT_SETTINGS.demo).toBe(NO_DEMO)
     expect(readSettings('').demo).toEqual([])
     expect(demoOf('hello-played,healthy-agents,hello-played,everything')).toEqual(['healthy-agents', 'hello-played'])
@@ -93,6 +110,7 @@ describe('the page without them', () => {
     await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent(titlesOf(TRANSCRIPT_CONVERSATIONS).join(' | ')))
     expect(screen.getByTestId('titles').textContent?.split(' | ')).toHaveLength(TRANSCRIPT_CONVERSATIONS.length)
     expect(screen.getByTestId('hello')).toHaveTextContent('null')
+    expect(document.querySelector('[data-brief-voice="root"]')).not.toHaveAttribute('data-voice-row')
   })
 })
 
@@ -122,6 +140,24 @@ describe('the page with them', () => {
     await drawChat(['hello-played'])
     expect(screen.getByTestId('hello')).toHaveTextContent('true')
     expect(readThemeState(HELLO_KEY, HELLO_STATE)).toMatchObject({ ready: true, value: true })
+  })
+
+  it("`brief-thread`: the chat opens on Auto's thread holding the day's brief, its prose beside its brief@1 part", async () => {
+    await drawChat(['brief-thread'])
+    expect(await screen.findByTestId('parts')).toHaveTextContent('assistant:text+brief@1')
+    expect(screen.getByTestId('chat')).toHaveTextContent(BRIEF_THREAD_CHAT_ID)
+    expect(screen.getByTestId('parts').textContent?.split(' ')).toHaveLength(1)
+    // Newest first: the transcript's 09:10 before the brief's 09:05.
+    const expected = [...titlesOf(TRANSCRIPT_CONVERSATIONS), ...titlesOf(BRIEF_THREAD)]
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent(expected.join(' | ')))
+  })
+
+  it("`brief-row`: Auto reads the brief's third row from the page's start, as the host's Listen marks it", async () => {
+    await drawChat(['brief-row'])
+    expect(BRIEF_ROW_READ).toBe(2)
+    const listen = document.querySelector('[data-brief-voice="root"]')
+    expect(listen).toHaveAttribute('data-voice-speaking', 'true')
+    expect(listen).toHaveAttribute('data-voice-row', String(BRIEF_ROW_READ))
   })
 })
 

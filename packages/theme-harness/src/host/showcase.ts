@@ -30,10 +30,16 @@
  * `approval-turn` answers them with the recorded turn that raises one. HUD's (US-K02) draw BRIEFING on every look at
  * both widths, one at each width after a press of the host's Listen (`listen`: Auto reading it, `▸ SPEAKING`), its
  * MISSIONS and SYSTEMS panels with each heading scrolled into view first (`scroll-to-heading`), and the same approval
- * (its suggestion, the `▸ NEXT` line, is on every one of its chat shots). Play's SDK 1.4.0 shots draw the message parts
- * of the transcript's reply (its `reply_chips@1` and `suggestion@1`): Auto's reply chips under his last message
- * (`show-replies`, which scrolls them into view) and the suggestion he posted as its card under it
- * (`show-thread-suggestion`), at both widths.
+ * (its suggestion, the `▸ NEXT` line, is on every one of its chat shots).
+ *
+ * SDK 1.4.0, the message parts (Play 1.4.0, HUD 1.3.0, PRD-268): the transcript's reply carries reply chips and a
+ * suggestion (its `reply_chips@1` and `suggestion@1`), so each theme's chat shots on it show them. Both themes' own
+ * shots of them share two steps: `show-replies` scrolls Auto's reply chips under his last message into view (Play's
+ * chips in Ember at both widths; HUD's SAY chips in ARC and SIGNAL at 1440 and ARC at 390), and
+ * `show-thread-suggestion` the suggestion he posted, as its card in the conversation (Ember; ARC), at both widths.
+ * HUD's also draw the brief as a message in the conversation, the chat opened on Auto's thread holding the brief (the
+ * demo extra `brief-thread`) with its heading scrolled into view, and BRIEFING mid-reading, Auto on the brief's third
+ * row from the page's start (the demo extra `brief-row`), the row marked where it is read.
  *
  * Each shot's file is `<theme>-<width>-<what>-<look>.png` (showcaseFile), in SHOWCASE_FOLDER of the harness package.
  */
@@ -69,8 +75,9 @@ export const SHOWCASE_PHONE: Viewport = PHONE_VIEWPORT
  * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); open the
  * pinned suggestion's full card from its line; send APPROVAL_ASK from the theme's message box and wait for the
  * approval card the answer raises; press the host's Listen for the day's brief and wait until Auto reads it; scroll
- * the shot's heading into view; scroll the theme's reply chips (the group named PLAY_REPLIES) into view; or scroll the
- * suggestion card in the conversation (an article "Auto suggests: …", the pinned line's full card being shut) into view.
+ * the shot's heading into view; scroll the theme's reply chips (the group named REPLIES_GROUP, Play's and HUD's alike)
+ * into view; or scroll the suggestion card in the conversation (an article "Auto suggests: …", the pinned line's full
+ * card being shut, in Play and in HUD alike) into view.
  */
 export type ShowcaseStep =
   | 'none' | 'open-menu' | 'open-suggestion' | 'ask-approval' | 'listen' | 'scroll-to-heading' | 'show-replies' | 'show-thread-suggestion'
@@ -107,8 +114,12 @@ const QUESTS_ROUTE = 'quests'
 const DELIVERABLES_PAGE = '/deliverables'
 /** Play's message box, by its name (themes/play/src/components/play/chat/message-box.tsx PLACEHOLDER). */
 export const PLAY_MESSAGE_BOX = 'Message Auto'
-/** Play's reply chips, by their group's name (themes/play/src/components/play/proactive/reply-chips.tsx REPLIES_LABEL). */
-export const PLAY_REPLIES = 'Replies'
+/**
+ * The reply chips' group, by the name both themes give it (themes/play/src/components/play/proactive/reply-chips.tsx
+ * and themes/hud/src/chat/thread/say-replies.tsx REPLIES_LABEL, after the host's own ReplyChips): `show-replies`
+ * scrolls it into view in either.
+ */
+export const REPLIES_GROUP = 'Replies'
 /** HUD's message box and the phone's TYPE that opens it (themes/hud/src/chat/composer.tsx PLACEHOLDER, phone-controls.tsx TYPE_LABEL). */
 export const HUD_MESSAGE_BOX = 'Message Auto'
 export const HUD_TYPE = 'Type'
@@ -125,6 +136,8 @@ export const BRIEF_LISTEN = 'Listen to the brief'
 /** HUD's MISSIONS and SYSTEMS panels, by their headings (themes/hud/src/chat/panels/missions-panel.tsx, systems-panel.tsx). */
 export const HUD_MISSIONS = 'Missions'
 export const HUD_SYSTEMS = 'Systems'
+/** HUD 1.3.0's brief in the conversation, by its heading (themes/hud/src/chat/thread/thread-brief.tsx THREAD_BRIEF_TITLE). */
+export const HUD_THREAD_BRIEF = 'Brief'
 
 const CHAT: View = Object.freeze<View>({ kind: 'page', key: CHAT_PAGE, path: pagePath(CHAT_PAGE) })
 const LOOK_EDITOR: View = Object.freeze<View>({ kind: 'slot', key: LOOK_EDITOR_SLOT, path: slotPath(LOOK_EDITOR_SLOT) })
@@ -168,7 +181,7 @@ const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: '
 const FIRST_OPEN: ShotChanges = Object.freeze<ShotChanges>({ heading: PLAY_HELLO, brief: false })
 const OPEN_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-suggestion' })
 const ASK_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'ask-approval', composer: PLAY_MESSAGE_BOX })
-/** Play on the transcript, its reply's chips, or the suggestion it posted, in view. */
+/** A theme on the transcript, its reply's chips, or the suggestion it posted, in view (Play's, after its hello). */
 const SHOW_REPLIES: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'show-replies' })
 const SHOW_THREAD_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'show-thread-suggestion' })
 /** HUD's screen once the brief has folded back: its chat and voice shots. */
@@ -186,6 +199,17 @@ const HUD_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ ...FOLDED, step: 
 const HUD_PHONE_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ ...HUD_APPROVAL, opensComposer: HUD_TYPE })
 /** HUD's five looks, for the shots drawn on each. */
 const HUD_LOOKS = Object.freeze(['arc', 'forge', 'ghost', 'nova', 'signal'] as const)
+/** HUD 1.3.0: its SAY chips under Auto's reply, and his suggestion's card, on the folded screen, each scrolled into view. */
+const HUD_SAY: ShotChanges = Object.freeze<ShotChanges>({ ...SHOW_REPLIES, brief: false })
+const HUD_THREAD_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ ...SHOW_THREAD_SUGGESTION, brief: false })
+/** The brief as a message: the chat on Auto's thread holding it, BRIEFING folded, the brief's heading in view. */
+const BRIEF_THREAD_DEMO: readonly DemoExtra[] = Object.freeze([...HEALTHY, 'brief-thread'])
+const HUD_THREAD_BRIEF_SHOT: ShotChanges = Object.freeze<ShotChanges>({
+  brief: false, step: 'scroll-to-heading', heading: HUD_THREAD_BRIEF, demo: BRIEF_THREAD_DEMO,
+})
+/** BRIEFING while Auto reads a row of the brief. */
+const BRIEF_ROW_DEMO: readonly DemoExtra[] = Object.freeze([...HEALTHY, 'brief-row'])
+const HUD_BRIEFING_ROW: ShotChanges = Object.freeze<ShotChanges>({ ...BRIEFING, demo: BRIEF_ROW_DEMO })
 
 /** Every showcase shot, theme by theme, the desktop's before the phone's. */
 export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
@@ -202,6 +226,11 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('hud', DESKTOP, 'missions', 'arc', CHAT, PANEL(HUD_MISSIONS)),
   planned('hud', DESKTOP, 'systems', 'arc', CHAT, PANEL(HUD_SYSTEMS)),
   planned('hud', DESKTOP, 'approval', 'arc', CHAT, HUD_APPROVAL),
+  planned('hud', DESKTOP, 'say', 'arc', CHAT, HUD_SAY),
+  planned('hud', DESKTOP, 'say', 'signal', CHAT, HUD_SAY),
+  planned('hud', DESKTOP, 'thread-brief', 'arc', CHAT, HUD_THREAD_BRIEF_SHOT),
+  planned('hud', DESKTOP, 'thread-suggestion', 'arc', CHAT, HUD_THREAD_SUGGESTION),
+  planned('hud', DESKTOP, 'briefing-row', 'arc', CHAT, HUD_BRIEFING_ROW),
   planned('hud', PHONE, 'chat', 'arc', CHAT, FOLDED),
   planned('hud', PHONE, 'voice-listening', 'forge', CHAT, FOLDED_LISTENING),
   planned('hud', PHONE, 'look-editor', 'arc', LOOK_EDITOR),
@@ -209,6 +238,10 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   ...HUD_LOOKS.map((look) => planned('hud', PHONE, 'briefing', look, CHAT, BRIEFING)),
   planned('hud', PHONE, 'briefing-speaking', 'arc', CHAT, BRIEFING_READ),
   planned('hud', PHONE, 'approval', 'arc', CHAT, HUD_PHONE_APPROVAL),
+  planned('hud', PHONE, 'say', 'arc', CHAT, HUD_SAY),
+  planned('hud', PHONE, 'thread-brief', 'arc', CHAT, HUD_THREAD_BRIEF_SHOT),
+  planned('hud', PHONE, 'thread-suggestion', 'arc', CHAT, HUD_THREAD_SUGGESTION),
+  planned('hud', PHONE, 'briefing-row', 'arc', CHAT, HUD_BRIEFING_ROW),
   planned('play', DESKTOP, 'first-open', 'ember', CHAT, FIRST_OPEN),
   planned('play', DESKTOP, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', DESKTOP, 'voice-speaking', 'ember', CHAT, afterHello(SPEAKING)),

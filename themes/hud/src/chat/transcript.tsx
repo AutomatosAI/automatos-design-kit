@@ -3,6 +3,7 @@ import type { HostChatMessage } from '@automatos/theme-sdk'
 
 import { AutoReply } from './auto-reply'
 import { EmptyChat } from './empty-chat'
+import { latestReplyChips } from './thread/message-parts'
 import styles from './transcript.module.css'
 
 /**
@@ -12,7 +13,8 @@ import styles from './transcript.module.css'
  * while Auto answers unless you scrolled up to read; a new message follows again (after Play's message list,
  * themes/play/src/components/play/chat/message-list.tsx, Play 1.1.1). What follows the conversation (a turn that
  * failed before a reply began, a Mission Auto suggests) sits under the list, inside the scroll. Before anything is
- * said there is no list: the empty chat (empty-chat.tsx) stands in its place.
+ * said there is no list: the empty chat (empty-chat.tsx) stands in its place. HUD 1.3.0: Auto's reply chips under the
+ * conversation's newest message while it is his (`onReply` sends a chip's words as your message).
  */
 
 export const CONVERSATION_LABEL = 'Conversation'
@@ -82,13 +84,16 @@ export interface TranscriptProps {
   readonly after?: ReactNode
   /** Shown in the list's place before anything is said: the empty chat's line by default. */
   readonly empty?: ReactNode
+  /** Sends a reply chip's words as your message; without it no chips are drawn. */
+  readonly onReply?: (text: string) => boolean
 }
 
-type ListProps = Pick<TranscriptProps, 'messages' | 'streaming' | 'onRetry' | 'trialBlocked'>
+type ListProps = Pick<TranscriptProps, 'messages' | 'streaming' | 'onRetry' | 'trialBlocked' | 'onReply'>
 
-function MessageList({ messages, streaming, onRetry, trialBlocked = false }: ListProps) {
+function MessageList({ messages, streaming, onRetry, trialBlocked = false, onReply }: ListProps) {
   const newest = messages[messages.length - 1]?.id
   const recent = recentIds(messages)
+  const chipsOn = latestReplyChips(messages)?.id
   return (
     <ol className={styles.list} aria-label={CONVERSATION_LABEL}>
       {messages.map((message) => (
@@ -102,6 +107,7 @@ function MessageList({ messages, streaming, onRetry, trialBlocked = false }: Lis
               onRetry={message.id === newest ? onRetry : undefined}
               snagHidden={trialBlocked && message.id === newest}
               recent={recent.has(message.id)}
+              onReply={message.id === chipsOn ? onReply : undefined}
             />
           )}
         </li>
@@ -111,14 +117,14 @@ function MessageList({ messages, streaming, onRetry, trialBlocked = false }: Lis
 }
 
 export function Transcript(props: TranscriptProps) {
-  const { messages, streaming, onRetry, trialBlocked = false, after, empty = <EmptyChat /> } = props
+  const { messages, streaming, onRetry, trialBlocked = false, after, empty = <EmptyChat />, onReply } = props
   const { scrollerRef, endRef } = useFollow(messages)
   return (
     <div ref={scrollerRef} className={styles.scroller}>
       {messages.length === 0 ? (
         empty
       ) : (
-        <MessageList messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} />
+        <MessageList messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} onReply={onReply} />
       )}
       {after}
       <div ref={endRef} />

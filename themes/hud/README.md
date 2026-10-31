@@ -48,6 +48,17 @@ server's; HUD only places it, and never speaks it.
   on, each item's state and fix, and Check again.
 - Only what needs you glows: Needs you, or Briefing in its place.
 
+From 1.3.0, on SDK 1.4.0's message parts, the row Auto is reading and the brief's thumbs:
+
+- **SAY chips** under Auto's last message, the answers he offers when he asks you to choose: a tap sends the words as
+  your message, and a newer message takes them away. Never spoken.
+- **The brief and his suggestions in the conversation**: the brief he posts, drawn as a panel in his row with his Read
+  once; a suggestion he posts, a card with START and HIDE while it is open. `▸ NEXT` skips any suggestion the screen
+  already shows.
+- **BRIEFING in time with speech**: while Auto reads the brief, each row is drawn as he reaches it, `▸` on the one he
+  reads (under reduced motion every row at once, only the marker moving); and its thumbs, USEFUL and NOT USEFUL, once
+  per brief.
+
 ## Voice
 
 HUD talks to Auto through the host's voice (the SDK's voice area, SDK 1.2.0), and never opens the microphone itself:

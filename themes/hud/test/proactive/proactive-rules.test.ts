@@ -4,6 +4,10 @@
 // tone (the readable accent, the error colour for failed, the secondary text for the quiet ones; never --accent); the
 // Missions with the ones that need you first; what folds BRIEFING. And the styles: MISSIONS' 3 px rail in the readable
 // accent while working, never animated; one entrance per surface, once, only under data-hud-enter; nothing loops.
+// HUD 1.3.0 (SDK 1.4.0): what a message's parts show (its brief, its suggestions, the reply chips under the newest
+// message alone, the suggestions on screen NEXT skips), a row's place in Auto's reading, the kept thumb read back
+// safely; and the styles: a row still to come not drawn, rows building in by a transition under data-build alone, the
+// SAY chips and the thumbs as HUD's 44 px outline buttons, nothing through --accent.
 import { type BriefOpensType, chatHref, DISPLAY_STATE_LABELS, missionHref, QUESTIONS_HREF, ticketHref } from '@automatos/theme-sdk'
 import { describe, expect, it } from 'vitest'
 import {
@@ -11,13 +15,21 @@ import {
   SECTION_LABELS, SETTINGS_HREF, startsSuggestion,
 } from '../../src/chat/briefing/brief-rows.ts'
 import { foldsOn } from '../../src/chat/briefing/use-fold.ts'
+import { NOT_READ, readingAt, rowReading } from '../../src/chat/briefing/use-reading.ts'
+import { nextOf, openSuggestion } from '../../src/chat/next/use-next.ts'
 import { missionsInOrder, READINESS_MARKS, readinessMark, STATE_TONES, stateMark } from '../../src/chat/panels/status-marks.ts'
+import {
+  briefOfMessage, latestReplyChips, replyChipsOf, suggestionIdsOf, suggestionsOnScreen, threadSuggestionIds,
+} from '../../src/chat/thread/message-parts.ts'
 import { readSource } from '../support/files.ts'
-import { BRIEF, briefRow, mission, SUGGESTION_ID } from './support.ts'
+import { CHIPS, hostMessage } from './parts.ts'
+import { BRIEF, briefRow, mission, OTHER_SUGGESTION_ID, SUGGESTION_ID, SUGGESTIONS } from './support.ts'
 
 const COMMENT = /\/\*[\s\S]*?\*\//g
 const FLAT_RULE = /([^{}]+)\{([^{}]*)\}/g
-const PROACTIVE_STYLES = ['chat/briefing/briefing.module.css', 'chat/next/next.module.css', 'chat/panels/panels.module.css']
+const PROACTIVE_STYLES = [
+  'chat/briefing/briefing.module.css', 'chat/next/next.module.css', 'chat/panels/panels.module.css', 'chat/thread/thread.module.css',
+]
 
 function rules(rel: string): { readonly selector: string; readonly body: string }[] {
   const css = readSource(rel).replace(COMMENT, ' ')
@@ -181,5 +193,77 @@ describe('the stylesheets', () => {
       expect(readSource(rel)).toContain('transform: translateY(4px);')
       expect(readSource(rel)).not.toMatch(/infinite/)
     }
+  })
+})
+
+describe("what a message's parts show (HUD 1.3.0)", () => {
+  const brief = { type: 'brief@1', brief: BRIEF } as const
+  const card = (id: string) => ({ type: 'suggestion@1', suggestion_id: id }) as const
+  const chips = { type: 'reply_chips@1', replies: CHIPS } as const
+
+  it("finds the brief by its part, the suggestions by theirs, each once in order, and the chips Auto offered", () => {
+    const posted = hostMessage('m1', 'assistant', [{ type: 'text', text: BRIEF.prose }, brief])
+    expect(briefOfMessage(posted)).toBe(BRIEF)
+    expect(briefOfMessage(hostMessage('m2', 'assistant', [{ type: 'text', text: BRIEF.prose }]))).toBeNull()
+    const answer = hostMessage('m3', 'assistant', [card(OTHER_SUGGESTION_ID), card(SUGGESTION_ID), card(OTHER_SUGGESTION_ID), chips])
+    expect(suggestionIdsOf(answer)).toEqual([OTHER_SUGGESTION_ID, SUGGESTION_ID])
+    expect(replyChipsOf(answer)).toEqual(CHIPS)
+    expect(replyChipsOf(posted)).toEqual([])
+  })
+
+  it("offers the chips under the conversation's newest message alone, while it is Auto's and written", () => {
+    const answer = hostMessage('a1', 'assistant', [chips])
+    expect(latestReplyChips([hostMessage('u1', 'user'), answer])).toEqual({ id: 'a1', chips: CHIPS })
+    expect(latestReplyChips([answer, hostMessage('u2', 'user')])).toBeNull()
+    expect(latestReplyChips([answer, hostMessage('a2', 'assistant')])).toBeNull()
+    expect(latestReplyChips([{ ...answer, writing: true }])).toBeNull()
+    expect(latestReplyChips([])).toBeNull()
+  })
+
+  it('lists the suggestions on screen with their own Start: BRIEFING\'s, and the cards and briefs of the messages drawn', () => {
+    const thread = [hostMessage('b', 'assistant', [brief]), hostMessage('a', 'assistant', [card(OTHER_SUGGESTION_ID)])]
+    expect(threadSuggestionIds(thread)).toEqual([SUGGESTION_ID, OTHER_SUGGESTION_ID])
+    expect(suggestionsOnScreen(null, [])).toEqual([])
+    expect(suggestionsOnScreen(BRIEF, [])).toEqual([SUGGESTION_ID])
+    expect(suggestionsOnScreen(BRIEF, [thread[1]])).toEqual([SUGGESTION_ID, OTHER_SUGGESTION_ID])
+  })
+
+  it("shows NEXT the newest open suggestion not on screen, and a card its own one only while it is open", () => {
+    expect(nextOf(SUGGESTIONS, [], [SUGGESTION_ID])?.id).toBe(OTHER_SUGGESTION_ID)
+    expect(openSuggestion(SUGGESTIONS, [], OTHER_SUGGESTION_ID)?.id).toBe(OTHER_SUGGESTION_ID)
+    expect(openSuggestion(SUGGESTIONS, [OTHER_SUGGESTION_ID], OTHER_SUGGESTION_ID)).toBeNull()
+    expect(openSuggestion([{ ...SUGGESTIONS[0], status: 'hidden' }], [], SUGGESTION_ID)).toBeNull()
+    expect(openSuggestion(SUGGESTIONS, [], 'not-listed')).toBeNull()
+  })
+})
+
+describe("a row's place in Auto's reading (HUD 1.3.0)", () => {
+  it('is now for the row read, read up to the furthest reached, ahead after it; only now where nothing may move', () => {
+    const reached = readingAt(readingAt(readingAt(NOT_READ, 1), null), 0)
+    expect(reached).toEqual({ now: 0, reached: 1 })
+    expect([0, 1, 2].map((index) => rowReading(reached, index, true))).toEqual(['now', 'read', 'ahead'])
+    expect([0, 1, 2].map((index) => rowReading(reached, index, false))).toEqual(['now', undefined, undefined])
+    expect([0, 1].map((index) => rowReading(NOT_READ, index, true))).toEqual(['ahead', 'ahead'])
+  })
+})
+
+describe('the stylesheets of 1.3.0', () => {
+  it("leave a row still to come undrawn, and build rows in by a transition under data-build alone, never an animation", () => {
+    const css = 'chat/briefing/briefing.module.css'
+    expect(ruleBody(css, '.row[data-reading="ahead"]')).toContain('visibility: hidden;')
+    const moving = rules(css).filter((rule) => /\btransition\s*:/.test(rule.body))
+    expect(moving.map((rule) => rule.selector)).toEqual(['.rows[data-build="true"] .row'])
+    expect(moving[0]?.body).toContain('transition: opacity 180ms ease-out, transform 180ms ease-out;')
+    expect(ruleBody(css, '.marker')).toContain('color: var(--hud-accent-text);')
+  })
+
+  it("draw the SAY chips and the thumbs as HUD's 44 px outline buttons, and nothing in the thread moves", () => {
+    for (const [css, selector] of [['chat/thread/thread.module.css', '.reply'], ['chat/briefing/briefing.module.css', '.thumb']] as const) {
+      const body = ruleBody(css, selector)
+      expect(body).toContain('min-height: var(--hud-tap-min);')
+      expect(body).toContain('border: 1px solid var(--hud-accent-line);')
+      expect(body).toContain('border-radius: 0;')
+    }
+    expect(readSource('chat/thread/thread.module.css')).not.toMatch(/\banimation|\btransition/)
   })
 })
