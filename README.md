@@ -64,18 +64,20 @@ All four are released on [GitHub Releases](https://github.com/AutomatosAI/automa
 `play-v<version>` tags, HUD from `hud-v<version>` tags, Arcade from `arcade-v<version>` tags and Candy from
 `candy-v<version>` tags.
 
-## Voice in both themes
+## Voice in every theme
 
-Both themes talk to Auto through the `voice` area of the Theme SDK (1.2.0). The host's voice button, `VoiceButton`,
-opens the microphone on a press and draws the "AI voice assistant" caption and the stop control; the theme places and
-styles it, and draws around it from `useVoice` (the session's phase) and `readVoiceLevels` (the member's and Auto's
-levels, for a waveform or a mascot).
+All four themes talk to Auto through the `voice` area of the Theme SDK (added in 1.2.0). The host's voice button,
+`VoiceButton`, opens the microphone on a press and draws the "AI voice assistant" caption and the stop control; the
+theme places and styles it, and draws around it from `useVoice` (the session's phase) and `readVoiceLevels` (the
+member's and Auto's levels, for a waveform or a mascot).
 
 - **HUD**: hold Space or the button to talk on a desktop, with MIC LIVE in the top bar and a waveform around the
   button; on a phone, HOLD TO TALK between TYPE and STOP.
 - **Play**: the button sits between the message and Send, and Auto listens, thinks and speaks with the session.
+- **Arcade**: the button sits in the handheld's round surround on a phone, and beside the message box on a desktop.
+- **Candy**: the button is raised in the middle of the phone's tab bar, and sits beside the message box on the chat.
 
-Neither theme captures or plays audio itself. A theme's `dist/` that names the browser's audio APIs is an error in
+No theme captures or plays audio itself. A theme's `dist/` that names the browser's audio APIs is an error in
 `automatos-theme check`, and the Marketplace review refuses it. A theme of your own adds voice the same way:
 `^1.2.0` in `engines.sdk`, `voice` in `uses`, and `VoiceButton` where the theme wants it
 ([guides/sdk.md](guides/sdk.md#voice)).
@@ -95,8 +97,8 @@ lines, Auto, motion). The active look paints the host's own pages inside the the
 
 ## On a phone
 
-In a phone's browser, both themes draw a phone layout below 1024 px, down to 360 px wide: Play a bar with Menu,
-Chats and Shelf; HUD a top bar with MENU and its core screen.
+In a phone's browser, every theme draws a phone layout below 1024 px, down to 360 px wide: Play a bar with Menu,
+Chats and Shelf; HUD a top bar with MENU and its core screen; Arcade a handheld console; Candy a floating tab bar.
 
 <p align="center">
   <img src="docs/assets/showcase/play-390-menu-ember.png" width="200" alt="Play at a phone's width with its menu open: New chat, search and every page of Automatos">

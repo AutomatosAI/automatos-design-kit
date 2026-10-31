@@ -153,7 +153,8 @@ the same script in every workspace that defines it, `packages/*` before `themes/
   `proof/<id>/BASE`, fetches that base tag and fails on a change outside `themes/<slug>/` and `proof/<id>/` (but the
   new workspace's lock entries and the launcher's deletion of the leak paths); then the job installs, builds, runs
   `automatos-theme check` on the new theme and shoots it in the browser harness, uploaded as `kit-proof-shots`. The `kit` job builds, lints, typechecks, tests
-  and packs the new theme with every other workspace; the `harness` job shoots Play and HUD only.
+  and packs the new theme with every other workspace; the `harness` job shoots it with every other theme under
+  `themes/` (`scripts/shots/other-themes.mjs`), beside Play and HUD.
 
 ## Adding a dependency
 

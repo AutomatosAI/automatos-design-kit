@@ -34,12 +34,13 @@ Two pages: `/`, the mock host, and `/phone`, the phone view (the toolbar's **Pho
 draws the theme's skin, its `theme.json` `mobile` block, on Automatos Go's Studio layout at 390 × 844 (Chat,
 Command Centre, First open), light or dark, or through each look preset under `fromLooks`. Beside it are the
 `mobile` block's contrast pairs, measured exactly as `check` measures them, and where each token lands. A theme
-without a skin is drawn in Studio's own colours. For Play and HUD, which Automatos Go draws with its built-in Play
-and HUD layouts and none of the block, it says so: those layouts are part of the app
-(`packages/theme-harness/README.md`, "The phone view"). For any other theme the skin designer sits beside it: a draft
-of the block, from the theme's own, Studio's colours or a look's, repainted and measured at each change, kept in the
-address, with a one-click nearest passing colour for a failing pair, and downloaded as `skin.json` for
-[`skin`](cli-design.md#skin) only when that command would write it.
+without a skin is drawn in Studio's own colours. For Play, HUD, Arcade and Candy (`automatos/play`, `automatos/hud`,
+`automatos/arcade`, `automatos/candy`), which Automatos Go draws with its built-in layouts of the same names and none
+of the block, it says so: those layouts are part of the app (`packages/theme-harness/README.md`, "The phone view";
+`BUILT_IN_THEME_STYLES` in `packages/theme-harness/src/phone/skin.ts`). For any other theme the skin designer sits
+beside it: a draft of the block, from the theme's own, Studio's colours or a look's, repainted and measured at each
+change, kept in the address, with a one-click nearest passing colour for a failing pair, and downloaded as `skin.json`
+for [`skin`](cli-design.md#skin) only when that command would write it.
 
 Exit codes: 0 once stopped (Ctrl-C); 1 no `theme.json` (or not JSON) or no `src/entry.ts`, a default look with no
 `looks/presets/` yet, or a port that can't be served; 2 usage error.

@@ -13,15 +13,15 @@ folder under `themes/`, `<publisher>` the part of its `theme.json` id before the
   `automatos` themes read as Official.
 
 Play, HUD, **Arcade** (`automatos/arcade`, `themes/arcade`) and **Candy** (`automatos/candy`, `themes/candy`) are all
-published this way. Arcade has no `arcade-v*` tag yet, so the first `theme-publish.yml` run on `main` picks its
-version, 1.0.0: it reviews, signs and lists it, and releases `arcade-v1.0.0` with `automatos.arcade-1.0.0.autotheme`,
-its `.sha256` and `1.0.0.sig.json`. Push no `arcade-v*` tag by hand for it: `theme-release.yml` would release it
-unlisted and unsigned, and it would then need a backfill (below).
+published this way, a theme's first version too. Arcade had no `arcade-v*` tag before its first version, so the first
+`theme-publish.yml` run on `main` picked 1.0.0: it reviewed, signed and listed it, and released `arcade-v1.0.0` with
+`automatos.arcade-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Candy's first version came the same way: the
+first run on `main` that saw `automatos/candy` 1.0.0 released `candy-v1.0.0` with `automatos.candy-1.0.0.autotheme`,
+its `.sha256` and `1.0.0.sig.json`, and the merge that raised it to 1.0.1 released `candy-v1.0.1`. A new theme's first
+version is published the same way.
 
-Candy is released by the merge that raises its version the same way. It has no `candy-v*` tag yet, so the first
-`theme-publish.yml` run on `main` that sees `automatos/candy` 1.0.0 reviews, signs and lists it, and releases
-`candy-v1.0.0` with `automatos.candy-1.0.0.autotheme`, its `.sha256` and `1.0.0.sig.json`. Push no
-`candy-v*` tag by hand for it either: it would be released unlisted and unsigned, and would then need a backfill.
+Push no `arcade-v*` tag by hand for a later version. Push no `candy-v*` tag by hand either, nor any theme's:
+`theme-release.yml` would release it unlisted and unsigned, and it would then need a backfill (below).
 
 ## The workflows
 
@@ -40,24 +40,33 @@ Candy is released by the merge that raises its version the same way. It has no `
 2. **Build**, one job per theme, with no secrets, no environment and a read-only token: at the merged commit it
    installs the kit with `npm ci --ignore-scripts`, builds, packs the theme, checks the `.sha256` against pack's
    `.sha256.json`, and runs `scripts/review/main.ts` on the package in `docker run --network none`, as
-   `theme-review.yml` does. The review's text is the summary the Marketplace keeps as the version's review note.
+   `theme-review.yml` does. The review's text is the summary the Marketplace keeps as the version's review note. The
+   job writes the release's title and notes, and uploads them with the package, its `.sha256.json`, its `.sha256`
+   and the review's text as the run's `theme-<slug>` artifact.
 3. **Publish**, one job per theme, in the `theme-publish` environment, installing nothing: it checks the package's
    bytes against pack's summary (`scripts/sign/from-pack.ts check`), compares them with any release the tag has
    already, signs `{id, version, digest, files}` with `THEME_SIGNING_KEY` (`from-pack.ts sign`; the signed text is
    core's canonical text of the version), verifies the envelope against `keys/theme-signing.json`, then posts three
    parts to `THEME_PUBLISH_API_URL` + `/api/marketplace/themes/publish` with `THEME_PUBLISH_KEY` as its bearer key:
    `package` (the `.autotheme` file), `signature` (the `.sig.json` envelope) and `review_summary` (the review's text).
+   One publish of a theme runs at a time and is never cancelled half way (the job's concurrency group,
+   `theme-publish-<slug>`).
 4. **The Marketplace** checks the key, the publisher, the signature and the package, runs its own review of it,
    keeps the summary as the review note, approves the version and stores its signature, and answers `published`; for
    bytes it already holds, approved and signed, it answers `unchanged`.
 5. **Release**: on `published`, or `unchanged`, the run releases `<slug>-v<v>` at the commit it built, with the
    `.autotheme`, its `.sha256` and its `<v>.sig.json`, or adds the `.sig.json` to the release the tag has already.
    A release's assets are never replaced. The run makes the tag itself; a tag made with the run's token starts no
-   workflow, so `theme-release.yml` never runs for it.
+   workflow, so `theme-release.yml` never runs for it. The release is titled with `theme.json`'s `name` and the
+   version, and its notes give the package digest and the file's sha256, then the pictures `theme.json` lists under
+   `previews` and `phonePreviews` ([releasing.md](releasing.md)).
 
-Several themes moved in one merge each build and publish on their own. Push no release tag by hand for a version a
-merge will publish: `theme-release.yml` would release it unlisted and unsigned, and the publish run would then see
-the version as released and pick nothing. A version released that way is listed with a backfill (below).
+Several themes moved in one merge each build and publish in a job of their own. The publish jobs start only once every
+build has passed, so a failed build or review stops the publish of every theme in that run: re-run the failed jobs for
+a failure that was not the theme's, and after a fix the next run on `main` picks every theme whose version is still
+above its newest tag. Once the publish jobs start, one theme's failure stops no other. Push no release tag by hand for
+a version a merge will publish: `theme-release.yml` would release it unlisted and unsigned, and the publish run would
+then see the version as released and pick nothing. A version released that way is listed with a backfill (below).
 
 ## What blocks a publish
 
@@ -87,6 +96,10 @@ The run fails, releases nothing and says why (the Marketplace's error code, neve
   - **429**: the endpoint's daily publish quota is spent (`PUBLISH_QUOTA`).
   - **503**: the endpoint is not configured (`PUBLISH_NOT_CONFIGURED`), its reviews are busy (`REVIEWS_BUSY`), or
     its store or keys can't be read.
+- The Marketplace can't be reached, or answers 200 without `published` or `unchanged`, or for another id, version or
+  digest than the package's (`scripts/release/publish-answer.ts` reads the answer).
+- After a `published` or `unchanged` answer, the tag's release already carries a `<v>.sig.json` with other bytes: the
+  run leaves the release as it is and fails.
 
 After a 503 for busy reviews or a 429, run the failed jobs again later (Actions › the run › Re-run failed jobs).
 A run that stopped after the Marketplace's answer and before the release is run again the same way: the Marketplace
