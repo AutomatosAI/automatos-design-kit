@@ -42,7 +42,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `id` | yes | `publisher/slug`, lower-case letters, digits and dashes. The `automatos` publisher is reserved. |
 | `name` | yes | One line of plain text, at most 60 characters |
 | `version` | yes | `MAJOR.MINOR.PATCH`. A version once submitted is spent: the same version with other bytes, or a lower one, is refused. |
-| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and the SDK 1.2.0; a theme that uses the SDK's `voice` area names `"sdk": "^1.2.0"`. |
+| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and the SDK 1.3.0; a theme that uses the SDK's `voice` area names `"sdk": "^1.2.0"`, and one that uses its `proactive` area `"sdk": "^1.3.0"`. |
 | `base` | yes | `studio` or `classic`: the design the host draws wherever the theme has none of its own |
 | `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes, starting with a letter. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
 | `minWidth` | yes | Pixels, 0 to 3840. Below it the host draws its own pages and chrome. |
@@ -185,8 +185,9 @@ with its licence.
 - no `!important`, no `@import`; at-rules only `@media`, `@supports`, `@layer`, `@container`, `@font-face`,
   `@keyframes` (or `@-webkit-keyframes`) and `@charset`;
 - every `@keyframes` name and `@font-face` family starts with `<htmlClass>-`;
-- no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards, and the voice
-  button's control (`voice-control`: the AI voice caption and the stop control), are the host's;
+- no selector names `data-protected-surface` or `data-protected-surface-inner`: the approval cards, the voice
+  button's control (`voice-control`: the AI voice caption and the stop control) and the brief's Listen
+  (`brief-voice`), are the host's;
 - no selector names `data-ai-label` (nor its host-drawn copy, `data-ai-label-caption`), in any case or escape: the AI
   label is the host's.
 
@@ -207,6 +208,7 @@ and text colour again ([pitfalls.md](pitfalls.md), "Inherited type reaches the h
 | Tool and Mission approvals | `ToolApproval`, `MissionApproval` (protected surfaces) | In the reply that raised them, and after the conversation when their reply left it. |
 | Ticket, withdraw and Mission cards | `TaskCard`, `WithdrawOfferCard`, `MissionSuggestionCard`, `MissionCreatedCard` | In the reply, or after the conversation. |
 | The voice button | `VoiceButton` (its caption and Stop are the protected surface `voice-control`) | Wherever the design wants it, outside `AiLabelFence`, with room under it for the caption and Stop. |
+| The brief and suggestions (SDK 1.3.0) | `BriefCard`, `SuggestionCard`, `StatusLabel`, `ReadinessList`, `CalibrationCard`, `ReplyChips`; Listen is `BriefVoice` (the protected surface `brief-voice`) | Where the design puts the day's brief, a suggestion, a row's state or what Auto depends on; or the theme draws its own from the `proactive` area's hooks. A day with no brief is normal: draw the page without it. |
 | Banners | `TrialExhaustedBanner`, `FirstRunNudge` | Over or beside the chat. |
 | Files | `FilePreview`, `MadeBy` | Wherever a file is shown. |
 

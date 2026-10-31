@@ -2,7 +2,7 @@
 
 `@automatos/theme-sdk` is the one module a theme imports from the host. The host serves it through its import map
 at run time, so a theme never bundles it; the kit vendors its type declarations in
-[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.2.0). Everything a theme reads of the app, and
+[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.3.0). Everything a theme reads of the app, and
 everything it asks the app to do, goes through these names: no `fetch`, no `@/…` import, no `next/*`, no browser
 storage of its own ([pitfalls.md](pitfalls.md)).
 
@@ -22,6 +22,7 @@ gives a fake of every name ([its README](../packages/theme-harness/README.md)).
 |---|---|
 | `defineTheme` | Checks and freezes the theme's definition, `{ register(host), unregister? }`; the entry's default export. `register` gets `registerSlot`, `registerPage` and `registerRoute` ([contract.md](contract.md)). |
 | `SDK_VERSION` | The version of the SDK the host serves. |
+| `DISPLAY_STATE_LABELS` | SDK 1.3.0: each row state's (`display_state`: `needs_you`, `working`, `ready`, `done`, `failed`) glyph, word, HUD word and colour role, as every host surface draws it: ◆ Needs you, ● Working, ✓ Ready to look at, ✓ Done, ✕ Couldn't finish. A role names the Studio token that paints it on a light ground and a dark one; a status never goes through `--accent`. |
 
 ## `context`
 
@@ -115,6 +116,16 @@ with `useChatController`'s `send` ([contract.md](contract.md#the-hosts-parts)).
 | `HeaderUtilities` | Help, notifications, the theme menu and the account. Every frame renders it. |
 | `AiLabelFence` | The host's fence around a theme's chat composer. Wrap the composer only, never the conversation, and keep the voice button outside it. The host keeps the AI label itself ([contract.md](contract.md#the-ai-label)). |
 | `CorePage` | The core page for this route inside the theme's page, or its children where there is none. |
+| `BriefCard` | SDK 1.3.0: the day's brief from `useBrief`: the date, the greeting, Auto's Read, the five sections with their labels and counts, the row actions as text (`onAction`, `onOpen`, `onShowMore`), Listen (`listen`, on by default) and the thumbs. |
+| `SuggestionCard` | SDK 1.3.0: one suggestion from `useSuggestions`, with Start and Hide and what Start does, as a card or (`variant: 'pinned'`) one line above a composer; `onStarted` gets what Start made. |
+| `StatusLabel` | SDK 1.3.0: a row's `display_state` as its glyph and word, `▸` its `next_step`, and Try again when the row has a `retry` and the theme passes `onRetry`; nothing for an unknown state. |
+| `ReadinessList` | SDK 1.3.0: what Auto depends on, from `useReadiness`: each item's state and in-app fix, and Check again. |
+| `CalibrationCard` | SDK 1.3.0: what Auto knows so far, from its props, with Reject, Sounds right (`onAnswer`) and Something's off. |
+| `ReplyChips` | SDK 1.3.0: two or three short answers under Auto's last message (`latest`); a tap hands its text to `onReply` once. |
+
+An approval card's payload may carry `approval_view` (SDK 1.3.0): the host's card then shows who asked, the exact action,
+its target, its preview and the rule that asked before its buttons, and answers keys 1 (refuse) and 3 (allow once) while
+it has focus. A theme places the card as before and never redraws it.
 
 ## `looks`
 
@@ -156,7 +167,8 @@ for the page. Nothing throws: every refusal is `{ ok: false, reason, message }`.
 
 ## `voice`
 
-Talking to Auto by voice, through the host (SDK 1.2.0: `engines.sdk` `^1.2.0`, and `voice` in `uses`). The host runs
+Talking to Auto by voice, through the host (SDK 1.2.0: `engines.sdk` `^1.2.0`, and `voice` in `uses`; `BriefVoice` is
+SDK 1.3.0's). The host runs
 the tab's one voice session: Auto Live (a call, on the plans that have it) or web quick-ask (hold to talk, on every
 plan and edition). A theme never captures audio itself: code that names `getUserMedia`, `SpeechRecognition`,
 `webkitSpeechRecognition` or `speechSynthesis` is refused by the Marketplace review and by the kit's lint
@@ -167,6 +179,7 @@ plan and edition). A theme never captures audio itself: code that names `getUser
 | `VoiceButton` | The host's voice button: the press (`press`: `hold`, the default, or `toggle`), the engine (`mode`: `auto`, `quick` or `live`), the `conversation` it talks into, the `hotkey`, the `size` (`sm`, `md`, `lg`) and the `label`. While the session is the button's, the host draws the "AI voice assistant" caption and the stop control in a protected surface (`voice-control`) that no theme CSS can hide. Style it through `data-voice-state`, `data-voice-mode`, `data-voice-press`, `data-voice-size` and `data-voice-mic` on its root and the `--voice-button-*` custom properties. |
 | `useVoice` | The session as a frozen snapshot: what is `available` (quick, live and the reason), the `mode`, the `phase` (`idle`, `connecting`, `listening`, `thinking`, `speaking`, `ended`, `error`), `micOpen`, `muted`, `heard`, `reply`, `durationSec`, `error`, `chatId`, and `stop()`. |
 | `readVoiceLevels` | The member's and Auto's levels now, 0 to 1 (`user`, `agent`), for code inside an animation frame (a waveform, a mascot); zeros while no session runs. Never read it in a render. |
+| `BriefVoice` | SDK 1.3.0: Listen, the host's control that reads the day's brief the host holds in Auto's voice, with the AI voice caption and Stop while it reads, in a protected surface (`brief-voice`). It takes no props: a theme never speaks. It is disabled until the host holds a brief and while a voice session runs; its root (`[data-brief-voice="root"]`) carries `data-voice-speaking="true"` while Auto reads, which a theme's speaking line follows. |
 
 Outside the host's voice (a page with none) `useVoice` answers the idle snapshot with nothing available and the
 reason, `readVoiceLevels` zeros, and `VoiceButton` is drawn disabled; none throws. A theme never hides the caption or
@@ -176,6 +189,26 @@ The session's words are already in its conversation: while it runs on one, `useC
 with two ordinary messages, `voice-live-user` (what the member is saying) and `voice-live-assistant` (what Auto is
 saying), which go once the turn's saved rows land. Draw them as any message; never draw `heard` and `reply` beside the
 conversation as well, which would show the words twice. The harness adds them as core does.
+
+## `proactive`
+
+What Auto noticed for the person, for a theme's own placements of the proactive surfaces (SDK 1.3.0: `engines.sdk`
+`^1.3.0`, and `proactive` in `uses`; the cards area's defaults above draw the same data). Reads and writes hand back the
+page areas' frozen views (below). The words in these shapes are the server's, in the person's language; a suggestion's
+title and detail and the brief's rows are Auto's words: draw them as text and mark them `data-ai-generated`.
+
+| Name | What it is |
+|---|---|
+| `useBrief` | The day's brief (Brief@1: the date, the greeting, Auto's Read, five sections of rows, their exact counts, the labels) once the host has opened it; reading it never builds one. |
+| `useReadiness`, `useCheckReadiness` | What Auto depends on (Readiness@1: each item ready, not checked or needs setup, with its in-app fix), and Check again, which the server limits. |
+| `useSuggestions`, `useStartSuggestion`, `useHideSuggestion` | The open suggestions, newest first, and Start and Hide (with the reason the person picked). An id that isn't a suggestion's, or a reason Hide doesn't know, throws before anything is sent. |
+| `useCalibration`, `useAnswerCalibration` | What Auto thinks it knows on day one, and Sounds right or Reject one line. `available` is false until the server offers calibration; until then nothing is asked and an answer is refused. |
+
+**No brief is a normal day.** The brief exists only while the workspace's proactive mode is on (shadow or live).
+Otherwise the host's open is refused quietly and `useBrief` answers no data, not loading and no error: draw the page as
+it is without a brief (a theme's empty chat, its usual panels), never an error or a placeholder. Status reaches the
+screen through the status tokens (`DISPLAY_STATE_LABELS`' roles), never `--accent`. In the harness the sample brief
+shows by default and `brief=off` (the toolbar's Brief today) shows the day without one.
 
 ## Page areas
 
@@ -206,6 +239,9 @@ sent.
 | `useReplanMission`, `useRerunMission` | Plan a failed Mission again; start a new one from a finished one. |
 | `useSaveAsRoutine` | Save a Mission as a reusable routine. |
 | `useUpdateMissionSettings` | Change a Mission's settings. |
+
+A Mission row carries where it stands (`display_state`), what happens next (`next_step`) and what Try again does
+(`retry`) since SDK 1.3.0; `StatusLabel` draws them.
 
 ### `pages/documents` (`uses`: `pages-documents`)
 

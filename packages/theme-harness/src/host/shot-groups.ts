@@ -21,6 +21,10 @@
  *   failed), into `<preset>/1440-voice-<phase>/`. The session runs on the transcript's conversation, so the shots show
  *   its words as core's chat draws them, the conversation's last two messages. Idle is every other group. Reduced
  *   motion holds the voice levels still, so the shots are the same on every run.
+ * - For a theme whose `uses` names the SDK's `proactive` area (SDK 1.3.0), the day with no brief: the chat page (or,
+ *   with no /chat page, every view) in the default look at 1440 px, with reduced motion and the brief off
+ *   (`brief=off`: core's open answers `brief_off` and useBrief has none), into `<preset>/1440-no-brief/`. Every other
+ *   group has the day's brief (src/host/sample-data.ts), so the shots show both.
  */
 import {
   belowWidth, DEFAULT_SETTINGS, expectedShots, pagePath, PHONE_VIEWPORT, settingsQuery, SHOT_SUFFIX, SHOT_WIDTHS, viewSlug, VOICE_PHASES,
@@ -41,6 +45,10 @@ export const TRANSCRIPT_SUFFIX = '-transcript'
 export const VOICE_SUFFIX = '-voice-'
 /** The SDK area a theme.json's `uses` names for the voice groups. */
 export const VOICE_AREA = 'voice'
+/** The no-brief group's: `<preset>/1440-no-brief`. */
+export const NO_BRIEF_SUFFIX = '-no-brief'
+/** The SDK area a theme.json's `uses` names for the no-brief group. */
+export const PROACTIVE_AREA = 'proactive'
 /** The phases the voice groups shoot: every one but idle, which every other group shows. */
 export const VOICE_SHOT_PHASES: readonly HarnessVoicePhase[] = Object.freeze(VOICE_PHASES.filter((phase) => phase !== DEFAULT_SETTINGS.voice))
 
@@ -62,6 +70,8 @@ export interface ShotGroup extends Viewport {
   readonly transcript: boolean
   /** The voice groups' phase of the host's made-up voice session; left out (no session) in every other group. */
   readonly voice?: HarnessVoicePhase
+  /** The no-brief group's false: no brief today; left out (the day's brief) in every other group. */
+  readonly brief?: false
 }
 
 const NO_PRESET_FOLDER = 'default'
@@ -106,6 +116,14 @@ function voiceGroups(preset: string | null, pages: readonly string[], uses: read
   }))
 }
 
+/** For a theme whose `uses` names the proactive area: the chat page (every view with none) with no brief today. */
+function noBriefGroups(preset: string | null, pages: readonly string[], uses: readonly string[]): ShotGroup[] {
+  if (!uses.includes(PROACTIVE_AREA)) return []
+  const page = pages.includes(CHAT_PAGE) ? CHAT_PAGE : null
+  const folder = `${folderOf(preset, CHAT_GROUP_WIDTH)}${NO_BRIEF_SUFFIX}`
+  return [{ folder, preset, ...desktop(CHAT_GROUP_WIDTH), reducedMotion: true, page, transcript: false, brief: false }]
+}
+
 /** True for a theme drawn at a phone's width: its minWidth at most PHONE_VIEWPORT's width. */
 export function fitsPhone(minWidth: number): boolean {
   return minWidth <= PHONE_VIEWPORT.width
@@ -124,7 +142,8 @@ function phoneGroups(looks: readonly (string | null)[], minWidth: number, pages:
 /**
  * Each preset (default first) at each desktop width, then the default look just below the theme's minWidth, then the
  * chat groups for a theme whose `pages` (theme.json's routes) hold /chat, then the voice groups for a theme whose
- * `uses` names the voice area, then the phone-width groups for a theme whose minWidth fits a phone.
+ * `uses` names the voice area, then the no-brief group for one whose `uses` names the proactive area, then the
+ * phone-width groups for a theme whose minWidth fits a phone.
  */
 export function shotGroups(
   presets: readonly string[], minWidth: number, pages: readonly string[] = [], uses: readonly string[] = [],
@@ -133,14 +152,14 @@ export function shotGroups(
   const wide = looks.flatMap((preset) => SHOT_WIDTHS.map((width) => everyView(folderOf(preset, width), preset, desktop(width))))
   const below = belowWidth(minWidth)
   const narrow = below === null ? [] : [everyView(`below-${below}`, looks[0], desktop(below))]
-  const voice = voiceGroups(looks[0], pages, uses)
-  return [...wide, ...narrow, ...chatGroups(looks[0], pages), ...voice, ...phoneGroups(looks, minWidth, pages)]
+  const extra = [...voiceGroups(looks[0], pages, uses), ...noBriefGroups(looks[0], pages, uses)]
+  return [...wide, ...narrow, ...chatGroups(looks[0], pages), ...extra, ...phoneGroups(looks, minWidth, pages)]
 }
 
-/** The address a shot opens: the view's path, the group's look, width, motion, conversation and voice, no toolbar. */
+/** The address a shot opens: the view's path, the group's look, width, motion, conversation, voice and brief, no toolbar. */
 export function shotAddress(group: ShotGroup, path: string): string {
-  const { preset, width, reducedMotion, transcript, voice = DEFAULT_SETTINGS.voice } = group
-  return `/${settingsQuery({ ...DEFAULT_SETTINGS, path, preset, width, reducedMotion, transcript, voice, toolbar: false })}`
+  const { preset, width, reducedMotion, transcript, voice = DEFAULT_SETTINGS.voice, brief = DEFAULT_SETTINGS.brief } = group
+  return `/${settingsQuery({ ...DEFAULT_SETTINGS, path, preset, width, reducedMotion, transcript, voice, brief, toolbar: false })}`
 }
 
 /** The views a group shoots, of those the page drew: every one, or its one page. */

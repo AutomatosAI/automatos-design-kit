@@ -5,9 +5,11 @@
  * Mirrors core's frontend/lib/chat/approvals.ts (101a0bf33f64fb4f89af81b4293415be60b661ac): a 'tool-data'
  * part's `tool_approval` (a grant waiting for the owner) and `mission_approval` (a Mission plan), each field
  * checked off the wire, the ids checked before they could reach a request path; a filed card keeps the reply
- * that raised it and whether the owner answered or closed it. Pure.
+ * that raised it and whether the owner answered or closed it. Pure. SDK 1.3.0 (PRD-268 §6.11.4): either card may carry
+ * `approval_view`, read as core's approvals.ts reads it at 1a8956c874dc42cff05b96f431c50b7d722a71aa (approval-view.ts).
  */
 import type { MissionApprovalData, MissionApprovalTask, OversightTier, ToolApprovalData } from '@automatos/theme-sdk'
+import { viewField } from './approval-view.ts'
 
 /** approvals.ts:23-28: chat.tsx's card titles and badges. */
 export const TOOL_APPROVAL_TITLE = 'Action approval needed'
@@ -83,6 +85,7 @@ export function toolCardOf(value: unknown): ToolCard | null {
     permission_level: textOf(fields.permission_level),
     params: recordOf(fields.params) ?? undefined,
     ...oversightOf(fields),
+    ...viewField(fields.approval_view, String(grantId)),
   }
   return Object.freeze({ kind: 'tool', key: `tool-${grantId}`, data: Object.freeze(data) })
 }
@@ -119,6 +122,7 @@ export function missionCardOf(value: unknown): MissionCard | null {
     cost_ceiling_usd: numberOf(fields.cost_ceiling_usd),
     approval_deadline_at: textOf(fields.approval_deadline_at),
     ...oversightOf(fields),
+    ...viewField(fields.approval_view, missionId),
   }
   return Object.freeze({ kind: 'mission', key: `mission-${missionId}`, data: Object.freeze(data) })
 }

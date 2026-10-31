@@ -12,7 +12,7 @@ says how the parts connect; [cli.md](cli.md) has every command, and each package
 | `@automatos/vite-preset` (`packages/vite-preset`) | The Vite plugin every theme builds with, `automatosTheme()`: the ES library output, the import map's modules left external, one stylesheet scoped under the theme's class, and the source guard | none (`postcss`; `vite` as a peer) |
 | `@automatos/theme-cli` (`packages/theme-cli`) | `automatos-theme`: `pack`, `check`, `new`, `brief`, `clone`, `skin`, `dev`, `shots`, `previews`, `install`, `submit`; the vendored core validators in `src/core/` | vite-preset, theme-harness, theme-rules, look-kit |
 | `@automatos/theme-harness` (`packages/theme-harness`) | The vitest preset a theme's tests run on (jsdom, React, Testing Library, a fake SDK, a fake host) and the browser harness, a mock host page in `app/` | theme-cli (core's manifest validator), theme-sdk, vite-preset |
-| `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.2.0, vendored from core; types only | none |
+| `@automatos/theme-sdk` (`packages/theme-sdk`) | The SDK's type declarations, version 1.3.0, vendored from core; types only | none |
 | `@automatos/theme-rules` (`packages/theme-rules`) | The Marketplace review's JS rules, as one table of data | vite-preset (its import refusals) |
 | `@automatos/eslint-plugin` (`packages/eslint-plugin`) | The same rules as ESLint rules, one per code, for a theme's `lint` | theme-rules |
 | `@automatos/look-kit` (`packages/look-kit`) | A kit library: a look's custom properties, Studio's tokens, WCAG contrast, HSL triplets, the look validator | none |
@@ -127,10 +127,11 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `40a2e00715f069b7f1bbade0d00b287409a16b74` (host contract
-1.1.0 with the `mobile` block, SDK 1.2.0 with the `voice` area; the head of core pull request #1373 on 30 Oct 2026,
-which lets a theme list phone screenshots, `phonePreviews`, up to 24 web and 24 phone screenshots, in a package of up
-to 32 MB), the commit `packages/theme-cli/src/core/README.md` names:
+kit is fixed. The kit vendors core's contract at commit `1a8956c874dc42cff05b96f431c50b7d722a71aa` (host contract
+1.1.0 with the `mobile` block, SDK 1.3.0 with the `voice` and `proactive` areas; core `main` on 30 Oct 2026, after
+the merge of core pull request #1375, which adds the SDK's proactive area: the day's brief, suggestions, what Auto
+depends on, calibration and their default cards; phone screenshots, `phonePreviews`, came with the pin before), the
+commit `packages/theme-cli/src/core/README.md` names:
 
 - **The validators**, copied with only their import paths edited, into `packages/theme-cli/src/core/`: core's
   `frontend/lib/theme-host/` `css-value.ts`, `look-schema.ts`, `package-manifest.ts`, `mobile-manifest.ts` and
@@ -145,7 +146,7 @@ to 32 MB), the commit `packages/theme-cli/src/core/README.md` names:
   (`review-cases.json`) and its hello test theme (`hello/`). `test/core-corpus.test.ts` holds `pack`'s checks to the
   server's verdicts and `test/review-corpus.test.ts` holds `check` to the server's review stage.
 - **The SDK's types**: `packages/theme-sdk` is core's `frontend/packages/theme-sdk` at the commit its README names
-  (SDK 1.2.0, the same files at the commit above), every declaration unchanged.
+  (SDK 1.3.0, the same files at the commit above), every declaration unchanged.
 - **Ports**, where core's code is Python: the zip reader and its file kinds (`src/members.ts`, `src/files.ts`,
   `src/check-package.ts`), the CSS scope check (`@automatos/vite-preset/css-scope`), the review stage
   (`src/check/`), and the host's first paint (`src/mobile-paint.ts`, `src/check/contrast.ts`).

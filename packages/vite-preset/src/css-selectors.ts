@@ -16,8 +16,8 @@ const BRACKET_STEP: ReadonlyMap<string, number> = new Map([['(', 1], ['[', 1], [
 const QUOTES: ReadonlySet<string> = new Set(['"', "'"])
 
 /**
- * The protected surfaces' wrapper attributes (the approval cards and the voice button's control); this prefix covers
- * data-protected-surface-inner too.
+ * The protected surfaces' wrapper attributes (the approval cards, the voice button's control and the brief's Listen);
+ * this prefix covers data-protected-surface-inner too.
  */
 export const PROTECTED_SURFACE_NAME = 'data-protected-surface'
 /**

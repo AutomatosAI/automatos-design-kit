@@ -13,7 +13,8 @@
  * chosen preset (useLook), whose active look the page is painted from, so a look the theme's editor sets paints too,
  * the chat's conversation (src/host/transcript.ts: a made-up exchange, or a new chat), and the host's voice session
  * (src/host/voice.ts: none, or a made-up one in the phase chosen, on the conversation on screen, whose words show in it
- * as core's chat shows them), whose levels move unless reduced motion is on. The address alone sets the host's edition
+ * as core's chat shows them), whose levels move unless reduced motion is on, and the day's brief (src/host/sample-data.ts:
+ * the brief, or none today, as with the workspace's brief off). The address alone sets the host's edition
  * (useEdition: local, or `edition=saas`, the hosted one, where core draws no first-run nudge), once, before the first
  * render, as core's is fixed for a build, and the demo extras over the sample data (`demo=`, src/host/demo.ts: every
  * agent active, older conversations beside the chat's, Play's hello played this session), which the showcase asks for.
@@ -31,6 +32,7 @@ import {
 } from '../src/host/prepaint.ts'
 import { installCoreBase } from '../src/host/core-base.ts'
 import { giveDemo, olderConversations } from '../src/host/demo-data.ts'
+import { showBrief } from '../src/host/sample-data.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
   EMPTY_SERVED, HARNESS_GLOBAL, STAGE_ID, viewOfPath, viewsOf, type HarnessReport, type HarnessSettings, type Served, type View,
@@ -99,13 +101,14 @@ export function mountLooks(theme: HarnessTheme, settings: HarnessSettings): void
   host.setLooks({ look, defaultLook: theme.presets[0], tone: themeTone(theme, look) })
 }
 
-/** The fake host's width, minWidth, chosen tone and reduced motion for the settings, and its voice levels under them. */
+/** The fake host's width, minWidth, chosen tone, reduced motion and the day's brief for the settings, and its voice levels. */
 export function applySettings(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   host.setMinWidth(theme.manifest.minWidth)
   host.setWidth(settings.width ?? windowWidth)
   host.setTone(settings.tone)
   host.setReducedMotion(settings.reducedMotion)
   driveVoiceLevels(settings.reducedMotion)
+  showBrief(settings.brief)
 }
 
 /**

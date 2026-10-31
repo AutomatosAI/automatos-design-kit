@@ -1,0 +1,222 @@
+{
+  "_comment": "A made-up Brief@1 (SDK 1.3.0) for the fixtures' morning, 14 Oct 2026: what needs you is needs-you.json's six rows, Suggested is suggestions.json's two, Today is schedule.json's four runs, and Couldn't check is readiness.json's one item the brief needs that isn't ready (the calendar). No section folds. Its words are core's English strings (orchestrator/services/brief/strings.py). Fake data only.",
+  "v": 1,
+  "date": "2026-10-14",
+  "greeting": "Morning.",
+  "prose": "Six things need you this morning, two of them reviews. Four runs are scheduled today, the laptop shortlist's deadline among them, and two suggestions are waiting for you.",
+  "spoken": "Morning. 1. Check the three laptop reviews. 2. Proofread the bake sale post. 3. Which budget should the laptops stay under? 4. Plan the October newsletter. 5. Reconcile the September invoices. 6. Run the broken-link check. 7. Check the laptop prices again before Friday. 8. Draft the October newsletter outline.",
+  "sections": {
+    "needs_you": [
+      {
+        "id": "needs-101",
+        "title": "Check the three laptop reviews",
+        "why": "Scout finished it and is waiting for your review.",
+        "number": "#0101",
+        "display_state": "needs_you",
+        "opens": {
+          "type": "ticket",
+          "id": "101"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      },
+      {
+        "id": "needs-98",
+        "title": "Proofread the bake sale post",
+        "why": "Quill finished it and is waiting for your review.",
+        "number": "#0098",
+        "display_state": "needs_you",
+        "opens": {
+          "type": "ticket",
+          "id": "98"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      },
+      {
+        "id": "needs-301",
+        "title": "Which budget should the laptops stay under?",
+        "why": "Scout asked you a question.",
+        "number": "#0102",
+        "display_state": "needs_you",
+        "opens": {
+          "type": "question",
+          "id": "301"
+        },
+        "action": {
+          "verb": "answer",
+          "label": "Answer"
+        }
+      },
+      {
+        "id": "needs-mission-2",
+        "title": "Plan the October newsletter",
+        "why": "Quill's plan is waiting for your approval.",
+        "display_state": "needs_you",
+        "opens": {
+          "type": "mission",
+          "id": "harness-mission-2"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      },
+      {
+        "id": "needs-95",
+        "title": "Reconcile the September invoices",
+        "why": "Ledger is stuck and needs your help.",
+        "number": "#0095",
+        "display_state": "needs_you",
+        "opens": {
+          "type": "ticket",
+          "id": "95"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      },
+      {
+        "id": "needs-97",
+        "title": "Run the broken-link check",
+        "why": "Patch couldn't finish it.",
+        "number": "#0097",
+        "display_state": "failed",
+        "opens": {
+          "type": "ticket",
+          "id": "97"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      }
+    ],
+    "suggestions": [
+      {
+        "id": "00000000-0000-4000-8000-00000000a001",
+        "title": "Check the laptop prices again before Friday",
+        "why": "Two of the three shortlisted laptops changed price this week. A fresh check keeps the shortlist honest.",
+        "opens": {
+          "type": "suggestion",
+          "id": "00000000-0000-4000-8000-00000000a001"
+        },
+        "action": {
+          "verb": "start",
+          "label": "Start",
+          "done_label": "Started"
+        }
+      },
+      {
+        "id": "00000000-0000-4000-8000-00000000a002",
+        "title": "Draft the October newsletter outline",
+        "why": "The newsletter plan is waiting for approval, and an outline would make it quicker to judge.",
+        "opens": {
+          "type": "suggestion",
+          "id": "00000000-0000-4000-8000-00000000a002"
+        },
+        "action": {
+          "verb": "start",
+          "label": "Start",
+          "done_label": "Started"
+        }
+      }
+    ],
+    "today": [
+      {
+        "id": "today-routine-21",
+        "title": "Post the bake sale reminder",
+        "why": "An agent's routine runs.",
+        "at": "2026-10-14T11:00:00+00:00"
+      },
+      {
+        "id": "today-recipe-12",
+        "title": "Check the laptop prices",
+        "why": "A scheduled Playbook runs.",
+        "at": "2026-10-14T13:30:00+00:00"
+      },
+      {
+        "id": "today-task_due-103",
+        "title": "Send the laptop shortlist",
+        "why": "A ticket's deadline.",
+        "at": "2026-10-14T16:00:00+00:00",
+        "number": "#0103",
+        "opens": {
+          "type": "ticket",
+          "id": "103"
+        }
+      },
+      {
+        "id": "today-social-harness-post-1",
+        "title": "Share the newsletter teaser",
+        "why": "A social post goes out.",
+        "at": "2026-10-14T18:00:00+00:00"
+      }
+    ],
+    "since": [
+      {
+        "id": "since-mission-5",
+        "title": "Build the climate debate slides",
+        "why": "Finished since your last brief.",
+        "display_state": "ready",
+        "opens": {
+          "type": "mission",
+          "id": "harness-mission-5"
+        },
+        "action": {
+          "verb": "open",
+          "label": "Open"
+        }
+      },
+      {
+        "id": "since-mission-1",
+        "title": "Compare three laptops and write a shortlist",
+        "why": "Started from a suggestion. The work is under way.",
+        "display_state": "working",
+        "opens": {
+          "type": "mission",
+          "id": "harness-mission-1"
+        }
+      }
+    ],
+    "unchecked": [
+      {
+        "id": "unchecked-calendar",
+        "title": "Calendar",
+        "why": "No calendar is connected.",
+        "opens": {
+          "type": "settings",
+          "id": "calendar"
+        },
+        "action": {
+          "verb": "connect",
+          "label": "Set up"
+        }
+      }
+    ]
+  },
+  "counts": {
+    "needs_you": 6,
+    "suggestions": 2,
+    "today": 4,
+    "since": 2
+  },
+  "labels": {
+    "sections": {
+      "needs_you": "Needs you",
+      "suggestions": "Suggested",
+      "today": "Today",
+      "since": "Since your last brief",
+      "unchecked": "Couldn't check"
+    },
+    "more": {},
+    "empty": "Nothing new needs you, and nothing is scheduled today."
+  },
+  "state_hash": "harness-brief-2026-10-14",
+  "generated_at": "2026-10-14T09:05:00+00:00"
+}

@@ -2,6 +2,10 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.1.3
+
+Runs on Theme SDK 1.3.0. The proactive surfaces arrive in 1.2.0.
+
 ## 1.1.2
 
 Marketplace listing previews: `theme.json` lists seven, one chat screen per look (ARC, FORGE, GHOST, NOVA,

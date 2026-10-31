@@ -1,0 +1,54 @@
+{
+  "_comment": "A made-up Readiness@1 (SDK 1.3.0): what Auto depends on, checked on the fixtures' morning. Fake data only.",
+  "v": 1,
+  "checked_at": "2026-10-14T09:04:00+00:00",
+  "items": [
+    {
+      "id": "core",
+      "label": "Automatos",
+      "detail": "Answering.",
+      "state": "ready",
+      "fix": null,
+      "needed_by": [
+        "brief",
+        "voice",
+        "push",
+        "check_in"
+      ]
+    },
+    {
+      "id": "model_route",
+      "label": "Model",
+      "detail": "Auto's model answers.",
+      "state": "ready",
+      "fix": null,
+      "needed_by": [
+        "brief",
+        "check_in"
+      ]
+    },
+    {
+      "id": "web_search",
+      "label": "Web search",
+      "detail": "The check didn't answer in time.",
+      "state": "not_checked",
+      "fix": null,
+      "needed_by": [
+        "check_in"
+      ]
+    },
+    {
+      "id": "calendar",
+      "label": "Calendar",
+      "detail": "No calendar is connected.",
+      "state": "needs_setup",
+      "fix": {
+        "label": "Connect calendar",
+        "href": "/settings?tab=integrations"
+      },
+      "needed_by": [
+        "brief"
+      ]
+    }
+  ]
+}

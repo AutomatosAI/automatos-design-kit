@@ -6,6 +6,9 @@
  * on the card's root, data-protected-surface-inner inside it). The buttons are the host widgets' (Approve & run and
  * Deny; Approve & run and Reject); they make no call: each click is kept (cardActions), a tool card then shows its
  * outcome and tells onDecided, and a Mission card closes itself (onClose), as core's do once the call went through.
+ * SDK 1.3.0 (PRD-268 §6.11.4): a card whose payload carries `approval_view` (checked as core checks it,
+ * src/internal/scripted/approval-view.ts) shows who asked, the action, its target, the preview and the rule before
+ * its buttons, and answers keys 1 (Deny, Reject) and 3 (Approve & run) while it has focus (approval-view.tsx).
  */
 import type { ApprovalDecision, CardOrigin } from '@automatos/theme-sdk'
 import { type ReactElement, type ReactNode, useMemo, useState } from 'react'
@@ -20,6 +23,7 @@ import {
   UNNAMED_ACTION,
 } from '../../internal/scripted/approvals.ts'
 import { type CardName, recordCardAction } from '../../internal/scripted/cards-log.ts'
+import { ApprovalViewParts, useApprovalBody } from './approval-view.tsx'
 
 type Sdk = typeof import('@automatos/theme-sdk')
 
@@ -89,22 +93,28 @@ export const ToolApproval: Sdk['ToolApproval'] = function ToolApproval({ data, t
     setOutcome(decision)
     onDecided?.(decision)
   }
+  const view = card.data.approval_view
+  const keys = { refuse: () => decide('denied'), allowOnce: () => decide('approved'), disabled: outcome !== null }
+  const body = useApprovalBody(view, title, keys)
   return (
     <ProtectedCard surface="tool-approval" title={title} origin={origin} badge={card.data.action || UNNAMED_ACTION}>
-      {card.data.message ? <p>{card.data.message}</p> : null}
-      {card.data.question_md ? <p>{card.data.question_md}</p> : null}
-      {outcome === null ? (
-        <div>
-          <button type="button" onClick={() => decide('approved')}>
-            {APPROVE_LABEL}
-          </button>
-          <button type="button" onClick={() => decide('denied')}>
-            {DENY_LABEL}
-          </button>
-        </div>
-      ) : (
-        <p role="status">{OUTCOME_LINES[outcome]}</p>
-      )}
+      <div {...body.body}>
+        {card.data.message ? <p>{card.data.message}</p> : null}
+        {card.data.question_md ? <p>{card.data.question_md}</p> : null}
+        {view ? <ApprovalViewParts view={view} ruleId={body.ruleId} /> : null}
+        {outcome === null ? (
+          <div>
+            <button type="button" onClick={() => decide('approved')} {...body.allowOnceKey}>
+              {APPROVE_LABEL}
+            </button>
+            <button type="button" onClick={() => decide('denied')} {...body.refuseKey}>
+              {DENY_LABEL}
+            </button>
+          </div>
+        ) : (
+          <p role="status">{OUTCOME_LINES[outcome]}</p>
+        )}
+      </div>
       <CloseButton onClose={onClose} />
     </ProtectedCard>
   )
@@ -117,20 +127,25 @@ export const MissionApproval: Sdk['MissionApproval'] = function MissionApproval(
     recordCardAction({ card: 'mission-approval', id: card.data.mission_id, action: decision })
     onClose?.()
   }
+  const view = card.data.approval_view
+  const body = useApprovalBody(view, title, { refuse: () => decide('rejected'), allowOnce: () => decide('approved'), disabled: false })
   return (
     <ProtectedCard surface="mission-approval" title={title} origin={origin} badge={MISSION_SOURCE}>
-      <p>{card.data.goal}</p>
-      <ol>
-        {card.data.tasks.map((task, index) => (
-          <li key={`${index}-${task.title}`}>{task.title}</li>
-        ))}
-      </ol>
-      <button type="button" onClick={() => decide('approved')}>
-        {APPROVE_LABEL}
-      </button>
-      <button type="button" onClick={() => decide('rejected')}>
-        {REJECT_LABEL}
-      </button>
+      <div {...body.body}>
+        <p>{card.data.goal}</p>
+        <ol>
+          {card.data.tasks.map((task, index) => (
+            <li key={`${index}-${task.title}`}>{task.title}</li>
+          ))}
+        </ol>
+        {view ? <ApprovalViewParts view={view} ruleId={body.ruleId} /> : null}
+        <button type="button" onClick={() => decide('approved')} {...body.allowOnceKey}>
+          {APPROVE_LABEL}
+        </button>
+        <button type="button" onClick={() => decide('rejected')} {...body.refuseKey}>
+          {REJECT_LABEL}
+        </button>
+      </div>
       <CloseButton onClose={onClose} />
     </ProtectedCard>
   )

@@ -46,7 +46,7 @@ themes/harbour/
     "@automatos/vite-preset": "0.1.0",
     "eslint": "9.39.5"
   },
-  "peerDependencies": { "@automatos/theme-sdk": "1.2.0", "react": "^19.0.0" },
+  "peerDependencies": { "@automatos/theme-sdk": "1.3.0", "react": "^19.0.0" },
   "peerDependenciesMeta": { "react": { "optional": true } }
 }
 ```

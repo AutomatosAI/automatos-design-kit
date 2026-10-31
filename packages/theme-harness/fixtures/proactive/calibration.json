@@ -1,0 +1,40 @@
+{
+  "_comment": "A made-up Calibration@1 (SDK 1.3.0) for a theme's tests: core's server offers none yet, so the harness offers this only when a test asks (host.setCalibration). Fake data only.",
+  "v": 1,
+  "id": "harness-calibration-1",
+  "empty": false,
+  "lines": [
+    {
+      "id": "line-1",
+      "text": "You compare laptops for school travel.",
+      "sources": [
+        {
+          "type": "deliverable",
+          "id": "d-report-1",
+          "label": "Laptop shortlist"
+        },
+        {
+          "type": "conversation",
+          "id": "harness-chat-transcript",
+          "label": "Laptop shortlist"
+        }
+      ]
+    },
+    {
+      "id": "line-2",
+      "text": "You run the school bake sale.",
+      "sources": [
+        {
+          "type": "conversation",
+          "id": "harness-chat-bake",
+          "label": "Bake sale"
+        }
+      ]
+    }
+  ],
+  "offers": [
+    "Check prices on the shortlist every Monday",
+    "Draft the bake sale poster",
+    "Sum up this week's Deliverables"
+  ]
+}

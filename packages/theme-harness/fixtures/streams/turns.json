@@ -61,6 +61,38 @@
         { "data": { "type": "finish" } }
       ]
     },
+    "approvalView": {
+      "frames": [
+        { "data": { "type": "chat-id", "chatId": "harness-chat" } },
+        { "text": "I need your answer before I send this." },
+        {
+          "data": {
+            "type": "tool-data",
+            "data": {
+              "tool_approval": {
+                "grant_id": 26102,
+                "action": "platform_send_message",
+                "message": "This action (sends) requires confirmation.",
+                "permission_level": "sends",
+                "params": { "channel": "whatsapp" },
+                "risk_tier": "human_in_the_loop",
+                "approval_view": {
+                  "grant_id": "26102",
+                  "asked_by": { "kind": "auto", "name": "Auto" },
+                  "action": { "verb": "send", "summary": "Send the bake sale reminder to the parents' group" },
+                  "target": { "label": "Parents' group", "detail": "WhatsApp" },
+                  "preview": { "kind": "text", "body": "The bake sale is on Friday at 3 pm in the school hall." },
+                  "rule": { "id": "posture.balanced.sends", "sentence": "Ask before anything that sends to other people" },
+                  "answers": ["refuse", "allow_once"],
+                  "expires_at": "2026-10-14T21:00:00+00:00"
+                }
+              }
+            }
+          }
+        },
+        { "data": { "type": "finish" } }
+      ]
+    },
     "refused": {
       "status": 500,
       "frames": []

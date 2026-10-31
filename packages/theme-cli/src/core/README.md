@@ -3,12 +3,13 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `40a2e00715f069b7f1bbade0d00b287409a16b74`, the head of pull request #1373 on
-30 Oct 2026 (phone screenshots: `theme.json`'s `phonePreviews`, PNG or JPEG files in `assets/previews/phone/`, up to
-24 web and 24 phone screenshots, and a 32 MB package cap; the core corpus gains their `manifests` and `packages`
-cases; the host contract stays 1.1.0 and the SDK 1.2.0). Every file here but `package-manifest.ts` (`host.ts`
-included) is the same as at `3d8c72e7b58d32866f058a171d68bbbb8a335504`, the kit's previous pin (main at the merge of
-pull request #1365, 28 Oct 2026: the AI label).
+Source: `AutomatosAI/automatos-ai` at `1a8956c874dc42cff05b96f431c50b7d722a71aa`, core `main` on 30 Oct 2026, after
+the merges of pull requests #1375 (SDK 1.3.0: the `proactive` area, the proactive default cards, `BriefVoice` and
+`DISPLAY_STATE_LABELS`; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.3.0, the host contract still
+1.1.0; the core corpus gains the proactive area's `manifests`, `cssScope` and review cases) and #1376 (the chat, no
+file here). Since `40a2e00715f069b7f1bbade0d00b287409a16b74`, the kit's previous pin (the head of pull request
+#1373, phone screenshots), only `mobile-manifest.ts` (one doc comment: the status tokens are not phone tokens) and
+`host.ts` (`SDK_VERSION`) changed here.
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -35,7 +36,7 @@ only when a case does; the test holds the copy to this row:
 
 | File here | Core file | sha256 |
 |---|---|---|
-| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `1bb99a3181af1a9c2a92bc88bc4b2c4fa25c6b42b60e5a29b80f666dfcc51f8e` |
+| `test/fixtures/core/review-cases.json` | `orchestrator/tests/fixtures/themes/review-cases.json` | `f0abe3d7dd5d10dbddd877705c5f99ca7fe0e63a022351a939ac9ce2b0a88617` |
 
 `check` (`src/check/`) reads two of the server's data files, copied from the same commit byte for byte, with no
 edits; `test/check-report.test.ts` holds each to the sha256 here, and `CORE_SHA` in `src/check/report.ts` to the
@@ -44,22 +45,23 @@ commit above:
 | File here | Core file | sha256 |
 |---|---|---|
 | `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
-| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `2418aa818eb6871e66619ddc2eb15f9338d2c0ebc45b4486b7bc8fe89749d191` |
+| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `8c45db9c296e0dbd8bca0de2af7adbb593ffb3a6b4a163d4ee87fa95621290a8` |
 
 ## `data/contract.json` (the guides' lists)
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `109aaedbbfa8eab5577a7ad63b35cd2756b191ec5e310062e711fab9297abead`), written as JSON with
+(that file's sha256 there: `7a61d04e3a02bfe26138ecf8fabc77d2334c06160294232c4071dcf39040ee6b`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
 `HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
-contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.2.0) and its package cap (32 MB).
+contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.3.0), its package cap (32 MB) and
+comments.
 `tests/guides.test.ts` holds the file to the sha256 below and to the copies of the same lists in
 `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `271a457eaf03d5153ceec45f4fe8f4095917e1702203f0032ecd2411308b7728` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `fba0bd9b434e53c1a921a3aa4d4ef535bcc6bc1c76a35e733930a4f9bcc58238` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
