@@ -329,11 +329,13 @@ declared views and presets) on Chromium, one test each: one view in one look at 
 inside the fixtures' made-up day, the time zone and locale fixed too, the host's Auto widget stand-in hidden for the
 shot, and the demo extras a workspace in use shows (`demo=`: every agent active; on Play's conversations its hello
 already played; older conversations on Play's list). Every shot has the sample day's brief but Play's first open, the
-day without one (`brief=off`). A shot's step may open the theme's phone menu; open the pinned suggestion's full card
-from its line; or send words from the theme's message box (the shot's `composer`) and wait for the host's approval
-card the demo extra `approval-turn` raises in answer. A test fails when the theme did not start, lacks the shot's look,
-is not on the shot's view, draws the nudge, is not in the shot's voice phase, shows Play's hello after it played, or
-its step finds nothing to press or no card. No axe scan: the regression shots scan the same views. The PNGs go to
+day without one, and HUD's chat, voice, panel and approval shots (`brief=off`, its screen once the brief folded back).
+A shot's step may open the theme's phone menu; open the pinned suggestion's full card from its line; send words from
+the theme's message box (the shot's `composer`, after the button named by `opensComposer`: HUD's phone TYPE) and wait
+for the host's approval card the demo extra `approval-turn` raises in answer; press the host's Listen and wait until
+Auto reads the brief (`listen`); or scroll its heading into view (`scroll-to-heading`). A test fails when the theme did
+not start, lacks the shot's look, is not on the shot's view, draws the nudge, is not in the shot's voice phase, shows
+Play's hello after it played, or its step finds nothing to press or no card. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and
 the job uploads the folder as `kit-showcase`.
 

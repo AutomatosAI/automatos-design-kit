@@ -1,0 +1,195 @@
+/*
+ * HUD 1.2.0: BRIEFING (briefing-panel.tsx), inside HUD's Panel. The greeting in the look's display face; the host's
+ * Listen with `▸ SPEAKING` beside it in the readable accent; each section's label as a mono eyebrow with its count; each
+ * row its number in mono, its title in Geist and its why in mono, its time and its state as a glyph and a word in its
+ * tone (live: the readable accent; failed: the error colour; quiet: the secondary text), and its action as a mono
+ * text control in the readable accent. Status never goes through --accent. One entrance, a fade and a 4 px rise over
+ * 180 ms, only under data-hud-enter (never under reduced motion), and nothing loops.
+ */
+
+.briefing {
+  min-width: 0;
+}
+
+.briefing[data-hud-enter="rise"] {
+  animation: hud-briefing-enter 180ms ease-out 1 both;
+}
+
+@keyframes hud-briefing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+}
+
+.greeting {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 22px;
+  font-weight: var(--hud-display-weight);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.listen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-3);
+}
+
+.speaking {
+  color: var(--hud-accent-text);
+  font: 600 11px/1.3 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-1);
+}
+
+/* A section's label: a mono eyebrow in the secondary text, with no glyph, and its exact count. */
+.sectionLabel {
+  margin: 0;
+  padding-top: var(--hud-space-2);
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+.count {
+  color: var(--hud-accent-text);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A row: its number, then its words, then its action. */
+.row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--hud-space-2);
+  padding: var(--hud-space-2) 0;
+  border-top: 1px solid var(--hud-line);
+}
+
+.number {
+  color: var(--hud-accent-text);
+  font: 600 12px/1.3 var(--hud-font-mono);
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-1);
+}
+
+.title {
+  color: var(--hud-text);
+  font: 600 14px/1.3 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.titleLink:hover {
+  text-decoration: underline;
+}
+
+.why {
+  color: var(--hud-text-2);
+  font: 12px/1.4 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.status[data-tone="live"] {
+  color: var(--hud-accent-text);
+}
+
+.status[data-tone="failed"] {
+  color: var(--hud-error-text);
+}
+
+/* A row's action as text: a mono control in the readable accent, never a filled button. */
+.action {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--hud-space-1);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.action:hover {
+  text-decoration: underline;
+}
+
+.action:disabled {
+  color: var(--hud-text-2);
+  cursor: progress;
+}
+
+.done {
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.refused {
+  grid-column: 2 / -1;
+  color: var(--hud-error-text);
+  font: 12px/1.4 var(--hud-font-mono);
+}
+
+.empty {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 12px/1.5 var(--hud-font-mono);
+}

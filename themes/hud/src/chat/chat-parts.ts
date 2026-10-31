@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
 import type { HostChatController, HostChatDraft, HostChatMessage } from '@automatos/theme-sdk'
 
+import type { Briefing } from './briefing/use-briefing'
 import type { ChatSending } from './chat-footer'
 import type { HudAutoDriver } from './use-hud-auto'
 
@@ -30,4 +31,6 @@ export interface ChatParts {
   readonly fill: HostChatDraft | null
   /** Puts a starter's words in the message box. */
   readonly fillBox: (text: string) => void
+  /** The day's brief while BRIEFING shows, and its fold (HUD 1.2.0, briefing/use-briefing.ts). */
+  readonly briefing: Briefing
 }

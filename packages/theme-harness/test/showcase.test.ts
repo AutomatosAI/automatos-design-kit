@@ -5,9 +5,11 @@
 // with reduced motion and no toolbar, on its theme's own server, under a clock fixed inside the fixtures' made-up day,
 // with the demo extras a workspace in use shows: every agent active; Play's hello played before each of its
 // conversations (its first open keeps it), under the key and state Play keeps it in; older conversations on its list.
-// SDK 1.3.0's proactive area: the sample day's brief on every shot but the first open (a day without one), and Play's
-// proactive shots (PRD-268 US-K01): the brief, the suggestion opened from its pinned line, and an approval its recorded
-// answer raises, at 1440 and at 390.
+// SDK 1.3.0's proactive area: the sample day's brief on every shot but the first open (a day without one) and HUD's
+// chat, voice, panel and approval shots (its screen once the brief has folded back); Play's proactive shots (PRD-268
+// US-K01): the brief, the suggestion opened from its pinned line, and an approval its recorded answer raises, at 1440
+// and at 390; HUD's (US-K02): BRIEFING on every look at both widths, one at each width while Auto reads it, MISSIONS and
+// SYSTEMS scrolled into view, and the same approval, its phone's message box opened from TYPE.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,7 +18,8 @@ import { declaredIn, DEV_PORT, HARNESS_PORT, PHONE_VIEWPORT, PRESET_SUFFIX, read
 import { HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
 import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 import {
-  APPROVAL_ASK, PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
+  APPROVAL_ASK, BRIEF_LISTEN, HUD_MESSAGE_BOX, HUD_MISSIONS, HUD_SYSTEMS, HUD_TYPE, PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION,
+  SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
   showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
 } from '../src/host/showcase.ts'
 
@@ -35,6 +38,11 @@ const PLAY_FIRST_OPEN = join(THEMES_DIR, 'play/src/components/play/chat/first-op
 const PLAY_MESSAGE_BOX_SOURCE = join(THEMES_DIR, 'play/src/components/play/chat/message-box.tsx')
 const TURNS = join(HARNESS_DIR, 'fixtures/streams/turns.json')
 const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
+/** The host's Listen stand-in, which names its button, and HUD's two panels the showcase scrolls to. */
+const BRIEF_VOICE = join(HARNESS_DIR, 'src/sdk/brief-voice.tsx')
+const HUD_PANELS = join(THEMES_DIR, 'hud/src/chat/panels')
+/** HUD's chat, whose message box and phone TYPE the approval shots name. */
+const HUD_CHAT = join(THEMES_DIR, 'hud/src/chat')
 
 /** The shot list, as the showcase is asked for: HUD's, Play's, Arcade's, then Candy's, the desktop's before the phone's. */
 const EXPECTED_FILES = [
@@ -46,10 +54,26 @@ const EXPECTED_FILES = [
   'hud-1440-voice-listening-arc.png',
   'hud-1440-voice-speaking-forge.png',
   'hud-1440-look-editor-arc.png',
+  'hud-1440-briefing-arc.png',
+  'hud-1440-briefing-forge.png',
+  'hud-1440-briefing-ghost.png',
+  'hud-1440-briefing-nova.png',
+  'hud-1440-briefing-signal.png',
+  'hud-1440-briefing-speaking-arc.png',
+  'hud-1440-missions-arc.png',
+  'hud-1440-systems-arc.png',
+  'hud-1440-approval-arc.png',
   'hud-390-chat-arc.png',
   'hud-390-voice-listening-forge.png',
   'hud-390-look-editor-arc.png',
   'hud-390-voice-speaking-arc.png',
+  'hud-390-briefing-arc.png',
+  'hud-390-briefing-forge.png',
+  'hud-390-briefing-ghost.png',
+  'hud-390-briefing-nova.png',
+  'hud-390-briefing-signal.png',
+  'hud-390-briefing-speaking-arc.png',
+  'hud-390-approval-arc.png',
   'play-1440-first-open-ember.png',
   'play-1440-chat-ember.png',
   'play-1440-voice-speaking-ember.png',
@@ -159,19 +183,59 @@ describe('the showcase shots', () => {
     expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'open-menu').map(showcaseFile)).toEqual(['play-390-menu-ember.png'])
   })
 
-  it("draw the day's brief on every shot but the first open, which is the day without one", () => {
-    expect(SHOWCASE_SHOTS.filter((shot) => !shot.brief).map(showcaseFile)).toEqual(['play-1440-first-open-ember.png'])
+  it("draw HUD's BRIEFING on every look at both widths, with the brief, and Auto reading it at each width", () => {
+    const hudChats = SHOWCASE_SHOTS.filter((shot) => shot.theme === 'hud' && shot.view.key === '/chat')
+    const briefed = hudChats.filter((shot) => shot.brief).map(showcaseFile)
+    const looks = ['arc', 'forge', 'ghost', 'nova', 'signal']
+    expect(briefed).toEqual([
+      ...looks.map((look) => `hud-1440-briefing-${look}.png`), 'hud-1440-briefing-speaking-arc.png',
+      ...looks.map((look) => `hud-390-briefing-${look}.png`), 'hud-390-briefing-speaking-arc.png',
+    ])
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'listen').map(showcaseFile)).toEqual([
+      'hud-1440-briefing-speaking-arc.png', 'hud-390-briefing-speaking-arc.png',
+    ])
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'listen').every((shot) => shot.brief && shot.voice === 'idle')).toBe(true)
   })
 
-  it("open the pinned suggestion, and ask for an approval in Play's message box with its recorded answer, on a conversation", () => {
+  it("draw the day's brief on every shot but the first open and HUD's screen once its brief has folded back", () => {
+    expect(SHOWCASE_SHOTS.filter((shot) => !shot.brief).map(showcaseFile)).toEqual([
+      'hud-1440-chat-arc.png', 'hud-1440-chat-forge.png', 'hud-1440-chat-ghost.png', 'hud-1440-chat-nova.png',
+      'hud-1440-chat-signal.png', 'hud-1440-voice-listening-arc.png', 'hud-1440-voice-speaking-forge.png',
+      'hud-1440-missions-arc.png', 'hud-1440-systems-arc.png', 'hud-1440-approval-arc.png',
+      'hud-390-chat-arc.png', 'hud-390-voice-listening-forge.png', 'hud-390-voice-speaking-arc.png', 'hud-390-approval-arc.png',
+      'play-1440-first-open-ember.png',
+    ])
+    const scrolled = SHOWCASE_SHOTS.filter((shot) => shot.step === 'scroll-to-heading')
+    expect(scrolled.map((shot) => [showcaseFile(shot), shot.heading])).toEqual([
+      ['hud-1440-missions-arc.png', HUD_MISSIONS],
+      ['hud-1440-systems-arc.png', HUD_SYSTEMS],
+    ])
+  })
+
+  it("open the pinned suggestion, and ask for an approval in each theme's message box with its recorded answer, on a conversation", () => {
     const opened = SHOWCASE_SHOTS.filter((shot) => shot.step === 'open-suggestion')
     expect(opened.map(showcaseFile)).toEqual(['play-1440-suggestion-ember.png', 'play-390-suggestion-ember.png'])
     const asked = SHOWCASE_SHOTS.filter((shot) => shot.step === 'ask-approval')
-    expect(asked.map(showcaseFile)).toEqual(['play-1440-approval-ember.png', 'play-390-approval-ember.png'])
+    expect(asked.map(showcaseFile)).toEqual([
+      'hud-1440-approval-arc.png', 'hud-390-approval-arc.png', 'play-1440-approval-ember.png', 'play-390-approval-ember.png',
+    ])
     expect([...opened, ...asked].every((shot) => shot.transcript)).toBe(true)
-    expect(asked.every((shot) => shot.composer === PLAY_MESSAGE_BOX && shot.demo.includes('approval-turn'))).toBe(true)
+    const boxOf = (shot: ShowcaseShot): string => (shot.theme === 'hud' ? HUD_MESSAGE_BOX : PLAY_MESSAGE_BOX)
+    expect(asked.every((shot) => shot.composer === boxOf(shot) && shot.demo.includes('approval-turn'))).toBe(true)
     expect(SHOWCASE_SHOTS.filter((shot) => shot.demo.includes('approval-turn'))).toEqual(asked)
     expect(SHOWCASE_SHOTS.filter((shot) => shot.composer !== undefined)).toEqual(asked)
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.opensComposer !== undefined).map((shot) => [showcaseFile(shot), shot.opensComposer]))
+      .toEqual([['hud-390-approval-arc.png', HUD_TYPE]])
+  })
+})
+
+describe('the names the steps look for', () => {
+  it("are the host's Listen, HUD's MISSIONS and SYSTEMS headings, and HUD's message box and the phone's TYPE", () => {
+    expect(readFileSync(BRIEF_VOICE, 'utf8')).toContain(`export const LISTEN_TO_THE_BRIEF = '${BRIEF_LISTEN}'`)
+    expect(readFileSync(join(HUD_PANELS, 'missions-panel.tsx'), 'utf8')).toContain(`export const MISSIONS_TITLE = '${HUD_MISSIONS}'`)
+    expect(readFileSync(join(HUD_PANELS, 'systems-panel.tsx'), 'utf8')).toContain(`export const SYSTEMS_TITLE = '${HUD_SYSTEMS}'`)
+    expect(readFileSync(join(HUD_CHAT, 'composer.tsx'), 'utf8')).toContain(`export const PLACEHOLDER = '${HUD_MESSAGE_BOX}'`)
+    expect(readFileSync(join(HUD_CHAT, 'phone/phone-controls.tsx'), 'utf8')).toContain(`export const TYPE_LABEL = '${HUD_TYPE}'`)
   })
 })
 

@@ -1,6 +1,7 @@
 import { useBoardEventStream, useChatController } from '@automatos/theme-sdk'
 
 import { usePhoneLayout } from '../lib/phone-layout'
+import { useBriefing } from './briefing/use-briefing'
 import { HudChatView } from './chat-view'
 import { OPENING } from './chip'
 import { useScreenLayout } from './layout'
@@ -15,7 +16,8 @@ import { VoiceCore } from './voice-core'
  * the core. The view is keyed by the conversation, so switching conversations starts it afresh. The page holds the
  * board's event lane open (the SDK's useBoardEventStream), as the Studio chat does, so a reply that lands after its
  * turn (an awaited one, a background post) shows live. The page reaches the host only through the SDK. In a window
- * narrower than the desktop layout it is the design's phone screen (phone/phone-chat.tsx).
+ * narrower than the desktop layout it is the design's phone screen (phone/phone-chat.tsx). HUD 1.2.0: the page holds
+ * whether the day's brief shows (briefing/use-briefing.ts), so a conversation switch never brings a folded brief back.
  */
 
 export const OPENING_TITLE = 'Conversation'
@@ -40,6 +42,7 @@ function DesktopOpening() {
 export function HudChatPage() {
   useBoardEventStream(true)
   const { conversation } = useChatController()
+  const briefing = useBriefing()
   if (!conversation) return <ChatOpening />
-  return <HudChatView key={conversation.key} conversation={conversation} />
+  return <HudChatView key={conversation.key} conversation={conversation} briefing={briefing} />
 }

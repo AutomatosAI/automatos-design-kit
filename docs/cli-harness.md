@@ -102,8 +102,11 @@ harness's own made-up data: the laptop-shortlist conversation and its Deliverabl
 cards, and the made-up voice session, with the demo extras a workspace in use shows (`demo=` in the address): every
 agent active, Play's hello already played on each of its conversations (its first open keeps it), and five older
 conversations on Play's Conversations. Every shot has the sample day's brief and open suggestions but Play's first
-open, which is the day without one (`brief=off`). Play's approval shots send words from its message box, which the
-demo extra `approval-turn` answers with the recorded turn that raises an approval. The harness's labelled stand-in for core's floating Auto widget is hidden for
+open, which is the day without one, and HUD's chat, voice, panel and approval shots, which draw its screen once the
+brief has folded back (`brief=off`). A shot may take one step first: open the theme's phone menu; open Play's pinned
+suggestion's full card; send words from the theme's message box (opened from HUD's TYPE on its phone), which the
+demo extra `approval-turn` answers with the recorded turn that raises an approval; press the host's Listen for the
+brief and wait until Auto reads it; or scroll a panel's heading into view. The harness's labelled stand-in for core's floating Auto widget is hidden for
 the shot. The images are Chromium's alone and get no axe scan: the regression shots cover WebKit and the scans.
 
 The PNGs go to `packages/theme-harness/dist/showcase/`, each named `<theme>-<width>-<what>-<look>.png` (for example
@@ -113,8 +116,8 @@ list is `SHOWCASE_SHOTS` in `packages/theme-harness/src/host/showcase.ts`:
 
 | Theme | Width | Shots |
 |---|---|---|
-| HUD | 1440 | `chat-arc`, `chat-forge`, `chat-ghost`, `chat-nova`, `chat-signal` (one per look: HUD's listing previews), `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc` |
-| HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc` |
+| HUD | 1440 | `chat-arc`, `chat-forge`, `chat-ghost`, `chat-nova`, `chat-signal` (one per look: HUD's listing previews), `voice-listening-arc`, `voice-speaking-forge`, `look-editor-arc`, `briefing-arc`, `briefing-forge`, `briefing-ghost`, `briefing-nova`, `briefing-signal` (BRIEFING in the right column, one per look), `briefing-speaking-arc` (Listen pressed: `▸ SPEAKING`), `missions-arc`, `systems-arc` (each panel scrolled into view), `approval-arc` (an approval waiting in Auto's reply) |
+| HUD | 390 | `chat-arc`, `voice-listening-forge`, `look-editor-arc`, `voice-speaking-arc`, `briefing-arc`, `briefing-forge`, `briefing-ghost`, `briefing-nova`, `briefing-signal` (BRIEFING in the last exchange's slot, one per look), `briefing-speaking-arc`, `approval-arc` |
 | Play | 1440 | `first-open-ember`, `chat-ember`, `voice-speaking-ember`, `chat-daylight`, `look-editor-ember`, `brief-ember`, `brief-daylight` (the day's brief in the first open's place), `suggestion-ember` (the pinned suggestion opened), `approval-ember` (an approval waiting in Auto's reply) |
 | Play | 390 | `chat-ember`, `menu-ember` (its phone menu open), `conversations-ember`, `voice-listening-ember`, `brief-ember`, `suggestion-ember`, `approval-ember` |
 | Arcade | 1440 | `chat-overworld`, `chat-dungeon`, `chat-neon`, `chat-nightcity`, `chat-handheld`, `quests-overworld`, `inventory-overworld`, `look-editor-overworld` |

@@ -208,3 +208,9 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
+
+/* HUD 1.2.0: BRIEFING in the last exchange's slot, the room left under the core, padded as the exchange is. */
+.briefing {
+  flex: 1 0 auto;
+  padding: var(--hud-space-4) var(--hud-space-4);
+}

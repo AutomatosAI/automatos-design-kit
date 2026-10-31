@@ -134,7 +134,8 @@ describe('MISSION', () => {
       '✓Search the shops', '▸Read the reviews', '–Ask a friend', '○Write the shortlist',
     ])
     expect(shown).toHaveTextContent('1 / 4')
-    expect(shown).toHaveAttribute('data-live', 'true')
+    // HUD 1.2.0, the one-live-border rule: a Mission at work isn't waiting for you, so MISSION never glows.
+    expect(shown).not.toHaveAttribute('data-live')
   })
 
   it("stands the newest running Mission in when this conversation's can't be read", () => {

@@ -249,3 +249,64 @@ a.deliverableTitle:hover {
   margin-left: auto;
   color: var(--hud-text-2);
 }
+
+/*
+ * HUD 1.2.0, MISSIONS: a Mission's row as the other rows, `▸` and the server's next step in mono under it, and while
+ * it works a 3 px rail down its left edge in the readable accent (a still mark, never animated).
+ */
+.mission {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--hud-space-2) 0;
+  border-top: 1px solid var(--hud-line);
+}
+
+.mission[data-rail="true"] {
+  padding-left: var(--hud-space-3);
+  box-shadow: inset 3px 0 0 var(--hud-accent-text);
+}
+
+.mission[data-display-state="failed"] .nextStep {
+  color: var(--hud-error-text);
+}
+
+.nextStep {
+  color: var(--hud-text-2);
+  font: 12px/1.4 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.retry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-2);
+}
+
+/* Try again and Check again: HUD's secondary button, an accent-line outline, mono capitals, 44 px high. */
+.retryButton,
+.check {
+  align-self: flex-start;
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.retryButton:hover,
+.check:hover {
+  border-color: var(--hud-accent);
+}
+
+.retryButton:disabled,
+.check:disabled {
+  color: var(--hud-text-2);
+  cursor: progress;
+}

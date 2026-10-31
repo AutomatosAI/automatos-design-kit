@@ -36,8 +36,8 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/hud.md">HUD</a></b> 1.1.3 (<code>automatos/hud</code>): a mission-control console. A
-      top bar, a side rail, bracketed panels, and Auto in a voice core. <a href="themes/hud">Source</a>
+      <b><a href="docs/themes/hud.md">HUD</a></b> 1.2.0 (<code>automatos/hud</code>): a mission-control console. A
+      top bar, a side rail, bracketed panels, Auto in a voice core, and the day's briefing. <a href="themes/hud">Source</a>
     </td>
   </tr>
   <tr>

@@ -1,9 +1,12 @@
-import { type RefObject, useCallback, useEffect, useId, useRef, useState } from 'react'
+import { type ReactNode, type RefObject, useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useVoice } from '@automatos/theme-sdk'
 
 import { isVoiceRunning } from '../../voice/session'
 import { PHONE_BARS } from '../../voice/wave'
 import { Waveform } from '../../voice/waveform'
+import { briefSuggestionIds } from '../briefing/brief-rows'
+import { BriefingPanel } from '../briefing/briefing-panel'
+import type { Briefing } from '../briefing/use-briefing'
 import type { ChatParts } from '../chat-parts'
 import { TrialBanner } from '../chat-footer'
 import { OPENING } from '../chip'
@@ -12,6 +15,7 @@ import { EmptyChat } from '../empty-chat'
 import { TurnEnd } from '../turn-end'
 import { VoiceCore } from '../voice-core'
 import { PhoneControls } from './phone-controls'
+import styles from './phone.module.css'
 import { PhoneScreen } from './phone-screen'
 import { PhoneTranscript } from './phone-transcript'
 import { StatusLine } from './status-line'
@@ -27,6 +31,8 @@ import { useFollowEnd } from './use-follow-end'
  * voice-live-assistant), so the last exchange is the one being spoken, at the foot of its room over the waveform
  * (phone-transcript.tsx, HUD 1.1.1). STOP stops the reply as the box's Stop does and
  * ends a voice session, and with the box shut hands the focus to TYPE, since STOP itself is disabled once nothing runs.
+ * HUD 1.2.0 (PRD-268): while the day's brief shows, BRIEFING takes the last exchange's slot until it folds back, unless
+ * a card in the conversation waits for you, which keeps the exchange in its slot.
  */
 
 interface Typing {
@@ -77,12 +83,22 @@ function useStop(streaming: boolean, { onStop }: ChatParts['sending'], typing: T
   return { stoppable: streaming || talking, talking, stop }
 }
 
-export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox }: ChatParts) {
+/** BRIEFING in the last exchange's slot while it shows, unless a card waits for you; the last exchange otherwise. */
+function slotOf(briefing: Briefing, waiting: boolean, exchange: ReactNode): ReactNode {
+  if (waiting || briefing.brief === null) return exchange
+  return (
+    <div className={styles.briefing}>
+      <BriefingPanel brief={briefing.brief} onFold={briefing.fold} />
+    </div>
+  )
+}
+
+export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, briefing }: ChatParts) {
   const typing = useTyping({ boxRef, fillBox })
   const stopping = useStop(chat.streaming, sending, typing)
   const scrollRef = useFollowEnd(chat.messages)
   const composerId = useId()
-  const transcript = (
+  const exchange = (
     <PhoneTranscript
       messages={chat.messages}
       streaming={chat.streaming}
@@ -93,6 +109,7 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
       voice={stopping.talking}
     />
   )
+  const transcript = slotOf(briefing, chat.approvalWaiting, exchange)
   const dock = (
     <>
       <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
@@ -111,7 +128,7 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
     </>
   )
   const core = <VoiceCore state={auto.mascot} chip={chip} size="small" onClipEnded={auto.onClipEnded} />
-  const line = <StatusLine state={auto.mascot} />
+  const line = <StatusLine state={auto.mascot} listed={briefSuggestionIds(chat.approvalWaiting ? null : briefing.brief)} />
   return <PhoneScreen title={chat.title} line={line} core={core} transcript={transcript} dock={dock} scrollRef={scrollRef} />
 }
 

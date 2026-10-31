@@ -5,12 +5,12 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.1.3.
+`themes/hud/theme.json` at version 1.2.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.1.3` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.3.0"}`: SDK 1.3.0, the vendored SDK (the voice area is SDK 1.2.0's) |
+| `id`, `version` | `automatos/hud`, `1.2.0` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.3.0"}`: SDK 1.3.0, the vendored SDK, whose proactive area HUD 1.2.0 uses (the voice area is SDK 1.2.0's) |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px HUD draws its phone layout (below) |
@@ -26,12 +26,47 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Deliverables, Today, Needs you and Next up panels as the window allows. A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
-(`/looks`) and Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`, `context`, `deliverables`, `events`, `looks`, `navigation`, `pages-agents`, `pages-assignments`, `pages-command-center`, `storage`, `theme` and `voice`. The message box stays the way to type (Enter sends, Shift + Enter makes a new line,
+(`/looks`) and Style sheet (`/looks/style`). `uses` names the SDK areas the code imports: `assets`, `cards`, `chat`, `context`, `deliverables`, `events`, `looks`, `navigation`, `pages-agents`, `pages-assignments`, `pages-command-center`, `proactive`, `storage`, `theme` and `voice`. The message box stays the way to type (Enter sends, Shift + Enter makes a new line,
 Esc stops); voice is beside it, never instead of it.
+
+## Proactive Auto
+
+HUD 1.2.0 draws the proactive surfaces from the SDK's proactive area (SDK 1.3.0: `useBrief`, `useSuggestions`,
+`useStartSuggestion`, `useHideSuggestion`, `useReadiness`, `useCheckReadiness`), the theme area's `DISPLAY_STATE_LABELS`
+(each state's glyph and HUD word) and the voice area's `BriefVoice`. Every word is the server's, in the person's
+language; Auto's words (the greeting, the brief's titles and whys, the suggestion's title) carry `data-ai-generated`.
+HUD calls no speech API and places the host's approval cards where it always has, never redrawing them.
+
+| Part | Desktop | Phone |
+|---|---|---|
+| BRIEFING (`src/chat/briefing/`): the day's brief once the host has it. Its day as the panel's value, the greeting, the host's Listen (`BriefVoice`) with `▸ SPEAKING` beside it while its root says Auto reads, and the brief's sections in Brief@1's order, each its label and exact count (the brief's own, the SDK's English defaults behind them), every row numbered across them as Listen numbers the titles, each its why, its time, its state as a glyph and a word, and its action named by the row: a link where it opens, or Start on a suggestion's row, which says "✓ Started" in its place; a section the brief folded shows the rows it carries under its exact count (Brief@1 holds no hidden rows, so there is nothing to open in place and no "Show N more"); its own sentence for an empty day | At three columns (the screen 1180 px or wider) the right column; at two (940 to 1179 px) the column Today is in; at one (under 940 px) the transcript's slot, unless a card in the conversation waits for you | The last exchange's slot, unless a card waits for you |
+| The `▸ NEXT` line (`src/chat/next/`): the newest open suggestion that BRIEFING on screen doesn't already list with its own Start (so one never shows twice), its title, START and HIDE as SAY chips that can be tapped (each named by its words and the suggestion, "Say “start”: …"); HIDE asks why (Not now, Not useful, Wrong agent, Just hide; Escape shuts it); started, "Started. Auto is on it." for 4 s, then the next; refused, the reason in one line. In no live region: never spoken | Between the host's credits banner and the voice deck, over the message box | Under the top line, never over TYPE · HOLD TO TALK |
+| MISSIONS (`src/chat/panels/missions-panel.tsx`): the newest Missions, the ones that need you first, each its goal linked, its state as a glyph and a word, `▸` its next step, a 3 px rail in the readable accent while it works, and Try again on a failed one (a rerun from its goal and settings, or a replan, as the server says) | Under Mission (the left column; the right column at two) | None |
+| SYSTEMS (`src/chat/panels/systems-panel.tsx`): what Auto depends on, each item ✓ READY, ○ NOT CHECKED or ◆ NEEDS SETUP, its detail and its fix, Check again, and how many are ready | At the foot of the right column | None |
+
+- **Folding back.** BRIEFING folds back into Today and Needs you after 60 seconds, a clock held while Auto reads it or
+  the focus is in it, or at once on any press outside it, a pointer or a key, and on Escape anywhere. Tab and the
+  modifier keys never fold it, so the keyboard can reach it, and a press inside it (Listen, Start, a link) never does;
+  folded with the focus inside it, the focus goes to the screen's heading. Folded, that brief stays folded for the tab's session in this workspace (the SDK's storage area, key
+  `hud-brief-folded`), so coming back to the chat doesn't show it again; a new brief shows again.
+- **No brief.** The brief exists only while the workspace's proactive mode is shadow or live. Otherwise the host's open
+  is refused quietly (`brief_off`) and `useBrief` has no data: the screen is as it is without a brief, Today and Needs
+  you in their places, with no error and no placeholder. A brief still loading, or one that failed, is the same.
+- **One live border.** Only what needs you glows: Needs you while anything does, or BRIEFING while it stands in its
+  place, both read from `useNeedsYou` (BRIEFING from the brief's own count until that answers), so something raised
+  after the brief was made still lights it. Mission no longer glows while its Mission works.
+- **Colour.** Every status is in the readable accent (`--hud-accent-text`) but failed, in the error colour
+  (`--hud-error-text`), and the quiet ones (done, a ready or unchecked item) in the secondary text; never `--accent`.
+  The glyph and the word always carry the meaning.
+- **Motion.** BRIEFING and the NEXT line enter once, a fade and a 4 px rise over 180 ms; under the reduced-motion
+  setting, or with the look's motion off, nothing moves. Nothing loops, and the rail is still.
+- **Not yet.** Reply chips under Auto's last message (`SAY "WINDOW"`) and the brief as a message in the conversation
+  need message parts in a theme's own chat, which the SDK doesn't give yet; the brief's thumbs are the host's
+  BriefCard's alone; calibration waits for the server to offer it.
 
 ## Voice
 
