@@ -215,7 +215,8 @@ with Node's own `http`, and builds again after each change under the theme's `sr
   `app/not-found.tsx` draws it. Below `minWidth`, and after a failed load or a throw while drawing, the host's own
   page stands alone, the latter with core's notice.
 - **Before the theme draws** (`src/host/prepaint.ts`): `<html>` gets the base's class, the theme's class, the active
-  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there.
+  look painted from `boot/prepaint.json`, the tone and the host's status, as core's boot puts them there. A value the
+  browser's first paint drops (a gradient, over 200 characters: theme-cli's `isBootValue`) is left off here too.
 - **Core's base layer** (`src/host/core-base.ts`): the mock host puts the base every core page draws on first in the
   page's `<head>`, before the theme's stylesheet: Tailwind 3.3.3's preflight with core's theme values
   (`src/vendor/tailwind-preflight/`, MIT, its licence beside it: every box `border-box`, borders reset to `0 solid`, no
@@ -359,8 +360,8 @@ own rule (`src/phone/skin.ts`):
   where each of the 24 tokens lands: its colour, whether the theme set it, and the parts that draw it.
 - **A theme with no painting** (no block, or a block that paints no ground and text): the same layout in Studio's own
   colours, saying why the phone offers it none.
-- **`automatos/play` and `automatos/hud`**: the phone switches to its own built-in Play or HUD layout, painted from the
-  member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
+- **`automatos/play`, `automatos/hud`, `automatos/arcade` and `automatos/candy`**: the phone switches to its own
+  built-in Play, HUD, Arcade or Candy layout, painted from the member's looks, and reads none of the block. That layout is part of the app, so the harness can't draw it, and the
   phone says so. The theme's own web screens are no stand-in, whatever the theme's own `minWidth`: Automatos Go runs
   no theme code, and those screens are what a phone's browser draws at or above that width (the shots' phone-width
   groups photograph them for a theme whose `minWidth` fits a phone, above). The contrast panel still measures the

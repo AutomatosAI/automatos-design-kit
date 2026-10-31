@@ -11,22 +11,28 @@ import {
 } from './catalogue'
 import { tripletOf } from './colour'
 import { kebab } from './names'
-import { KNOBS, knobDefaults } from './spec'
+import { innerRadius, KNOBS, knobDefaults, ROUNDNESS_KNOB } from './spec'
 
 /**
  * boot/prepaint.json as data: what the host paints on <html> before any theme code runs, for every value of every
  * knob. The palette paints Candy's own variables (--candy-*), Auto's colours and Studio's tokens as `H S% L%`
- * triplets, so the host's own pages inside the frame take the palette too. Three things depend on two knobs at once,
- * so they are pair tables: the card gradients (the palette's order, or its first gradient on every card with One
- * colour), and the band and the page's aura (the palette's stops, as Soft, Rich or Vivid draws them). The Gradient
- * knob paints the card's layers (its highlight, its glows, where its middle stop sits), Motion the play state of
- * every loop, and Glow the shadows' tint as a numeric rule. Roundness is the one knob the table can't paint (a
- * number in px): the frame sets it from the look (src/frame/look-vars.ts), over the stylesheet's default.
- * test/look-data.test.ts writes the file from this and holds it equal.
+ * triplets, so the host's own pages inside the frame take the palette too. Two things depend on two knobs at once,
+ * so they are pair tables: the card gradients' stops (the palette's order, or its first gradient on every card with
+ * One colour), and the band's and the aura's stops (the palette's, as Soft, Rich or Vivid draws them). The Gradient
+ * knob paints the card's layers (where its highlight sits and how bright, its glows' colours, where its middle stop
+ * sits), Roundness the corners, Motion the play state of every loop, and Glow the shadows' tint as a numeric rule.
+ *
+ * Every value is a colour, a length, a word or one of the functions core's first paint takes in the browser
+ * (boot-sanitize.ts: rgb, rgba, hsl, hsla, var, calc, min, max, clamp and the filters), at most 200 characters: a
+ * gradient is never a value here. src/app/theme.css composes the card's layers, the band and the aura from these
+ * values. test/look-data.test.ts writes the file from this, holds it equal and holds every value to that gate.
  */
 
 type Vars = Readonly<Record<string, string>>
 type Table = Readonly<Record<string, Readonly<Record<string, Vars>>>>
+
+/** A layer or a blob that draws nothing. */
+const CLEAR = 'transparent'
 
 const UI_VARIABLES: Readonly<Record<Exclude<keyof PaletteColours, 'blobs' | 'tint'>, string>> = {
   page: '--candy-page', bandA: '--candy-band-a', bandB: '--candy-band-b', band1: '--candy-band-1',
@@ -101,22 +107,24 @@ function cardTable(): Table {
   )
 }
 
-/** The band behind the top of a page: two stops of one hue on Soft, three on Rich and Vivid. */
-function bandOf({ colours }: Palette, gradient: string): string {
-  if (gradient === 'soft') return `linear-gradient(160deg,${colours.bandA},${colours.bandB})`
-  return `linear-gradient(120deg,${colours.band1} 0%,${colours.band2} 52%,${colours.band3} 100%)`
+/** The band behind the top of a page: two stops of one hue on Soft (its second to the end), three on Rich and Vivid. */
+function bandOf({ colours }: Palette, gradient: string): Vars {
+  if (gradient === 'soft') {
+    return {
+      '--candy-band-angle': '160deg', '--candy-band-from': colours.bandA, '--candy-band-via': colours.bandB,
+      '--candy-band-via-at': '100%', '--candy-band-to': colours.bandB,
+    }
+  }
+  return {
+    '--candy-band-angle': '120deg', '--candy-band-from': colours.band1, '--candy-band-via': colours.band2,
+    '--candy-band-via-at': '52%', '--candy-band-to': colours.band3,
+  }
 }
 
-/** The page's ground: the page colour, under three blurred blobs of colour on Vivid. */
-function auraOf({ colours }: Palette, gradient: string): string {
-  if (gradient !== 'vivid') return colours.page
-  const [one, two, three] = colours.blobs
-  return [
-    `radial-gradient(55% 45% at 88% 0%,${one} 0%,transparent 70%)`,
-    `radial-gradient(45% 40% at 100% 45%,${two} 0%,transparent 70%)`,
-    `radial-gradient(50% 50% at 10% 100%,${three} 0%,transparent 70%)`,
-    colours.page,
-  ].join(',')
+/** The page's aura: three blobs of colour on Vivid, clear otherwise, over the page colour. */
+function auraOf({ colours }: Palette, gradient: string): Vars {
+  const [one, two, three] = gradient === 'vivid' ? colours.blobs : [CLEAR, CLEAR, CLEAR]
+  return { '--candy-blob-1': one, '--candy-blob-2': two, '--candy-blob-3': three }
 }
 
 const GRADIENTS = ['soft', 'rich', 'vivid'] as const
@@ -126,30 +134,38 @@ function groundTable(): Table {
     PALETTES.map((palette) => [
       palette.id,
       Object.fromEntries(
-        GRADIENTS.map((gradient) => [gradient, { '--candy-band': bandOf(palette, gradient), '--candy-aura': auraOf(palette, gradient) }]),
+        GRADIENTS.map((gradient) => [gradient, { ...bandOf(palette, gradient), ...auraOf(palette, gradient) }]),
       ),
     ]),
   )
 }
 
-/** A card's layers over its linear gradient: the white highlight, the corner glows (Vivid) and the middle stop. */
+/**
+ * A card's layers over its linear gradient, as values theme.css composes: the white highlight's place, colour and
+ * reach, Vivid's two corner glows (clear on Soft and Rich), and where the middle stop sits (at the end on Soft, so the
+ * card is one hue).
+ */
 const { highlight, highlightVivid, glowPink, glowCyan } = LAYER_COLOURS
-const GRADIENT_LAYERS: Table[string] = {
+export const GRADIENT_LAYERS: Table[string] = {
   soft: {
-    '--candy-card-hi': `radial-gradient(circle at 88% 8%,${highlight},transparent 46%)`,
-    '--candy-card-glow': 'none',
-    '--candy-card-mid': '100%',
+    '--candy-hi-x': '88%', '--candy-hi-y': '8%', '--candy-hi-colour': highlight, '--candy-hi-reach': '46%',
+    '--candy-glow-pink': CLEAR, '--candy-glow-cyan': CLEAR, '--candy-card-mid': '100%',
   },
   rich: {
-    '--candy-card-hi': `radial-gradient(circle at 88% 8%,${highlight},transparent 46%)`,
-    '--candy-card-glow': 'none',
-    '--candy-card-mid': '55%',
+    '--candy-hi-x': '88%', '--candy-hi-y': '8%', '--candy-hi-colour': highlight, '--candy-hi-reach': '46%',
+    '--candy-glow-pink': CLEAR, '--candy-glow-cyan': CLEAR, '--candy-card-mid': '55%',
   },
   vivid: {
-    '--candy-card-hi': `radial-gradient(circle at 92% 0%,${highlightVivid},transparent 50%)`,
-    '--candy-card-glow': `radial-gradient(circle at 0% 100%,${glowPink},transparent 55%),radial-gradient(circle at 100% 100%,${glowCyan},transparent 50%)`,
-    '--candy-card-mid': '55%',
+    '--candy-hi-x': '92%', '--candy-hi-y': '0%', '--candy-hi-colour': highlightVivid, '--candy-hi-reach': '50%',
+    '--candy-glow-pink': glowPink, '--candy-glow-cyan': glowCyan, '--candy-card-mid': '55%',
   },
+}
+
+/** Each roundness's corners: --candy-r for windows and cards, --candy-rs (r × 0.72) for inner tiles. */
+function roundnessTable(): Table[string] {
+  return Object.fromEntries(
+    ROUNDNESS_KNOB.choices.map(({ key }) => [key, { '--candy-r': `${key}px`, '--candy-rs': `${innerRadius(Number(key))}px` }]),
+  )
 }
 
 /** Every loop's play state: Motion paused stops them all, as the Pause control does. */
@@ -192,6 +208,7 @@ export function buildPrepaint(): PrepaintTable {
       palette: paletteTable(),
       cards: { mix: {}, single: {} },
       gradient: GRADIENT_LAYERS,
+      roundness: roundnessTable(),
       motion: MOTION,
     },
     pairs: [

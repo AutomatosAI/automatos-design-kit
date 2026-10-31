@@ -1,6 +1,6 @@
 // Candy's frame on the harness: on a desktop, the sidebar (the mark, Auto's card, Candy's pages, the two host pages
 // the design keeps in view, More with the rest of the host's menu, Look, Pause motion and the workspace), the host's
-// utilities and the page; the look's roundness on the frame's root; the asleep screen while the backend is down.
+// utilities and the page; the asleep screen while the backend is down.
 // Below 1024 px the phone: the top bar with the utilities, the menu sheet, and the floating tab bar with the host's
 // voice button (not on the chat, which has its own). The workspace and the looks are made up.
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
@@ -9,13 +9,11 @@ import { host } from '@automatos/theme-harness/host'
 
 import { ASLEEP_TITLE, CHECK_AGAIN } from '../src/edges/asleep.tsx'
 import { Frame } from '../src/frame/frame.tsx'
-import { cornersOf } from '../src/frame/look-vars.ts'
 import { activeMenuId, bandOf, buildMenu, ownsHeader } from '../src/frame/menu.ts'
 import { MORE_LABEL } from '../src/frame/menu-list.tsx'
 import { MENU_LABEL, MENU_OPEN } from '../src/frame/phone-bar.tsx'
 import { AUTO_LINE, SIDEBAR_LABEL } from '../src/frame/sidebar.tsx'
 import { TABS_LABEL } from '../src/frame/tab-bar.tsx'
-import { DEFAULT_LOOK, PRESETS } from '../src/looks/spec.ts'
 import { PAUSE_LABEL } from '../src/motion/pause-toggle.tsx'
 import { PHONE_WIDTH, resetWindowWidth, setWindowWidth } from './support/window-width.ts'
 
@@ -68,12 +66,6 @@ describe('the menu as data', () => {
     expect(ownsHeader('/assignments')).toBe(false)
   })
 
-  it('reads the roundness as r and r × 0.72, clamped to the knob', () => {
-    expect(cornersOf(28)).toEqual([28, 20])
-    expect(cornersOf(40)).toEqual([40, 29])
-    expect(cornersOf(99)).toEqual([40, 29])
-    expect(cornersOf('round')).toEqual([28, 20])
-  })
 })
 
 describe('the desktop frame', () => {
@@ -120,13 +112,6 @@ describe('the desktop frame', () => {
     expect(screen.queryByRole('button', { name: PAUSE_LABEL })).toBeNull()
   })
 
-  it("sets the active look's roundness on its root", () => {
-    host.setLooks({ look: { ...PRESETS[1] }, defaultLook: DEFAULT_LOOK })
-    const { container } = renderFrame()
-    const root = container.firstElementChild as HTMLElement
-    expect(root.style.getPropertyValue('--candy-r')).toBe('32px')
-    expect(root.style.getPropertyValue('--candy-rs')).toBe('23px')
-  })
 
   it('shows the asleep screen while the backend is down, and Check again asks at once', () => {
     renderFrame()

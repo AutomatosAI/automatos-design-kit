@@ -18,7 +18,7 @@ import { DEFAULT_LOOK, GRADIENT_NOTES, KNOBS, LOOK_SCHEMA, PRESETS, type ThemeLo
 
 const NOT_A_LOOK = 'That is not a look of Candy.'
 const [BLUSH, LILAC, NIGHTBLOOM] = PRESETS
-const MINE: ThemeLook = { ...BLUSH, id: 'mine-1', name: 'My look 1', sub: 'From Blush', roundness: 36 }
+const MINE: ThemeLook = { ...BLUSH, id: 'mine-1', name: 'My look 1', sub: 'From Blush', roundness: '36' }
 
 /** The host's look check, as it makes it from looks/schema.json: the schema, a name, and a value each knob takes. */
 function fitsKnob(knob: (typeof KNOBS)[number], value: unknown): boolean {
@@ -139,7 +139,7 @@ describe('the knobs', () => {
     mount()
     const roundness = screen.getByRole('slider', { name: 'Roundness' })
     fireEvent.change(roundness, { target: { value: '36' } })
-    expect(activeLook().roundness).toBe(36)
+    expect(activeLook().roundness).toBe('36')
     expect(roundness).toHaveAttribute('aria-valuetext', '36 px')
     expect(screen.getByText('36 px')).toBeInTheDocument()
     fireEvent.change(screen.getByRole('slider', { name: 'Glow' }), { target: { value: '9' } })
@@ -193,7 +193,7 @@ describe('Save look and Reset', () => {
   })
 
   it("goes back to the palette's preset", () => {
-    mount({ look: { ...LILAC, roundness: 20, glow: 1, motion: 'paused' } })
+    mount({ look: { ...LILAC, roundness: '20', glow: 1, motion: 'paused' } })
     click(RESET)
     expect(activeLook()).toEqual(LILAC)
     expect(screen.getByRole('status')).toHaveTextContent('Back to Lilac.')

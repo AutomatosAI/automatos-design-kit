@@ -2,6 +2,19 @@
 
 Candy's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.0.1
+
+The look works on the hosted app as it does in the kit's harness.
+
+- Your look changes the look again. Core's look runtime knows only the knobs the first-paint table paints, and
+  Roundness was a number of px the table couldn't paint (the frame set it), so the host refused every look,
+  the presets among them. Roundness is now a choice of the whole numbers 16 to 40, each painting its corners, and the
+  editor still draws it as a slider.
+- The cards' gradients, the band behind each page and Vivid's aura draw again. Core's first paint in the browser
+  drops a value that calls a gradient, so the table now paints their colours, stops and places, and the stylesheet
+  composes the gradients from them.
+- The look data's tests hold every first-paint value to core's browser rules, and every knob to the table.
+
 ## 1.0.0
 
 - The first version, one of Automatos's own themes from the start (`automatos/candy`), built from the Candy design

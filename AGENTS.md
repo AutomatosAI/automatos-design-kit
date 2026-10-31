@@ -169,8 +169,10 @@ itself once `Kit` has passed on a push to `main`. Core never calls GitHub.
 - `theme-review.yml` (inputs: the package's https URL and the digest the admin queue shows): no
   permissions, no secrets; downloads the package, installs the kit with `npm ci --ignore-scripts`,
   then runs `scripts/review/main.ts` in `docker run --network none`: a no-network probe, the
-  package checks, the digest, the JS rules on `source/` and the reproducible build. The job summary
-  holds the text the reviewer pastes into the admin queue's report note, with its outcome.
+  package checks (core's reader, and what core's browser would leave out of the first paint and
+  looks: theme-cli's `first-paint.ts`), the digest, the JS rules on `source/` and the reproducible
+  build. The job summary holds the text the reviewer pastes into the admin queue's report note,
+  with its outcome.
 - That text ends with a report-only "Previews and accessibility" section (PRD-261 B-02j,
   `scripts/review/report.ts`): each preset's previews with their sizes and the preset that claims each,
   then its phone screenshots the same way when the package holds any, and contrast, not measured while

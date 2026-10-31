@@ -2,7 +2,7 @@ import { useId, type CSSProperties } from 'react'
 
 import { useMotion } from '../motion/use-motion'
 import { CARD_SETS, paletteById } from './catalogue'
-import { clampKnob, GRADIENT_NOTES, KNOBS, type ChoiceKnob, type Knob, type KnobName, type NumberKnob, type ThemeLook } from './spec'
+import { clampKnob, GRADIENT_NOTES, KNOBS, sliderKey, type ChoiceKnob, type Knob, type KnobName, type NumberKnob, type ThemeLook } from './spec'
 import styles from './looks.module.css'
 
 /**
@@ -97,20 +97,34 @@ function GradientControl({ knob, value, labelId, onChange }: ControlProps<Choice
   )
 }
 
-function Slider({ knob, value, labelId, onChange }: ControlProps<NumberKnob> & { readonly value: number }) {
-  const shown = knob.unit === '' ? String(value) : `${value} ${knob.unit}`
+interface Range {
+  readonly min: number
+  readonly max: number
+  readonly unit: string
+}
+
+interface SliderProps {
+  readonly range: Range
+  readonly value: number
+  readonly labelId: string
+  readonly onSlide: (value: number) => void
+}
+
+/** A range input over whole numbers, its value said with its unit. */
+function Slider({ range, value, labelId, onSlide }: SliderProps) {
+  const shown = range.unit === '' ? String(value) : `${value} ${range.unit}`
   return (
     <div className={styles.control}>
       <input
         type="range"
         className={styles.slider}
-        min={knob.min}
-        max={knob.max}
+        min={range.min}
+        max={range.max}
         step={1}
         value={value}
         aria-labelledby={labelId}
         aria-valuetext={shown}
-        onChange={(event) => onChange(knob.name, clampKnob(knob, Number(event.target.value)))}
+        onChange={(event) => onSlide(Number(event.target.value))}
       />
       <span className={styles.sliderValue} aria-hidden="true">
         {shown}
@@ -149,9 +163,24 @@ function MotionSwitch({ knob, value, labelId, onChange }: ControlProps<ChoiceKno
   )
 }
 
+/** A number knob's slider (Glow), its value clamped to the knob. */
+function NumberSlider({ knob, value, labelId, onChange }: ControlProps<NumberKnob> & { readonly value: number }) {
+  const onSlide = (next: number) => onChange(knob.name, clampKnob(knob, next))
+  return <Slider range={knob} value={value} labelId={labelId} onSlide={onSlide} />
+}
+
+/** A choice knob of whole numbers drawn as a slider (Roundness): the position is written as its choice's key. */
+function ChoiceSlider({ knob, value, labelId, onChange }: ControlProps<ChoiceKnob> & { readonly value: string }) {
+  const range = knob.slider as Range
+  const onSlide = (next: number) => onChange(knob.name, sliderKey(knob, next))
+  const position = Number(value)
+  return <Slider range={range} value={Number.isFinite(position) ? position : Number(knob.default)} labelId={labelId} onSlide={onSlide} />
+}
+
 function KnobControl({ knob, look, labelId, onChange }: ControlProps<Knob> & { readonly look: ThemeLook }) {
-  if (knob.kind === 'number') return <Slider knob={knob} value={look[knob.name]} labelId={labelId} onChange={onChange} />
+  if (knob.kind === 'number') return <NumberSlider knob={knob} value={look[knob.name]} labelId={labelId} onChange={onChange} />
   const props = { knob, value: look[knob.name], labelId, onChange }
+  if (knob.slider !== undefined) return <ChoiceSlider {...props} />
   if (knob.name === 'palette') return <PaletteSwatches {...props} />
   if (knob.name === 'gradient') return <GradientControl {...props} />
   if (knob.name === 'motion') return <MotionSwitch {...props} />

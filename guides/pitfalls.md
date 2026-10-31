@@ -27,6 +27,24 @@ every host page reads. A theme variable with one of those names recolours the ho
 wrong form. Prefix every variable of the theme's own (Play's are `--pl-*`) and paint Studio's tokens only on purpose,
 as `H S% L%` triplets ([looks.md](looks.md), "Recolouring the host's pages").
 
+## Looks and the first paint
+
+**A gradient in the prepaint table.** Candy 1.0.0 painted its cards' highlight, its band and its aura as
+`radial-gradient()` and `linear-gradient()` values in `boot/prepaint.json`. Every check passed, since the server's
+prepaint check takes them, but the browser's first paint keeps only a few functions (`rgb`, `rgba`, `hsl`, `hsla`,
+`var` and the filters), at most 200 characters, and drops anything else without a word. The cards' backgrounds were
+built on those values with `var()`, so they were invalid too and came out transparent, while the plain colours still
+painted. `check design` and `check` now refuse such a value (`BAD_CSS_VALUE`, with the variable, the look and the
+rule), and the browser harness leaves it off as the browser does. Paint the colours, stops and positions in the table
+and compose the gradient in the theme's CSS ([looks.md](looks.md)).
+
+**A knob the table never paints.** Candy 1.0.0's `roundness` was a number knob of `looks/schema.json` that no numeric
+rule painted (its frame set the corners in code). The host's look runtime builds a theme's looks from the prepaint
+table alone: a choice knob per table under `knobs`, a number knob per numeric rule. So it left `roundness` out, every
+look carrying it failed, the presets included, and the look editor changed nothing. `check design` and `check` now
+refuse such a knob (`KNOB_NOT_PAINTED`). Paint every knob from the table; a numeric rule paints only an alpha, so make a
+size a choice knob whose choices paint the sizes (Candy 1.0.1's `roundness`).
+
 ## CSS
 
 **Studio's element rules reach your elements.** Under `"base": "studio"`, `<html>` carries `studio` beside the theme's

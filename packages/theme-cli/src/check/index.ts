@@ -3,7 +3,10 @@
  * checks, run here, in the server's report shape (`automatos-theme-scan/v2`, report.ts).
  *
  * The folder is packed exactly as `pack` packs it, into a temporary folder, so a theme core's reader
- * would refuse is refused here with every reason (exit 1) and nothing else runs, as on the server.
+ * would refuse is refused here with every reason (exit 1) and nothing else runs, as on the server. So is
+ * one whose first paint or looks the browser would cut short (first-paint.ts: a prepaint value its first
+ * paint drops, a look-schema knob the table never paints), which core's reader refuses too once it ships
+ * that check (src/core/README.md).
  * An accepted package gets one line per check, in this order: sizes, cssScope, looks (the reader's),
  * uses (uses.ts), audioCapture (audio.ts), clonedFrom (drift.ts), previews (previews.ts), jsRules (js.ts),
  * reproducibleBuild (only with `--rebuild`), contrast and llm, each at pass, warning, error or not_measured, with plain
@@ -32,6 +35,7 @@ import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import type { DistComparison, RebuildResult } from '../../../../scripts/review/rebuild.ts'
 import { checkPackage } from '../check-package.ts'
+import { firstPaintErrors } from '../first-paint.ts'
 import { WARNING_PREFIX, type CommandDeps } from '../cli-main.ts'
 import type { Output } from '../output.ts'
 import { packTheme } from '../pack.ts'
@@ -206,6 +210,12 @@ async function reviewFolder(command: Command, output: Output, workDir: string, r
   const checked = checkPackage(readZip(readFileSync(packed.file)))
   if (checked.manifest === null) throw new Error('the package pack wrote does not pass the reader it was checked with')
   const files = new Map(Array.from(checked.files, ([path, file]): [string, Uint8Array] => [path, file.data]))
+  const dropped = firstPaintErrors(files)
+  if (dropped.length > 0) {
+    output.err(`${command.themeDir} can't be checked: the browser would leave part of its first paint or its looks out.`)
+    dropped.forEach((error) => output.err(`  ${error.code} ${error.path}: ${error.message}`))
+    return null
+  }
   const rebuild = command.rebuild ? { workDir: join(workDir, 'rebuild'), rebuilder: await rebuilder() } : undefined
   return reviewChecked(files, checked.manifest, packed.bytes, { rebuild })
 }

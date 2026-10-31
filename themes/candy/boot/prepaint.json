@@ -251,19 +251,133 @@
     },
     "gradient": {
       "soft": {
-        "--candy-card-hi": "radial-gradient(circle at 88% 8%,rgba(255,255,255,.34),transparent 46%)",
-        "--candy-card-glow": "none",
+        "--candy-hi-x": "88%",
+        "--candy-hi-y": "8%",
+        "--candy-hi-colour": "rgba(255,255,255,.34)",
+        "--candy-hi-reach": "46%",
+        "--candy-glow-pink": "transparent",
+        "--candy-glow-cyan": "transparent",
         "--candy-card-mid": "100%"
       },
       "rich": {
-        "--candy-card-hi": "radial-gradient(circle at 88% 8%,rgba(255,255,255,.34),transparent 46%)",
-        "--candy-card-glow": "none",
+        "--candy-hi-x": "88%",
+        "--candy-hi-y": "8%",
+        "--candy-hi-colour": "rgba(255,255,255,.34)",
+        "--candy-hi-reach": "46%",
+        "--candy-glow-pink": "transparent",
+        "--candy-glow-cyan": "transparent",
         "--candy-card-mid": "55%"
       },
       "vivid": {
-        "--candy-card-hi": "radial-gradient(circle at 92% 0%,rgba(255,255,255,.5),transparent 50%)",
-        "--candy-card-glow": "radial-gradient(circle at 0% 100%,rgba(255,170,210,.4),transparent 55%),radial-gradient(circle at 100% 100%,rgba(90,230,255,.35),transparent 50%)",
+        "--candy-hi-x": "92%",
+        "--candy-hi-y": "0%",
+        "--candy-hi-colour": "rgba(255,255,255,.5)",
+        "--candy-hi-reach": "50%",
+        "--candy-glow-pink": "rgba(255,170,210,.4)",
+        "--candy-glow-cyan": "rgba(90,230,255,.35)",
         "--candy-card-mid": "55%"
+      }
+    },
+    "roundness": {
+      "16": {
+        "--candy-r": "16px",
+        "--candy-rs": "12px"
+      },
+      "17": {
+        "--candy-r": "17px",
+        "--candy-rs": "12px"
+      },
+      "18": {
+        "--candy-r": "18px",
+        "--candy-rs": "13px"
+      },
+      "19": {
+        "--candy-r": "19px",
+        "--candy-rs": "14px"
+      },
+      "20": {
+        "--candy-r": "20px",
+        "--candy-rs": "14px"
+      },
+      "21": {
+        "--candy-r": "21px",
+        "--candy-rs": "15px"
+      },
+      "22": {
+        "--candy-r": "22px",
+        "--candy-rs": "16px"
+      },
+      "23": {
+        "--candy-r": "23px",
+        "--candy-rs": "17px"
+      },
+      "24": {
+        "--candy-r": "24px",
+        "--candy-rs": "17px"
+      },
+      "25": {
+        "--candy-r": "25px",
+        "--candy-rs": "18px"
+      },
+      "26": {
+        "--candy-r": "26px",
+        "--candy-rs": "19px"
+      },
+      "27": {
+        "--candy-r": "27px",
+        "--candy-rs": "19px"
+      },
+      "28": {
+        "--candy-r": "28px",
+        "--candy-rs": "20px"
+      },
+      "29": {
+        "--candy-r": "29px",
+        "--candy-rs": "21px"
+      },
+      "30": {
+        "--candy-r": "30px",
+        "--candy-rs": "22px"
+      },
+      "31": {
+        "--candy-r": "31px",
+        "--candy-rs": "22px"
+      },
+      "32": {
+        "--candy-r": "32px",
+        "--candy-rs": "23px"
+      },
+      "33": {
+        "--candy-r": "33px",
+        "--candy-rs": "24px"
+      },
+      "34": {
+        "--candy-r": "34px",
+        "--candy-rs": "24px"
+      },
+      "35": {
+        "--candy-r": "35px",
+        "--candy-rs": "25px"
+      },
+      "36": {
+        "--candy-r": "36px",
+        "--candy-rs": "26px"
+      },
+      "37": {
+        "--candy-r": "37px",
+        "--candy-rs": "27px"
+      },
+      "38": {
+        "--candy-r": "38px",
+        "--candy-rs": "27px"
+      },
+      "39": {
+        "--candy-r": "39px",
+        "--candy-rs": "28px"
+      },
+      "40": {
+        "--candy-r": "40px",
+        "--candy-rs": "29px"
       }
     },
     "motion": {
@@ -360,44 +474,98 @@
       "table": {
         "blush": {
           "soft": {
-            "--candy-band": "linear-gradient(160deg,#FFD9E8,#FFC2DA)",
-            "--candy-aura": "#FBF0F4"
+            "--candy-band-angle": "160deg",
+            "--candy-band-from": "#FFD9E8",
+            "--candy-band-via": "#FFC2DA",
+            "--candy-band-via-at": "100%",
+            "--candy-band-to": "#FFC2DA",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "rich": {
-            "--candy-band": "linear-gradient(120deg,#FFC6E0 0%,#F2C9FF 52%,#FFD9C2 100%)",
-            "--candy-aura": "#FBF0F4"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#FFC6E0",
+            "--candy-band-via": "#F2C9FF",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#FFD9C2",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "vivid": {
-            "--candy-band": "linear-gradient(120deg,#FFC6E0 0%,#F2C9FF 52%,#FFD9C2 100%)",
-            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#F9C6E4 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#FFE0C7 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#E5D4FF 0%,transparent 70%),#FBF0F4"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#FFC6E0",
+            "--candy-band-via": "#F2C9FF",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#FFD9C2",
+            "--candy-blob-1": "#F9C6E4",
+            "--candy-blob-2": "#FFE0C7",
+            "--candy-blob-3": "#E5D4FF"
           }
         },
         "lilac": {
           "soft": {
-            "--candy-band": "linear-gradient(160deg,#E2DCFF,#D3E3FF)",
-            "--candy-aura": "#F3F1FF"
+            "--candy-band-angle": "160deg",
+            "--candy-band-from": "#E2DCFF",
+            "--candy-band-via": "#D3E3FF",
+            "--candy-band-via-at": "100%",
+            "--candy-band-to": "#D3E3FF",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "rich": {
-            "--candy-band": "linear-gradient(120deg,#D9CCFF 0%,#C9DBFF 52%,#F6D2F0 100%)",
-            "--candy-aura": "#F3F1FF"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#D9CCFF",
+            "--candy-band-via": "#C9DBFF",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#F6D2F0",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "vivid": {
-            "--candy-band": "linear-gradient(120deg,#D9CCFF 0%,#C9DBFF 52%,#F6D2F0 100%)",
-            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#DCD0FF 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#CFE8FF 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#FFD9EE 0%,transparent 70%),#F3F1FF"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#D9CCFF",
+            "--candy-band-via": "#C9DBFF",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#F6D2F0",
+            "--candy-blob-1": "#DCD0FF",
+            "--candy-blob-2": "#CFE8FF",
+            "--candy-blob-3": "#FFD9EE"
           }
         },
         "nightbloom": {
           "soft": {
-            "--candy-band": "linear-gradient(160deg,#43123F,#2A1250)",
-            "--candy-aura": "#150B1F"
+            "--candy-band-angle": "160deg",
+            "--candy-band-from": "#43123F",
+            "--candy-band-via": "#2A1250",
+            "--candy-band-via-at": "100%",
+            "--candy-band-to": "#2A1250",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "rich": {
-            "--candy-band": "linear-gradient(120deg,#5A1450 0%,#3A1670 52%,#16335E 100%)",
-            "--candy-aura": "#150B1F"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#5A1450",
+            "--candy-band-via": "#3A1670",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#16335E",
+            "--candy-blob-1": "transparent",
+            "--candy-blob-2": "transparent",
+            "--candy-blob-3": "transparent"
           },
           "vivid": {
-            "--candy-band": "linear-gradient(120deg,#5A1450 0%,#3A1670 52%,#16335E 100%)",
-            "--candy-aura": "radial-gradient(55% 45% at 88% 0%,#5A1856 0%,transparent 70%),radial-gradient(45% 40% at 100% 45%,#1E2B66 0%,transparent 70%),radial-gradient(50% 50% at 10% 100%,#3E1460 0%,transparent 70%),#150B1F"
+            "--candy-band-angle": "120deg",
+            "--candy-band-from": "#5A1450",
+            "--candy-band-via": "#3A1670",
+            "--candy-band-via-at": "52%",
+            "--candy-band-to": "#16335E",
+            "--candy-blob-1": "#5A1856",
+            "--candy-blob-2": "#1E2B66",
+            "--candy-blob-3": "#3E1460"
           }
         }
       }
@@ -428,7 +596,7 @@
     "palette": "blush",
     "cards": "mix",
     "gradient": "rich",
-    "roundness": 28,
+    "roundness": "28",
     "glow": 6,
     "motion": "on"
   },

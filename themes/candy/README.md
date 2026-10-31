@@ -19,8 +19,8 @@ something the SDK doesn't give, Candy leaves it out (below).
   host's Missions and Playbooks page and Knowledge Base, More with the rest of the host's menu, Look, Pause motion and
   the workspace), the band behind the top of each page, and the host's header utilities. From 360 px to 1023 px, the
   design's phone: a top bar (menu, mark, the host's utilities), a menu sheet with every page, and a floating tab bar
-  (Today, Chat, the host's voice button raised in the middle, Shelf, Team). The frame sets the look's roundness on its
-  root, and draws its own asleep screen (`asleep@1`) while the backend doesn't answer.
+  (Today, Chat, the host's voice button raised in the middle, Shelf, Team). The frame draws its own asleep screen
+  (`asleep@1`) while the backend doesn't answer.
 - `/x/today` (its own route): the greeting, the orb with what was completed today and Auto celebrating, four stat
   cards (working now, needs you, in queue, agents active), Needs you and Coming up, from the host's Command Center
   reads.
@@ -54,17 +54,20 @@ bar floats above it.
 ## Looks
 
 Six knobs (`looks/schema.json`): palette (Blush, Lilac, Night bloom), card colours (Mixed, One colour), gradient (Soft,
-Rich, Vivid), roundness (16 to 40 px), glow (0 to 10) and motion (on, paused). One preset per palette: Blush (Rich, 28,
-6), Lilac (Vivid, 32, 5), Night bloom (Vivid, 28, 8). Every literal colour is in `src/looks/catalogue.ts`;
+Rich, Vivid), roundness (16 to 40 px, a choice per whole number, drawn as a slider), glow (0 to 10) and motion (on,
+paused). One preset per palette: Blush (Rich, 28, 6), Lilac (Vivid, 32, 5), Night bloom (Vivid, 28, 8). Every literal colour is in `src/looks/catalogue.ts`;
 `test/look-data.test.ts` writes `looks/`, `boot/prepaint.json` and `design/contrast.json` from it
 (`CANDY_WRITE=1 npx vitest run test/look-data.test.ts`) and holds them equal, and measures every pair on every preset
 with Mixed and One colour cards. `automatos-theme check design` measures 51 colour pairs on every preset.
 
-- The first paint draws everything but roundness: the palette (its colours, Auto's and Studio's tokens), the card
-  gradients (a pair table of palette and card colours), the band and the page's aura (palette and gradient), the
-  card's layers (the gradient knob), the shadows' tint (the glow knob, a numeric rule) and every loop's play state (the
-  motion knob). Roundness is a number of px, which the table can't paint: the frame sets `--candy-r` and `--candy-rs`
-  (r × 0.72) on its root from the active look.
+- The first paint draws the whole look: the palette (its colours, Auto's and Studio's tokens), the card gradients'
+  stops (a pair table of palette and card colours), the band's and the aura's stops (palette and gradient), the
+  card's layers (the gradient knob), the corners (`--candy-r` and `--candy-rs`, r × 0.72, per roundness), the shadows'
+  tint (the glow knob, a numeric rule) and every loop's play state (the motion knob).
+- Core's look runtime knows only the knobs the table paints, so every knob is one it paints: Roundness is a choice of
+  the whole numbers 16 to 40, not a number knob. Core's first paint in the browser drops a value that calls a gradient
+  or runs past 200 characters, so the table paints colours, stops and places, and `src/app/theme.css` composes the
+  cards, the band and the aura from them. `test/look-data.test.ts` holds the table to both rules.
 - Two card colours differ from the handoff: its pink start `#D93A7E` and blue start `#2878D8` hold white text at
   4.32:1 and 4.40:1 (`automatos-theme check handoff`), so each is darkened by the least that reaches AA: `#D73178` and
   `#2675D3`. Blush's accent as text is `#C2266C` (the accent `#D62F7A` reads at 4.15:1 on the page).
