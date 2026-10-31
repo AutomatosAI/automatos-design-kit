@@ -6,12 +6,16 @@
  * sections (brief-sections.tsx), the tiny "Auto is an AI" caption once, Listen (the voice area's BriefVoice, which
  * reads the brief the host holds, never this prop; left out with `listen` false) and the thumbs. Auto's words carry
  * data-ai-generated and the controls sit outside them. A row the theme gets back is a frozen copy. A thumb is kept
- * (cardActions, by the brief's state_hash) where core posts it to the digest feedback route.
+ * (cardActions, by the brief's state_hash) where core posts it to the digest feedback route. SDK 1.4.0 (at
+ * d08a242b5895522aac3e317a6eb3e7ec3d087f26): the thumbs show the person's remembered rating of that brief, the one
+ * useRateBrief(stateHash) reads (src/internal/proactive/ratings.ts), so a press in either shows in both; once there is
+ * one, the thumbs are done. `thumbs` false draws none, for a theme that draws its own with useRateBrief.
  */
-import type { BriefRow, BriefSection } from '@automatos/theme-sdk'
+import type { BriefRating, BriefRow, BriefSection } from '@automatos/theme-sdk'
 import { type ReactElement, useMemo, useState } from 'react'
 import { frozenCopy } from '../../internal/page-views.ts'
 import { checkedBrief, checkedFlag, handlerOf } from '../../internal/proactive/props.ts'
+import { rememberRating, useRememberedRating } from '../../internal/proactive/ratings.ts'
 import { recordCardAction } from '../../internal/scripted/cards-log.ts'
 import { BriefVoice } from '../brief-voice.tsx'
 import { BriefSections } from './brief-sections.tsx'
@@ -35,13 +39,24 @@ export function briefDateLabel(date: string): string {
   return Number.isNaN(day.getTime()) ? date : day.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-/** brief-card.tsx BriefThumbs: one rating per card, by the brief's state_hash; none without one. */
+/** A thumb as the SDK's BriefRating, and back. */
+const BRIEF_RATING: Readonly<Record<Rating, BriefRating>> = Object.freeze({ helpful: 'up', notHelpful: 'down' })
+const THUMB_OF: Readonly<Record<BriefRating, Rating>> = Object.freeze({ up: 'helpful', down: 'notHelpful' })
+const thumbOf = (rating: BriefRating | null): Rating | null => (rating === null ? null : THUMB_OF[rating])
+
+/**
+ * brief-card.tsx BriefThumbs, by the brief's state_hash: the person's remembered rating, or the one pressed here. One
+ * rating per person: once there is one, the thumbs are done. None without a state_hash.
+ */
 function Thumbs({ stateHash }: { readonly stateHash: string }): ReactElement {
-  const [rated, setRated] = useState<Rating | null>(null)
+  const remembered = thumbOf(useRememberedRating(stateHash || null))
+  const [pressed, setPressed] = useState<Rating | null>(null)
+  const rated = pressed ?? remembered
   const rate = (rating: Rating): void => {
     if (rated !== null || !stateHash) return
     recordCardAction({ card: 'brief-card', id: stateHash, action: rating })
-    setRated(rating)
+    setPressed(rating)
+    rememberRating(stateHash, BRIEF_RATING[rating])
   }
   const thumb = (rating: Rating, glyph: string): ReactElement => (
     <button
@@ -54,13 +69,15 @@ function Thumbs({ stateHash }: { readonly stateHash: string }): ReactElement {
   return <div role="group" aria-label={RATE_LABEL} style={LINE}>{thumb('helpful', '+')}{thumb('notHelpful', '−')}</div>
 }
 
-/** cards.BriefCard: the date, the greeting, Auto's Read, the sections, the caption, Listen and the thumbs. */
-export const BriefCard: Sdk['BriefCard'] = function BriefCard({ brief, listen = true, onAction, onOpen, onShowMore, className }) {
+/** cards.BriefCard: the date, the greeting, Auto's Read, the sections, the caption, Listen and the thumbs (unless `thumbs` is false). */
+export const BriefCard: Sdk['BriefCard'] = function BriefCard(props) {
+  const { brief, listen = true, thumbs = true, onAction, onOpen, onShowMore, className } = props
   const shown = useMemo(() => checkedBrief(brief), [brief])
   const action = handlerOf(onAction, CARD_NAME, 'onAction')
   const open = handlerOf(onOpen, CARD_NAME, 'onOpen')
   const more = handlerOf(onShowMore, CARD_NAME, 'onShowMore')
   const withListen = checkedFlag(listen, CARD_NAME, 'listen')
+  const withThumbs = checkedFlag(thumbs, CARD_NAME, 'thumbs')
   return (
     <article aria-label={shown.greeting} data-brief-date={shown.date} className={className} style={CARD}>
       <header>
@@ -78,7 +95,7 @@ export const BriefCard: Sdk['BriefCard'] = function BriefCard({ brief, listen = 
         <AiCaption />
         <div style={LINE}>
           {withListen ? <div data-brief-listen=""><BriefVoice /></div> : null}
-          <Thumbs stateHash={shown.state_hash} />
+          {withThumbs ? <Thumbs key={shown.state_hash} stateHash={shown.state_hash} /> : null}
         </div>
       </footer>
     </article>

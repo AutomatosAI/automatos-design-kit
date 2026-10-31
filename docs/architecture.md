@@ -127,7 +127,7 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `27478124f146460fb9477d1ac372f0991f3410d0` (host contract
+kit is fixed. The kit vendors core's contract at commit `d08a242b5895522aac3e317a6eb3e7ec3d087f26` (host contract
 1.1.0 with the `mobile` block, SDK 1.4.0 with the `voice` and `proactive` areas), the commit
 `packages/theme-cli/src/core/README.md` names. It is a temporary pin: the head of core pull request #1383 on
 31 Oct 2026, which adds SDK 1.4.0 (a chat message's known parts, the brief row Auto is reading, the brief's thumbs),

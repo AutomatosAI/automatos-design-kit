@@ -21,7 +21,7 @@
  * (conversationsAsked); resetChat puts them back.
  * While the host's voice session runs on a conversation, its words are that conversation's last two messages
  * (internal/live-voice-turns.ts, core's lib/chat/live-voice-turns.ts).
- * SDK 1.4.0 (core's internal/chat-view.ts and message-parts.ts at 27478124f146460fb9477d1ac372f0991f3410d0): each
+ * SDK 1.4.0 (core's internal/chat-view.ts and message-parts.ts at d08a242b5895522aac3e317a6eb3e7ec3d087f26): each
  * message's `knownParts`, its text, brief@1, suggestion@1 and reply_chips@1 parts checked and frozen
  * (internal/scripted/message-parts.ts), never its raw parts: a stored message's are its fixture's `parts` (else its
  * words), a message of the turn's are its words, so a live reply's chips reach a theme once its conversation opens again. Not modelled: the approvals store that keeps
