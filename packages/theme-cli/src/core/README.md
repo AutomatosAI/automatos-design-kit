@@ -3,11 +3,10 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `4ff489a460b2316ec9b7427efaa81a16552abddf`, a temporary pin: the head of
-core pull request #1383 on 31 Oct 2026 (SDK 1.4.0: a chat message's known parts, the brief row Auto is reading and
-the brief's thumbs; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.4.0, the host contract still 1.1.0;
-the core corpus's engines cases move to 1.4.0), before it merges; re-pin to core `main` once it does. It sits on core
-`main` after the merge of pull request #1378, which makes the reader refuse what the browser's first paint would drop
+Source: `AutomatosAI/automatos-ai` at `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, core `main` after the merge of
+pull request #1383 on 31 Oct 2026 (SDK 1.4.0: a chat message's known parts, the brief row Auto is reading and the
+brief's thumbs; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.4.0, the host contract still 1.1.0; the
+core corpus's engines cases move to 1.4.0). It sits on core `main` after the merge of pull request #1378, which makes the reader refuse what the browser's first paint would drop
 (`orchestrator/services/themes/first_paint.py`; the corpus gains its `prepaintDrops` and `firstPaint` cases, and its
 `packages` cases' prepaint tables paint every knob of hello's look schema). Since
 `1a8956c874dc42cff05b96f431c50b7d722a71aa`, the kit's previous pin (SDK 1.3.0), only `css-value.ts` (#1378: the
@@ -65,7 +64,7 @@ contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.4.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `f21b07d9218ad39d9afa668b6aedbd377dba44a033494df188c42c5c9554eaf1` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `6d2debf2b9274a8c98ec89845cc11c3529ad80e38df49756305d6023a3d17fa2` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 

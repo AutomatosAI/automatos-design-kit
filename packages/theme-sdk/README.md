@@ -7,8 +7,8 @@ vite-preset keeps `@automatos/theme-sdk` external.
 ## Where it comes from
 
 Vendored from core (`AutomatosAI/automatos-ai`), `frontend/packages/theme-sdk`, at commit
-`4ff489a460b2316ec9b7427efaa81a16552abddf` (SDK 1.4.0). A temporary pin: the head of core pull request #1383 on
-31 Oct 2026, before it merges; re-pin to core `main` once it does. Since `1a8956c874dc42cff05b96f431c50b7d722a71aa`,
+`d92cabf202f4a04f48a429d5f79a05cbe6c1eefb` (SDK 1.4.0), core `main` after the merge of pull request #1383 on
+31 Oct 2026. Since `1a8956c874dc42cff05b96f431c50b7d722a71aa`,
 the kit's previous pin (SDK 1.3.0), SDK 1.4.0 adds, for a theme that owns `/chat`: a chat message's `knownParts`
 (`areas/chat.d.ts`: its text, `brief@1`, `suggestion@1` and `reply_chips@1` parts, checked and frozen, as the union
 `HostMessagePart`; a part of any other type is left out), the brief row Auto is reading (`areas/voice.d.ts`:

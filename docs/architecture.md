@@ -127,11 +127,11 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `4ff489a460b2316ec9b7427efaa81a16552abddf` (host contract
+kit is fixed. The kit vendors core's contract at commit `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb` (host contract
 1.1.0 with the `mobile` block, SDK 1.4.0 with the `voice` and `proactive` areas), the commit
-`packages/theme-cli/src/core/README.md` names. It is a temporary pin: the head of core pull request #1383 on
-31 Oct 2026, which adds SDK 1.4.0 (a chat message's known parts, the brief row Auto is reading, the brief's thumbs),
-before it merges; re-pin to core `main` once it does. It is the first pin after core pull request #1378, whose reader
+`packages/theme-cli/src/core/README.md` names: core `main` after the merge of pull request #1383 on 31 Oct 2026,
+which adds SDK 1.4.0 (a chat message's known parts, the brief row Auto is reading, the brief's thumbs). It is the
+first pin after core pull request #1378, whose reader
 refuses what the browser's first paint would drop (`src/first-paint.ts` ports it):
 
 - **The validators**, copied with only their import paths edited, into `packages/theme-cli/src/core/`: core's

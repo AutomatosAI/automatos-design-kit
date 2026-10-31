@@ -1,6 +1,6 @@
 /**
  * PRD-268 §6.4 (SDK 1.4.0): the person's own rating of each brief, by its state_hash, as the fake server remembers it.
- * It mirrors core's hooks/use-digest-api.ts (at 4ff489a460b2316ec9b7427efaa81a16552abddf): one cache entry per
+ * It mirrors core's hooks/use-digest-api.ts (at d92cabf202f4a04f48a429d5f79a05cbe6c1eefb): one cache entry per
  * state_hash that GET /api/activity/digest/feedback fills and a thumbs post updates once the server has it, read by
  * both the SDK's useRateBrief(stateHash) and the BriefCard stand-in's thumbs, so a press in either shows in both. A test
  * sets what the server already remembers with host.setBriefRating; the reset forgets every rating. Not an SDK name.
