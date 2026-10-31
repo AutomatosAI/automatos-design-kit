@@ -173,7 +173,7 @@ describe('never spoken', () => {
       fireEvent.click(startChip())
     })
     expect(host.voicePresses()).toEqual([])
-    expect(host.voiceStops()).toEqual([])
+    expect(host.voiceStops()).toBe(0)
     expect(host.cardActions().filter((action) => action.card === 'brief-voice')).toEqual([])
   })
 })
