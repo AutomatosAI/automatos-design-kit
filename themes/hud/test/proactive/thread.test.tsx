@@ -74,6 +74,7 @@ describe("a suggestion Auto posted", () => {
     giveSuggestions()
     const shown = card(SUGGESTION_ID) as HTMLElement
     expect(reply()).toContainElement(shown)
+    expect(screen.getByRole('article', { name: `${SUGGESTS_TITLE}: ${FIRST}` })).toBe(shown)
     expect(within(shown).getByRole('heading', { name: SUGGESTS_TITLE })).toBeInTheDocument()
     expect(within(shown).getByText(FIRST)).toHaveAttribute('data-ai-generated', 'true')
     expect(within(shown).getByText(SUGGESTIONS[0].detail)).toHaveAttribute('data-ai-generated', 'true')

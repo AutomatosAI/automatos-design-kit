@@ -1,5 +1,3 @@
-import { useId } from 'react'
-
 import { SayChips, STARTED_LINE } from '../next/next-line'
 import { openSuggestion, useSuggestionChoice } from '../next/use-next'
 import styles from './thread.module.css'
@@ -8,7 +6,8 @@ import styles from './thread.module.css'
  * HUD 1.3.0 (PRD-268, SDK 1.4.0): a suggestion Auto posted into the conversation (a message's suggestion@1 part,
  * thread/message-parts.ts), as a card in his AUTO row. The part names the suggestion by its id; the card draws it from
  * the SDK's useSuggestions (the signed-in person's own open suggestions), never from the thread, so it shows only while
- * that suggestion is open and the viewer's: `▸ AUTO SUGGESTS` as its heading, its title and its detail as Auto's words
+ * that suggestion is open and the viewer's: an article named "Auto suggests: <title>", as the host's own suggestion card
+ * is named, with `▸ AUTO SUGGESTS` as its heading, its title and its detail as Auto's words
  * (data-ai-generated, drawn as text), then START and HIDE as the `▸ NEXT` line's SAY chips (next/next-line.tsx: each
  * named by its words and the suggestion, HIDE asking why), through the SDK's routes (useSuggestionChoice). Started, the
  * line's words say so in its place for 4 s, then the card is gone; hidden, it is gone at once; refused, the reason in
@@ -23,7 +22,6 @@ const SUGGESTS_MARK = '▸'
 
 export function ThreadSuggestion({ id }: { readonly id: string }) {
   const choice = useSuggestionChoice((list, decided) => openSuggestion(list, decided, id))
-  const headingId = useId()
   const { suggestion } = choice
   if (choice.started) {
     return (
@@ -34,8 +32,13 @@ export function ThreadSuggestion({ id }: { readonly id: string }) {
   }
   if (suggestion === null) return null
   return (
-    <section className={styles.suggestion} aria-labelledby={headingId} data-thread-part="suggestion@1" data-suggestion-id={id}>
-      <h3 id={headingId} className={styles.suggestsTitle}>
+    <article
+      className={styles.suggestion}
+      aria-label={`${SUGGESTS_TITLE}: ${suggestion.title}`}
+      data-thread-part="suggestion@1"
+      data-suggestion-id={id}
+    >
+      <h3 className={styles.suggestsTitle}>
         <span aria-hidden="true">{SUGGESTS_MARK}</span> {SUGGESTS_TITLE}
       </h3>
       <p className={styles.suggestionTitle} data-ai-generated="true">
@@ -52,6 +55,6 @@ export function ThreadSuggestion({ id }: { readonly id: string }) {
           {choice.refused}
         </p>
       )}
-    </section>
+    </article>
   )
 }

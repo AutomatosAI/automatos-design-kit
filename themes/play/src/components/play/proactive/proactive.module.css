@@ -1,10 +1,11 @@
 /*
  * Play 1.3.0 (PRD-268 §6.12.4) — where Play places the host's proactive cards: the day's brief and Auto's calibration
  * in the first open's place on an empty chat, the brief as its message in a conversation, and the newest suggestion
- * pinned above the message box. The cards are the host's (cards.BriefCard, CalibrationCard, SuggestionCard): they
- * draw their own words, states and status in Studio's tokens, which the look paints (status by the ground's tone,
- * lib/looks/status-tokens.ts). Play only lays them out, so nothing here names a colour, and nothing names the accent:
- * a status never goes through it. Every variable is --pl-* (K2).
+ * pinned above the message box; Play 1.4.0 adds the suggestions Auto posted, as cards under his message, and his reply
+ * chips, Play's own pills in the look's secondary button. The cards are the host's (cards.BriefCard, CalibrationCard,
+ * SuggestionCard): they draw their own words, states and status in Studio's tokens, which the look paints (status by
+ * the ground's tone, lib/looks/status-tokens.ts). Play only lays them out, so nothing here names a colour, and nothing
+ * names the accent: a status never goes through it. Every variable is --pl-* (K2).
  */
 
 /* The empty chat's cards: in the conversation's column and width, top to bottom, scrolling with the column. */
@@ -31,4 +32,45 @@
   width: 100%;
   max-width: var(--pl-content-max);
   margin: 0 auto;
+}
+
+/* Play 1.4.0: the suggestion cards under Auto's message, in the reply's column. */
+.thread {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
+}
+
+/* Auto's reply chips under his last message (PRD-268 §6.12.4: 40 px pills), the look's secondary (cream) button:
+   filled in the text colour, an outline where the accent reads as the text colour (play-theme.css's --pl-button-2-*). */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2);
+}
+
+.chip {
+  min-height: var(--pl-chip-height);
+  padding: 0 var(--pl-space-4);
+  border: 1px solid var(--pl-button-2-edge);
+  border-radius: var(--pl-radius-pill);
+  background: var(--pl-button-2-fill);
+  color: var(--pl-button-2-ink);
+  font: var(--pl-text-button-sm);
+  cursor: pointer;
+}
+
+/* Sent: the chips wait for the newer message that takes them away. */
+.chip:disabled {
+  cursor: default;
+}
+
+/* On a phone every control is a 44 px target. */
+@media (max-width: 1023px) {
+  .chip {
+    min-height: var(--pl-tap-min);
+    padding: 0 var(--pl-space-3);
+  }
 }

@@ -34,15 +34,19 @@ the focus to once the screen shows.
   chat draws Auto small over the box, and every stylesheet's phone rules sit under the one `(max-width: 1023px)`
   query.
 
-## Proactive Auto (1.3.0)
+## Proactive Auto (1.3.0, 1.4.0)
 
-SDK 1.3.0's `proactive` area (`engines.sdk` `^1.3.0`, `proactive` in `uses`), placed as PRD-268 §6.12.4 places it in
-Play. Every card is the host's (the SDK's cards area): Play places them and draws none of them itself, and never speaks.
+SDK 1.3.0's `proactive` area (`proactive` in `uses`) and SDK 1.4.0's message parts (`engines.sdk` `^1.4.0`: each
+message's `knownParts`), placed as PRD-268 §6.12.4 places them in Play. Every card is the host's (the SDK's cards area):
+Play places them and draws none of them itself, and never speaks; the reply chips alone are Play's own pills.
 
 - **The day's brief** (`useBrief`, the host's `BriefCard`): on an empty chat it stands in the first open's place
   (`components/play/proactive/opening-cards.tsx`), with the page header and, on a desktop, Auto in the mascot column,
   where his hello still plays; on the phone he stands over the message box. In a conversation it is its own message's
-  card (`message-list.tsx`, `play-brief.tsx` `BriefReply`). Listen is the host's `BriefVoice` inside the card. A row's
+  card (`message-list.tsx`, `play-brief.tsx` `BriefReply`), found by its `brief@1` part (`lib/play/proactive.ts`
+  `briefOf`), never by its words, so an earlier day's brief in the Auto thread is a card too. Listen is the host's
+  `BriefVoice` inside the card, on the day's brief the host holds only: it reads that one. The thumbs are the card's
+  own (the host posts them with the brief's `state_hash`), so Play draws none beside them. A row's
   action runs through `hooks/use-brief-action.ts`: Start and Hide on a suggestion's row through the area's Start and
   Hide, anything else to where the row opens on the SDK's paths. A row without an action is text, and "Show N more"
   is a line, as on core's own brief card: a suggestion's row has no page to open, and the brief carries only the rows
@@ -51,8 +55,15 @@ Play. Every card is the host's (the SDK's cards area): Play places them and draw
   proactive mode is off, or before the host has opened the day's brief, the empty chat is the first open as before.
 - **The suggestion** (`useSuggestions`, the host's `SuggestionCard`): the newest open one, pinned as one line between
   `PlayTrialBanner` and `MessageBox` (`pinned-suggestion.tsx`); its title opens the full card in place. It steps aside
-  while the turn's own Mission suggestion (`PlayMissionSuggestion`) is unanswered, and never repeats a suggestion the
-  brief on screen lists with its own Start.
+  while the turn's own Mission suggestion (`PlayMissionSuggestion`) is unanswered, and never repeats a suggestion
+  already on screen with its own Start: one a brief on screen lists, or one the conversation shows as its card.
+- **Suggestions in the conversation** (a message's `suggestion@1` part, the host's `SuggestionCard`): each one Auto
+  posted is its card under his message (`thread-suggestions.tsx`), drawn from `useSuggestions` by its id, so its state
+  is the live one: once decided its card goes and the words stay; one just started there says so for a few seconds.
+- **Reply chips** (a message's `reply_chips@1` part): under Auto's last message only, Play's 40 px pills in the look's
+  secondary button, 44 px targets on the phone (`reply-chips.tsx`), each named "Reply: <chip>" and marked
+  `data-ai-generated`. A tap sends the chip's words through the message box's own send (`play-chat-view.tsx`
+  `useReply`), and on a desktop the box takes the focus; once a newer message exists they are gone.
 - **Approvals** stay the host's protected cards inline in Auto's reply, as before, with Auto listening while one waits;
   an approval's `approval_view` (who asked, the action, its target, the preview, the rule) is drawn by the host's card.
   Play draws no sheet over them.
@@ -63,10 +74,6 @@ Play. Every card is the host's (the SDK's cards area): Play places them and draw
   `--info` and `--running` from Studio's Light or Dark values by the ground's tone, beside Studio's tokens, and the
   first-paint table carries them; `test/lib/looks/status-tokens.test.ts` measures every role on the background and the
   card for all 24 ground and accent pairs, Paper included.
-
-What SDK 1.3.0 can't give Play's own chat yet: a message's parts. So another day's brief in the Auto thread stays its
-prose, the thread's `suggestion@1` cards are not drawn (the pinned line is the suggestion's place), and Auto's reply
-chips (`ReplyChips`) have nothing to draw from; each waits for the message parts a theme's chat gets in a later SDK.
 
 ## Source
 
@@ -154,6 +161,6 @@ table as the boot script does, against Play's engine.
   and `test/storage-port.test.ts`: no browser storage under `src/`, and Auto's pause, his hello and the seen
   Deliverables on the SDK's storage area, run on the theme harness's storage area (`@automatos/theme-harness`, core's
   ported), which the test holds to core's rules.
-- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.3.0.autotheme` and its `.sha256.json`, checked
+- `npm run pack`: `automatos-theme pack` into `out/`: `automatos.play-1.4.0.autotheme` and its `.sha256.json`, checked
   as core's reader checks a package (the caps: the entry 300 KB, JS and CSS 3 MB, each clip 1 MB; the scope check on
   `dist/theme.css`). Kit CI uploads both as the `kit-themes` artifact.
