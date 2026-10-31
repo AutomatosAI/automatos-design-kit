@@ -6,7 +6,7 @@
  * Stop, in the protected surface `brief-voice`. The root (`data-brief-voice="root"`) carries `data-voice-speaking="true"`
  * while Auto reads, which a theme's speaking line follows, and a screen reader hears that Auto is reading.
  *
- * SDK 1.4.0 (at 27478124f146460fb9477d1ac372f0991f3410d0, components/voice/use-brief-voice.ts and brief-voice-rows.ts):
+ * SDK 1.4.0 (at d08a242b5895522aac3e317a6eb3e7ec3d087f26, components/voice/use-brief-voice.ts and brief-voice-rows.ts):
  * the brief row Auto is reading. While Auto reads one of the brief's rows (its index in the rows of `brief.sections`,
  * in the sections' order: the number Auto says, less one), the root carries `data-voice-row="<index>"`, and the
  * theme's `onSpeakingRow` hears the index, then null between rows and once the reading ends or stops, the stand-in taken
