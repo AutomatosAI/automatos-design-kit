@@ -27,34 +27,25 @@ among the rest of `theme.json`. When this guide and core disagree, core wins and
 
 ## The phone's layouts
 
-Every screen in Automatos Go is drawn by one of five layouts built into the app. A theme can't add a layout or change
-one: the app downloads no code, so a layout ships only in an app release, through the App Store's review.
-
-| Layout | What it draws | Which theme gets it |
-|---|---|---|
-| Studio | The app's own screens: the chat thread with Auto's replies and the host's cards, the Command Centre, Settings | Every theme not named below, through its skin: the skin recolours Studio, sets its type and swaps Auto's pictures |
-| Play | Play's companion: Auto on a stage over the chat, with conversations and a shelf of Deliverables | `automatos/play` |
-| HUD | HUD's command deck: Auto in the voice core, the transcript, square bracketed panels, a grid and scan lines | `automatos/hud` |
-| Arcade | Arcade's 16-bit game: Auto as a pixel sprite in a dialogue box, the story, pixel faces and windows | `automatos/arcade` |
-| Candy | Candy's bright, glossy cards: each its own gradient, round corners and icons, today's numbers in a candy orb, Auto in a glossy shell | `automatos/candy`, from the Automatos Go release that adds it; until then Candy's skin on Studio |
+Every screen in Automatos Go is drawn by one of five layouts built into the app: Studio, Play, HUD, Arcade and Candy
+(Candy's in the next Automatos Go release). A theme can't add a layout or change one: the app downloads no code, so a
+layout ships only in an app release, through the App Store's review. [phone-layouts.md](phone-layouts.md) is the map
+of them: each layout's screens, parts, Auto, look knobs, type, motion and accessibility.
 
 What that means for a theme of your own:
 
-- **The phone draws your theme on the Studio layout**, whatever your web theme's layout is. Design the phone as a skin:
-  your colours, up to three fonts and Auto's stills or clips on Studio's screens. The harness's phone view shows it.
-- **A layout is matched by theme id**, from a fixed list in the app. A package can't name a layout, and a theme that
-  copies Play's, HUD's, Arcade's or Candy's look on the web still gets Studio on the phone.
-- **A new layout needs an app release.** If your design needs a phone layout of its own, describe it (each screen, and
-  the host data it shows) and propose it to Automatos in an issue on this repository. Until an app release carries it,
-  your theme's skin on Studio is what members see.
+- **The phone draws your theme on the Studio layout**, through its skin, whatever your web theme's layout is.
+  `automatos/play`, `automatos/hud`, `automatos/arcade` and `automatos/candy` switch the phone to their own layouts;
+  the match is by theme id, from a fixed list in the app, so a package can't name a layout.
+- **A new layout needs an app release.** To propose one, open an issue on this repository describing each screen and
+  the host data it shows ([phone-layouts.md](phone-layouts.md#using-a-layout-as-a-creator-today)).
 - **Older app versions fall back to the skin.** An app version from before a layout existed paints that theme's
-  `mobile` block on the Studio layout instead, which is why Play, HUD, Arcade and Candy each keep one. Candy's is what
-  every app version shows until the release with its layout.
+  `mobile` block on Studio, which is why Play, HUD, Arcade and Candy each keep one.
 
 The harness's phone view and `automatos-theme skin` follow the app's list at the Automatos Go commit
-[the theme CLI's README](../packages/theme-cli/README.md) names, so they learn a new layout when the kit moves to an app
-release that has it. Until the kit moves to the release with Candy's layout, the phone view draws `automatos/candy` as
-its skin on Studio, as the app does.
+[the theme CLI's README](../packages/theme-cli/README.md) names. That list already has Candy, from the app's Candy work
+ahead of its release, so for `automatos/candy` the phone view says the phone switches to Candy's layout, as the release
+will.
 
 ## The block
 
