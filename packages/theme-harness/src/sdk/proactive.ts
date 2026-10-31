@@ -12,7 +12,7 @@
  * - useCalibration and useAnswerCalibration are inert, as core's are until the server offers calibration: nothing
  *   offered, `available` false, and an answer refused ("not available on this server") with nothing kept. A test that
  *   draws calibration ahead of the server offers one (host.setCalibration); answers are then kept as runs.
- * - useRateBrief (SDK 1.4.0, core's internal/rate-brief.ts at d08a242b5895522aac3e317a6eb3e7ec3d087f26): the brief's
+ * - useRateBrief (SDK 1.4.0, core's internal/rate-brief.ts at 4ff489a460b2316ec9b7427efaa81a16552abddf): the brief's
  *   thumbs, run as the page areas' writes, each kept with the body core posts to its digest feedback route
  *   (`{state_hash, rating}`, 1 for up and -1 for down: BriefFeedbackBody), which a test's answer
  *   (host.setPageAction('useRateBrief', ...)) is handed too. A state_hash that isn't some text, or a rating that is
