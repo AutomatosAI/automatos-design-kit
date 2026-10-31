@@ -22,9 +22,9 @@ const STAMP = '2026-10-14T09:00:00+00:00'
 
 function message(fields: Partial<HostChatMessage> & Pick<HostChatMessage, 'id' | 'role'>): HostChatMessage {
   return {
-    text: '', activity: [], error: null, writing: false, stopped: false, receipts: null, above: [], deliverables: [], approvals: [],
-    taskCards: [], toolCalls: [], provenance: null, savedError: null, limitReached: null, reasoningChars: 0, withdrawOffer: null,
-    linkedDeliverables: [], ...fields,
+    text: '', knownParts: [], activity: [], error: null, writing: false, stopped: false, receipts: null, above: [], deliverables: [],
+    approvals: [], taskCards: [], toolCalls: [], provenance: null, savedError: null, limitReached: null, reasoningChars: 0,
+    withdrawOffer: null, linkedDeliverables: [], ...fields,
   }
 }
 

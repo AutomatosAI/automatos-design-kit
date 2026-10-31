@@ -4,7 +4,7 @@
 // src/ of each kit library it bundles, which the package carries under source/packages/): every one, so core's
 // review warns of none undeclared, and only those, so it reports none declared and unused. HUD 1.1.0 uses the SDK's
 // voice area (SDK 1.2.0); HUD 1.1.3 runs on SDK 1.3.0 and peers the vendored SDK at 1.3.0; HUD 1.2.0 uses its proactive
-// area. Files are read, not built.
+// area; HUD 1.2.1 runs on SDK 1.4.0 and peers the vendored SDK at 1.4.0. Files are read, not built.
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { validateManifest } from '@automatos/theme-cli/manifest'
@@ -44,8 +44,8 @@ interface PackageJson {
 const manifest = readThemeJson<Manifest>('theme.json')
 const pkg = readThemeJson<PackageJson>('package.json')
 const sdkPackage = JSON.parse(readFileSync(join(KIT_ROOT, 'packages', 'theme-sdk', 'package.json'), 'utf8')) as PackageJson
-/** The host contract HUD runs on, and the SDK it runs on (SDK 1.3.0; its voice area is SDK 1.2.0's). */
-const HUD_ENGINES = { automatos: '^1.1.0', sdk: '^1.3.0' }
+/** The host contract HUD runs on, and the SDK it runs on (SDK 1.4.0; its voice area is SDK 1.2.0's, its proactive area 1.3.0's). */
+const HUD_ENGINES = { automatos: '^1.1.0', sdk: '^1.4.0' }
 const SDK_NAME = '@automatos/theme-sdk'
 const play = JSON.parse(readFileSync(join(KIT_ROOT, 'themes', 'play', 'package.json'), 'utf8')) as PackageJson
 const entry = readSource('entry.ts')
@@ -124,7 +124,7 @@ describe('theme.json', () => {
       schema: 'automatos-theme/v1',
       id: 'automatos/hud',
       name: 'HUD',
-      version: '1.2.0',
+      version: '1.2.1',
       htmlClass: 'hud',
       minWidth: 360,
       base: 'studio',
@@ -133,7 +133,7 @@ describe('theme.json', () => {
     })
   })
 
-  it("runs on today's host contract and on SDK 1.3.0, the vendored SDK's version, with the voice and proactive areas", () => {
+  it("runs on today's host contract and on SDK 1.4.0, the vendored SDK's version, with the voice and proactive areas", () => {
     expect(manifest.engines).toEqual(HUD_ENGINES)
     expect(manifest.uses).toContain('voice')
     expect(manifest.uses).toContain('proactive')
@@ -209,7 +209,7 @@ describe('package.json', () => {
   it("has Play's dev dependencies, peers, engines and scripts, but the vendored SDK as its peer and its own build and pack", () => {
     expect(pkg.devDependencies).toEqual(play.devDependencies)
     expect(pkg.peerDependencies).toEqual({ ...play.peerDependencies, [SDK_NAME]: sdkPackage.version })
-    expect(pkg.peerDependencies[SDK_NAME]).toBe('1.3.0')
+    expect(pkg.peerDependencies[SDK_NAME]).toBe('1.4.0')
     expect(pkg.engines).toEqual(play.engines)
     expect(pkg.scripts).toEqual({
       ...play.scripts,

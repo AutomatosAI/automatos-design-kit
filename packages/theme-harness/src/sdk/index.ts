@@ -5,7 +5,7 @@
  * reach the surface, and test/surface.test.ts holds the union to the vendored types' value exports, nothing
  * missing and nothing extra. Chat, deliverables and cards are PRD-261 B-02c's fakes over fake fixtures; voice is
  * theme voice's (SDK 1.2.0); proactive, the cards' proactive defaults, BriefVoice and DISPLAY_STATE_LABELS are
- * PRD-268's (SDK 1.3.0).
+ * PRD-268's (SDK 1.3.0), and useRateBrief, a message's knownParts and BriefVoice's onSpeakingRow its Wave K's (SDK 1.4.0).
  */
 export { SDK_VERSION, defineTheme, DISPLAY_STATE_LABELS } from './theme.ts'
 export {
@@ -52,4 +52,5 @@ export { readThemeState, writeThemeState, removeThemeState, subscribeThemeState,
 export { VoiceButton, useVoice, readVoiceLevels, BriefVoice } from './voice.ts'
 export {
   useBrief, useReadiness, useCheckReadiness, useSuggestions, useStartSuggestion, useHideSuggestion, useCalibration, useAnswerCalibration,
+  useRateBrief,
 } from './proactive.ts'

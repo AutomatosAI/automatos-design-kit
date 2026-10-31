@@ -42,7 +42,7 @@ Schema `automatos-theme/v1`. Every field is checked; a field the host does not k
 | `id` | yes | `publisher/slug`, lower-case letters, digits and dashes. The `automatos` publisher is reserved. |
 | `name` | yes | One line of plain text, at most 60 characters |
 | `version` | yes | `MAJOR.MINOR.PATCH`. A version once submitted is spent: the same version with other bytes, or a lower one, is refused. |
-| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and the SDK 1.3.0; a theme that uses the SDK's `voice` area names `"sdk": "^1.2.0"`, and one that uses its `proactive` area `"sdk": "^1.3.0"`. |
+| `engines` | yes | `{"automatos": "^1.1.0", "sdk": "^1.1.0"}`: the host contract and SDK versions the theme runs on. The host is 1.1.0 and the SDK 1.4.0; a theme that uses the SDK's `voice` area names `"sdk": "^1.2.0"`, one that uses its `proactive` area `"sdk": "^1.3.0"`, and one that reads a message's `knownParts`, `BriefVoice`'s `onSpeakingRow` or `useRateBrief` `"sdk": "^1.4.0"`. |
 | `base` | yes | `studio` or `classic`: the design the host draws wherever the theme has none of its own |
 | `htmlClass` | yes | The theme's class on `<html>`: 3 to 32 lower-case letters, digits or dashes, starting with a letter. The host keeps `studio`, `classic`, `dark`, `light` and `system`; any other class that fits, `play` included, is any theme's. |
 | `minWidth` | yes | Pixels, 0 to 3840. Below it the host draws its own pages and chrome. |

@@ -2,6 +2,10 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.2.1
+
+Runs on Theme SDK 1.4.0 (`engines.sdk` `^1.4.0`). Nothing HUD draws changes.
+
 ## 1.2.0
 
 Proactive Auto, on Theme SDK 1.3.0's proactive area (`uses` names `proactive`; `engines.sdk` stays `^1.3.0`):

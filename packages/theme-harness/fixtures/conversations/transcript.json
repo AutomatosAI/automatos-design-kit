@@ -14,6 +14,11 @@
           { "data": { "type": "tool-end", "data": { "toolCallId": "call-1", "toolName": "platform_search_documents", "success": true, "durationMs": 420, "summary": "3 documents found" } } },
           { "data": { "type": "tool-data", "data": { "generated_document": { "deliverable_id": "d-report-1", "title": "Laptop shortlist", "format": "pdf" } } } },
           { "data": { "type": "finish" } }
+        ],
+        "parts": [
+          { "type": "text", "text": "I read three reviews and compared battery life, weight and price. Here is your laptop shortlist: the lightest of the three also lasts the longest." },
+          { "type": "suggestion@1", "suggestion_id": "00000000-0000-4000-8000-00000000a001" },
+          { "type": "reply_chips@1", "replies": ["Compare the two lightest", "Which lasts longest?", "Show me the prices"] }
         ]
       }
     ]

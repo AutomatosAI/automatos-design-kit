@@ -4,9 +4,9 @@
  * holds its own state and controls; this gathers them, and `host.reset()` puts every area back as a test
  * starts: the local edition's one operator in WORKSPACE_DEFAULTS, online, the backend up, a desktop width,
  * the light tone, no look runtime, no package files, STORAGE_DEFAULTS with no theme state kept, no voice session (the
- * host's voice on the page, VOICE_DEFAULTS), no calibration offered and the brief not being read (SDK 1.3.0's
- * proactive area: its reads loading until a test answers them, src/sdk/proactive.ts), nothing asked and nothing
- * refused. Call it in a beforeEach; a control set inside act() renders what reads it again.
+ * host's voice on the page, VOICE_DEFAULTS), no calibration offered and the brief not being read, no row of it
+ * (SDK 1.3.0's proactive area: its reads loading until a test answers them, src/sdk/proactive.ts; SDK 1.4.0's speaking
+ * row, src/sdk/brief-voice.tsx), nothing asked and nothing refused. Call it in a beforeEach; a control set inside act() renders what reads it again.
  */
 import { forgetNetworkCalls, networkCalls } from './internal/network.ts'
 import { pageControls, resetPages } from './internal/page-views.ts'
@@ -45,6 +45,9 @@ export { VOICE_DEFAULTS, type VoicePressRecord, type VoiceSessionStandIn } from 
  */
 export { LIVE_KEY } from './internal/scripted/chat-reply.ts'
 export { CREDITS_EXHAUSTED_CODE } from './internal/scripted/chat-turn.ts'
+/** SDK 1.4.0: a made-up Auto thread whose stored messages carry brief@1, suggestion@1 and reply_chips@1 parts. */
+export { AUTO_THREAD, AUTO_THREAD_CHAT_ID } from './internal/scripted/auto-thread.ts'
+export type { BriefFeedbackBody } from './internal/page-views.ts'
 
 /**
  * Every area's reset. Storage first: it forgets the last test's subscribers before the context's workspace,

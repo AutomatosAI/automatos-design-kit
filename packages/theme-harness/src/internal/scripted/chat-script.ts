@@ -54,6 +54,15 @@ export interface HistoryMessage {
    * tool calls, receipts and documents (types/chat.ts ChatMessage); absent for none.
    */
   readonly frames?: readonly RecordedFrame[]
+  /**
+   * SDK 1.4.0: the stored row's parts as core's backend keeps them (`text`, `brief@1`, `suggestion@1`,
+   * `reply_chips@1` and any other type), read into the message's knownParts as core's chat area reads them
+   * (message-parts.ts): a part of another type, or one that isn't what its type says, is left out. Absent: one text
+   * part of the words, as core's controller gives a stored message without parts.
+   */
+  readonly parts?: readonly unknown[]
+  /** SDK 1.4.0: the stored row's source; a suggestion's post may name its suggestion there (`suggestion_id`). */
+  readonly source?: unknown
 }
 
 /** A conversation as the lists show it, and the messages it opens with. */
@@ -168,12 +177,15 @@ function historyOf(value: unknown, where: string): HistoryMessage {
   const provenance = optionalTextOf(fields.provenance, `${where}.provenance`)
   const savedError = optionalTextOf(fields.savedError, `${where}.savedError`)
   const frames = storedFramesOf(fields.frames, `${where}.frames`)
+  const parts = fields.parts === undefined ? undefined : Object.freeze([...listOf(fields.parts, `${where}.parts`)])
   return Object.freeze({
     role: role as HostChatRole,
     text: textOf(fields.text, `${where}.text`),
     ...(provenance === undefined ? {} : { provenance }),
     ...(savedError === undefined ? {} : { savedError }),
     ...(frames === undefined ? {} : { frames }),
+    ...(parts === undefined ? {} : { parts }),
+    ...(fields.source === undefined ? {} : { source: fields.source }),
   })
 }
 

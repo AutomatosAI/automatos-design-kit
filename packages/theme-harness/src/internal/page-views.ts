@@ -8,6 +8,7 @@
  * null). Every read and every run is kept, with its arguments (host.pageAsks(), host.pageRuns()). SDK 1.3.0's
  * proactive area (src/sdk/proactive.ts) answers the same way; a read may also answer 'idle', no data and not loading,
  * as core's useBrief does while the host holds no brief for the day (the workspace's brief is off, or not opened yet).
+ * SDK 1.4.0's useRateBrief is a write too, kept with the body core posts (BriefFeedbackBody).
  */
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { log, refuse } from './cell.ts'
@@ -48,13 +49,22 @@ export type PageActionHook =
   | 'useReplanMission' | 'useRerunMission' | 'useSaveAsRoutine' | 'useUpdateMissionSettings'
   | 'useUploadDocument' | 'useDeleteDocument' | 'useTriggerSync' | 'useSelectRootFolder'
   | 'useCreatePlaybook' | 'useUpdatePlaybook' | 'useDeletePlaybook' | 'useExecutePlaybook'
-  | 'useCheckReadiness' | 'useStartSuggestion' | 'useHideSuggestion' | 'useAnswerCalibration'
+  | 'useCheckReadiness' | 'useStartSuggestion' | 'useHideSuggestion' | 'useAnswerCalibration' | 'useRateBrief'
+
+/**
+ * SDK 1.4.0: what useRateBrief posts, core's digest feedback route's body (internal/rate-brief.ts DigestFeedbackBody,
+ * POST /api/activity/digest/feedback): the brief's state_hash, and 1 for a thumb up, -1 for a thumb down.
+ */
+export interface BriefFeedbackBody {
+  readonly state_hash: string
+  readonly rating: 1 | -1
+}
 
 /** What a read's data is, as the SDK types it. */
 export type PageData<K extends PageQueryHook> = NonNullable<ReturnType<Sdk[K]>['data']>
 type ActionOf<K extends PageActionHook> = ReturnType<Sdk[K]>
-/** What a write is handed, and what it resolves with, as the SDK types them. */
-export type PageVariables<K extends PageActionHook> = Parameters<ActionOf<K>['run']>[0]
+/** What a write is handed (useRateBrief's: the body core posts), and what it resolves with, as the SDK types them. */
+export type PageVariables<K extends PageActionHook> = K extends 'useRateBrief' ? BriefFeedbackBody : Parameters<ActionOf<K>['run']>[0]
 export type PageResult<K extends PageActionHook> = NonNullable<ActionOf<K>['result']>
 
 /** How a read answers: its data, its error's message, still loading, or 'idle': asked nothing, no data and not loading. */

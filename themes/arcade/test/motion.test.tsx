@@ -66,7 +66,7 @@ describe('a sprite', () => {
 
 describe('the dialogue box', () => {
   const reply = {
-    id: 'a1', role: 'assistant' as const, text: 'Your shortlist is in your bag.', activity: [], error: null, writing: false,
+    id: 'a1', role: 'assistant' as const, text: 'Your shortlist is in your bag.', knownParts: [], activity: [], error: null, writing: false,
     stopped: false, receipts: null, above: [], deliverables: [], approvals: [], taskCards: [], toolCalls: [], provenance: null,
     savedError: null, limitReached: null, reasoningChars: 0, withdrawOffer: null, linkedDeliverables: [],
   }
