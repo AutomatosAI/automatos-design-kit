@@ -88,6 +88,17 @@ describe('a tap', () => {
     expect(replies()).toBeNull()
   })
 
+  it('sends once for a double press, the same chip or the other one', async () => {
+    await renderChat([HELD], CHIPS_THREAD)
+    fireEvent.click(chip(CHIPS[0]))
+    const again = screen.queryByRole('button', { name: `${REPLY_PREFIX}${CHIPS[0]}` })
+    const other = screen.queryByRole('button', { name: `${REPLY_PREFIX}${CHIPS[1]}` })
+    if (again) fireEvent.click(again)
+    if (other) fireEvent.click(other)
+    expect(host.chatSent()).toHaveLength(1)
+    expect(host.chatSent()).toEqual([{ chatId: 'c1', text: CHIPS[0], retry: false }])
+  })
+
   it('sends them on the phone too, where the newer message takes them away the same', async () => {
     setWindowWidth(PHONE_WIDTH)
     openChat(CHIPS_THREAD)
