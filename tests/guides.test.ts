@@ -23,7 +23,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const GUIDES = "guides";
 const GUIDE_FILES = [
   "README.md", "contract.md", "page-inventory.md", "mascot-placement.md", "mobile-skins.md", "looks.md", "sdk.md",
-  "pitfalls.md", "from-design-to-theme.md", "designing-a-theme.md",
+  "pitfalls.md", "from-design-to-theme.md", "designing-a-theme.md", "phone-layouts.md",
 ];
 const CORE_DIR = "packages/theme-cli/src/core";
 const CONTRACT_JSON = `${CORE_DIR}/data/contract.json`;
@@ -265,7 +265,7 @@ describe("looks.md teaches both knob kinds and no other", () => {
 describe("every guide links only to files that exist, names only built commands, and names no one", () => {
   const built = builtCommands();
 
-  it("the guides folder holds the ten guides", () => {
+  it("the guides folder holds the eleven guides", () => {
     expect(readdirSync(join(ROOT, GUIDES)).filter((name) => name.endsWith(".md")).sort()).toEqual([...GUIDE_FILES].sort());
   });
   it.each(GUIDE_FILES)("%s: every relative link resolves", (name) => expect(brokenLinks(`${GUIDES}/${name}`)).toEqual([]));

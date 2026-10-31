@@ -95,7 +95,8 @@ The app has five layouts built in (Studio, Play, HUD, Arcade and Candy); only Au
 to theirs (`automatos/play`, `automatos/hud`, `automatos/arcade` and `automatos/candy`). Candy's layout ships in a later
 Automatos Go release; until then the app paints Candy's skin on Studio. A layout of your own would need an Automatos
 Go release, so it is a proposal to Automatos, not part of the handoff
-([mobile-skins.md](mobile-skins.md#the-phones-layouts)).
+([mobile-skins.md](mobile-skins.md#the-phones-layouts)). [phone-layouts.md](phone-layouts.md) maps each layout's
+screens, and says how to design for the phone with them ("For designers").
 
 ## The handoff
 
