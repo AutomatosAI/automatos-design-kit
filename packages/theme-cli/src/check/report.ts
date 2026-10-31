@@ -29,7 +29,7 @@ import {
  * pin: the head of core pull request #1383 (SDK 1.4.0); re-pin to core `main` after it merges.
  */
 export const CORE_REPO = 'AutomatosAI/automatos-ai'
-export const CORE_SHA = 'd08a242b5895522aac3e317a6eb3e7ec3d087f26'
+export const CORE_SHA = '4ff489a460b2316ec9b7427efaa81a16552abddf'
 
 export const REPORT_SCHEMA = 'automatos-theme-scan/v2'
 export const STAGE = 'C-02a'

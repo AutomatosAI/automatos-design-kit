@@ -3,7 +3,7 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `d08a242b5895522aac3e317a6eb3e7ec3d087f26`, a temporary pin: the head of
+Source: `AutomatosAI/automatos-ai` at `4ff489a460b2316ec9b7427efaa81a16552abddf`, a temporary pin: the head of
 core pull request #1383 on 31 Oct 2026 (SDK 1.4.0: a chat message's known parts, the brief row Auto is reading and
 the brief's thumbs; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.4.0, the host contract still 1.1.0;
 the core corpus's engines cases move to 1.4.0), before it merges; re-pin to core `main` once it does. It sits on core
