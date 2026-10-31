@@ -2,7 +2,7 @@
  * PRD-268 K17 (SDK 1.4.0): a message's parts as the fake chat hands them to a theme (HostChatMessage.knownParts,
  * src/sdk/chat.ts). Not an SDK name. Pure.
  *
- * Mirrors core's frontend/lib/theme-sdk/internal/message-parts.ts (at 4ff489a460b2316ec9b7427efaa81a16552abddf): the
+ * Mirrors core's frontend/lib/theme-sdk/internal/message-parts.ts (at d92cabf202f4a04f48a429d5f79a05cbe6c1eefb): the
  * parts a theme can read are `text` (the words, on any message), `brief@1` (the day's brief, read as the host's thread
  * reads one: internal/proactive/wire.ts briefOf), `suggestion@1` (a suggestion's id: the part's own, else the stored
  * message's `source.suggestion_id`) and `reply_chips@1` (the chips the host's ReplyChips would draw: trimmed, at most
