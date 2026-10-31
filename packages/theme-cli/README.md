@@ -294,4 +294,4 @@ the app's files and lines it follows:
 | Repository | Commit |
 |---|---|
 | `AutomatosAI/automatos-go` | `39b638cbae65b513a6ed42ad27f72d52fcf803e0` |
-| `AutomatosAI/automatos-go`, branch `feat/a9-candy` (`automatos/candy`'s built-in layout, until it merges) | `2ee8cca4ca447649089163061e561bc3c8f4379b` |
+| `AutomatosAI/automatos-go` (`automatos/candy`'s built-in layout, merged in #40) | `d0ecf740782213febb7d4e2d7538b4eff57caae6` |

@@ -17,19 +17,20 @@ guide and the app disagree, the app wins and this guide is fixed.
 | Play | `play` | A companion: Auto on screen over the chat, a glow behind the page, a shelf of Deliverables | 1.0.0 | `automatos/play` |
 | HUD | `hud` | A voice-first command deck: Auto in a ring core, a transcript, square bracketed panels, a grid and scan lines | 1.0.0 | `automatos/hud` |
 | Arcade | `arcade` | A 16-bit handheld: Auto as a pixel sprite in a dialogue box, your agents as a party, a D-pad | 1.0.0 | `automatos/arcade` |
-| Candy | `candy` | Bright, soft and glossy: gradient cards, round everything, today's number in a candy orb, a floating tab bar | The next release | `automatos/candy`, from that release; until then Candy's skin on Studio |
+| Candy | `candy` | Bright, soft and glossy: gradient cards, round everything, what needs you in a candy orb, a floating tab bar | 1.0.0, from its 31 Oct 2026 update | `automatos/candy` |
 
 How the phone picks a layout:
 
 - **Same as Studio**, the phone's default, follows the theme Studio shows the member (their own choice, else the
-  workspace's default). `automatos/play`, `automatos/hud` and `automatos/arcade` switch the phone to that layout,
-  painted from the member's looks; the app reads none of their `mobile` block. Any other theme with a skin the phone
-  can paint draws Studio in the skin. No theme, no skin, or a theme revoked with `disable` draws Studio's own colours.
-- **A member can pick on the phone**, under Settings, Style and look: Studio, Play, HUD, Arcade or an installed theme
-  with a skin. A theme picked there always paints Studio.
+  workspace's default). `automatos/play`, `automatos/hud`, `automatos/arcade` and `automatos/candy` switch the phone to
+  that layout, painted from the member's looks; the app reads none of their `mobile` block. Any other theme with a skin
+  the phone can paint draws Studio in the skin. No theme, no skin, or a theme revoked with `disable` draws Studio's own
+  colours.
+- **A member can pick on the phone**, under Settings, Style and look: Studio, Play, HUD, Arcade, Candy or an installed
+  theme with a skin. A theme picked there always paints Studio.
 - **The match is by theme id**, from a fixed list in the app. A package can't name a layout.
 - **An app version from before a layout** paints that theme's `mobile` skin on Studio. That is why Automatos's own
-  themes each keep a skin, and why `automatos/candy` draws its skin on Studio until the release with Candy's layout.
+  themes each keep a skin: an app from before Candy's layout draws `automatos/candy`'s skin on Studio.
 
 ## What every layout shares
 
@@ -242,25 +243,27 @@ Automatos's `automatos/arcade` on the phone. Its looks and palettes: [docs/theme
 
 ## Candy
 
-Automatos's `automatos/candy` on the phone, **in the next Automatos Go release**; until then the app paints Candy's skin
-on Studio. This section is Candy's design for the layout and the kit's theme
-([docs/themes/candy.md](../docs/themes/candy.md)); the release may differ in detail, and this guide follows it then.
+Automatos's `automatos/candy` on the phone. Its looks and palettes: [docs/themes/candy.md](../docs/themes/candy.md).
 
 | Screen | What it shows | Host data |
 |---|---|---|
-| Today | The band; a greeting and "{n} things need you"; Auto; the orb with today's number; stat cards (Working now, Needs you, In queue; one the app hasn't read is hidden); a Needs you window with the first two items | The needs-you number and items; the Board |
-| Chat | Auto's stage (the violet card, Auto, his state pill, Pause); the thread (the AI label first, bubbles, "✓ {what Auto did}" chips, Deliverable rows, "Auto is writing", and the host's cards as Studio draws them); a "Message Auto" pill with the voice button beside it | The chat thread |
-| Shelf | "Deliverables", type chips (All, Reports, Documents, Images, Spreadsheets, Slides), two columns of gradient tiles by type, a link to all | The Deliverables gallery |
-| Team | "Your team", "{active} of {total} agents active", a row of up to five ringed avatars, then a list with a status chip each | The chat's agents |
+| Today | The band; a header with the menu circle, Auto, "Ideas · N" and Pause; a greeting ("Good morning", "Good afternoon" or "Good evening") and "{n} things need you"; the orb with the needs-you number ("need you"); stat cards (Working now, Needs you, In queue; one the app hasn't read is left out); a Needs you window with the first two items | The needs-you number and items; the Board; suggestions |
+| Chat | Auto's stage (the violet card: back, the chat's title, the menu circle, Auto, his state pill, Pause, and "◆ WAITING FOR YOU · OPEN" while an approval waits); the thread (the AI label first, bubbles, chips for what a reply did, ✓ done, ● running or ✕ failed, Deliverable rows, "Auto is writing", the day's brief, and the host's cards as Studio draws them); the newest open suggestion pinned above the box; "Message Auto" with the voice button beside it | The chat thread; suggestions; the brief |
+| Shelf | "Deliverables", type chips (All, Reports, Documents, Images, Spreadsheets, Slides), two columns of gradient tiles by type, More, and "All Deliverables" in the Command Centre. Empty, Auto asleep and a way to the chat | The Deliverables gallery |
+| Team | "Your team", "{active} of {total} agents active", a row of up to five ringed avatars (active first), then a list with a status chip each: ● Needs you, ● Working or ○ Ready | The chat's agents; the needs-you items; the Board |
 
 - **Parts.** The band: a gradient behind the top of each view, its lower edge curved. The orb: a 200 pt glossy ball
   with a white arc turning round it. Gradient cards in pink, violet and blue in turn. A floating tab bar (Today, Chat,
-  voice, Shelf, Team); round icons and avatars; conic rings round active agents; pills for buttons and chips.
-- **Navigation.** The tab bar switches the views in place; its raised centre is hold to talk. A menu circle holds the
-  menu every layout has. **Make it sweet →** is the look page, under Settings, Style and look.
+  voice, Shelf, Team) on Today, Shelf and Team; round icons and avatars; conic rings round active agents; pills for
+  buttons and chips.
+- **Navigation.** The tab bar switches the views in place; its raised centre is hold to talk. The Chat view has no tab
+  bar: its message box and voice button take the foot, and its back circle returns to Today. The menu circle holds
+  the menu every layout has, with the needs-you number. **Make it sweet →** is the look page, under Settings, Style
+  and look.
 - **Auto.** A glossy shell drawn in code with Skia, from the same geometry as the kit's web Auto (a pink-to-violet
   body, a white gloss, a dark visor, glowing eyes, blush and an antenna), never the app's clips. His twelve states
-  differ in the eyes. He is on Today, on the Chat stage, on the edge screens and in the voice screen's orb.
+  differ in the eyes. He is in Today's header, on the Chat stage, on an empty Shelf, on the edge screens, in the voice
+  screen's orb and in the look page's preview.
 - **Looks** (Make it sweet):
 
 | Knob | Choices | What it changes on the phone |
@@ -268,24 +271,26 @@ on Studio. This section is Candy's design for the layout and the kit's theme
 | Palette (`palette`) | Blush, Lilac, Night bloom | Every colour and the tone: Night bloom is dark, the others light, whatever the phone's Light or Dark |
 | Card colours (`cards`) | Mixed, One colour | Cards cycle pink, violet and blue, or all take the first |
 | Gradient (`gradient`) | Soft, Rich, Vivid | The cards' gradients; Vivid adds a soft aura behind the home |
-| Roundness (`roundness`) | 16 to 40 | The corners of cards (at about seven tenths of it) and windows; pills, icons and avatars stay round |
+| Roundness (`roundness`) | 16 to 40, a slider | How round cards and windows are; pills, icons and avatars stay round |
 | Glow (`glow`) | 0 to 10 | How strong the tinted shadows are |
 | Motion (`motion`) | On, Paused | Every loop |
 
-  Three presets (Blush, the default; Lilac; Night bloom), Save look, Reset, and a long press on a saved look for Rename
-  or Delete.
+  Three presets (Blush, the default; Lilac; Night bloom), the member's own looks under them, a live preview, Save
+  look and Reset. A touch and hold on a saved look gives Rename or Delete; a preset can be neither.
 - **Type.** Outfit 600 for titles and figures (700 in the orb); Nunito for the body (400), labels (700) and buttons
   (800). No text below 12 pt.
-- **Motion.** Auto floats 4 pt over 3 s and blinks every 4 to 6 s; the orb's arc turns; the writing dots bounce; the
-  voice rings move. **Pause** sits on the Chat stage and in the header; one tap stills Candy everywhere, and the phone
-  keeps it. The look's Motion set to Paused stills it too. Reduce Motion stills Auto on his first frame and shows no
-  pause control; the look page's Motion row says "Motion off · Reduce Motion".
+- **Motion.** Auto floats and blinks every 4 to 6 s; the orb's arc turns; the writing dots bounce; the voice core and
+  rings move. **Pause** (then **Play**) sits in the header of Today, Shelf and Team, on the Chat stage, on the edge
+  screens, the voice screen and the look page; one tap stills Candy everywhere, and the phone keeps it. The look's
+  Motion set to Paused stills it too. Reduce Motion stills it and shows no pause control; the look page's Motion row
+  says "Motion off · Reduce Motion".
 - **Accessibility.** A status is a glyph and a word; 44 pt targets; settings rows at least 52 pt. Every preset passes
   the skin's ten contrast pairs ([mobile-skins.md](mobile-skins.md#contrast)), and white text on every card gradient
   reads at 4.5:1.
-- **Shared screens.** Round cards with tinted shadows, section titles in Outfit, statuses as a glyph and a word. The
-  edge screens: the band, Auto in the state that fits, an accent pill button. The voice screen: the orb as its core,
-  with Auto inside, its rings and waveform in the card gradients.
+- **Shared screens.** Round cards with tinted shadows, section titles in Outfit, statuses as a glyph and a word. Each
+  edge screen is one window with the band across its top, Auto in the state that fits (hello, sleeping, oops, lost),
+  that state as a glyph and a word, then the words. The voice screen: the orb as its core, with Auto inside, its rings
+  and waveform in the card gradients.
 
 ## Using a layout as a creator, today
 

@@ -32,11 +32,11 @@ as `H S% L%` triplets ([looks.md](looks.md), "Recolouring the host's pages").
 **A gradient in the prepaint table.** Candy 1.0.0 painted its cards' highlight, its band and its aura as
 `radial-gradient()` and `linear-gradient()` values in `boot/prepaint.json`. Every check passed, since the server's
 prepaint check takes them, but the browser's first paint keeps only a few functions (`rgb`, `rgba`, `hsl`, `hsla`,
-`var` and the filters), at most 200 characters, and drops anything else without a word. The cards' backgrounds were
-built on those values with `var()`, so they were invalid too and came out transparent, while the plain colours still
-painted. `check design` and `check` now refuse such a value (`BAD_CSS_VALUE`, with the variable, the look and the
-rule), and the browser harness leaves it off as the browser does. Paint the colours, stops and positions in the table
-and compose the gradient in the theme's CSS ([looks.md](looks.md)).
+`var`, `calc`, `min`, `max`, `clamp` and the filters), at most 200 characters, and drops anything else without a word.
+The cards' backgrounds were built on those values with `var()`, so they were invalid too and came out transparent, while
+the plain colours still painted. `check design` and `check` now refuse such a value (`BAD_CSS_VALUE`, with the variable,
+the look and the rule), and the browser harness leaves it off as the browser does. Paint the colours, stops and
+positions in the table and compose the gradient in the theme's CSS ([looks.md](looks.md)).
 
 **A knob the table never paints.** Candy 1.0.0's `roundness` was a number knob of `looks/schema.json` that no numeric
 rule painted (its frame set the corners in code). The host's look runtime builds a theme's looks from the prepaint
