@@ -94,10 +94,11 @@ const brief = message.knownParts.find((part): part is HostBriefPart => part.type
 ```
 
 A chip has no route of its own: a tap is the person's own message, so send the chip's text with the controller's
-`send` (or place `ReplyChips`, which does), and mark the chips' words `data-ai-generated`, as they are Auto's. Today a
-reply's chips reach `knownParts` once its conversation opens again: the reply being written carries its words alone. In
-the harness the transcript's reply carries a `suggestion@1` and a `reply_chips@1` part, and the Auto thread
-(`AUTO_THREAD`) a `brief@1` part too ([theme-harness](../packages/theme-harness/README.md)).
+`send` (or place `ReplyChips` with that `send` as its `onReply`), and mark the chips' words `data-ai-generated`, as
+they are Auto's. Today a reply's chips reach `knownParts` once its conversation opens again: the reply being written
+carries its words alone. In the harness the transcript's reply carries a `suggestion@1` and a `reply_chips@1` part,
+and the Auto thread (`AUTO_THREAD`) a `brief@1` part too ([theme-harness](../packages/theme-harness/README.md);
+[below](#in-a-themes-tests)).
 
 ## `deliverables`
 
@@ -139,7 +140,7 @@ with `useChatController`'s `send` ([contract.md](contract.md#the-hosts-parts)).
 | `StatusLabel` | SDK 1.3.0: a row's `display_state` as its glyph and word, `▸` its `next_step`, and Try again when the row has a `retry` and the theme passes `onRetry`; nothing for an unknown state. |
 | `ReadinessList` | SDK 1.3.0: what Auto depends on, from `useReadiness`: each item's state and in-app fix, and Check again. |
 | `CalibrationCard` | SDK 1.3.0: what Auto knows so far, from its props, with Reject, Sounds right (`onAnswer`) and Something's off. |
-| `ReplyChips` | SDK 1.3.0: two or three short answers under Auto's last message (`latest`); a tap hands its text to `onReply` once. |
+| `ReplyChips` | SDK 1.3.0: Auto's short answers (`chips`) under his message, drawn only while `latest` (his last message in the thread): two or three, each at most 24 characters, and nothing for fewer than two. A tap hands the chip's text to `onReply` once, and a rejected promise gives the chips back. With SDK 1.4.0, `chips` is a `reply_chips@1` part's `replies`. |
 
 An approval card's payload may carry `approval_view` (SDK 1.3.0): the host's card then shows who asked, the exact action,
 its target, its preview and the rule that asked before its buttons, and answers keys 1 (refuse) and 3 (allow once) while
@@ -222,13 +223,29 @@ title and detail and the brief's rows are Auto's words: draw them as text and ma
 | `useReadiness`, `useCheckReadiness` | What Auto depends on (Readiness@1: each item ready, not checked or needs setup, with its in-app fix), and Check again, which the server limits. |
 | `useSuggestions`, `useStartSuggestion`, `useHideSuggestion` | The open suggestions, newest first, and Start and Hide (with the reason the person picked). An id that isn't a suggestion's, or a reason Hide doesn't know, throws before anything is sent. |
 | `useCalibration`, `useAnswerCalibration` | What Auto thinks it knows on day one, and Sounds right or Reject one line. `available` is false until the server offers calibration; until then nothing is asked and an answer is refused. |
-| `useRateBrief` | SDK 1.4.0 (`engines.sdk` `^1.4.0`): the brief's thumbs up or down, for a theme that draws the brief card itself: `run({ state_hash, rating })` with the brief's `state_hash` and `rating` `up` or `down` (it answers `{ ok }`), through the host's own digest feedback route, the one `BriefCard` posts. Given the brief's `state_hash` (`useRateBrief(brief.state_hash)`), its `rating` is the person's own rating of that brief, `up`, `down` or `null`, read from the server and shared with `BriefCard`'s thumbs: the server keeps one rating per person per brief, and a second press changes it. A `state_hash` that isn't some text, or a rating that is neither, throws before anything is sent. |
+| `useRateBrief` | SDK 1.4.0 (`engines.sdk` `^1.4.0`): the brief's thumbs up or down, for a theme that draws the brief card itself: `run({ state_hash, rating })` with the brief's `state_hash` and `rating` `up` or `down` (it answers `{ ok }`), through the host's own digest feedback route, the one `BriefCard` posts. Given the brief's `state_hash` (`useRateBrief(brief.state_hash)`), its `rating` is the person's own rating of that brief, `up`, `down` or `null`, read from the server and shared with `BriefCard`'s thumbs: the server keeps one rating per person per brief, and a second press changes it. Without a `state_hash` (none yet, or an empty one while the brief loads) nothing is read and `rating` is `null`. A `state_hash` that isn't some text, or a rating that is neither, throws before anything is sent. |
 
 **No brief is a normal day.** The brief exists only while the workspace's proactive mode is on (shadow or live).
 Otherwise the host's open is refused quietly and `useBrief` answers no data, not loading and no error: draw the page as
 it is without a brief (a theme's empty chat, its usual panels), never an error or a placeholder. Status reaches the
 screen through the status tokens (`DISPLAY_STATE_LABELS`' roles), never `--accent`. In the harness the sample brief
 shows by default and `brief=off` (the toolbar's Brief today) shows the day without one.
+
+### In a theme's tests
+
+`@automatos/theme-harness/host` fakes the 1.3.0 and 1.4.0 names with controls a test sets and reads back
+([theme-harness](../packages/theme-harness/README.md)); `host.reset()` puts each back:
+
+| To test | Set it with | Read back |
+|---|---|---|
+| The brief, readiness, suggestions | `host.setPageQuery('useBrief', { data: brief })` (also `'useReadiness'`, `'useSuggestions'`); `'idle'` for a day with no brief; until set, loading | `host.pageAsks()` |
+| Start, Hide, Check again | `host.setPageAction('useStartSuggestion', …)` (also `'useHideSuggestion'`, `'useCheckReadiness'`) | `host.pageRuns()`, with the variables core would send |
+| Calibration | `host.setCalibration(calibration)`; `null`, the default, offers none | `host.pageRuns()` |
+| Listen reading the brief | `host.setBriefReading(true)` (or a press of Listen) | `data-voice-speaking` on `BriefVoice`'s root |
+| The row Auto reads (1.4.0) | `host.setBriefRow(index)`, `null` between rows | `data-voice-row` on `BriefVoice`'s root, and what `onSpeakingRow` heard |
+| The person's rating (1.4.0) | `host.setBriefRating(brief.state_hash, 'up')` (`'down'`, or `null`, the default) | `useRateBrief(brief.state_hash).rating` and `BriefCard`'s thumbs; each `useRateBrief` post in `host.pageRuns()` as the body core sends, `{state_hash, rating}` with 1 for up and -1 for down (`BriefFeedbackBody`), and each press of `BriefCard`'s thumbs in `host.cardActions()` |
+| A message's parts (1.4.0) | a stored message's `parts` in the conversations a test sets (`host.setConversations`); or `AUTO_THREAD`, a made-up Auto thread whose messages carry a `brief@1`, a `suggestion@1` and a `reply_chips@1` part: `host.setConversations(AUTO_THREAD)`, then `host.setSearchParams('chatId=' + AUTO_THREAD_CHAT_ID)` | `message.knownParts` |
+| The cards' presses | | `host.cardActions()` (Start and Hide go through the area's hooks) |
 
 ## Page areas
 
