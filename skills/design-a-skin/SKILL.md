@@ -18,7 +18,8 @@ to a packed theme. The facts (every field, what the phone draws, the ten contras
   of Auto's files.
 
 Not for Play or HUD: Automatos Go draws both in its own built-in layouts and reads none of their block, and `skin`
-refuses them. Not for drawing or encoding Auto's files: that is [design-a-mascot](../design-a-mascot/SKILL.md). Not
+refuses them. A skin paints the Studio layout alone; [guides/phone-layouts.md](../../guides/phone-layouts.md) maps every
+layout and which theme gets each. Not for drawing or encoding Auto's files: that is [design-a-mascot](../design-a-mascot/SKILL.md). Not
 for the web theme's looks: that is [write-a-look-schema-and-presets](../write-a-look-schema-and-presets/SKILL.md).
 
 ## Read first

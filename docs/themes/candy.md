@@ -110,9 +110,10 @@ and Arcade, in a later app release; installing Candy then switches the phone to 
 Until that release, and on every older app version, the app paints Candy's `mobile` block on its Studio layout:
 `fromLooks: true`, Outfit SemiBold for titles and Nunito Regular for body text (`mobile.fonts.serif` and `sans`,
 TrueType files in `assets/fonts/mobile/`), and `"mascot": "stills"`, Auto's twelve stills. `automatos-theme check`
-measures the block's ten pairs on the defaults and every preset. The kit's harness and `automatos-theme skin` learn
-Candy's layout only when the kit moves to the Automatos Go release that has it; until then the harness's phone view
-draws Candy's skin on Studio, as the app does ([`guides/mobile-skins.md`](../../guides/mobile-skins.md)).
+measures the block's ten pairs on the defaults and every preset. The harness's phone view already treats
+`automatos/candy` as a built-in layout, as the app does from the release that has it: it says the phone draws Candy's
+own layout and measures the block, which older app versions paint on Studio
+([`guides/phone-layouts.md`](../../guides/phone-layouts.md)).
 
 ## Left out
 
