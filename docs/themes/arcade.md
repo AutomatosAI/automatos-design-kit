@@ -95,11 +95,14 @@ catalogue, not to `scripts/compile-looks.mjs`, which is Play's alone. Its `pack`
 
 ## In the phone app
 
-A phone app never runs Arcade's code. From the Automatos Go release that adds it, the app has an Arcade layout of its
-own, built in beside Studio, Play and HUD, with the same five palettes and knobs, synced with the web through the
-host's looks API (`theme.json`'s `mobile` block is the skin for an app version without that layout: `fromLooks: true`, Press Start
-2P for titles and Pixelify Sans for body text (`mobile.fonts`), and `"mascot": "stills"`, Auto's twelve stills).
-`automatos-theme check` measures the block's ten pairs on the defaults and every preset.
+A phone app never runs Arcade's code. Automatos Go has an Arcade layout of its own, built into the app beside its other
+styles: the same five palettes and knobs, synced with the web through the host's looks API, Auto as the same pixel
+sprite, and a handheld home with the party, Quests and Inventory. While `automatos/arcade` is the active theme, the
+phone switches to it. `theme.json`'s `mobile` block is the skin for an app version from before that layout:
+`fromLooks: true`, Press Start 2P for titles and Pixelify Sans for body text (`mobile.fonts`), and
+`"mascot": "stills"`, Auto's twelve stills. `automatos-theme check` measures the block's ten pairs on the defaults and
+every preset. The harness's phone view shows Arcade as the app's built-in layout
+([guides/mobile-skins.md](../../guides/mobile-skins.md#the-phones-layouts)).
 
 ## Building, releasing and history
 
@@ -108,7 +111,48 @@ In the kit, from `themes/arcade`: `npm run build` (`vite build` with the kit's p
 `automatos-theme pack . --out out`, which writes `automatos.arcade-<version>.autotheme` and its `.sha256.json`). Kit
 CI's `harness` job shoots Arcade among every other theme under `themes/` (`scripts/shots/other-themes.mjs`). A merge
 to `main` that raises its version reviews, signs and lists it, and releases it as `arcade-v<version>`, as it does Play
-and HUD; 1.0.0 has no tag yet, so the first publish run releases it as `arcade-v1.0.0` ([releasing.md](../releasing.md),
+and HUD. 1.0.0 is released as `arcade-v1.0.0` ([releasing.md](../releasing.md),
 [OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/arcade/CHANGELOG.md`](../../themes/arcade/CHANGELOG.md), newest first.
+
+## How Arcade was built
+
+Arcade was the kit's proof that a creator starting from a design and the kit alone can ship a theme. The design came
+from a Claude Design session as a handoff folder (a README of rules and pages, `looks.json` with the presets, knobs
+and colour pairs, and an HTML mock of every screen). One Claude Code session in a clone of the kit read the kit's
+README, `AGENTS.md` and `guides/`, ran `automatos-theme new` on the minimal template, built the theme against the
+harness and `check`, and packed it: about an hour from handoff to an installed theme drawing real workspace data. It
+was first published as `pixelcade/arcade` 0.1.0 and became `automatos/arcade` 1.0.0 here.
+
+That build also listed everything the kit made hard or left unsaid. Each item became a change to the kit, so the next
+creator doesn't meet it:
+
+| What the build met | What the kit does now |
+|---|---|
+| `automatos-theme new` exited without `--template` | `new` defaults to the minimal template and prints every next command |
+| npm 10 can't install the kit (it needs npm 11.6) | The README names the floor and the one command that works on npm 10 |
+| `npm ci` left a modified tracked file | The CLI's entry is committed executable |
+| A new theme folder breaks `npm ci` until the lockfile is updated | The README and `AGENTS.md` say to run `npm install` once in a copy of the kit |
+| The build warns once per font URL | [pitfalls.md](../../guides/pitfalls.md) says the warning is expected |
+| CI shot only Play and HUD | The harness job shoots every theme under `themes/`, and the showcase includes Arcade |
+| The message box was taken for a host part | [contract.md](../../guides/contract.md#the-hosts-parts) lists the host's parts and the two that aren't |
+| Where the AI label is drawn, and what counts as covering it | [contract.md](../../guides/contract.md#the-ai-label) and pitfalls: its corner, and that any layer over it counts |
+| Whether a hidden label stops the chat | The kit follows core: the host draws it again and the chat keeps working |
+| A theme's type reaches the host's cards placed inside it | Pitfalls, "Inherited type reaches the host's parts", with the strip that resets it |
+| The minimal template's global rules restyled host parts | The template scopes every rule to the theme's own classes |
+| Replacing `/deliverables` has duties no guide named | [page-inventory.md](../../guides/page-inventory.md) says what replacing `/chat` and `/deliverables` takes on |
+| Whether a page hook's filters must be stable | Pitfalls: filters are compared by value |
+| A knob default that depends on another knob | [looks.md](../../guides/looks.md): one default per knob; a preset sets the rest |
+| No way to check a design handoff before building | `automatos-theme check handoff` and the handoff format in [designing-a-theme.md](../../guides/designing-a-theme.md) |
+| A mascot drawn in code, and a pause control for every loop | [mascot-placement.md](../../guides/mascot-placement.md) and pitfalls (WCAG 2.2.2) |
+| Phone stills from a mascot drawn in code | `@automatos/theme-harness/png` writes and reads PNGs |
+| The phone's fonts must be TrueType, one file per role | [mobile-skins.md](../../guides/mobile-skins.md) says where they come from |
+
+Later work on Arcade added more:
+- the phone's layouts section in mobile-skins.md;
+- the host's Markdown size, in pitfalls;
+- the harness's sample Missions and Deliverables, so a theme's own Quests or Inventory page shows rows in `dev` and in shots.
+
+The guide for doing the same with a design of your own is
+[from-design-to-theme.md](../../guides/from-design-to-theme.md).
