@@ -184,7 +184,7 @@ describe("the demo extras' data", () => {
   })
 
   it("names Play's message box as Play does, and asks in words of its own the recorded approval turn answers", () => {
-    expect(readFileSync(PLAY_MESSAGE_BOX_SOURCE, 'utf8')).toContain(`export const PLACEHOLDER = ${JSON.stringify(PLAY_MESSAGE_BOX)}`)
+    expect(readFileSync(PLAY_MESSAGE_BOX_SOURCE, 'utf8')).toContain(`export const PLACEHOLDER = '${PLAY_MESSAGE_BOX}'`)
     expect(APPROVAL_ASK.trim()).not.toBe('')
     const turns = (readJson(TURNS) as { readonly turns: Readonly<Record<string, unknown>> }).turns
     expect(JSON.stringify(turns.approvalView)).toContain('approval_view')
