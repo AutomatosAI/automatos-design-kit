@@ -17,7 +17,7 @@ guide and the app disagree, the app wins and this guide is fixed.
 | Play | `play` | A companion: Auto on screen over the chat, a glow behind the page, a shelf of Deliverables | 1.0.0 | `automatos/play` |
 | HUD | `hud` | A voice-first command deck: Auto in a ring core, a transcript, square bracketed panels, a grid and scan lines | 1.0.0 | `automatos/hud` |
 | Arcade | `arcade` | A 16-bit handheld: Auto as a pixel sprite in a dialogue box, your agents as a party, a D-pad | 1.0.0 | `automatos/arcade` |
-| Candy | `candy` | Bright, soft and glossy: gradient cards, round everything, what needs you in a candy orb, a floating tab bar | 1.0.0, from its 31 Oct 2026 update | `automatos/candy` |
+| Candy | `candy` | Bright, soft and glossy: gradient cards, round everything, what needs you in a candy orb, a floating tab bar | 1.0.0 (added 31 Oct 2026) | `automatos/candy` |
 
 How the phone picks a layout:
 
