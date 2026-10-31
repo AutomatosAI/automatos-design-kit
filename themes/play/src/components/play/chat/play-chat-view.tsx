@@ -15,7 +15,7 @@ import { type AutoMascotDriver, type BackendStatus, useAutoMascot } from '../../
 import { type PlayProactive, useCalibrationHello, usePlayProactive } from '../../../hooks/use-play-proactive'
 import { type PlayTurn, usePlayTurn } from '../../../hooks/use-play-turn'
 import { usePhoneLayout } from '../../../lib/play/phone-layout'
-import { briefOnScreen, briefSuggestionIds, missionSuggestionOpen } from '../../../lib/play/proactive'
+import { listedSuggestionIds, missionSuggestionOpen } from '../../../lib/play/proactive'
 import { AutoMascot } from '../../mascot/auto-mascot'
 import { OpeningCards } from '../proactive/opening-cards'
 import { PlayPinnedSuggestion } from '../proactive/pinned-suggestion'
@@ -76,6 +76,12 @@ import styles from './composer.module.css'
  * own message's card (message-list.tsx). The newest open suggestion is pinned between PlayTrialBanner and MessageBox,
  * stepping aside while the turn's Mission suggestion is unanswered and for a suggestion the brief on screen lists.
  * Approvals stay inline in Auto's reply, with Auto listening while one waits; Play draws no sheet over them.
+ *
+ * Play 1.4.0 (SDK 1.4.0's message parts): any day's brief in the conversation draws as its card, found by its part;
+ * the suggestions Auto posted into it draw as their cards under his message, and the pinned line skips them too; Auto's
+ * reply chips stand under his last message, and a tap sends the chip's words through the message box's own send
+ * (`useReply`), the box taking the focus after it on a desktop as after Try again (on a phone it would raise the
+ * keyboard).
  */
 
 export interface PlayChatViewProps {
@@ -159,6 +165,21 @@ function useSending(chat: HostChatController, auto: AutoMascotDriver, box: RefOb
   return { retry, onStop }
 }
 
+/**
+ * A reply chip's tap: its words through the message box's own send (the chat's `send`, false when nothing went out),
+ * then, on a desktop, the focus in the box, so it never drops to <body> as the chips go.
+ */
+function useReply(send: HostChatController['send'], box: RefObject<HTMLTextAreaElement | null>, phone: boolean) {
+  return useCallback(
+    (text: string): boolean => {
+      const sent = send(text)
+      if (sent && !phone) box.current?.focus()
+      return sent
+    },
+    [send, box, phone],
+  )
+}
+
 /** The conversation's chat; Auto and the screen in the child (see above). */
 export function PlayChatView({ conversation, ...screen }: PlayChatViewProps) {
   const turn = usePlayTurn(conversation)
@@ -176,9 +197,11 @@ interface ChatBodyProps {
   readonly shown: AutoOnScreen
   readonly onClipEnded: AutoMascotDriver['onClipEnded']
   readonly onSomethingOff: () => void
+  /** A reply chip's words, sent as the person's message. */
+  readonly onReply: (text: string) => boolean
 }
 
-function ChatBody({ chat, live, retry, proactive, firstOpen, shown, onClipEnded, onSomethingOff }: ChatBodyProps) {
+function ChatBody({ chat, live, retry, proactive, firstOpen, shown, onClipEnded, onSomethingOff, onReply }: ChatBodyProps) {
   if (firstOpen) {
     return (
       <FirstOpenHero
@@ -190,7 +213,7 @@ function ChatBody({ chat, live, retry, proactive, firstOpen, shown, onClipEnded,
   if (live.length === 0) {
     return <OpeningCards brief={proactive.brief} calibration={proactive.calibration} onSomethingOff={onSomethingOff} />
   }
-  return <ConversationMessages chat={chat} live={live} retry={retry} brief={proactive.brief} />
+  return <ConversationMessages chat={chat} live={live} retry={retry} brief={proactive.brief} onReply={onReply} />
 }
 
 interface ChatFooterProps {
@@ -232,8 +255,9 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
   const { retry, onStop } = useSending(chat, auto, box)
   const shown = useAutoOnScreen(auto, live)
   const phone = usePhoneLayout()
+  const onReply = useReply(chat.send, box, phone)
   const firstOpen = empty && proactive.brief === null && proactive.calibration === null
-  const listed = briefSuggestionIds(briefOnScreen(proactive.brief, live))
+  const listed = listedSuggestionIds(proactive.brief, live)
   const figure = (size: 'regular' | 'small') => (
     <AutoMascot state={shown.state} onClipEnded={auto.onClipEnded} speaking={shown.speaking} size={size} {...shown.caption} />
   )
@@ -245,7 +269,7 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
       <div className={styles.chat} data-empty={firstOpen || undefined}>
         <ChatBody
           chat={chat} live={live} retry={retry} proactive={proactive} firstOpen={firstOpen} shown={shown}
-          onClipEnded={auto.onClipEnded} onSomethingOff={focusBox}
+          onClipEnded={auto.onClipEnded} onSomethingOff={focusBox} onReply={onReply}
         />
         <ChatFooter
           chat={chat} firstOpen={firstOpen} onPick={composer.pick} listed={listed}
@@ -273,12 +297,13 @@ interface ConversationMessagesProps {
   readonly chat: HostChatController
   readonly live: readonly HostChatMessage[]
   readonly retry: () => void
-  /** The day's brief: its message in the conversation draws as the card. */
+  /** The day's brief the host holds: its card in the conversation offers Listen. */
   readonly brief: Brief | null
+  readonly onReply: (text: string) => boolean
 }
 
 /** The conversation, then what follows it: a failed turn's snag box, the Mission Auto suggests, loose approval cards. */
-function ConversationMessages({ chat, live, retry, brief }: ConversationMessagesProps) {
+function ConversationMessages({ chat, live, retry, brief, onReply }: ConversationMessagesProps) {
   const { streaming, trialExhausted } = chat
   return (
     <MessageList
@@ -287,6 +312,7 @@ function ConversationMessages({ chat, live, retry, brief }: ConversationMessages
       onRetry={retry}
       trialBlocked={trialExhausted}
       brief={brief}
+      onReply={onReply}
       after={
         <TurnEnd
           status={chat.status}

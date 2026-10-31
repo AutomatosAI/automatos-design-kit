@@ -1,17 +1,19 @@
 // Play 1.3.0 (PRD-268 §6.12.4, US-K01) — the day's brief in Play's chat, on the harness's fake proactive area: the
 // brief a test sets (host.setPageQuery('useBrief', …)), 'idle' for a day without one (the workspace's proactive mode
 // off: core's open answers brief_off and the host stays quiet), loading until a test sets it. The card is the host's
-// BriefCard (the harness's stand-in, which marks Auto's words data-ai-generated); its row presses run through the
-// fake area's Start (host.pageRuns()) and the fake router (host.navigations()). Auto himself is a stand-in that
-// shows his state.
-import { removeThemeState, ticketHref, writeThemeState } from '@automatos/theme-sdk'
+// BriefCard (the harness's stand-in, which marks Auto's words data-ai-generated and wraps Listen in
+// [data-brief-listen]); its row presses run through the fake area's Start (host.pageRuns()) and the fake router
+// (host.navigations()). Auto himself is a stand-in that shows his state.
+// Play 1.4.0 (SDK 1.4.0): in a conversation a brief is found by its message's brief@1 part (a stored message's
+// `parts`), any day's, never by its words; only the day's brief the host holds offers Listen.
+import { type Brief, removeThemeState, ticketHref, writeThemeState } from '@automatos/theme-sdk'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AutoMascotProps } from '../../src/components/mascot/auto-mascot.tsx'
 import { EXAMPLES, HELLO_TITLE } from '../../src/components/play/chat/first-open.tsx'
 import { PLACEHOLDER } from '../../src/components/play/chat/message-box.tsx'
 import { PlayChat } from '../../src/components/play/chat/play-chat.tsx'
-import { BRIEF_LABEL } from '../../src/components/play/proactive/play-brief.tsx'
+import { BRIEF_LABEL, EARLIER_BRIEF_LABEL } from '../../src/components/play/proactive/play-brief.tsx'
 import { HELLO_KEY, HELLO_STATE } from '../../src/lib/mascot/session.ts'
 import { host } from '@automatos/theme-harness/host'
 import { BRIEF, LISTED_ID, SUGGESTION_ROW, TICKET_ROW } from '../support/proactive.ts'
@@ -29,7 +31,30 @@ type StoredMessage = NonNullable<StoredChat['messages']>[number]
 
 const UPDATED = '2026-10-14T09:00:00+00:00'
 const BACKGROUND = 'Auto · background'
+/** The day before's brief, still in the Auto thread: its own date, greeting and words. */
+const EARLIER: Brief = {
+  ...BRIEF,
+  date: '2026-10-13',
+  greeting: 'Good morning again.',
+  prose: 'Yesterday one suggestion was waiting for you.',
+  state_hash: 'play-test-brief-earlier',
+  generated_at: '2026-10-13T08:00:00+00:00',
+}
 const brief = () => screen.getByRole('region', { name: BRIEF_LABEL })
+/** A brief's message as the backend keeps it: its prose beside its brief@1 part. */
+const briefMessage = (day: Brief): StoredMessage => ({
+  role: 'assistant',
+  text: day.prose,
+  provenance: BACKGROUND,
+  parts: [{ type: 'text', text: day.prose }, { type: 'brief@1', brief: day }],
+})
+const listenIn = (card: HTMLElement) => card.querySelector('[data-brief-listen]')
+/** What the host holds today: the day's brief, or none. */
+type Held = { readonly data: Brief } | 'idle'
+const HELD: ReadonlyArray<readonly [string, Held]> = [
+  ["the day's brief held", { data: BRIEF }],
+  ['no brief held', 'idle'],
+]
 const box = () => screen.getByRole('textbox', { name: PLACEHOLDER })
 const mascotColumn = () => screen.queryByRole('complementary', { name: 'Auto' })
 
@@ -130,11 +155,11 @@ describe('no brief is a normal day', () => {
 describe("the brief's message in a conversation", () => {
   const MESSAGES: readonly StoredMessage[] = [
     { role: 'user', text: 'Good morning' },
-    { role: 'assistant', text: BRIEF.prose, provenance: BACKGROUND },
+    briefMessage(BRIEF),
     { role: 'assistant', text: 'Here is the outline you asked for.' },
   ]
 
-  it('draws as the card in its place, its prose drawn once, inside the card', async () => {
+  it('draws as the card in its place, its prose drawn once, inside the card, with Listen', async () => {
     host.setPageQuery('useBrief', { data: BRIEF })
     const list = await openStored(MESSAGES)
     const card = within(list).getByRole('region', { name: BRIEF_LABEL })
@@ -143,13 +168,46 @@ describe("the brief's message in a conversation", () => {
     expect(within(card).getByText(BRIEF.prose)).toBeInTheDocument()
     expect(within(list).getByText(BACKGROUND)).toBeInTheDocument()
     expect(within(list).getByText('Here is the outline you asked for.')).toBeInTheDocument()
+    expect(listenIn(card)).not.toBeNull()
   })
 
-  it("stays Auto's words without the day's brief (another day's, or none): no card", async () => {
-    host.setPageQuery('useBrief', 'idle')
-    const list = await openStored(MESSAGES)
+  it.each(HELD)("finds a brief by its part, never its words: the day's prose with no part stays Auto's words (%s)", async (_name, held) => {
+    host.setPageQuery('useBrief', held)
+    const list = await openStored([{ role: 'user', text: 'Good morning' }, { role: 'assistant', text: BRIEF.prose }])
     expect(within(list).queryByRole('region', { name: BRIEF_LABEL })).toBeNull()
+    expect(within(list).queryByRole('region', { name: EARLIER_BRIEF_LABEL })).toBeNull()
     expect(within(list).getByText(BRIEF.prose)).toBeInTheDocument()
+  })
+
+  it("draws an earlier day's brief as its card too, its own words, without Listen, which reads the day's", async () => {
+    host.setPageQuery('useBrief', { data: BRIEF })
+    const list = await openStored([briefMessage(EARLIER), { role: 'user', text: 'Thanks' }, briefMessage(BRIEF)])
+    const earlier = within(list).getByRole('region', { name: EARLIER_BRIEF_LABEL })
+    const today = within(list).getByRole('region', { name: BRIEF_LABEL })
+    expect(within(earlier).getByRole('article', { name: EARLIER.greeting })).toBeInTheDocument()
+    expect(within(earlier).getByText(EARLIER.prose)).toBeInTheDocument()
+    expect(within(today).getByRole('article', { name: BRIEF.greeting })).toBeInTheDocument()
+    expect(listenIn(earlier)).toBeNull()
+    expect(listenIn(today)).not.toBeNull()
+    expect(within(list).getAllByText(EARLIER.prose)).toHaveLength(1)
+  })
+
+  it("draws an earlier day's brief as its card on a day the host holds none", async () => {
+    host.setPageQuery('useBrief', 'idle')
+    const list = await openStored([briefMessage(EARLIER)])
+    const earlier = within(list).getByRole('region', { name: EARLIER_BRIEF_LABEL })
+    expect(within(earlier).getByRole('heading', { name: EARLIER.greeting })).toHaveAttribute('data-ai-generated', 'true')
+    expect(listenIn(earlier)).toBeNull()
+  })
+
+  it('draws as its card on the phone too (below 1024 px)', async () => {
+    setWindowWidth(PHONE_WIDTH)
+    host.setMinWidth(360)
+    host.setWidth(PHONE_WIDTH)
+    host.setPageQuery('useBrief', { data: BRIEF })
+    const list = await openStored(MESSAGES)
+    expect(within(list).getByRole('region', { name: BRIEF_LABEL })).toBeInTheDocument()
+    expect(mascotColumn()).toBeNull()
   })
 })
 

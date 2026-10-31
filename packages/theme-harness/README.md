@@ -356,7 +356,9 @@ day without one, and HUD's chat, voice, panel and approval shots (`brief=off`, i
 A shot's step may open the theme's phone menu; open the pinned suggestion's full card from its line; send words from
 the theme's message box (the shot's `composer`, after the button named by `opensComposer`: HUD's phone TYPE) and wait
 for the host's approval card the demo extra `approval-turn` raises in answer; press the host's Listen and wait until
-Auto reads the brief (`listen`); or scroll its heading into view (`scroll-to-heading`). A test fails when the theme did
+Auto reads the brief (`listen`); scroll its heading into view (`scroll-to-heading`); or scroll Play's reply chips
+(`show-replies`) or the suggestion card Play draws in the conversation (`show-thread-suggestion`) into view, the
+transcript's reply carrying both as message parts (SDK 1.4.0). A test fails when the theme did
 not start, lacks the shot's look, is not on the shot's view, draws the nudge, is not in the shot's voice phase, shows
 Play's hello after it played, or its step finds nothing to press or no card. No axe scan: the regression shots scan the same views. The PNGs go to
 `dist/showcase/` as `<theme>-<width>-<what>-<look>.png`, a failed test's trace to `dist/showcase/test-results/`, and

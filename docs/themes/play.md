@@ -5,12 +5,12 @@ Auto that a member types or talks to, a shelf of Deliverables, a Conversations p
 changes, from a phone's width up. It began as an interface
 built into core and now lives only in this kit; [PLAY-HISTORY.md](../PLAY-HISTORY.md) records where its code came
 from, and [`themes/play/README.md`](../../themes/play/README.md) how it is built. This page reads
-`themes/play/theme.json` at version 1.3.0.
+`themes/play/theme.json` at version 1.4.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/play`, `1.3.0` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.3.0"}`: SDK 1.2.0 for the `voice` area, 1.3.0 for the `proactive` area |
+| `id`, `version` | `automatos/play`, `1.4.0` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.2.0 for the `voice` area, 1.3.0 for the `proactive` area, 1.4.0 for each chat message's parts (`knownParts`) |
 | `base` | `studio`: the host's Studio design wherever Play draws nothing of its own |
 | `htmlClass` | `play`: every rule of `dist/theme.css` sits under `html.play` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px Play draws its phone layout (below) |
@@ -28,7 +28,7 @@ from, and [`themes/play/README.md`](../../themes/play/README.md) how it is built
 | `lookEditor@1` | Look, at `/looks`: pick a look, change it, save it. At 1440 by 900 the whole editor, Save as new look and Reset with it, fits under the header row; a shorter window scrolls it. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: what the active look paints, its type, colours, components and Auto's states. |
 | `notFound@1` | The 404, with Auto lost. |
-| `/chat` | Play's own chat with Auto (`mode: own`), the host's voice button beside Send. On an empty chat the day's brief (and Auto's calibration on day one) stands in the first open's place; the newest suggestion is pinned above the message box; approvals stay inline in Auto's reply ([Play's README](../../themes/play/README.md), "Proactive Auto"). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
+| `/chat` | Play's own chat with Auto (`mode: own`), the host's voice button beside Send. On an empty chat the day's brief (and Auto's calibration on day one) stands in the first open's place; in a conversation every message with a `brief@1` part, any day's, is its brief's card; a suggestion Auto posted (`suggestion@1`) is its card under his message; his reply chips (`reply_chips@1`) stand under his last message and a tap sends one as your message; the newest suggestion nothing on screen shows is pinned above the message box; approvals stay inline in Auto's reply ([Play's README](../../themes/play/README.md), "Proactive Auto"). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. |
 | `/deliverables` | Play's shelf of Deliverables (`mode: own`). A link with `tab`, `post` or `artifact_type` keeps the host's page. |
 | `/x/conversations` | The route `conversations`: Play's Conversations page. |
 

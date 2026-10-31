@@ -31,8 +31,11 @@
   justify-content: flex-end;
 }
 
+/* Auto's message, then under it (Play 1.4.0) the suggestion cards it posted and the answers he offered. */
 .replyItem {
   display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-3);
 }
 
 /* A message rises 12px and fades in over 180 ms (Ember motion). */

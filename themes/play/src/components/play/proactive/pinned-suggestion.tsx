@@ -14,9 +14,10 @@ import styles from './proactive.module.css'
  * Escape or once focus leaves it. The words and every state are the card's own.
  *
  * One suggestion surface: it steps aside while the turn's own Mission suggestion is unanswered (`hidden`), and it never
- * pins a suggestion the brief on screen already lists with its Start (`listed`). Started from here, it stays in its
- * place for "Started. Auto is on it." (KEEP_STARTED_MS) before the next open one takes it; hidden, it goes at once.
- * Nothing shows when no suggestion is open. Suggestions come from useSuggestions, the one list behind every surface.
+ * pins a suggestion already on screen with its Start (`listed`): one a brief on screen lists, or (Play 1.4.0) one the
+ * conversation shows as its card (thread-suggestions.tsx). Started from here, it stays in its place for "Started. Auto
+ * is on it." (KEEP_STARTED_MS) before the next open one takes it; hidden, it goes at once. Nothing shows when no
+ * suggestion is open. Suggestions come from useSuggestions, the one list behind every surface.
  */
 
 /** §6.12.3: "Started. Auto is on it." shows for 4 s in the suggestion's place. */
@@ -27,12 +28,12 @@ const ESCAPE = 'Escape'
 export interface PlayPinnedSuggestionProps {
   /** The turn's Mission suggestion waits for an answer: nothing pinned. */
   readonly hidden: boolean
-  /** Suggestions already on screen with their Start (the brief's): never pinned twice. */
+  /** Suggestions already on screen with their Start (a brief's rows, the conversation's cards): never pinned twice. */
   readonly listed: readonly string[]
 }
 
-/** A suggestion just started here, kept in its place for KEEP_STARTED_MS. */
-function useKeptStarted(): readonly [Suggestion | null, (suggestion: Suggestion) => void] {
+/** A suggestion just started here, kept in its place for KEEP_STARTED_MS (here and in thread-suggestions.tsx). */
+export function useKeptStarted(): readonly [Suggestion | null, (suggestion: Suggestion) => void] {
   const [kept, setKept] = useState<Suggestion | null>(null)
   useEffect(() => {
     if (kept === null) return undefined

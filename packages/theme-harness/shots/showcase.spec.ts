@@ -10,22 +10,27 @@
  * host's voice button, when a heading the shot names is not shown, and when a shot after Play's hello (the demo extra
  * `hello-played`) still shows "Hi, I'm Auto." anywhere. A shot whose step opens the phone menu presses
  * the theme's Menu button and waits for its dialog; one that opens the suggestion presses the title on the line pinned
- * above the message box ("Open: <title>") and waits for the full card ("Auto suggests: <title>"); one that asks for an
+ * above the message box ("Open: <title>") and waits for that line's full card ("Auto suggests: <title>", by the line's
+ * own name, as a suggestion card in the conversation has the same kind of name); one that asks for an
  * approval presses the button that opens the theme's message box when the shot names one (`opensComposer`: HUD's phone
  * TYPE), types APPROVAL_ASK into the box (the shot's `composer`), sends it with Enter and waits for the host's approval
  * card the recorded answer raises (the demo extra `approval-turn`); one whose step is `listen` presses the host's Listen
  * for the day's brief and waits until Auto reads it (its root marked data-voice-speaking); one whose step is
- * `scroll-to-heading` scrolls the shot's heading into view. Then it writes `<theme>-<width>-<what>-<look>.png` into
+ * `scroll-to-heading` scrolls the shot's heading into view; `show-replies` scrolls the theme's reply chips (the group
+ * named PLAY_REPLIES) into view and `show-thread-suggestion` the suggestion card in the conversation (the one article
+ * "Auto suggests: …" while the pinned line is shut), each failing when there is none. Then it writes
+ * `<theme>-<width>-<what>-<look>.png` into
  * dist/showcase/ (Playwright makes the folder): the viewport as drawn, with animations off and the caret hidden. The
  * host's Auto widget stand-in (a labelled box where core draws its floating Auto) is hidden for the shot, since no host
  * draws that box.
  */
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { DEFAULT_SETTINGS, STAGE_ID } from '../src/host/router.ts'
 import {
-  APPROVAL_ASK, BRIEF_LISTEN, PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot,
+  APPROVAL_ASK, BRIEF_LISTEN, PLAY_HELLO, PLAY_REPLIES, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl,
+  type ShowcaseShot,
 } from '../src/host/showcase.ts'
 import { harnessReport, openSettled, SETTLE } from './settle.ts'
 
@@ -65,10 +70,18 @@ async function openMenu(page: Page): Promise<void> {
   await expect(page.getByRole('dialog', { name: MENU_NAME, exact: true })).toBeVisible(SETTLE)
 }
 
-/** Opens the pinned suggestion's full card from the title on its line, and waits until the card shows. */
+/** Opens the pinned suggestion's full card from the title on its line, and waits until that card shows. */
 async function openSuggestion(page: Page): Promise<void> {
-  await page.getByRole('group', { name: SUGGESTS }).getByRole('button', { name: OPEN_TITLE }).click()
-  await expect(page.getByRole('article', { name: SUGGESTS })).toBeVisible(SETTLE)
+  const line = page.getByRole('group', { name: SUGGESTS })
+  const name = await line.getAttribute('aria-label')
+  await line.getByRole('button', { name: OPEN_TITLE }).click()
+  await expect(page.getByRole('article', { name: name ?? SUGGESTS, exact: true })).toBeVisible(SETTLE)
+}
+
+/** Scrolls what a step shows into view, and waits until it is visible. */
+async function show(target: Locator): Promise<void> {
+  await target.scrollIntoViewIfNeeded(SETTLE)
+  await expect(target).toBeVisible(SETTLE)
 }
 
 /** Sends APPROVAL_ASK from the theme's message box, and waits until the approval card its answer raises shows. */
@@ -96,6 +109,8 @@ async function takeStep(page: Page, shot: ShowcaseShot): Promise<void> {
   if (shot.step === 'scroll-to-heading' && shot.heading !== undefined) {
     await page.getByRole('heading', { name: shot.heading, exact: true }).scrollIntoViewIfNeeded()
   }
+  if (shot.step === 'show-replies') await show(page.getByRole('group', { name: PLAY_REPLIES, exact: true }))
+  if (shot.step === 'show-thread-suggestion') await show(page.getByRole('article', { name: SUGGESTS }))
 }
 
 for (const shot of SHOWCASE_SHOTS) {
