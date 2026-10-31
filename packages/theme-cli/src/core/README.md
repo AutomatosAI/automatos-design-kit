@@ -65,7 +65,7 @@ contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.4.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `06ecb3feea471ac9d0b47ef3a056a20f0f565b598c8e726bec90623c1db715c7` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `f21b07d9218ad39d9afa668b6aedbd377dba44a033494df188c42c5c9554eaf1` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
