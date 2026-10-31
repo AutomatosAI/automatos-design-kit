@@ -30,7 +30,10 @@
  * `approval-turn` answers them with the recorded turn that raises one. HUD's (US-K02) draw BRIEFING on every look at
  * both widths, one at each width after a press of the host's Listen (`listen`: Auto reading it, `▸ SPEAKING`), its
  * MISSIONS and SYSTEMS panels with each heading scrolled into view first (`scroll-to-heading`), and the same approval
- * (its suggestion, the `▸ NEXT` line, is on every one of its chat shots).
+ * (its suggestion, the `▸ NEXT` line, is on every one of its chat shots). Play's SDK 1.4.0 shots draw the message parts
+ * of the transcript's reply (its `reply_chips@1` and `suggestion@1`): Auto's reply chips under his last message
+ * (`show-replies`, which scrolls them into view) and the suggestion he posted as its card under it
+ * (`show-thread-suggestion`), at both widths.
  *
  * Each shot's file is `<theme>-<width>-<what>-<look>.png` (showcaseFile), in SHOWCASE_FOLDER of the harness package.
  */
@@ -65,10 +68,12 @@ export const SHOWCASE_PHONE: Viewport = PHONE_VIEWPORT
 /**
  * What the spec does on the page before the shot: nothing; open the theme's phone menu (its Menu button); open the
  * pinned suggestion's full card from its line; send APPROVAL_ASK from the theme's message box and wait for the
- * approval card the answer raises; press the host's Listen for the day's brief and wait until Auto reads it; or scroll
- * the shot's heading into view.
+ * approval card the answer raises; press the host's Listen for the day's brief and wait until Auto reads it; scroll
+ * the shot's heading into view; scroll the theme's reply chips (the group named PLAY_REPLIES) into view; or scroll the
+ * suggestion card in the conversation (an article "Auto suggests: …", the pinned line's full card being shut) into view.
  */
-export type ShowcaseStep = 'none' | 'open-menu' | 'open-suggestion' | 'ask-approval' | 'listen' | 'scroll-to-heading'
+export type ShowcaseStep =
+  | 'none' | 'open-menu' | 'open-suggestion' | 'ask-approval' | 'listen' | 'scroll-to-heading' | 'show-replies' | 'show-thread-suggestion'
 
 /** One showcase image: a theme's view in one look and viewport, with the host's chat and voice as given. */
 export interface ShowcaseShot {
@@ -102,6 +107,8 @@ const QUESTS_ROUTE = 'quests'
 const DELIVERABLES_PAGE = '/deliverables'
 /** Play's message box, by its name (themes/play/src/components/play/chat/message-box.tsx PLACEHOLDER). */
 export const PLAY_MESSAGE_BOX = 'Message Auto'
+/** Play's reply chips, by their group's name (themes/play/src/components/play/proactive/reply-chips.tsx REPLIES_LABEL). */
+export const PLAY_REPLIES = 'Replies'
 /** HUD's message box and the phone's TYPE that opens it (themes/hud/src/chat/composer.tsx PLACEHOLDER, phone-controls.tsx TYPE_LABEL). */
 export const HUD_MESSAGE_BOX = 'Message Auto'
 export const HUD_TYPE = 'Type'
@@ -161,6 +168,9 @@ const MENU: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: '
 const FIRST_OPEN: ShotChanges = Object.freeze<ShotChanges>({ heading: PLAY_HELLO, brief: false })
 const OPEN_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'open-suggestion' })
 const ASK_APPROVAL: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'ask-approval', composer: PLAY_MESSAGE_BOX })
+/** Play on the transcript, its reply's chips, or the suggestion it posted, in view. */
+const SHOW_REPLIES: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'show-replies' })
+const SHOW_THREAD_SUGGESTION: ShotChanges = Object.freeze<ShotChanges>({ transcript: true, step: 'show-thread-suggestion' })
 /** HUD's screen once the brief has folded back: its chat and voice shots. */
 const FOLDED: ShotChanges = Object.freeze<ShotChanges>({ ...ON_TRANSCRIPT, brief: false })
 const FOLDED_LISTENING: ShotChanges = Object.freeze<ShotChanges>({ ...LISTENING, brief: false })
@@ -208,6 +218,8 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('play', DESKTOP, 'brief', 'daylight', CHAT),
   planned('play', DESKTOP, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
   planned('play', DESKTOP, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
+  planned('play', DESKTOP, 'chips', 'ember', CHAT, afterHello(SHOW_REPLIES)),
+  planned('play', DESKTOP, 'thread-suggestion', 'ember', CHAT, afterHello(SHOW_THREAD_SUGGESTION)),
   planned('play', PHONE, 'chat', 'ember', CHAT, afterHello(ON_TRANSCRIPT)),
   planned('play', PHONE, 'menu', 'ember', CHAT, afterHello(MENU)),
   planned('play', PHONE, 'conversations', 'ember', CONVERSATIONS, afterHello(ON_TRANSCRIPT, 'older-chats')),
@@ -215,6 +227,8 @@ export const SHOWCASE_SHOTS: readonly ShowcaseShot[] = Object.freeze([
   planned('play', PHONE, 'brief', 'ember', CHAT),
   planned('play', PHONE, 'suggestion', 'ember', CHAT, afterHello(OPEN_SUGGESTION)),
   planned('play', PHONE, 'approval', 'ember', CHAT, afterHello(ASK_APPROVAL, 'approval-turn')),
+  planned('play', PHONE, 'chips', 'ember', CHAT, afterHello(SHOW_REPLIES)),
+  planned('play', PHONE, 'thread-suggestion', 'ember', CHAT, afterHello(SHOW_THREAD_SUGGESTION)),
   planned('arcade', DESKTOP, 'chat', 'overworld', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'dungeon', CHAT, ON_TRANSCRIPT),
   planned('arcade', DESKTOP, 'chat', 'neon', CHAT, ON_TRANSCRIPT),

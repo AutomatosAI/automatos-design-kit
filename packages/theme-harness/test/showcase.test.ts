@@ -9,7 +9,8 @@
 // chat, voice, panel and approval shots (its screen once the brief has folded back); Play's proactive shots (PRD-268
 // US-K01): the brief, the suggestion opened from its pinned line, and an approval its recorded answer raises, at 1440
 // and at 390; HUD's (US-K02): BRIEFING on every look at both widths, one at each width while Auto reads it, MISSIONS and
-// SYSTEMS scrolled into view, and the same approval, its phone's message box opened from TYPE.
+// SYSTEMS scrolled into view, and the same approval, its phone's message box opened from TYPE. SDK 1.4.0's message parts:
+// Play's reply chips and the suggestion card it draws in the conversation, from the transcript's reply, at both widths.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -18,7 +19,7 @@ import { declaredIn, DEV_PORT, HARNESS_PORT, PHONE_VIEWPORT, PRESET_SUFFIX, read
 import { HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
 import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 import {
-  APPROVAL_ASK, BRIEF_LISTEN, HUD_MESSAGE_BOX, HUD_MISSIONS, HUD_SYSTEMS, HUD_TYPE, PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION,
+  APPROVAL_ASK, BRIEF_LISTEN, HUD_MESSAGE_BOX, HUD_MISSIONS, HUD_SYSTEMS, HUD_TYPE, PLAY_HELLO, PLAY_MESSAGE_BOX, PLAY_REPLIES, SHOWCASE_EDITION,
   SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
   showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
 } from '../src/host/showcase.ts'
@@ -36,8 +37,12 @@ const OLDER_CHATS = join(HARNESS_DIR, 'fixtures/conversations/showcase.json')
 const PLAY_SESSION = join(THEMES_DIR, 'play/src/lib/mascot/session.ts')
 const PLAY_FIRST_OPEN = join(THEMES_DIR, 'play/src/components/play/chat/first-open.tsx')
 const PLAY_MESSAGE_BOX_SOURCE = join(THEMES_DIR, 'play/src/components/play/chat/message-box.tsx')
+/** Play's reply chips, whose group the chips shots scroll to. */
+const PLAY_REPLY_CHIPS_SOURCE = join(THEMES_DIR, 'play/src/components/play/proactive/reply-chips.tsx')
 const TURNS = join(HARNESS_DIR, 'fixtures/streams/turns.json')
 const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
+/** The sample data's open suggestions (useSuggestions on the harness page). */
+const SUGGESTIONS = join(HARNESS_DIR, 'fixtures/proactive/suggestions.json')
 /** The host's Listen stand-in, which names its button, and HUD's two panels the showcase scrolls to. */
 const BRIEF_VOICE = join(HARNESS_DIR, 'src/sdk/brief-voice.tsx')
 const HUD_PANELS = join(THEMES_DIR, 'hud/src/chat/panels')
@@ -83,6 +88,8 @@ const EXPECTED_FILES = [
   'play-1440-brief-daylight.png',
   'play-1440-suggestion-ember.png',
   'play-1440-approval-ember.png',
+  'play-1440-chips-ember.png',
+  'play-1440-thread-suggestion-ember.png',
   'play-390-chat-ember.png',
   'play-390-menu-ember.png',
   'play-390-conversations-ember.png',
@@ -90,6 +97,8 @@ const EXPECTED_FILES = [
   'play-390-brief-ember.png',
   'play-390-suggestion-ember.png',
   'play-390-approval-ember.png',
+  'play-390-chips-ember.png',
+  'play-390-thread-suggestion-ember.png',
   'arcade-1440-chat-overworld.png',
   'arcade-1440-chat-dungeon.png',
   'arcade-1440-chat-neon.png',
@@ -229,6 +238,29 @@ describe('the showcase shots', () => {
   })
 })
 
+describe("Play's message-part shots (SDK 1.4.0)", () => {
+  it("draw its reply chips and the suggestion card in the conversation, at both widths, on the transcript after its hello", () => {
+    const replies = SHOWCASE_SHOTS.filter((shot) => shot.step === 'show-replies')
+    const cards = SHOWCASE_SHOTS.filter((shot) => shot.step === 'show-thread-suggestion')
+    expect(replies.map(showcaseFile)).toEqual(['play-1440-chips-ember.png', 'play-390-chips-ember.png'])
+    expect(cards.map(showcaseFile)).toEqual(['play-1440-thread-suggestion-ember.png', 'play-390-thread-suggestion-ember.png'])
+    expect([...replies, ...cards].every((shot) => shot.transcript && shot.brief && shot.demo.includes('hello-played'))).toBe(true)
+  })
+
+  it("draw the transcript's reply, which carries reply chips and a suggestion the sample data has open", () => {
+    type Part = { readonly type: string; readonly suggestion_id?: string }
+    const transcript = readJson(TRANSCRIPT) as ReadonlyArray<{ readonly messages: ReadonlyArray<{ readonly parts?: readonly Part[] }> }>
+    const parts = transcript.flatMap((conversation) => conversation.messages.flatMap((message) => message.parts ?? []))
+    expect(parts.map((part) => part.type)).toEqual(expect.arrayContaining(['reply_chips@1', 'suggestion@1']))
+    const open = (readJson(SUGGESTIONS) as { readonly suggestions: ReadonlyArray<{ readonly id: string; readonly status: string }> }).suggestions
+      .filter((suggestion) => suggestion.status === 'open')
+      .map((suggestion) => suggestion.id)
+    const posted = parts.flatMap((part) => (part.type === 'suggestion@1' && part.suggestion_id ? [part.suggestion_id] : []))
+    expect(posted.length).toBeGreaterThan(0)
+    posted.forEach((id) => expect(open).toContain(id))
+  })
+})
+
 describe('the names the steps look for', () => {
   it("are the host's Listen, HUD's MISSIONS and SYSTEMS headings, and HUD's message box and the phone's TYPE", () => {
     expect(readFileSync(BRIEF_VOICE, 'utf8')).toContain(`export const LISTEN_TO_THE_BRIEF = '${BRIEF_LISTEN}'`)
@@ -249,6 +281,7 @@ describe("the demo extras' data", () => {
 
   it("names Play's message box as Play does, and asks in words of its own the recorded approval turn answers", () => {
     expect(readFileSync(PLAY_MESSAGE_BOX_SOURCE, 'utf8')).toContain(`export const PLACEHOLDER = '${PLAY_MESSAGE_BOX}'`)
+    expect(readFileSync(PLAY_REPLY_CHIPS_SOURCE, 'utf8')).toContain(`export const REPLIES_LABEL = '${PLAY_REPLIES}'`)
     expect(APPROVAL_ASK.trim()).not.toBe('')
     const turns = (readJson(TURNS) as { readonly turns: Readonly<Record<string, unknown>> }).turns
     expect(JSON.stringify(turns.approvalView)).toContain('approval_view')
