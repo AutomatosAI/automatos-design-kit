@@ -104,14 +104,14 @@ properties set one by one. No theme code runs at that moment, so the table is da
 - Names are `--` and lower-case letters, digits and dashes. A value is numbers with units, `#` colours, identifiers
   and a few CSS functions: never a URL, a quote or markup (`BAD_PREPAINT`, `BAD_CSS_VALUE`). The file is at most
   256 KB.
-- **The browser keeps less than the server's check takes.** Its first paint keeps a value of at most 200 characters
-  of letters, digits, spaces and `# % . , ( ) / + -` (no `_`), calling only `rgb()`, `rgba()`, `hsl()`, `hsla()`,
-  `var()` and the filters `hue-rotate()`, `saturate()`, `brightness()`, `grayscale()`, `contrast()`, `sepia()` and
-  `invert()`. Any other value is dropped without a word, a gradient or `color-mix()` among them, and every value
-  built on it with `var()` is invalid too: a card whose background was `var(--x-card-hi), …` comes out transparent.
-  Core's reader refuses it on upload, and so do `pack`, `check` and `check design` (`BAD_CSS_VALUE`, naming the
-  variable, the look it paints for and why). Paint
-  a gradient's colours, stops and positions here, and draw the gradient in the theme's CSS from them.
+- **The browser keeps less than the server's check takes.** Its first paint keeps a value of at most 200 characters of
+  letters, digits, spaces and `# % . , ( ) / + -` (no `_`), calling only `rgb()`, `rgba()`, `hsl()`, `hsla()`, `var()`,
+  `calc()`, `min()`, `max()`, `clamp()` and the filters `hue-rotate()`, `saturate()`, `brightness()`, `grayscale()`,
+  `contrast()`, `sepia()` and `invert()`. Any other value is dropped without a word, a gradient or `color-mix()` among
+  them, and every value built on it with `var()` is invalid too: a card whose background was `var(--x-card-hi), …` comes
+  out transparent. Core's reader refuses it on upload, and so do `pack`, `check` and `check design` (`BAD_CSS_VALUE`,
+  naming the variable, the look it paints for and why). Paint a gradient's colours, stops and positions here, and draw
+  the gradient in the theme's CSS from them.
 
 ### Recolouring the host's pages
 

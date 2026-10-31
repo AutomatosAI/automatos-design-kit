@@ -17,6 +17,19 @@ template, as Arcade was ([`guides/from-design-to-theme.md`](../../guides/from-de
 | `tone` | `from-look`: the look sets light or dark |
 | `look` | `blush`, the default preset |
 
+## What it looks like
+
+The listing's previews (`theme.json` `previews`, shot at 1440 px by the kit's showcase), in the theme's
+`assets/previews/`:
+
+| Today in Blush, the default | The chat in Night bloom, the dark palette |
+|---|---|
+| ![Today in Blush: the band, the greeting, the orb and the stat cards beside Candy's sidebar](../../themes/candy/assets/previews/blush.png) | ![The chat in Night bloom: Auto's stage and the thread](../../themes/candy/assets/previews/nightbloom-chat.png) |
+| **The Deliverables shelf** | **Your look** |
+| ![The Deliverables as gradient tiles under kind pills](../../themes/candy/assets/previews/blush-deliverables.png) | ![The look editor: presets, the knobs and the live preview](../../themes/candy/assets/previews/blush-look.png) |
+
+The rest are Today in Lilac (`lilac.png`), the chat and Your team in Blush (`blush-chat.png`, `blush-team.png`).
+
 ## What Candy draws
 
 `src/entry.ts` registers four of the five slots `theme.json` declares, its two pages and its two routes. The fifth,
@@ -105,9 +118,12 @@ and places, and `src/app/theme.css` composes the cards, the band and the aura fr
 
 ## In the phone app
 
-A phone app never runs Candy's code. Automatos Go gets a Candy layout of its own, built in beside Studio, Play, HUD
-and Arcade, in a later app release; installing Candy then switches the phone to it, painted from the member's looks.
-Until that release, and on every older app version, the app paints Candy's `mobile` block on its Studio layout:
+A phone app never runs Candy's code. Automatos Go has a Candy layout of its own, built into the app beside Studio,
+Play, HUD and Arcade (on the app's `main` since 31 October 2026, AutomatosAI/automatos-go#40, so in every app update
+from then). On an app with that layout, Candy as the member's theme switches the phone to it, painted
+from their looks: Today, Chat, Shelf and Team behind a floating tab bar, Auto drawn natively from the same geometry
+as the web's, and the look page, Make it sweet ([guides/phone-layouts.md](../../guides/phone-layouts.md#candy) has
+each screen). An app version without the layout paints Candy's `mobile` block on its Studio layout:
 `fromLooks: true`, Outfit SemiBold for titles and Nunito Regular for body text (`mobile.fonts.serif` and `sans`,
 TrueType files in `assets/fonts/mobile/`), and `"mascot": "stills"`, Auto's twelve stills. `automatos-theme check`
 measures the block's ten pairs on the defaults and every preset. The harness's phone view already treats
@@ -135,14 +151,15 @@ What the design wants and the SDK doesn't give, so Candy leaves it out:
 
 ## Building, releasing and history
 
-In the kit, from `themes/candy`: `npm run build` (`vite build` with the kit's preset), `npm run lint`,
-`npm run typecheck`, `npm test` and `npm run pack` (`automatos-theme check design .`, then
-`automatos-theme pack . --out out`, which writes `automatos.candy-<version>.autotheme` and its `.sha256.json`). Kit
-CI's `harness` job shoots Candy among every other theme under `themes/` (`scripts/shots/other-themes.mjs`), and its
-showcase shoots ten clean images of it (`packages/theme-harness/src/host/showcase.ts`); the listing's eight previews
-(`theme.json` `previews`, Today in Blush the cover) are eight of them, at 1440 px. A merge
-to `main` that raises its version reviews, signs and lists it, and releases it as `candy-v<version>`, as it does Play,
-HUD and Arcade; the first publish run released 1.0.0 as `candy-v1.0.0`
+In the kit, from `themes/candy`: `npm run build` (`vite build` with the kit's preset), `npm run lint`, `npm run
+typecheck`, `npm test` and `npm run pack` (`automatos-theme check design .`, then `automatos-theme pack . --out out`,
+which writes `automatos.candy-<version>.autotheme` and its `.sha256.json`). Kit CI's `harness` job shoots Candy among
+every other theme under `themes/` (`scripts/shots/other-themes.mjs`), and its showcase shoots ten clean images of it
+(`packages/theme-harness/src/host/showcase.ts`); the listing's eight previews (`theme.json` `previews`, Today in Blush
+the cover) are eight of them, at 1440 px. A merge to `main` that raises its version reviews, signs and lists it, and
+releases it as `candy-v<version>`, as it does Play, HUD and Arcade. The first publish run released 1.0.0 as
+`candy-v1.0.0`; 1.0.1, released as `candy-v1.0.1` the same day, makes the look work on the hosted app as it does in the
+harness (Roundness a choice the first-paint table paints, and the gradients composed in CSS)
 ([releasing.md](../releasing.md), [OFFICIAL-LISTING.md](../OFFICIAL-LISTING.md)).
 
 What each version changed is in [`themes/candy/CHANGELOG.md`](../../themes/candy/CHANGELOG.md), newest first.
