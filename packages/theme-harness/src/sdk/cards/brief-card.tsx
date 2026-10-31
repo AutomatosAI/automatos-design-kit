@@ -7,7 +7,7 @@
  * reads the brief the host holds, never this prop; left out with `listen` false) and the thumbs. Auto's words carry
  * data-ai-generated and the controls sit outside them. A row the theme gets back is a frozen copy. A thumb is kept
  * (cardActions, by the brief's state_hash) where core posts it to the digest feedback route. SDK 1.4.0 (at
- * 4ff489a460b2316ec9b7427efaa81a16552abddf): the thumbs show the person's remembered rating of that brief, the one
+ * d92cabf202f4a04f48a429d5f79a05cbe6c1eefb): the thumbs show the person's remembered rating of that brief, the one
  * useRateBrief(stateHash) reads (src/internal/proactive/ratings.ts), so a press in either shows in both; once there is
  * one, the thumbs are done. `thumbs` false draws none, for a theme that draws its own with useRateBrief.
  */

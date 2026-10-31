@@ -25,11 +25,11 @@ import {
 } from './mobile-contrast.ts'
 
 /**
- * The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line). A temporary
- * pin: the head of core pull request #1383 (SDK 1.4.0); re-pin to core `main` after it merges.
+ * The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line): core `main`
+ * after the merge of pull request #1383 (SDK 1.4.0).
  */
 export const CORE_REPO = 'AutomatosAI/automatos-ai'
-export const CORE_SHA = '4ff489a460b2316ec9b7427efaa81a16552abddf'
+export const CORE_SHA = 'd92cabf202f4a04f48a429d5f79a05cbe6c1eefb'
 
 export const REPORT_SCHEMA = 'automatos-theme-scan/v2'
 export const STAGE = 'C-02a'
