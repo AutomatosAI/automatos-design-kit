@@ -14,13 +14,22 @@
  * - `hello-played`: Play's hello has played earlier in this tab's session (theme state HELLO_KEY, true, for this
  *   session and the account, as themes/play/src/lib/mascot/session.ts keeps it and Play's own tests mark it), so a chat
  *   opens with Auto at rest.
+ * - `brief-thread` (SDK 1.4.0): the chat opens on Auto's thread holding the day's brief as the host posts it, its prose
+ *   beside its brief@1 part (src/internal/scripted/auto-thread.ts BRIEF_THREAD), in place of the transcript or a new
+ *   chat, so a theme that owns /chat draws the brief as a message in the conversation.
+ * - `brief-row` (SDK 1.4.0): Auto reads the day's brief from the page's start, on its row BRIEF_ROW_READ (its index
+ *   across the brief's rows: the number he says, less one), as after a press of Listen, so the shot shows the row
+ *   being read (the host's Listen marks it data-voice-row; a theme hears it through BriefVoice's onSpeakingRow).
  */
 
-export const DEMO_EXTRAS = Object.freeze(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played'] as const)
+export const DEMO_EXTRAS = Object.freeze(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played', 'brief-thread', 'brief-row'] as const)
 export type DemoExtra = (typeof DEMO_EXTRAS)[number]
 
 /** None: the sample data alone. */
 export const NO_DEMO: readonly DemoExtra[] = Object.freeze([])
+
+/** The brief row Auto reads under `brief-row`: the third, "3." in the sample brief's spoken words. */
+export const BRIEF_ROW_READ = 2
 
 /** Play's hello in theme state (themes/play/src/lib/mascot/session.ts HELLO_KEY and HELLO_STATE). */
 export const HELLO_KEY = 'hello-played'

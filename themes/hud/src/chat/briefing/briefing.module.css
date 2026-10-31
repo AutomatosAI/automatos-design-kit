@@ -5,6 +5,10 @@
  * tone (live: the readable accent; failed: the error colour; quiet: the secondary text), and its action as a mono
  * text control in the readable accent. Status never goes through --accent. One entrance, a fade and a 4 px rise over
  * 180 ms, only under data-hud-enter (never under reduced motion), and nothing loops.
+ * HUD 1.3.0: while Auto reads the brief, `▸` in the readable accent beside the number of the row being read, over an
+ * inset line in the accent's line colour; where motion is allowed (data-build) a row still to come is not drawn until he
+ * reaches it, then fades and rises 4 px into place over 180 ms, a transition, never a loop (and instant under reduced
+ * motion besides). The footer: the brief's thumbs as HUD's square outline buttons in mono capitals.
  */
 
 .briefing {
@@ -86,26 +90,57 @@
   flex-direction: column;
 }
 
-/* A row: its number, then its words, then its action. */
+/*
+ * A row: the reading marker's place, its number, then its words, then its action, each in its own column (the number
+ * comes first in the markup, the marker's place is left of it).
+ */
 .row {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
+  grid-template-columns: 10px 24px minmax(0, 1fr) auto;
   align-items: baseline;
-  gap: var(--hud-space-2);
+  column-gap: var(--hud-space-2);
+  row-gap: var(--hud-space-1);
   padding: var(--hud-space-2) 0;
   border-top: 1px solid var(--hud-line);
 }
 
 .number {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--hud-accent-text);
+  font: 600 12px/1.3 var(--hud-font-mono);
+}
+
+.marker {
+  grid-column: 1;
+  grid-row: 1;
   color: var(--hud-accent-text);
   font: 600 12px/1.3 var(--hud-font-mono);
 }
 
 .body {
+  grid-column: 3;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--hud-space-1);
+}
+
+/* The row Auto is reading: an inset line on its left, in the accent's line colour. */
+.row[data-reading="now"] {
+  box-shadow: inset 2px 0 0 var(--hud-accent-line);
+}
+
+/* Rows building in as Auto reads (motion allowed): a fade and a 4 px rise as each is reached. */
+.rows[data-build="true"] .row {
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+/* A row still to come while Auto reads: not drawn yet. */
+.row[data-reading="ahead"] {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 .title {
@@ -149,6 +184,7 @@
 
 /* A row's action as text: a mono control in the readable accent, never a filled button. */
 .action {
+  grid-column: 4;
   min-height: 32px;
   display: inline-flex;
   align-items: center;
@@ -175,6 +211,7 @@
 }
 
 .done {
+  grid-column: 4;
   color: var(--hud-accent-text);
   font: 600 11px/1.2 var(--hud-font-mono);
   letter-spacing: var(--hud-tracking-label);
@@ -183,9 +220,75 @@
 }
 
 .refused {
-  grid-column: 2 / -1;
+  grid-column: 3 / -1;
+  margin: 0;
   color: var(--hud-error-text);
   font: 12px/1.4 var(--hud-font-mono);
+}
+
+/* HUD 1.3.0: the footer, the brief's thumbs. */
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+  padding-top: var(--hud-space-3);
+  border-top: 1px solid var(--hud-line);
+}
+
+.thumbRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-2);
+}
+
+.question {
+  flex: 1 1 10rem;
+  color: var(--hud-text-2);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+}
+
+/* A thumb: HUD's secondary button, square, an accent-line outline, mono capitals, 44 px high. */
+.thumb {
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.thumb:hover {
+  border-color: var(--hud-accent);
+}
+
+/* The thumb given: the accent's border; the other quiet. Neither takes a press again. */
+.thumb[aria-pressed="true"] {
+  border-color: var(--hud-accent);
+}
+
+.thumb[aria-disabled="true"] {
+  cursor: default;
+}
+
+.thumb[aria-disabled="true"]:not([aria-pressed="true"]) {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-text-2);
+}
+
+.rated {
+  margin: 0;
+  color: var(--hud-accent-text);
+  font: 500 11px/1.3 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
 }
 
 .empty {

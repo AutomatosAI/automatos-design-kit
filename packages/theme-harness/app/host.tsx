@@ -31,7 +31,7 @@ import {
   type HostStatus, type ThemeTone,
 } from '../src/host/prepaint.ts'
 import { installCoreBase } from '../src/host/core-base.ts'
-import { giveDemo, olderConversations } from '../src/host/demo-data.ts'
+import { giveDemo, olderConversations, openedConversation } from '../src/host/demo-data.ts'
 import { showBrief } from '../src/host/sample-data.ts'
 import { declaredOf, loadTheme, reportOf, servedOf, type HarnessTheme, type ThemeLoad } from '../src/host/register.ts'
 import {
@@ -114,7 +114,8 @@ export function applySettings(theme: HarnessTheme, settings: HarnessSettings, wi
 /**
  * The fake host as the settings start it, before the first render: the edition, the demo extras, the settings, the
  * look runtime, the path, the chat's conversation (the transcript, or a new chat, with the older ones the extras ask
- * for) and the voice session (none, or a made-up one in its phase, on that conversation).
+ * for; or the conversation an extra opens in their place) and the voice session (none, or a made-up one in its phase,
+ * on the transcript's conversation).
  */
 export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, windowWidth: number): void {
   host.setEdition(settings.edition)
@@ -122,7 +123,7 @@ export function prepareHost(theme: HarnessTheme, settings: HarnessSettings, wind
   applySettings(theme, settings, windowWidth)
   mountLooks(theme, settings)
   host.setPathname(settings.path)
-  showTranscript(settings.transcript, olderConversations(settings.demo))
+  showTranscript(settings.transcript, olderConversations(settings.demo), openedConversation(settings.demo))
   showVoice(settings.voice, transcriptChatId(settings.transcript))
 }
 
@@ -272,7 +273,7 @@ export function HarnessHost({ theme, initial, onSettings }: HarnessHostProps) {
   usePublishedReport(theme, status, served, report?.missing ?? EMPTY_SERVED)
   const change = (next: HarnessSettings): void => {
     if (next.preset !== settings.preset) mountLooks(theme, next)
-    if (next.transcript !== settings.transcript) showTranscript(next.transcript, olderConversations(next.demo))
+    if (next.transcript !== settings.transcript) showTranscript(next.transcript, olderConversations(next.demo), openedConversation(next.demo))
     if (next.voice !== settings.voice || next.transcript !== settings.transcript) showVoice(next.voice, transcriptChatId(next.transcript))
     setSettings(next)
   }

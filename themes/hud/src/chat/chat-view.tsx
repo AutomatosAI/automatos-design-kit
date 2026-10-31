@@ -10,7 +10,6 @@ import {
 
 import { usePhoneLayout } from '../lib/phone-layout'
 import { VoiceDeck } from '../voice/voice-deck'
-import { briefSuggestionIds } from './briefing/brief-rows'
 import { BriefingPanel } from './briefing/briefing-panel'
 import type { Briefing } from './briefing/use-briefing'
 import { ChatFooter } from './chat-footer'
@@ -21,7 +20,8 @@ import { EmptyChat } from './empty-chat'
 import { useScreenLayout } from './layout'
 import { PhoneChat } from './phone/phone-chat'
 import { latestReply, liveMessages, replyProgress, runningToolInput } from './reply'
-import { ChatScreen } from './screen'
+import { briefingInSlot, ChatScreen } from './screen'
+import { suggestionsOnScreen } from './thread/message-parts'
 import { Transcript } from './transcript'
 import { TurnEnd } from './turn-end'
 import { type BackendStatus, type HudAutoDriver, useHudAuto } from './use-hud-auto'
@@ -47,7 +47,9 @@ import { VoiceCore } from './voice-core'
  * (phone/phone-chat.tsx); everything above is made once for both, so a window crossing the width keeps it.
  *
  * HUD 1.2.0 (PRD-268): while the day's brief shows (the page's useBriefing), BRIEFING stands where the screen places
- * it (screen.tsx; on a phone, the last exchange's place), until it folds back.
+ * it (screen.tsx; on a phone, the last exchange's place), until it folds back. HUD 1.3.0: a tap on Auto's reply chips
+ * sends their words as Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the conversation on screen
+ * already shows with its own Start (thread/message-parts.ts suggestionsOnScreen).
  *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,
  * whose effects (Auto reading the status and the reply) run before the turn's own (a failure, a card waiting or
@@ -148,8 +150,11 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, b
   const { ref, layout } = useScreenLayout()
   const core = <VoiceCore state={auto.mascot} chip={chip} size={layout.core} onClipEnded={auto.onClipEnded} />
   const autoFocus = chat.messages.length === 0
-  // BRIEFING is on screen unless, at one column, a card waiting for you keeps the transcript in its slot.
-  const listed = briefSuggestionIds(layout.columns === 'one' && chat.approvalWaiting ? null : briefing.brief)
+  // BRIEFING is on screen unless, at one column, a card waiting for you keeps the transcript in its slot; the
+  // conversation is, unless BRIEFING stands in its slot.
+  const inSlot = briefingInSlot(layout.columns, briefing.brief !== null, chat.approvalWaiting)
+  const shownBrief = layout.columns === 'one' && chat.approvalWaiting ? null : briefing.brief
+  const listed = suggestionsOnScreen(shownBrief, inSlot ? [] : chat.messages)
   const voice = <VoiceDeck />
   const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={voice} listed={listed} />
   const missionId = chat.planningMissionId
@@ -172,6 +177,7 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, b
         trialBlocked={chat.trialExhausted}
         after={<TurnEnd chat={chat} messages={live} onRetry={sending.retry} />}
         empty={<EmptyChat onStarter={fillBox} />}
+        onReply={sending.send}
       />
     </ChatScreen>
   )

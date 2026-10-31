@@ -12,6 +12,10 @@
  *
  * Every word is made up. The transcript (fixtures/conversations/transcript.json) carries a suggestion@1 and a
  * reply_chips@1 part too, so a theme's chat shots show them.
+ *
+ * BRIEF_THREAD is the same thread on the fixtures' morning before anything else is said in it: Auto's brief alone, its
+ * prose beside its brief@1 part, as the host posts it, so the brief is the conversation's newest exchange (the showcase's
+ * demo extra `brief-thread`, src/host/demo-data.ts).
  */
 import brief from '../../../fixtures/proactive/brief.json'
 import suggestions from '../../../fixtures/proactive/suggestions.json'
@@ -24,14 +28,18 @@ const ANSWER = 'Start with the laptop prices: two of the three changed this week
 const CHIPS: readonly string[] = ['Start it', 'Not now']
 const SUGGESTION_ID = suggestions.suggestions[0]?.id ?? ''
 
+const THREAD_TITLE = 'Auto'
+/** Auto's brief as the host posts it: its prose, beside its brief@1 part. */
+const BRIEF_POST = { role: 'assistant', text: brief.prose, parts: [{ type: TEXT_PART, text: brief.prose }, { type: BRIEF_PART, brief }] }
+
 /** The thread, every field checked as a conversation fixture's (chat-script.ts conversationsOf). */
 export const AUTO_THREAD = conversationsOf([{
   id: AUTO_THREAD_CHAT_ID,
-  title: 'Auto',
+  title: THREAD_TITLE,
   updatedAt: brief.generated_at,
   preview: ANSWER,
   messages: [
-    { role: 'assistant', text: brief.prose, parts: [{ type: TEXT_PART, text: brief.prose }, { type: BRIEF_PART, brief }] },
+    BRIEF_POST,
     { role: 'user', text: QUESTION },
     {
       role: 'assistant',
@@ -44,3 +52,14 @@ export const AUTO_THREAD = conversationsOf([{
     },
   ],
 }], 'the Auto thread')
+
+export const BRIEF_THREAD_CHAT_ID = 'harness-chat-brief-thread'
+
+/** The thread holding Auto's brief alone, checked as AUTO_THREAD is. */
+export const BRIEF_THREAD = conversationsOf([{
+  id: BRIEF_THREAD_CHAT_ID,
+  title: THREAD_TITLE,
+  updatedAt: brief.generated_at,
+  preview: brief.prose,
+  messages: [BRIEF_POST],
+}], 'the brief thread')

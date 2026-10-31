@@ -8,6 +8,10 @@ import { replyDeliverables } from './reply'
 import { ReplyCards } from './reply-cards'
 import styles from './reply.module.css'
 import { SnagBox } from './snag-box'
+import { briefOfMessage, replyChipsOf, suggestionIdsOf } from './thread/message-parts'
+import { SayReplies } from './thread/say-replies'
+import { ThreadBrief } from './thread/thread-brief'
+import { ThreadSuggestion } from './thread/thread-suggestion'
 import { ToolLines } from './tool-lines'
 import rows from './transcript.module.css'
 
@@ -23,6 +27,10 @@ import rows from './transcript.module.css'
  *
  * The row's root carries data-ai-generated="true", the machine-readable mark the host puts on every assistant
  * message of its own chat (the EU AI Act's Article 50(2)), while it streams and once it is done.
+ *
+ * HUD 1.3.0 (SDK 1.4.0, the message's knownParts, thread/): the day's brief Auto posted (a brief@1 part) in his
+ * answer's place, its prose inside it once; under his words, a card for each suggestion he posted (suggestion@1); and,
+ * on the conversation's newest message alone (`onReply`), his reply chips (reply_chips@1) as SAY chips, last.
  */
 
 export const SPEAKER = 'Auto'
@@ -86,9 +94,18 @@ export interface AutoReplyProps {
   readonly recent?: boolean
   /** On the phone's last exchange: no speaker column (AUTO is said to a screen reader only), the phone's sizes. */
   readonly phone?: boolean
+  /** Sends a reply chip's words as your message: given only while this is the conversation's newest message. */
+  readonly onReply?: (text: string) => boolean
 }
 
-export function AutoReply({ message, streaming, onRetry, snagHidden = false, recent = false, phone = false }: AutoReplyProps) {
+/** His words: the brief he posted in their place (its prose inside it), else the answer. */
+function Words({ message, streaming }: { readonly message: HostChatMessage; readonly streaming: boolean }) {
+  const brief = briefOfMessage(message)
+  return brief === null ? <Answer text={message.text} streaming={streaming} /> : <ThreadBrief brief={brief} />
+}
+
+export function AutoReply(props: AutoReplyProps) {
+  const { message, streaming, onRetry, snagHidden = false, recent = false, phone = false, onReply } = props
   const { provenance, savedError, limitReached } = message
   return (
     <article
@@ -106,7 +123,10 @@ export function AutoReply({ message, streaming, onRetry, snagHidden = false, rec
         <Lines lines={message.above} className={styles.above} />
         <Lines lines={message.activity} className={styles.activity} />
         <ToolLines calls={message.toolCalls} streaming={streaming} />
-        {savedError === null && <Answer text={message.text} streaming={streaming} />}
+        {savedError === null && <Words message={message} streaming={streaming} />}
+        {suggestionIdsOf(message).map((id) => (
+          <ThreadSuggestion key={id} id={id} />
+        ))}
         {replyDeliverables(message).map((deliverable) => (
           <DeliverableCard key={deliverable.id} deliverable={deliverable} />
         ))}
@@ -116,6 +136,7 @@ export function AutoReply({ message, streaming, onRetry, snagHidden = false, rec
         <Lines lines={limitReached ? [limitReached] : []} className={styles.notice} />
         <Failure message={message.error?.message ?? savedError} streaming={streaming} onRetry={onRetry} hidden={snagHidden} />
         {message.stopped && <p className={styles.notice}>{STOPPED_NOTICE}</p>}
+        {onReply !== undefined && <SayReplies chips={replyChipsOf(message)} onReply={onReply} busy={streaming} />}
       </div>
     </article>
   )

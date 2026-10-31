@@ -1,12 +1,14 @@
-import { useId, useRef } from 'react'
+import { useRef } from 'react'
 import { type Brief, BriefVoice, useNeedsYou } from '@automatos/theme-sdk'
 
 import { Panel } from '../../components/panel'
 import { useEntrance } from '../entrance'
-import { briefDay, briefSections, emptyLine, type ShownSection } from './brief-rows'
-import { BriefingRow } from './briefing-row'
+import { briefDay } from './brief-rows'
+import { BriefSections } from './brief-sections'
+import { BriefThumbs } from './brief-thumbs'
 import styles from './briefing.module.css'
 import { useFoldAway, usePanelHold } from './use-fold'
+import { useBriefReading } from './use-reading'
 
 /**
  * HUD 1.2.0 (PRD-268): BRIEFING, the day's brief as HUD draws it, in place of what it folds back into (the screen
@@ -20,6 +22,9 @@ import { useFoldAway, usePanelHold } from './use-fold'
  * for NEEDS YOU, the one panel that may (the one-live-border rule).
  * It folds back after 60 s, a clock held while Auto reads it or the focus is in it, or on any press outside it
  * (use-fold.ts), and enters once with a fade and a 4 px rise, nothing at all under reduced motion (entrance.ts).
+ * HUD 1.3.0 (SDK 1.4.0): its rows built in time with Auto's voice, from the row Listen says he reads (onSpeakingRow,
+ * use-reading.ts): `▸` on the row being read, each row drawn as he reaches it, or, where nothing may move, every row at
+ * once and only the marker moving; and the brief's thumbs in its footer (brief-thumbs.tsx).
  */
 
 export const BRIEFING_TITLE = 'Briefing'
@@ -32,29 +37,14 @@ export interface BriefingPanelProps {
   readonly onFold: () => void
 }
 
-function BriefSectionRows({ shown }: { readonly shown: ShownSection }) {
-  const labelId = useId()
-  return (
-    <div className={styles.section} role="group" aria-labelledby={labelId} data-section={shown.section}>
-      <h3 id={labelId} className={styles.sectionLabel}>
-        {shown.label} <span className={styles.count}>{shown.count}</span>
-      </h3>
-      <ol className={styles.rows}>
-        {shown.rows.map((numbered) => (
-          <BriefingRow key={numbered.row.id} shown={numbered} />
-        ))}
-      </ol>
-    </div>
-  )
-}
-
 export function BriefingPanel({ brief, onFold }: BriefingPanelProps) {
   const ref = useRef<HTMLDivElement>(null)
   const { speaking, focused } = usePanelHold(ref)
   useFoldAway(onFold, speaking || focused, ref)
   const entrance = useEntrance()
+  const building = entrance !== undefined
+  const { onSpeakingRow, stateOf } = useBriefReading(speaking, building)
   const needsYou = useNeedsYou().data?.total ?? brief.counts.needs_you
-  const sections = briefSections(brief)
   return (
     <div ref={ref} className={styles.briefing} data-hud-enter={entrance}>
       <Panel title={BRIEFING_TITLE} value={briefDay(brief.date)} live={needsYou > 0}>
@@ -63,7 +53,7 @@ export function BriefingPanel({ brief, onFold }: BriefingPanelProps) {
             {brief.greeting}
           </p>
           <div className={styles.listen}>
-            <BriefVoice />
+            <BriefVoice onSpeakingRow={onSpeakingRow} />
             {speaking && (
               <span className={styles.speaking} aria-hidden="true">
                 {SPEAKING_WORDS}
@@ -71,11 +61,8 @@ export function BriefingPanel({ brief, onFold }: BriefingPanelProps) {
             )}
           </div>
         </div>
-        {sections.length === 0 ? (
-          <p className={styles.empty}>{emptyLine(brief)}</p>
-        ) : (
-          sections.map((shown) => <BriefSectionRows key={shown.section} shown={shown} />)
-        )}
+        <BriefSections brief={brief} readingOf={stateOf} building={building} />
+        <BriefThumbs brief={brief} />
       </Panel>
     </div>
   )

@@ -2,6 +2,39 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.3.0
+
+More of Proactive Auto, on Theme SDK 1.4.0 (`engines.sdk` stays `^1.4.0`): a message's parts in HUD's own chat (the
+SDK's `knownParts`), the row Auto is reading (BriefVoice's `onSpeakingRow`) and the brief's thumbs (`useRateBrief`).
+
+- SAY chips: the answers Auto offers when he asks you to choose (a message's `reply_chips@1` part), under his last
+  message, as `SAY` and each answer in quotes as a square outline chip, 44 px high. A tap sends the chip's words as your
+  message, as Send does; a send the chat refuses (no host AI label on the page) leaves them as they were. Once a newer message
+  exists, yours or his, they are gone, and an earlier message never shows any. Each is named "Reply: <chip>", the words
+  it shows, as the host names its own chips, and the words carry `data-ai-generated`. They are never spoken: HUD calls
+  no speech API and they are in no live region. On the desktop they sit in the transcript at three, two and one columns
+  (hidden with it while BRIEFING stands in its slot), and on the phone in the last exchange.
+- The brief as a message: the day's brief Auto posts into the conversation (a `brief@1` part) is drawn in his row in
+  his words' place, a HUD panel titled BRIEF with the brief's day: the greeting, his Read (the message's own words, drawn
+  once, never a second time), and the brief's sections as BRIEFING draws them, every row numbered, Start on a
+  suggestion's row. Listen and the thumbs stay in BRIEFING, on the day's brief the host holds.
+- A suggestion in the conversation: a suggestion Auto posts (a `suggestion@1` part) is a card in his row, `▸ AUTO
+  SUGGESTS` with its title and detail as Auto's words and START and HIDE as the `▸ NEXT` line's SAY chips. It is drawn
+  from the SDK's `useSuggestions`, never from the thread, so only while that suggestion is open and the viewer's;
+  started, "Started. Auto is on it." stands in its place for 4 seconds, then it is gone. Never spoken: Auto's words are
+  in no live region (only HUD's started and refused lines are statuses, as on the `▸ NEXT` line).
+- `▸ NEXT` skips any suggestion the screen already shows with its own Start: BRIEFING's, and the conversation's (its
+  suggestion cards and its brief's rows) while the transcript shows; on the phone, the last exchange's. One suggestion
+  never shows twice.
+- BRIEFING built in time with speech: while the host's Listen reads the brief, a row is drawn once Auto reaches it,
+  fading and rising 4 px into place, with `▸` beside the number of the row he is reading (the row the host's Listen marks
+  `data-voice-row`, announced as current); the rows he has read stay. Under the reduced-motion setting, or with the
+  look's motion off, every row is drawn at once and only the marker moves. Once he stops, every row is plain again.
+- The brief's thumbs in BRIEFING's footer: USEFUL and NOT USEFUL, through the SDK's `useRateBrief` (the brief's
+  `state_hash`, up or down). One rating per brief per viewer: rated, the thumb given stays pressed, neither takes a press
+  again, and the rating is kept for that brief in this workspace in this browser (theme state `hud-brief-rated`); a
+  refusal says why and can be tried again; a new brief is rated afresh.
+
 ## 1.2.1
 
 Runs on Theme SDK 1.4.0 (`engines.sdk` `^1.4.0`). Nothing HUD draws changes.

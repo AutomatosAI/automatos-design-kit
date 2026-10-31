@@ -86,10 +86,15 @@ function RightPanels({ all, missionId, briefing }: RightPanelsProps) {
   return <div className={styles.side}>{briefing ?? <WorkPanels all={all} missionId={missionId} />}</div>
 }
 
+/** BRIEFING stands in the transcript's slot: at one column, while it shows, unless a card waiting keeps the transcript. */
+export function briefingInSlot(columns: ScreenLayout['columns'], briefing: boolean, keepTranscript: boolean): boolean {
+  return columns === 'one' && briefing && !keepTranscript
+}
+
 export function ChatScreen(props: ChatScreenProps) {
   const { screenRef, layout, title, core, footer, children, missionId = null, briefing = null, keepTranscript = false } = props
   const { columns } = layout
-  const inSlot = columns === 'one' && briefing !== null && !keepTranscript
+  const inSlot = briefingInSlot(columns, briefing !== null, keepTranscript)
   return (
     <div ref={screenRef} className={styles.screen} data-columns={columns}>
       {columns === 'three' && <LeftPanels missionId={missionId} />}

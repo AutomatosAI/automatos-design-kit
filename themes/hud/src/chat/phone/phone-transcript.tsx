@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { HostChatMessage } from '@automatos/theme-sdk'
 
 import { AutoReply } from '../auto-reply'
+import { latestReplyChips } from '../thread/message-parts'
 import { YOU } from '../transcript'
 import styles from './phone.module.css'
 
@@ -17,6 +18,8 @@ import styles from './phone.module.css'
  * they are the last exchange then, your words in quotes and Auto's reply with its AI-generated mark, as any other.
  * HUD 1.1.1: while a session runs the exchange sits at the foot of its room, over the waveform, so the words heard
  * read as said into it, not as a line adrift between the core and the dock (`data-voice`, phone.module.css).
+ * HUD 1.3.0: Auto's reply chips under the newest message while it is his, in the exchange (`onReply`, as on the
+ * desktop).
  */
 
 export const LAST_EXCHANGE_LABEL = 'Last exchange'
@@ -53,11 +56,14 @@ export interface PhoneTranscriptProps {
   readonly empty: ReactNode
   /** A voice session runs: the exchange sits at the foot of its room. */
   readonly voice?: boolean
+  /** Sends a reply chip's words as your message; without it no chips are drawn. */
+  readonly onReply?: (text: string) => boolean
 }
 
 /** The last exchange's rows: your newest words in quotes, then Auto's replies after them. */
-function ExchangeRows({ messages, streaming, onRetry, trialBlocked }: Omit<PhoneTranscriptProps, 'after' | 'empty'>) {
+function ExchangeRows({ messages, streaming, onRetry, trialBlocked, onReply }: Omit<PhoneTranscriptProps, 'after' | 'empty'>) {
   const newest = messages[messages.length - 1]?.id
+  const chipsOn = latestReplyChips(messages)?.id
   return (
     <>
       {lastExchange(messages).map((message) =>
@@ -72,6 +78,7 @@ function ExchangeRows({ messages, streaming, onRetry, trialBlocked }: Omit<Phone
             snagHidden={trialBlocked && message.id === newest}
             recent
             phone
+            onReply={message.id === chipsOn ? onReply : undefined}
           />
         ),
       )}
@@ -79,8 +86,9 @@ function ExchangeRows({ messages, streaming, onRetry, trialBlocked }: Omit<Phone
   )
 }
 
-export function PhoneTranscript({ messages, streaming, onRetry, trialBlocked, after, empty, voice = false }: PhoneTranscriptProps) {
-  const rows = <ExchangeRows messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} />
+export function PhoneTranscript(props: PhoneTranscriptProps) {
+  const { messages, streaming, onRetry, trialBlocked, after, empty, voice = false, onReply } = props
+  const rows = <ExchangeRows messages={messages} streaming={streaming} onRetry={onRetry} trialBlocked={trialBlocked} onReply={onReply} />
   return (
     <section className={styles.exchange} aria-label={LAST_EXCHANGE_LABEL} data-voice={voice ? 'true' : undefined}>
       {messages.length === 0 ? empty : rows}

@@ -9,18 +9,21 @@
 // chat, voice, panel and approval shots (its screen once the brief has folded back); Play's proactive shots (PRD-268
 // US-K01): the brief, the suggestion opened from its pinned line, and an approval its recorded answer raises, at 1440
 // and at 390; HUD's (US-K02): BRIEFING on every look at both widths, one at each width while Auto reads it, MISSIONS and
-// SYSTEMS scrolled into view, and the same approval, its phone's message box opened from TYPE.
+// SYSTEMS scrolled into view, and the same approval, its phone's message box opened from TYPE. SDK 1.4.0's message parts
+// (HUD 1.3.0): HUD's SAY chips scrolled into view (ARC and SIGNAL at 1440, ARC at 390), the brief as a
+// message on Auto's thread holding it (the demo extra `brief-thread`), a suggestion's card in Auto's reply, and BRIEFING
+// while Auto reads one of its rows (the demo extra `brief-row`), each at both widths.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { declaredIn, DEV_PORT, HARNESS_PORT, PHONE_VIEWPORT, PRESET_SUFFIX, readSettings, type View } from '../src/host/router.ts'
-import { HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
+import { BRIEF_ROW_READ, HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
 import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 import {
-  APPROVAL_ASK, BRIEF_LISTEN, HUD_MESSAGE_BOX, HUD_MISSIONS, HUD_SYSTEMS, HUD_TYPE, PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION,
-  SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
-  showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
+  APPROVAL_ASK, BRIEF_LISTEN, HUD_MESSAGE_BOX, HUD_MISSIONS, HUD_REPLIES, HUD_SUGGESTS, HUD_SYSTEMS, HUD_THREAD_BRIEF, HUD_TYPE,
+  PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES,
+  SHOWCASE_TIME, showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
 } from '../src/host/showcase.ts'
 
 const HARNESS_DIR = fileURLToPath(new URL('..', import.meta.url))
@@ -41,6 +44,8 @@ const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
 /** The host's Listen stand-in, which names its button, and HUD's two panels the showcase scrolls to. */
 const BRIEF_VOICE = join(HARNESS_DIR, 'src/sdk/brief-voice.tsx')
 const HUD_PANELS = join(THEMES_DIR, 'hud/src/chat/panels')
+/** HUD 1.3.0's parts of a message, whose names its shots of them look for. */
+const HUD_THREAD = join(THEMES_DIR, 'hud/src/chat/thread')
 /** HUD's chat, whose message box and phone TYPE the approval shots name. */
 const HUD_CHAT = join(THEMES_DIR, 'hud/src/chat')
 
@@ -63,6 +68,11 @@ const EXPECTED_FILES = [
   'hud-1440-missions-arc.png',
   'hud-1440-systems-arc.png',
   'hud-1440-approval-arc.png',
+  'hud-1440-say-arc.png',
+  'hud-1440-say-signal.png',
+  'hud-1440-thread-brief-arc.png',
+  'hud-1440-thread-suggestion-arc.png',
+  'hud-1440-briefing-row-arc.png',
   'hud-390-chat-arc.png',
   'hud-390-voice-listening-forge.png',
   'hud-390-look-editor-arc.png',
@@ -74,6 +84,10 @@ const EXPECTED_FILES = [
   'hud-390-briefing-signal.png',
   'hud-390-briefing-speaking-arc.png',
   'hud-390-approval-arc.png',
+  'hud-390-say-arc.png',
+  'hud-390-thread-brief-arc.png',
+  'hud-390-thread-suggestion-arc.png',
+  'hud-390-briefing-row-arc.png',
   'play-1440-first-open-ember.png',
   'play-1440-chat-ember.png',
   'play-1440-voice-speaking-ember.png',
@@ -175,6 +189,7 @@ describe('the showcase shots', () => {
   it('show the laptop-shortlist conversation on every chat but the first open and the brief, and the voice only on the chat', () => {
     const chats = SHOWCASE_SHOTS.filter((shot) => shot.view.key === '/chat')
     expect(chats.filter((shot) => !shot.transcript).map(showcaseFile)).toEqual([
+      'hud-1440-thread-brief-arc.png', 'hud-390-thread-brief-arc.png',
       'play-1440-first-open-ember.png', 'play-1440-brief-ember.png', 'play-1440-brief-daylight.png', 'play-390-brief-ember.png',
     ])
     const voiced = SHOWCASE_SHOTS.filter((shot) => shot.voice !== 'idle')
@@ -188,8 +203,8 @@ describe('the showcase shots', () => {
     const briefed = hudChats.filter((shot) => shot.brief).map(showcaseFile)
     const looks = ['arc', 'forge', 'ghost', 'nova', 'signal']
     expect(briefed).toEqual([
-      ...looks.map((look) => `hud-1440-briefing-${look}.png`), 'hud-1440-briefing-speaking-arc.png',
-      ...looks.map((look) => `hud-390-briefing-${look}.png`), 'hud-390-briefing-speaking-arc.png',
+      ...looks.map((look) => `hud-1440-briefing-${look}.png`), 'hud-1440-briefing-speaking-arc.png', 'hud-1440-briefing-row-arc.png',
+      ...looks.map((look) => `hud-390-briefing-${look}.png`), 'hud-390-briefing-speaking-arc.png', 'hud-390-briefing-row-arc.png',
     ])
     expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'listen').map(showcaseFile)).toEqual([
       'hud-1440-briefing-speaking-arc.png', 'hud-390-briefing-speaking-arc.png',
@@ -202,13 +217,19 @@ describe('the showcase shots', () => {
       'hud-1440-chat-arc.png', 'hud-1440-chat-forge.png', 'hud-1440-chat-ghost.png', 'hud-1440-chat-nova.png',
       'hud-1440-chat-signal.png', 'hud-1440-voice-listening-arc.png', 'hud-1440-voice-speaking-forge.png',
       'hud-1440-missions-arc.png', 'hud-1440-systems-arc.png', 'hud-1440-approval-arc.png',
+      'hud-1440-say-arc.png', 'hud-1440-say-signal.png', 'hud-1440-thread-brief-arc.png', 'hud-1440-thread-suggestion-arc.png',
       'hud-390-chat-arc.png', 'hud-390-voice-listening-forge.png', 'hud-390-voice-speaking-arc.png', 'hud-390-approval-arc.png',
+      'hud-390-say-arc.png', 'hud-390-thread-brief-arc.png', 'hud-390-thread-suggestion-arc.png',
       'play-1440-first-open-ember.png',
     ])
     const scrolled = SHOWCASE_SHOTS.filter((shot) => shot.step === 'scroll-to-heading')
     expect(scrolled.map((shot) => [showcaseFile(shot), shot.heading])).toEqual([
       ['hud-1440-missions-arc.png', HUD_MISSIONS],
       ['hud-1440-systems-arc.png', HUD_SYSTEMS],
+      ['hud-1440-thread-brief-arc.png', HUD_THREAD_BRIEF],
+      ['hud-1440-thread-suggestion-arc.png', HUD_SUGGESTS],
+      ['hud-390-thread-brief-arc.png', HUD_THREAD_BRIEF],
+      ['hud-390-thread-suggestion-arc.png', HUD_SUGGESTS],
     ])
   })
 
@@ -229,6 +250,26 @@ describe('the showcase shots', () => {
   })
 })
 
+describe("HUD 1.3.0's shots of a message's parts (SDK 1.4.0)", () => {
+  it('scroll the SAY chips into view on the folded screen, on the transcript whose reply offers them, in two looks at 1440', () => {
+    const say = SHOWCASE_SHOTS.filter((shot) => shot.step === 'scroll-to-replies')
+    expect(say.map(showcaseFile)).toEqual(['hud-1440-say-arc.png', 'hud-1440-say-signal.png', 'hud-390-say-arc.png'])
+    expect(say.every((shot) => shot.theme === 'hud' && shot.transcript && !shot.brief)).toBe(true)
+    const transcript = readJson(TRANSCRIPT) as ReadonlyArray<{ readonly messages: ReadonlyArray<{ readonly parts?: unknown }> }>
+    expect(JSON.stringify(transcript[0]?.messages.at(-1)?.parts)).toContain('reply_chips@1')
+  })
+
+  it("open Auto's thread holding the brief only on the brief-as-a-message shots, and read a row only on BRIEFING's", () => {
+    const threaded = SHOWCASE_SHOTS.filter((shot) => shot.demo.includes('brief-thread'))
+    expect(threaded.map(showcaseFile)).toEqual(['hud-1440-thread-brief-arc.png', 'hud-390-thread-brief-arc.png'])
+    expect(threaded.every((shot) => !shot.transcript && !shot.brief && shot.heading === HUD_THREAD_BRIEF)).toBe(true)
+    const reading = SHOWCASE_SHOTS.filter((shot) => shot.demo.includes('brief-row'))
+    expect(reading.map(showcaseFile)).toEqual(['hud-1440-briefing-row-arc.png', 'hud-390-briefing-row-arc.png'])
+    expect(reading.every((shot) => shot.brief && shot.step === 'none' && shot.voice === 'idle')).toBe(true)
+    expect(BRIEF_ROW_READ).toBe(2)
+  })
+})
+
 describe('the names the steps look for', () => {
   it("are the host's Listen, HUD's MISSIONS and SYSTEMS headings, and HUD's message box and the phone's TYPE", () => {
     expect(readFileSync(BRIEF_VOICE, 'utf8')).toContain(`export const LISTEN_TO_THE_BRIEF = '${BRIEF_LISTEN}'`)
@@ -236,6 +277,12 @@ describe('the names the steps look for', () => {
     expect(readFileSync(join(HUD_PANELS, 'systems-panel.tsx'), 'utf8')).toContain(`export const SYSTEMS_TITLE = '${HUD_SYSTEMS}'`)
     expect(readFileSync(join(HUD_CHAT, 'composer.tsx'), 'utf8')).toContain(`export const PLACEHOLDER = '${HUD_MESSAGE_BOX}'`)
     expect(readFileSync(join(HUD_CHAT, 'phone/phone-controls.tsx'), 'utf8')).toContain(`export const TYPE_LABEL = '${HUD_TYPE}'`)
+  })
+
+  it("are HUD's reply chips' group, and the headings of its brief and of a suggestion's card in the conversation", () => {
+    expect(readFileSync(join(HUD_THREAD, 'say-replies.tsx'), 'utf8')).toContain(`export const REPLIES_LABEL = '${HUD_REPLIES}'`)
+    expect(readFileSync(join(HUD_THREAD, 'thread-brief.tsx'), 'utf8')).toContain(`export const THREAD_BRIEF_TITLE = '${HUD_THREAD_BRIEF}'`)
+    expect(readFileSync(join(HUD_THREAD, 'thread-suggestion.tsx'), 'utf8')).toContain(`export const SUGGESTS_TITLE = '${HUD_SUGGESTS}'`)
   })
 })
 

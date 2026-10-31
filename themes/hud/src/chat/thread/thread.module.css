@@ -1,0 +1,122 @@
+/*
+ * HUD 1.3.0: what the conversation draws from a message's parts, inside Auto's AUTO row (thread/). The brief Auto
+ * posted is a HUD panel (thread-brief.tsx: the greeting in the look's display face, his Read in the reply's text); a
+ * suggestion he posted is a bordered block like the receipts, `▸ AUTO SUGGESTS` as a panel label in the readable
+ * accent, its title in the text, its detail in mono in the secondary text, then the `▸ NEXT` line's SAY chips; the
+ * reply chips are `SAY` in the readable accent and each answer a square outline chip in mono capitals, 44 px high,
+ * wrapping onto a new line before one is cut. Status never goes through --accent. Nothing moves or loops.
+ */
+
+.brief {
+  min-width: 0;
+}
+
+.greeting {
+  margin: 0;
+  color: var(--hud-text);
+  font-family: var(--hud-font-display);
+  font-size: 20px;
+  font-weight: var(--hud-display-weight);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.prose {
+  color: var(--hud-text);
+  font: 14px/1.5 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+/* A suggestion Auto posted: a bordered block under his words, as the receipts are. */
+.suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--hud-space-2);
+  padding: var(--hud-space-3) 14px;
+  border-left: 1.5px solid var(--hud-accent-line);
+  background: var(--hud-panel-fill);
+}
+
+.suggestsTitle {
+  margin: 0;
+  color: var(--hud-accent-text);
+  font-family: var(--hud-font-display);
+  font-size: var(--hud-label-size);
+  font-weight: var(--hud-display-weight);
+  letter-spacing: var(--hud-tracking-panel);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.suggestionTitle {
+  margin: 0;
+  color: var(--hud-text);
+  font: 600 15px/1.35 var(--hud-font-text);
+  overflow-wrap: anywhere;
+}
+
+.suggestionDetail {
+  margin: 0;
+  color: var(--hud-text-2);
+  font: 12px/1.5 var(--hud-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.started,
+.refused {
+  margin: 0;
+  font: 500 12px/1.4 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+}
+
+.started {
+  color: var(--hud-accent-text);
+  text-transform: uppercase;
+}
+
+.refused {
+  color: var(--hud-error-text);
+}
+
+/* The reply chips: SAY, then each answer as a chip; they wrap rather than cut. */
+.replies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-2);
+}
+
+.sayWord {
+  flex: none;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+/* A SAY chip: HUD's secondary button, square, an accent-line outline, mono capitals tracked .14em, 44 px high. */
+.reply {
+  max-width: 100%;
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-accent-text);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-align: left;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.reply:hover {
+  border-color: var(--hud-accent);
+}
+
+.reply:disabled {
+  color: var(--hud-text-2);
+  cursor: default;
+}

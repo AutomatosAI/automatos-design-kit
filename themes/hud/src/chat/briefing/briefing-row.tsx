@@ -4,6 +4,7 @@ import { type BriefRow, HostLink, useStartSuggestion } from '@automatos/theme-sd
 import { stateMark } from '../panels/status-marks'
 import { briefRowHref, type NumberedRow, rowNumber, rowTime, startsSuggestion } from './brief-rows'
 import styles from './briefing.module.css'
+import type { RowReading } from './use-reading'
 
 /**
  * HUD 1.2.0 (PRD-268): one row of BRIEFING. Its number across the brief (the one Listen reads), the title and the why
@@ -11,6 +12,8 @@ import styles from './briefing.module.css'
  * as text, named by the row ("Open: Check the laptop reviews"): a link where the row opens, or, on a suggestion's row,
  * Start, which starts it through the SDK (useStartSuggestion) and then says "✓ Started" in its place. A row with no
  * action that opens somewhere links its title; one with nowhere to go is text.
+ * HUD 1.3.0: while Auto reads the brief, the row's place in the reading (use-reading.ts) as `data-reading`, and on the
+ * row being read `▸` beside its number (`aria-current`: the host's own status line says Auto is reading).
  */
 
 export const START_FALLBACK = 'Start'
@@ -19,6 +22,8 @@ export const STARTED_FALLBACK = 'Started'
 export const START_REFUSED = "Couldn't start it. Try again in a moment."
 const ARROW = '→'
 const DONE_MARK = '✓'
+/** Beside the number of the row Auto is reading. */
+export const READING_MARK = '▸'
 
 interface StartProps {
   readonly id: string
@@ -89,14 +94,31 @@ function RowMarks({ row }: { readonly row: BriefRow }) {
   )
 }
 
-export function BriefingRow({ shown }: { readonly shown: NumberedRow }) {
+export interface BriefingRowProps {
+  readonly shown: NumberedRow
+  /** Its place in Auto's reading of the brief; none while he reads nothing. */
+  readonly reading?: RowReading
+}
+
+export function BriefingRow({ shown, reading }: BriefingRowProps) {
   const { number, row } = shown
   const href = briefRowHref(row)
   const known = stateMark(row.display_state) !== null
+  const now = reading === 'now'
   return (
-    <li className={styles.row} value={number} data-row-id={row.id} data-display-state={known ? row.display_state ?? undefined : undefined}>
+    <li
+      className={styles.row}
+      value={number}
+      data-row-id={row.id}
+      data-display-state={known ? row.display_state ?? undefined : undefined}
+      data-reading={reading}
+      aria-current={now ? 'true' : undefined}
+    >
       <span className={styles.number} aria-hidden="true">
         {rowNumber(number)}
+      </span>
+      <span className={styles.marker} aria-hidden="true">
+        {now ? READING_MARK : ''}
       </span>
       <div className={styles.body}>
         <span className={styles.title} data-ai-generated="true">

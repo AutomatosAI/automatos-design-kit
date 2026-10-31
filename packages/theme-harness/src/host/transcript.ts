@@ -25,9 +25,11 @@ export function transcriptChatId(shown: boolean): string | null {
 
 /**
  * The chat on the transcript (the backend holds it and the address links it), or on a new chat; the backend holds
- * `older` conversations beside it either way (none by default).
+ * `older` conversations beside it either way (none by default). An `opened` conversation (a demo extra's,
+ * src/host/demo-data.ts openedConversation) is held first and is the one on screen, in place of either.
  */
-export function showTranscript(shown: boolean, older: readonly ConversationFixture[] = []): void {
-  host.setConversations([...(shown ? TRANSCRIPT_CONVERSATIONS : []), ...older])
-  host.setSearchParams(shown ? new URLSearchParams({ [CHAT_ID_PARAM]: TRANSCRIPT_CHAT_ID }).toString() : NONE)
+export function showTranscript(shown: boolean, older: readonly ConversationFixture[] = [], opened: ConversationFixture | null = null): void {
+  host.setConversations([...(opened === null ? [] : [opened]), ...(shown ? TRANSCRIPT_CONVERSATIONS : []), ...older])
+  const onScreen = opened?.id ?? (shown ? TRANSCRIPT_CHAT_ID : null)
+  host.setSearchParams(onScreen === null ? NONE : new URLSearchParams({ [CHAT_ID_PARAM]: onScreen }).toString())
 }

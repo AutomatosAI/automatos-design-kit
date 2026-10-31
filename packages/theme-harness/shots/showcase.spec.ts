@@ -15,7 +15,9 @@
  * TYPE), types APPROVAL_ASK into the box (the shot's `composer`), sends it with Enter and waits for the host's approval
  * card the recorded answer raises (the demo extra `approval-turn`); one whose step is `listen` presses the host's Listen
  * for the day's brief and waits until Auto reads it (its root marked data-voice-speaking); one whose step is
- * `scroll-to-heading` scrolls the shot's heading into view. Then it writes `<theme>-<width>-<what>-<look>.png` into
+ * `scroll-to-heading` scrolls the shot's heading into view; one whose step is `scroll-to-replies` scrolls the reply
+ * chips (HUD's group named HUD_REPLIES) into view. A shot with the demo extra `brief-row` fails unless the host's Listen
+ * marks the row Auto reads (data-voice-row). Then it writes `<theme>-<width>-<what>-<look>.png` into
  * dist/showcase/ (Playwright makes the folder): the viewport as drawn, with animations off and the caret hidden. The
  * host's Auto widget stand-in (a labelled box where core draws its floating Auto) is hidden for the shot, since no host
  * draws that box.
@@ -23,9 +25,11 @@
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
+import { BRIEF_ROW_READ } from '../src/host/demo.ts'
 import { DEFAULT_SETTINGS, STAGE_ID } from '../src/host/router.ts'
 import {
-  APPROVAL_ASK, BRIEF_LISTEN, PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl, type ShowcaseShot,
+  APPROVAL_ASK, BRIEF_LISTEN, HUD_REPLIES, PLAY_HELLO, SHOWCASE_FOLDER, SHOWCASE_SHOTS, SHOWCASE_TIME, showcaseFile, showcaseUrl,
+  type ShowcaseShot,
 } from '../src/host/showcase.ts'
 import { harnessReport, openSettled, SETTLE } from './settle.ts'
 
@@ -40,8 +44,9 @@ const SUGGESTS = /^Auto suggests: /
 const OPEN_TITLE = /^Open: /
 /** The host's tool approval card, a protected surface. */
 const APPROVAL_CARD = '[data-protected-surface="tool-approval"]'
-/** The host's Listen while Auto reads the brief (src/sdk/brief-voice.tsx). */
+/** The host's Listen while Auto reads the brief (src/sdk/brief-voice.tsx), and while he reads the row `brief-row` sets. */
 const BRIEF_READING = '[data-brief-voice="root"][data-voice-speaking="true"]'
+const BRIEF_ROW_READING = `[data-brief-voice="root"][data-voice-row="${BRIEF_ROW_READ}"]`
 const SHOT_OPTIONS = Object.freeze({ animations: 'disabled', caret: 'hide', style: HIDDEN_FOR_THE_SHOT } as const)
 
 /** The host's voice button in a phase: its root, once the session in that phase is the button's. */
@@ -57,6 +62,7 @@ async function expectDrawn(page: Page, shot: ShowcaseShot): Promise<void> {
   if (shot.voice !== DEFAULT_SETTINGS.voice) await expect(page.locator(voiceButtonIn(shot.voice)).first()).toBeAttached()
   if (shot.heading !== undefined) await expect(page.getByRole('heading', { name: shot.heading, exact: true })).toBeVisible()
   if (shot.demo.includes('hello-played')) await expect(page.getByText(PLAY_HELLO, { exact: true }), 'no hello after it played').toHaveCount(0)
+  if (shot.demo.includes('brief-row')) await expect(page.locator(BRIEF_ROW_READING).first(), 'Auto reads the brief row').toBeAttached()
 }
 
 /** Opens the theme's phone menu and waits until its dialog shows. */
@@ -87,6 +93,13 @@ async function listen(page: Page): Promise<void> {
   await expect(page.locator(BRIEF_READING)).toBeAttached(SETTLE)
 }
 
+/** Scrolls the reply chips under Auto's last message into view, and checks they show. */
+async function scrollToReplies(page: Page): Promise<void> {
+  const replies = page.getByRole('group', { name: HUD_REPLIES, exact: true })
+  await replies.scrollIntoViewIfNeeded()
+  await expect(replies).toBeVisible(SETTLE)
+}
+
 /** Does the shot's step on the page. */
 async function takeStep(page: Page, shot: ShowcaseShot): Promise<void> {
   if (shot.step === 'open-menu') await openMenu(page)
@@ -96,6 +109,7 @@ async function takeStep(page: Page, shot: ShowcaseShot): Promise<void> {
   if (shot.step === 'scroll-to-heading' && shot.heading !== undefined) {
     await page.getByRole('heading', { name: shot.heading, exact: true }).scrollIntoViewIfNeeded()
   }
+  if (shot.step === 'scroll-to-replies') await scrollToReplies(page)
 }
 
 for (const shot of SHOWCASE_SHOTS) {

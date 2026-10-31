@@ -56,7 +56,8 @@ function HideReasons({ id, next }: { readonly id: string; readonly next: NextSug
   )
 }
 
-function SayChips({ suggestion, next }: { readonly suggestion: Suggestion; readonly next: NextSuggestion }) {
+/** START and HIDE as SAY chips for `suggestion`, HIDE's reasons under them (HUD 1.3.0: the thread's card has them too). */
+export function SayChips({ suggestion, next }: { readonly suggestion: Suggestion; readonly next: NextSuggestion }) {
   const [asking, setAsking] = useState(false)
   const hideRef = useRef<HTMLButtonElement>(null)
   const reasonsId = useId()
