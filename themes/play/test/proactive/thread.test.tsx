@@ -127,6 +127,17 @@ describe("Auto's reply chips", () => {
     expect(screen.queryByRole('button', { name: `${REPLY_PREFIX}${CHIPS[1]}` })).toBeNull()
   })
 
+  it('send once for a double press, the same chip or the other one', async () => {
+    await openStored([{ role: 'user', text: QUESTION }, asked])
+    fireEvent.click(screen.getByRole('button', { name: `${REPLY_PREFIX}${CHIPS[0]}` }))
+    const again = screen.queryByRole('button', { name: `${REPLY_PREFIX}${CHIPS[0]}` })
+    const other = screen.queryByRole('button', { name: `${REPLY_PREFIX}${CHIPS[1]}` })
+    if (again) fireEvent.click(again)
+    if (other) fireEvent.click(other)
+    expect(host.chatSent()).toHaveLength(1)
+    expect(host.chatSent()).toEqual([{ chatId: CHAT_ID, text: CHIPS[0], retry: false }])
+  })
+
   it('hand the focus to the message box after a tap on a desktop, so it never drops to the page', async () => {
     await openStored([{ role: 'user', text: QUESTION }, asked])
     expect(box()).not.toHaveFocus()
@@ -199,6 +210,17 @@ describe('a suggestion Auto posted into the conversation', () => {
     expect(await screen.findByText(STARTED_LINE)).toBeInTheDocument()
     act(() => host.setPageQuery('useSuggestions', { data: [LISTED] }))
     expect(screen.getByText(STARTED_LINE)).toBeInTheDocument()
+  })
+
+  it('hides through the proactive area, with the reason picked from its menu', async () => {
+    await openStored([{ role: 'user', text: QUESTION }, posted()])
+    const card = threadCard(NEWER.title) as HTMLElement
+    fireEvent.click(within(card).getByRole('button', { name: `Hide: ${NEWER.title}` }))
+    await act(async () => {
+      fireEvent.click(within(card).getByRole('button', { name: 'Not now' }))
+    })
+    expect(host.pageRuns()).toContainEqual({ hook: 'useHideSuggestion', variables: { id: NEWER_ID, reason: 'not_now' } })
+    expect(host.pageRuns().some((run) => run.hook === 'useStartSuggestion')).toBe(false)
   })
 
   it("has no card once it is no longer open: the message's words stay", async () => {
