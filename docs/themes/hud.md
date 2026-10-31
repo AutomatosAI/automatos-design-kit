@@ -5,12 +5,12 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.2.0.
+`themes/hud/theme.json` at version 1.2.1.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.2.0` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.3.0"}`: SDK 1.3.0, the vendored SDK, whose proactive area HUD 1.2.0 uses (the voice area is SDK 1.2.0's) |
+| `id`, `version` | `automatos/hud`, `1.2.1` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.4.0, the vendored SDK (the proactive area HUD uses since 1.2.0 is SDK 1.3.0's, the voice area SDK 1.2.0's) |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px HUD draws its phone layout (below) |

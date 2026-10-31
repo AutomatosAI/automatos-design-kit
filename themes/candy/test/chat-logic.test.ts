@@ -21,7 +21,7 @@ const NOW = at(30, 12).getTime()
 
 function message(fields: Partial<HostChatMessage>): HostChatMessage {
   return {
-    id: 'm-1', role: 'assistant', text: '', activity: [], error: null, writing: false, stopped: false, receipts: null,
+    id: 'm-1', role: 'assistant', text: '', knownParts: [], activity: [], error: null, writing: false, stopped: false, receipts: null,
     above: [], deliverables: [], approvals: [], taskCards: [], toolCalls: [], provenance: null, savedError: null,
     limitReached: null, reasoningChars: 0, withdrawOffer: null, linkedDeliverables: [], ...fields,
   }

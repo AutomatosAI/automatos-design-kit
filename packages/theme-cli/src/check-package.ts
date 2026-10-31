@@ -4,11 +4,13 @@
  * The passes of core's orchestrator/services/themes/package.py `read_theme_package`, in its order:
  * the paths (members.ts), then each file's size and bytes, then the content: theme.json against
  * the manifest rules (incl. lookEditor@1 and styleSheet@1, PA-14), the entry and the code caps,
- * the look schema and presets, the prepaint table, the files the manifest names (its web and phone
+ * the look schema and presets, the prepaint table, what the browser's first paint would leave out of the table and
+ * its looks (first-paint.ts, package.py's `first_paint_errors`), the files the manifest names (its web and phone
  * screenshots, `previews` and `phonePreviews`, among them), the default
  * look, and dist/theme.css against the server's CSS scope check, then the `mobile` block (host 1.1.0,
  * package.py `_mobile_link_errors`): `fromLooks` paints a phone's ground and its text from the prepaint
- * table's defaults (mobile-paint.ts), and a `clips` or `stills` mascot has every state's files. Each
+ * table's defaults (mobile-paint.ts; defaults that don't fit the table are first-paint.ts's PREPAINT_DEFAULTS_UNFIT,
+ * whatever the block), and a `clips` or `stills` mascot has every state's files. Each
  * pass that refuses anything ends the check, as on the server, so the codes reported are the ones core
  * would report.
  */
@@ -16,6 +18,7 @@ import { cssScopeErrors, STYLE_PATH } from '@automatos/vite-preset/css-scope'
 import { echo, hasOwn, isRecord, own, prepaintErrors, PREPAINT_PATH, themeError, type ThemeError } from './core/css-value.ts'
 import { validateManifest } from './core/package-manifest.ts'
 import { CAPS, CODE_KINDS, fileKind, KB } from './files.ts'
+import { firstPaintErrors } from './first-paint.ts'
 import { parseJson } from './json.ts'
 import { lookFileErrors, presetIds } from './looks.ts'
 import { pathErrors, readFiles, type CheckedFile, type PackageEntry } from './members.ts'
@@ -32,7 +35,7 @@ export const PHONE_PREVIEWS_FIELD = 'phonePreviews'
 const MOBILE_FONTS = 'fonts'
 const MOBILE_FROM_LOOKS = 'fromLooks'
 const PREPAINT_DEFAULTS = 'defaults'
-// package.py :114-:121: the files a phone draws each mascot state from, by the block's mode (absent is
+// package.py :122-:129: the files a phone draws each mascot state from, by the block's mode (absent is
 // "none"). MASCOT_KEY is both theme.json's top-level mascot ({"states": [...]}) and the block's mode.
 const MASCOT_FOLDER = 'assets/mascot'
 const MASCOT_KEY = 'mascot'
@@ -116,13 +119,8 @@ function linkErrors(manifest: Manifest, files: ReadonlyMap<string, CheckedFile>)
   return [...errors, ...cssScopeErrors(new TextDecoder().decode(style.data), String(manifest.htmlClass))]
 }
 
-/** Why the defaults paint no phone: they don't fit the table (the web drops it whole), or they lack tokens (package.py `_cannot_paint`). */
-function cannotPaint(table: unknown, missing: readonly string[]): string {
-  if (bootTable(table) === null) {
-    return `${PREPAINT_PATH}: "${PREPAINT_DEFAULTS}" doesn't name an option of every knob table and a cell of every `
-      + 'pair table, with every number rule\'s value in range, so the web paints nothing from the table and a '
-      + 'phone can\'t draw the theme. Fix the defaults, or give "mobile.tokens" instead.'
-  }
+/** Why the defaults paint no phone: they lack the ground or its text as triplets (package.py `_cannot_paint`). */
+function cannotPaint(missing: readonly string[]): string {
   return `${PREPAINT_PATH}: the default look paints no ${missing.join(' or ')}, so a phone can't draw the theme `
     + 'from its looks. Give the default choices those tokens as "H S% L%" triplets (the web reads Studio tokens '
     + 'as hsl(var(--x)), so a #rrggbb paints nothing), or give "mobile.tokens" instead.'
@@ -131,7 +129,8 @@ function cannotPaint(table: unknown, missing: readonly string[]): string {
 /**
  * `fromLooks`: the prepaint table's `defaults` look, painted as the web paints it with no stored look
  * (boot.ts :146), gives the phone's ground and its text (package.py `_paint_errors`). A table that isn't
- * a JSON object is refused once, by prepaintFileErrors.
+ * a JSON object is refused once, by prepaintFileErrors, and one whose defaults don't fit what the web keeps of it
+ * once, by firstPaintErrors (PREPAINT_DEFAULTS_UNFIT).
  */
 function paintErrors(block: Manifest, files: ReadonlyMap<string, CheckedFile>): ThemeError[] {
   if (own(block, MOBILE_FROM_LOOKS) !== true) return []
@@ -143,10 +142,10 @@ function paintErrors(block: Manifest, files: ReadonlyMap<string, CheckedFile>): 
     ))]
   }
   const { data, error } = parseJson(raw.data, PREPAINT_PATH)
-  if (error !== null || !isRecord(data)) return []
+  if (error !== null || !isRecord(data) || bootTable(data) === null) return []
   const missing = missingTokens(paintLook(data, null))
   if (missing.length === 0) return []
-  return [themeError(MOBILE_CANNOT_PAINT, `${PREPAINT_PATH}#${PREPAINT_DEFAULTS}`, cannotPaint(data, missing))]
+  return [themeError(MOBILE_CANNOT_PAINT, `${PREPAINT_PATH}#${PREPAINT_DEFAULTS}`, cannotPaint(missing))]
 }
 
 /** `clips`: every state's .mp4 and .png; `stills`: every state's .png. No .webm: a phone plays mp4 (package.py `_mascot_file_errors`). */
@@ -173,7 +172,7 @@ function mobileLinkErrors(manifest: Manifest, files: ReadonlyMap<string, Checked
 function contentErrors(files: ReadonlyMap<string, CheckedFile>): { manifest: Manifest | null; errors: ThemeError[] } {
   const { manifest, errors } = manifestErrors(files)
   const bytes = new Map(Array.from(files, ([path, file]): [string, Uint8Array] => [path, file.data]))
-  const all = [...errors, ...codeErrors(files), ...lookFileErrors(bytes), ...prepaintFileErrors(files)]
+  const all = [...errors, ...codeErrors(files), ...lookFileErrors(bytes), ...prepaintFileErrors(files), ...firstPaintErrors(bytes)]
   if (manifest === null) return { manifest, errors: all }
   return { manifest, errors: [...all, ...linkErrors(manifest, files), ...mobileLinkErrors(manifest, files)] }
 }

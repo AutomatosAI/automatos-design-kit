@@ -133,6 +133,27 @@ action, its target, the preview and the rule before its buttons, and answers key
 (`fixtures/streams/turns.json`'s `approvalView` turn raises one). `test/proactive.test.tsx`,
 `test/proactive-cards.test.tsx`, `test/proactive-panels.test.tsx` and `test/proactive-types.test.ts` hold them.
 
+SDK 1.4.0 adds three things for a theme that owns `/chat`. Each chat message carries `knownParts`
+(`src/internal/scripted/message-parts.ts`, after core's `internal/message-parts.ts`): its `text`, `brief@1`,
+`suggestion@1` and `reply_chips@1` parts, checked as core checks them (the brief read as the host's thread reads one, a
+suggestion's id, the chips the host's `ReplyChips` would draw), frozen, in the message's order; a part of any other
+type, or one that isn't what its type says, is left out, and brief, suggestion and chip parts count on Auto's messages
+only. A stored message's parts are its conversation fixture's `parts` (and its `source`, which may name a suggestion),
+else one text part of its words; a message of the turn carries its words alone, as core's chat does until it streams
+parts, so a live reply's chips reach a theme once its conversation opens again. A chip has no route: a tap is the
+person's message, sent with the controller's `send`. The transcript's reply carries a `suggestion@1` and a
+`reply_chips@1` part, so a theme's chat shots show them, and `AUTO_THREAD` (beside `host`, opened with
+`host.setSearchParams('chatId=' + AUTO_THREAD_CHAT_ID)`) is a made-up Auto thread whose stored messages carry the sample
+brief's `brief@1` part, a `suggestion@1` part and two chips. `BriefVoice` takes `onSpeakingRow`: while Auto reads one of
+the brief's rows (its index in the sections' order), its root carries `data-voice-row="<index>"` and the handler hears
+the index, then null between rows and once the reading ends or stops (the stand-in leaving the page included), each
+change once; a test sets the row with `host.setBriefRow(index | null)`, as core's speech events set it. `useRateBrief`
+is a write kept as the body core posts to its digest feedback route (`{state_hash, rating}`, 1 for up and -1 for down:
+`BriefFeedbackBody`), which `host.setPageAction('useRateBrief', ...)` is handed too. Given the brief's state_hash, its
+`rating` is the person's own rating of that brief: what `host.setBriefRating(stateHash, rating)` set, or the last post
+the fake server answered, shared with the `BriefCard` stand-in's thumbs, so a press in either shows in both;
+`BriefCard`'s `thumbs={false}` draws none. `test/message-parts.test.tsx` and `test/sdk-1.4.0.test.tsx` hold them.
+
 ## The fake host
 
 `host` (`@automatos/theme-harness/host`, `src/host.ts`) sets what the host would say and reads back what a theme
@@ -140,7 +161,7 @@ asked of it. `host.reset()` puts it all back: the local edition's one operator i
 the backend up, a 1280-pixel window over a 1024-pixel `minWidth`, the light tone, the OS motion setting as
 `matchMedia` says (jsdom has none: motion allowed), no look runtime, no package files, `STORAGE_DEFAULTS` with no
 theme state kept, no voice session (the host's voice on the page as `VOICE_DEFAULTS` offers it: quick-ask, and Live
-not set up), no calibration offered and the brief not being read, and nothing asked.
+not set up), no calibration offered and the brief not being read (no row of it), and nothing asked.
 
 | Area | Controls | Read back |
 |---|---|---|
@@ -155,15 +176,17 @@ not set up), no calibration offered and the brief not being read, and nothing as
 | chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
 | voice (SDK 1.2.0) | `setVoice` (any of the session's fields, `chatId` among them), `setVoicePhase` (the phase, its engine, and the microphone as that engine has it), `setVoiceMic`, `setVoiceWords` (`heard`, `reply`), `setVoiceError`, `setVoiceAvailable` (`VOICE_DEFAULTS` with changes; `null` for no host voice on the page), `setVoiceLevels`, `voiceTurnSaved` (a conversation's saved rows landed: the session's words leave it) | `voiceStops()` (every `stop()`: useVoice's, the button's), `voicePresses()` (each press that reached the host: start, release or stop, with its engine and conversation) |
-| proactive (SDK 1.3.0) | the page areas' `setPageQuery` and `setPageAction` (a read may also answer `'idle'`: no brief today), `setCalibration` (a Calibration@1, or `null` for none, the default), `setBriefReading` (Auto reads the brief, or stops) | `pageAsks()`, `pageRuns()`, `cardActions()` |
+| proactive (SDK 1.3.0) | the page areas' `setPageQuery` and `setPageAction` (a read may also answer `'idle'`: no brief today), `setCalibration` (a Calibration@1, or `null` for none, the default), `setBriefReading` (Auto reads the brief, or stops), `setBriefRow` (SDK 1.4.0: the brief row Auto reads, or `null`), `setBriefRating(stateHash, rating)` (SDK 1.4.0: the person's rating of that brief the server remembers, `up`, `down` or `null`, the default) | `pageAsks()`, `pageRuns()` (`useRateBrief`'s with the body core posts), `cardActions()` |
 | network | | `networkCalls()` |
 
 The storage area's workspace follows `setWorkspace`, as the host's scope follows the workspace; a set inside
 `act()` renders every component that reads it again.
 
 Beside `host`, the module names what a theme's own fixtures build the chat's parts with: `LIVE_KEY`, the tool-data
-key the receipts frame rides under (what `liveReceiptsOf` reads), and `CREDITS_EXHAUSTED_CODE`, the `errorCode` of a
-request refused for used-up credits.
+key the receipts frame rides under (what `liveReceiptsOf` reads), `CREDITS_EXHAUSTED_CODE`, the `errorCode` of a
+request refused for used-up credits, and (SDK 1.4.0) `AUTO_THREAD` and `AUTO_THREAD_CHAT_ID`, the made-up Auto thread
+whose messages carry parts, and the `BriefFeedbackBody` type. A conversation a theme's test builds may give a stored
+message `parts` (and a `source`) in the same way.
 
 ## The PNG writer
 

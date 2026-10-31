@@ -41,8 +41,8 @@ and compose the gradient in the theme's CSS ([looks.md](looks.md)).
 **A knob the table never paints.** Candy 1.0.0's `roundness` was a number knob of `looks/schema.json` that no numeric
 rule painted (its frame set the corners in code). The host's look runtime builds a theme's looks from the prepaint
 table alone: a choice knob per table under `knobs`, a number knob per numeric rule. So it left `roundness` out, every
-look carrying it failed, the presets included, and the look editor changed nothing. `check design` and `check` now
-refuse such a knob (`KNOB_NOT_PAINTED`). Paint every knob from the table; a numeric rule paints only an alpha, so make a
+look carrying it failed, the presets included, and the look editor changed nothing. Core's reader now refuses such
+a knob on upload, and so do `pack`, `check` and `check design` (`KNOB_NOT_PAINTED`). Paint every knob from the table; a numeric rule paints only an alpha, so make a
 size a choice knob whose choices paint the sizes (Candy 1.0.1's `roundness`).
 
 ## CSS

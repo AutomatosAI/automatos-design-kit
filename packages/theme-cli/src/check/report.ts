@@ -24,9 +24,12 @@ import {
   describeMeasure, isMeasured, measureMobile, OUTCOME_FAIL, OUTCOME_NOT_MEASURED, OUTCOME_PASS, type MobileOutcome,
 } from './mobile-contrast.ts'
 
-/** The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line). */
+/**
+ * The core repo and commit whose review checks this port reproduces (src/core/README.md's Source line): core `main`
+ * after the merge of pull request #1383 (SDK 1.4.0).
+ */
 export const CORE_REPO = 'AutomatosAI/automatos-ai'
-export const CORE_SHA = '1a8956c874dc42cff05b96f431c50b7d722a71aa'
+export const CORE_SHA = 'd92cabf202f4a04f48a429d5f79a05cbe6c1eefb'
 
 export const REPORT_SCHEMA = 'automatos-theme-scan/v2'
 export const STAGE = 'C-02a'

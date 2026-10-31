@@ -64,7 +64,8 @@ theme both declares and registers, for each preset at 1440 and 1024 px and once 
 reduced motion, and an `axe.json` beside each set. A theme with a `/chat` page gets that page twice more in its
 default look at 1440 px: with motion allowed, in `<preset>/1440-motion/` (Auto's clip and the Pause Auto control,
 which reduced motion never draws), and on a made-up transcript, in `<preset>/1440-transcript/` (the owner's words,
-Auto's reply with a tool line and a Deliverable). A theme whose own `minWidth` is at most 390 px, so it draws at a
+Auto's reply with a tool line and a Deliverable, and, as SDK 1.4.0 message parts a theme that reads `knownParts` draws,
+a suggestion and three reply chips). A theme whose own `minWidth` is at most 390 px, so it draws at a
 phone's width, is shot at a phone's 390 × 844 too, with reduced motion: each preset in `<preset>/390/` and, with a
 `/chat` page, that page on the transcript in its default look, in `<preset>/390-transcript/`. A theme whose `minWidth`
 is wider gets no 390 set: below `minWidth` the host draws its own pages, which the set just below it shows. A theme

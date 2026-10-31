@@ -20,7 +20,11 @@
  * turnsLeft), how often New chat was pressed (startedChats) and each load of a conversation list
  * (conversationsAsked); resetChat puts them back.
  * While the host's voice session runs on a conversation, its words are that conversation's last two messages
- * (internal/live-voice-turns.ts, core's lib/chat/live-voice-turns.ts). Not modelled: the approvals store that keeps
+ * (internal/live-voice-turns.ts, core's lib/chat/live-voice-turns.ts).
+ * SDK 1.4.0 (core's internal/chat-view.ts and message-parts.ts at d92cabf202f4a04f48a429d5f79a05cbe6c1eefb): each
+ * message's `knownParts`, its text, brief@1, suggestion@1 and reply_chips@1 parts checked and frozen
+ * (internal/scripted/message-parts.ts), never its raw parts: a stored message's are its fixture's `parts` (else its
+ * words), a message of the turn's are its words, so a live reply's chips reach a theme once its conversation opens again. Not modelled: the approvals store that keeps
  * cards across chat screens, and a cold start on the newest conversation (a new chat opens, as core's Play specs have).
  */
 import type {
@@ -42,6 +46,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveVoiceRecords } from '../internal/live-voice-turns.ts'
 import { type ApprovalStatus, type FiledApproval, isWaitingCard } from '../internal/scripted/approvals.ts'
 import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord, withFrame } from '../internal/scripted/chat-reply.ts'
+import { knownPartsOf, rawPartsOf, TEXT_PART } from '../internal/scripted/message-parts.ts'
 import {
   aiLabelShown,
   chatSent,
@@ -132,11 +137,14 @@ function isForged(value: unknown): boolean {
 
 /**
  * A stored message as the conversation opens with it: its turn's frames read onto it (a tool line, a Deliverable), a
- * background post's provenance and a saved failure kept.
+ * background post's provenance and a saved failure kept, and its raw parts (its own, else one text part of its words,
+ * as core's controller gives a stored message) with its source.
  */
 function storedReply(id: string, message: HistoryMessage): ReplyRecord {
   const record = (message.frames ?? []).reduce(withFrame, replyRecord(id, message.role, message.text))
-  return Object.freeze({ ...record, provenance: message.provenance ?? null, savedError: message.savedError ?? null })
+  const parts = message.parts ?? [{ type: TEXT_PART, text: message.text }]
+  const stored = Object.freeze({ parts, source: message.source ?? null })
+  return Object.freeze({ ...record, provenance: message.provenance ?? null, savedError: message.savedError ?? null, stored })
 }
 
 function historyOf(conversation: ConversationFixture | null): readonly ReplyRecord[] {
@@ -203,8 +211,10 @@ function hostApproval(filed: FiledApproval, chatId: string, outcome: CardOutcome
 
 function hostMessage(record: ReplyRecord, state: TurnState, chatId: string, outcome: CardOutcome): HostChatMessage {
   const raised = state.approvals.filter((filed) => filed.replyId === record.id && filed.status !== 'closed')
+  const { stored, ...fields } = record
   return Object.freeze({
-    ...record,
+    ...fields,
+    knownParts: knownPartsOf(record.role, rawPartsOf(record.text, stored), stored?.source),
     writing: record.id === state.writingId,
     stopped: state.stopped.includes(record.id),
     approvals: Object.freeze(raised.map((filed) => hostApproval(filed, chatId, outcome))),

@@ -12,14 +12,23 @@
  * - useCalibration and useAnswerCalibration are inert, as core's are until the server offers calibration: nothing
  *   offered, `available` false, and an answer refused ("not available on this server") with nothing kept. A test that
  *   draws calibration ahead of the server offers one (host.setCalibration); answers are then kept as runs.
+ * - useRateBrief (SDK 1.4.0, core's internal/rate-brief.ts at d92cabf202f4a04f48a429d5f79a05cbe6c1eefb): the brief's
+ *   thumbs, run as the page areas' writes, each kept with the body core posts to its digest feedback route
+ *   (`{state_hash, rating}`, 1 for up and -1 for down: BriefFeedbackBody), which a test's answer
+ *   (host.setPageAction('useRateBrief', ...)) is handed too. A state_hash that isn't some text, or a rating that is
+ *   neither `up` nor `down`, throws a TypeError before anything is kept, as core's does. Given the brief's state_hash,
+ *   its `rating` is the person's own rating of that brief (src/internal/proactive/ratings.ts: what host.setBriefRating
+ *   set, or the last post the fake server answered, shared with the BriefCard stand-in's thumbs); a second post
+ *   changes it. A state_hash given to the hook that isn't text throws a TypeError; nothing, or an empty one, reads none.
  */
 import type {
-  Brief, Calibration, CalibrationAction, CalibrationAnswer, CalibrationQuery, HideAnswer, HideReason, HideSuggestionInput, Readiness,
-  StartAnswer, StartSuggestionInput, Suggestion,
+  Brief, BriefRated, BriefRating, Calibration, CalibrationAction, CalibrationAnswer, CalibrationQuery, HideAnswer, HideReason,
+  HideSuggestionInput, RateBriefAction, RateBriefInput, Readiness, StartAnswer, StartSuggestionInput, Suggestion,
 } from '@automatos/theme-sdk'
 import { useMemo, useState } from 'react'
 import { cell, refuse } from '../internal/cell.ts'
-import { frozenCopy, messageOf, usePageAction, usePageQuery } from '../internal/page-views.ts'
+import { type BriefFeedbackBody, frozenCopy, messageOf, usePageAction, usePageQuery } from '../internal/page-views.ts'
+import { ratingControls, rememberRating, resetRatings, useRememberedRating } from '../internal/proactive/ratings.ts'
 import { HIDE_REASONS, isProactiveId } from '../internal/proactive/wire.ts'
 
 type Sdk = typeof import('@automatos/theme-sdk')
@@ -31,6 +40,11 @@ export const CALIBRATION_UNAVAILABLE = 'not available on this server'
 const NOT_A_SUGGESTION_ID = 'needs the id of a suggestion from useSuggestions.'
 const NOT_A_HIDE_REASON = `useHideSuggestion needs reason to be one of ${HIDE_REASONS.join(', ')}.`
 const NOT_AN_ANSWER = 'useAnswerCalibration needs a calibration_id with an accept, or a reject and its line_id.'
+/** rate-brief.ts NOT_A_RATING, and RATINGS: the digest feedback route takes 1 for up and -1 for down. */
+const NOT_A_RATING = "useRateBrief needs the brief's state_hash and a rating of up or down."
+const RATINGS: Readonly<Record<BriefRating, BriefFeedbackBody['rating']>> = Object.freeze({ up: 1, down: -1 })
+/** rate-brief.ts NOT_A_BRIEF: the brief the hook is given. */
+const NOT_A_BRIEF = "useRateBrief needs the brief's state_hash to be some text, or nothing while there is no brief."
 
 /** The calibration the fake server offers; null: none, as core's server today. */
 const offered = cell<Calibration | null>(null)
@@ -60,6 +74,25 @@ function checkedAnswer(answer: CalibrationAnswer): CalibrationAnswer {
   if (answer.answer === 'reject' && someText(answer.line_id)) return { calibration_id: id, answer: 'reject', line_id: answer.line_id }
   return refuse(NOT_AN_ANSWER)
 }
+
+/** rate-brief.ts checkedRating: the body core posts for a thumb, or a TypeError before anything is sent. */
+function checkedRating(input: RateBriefInput): BriefFeedbackBody {
+  const stateHash: unknown = input?.state_hash
+  const rating: unknown = input?.rating
+  if (typeof stateHash !== 'string' || stateHash.trim() === '') return refuse(NOT_A_RATING)
+  if (rating !== 'up' && rating !== 'down') return refuse(NOT_A_RATING)
+  return { state_hash: stateHash, rating: RATINGS[rating] }
+}
+
+/** rate-brief.ts checkedBriefHash: the brief the theme named, or null for none (nothing, or no text yet); else a TypeError. */
+function checkedBriefHash(stateHash: unknown): string | null {
+  if (stateHash === undefined || stateHash === null) return null
+  if (typeof stateHash !== 'string') return refuse(NOT_A_BRIEF)
+  return stateHash.trim() === '' ? null : stateHash
+}
+
+/** The thumb a posted body carries. */
+const thumbOf = (body: BriefFeedbackBody): BriefRating => (body.rating === RATINGS.up ? 'up' : 'down')
 
 /** proactive.ts:158. */
 export const useBrief = (() => usePageQuery<Brief>('useBrief', NO_ARGS)) satisfies Sdk['useBrief']
@@ -129,8 +162,34 @@ export const useAnswerCalibration = ((): CalibrationAction => {
   )
 }) satisfies Sdk['useAnswerCalibration']
 
+/**
+ * rate-brief.ts useRateBrief: the thumb checked and posted as the route's body, kept as a run of 'useRateBrief'; once
+ * the fake server answers it, the person's rating of that brief (use-digest-api.ts useSubmitDigestFeedback's onSuccess).
+ * `rating` is the person's rating of the brief `stateHash` names.
+ */
+export const useRateBrief = ((stateHash?: string | null): RateBriefAction => {
+  const hash = checkedBriefHash(stateHash)
+  const posting = usePageAction<BriefFeedbackBody, BriefRated>('useRateBrief')
+  const rating = useRememberedRating(hash)
+  return useMemo(() => {
+    const post = (body: BriefFeedbackBody): Promise<BriefRated> => posting.runAsync(body).then((answer) => {
+      rememberRating(body.state_hash, thumbOf(body))
+      return answer
+    })
+    return Object.freeze({
+      ...posting,
+      rating,
+      run: (input: RateBriefInput) => {
+        post(checkedRating(input)).catch(() => undefined)
+      },
+      runAsync: (input: RateBriefInput) => new Promise<BriefFeedbackBody>((resolve) => resolve(checkedRating(input))).then(post),
+    })
+  }, [posting, rating])
+}) satisfies Sdk['useRateBrief']
+
 /** The controls of this area, gathered by host.ts. */
 export const proactiveControls = Object.freeze({
+  ...ratingControls,
   /** The calibration the fake server offers from now on; null: none (core's server today, and the default). */
   setCalibration(calibration: Calibration | null): void {
     offered.set(calibration === null ? null : frozenCopy(calibration))
@@ -139,4 +198,5 @@ export const proactiveControls = Object.freeze({
 
 export function resetProactive(): void {
   offered.set(null)
+  resetRatings()
 }

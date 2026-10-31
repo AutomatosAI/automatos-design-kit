@@ -1,5 +1,5 @@
 {
-  "_comment": "PRD-261 B-01b: the slots and pages of core's orchestrator/services/themes/contract.py (KNOWN_SLOTS, REQUIRED_SLOTS, PAGE_SOURCES, HOST_OWNED_ROUTES) at commit 1a8956c874dc42cff05b96f431c50b7d722a71aa, as JSON. Generated with the python3 lines in packages/theme-cli/src/core/README.md. Don't edit by hand.",
+  "_comment": "PRD-261 B-01b: the slots and pages of core's orchestrator/services/themes/contract.py (KNOWN_SLOTS, REQUIRED_SLOTS, PAGE_SOURCES, HOST_OWNED_ROUTES) at commit d92cabf202f4a04f48a429d5f79a05cbe6c1eefb, as JSON. Generated with the python3 lines in packages/theme-cli/src/core/README.md. Don't edit by hand.",
   "KNOWN_SLOTS": [
     "frame@1",
     "lookEditor@1",

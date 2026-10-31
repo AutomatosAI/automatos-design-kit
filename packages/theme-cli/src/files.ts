@@ -39,7 +39,7 @@ const WOFF2_MAX_BYTES = 2 * MB
 const WOFF2_HEADER_BYTES = 48
 const WOFF2_COLLECTION_FLAVOR = 0x74746366 // "ttcf"
 const WOFF2_FLAVORS: ReadonlySet<number> = new Set([0x00010000, 0x4f54544f])
-// package.py :100-:112: a phone's font is one sfnt face, as the woff2 a browser gets is: TrueType outlines
+// package.py :108-:120: a phone's font is one sfnt face, as the woff2 a browser gets is: TrueType outlines
 // (00 01 00 00, or Apple's "true") or CFF ("OTTO"); a collection ("ttcf") is refused. The header is the
 // version, then numTables and three search fields (two bytes each); each table record is tag, checksum,
 // offset, length (four bytes each).

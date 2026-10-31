@@ -83,6 +83,12 @@ const LOOK_TABLE = {
       green: { '--primary': GREEN, '--primary-foreground': WHITE },
     },
   },
+  // radius is painted by a numeric rule, as the reader needs every look knob painted (first-paint.ts; core's
+  // test_prd261_review_stage.py LOOK_TABLE, build.py HELLO_RADIUS_RULE).
+  numeric: [{
+    var: '--hello-glow', knob: 'radius', min: 0, max: 16, integer: true, scale: 100, capTable: null, template: 'rgba-alpha',
+    color: { knob: 'accent', rgb: { blue: '47,111,237', green: '30,127,60' } },
+  }],
   defaults: { accent: 'blue', ground: 'paper', radius: 6 },
 }
 

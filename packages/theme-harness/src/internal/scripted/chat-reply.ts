@@ -22,6 +22,7 @@ import type {
   WithdrawOffer,
 } from '@automatos/theme-sdk'
 import type { RecordedFrame } from './chat-script.ts'
+import type { StoredParts } from './message-parts.ts'
 
 /** A message as the fake keeps it; src/sdk/chat.ts copies it into the SDK's HostChatMessage. */
 export interface ReplyRecord {
@@ -42,6 +43,11 @@ export interface ReplyRecord {
   readonly provenance: string | null
   /** A stored reply's: the failed turn the server saved, in its words; null for any other reply. */
   readonly savedError: string | null
+  /**
+   * A stored message's raw parts as the backend keeps them (SDK 1.4.0: src/sdk/chat.ts reads its knownParts from
+   * them, message-parts.ts); null for a message of the turn, whose parts are its words. Never handed to a theme.
+   */
+  readonly stored: StoredParts | null
 }
 
 type Fields = Readonly<Record<string, unknown>>
@@ -79,7 +85,7 @@ export function replyRecord(id: string, role: HostChatRole, text = ''): ReplyRec
   return Object.freeze({
     id, role, text, activity: NO_LINES, error: null, receipts: null, above: NO_LINES, deliverables: Object.freeze([]),
     taskCards: Object.freeze([]), toolCalls: Object.freeze([]), reasoningChars: 0, withdrawOffer: null, limitReached: null,
-    provenance: null, savedError: null,
+    provenance: null, savedError: null, stored: null,
   })
 }
 

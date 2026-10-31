@@ -6,10 +6,11 @@
  *   (looks.ts over the vendored core/look-schema.ts), with core's codes.
  * - `prepaint`: boot/prepaint.json through core's prepaint checks (vendored core/css-value.ts), with
  *   core's codes; then its defaults and every preset must fit the table as the host keeps it
- *   (mobile-paint.ts `bootTable` and `lookFits`, the host's first-paint rule): the host drops a
- *   table whose defaults don't fit what is left, and paints the defaults for a look that doesn't fit.
- *   What the browser would leave out is an error too (first-paint.ts, core's codes): a cell's value its
- *   first paint drops (a gradient, over 200 characters), and a schema knob the table never paints.
+ *   (mobile-paint.ts `bootTable` and `lookFits`, the host's first-paint rule): the host paints the defaults
+ *   for a look that doesn't fit. What the browser would leave out is an error too (first-paint.ts, core's
+ *   reader's codes and sentences): a knob name or a cell's value its first paint drops (a gradient, over 200
+ *   characters), defaults that don't fit what it keeps (it then drops the whole table), and a knob the table
+ *   and the schema don't both name.
  *   `not_measured` when the theme has no table.
  * - `contrast`: every pair design/contrast.json declares, on every preset as the first paint paints
  *   it from the kept table (contrast.ts `firstPaint`), by the look runtime's own ratio. A pair under
@@ -59,7 +60,6 @@ export const DESIGN_CODES = Object.freeze({
   underMin: 'CONTRAST_UNDER_MIN',
   notMeasured: 'CONTRAST_NOT_MEASURED',
   presetUnfit: 'PRESET_NOT_IN_PREPAINT',
-  defaultsUnfit: 'PREPAINT_DEFAULTS_UNFIT',
   notFolder: 'NOT_A_FOLDER',
 })
 const CONTRAST_FIELDS: readonly string[] = ['schema', 'pairs']
@@ -212,14 +212,12 @@ function looksRow(files: ReadonlyMap<string, Uint8Array>, blocked: readonly Them
   return row('looks', LEVEL_PASS, `${ids.length} preset(s) pass ${SCHEMA_PATH}: ${ids.join(', ')}.`)
 }
 
-/** Every preset fits the kept table (null: the host dropped it, as its defaults don't fit), or each look that doesn't. */
+/**
+ * Every preset fits the kept table, or each look that doesn't. A table the host dropped (null: its defaults don't fit
+ * what it keeps) is first-paint.ts's PREPAINT_DEFAULTS_UNFIT, in the line's `dropped`.
+ */
 function fitErrors(table: BootTable | null, presets: readonly Preset[]): ThemeError[] {
-  if (table === null) {
-    return [themeError(DESIGN_CODES.defaultsUnfit, `${PREPAINT_PATH}#defaults`, (
-      `The table's "defaults" don't name an option of every table the host keeps of ${PREPAINT_PATH} (it first drops each `
-      + 'name and value its first paint refuses, such as an rgb list with spaces), so the host drops the table and paints nothing from it.'
-    ))]
-  }
+  if (table === null) return []
   return presets.filter((preset) => !lookFits(table, preset.look)).map((preset) => themeError(DESIGN_CODES.presetUnfit, preset.path, (
     `Preset "${echo(preset.id)}" names a choice or value with no entry in ${PREPAINT_PATH} as the host keeps it, `
     + "so its first paint is the table's defaults."

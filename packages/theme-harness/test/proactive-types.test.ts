@@ -3,7 +3,8 @@
 // (test/types.test.ts holds every name's type, test/surface.test.ts the names): the row states, the brief's sections,
 // Hide's reasons, Try again's kinds, the colour roles and an approval's answers are the declared unions, in their
 // order, and DISPLAY_STATE_LABELS has a label for each state, frozen, with the glyphs §6.11.1 fixes. A static read of
-// packages/theme-sdk/areas/proactive.d.ts, theme.d.ts and cards.d.ts.
+// packages/theme-sdk/areas/proactive.d.ts, theme.d.ts and cards.d.ts. SDK 1.4.0: a message part's types (chat.d.ts),
+// the brief's ratings and BriefVoice's data-voice-row.
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
@@ -11,6 +12,7 @@ import { describe, expect, it } from 'vitest'
 import { DISPLAY_STATE_LABELS, STATUS_ROLE_TOKENS } from '../src/internal/proactive/labels.ts'
 import { RETRIES } from '../src/internal/proactive/props.ts'
 import { BRIEF_SECTIONS, DISPLAY_STATES, HIDE_REASONS } from '../src/internal/proactive/wire.ts'
+import { BRIEF_PART, REPLY_CHIPS_PART, SUGGESTION_PART, TEXT_PART } from '../src/internal/scripted/message-parts.ts'
 import * as fake from '../src/sdk/index.ts'
 
 const SDK_ROOT = dirname(createRequire(import.meta.url).resolve('@automatos/theme-sdk/package.json'))
@@ -58,5 +60,15 @@ describe("BriefVoice's root", () => {
   it('is the one the declarations tell a theme to follow (test/proactive-cards.test.tsx draws it)', () => {
     expect(AREA('voice')).toContain('[data-brief-voice="root"]')
     expect(AREA('voice')).toContain('data-voice-speaking="true"')
+  })
+})
+
+describe('SDK 1.4.0: what the stand-ins follow', () => {
+  it("a message part's four types (areas/chat.d.ts), the brief's ratings up and down, and BriefVoice's data-voice-row", () => {
+    const partTypes = Array.from(AREA('chat').matchAll(/readonly type: '([^']+)'/g), (match) => match[1])
+    expect(partTypes).toEqual(expect.arrayContaining([TEXT_PART, BRIEF_PART, SUGGESTION_PART, REPLY_CHIPS_PART]))
+    expect(AREA('chat')).toContain('export type HostMessagePart = HostTextPart | HostBriefPart | HostSuggestionPart | HostReplyChipsPart')
+    expect(union('proactive', 'BriefRating')).toEqual(['up', 'down'])
+    expect(AREA('voice')).toContain('data-voice-row="<index>"')
   })
 })

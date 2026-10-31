@@ -4,6 +4,11 @@
  * tests/test_prd261_mobile_package.py): the fonts the block names are in the package; `fromLooks` paints a
  * phone's ground and its text from the prepaint table's defaults, painted as the web's boot paints them
  * (src/mobile-paint.ts); a `clips` or `stills` mascot has every state's files. And `pack` of the hello theme.
+ *
+ * The reader refuses a table that doesn't paint every knob of the look schema, or whose defaults don't fit what the
+ * web keeps of it (src/first-paint.ts, core's first_paint.py), whatever the block says. So every table a package
+ * carries here paints hello's three knobs (`helloTable`, as core's tests/fixtures/themes/build.py `hello_prepaint`
+ * does): accent and ground by choice tables, radius by a numeric rule.
  */
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -13,6 +18,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { checkPackage, MOBILE_CANNOT_PAINT, MOBILE_MASCOT_FILES } from '../src/check-package.ts'
 import { byText, collectThemeFiles } from '../src/collect.ts'
 import { MOBILE_MASCOT_MODES } from '../src/core/mobile-manifest.ts'
+import { PREPAINT_DEFAULTS_UNFIT } from '../src/first-paint.ts'
 import type { PackageEntry } from '../src/members.ts'
 import { bootTable, isStudioTriplet, lookFits, missingTokens, paintLook } from '../src/mobile-paint.ts'
 import { packTheme } from '../src/pack.ts'
@@ -45,6 +51,15 @@ const GLOW = {
 }
 /** GLOW without capTable: a rule the web's boot drops (only a capTable given as null means no caps). */
 const UNCAPPED = Object.fromEntries(Object.entries(GLOW).filter(([key]) => key !== 'capTable'))
+/** build.py HELLO_ACCENT_TABLE, HELLO_RADIUS_RULE and HELLO_DEFAULTS: what paints the rest of hello's look knobs. */
+const HELLO_ACCENT = { blue: { '--hello-accent': '#2f6fed' }, green: { '--hello-accent': '#1e7f3c' } }
+const RADIUS = {
+  var: '--hello-glow', knob: 'radius', min: 0, max: 16, integer: true, scale: 100, capTable: null, template: 'rgba-alpha',
+  color: { knob: 'accent', rgb: { blue: '47,111,237', green: '30,127,60' } },
+}
+const HELLO_DEFAULTS = { accent: 'blue', ground: 'paper', radius: 6 }
+/** core's sentence for defaults that don't fit what the web keeps (first_paint.py `_unfit`). */
+const DROPS_THE_TABLE = 'it drops the whole table: nothing is painted from it and the theme has no looks'
 const CLIP = 'assets/mascot/idle.mp4'
 const STILL = 'assets/mascot/idle.png'
 
@@ -80,9 +95,19 @@ function mobilePackage(mobile: JsonObject, files: Files = {}, states?: readonly 
   return helloPackage({ engines: MOBILE_ENGINES, mobile, ...(states === undefined ? {} : { mascot: { states } }) }, files)
 }
 
-/** `fromLooks` with the prepaint table given as an object or as JSON text, or with none. */
+/**
+ * `table` painting every knob of hello's look schema (build.py `hello_prepaint`): its knob tables over hello's accent
+ * table, its numeric rules or else hello's radius rule, its defaults over hello's.
+ */
+function helloTable(table: JsonObject): JsonObject {
+  const own = (field: string): JsonObject => (table[field] ?? {}) as JsonObject
+  const numeric = table.numeric ?? [RADIUS]
+  return { ...table, knobs: { accent: HELLO_ACCENT, ...own('knobs') }, numeric, defaults: { ...HELLO_DEFAULTS, ...own('defaults') } }
+}
+
+/** `fromLooks` with the prepaint table given as an object (through helloTable) or as JSON text, or with none. */
 function looksPackage(table: JsonObject | string | null): PackageEntry[] {
-  const text = typeof table === 'string' ? table : JSON.stringify(table)
+  const text = typeof table === 'string' ? table : JSON.stringify(table === null ? null : helloTable(table))
   return mobilePackage({ fromLooks: true }, { [PREPAINT]: table === null ? null : new TextEncoder().encode(text) })
 }
 
@@ -160,25 +185,24 @@ describe('fromLooks: the defaults look paints the ground and its text', () => {
   it.each([
     ['an option its knob table lacks', { ...BASE, defaults: { ground: 'paper', accent: 'violet' } }],
     ['no cell of a pair table', { ...BASE, pairs: [{ a: 'ground', b: 'accent', table: { ink: { blue: {} } } }] }],
-    ['a number out of its rule\'s range', { ...BASE, numeric: [GLOW], defaults: { ...BASE.defaults, glow: 40 } }],
-  ])('cannot paint defaults naming %s: the web paints nothing from the table', (_name, table) => {
-    const message = onlyError(looksPackage(table), MOBILE_CANNOT_PAINT, DEFAULTS)
-    expect(message).toContain('the web paints nothing from the table')
-    expect(message).toContain('"mobile.tokens"')
+    ['a number out of its rule\'s range', { ...BASE, defaults: { ...BASE.defaults, radius: 40 } }],
+  ])('refuses defaults naming %s as the table the web drops whole, not as a phone that cannot paint', (_name, table) => {
+    const message = onlyError(looksPackage(table), PREPAINT_DEFAULTS_UNFIT, DEFAULTS)
+    expect(message).toContain(DROPS_THE_TABLE)
   })
 
   it('cannot paint a ground a numeric rule paints over: the web paints rgba() there last', () => {
-    const table = { ...BASE, numeric: [{ ...GLOW, var: '--background' }], defaults: { ...BASE.defaults, glow: 20 } }
+    const table = { ...BASE, numeric: [{ ...RADIUS, var: '--background' }] }
     expect(onlyError(looksPackage(table), MOBILE_CANNOT_PAINT, DEFAULTS)).toContain('paints no --background,')
   })
 
   it('passes defaults a dropped rule would refuse: a rule with no capTable is not one the web keeps', () => {
-    expect(refusals(looksPackage({ ...BASE, numeric: [UNCAPPED], defaults: { ...BASE.defaults, glow: 40 } }))).toEqual([])
+    expect(refusals(looksPackage({ ...BASE, numeric: [RADIUS, UNCAPPED], defaults: { ...BASE.defaults, glow: 40 } }))).toEqual([])
   })
 
   it('reads numbers as JSON.parse does: 2**53 + 1 is 2**53, inside a rule whose max is 2**53', () => {
-    const text = JSON.stringify({ ...BASE, numeric: [{ ...GLOW, max: 2 ** 53 }], defaults: { ...BASE.defaults, glow: 0 } })
-    expect(refusals(looksPackage(text.replace('"glow":0', '"glow":9007199254740993')))).toEqual([])
+    const text = JSON.stringify(helloTable({ ...BASE, numeric: [{ ...RADIUS, max: 2 ** 53 }], defaults: { ...BASE.defaults, radius: 0 } }))
+    expect(refusals(looksPackage(text.replace('"radius":0', '"radius":9007199254740993')))).toEqual([])
   })
 
   it.each([['{', 'BAD_JSON'], ['[]', 'BAD_PREPAINT']])('refuses an unreadable table %j once, as %s', (text, code) => {

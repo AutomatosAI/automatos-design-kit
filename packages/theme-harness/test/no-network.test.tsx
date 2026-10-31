@@ -1,6 +1,6 @@
 // PRD-261 B-02b (plan §2.2.9): inside the harness the global fetch and XMLHttpRequest throw (src/no-network.ts),
 // and the fake SDK works without them: every hook and function of the areas the harness fakes here answers
-// with nothing refused, SDK 1.3.0's proactive area's among them. B-02c's chat, deliverables and cards fakes hold the
+// with nothing refused, SDK 1.3.0's proactive area's among them (and SDK 1.4.0's useRateBrief). B-02c's chat, deliverables and cards fakes hold the
 // same rule in their own tests.
 import * as sdk from '@automatos/theme-sdk'
 import { act, render, screen } from '@testing-library/react'
@@ -50,7 +50,7 @@ function EveryHook() {
     sdk.useCreatePlaybook(), sdk.useUpdatePlaybook(), sdk.useDeletePlaybook(), sdk.useExecutePlaybook(), sdk.useDatabaseKnowledge()]
   sdk.useBoardEventStream()
   const proactive = [sdk.useBrief(), sdk.useReadiness(), sdk.useCheckReadiness(), sdk.useSuggestions(), sdk.useStartSuggestion(),
-    sdk.useHideSuggestion(), sdk.useCalibration(), sdk.useAnswerCalibration()]
+    sdk.useHideSuggestion(), sdk.useCalibration(), sdk.useAnswerCalibration(), sdk.useRateBrief()]
   const answered = [...context, ...navigation, ...looks, ...pages, ...actions, ...proactive].filter((value) => value !== undefined)
   return (
     <output>

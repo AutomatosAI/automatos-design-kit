@@ -2,7 +2,8 @@
  * The `uses` check gives core's answers: the `uses` cases of core's
  * orchestrator/tests/test_prd261_review_stage.py at the commit src/core/README.md names (the seeded
  * bad packages, the SDK storage, voice and proactive areas on this host's name list, and no name list at all), each on
- * the hello package changed the same way, through the whole review.
+ * the hello package changed the same way, through the whole review. SDK 1.4.0 adds one name, the proactive area's
+ * useRateBrief (core's sdk-surface.json at that commit): read by area like the rest.
  */
 import { describe, expect, it } from 'vitest'
 import { LLM_SERVER_ONLY } from '../src/check/report.ts'
@@ -21,11 +22,14 @@ const PROACTIVE_AREA = 'proactive'
 const PROACTIVE_NAMES = ['DISPLAY_STATE_LABELS', 'BriefCard', 'SuggestionCard', 'BriefVoice', 'useBrief', 'useSuggestions']
 const PROACTIVE_ENGINES = { automatos: '^1.1.0', sdk: '^1.3.0' }
 const PROACTIVE_USES = ['cards', PROACTIVE_AREA, 'theme', 'voice']
-/** SDK 1.3.0's proactive hooks and the cards area's proactive defaults (areas/proactive.d.ts, areas/cards.d.ts). */
+/** SDK 1.3.0's proactive hooks and SDK 1.4.0's useRateBrief (areas/proactive.d.ts), and the cards area's proactive defaults. */
+const RATE_BRIEF = 'useRateBrief'
 const PROACTIVE_HOOKS = [
   'useBrief', 'useReadiness', 'useCheckReadiness', 'useSuggestions', 'useStartSuggestion', 'useHideSuggestion', 'useCalibration',
-  'useAnswerCalibration',
+  'useAnswerCalibration', RATE_BRIEF,
 ]
+/** The SDK the brief's thumbs need (1.4.0), on today's host contract. */
+const RATE_BRIEF_ENGINES = { automatos: '^1.1.0', sdk: '^1.4.0' }
 const PROACTIVE_CARDS = ['BriefCard', 'SuggestionCard', 'StatusLabel', 'ReadinessList', 'CalibrationCard', 'ReplyChips']
 
 async function usesOf(entry: string, uses?: readonly string[]): Promise<Readonly<Record<string, unknown>>> {
@@ -143,7 +147,15 @@ describe("the SDK's proactive area (SDK 1.3.0) on this host's name list", () => 
     expect(uses.problems).toEqual([filled(UNDECLARED, 'areas', [PROACTIVE_AREA])])
   })
 
-  it("the vendored name list holds the proactive area's eight hooks, the cards' six defaults and DISPLAY_STATE_LABELS", () => {
+  it('a theme on engines.sdk ^1.4.0 that rates the brief passes, useRateBrief read as the proactive area', async () => {
+    const manifest = { engines: RATE_BRIEF_ENGINES, uses: [PROACTIVE_AREA, 'theme'] }
+    const { report } = await reviewOnThisHost({ entry: entryImporting(`defineTheme, useBrief, ${RATE_BRIEF}`), manifest })
+    const uses = report.checks.uses
+    expect([report.verdict, uses.level, uses.unknownNames, uses.undeclaredAreas]).toEqual(['pass', 'pass', [], []])
+    expect(uses.usedNames).toEqual(expect.arrayContaining([RATE_BRIEF]))
+  })
+
+  it("the vendored name list holds the proactive area's nine hooks (useRateBrief SDK 1.4.0's), the cards' six defaults and DISPLAY_STATE_LABELS", () => {
     const surface = sdkSurface()
     expect([...(surface?.[PROACTIVE_AREA] ?? [])].sort()).toEqual([...PROACTIVE_HOOKS].sort())
     expect(surface?.cards).toEqual(expect.arrayContaining(PROACTIVE_CARDS))

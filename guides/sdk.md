@@ -2,7 +2,7 @@
 
 `@automatos/theme-sdk` is the one module a theme imports from the host. The host serves it through its import map
 at run time, so a theme never bundles it; the kit vendors its type declarations in
-[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.3.0). Everything a theme reads of the app, and
+[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.4.0). Everything a theme reads of the app, and
 everything it asks the app to do, goes through these names: no `fetch`, no `@/…` import, no `next/*`, no browser
 storage of its own ([pitfalls.md](pitfalls.md)).
 
@@ -81,6 +81,24 @@ gives a fake of every name ([its README](../packages/theme-harness/README.md)).
 | `movedSomethingOnTheBoard` | Whether a done write touched a card on the board. |
 | `liveReceiptsOf` | The turn's receipts off one of the stream parts `onData` hands over, as the reply will carry them. |
 
+**A message's parts (SDK 1.4.0).** Each message `useChatController` gives carries `knownParts`
+(`engines.sdk` `^1.4.0`): its parts of the types a theme can read, in its order, each checked and frozen, as the union
+`HostMessagePart`. A `text` part is its words; `brief@1` the day's brief (a Brief@1, as `useBrief` gives one), posted
+beside its prose; `suggestion@1` a suggestion's id, the row `useSuggestions` lists and Start and Hide take; and
+`reply_chips@1` the two or three short answers the host would draw (`replies`, each at most 24 characters). A part of
+any other type, or one that isn't what its type says, is left out; brief, suggestion and chip parts count on Auto's
+messages only. Find the day's brief in a conversation by its `brief@1` part, never by matching its prose:
+
+```ts
+const brief = message.knownParts.find((part): part is HostBriefPart => part.type === 'brief@1')?.brief ?? null
+```
+
+A chip has no route of its own: a tap is the person's own message, so send the chip's text with the controller's
+`send` (or place `ReplyChips`, which does), and mark the chips' words `data-ai-generated`, as they are Auto's. Today a
+reply's chips reach `knownParts` once its conversation opens again: the reply being written carries its words alone. In
+the harness the transcript's reply carries a `suggestion@1` and a `reply_chips@1` part, and the Auto thread
+(`AUTO_THREAD`) a `brief@1` part too ([theme-harness](../packages/theme-harness/README.md)).
+
 ## `deliverables`
 
 | Name | What it is |
@@ -116,7 +134,7 @@ with `useChatController`'s `send` ([contract.md](contract.md#the-hosts-parts)).
 | `HeaderUtilities` | Help, notifications, the theme menu and the account. Every frame renders it. |
 | `AiLabelFence` | The host's fence around a theme's chat composer. Wrap the composer only, never the conversation, and keep the voice button outside it. The host keeps the AI label itself ([contract.md](contract.md#the-ai-label)). |
 | `CorePage` | The core page for this route inside the theme's page, or its children where there is none. |
-| `BriefCard` | SDK 1.3.0: the day's brief from `useBrief`: the date, the greeting, Auto's Read, the five sections with their labels and counts, the row actions as text (`onAction`, `onOpen`, `onShowMore`), Listen (`listen`, on by default) and the thumbs. |
+| `BriefCard` | SDK 1.3.0: the day's brief from `useBrief`: the date, the greeting, Auto's Read, the five sections with their labels and counts, the row actions as text (`onAction`, `onOpen`, `onShowMore`), Listen (`listen`, on by default) and the thumbs (`thumbs`, on by default; SDK 1.4.0: they show the person's remembered rating, and `thumbs={false}` draws none beside a theme's own `useRateBrief`). |
 | `SuggestionCard` | SDK 1.3.0: one suggestion from `useSuggestions`, with Start and Hide and what Start does, as a card or (`variant: 'pinned'`) one line above a composer; `onStarted` gets what Start made. |
 | `StatusLabel` | SDK 1.3.0: a row's `display_state` as its glyph and word, `▸` its `next_step`, and Try again when the row has a `retry` and the theme passes `onRetry`; nothing for an unknown state. |
 | `ReadinessList` | SDK 1.3.0: what Auto depends on, from `useReadiness`: each item's state and in-app fix, and Check again. |
@@ -179,7 +197,7 @@ plan and edition). A theme never captures audio itself: code that names `getUser
 | `VoiceButton` | The host's voice button: the press (`press`: `hold`, the default, or `toggle`), the engine (`mode`: `auto`, `quick` or `live`), the `conversation` it talks into, the `hotkey`, the `size` (`sm`, `md`, `lg`) and the `label`. While the session is the button's, the host draws the "AI voice assistant" caption and the stop control in a protected surface (`voice-control`) that no theme CSS can hide. Style it through `data-voice-state`, `data-voice-mode`, `data-voice-press`, `data-voice-size` and `data-voice-mic` on its root and the `--voice-button-*` custom properties. |
 | `useVoice` | The session as a frozen snapshot: what is `available` (quick, live and the reason), the `mode`, the `phase` (`idle`, `connecting`, `listening`, `thinking`, `speaking`, `ended`, `error`), `micOpen`, `muted`, `heard`, `reply`, `durationSec`, `error`, `chatId`, and `stop()`. |
 | `readVoiceLevels` | The member's and Auto's levels now, 0 to 1 (`user`, `agent`), for code inside an animation frame (a waveform, a mascot); zeros while no session runs. Never read it in a render. |
-| `BriefVoice` | SDK 1.3.0: Listen, the host's control that reads the day's brief the host holds in Auto's voice, with the AI voice caption and Stop while it reads, in a protected surface (`brief-voice`). It takes no props: a theme never speaks. It is disabled until the host holds a brief and while a voice session runs; its root (`[data-brief-voice="root"]`) carries `data-voice-speaking="true"` while Auto reads, which a theme's speaking line follows. |
+| `BriefVoice` | SDK 1.3.0: Listen, the host's control that reads the day's brief the host holds in Auto's voice, with the AI voice caption and Stop while it reads, in a protected surface (`brief-voice`). It takes no text: a theme never speaks. It is disabled until the host holds a brief and while a voice session runs; its root (`[data-brief-voice="root"]`) carries `data-voice-speaking="true"` while Auto reads, which a theme's speaking line follows. SDK 1.4.0: the row Auto is reading. While Auto reads one of the brief's rows, the root also carries `data-voice-row="<index>"`, and its one prop, `onSpeakingRow(row)`, hears the index, then `null` between rows, during the greeting and once the reading ends or stops. The index is the row's place in the brief's rows, section by section in the sections' order (`needs_you`, `suggestions`, `today`, `since`, `unchecked`): the number Auto says, less one. A value that isn't a function throws; a handler that throws is logged, and Auto reads on. |
 
 Outside the host's voice (a page with none) `useVoice` answers the idle snapshot with nothing available and the
 reason, `readVoiceLevels` zeros, and `VoiceButton` is drawn disabled; none throws. A theme never hides the caption or
@@ -196,6 +214,7 @@ What Auto noticed for the person, for a theme's own placements of the proactive 
 `^1.3.0`, and `proactive` in `uses`; the cards area's defaults above draw the same data). Reads and writes hand back the
 page areas' frozen views (below). The words in these shapes are the server's, in the person's language; a suggestion's
 title and detail and the brief's rows are Auto's words: draw them as text and mark them `data-ai-generated`.
+`useSuggestions` is the signed-in person's own open suggestions, never a row addressed to someone else.
 
 | Name | What it is |
 |---|---|
@@ -203,6 +222,7 @@ title and detail and the brief's rows are Auto's words: draw them as text and ma
 | `useReadiness`, `useCheckReadiness` | What Auto depends on (Readiness@1: each item ready, not checked or needs setup, with its in-app fix), and Check again, which the server limits. |
 | `useSuggestions`, `useStartSuggestion`, `useHideSuggestion` | The open suggestions, newest first, and Start and Hide (with the reason the person picked). An id that isn't a suggestion's, or a reason Hide doesn't know, throws before anything is sent. |
 | `useCalibration`, `useAnswerCalibration` | What Auto thinks it knows on day one, and Sounds right or Reject one line. `available` is false until the server offers calibration; until then nothing is asked and an answer is refused. |
+| `useRateBrief` | SDK 1.4.0 (`engines.sdk` `^1.4.0`): the brief's thumbs up or down, for a theme that draws the brief card itself: `run({ state_hash, rating })` with the brief's `state_hash` and `rating` `up` or `down` (it answers `{ ok }`), through the host's own digest feedback route, the one `BriefCard` posts. Given the brief's `state_hash` (`useRateBrief(brief.state_hash)`), its `rating` is the person's own rating of that brief, `up`, `down` or `null`, read from the server and shared with `BriefCard`'s thumbs: the server keeps one rating per person per brief, and a second press changes it. A `state_hash` that isn't some text, or a rating that is neither, throws before anything is sent. |
 
 **No brief is a normal day.** The brief exists only while the workspace's proactive mode is on (shadow or live).
 Otherwise the host's open is refused quietly and `useBrief` answers no data, not loading and no error: draw the page as

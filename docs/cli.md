@@ -87,7 +87,8 @@ The files are then checked as core's package reader checks them (`src/check-pack
 2. each file's size and bytes: over its cap (`FILE_TOO_LARGE`, `ENTRY_TOO_LARGE`, `CODE_TOO_LARGE`,
    `CLIP_TOO_LARGE`), bytes that are not what the name says (`BAD_FILE_TYPE`), text that is not UTF-8 (`NOT_UTF8`);
 3. the content: `theme.json` against core's manifest validator, `dist/entry.js` present, JS and CSS together at most
-   3 MB, the look schema and presets, the first-paint table, every file `theme.json` names present
+   3 MB, the look schema and presets, the first-paint table and what the browser's first paint would drop of it
+   (`BAD_PREPAINT`, `BAD_CSS_VALUE`, `PREPAINT_DEFAULTS_UNFIT`, `KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`), every file `theme.json` names present
    (`MISSING_FILE`), the default look a preset (`UNKNOWN_DEFAULT_LOOK`), `dist/theme.css` against the server's CSS
    scope check, and the `mobile` block: `fromLooks` must paint `--background` and `--foreground` from the table's
    defaults (`MOBILE_CANNOT_PAINT`), and `clips` or `stills` must have each state's files.
@@ -188,7 +189,9 @@ nothing and sends nothing. Three lines, then the verdict:
 
 - `looks`: `looks/schema.json` and every `looks/presets/*.look.json` through core's look validators and codes.
 - `prepaint`: `boot/prepaint.json` through core's checks, then its defaults and every preset must fit the table as
-  the host keeps it (`PREPAINT_DEFAULTS_UNFIT`, `PRESET_NOT_IN_PREPAINT`). `not_measured` without the table.
+  the host keeps it (`PREPAINT_DEFAULTS_UNFIT`, `PRESET_NOT_IN_PREPAINT`), and nothing of it may be lost in the
+  browser's first paint: a knob name or value its gate drops (`BAD_PREPAINT`, `BAD_CSS_VALUE`), or a knob the table and
+  the look schema don't both name (`KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`). `not_measured` without the table.
 - `contrast`: every pair `design/contrast.json` declares, on every preset as the first paint paints it. A pair under
   its `min` (default 4.5) is an error naming the preset, both variables and the ratio (`CONTRAST_UNDER_MIN`), and so
   is a pair a preset can't paint (`CONTRAST_NOT_MEASURED`). `not_measured` without the file.

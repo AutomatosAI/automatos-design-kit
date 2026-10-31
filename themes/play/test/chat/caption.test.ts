@@ -29,6 +29,7 @@ function message(fields: Partial<HostChatMessage>): HostChatMessage {
     id: 'm',
     role: 'assistant',
     text: '',
+    knownParts: [],
     activity: [],
     error: null,
     writing: false,

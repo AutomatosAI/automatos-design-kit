@@ -57,6 +57,11 @@ describe("the harness's fake SDK", () => {
     expect(Object.keys(fake).sort()).toEqual([...declared].sort())
   })
 
+  it("holds SDK 1.4.0's one new value name, the proactive area's useRateBrief, among them", () => {
+    expect(valueNames('proactive')).toContain('useRateBrief')
+    expect(typeof fake.useRateBrief).toBe('function')
+  })
+
   it('gives every name a value', () => {
     const fakes = new Map<string, unknown>(Object.entries(fake))
     expect(declared.filter((name) => fakes.get(name) === undefined || fakes.get(name) === null)).toEqual([])
