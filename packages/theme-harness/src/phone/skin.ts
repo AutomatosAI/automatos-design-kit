@@ -1,9 +1,10 @@
 /**
  * What Automatos Go draws for the theme the harness serves, decided as the app decides it (its
- * src/styles/themes/follow.ts `followStudio` :43-:49, at the Automatos Go commit packages/theme-cli's README names):
+ * src/styles/themes/follow.ts `followStudio` :44-:50, at the Automatos Go commit packages/theme-cli's README names):
  *
- * - built in: automatos/play and automatos/hud are the phone's own Play and HUD layouts (BUILT_IN_THEME_STYLES
- *   :26-:29), painted from the member's looks; the phone reads none of their `mobile` block;
+ * - built in: automatos/play, automatos/hud and automatos/arcade are the phone's own Play, HUD and Arcade layouts
+ *   (BUILT_IN_THEME_STYLES :26-:30), and automatos/candy its Candy layout (:34, on the Candy branch the README names
+ *   until it merges), painted from the member's looks; the phone reads none of their `mobile` block;
  * - a skin: any other theme whose answer (core's GET /api/themes/mobile, theme-cli's mobileAnswer) paints, over the
  *   Studio layout (theme-cli's phonePaint);
  * - Studio: no block, no answer (a fromLooks table that paints nothing) or no painting (no ground and text), so the
@@ -19,12 +20,14 @@ import type { HarnessTheme } from '../host/register.ts'
 import { FILES_ROOT } from '../host/router.ts'
 import { NO_STORED_LOOK } from './settings.ts'
 
-export type BuiltInStyle = 'play' | 'hud'
+export type BuiltInStyle = 'play' | 'hud' | 'arcade' | 'candy'
 
 /** follow.ts BUILT_IN_THEME_STYLES: the web themes that are a built-in phone style. */
 export const BUILT_IN_THEME_STYLES: Readonly<Record<string, BuiltInStyle>> = Object.freeze({
   'automatos/play': 'play',
   'automatos/hud': 'hud',
+  'automatos/arcade': 'arcade',
+  'automatos/candy': 'candy',
 })
 
 /** The theme folder's files the phone view reads. */

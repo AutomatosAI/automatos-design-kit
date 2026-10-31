@@ -2,7 +2,7 @@
   "schema": "automatos-theme/v1",
   "id": "automatos/candy",
   "name": "Candy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automatos bright, soft and glossy: every card its own gradient, round corners and round icons, today's numbers in a candy orb, and Auto in a glossy shell.",
   "engines": {
     "automatos": "^1.1.0",

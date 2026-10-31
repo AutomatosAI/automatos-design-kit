@@ -50,11 +50,12 @@ describe('the table as the host keeps it (boot-sanitize.ts sanitizePrepaint), no
     expect(result.measures).toEqual([])
   })
 
-  it('paints nothing from a numeric rule the host drops (an integer that is not true or false)', () => {
+  it('paints nothing from a numeric rule the host drops (an integer that is not true or false), so radius goes unpainted', () => {
     const table = { ...TABLE, numeric: [{ ...GLOW, integer: 1 }] }
     const pairs = contrastFile([{ text: '--hello-glow', ground: '--hello-bg' }])
     const result = checkDesignFiles(entriesOf({ [PREPAINT_PATH]: table, [DESIGN_CONTRAST_PATH]: pairs }), meter)
-    expect(rowOf(result, 'prepaint').level).toBe('pass')
+    // The rule was radius's only paint: the host's look spec leaves radius out, so every look fails (first-paint.ts).
+    expect(rowOf(result, 'prepaint').errors.map((error) => [error.code, error.path])).toEqual([['KNOB_NOT_PAINTED', 'looks/schema.json#knobs.radius']])
     expect(rowOf(result, 'contrast').errors.map((error) => error.message)).toContain(
       'Preset "default": --hello-glow on --hello-bg can\'t be measured: --hello-glow is not painted.',
     )

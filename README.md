@@ -53,7 +53,7 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/candy.md">Candy</a></b> 1.0.0 (<code>automatos/candy</code>): bright, soft and glossy.
+      <b><a href="docs/themes/candy.md">Candy</a></b> 1.0.1 (<code>automatos/candy</code>): bright, soft and glossy.
       Every card its own gradient, big round corners, today's numbers in a candy orb, and Auto in a glossy shell.
       <a href="themes/candy">Source</a>
     </td>

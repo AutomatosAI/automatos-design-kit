@@ -1,0 +1,13 @@
+{
+  "schema": "candy-look/v1",
+  "interface": "candy",
+  "id": "blush",
+  "name": "Blush",
+  "sub": "Pink on white, mixed cards",
+  "palette": "blush",
+  "cards": "mix",
+  "gradient": "rich",
+  "roundness": 28,
+  "glow": 6,
+  "motion": "on"
+}

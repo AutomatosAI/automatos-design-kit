@@ -7,7 +7,7 @@
   "palette": "lilac",
   "cards": "mix",
   "gradient": "vivid",
-  "roundness": 32,
+  "roundness": "32",
   "glow": 5,
   "motion": "on"
 }

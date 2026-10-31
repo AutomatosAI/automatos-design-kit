@@ -13,6 +13,7 @@ import { CARD_INK, CARD_SETS, PALETTES } from '../src/looks/catalogue.ts'
 import { contrastRatio, hexOfTriplet, rgbOfHex, tripletOf } from '../src/looks/colour.ts'
 import { ALL_PAIRS } from '../src/looks/pairs.ts'
 import { buildPrepaint, buildSchema } from '../src/looks/prepaint.ts'
+import { ROUNDNESS_KNOB } from '../src/looks/spec.ts'
 import { DEFAULT_LOOK, LOOK_INTERFACE, LOOK_SCHEMA, PRESETS } from '../src/looks/spec.ts'
 
 const THEME_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -95,5 +96,55 @@ describe('every pair, on every preset and on One colour cards', () => {
       const back = rgbOfHex(hexOfTriplet(tripletOf(colours.page)))
       rgbOfHex(colours.page).forEach((channel, index) => expect(Math.abs(channel - back[index])).toBeLessThanOrEqual(1))
     })
+  })
+})
+
+// Core's first paint in the browser (frontend/lib/theme-host/boot-sanitize.ts) keeps a prepaint value only when it is
+// at most 200 characters of a few characters, with balanced brackets, calling only these functions; anything else is
+// dropped there without a word, whatever the server's own check took. Its look runtime (looks/spec.ts lookSpecOf)
+// knows only the knobs the table paints: a choice knob per table of `knobs`, a number knob per numeric rule's knob.
+const BROWSER_VALUE_MAX = 200
+const BROWSER_VALUE_CHARS = /^[A-Za-z0-9#%.,()/ +-]+$/
+const BROWSER_FUNCTIONS = new Set([
+  'rgb', 'rgba', 'hsl', 'hsla', 'var', 'calc', 'min', 'max', 'clamp',
+  'hue-rotate', 'saturate', 'brightness', 'grayscale', 'contrast', 'sepia', 'invert',
+])
+
+function browserRefuses(value: string): string | null {
+  if (value.length === 0 || value.length > BROWSER_VALUE_MAX) return `${value.length} characters`
+  if (!BROWSER_VALUE_CHARS.test(value)) return 'a character the first paint drops'
+  if (value.split('(').length !== value.split(')').length) return 'unbalanced brackets'
+  const called = Array.from(value.matchAll(/([A-Za-z-]+)\(/g), (match) => match[1].toLowerCase())
+  const refused = called.find((name) => !BROWSER_FUNCTIONS.has(name))
+  return refused === undefined ? null : `${refused}()`
+}
+
+function everyCell(): [string, string][] {
+  const table = buildPrepaint()
+  const knobCells = Object.values(table.knobs).flatMap((options) => Object.values(options))
+  const pairCells = table.pairs.flatMap((pair) => Object.values(pair.table).flatMap((row) => Object.values(row)))
+  return [...knobCells, ...pairCells].flatMap((vars) => Object.entries(vars))
+}
+
+describe("the first paint, as core's browser keeps it", () => {
+  it('paints every value the browser takes: no gradient, at most 200 characters', () => {
+    const refused = everyCell().flatMap(([name, value]) => {
+      const why = browserRefuses(value)
+      return why === null ? [] : [`${name}: ${why}`]
+    })
+    expect(refused).toEqual([])
+  })
+
+  it("paints every knob of looks/schema.json, so the host's look runtime knows every field of a look", () => {
+    const table = buildPrepaint()
+    const painted = [...Object.keys(table.knobs), ...table.numeric.map((rule) => rule.knob)].sort()
+    expect(painted).toEqual(Object.keys(buildSchema(LOOK_SCHEMA, LOOK_INTERFACE).knobs).sort())
+  })
+
+  it("paints each roundness's corners, r and r × 0.72", () => {
+    const corners = buildPrepaint().knobs.roundness
+    expect(Object.keys(corners)).toEqual(ROUNDNESS_KNOB.choices.map((choice) => choice.key))
+    expect(corners['28']).toEqual({ '--candy-r': '28px', '--candy-rs': '20px' })
+    expect(corners['40']).toEqual({ '--candy-r': '40px', '--candy-rs': '29px' })
   })
 })

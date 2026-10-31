@@ -24,6 +24,8 @@
  *
  * `bootTable` and `lookFits` are the CLI's one port of boot-sanitize.ts: `check design` keeps and fits a
  * table with them too (src/check/contrast.ts), so each rule keeps its `scale`, which the phone never reads.
+ * `bootValueProblem` is its value gate (`isCssValue`), saying why it drops a value: src/first-paint.ts refuses
+ * a value it drops, and the browser harness paints only what it keeps (`isBootValue`).
  * `paintLook` is the server's paint, not the browser's: contrast.ts `firstPaint` is THEME_BOOT_SCRIPT's own
  * paint (boot.ts :146-:149), every variable it sets, numeric rules' rgba() included, which a design pair may
  * name; this keeps only the triplet Studio tokens a phone draws.
@@ -33,16 +35,16 @@
  * finite) and 2**53 + 1 is already 2**53. Nothing here throws on a table or look of the wrong shape.
  */
 import { relativeLuminance, toHex, type Rgb } from '@automatos/look-kit/contrast'
-import { hasOwn, isFiniteNumber, isRecord, own, type JsonRecord } from './core/css-value.ts'
+import { echo, hasOwn, isFiniteNumber, isRecord, own, type JsonRecord } from './core/css-value.ts'
 import { isMobileColour, MOBILE_REQUIRED_TOKENS, MOBILE_TOKEN_NAMES } from './core/mobile-manifest.ts'
 
 // boot-sanitize.ts :42-:64: the boot's own gate (smaller than css-value.ts's grammar), a look field's
 // name, the option keys, the colour lists and the caps. A string's length counts UTF-16 units.
 const CSS_VAR_NAME_PATTERN = /^--[a-z0-9-]{1,64}$/
-const CSS_VALUE_MAX_LENGTH = 200
+export const CSS_VALUE_MAX_LENGTH = 200
 const CSS_VALUE_CHARS = /^[A-Za-z0-9#%.,()/ +-]+$/
 const CSS_FUNCTION_NAME = /([A-Za-z-]+)\(/g
-const CSS_VALUE_FUNCTIONS: ReadonlySet<string> = new Set([
+export const CSS_VALUE_FUNCTIONS: ReadonlySet<string> = new Set([
   'rgb', 'rgba', 'hsl', 'hsla', 'var', 'calc', 'min', 'max', 'clamp',
   'hue-rotate', 'saturate', 'brightness', 'grayscale', 'contrast', 'sepia', 'invert',
 ])
@@ -53,6 +55,7 @@ const CAP_MIN = 0
 const CAP_MAX = 1
 const NUMERIC_TEMPLATE = 'rgba-alpha'
 const HEX_MARK = '#'
+const GRADIENT_SUFFIX = '-gradient'
 
 type Table<V> = Readonly<Record<string, V>>
 export type BootVars = Table<string>
@@ -91,13 +94,31 @@ function list(value: unknown): readonly unknown[] {
   return Array.isArray(value) ? value : []
 }
 
-/** boot-sanitize.ts `isCssValue` (:92-:98): allowed characters, balanced parentheses, allowed functions only. */
-function isBootValue(value: unknown): value is string {
-  if (typeof value !== 'string' || value.length === 0 || value.length > CSS_VALUE_MAX_LENGTH) return false
-  if (!CSS_VALUE_CHARS.test(value)) return false
-  if (value.split('(').length !== value.split(')').length) return false
-  const names = Array.from(value.matchAll(CSS_FUNCTION_NAME), (match) => match[1].toLowerCase())
-  return names.every((name) => CSS_VALUE_FUNCTIONS.has(name))
+/** The first function the gate doesn't run, said as what it is; null when it runs every one. */
+function functionProblem(value: string): string | null {
+  const names = Array.from(value.matchAll(CSS_FUNCTION_NAME), (match) => match[1])
+  const name = names.find((found) => !CSS_VALUE_FUNCTIONS.has(found.toLowerCase()))
+  if (name === undefined) return null
+  if (name.toLowerCase().endsWith(GRADIENT_SUFFIX)) return `a gradient, ${echo(name)}()`
+  return `a call to ${echo(name)}(), a function the first paint never runs`
+}
+
+/**
+ * boot-sanitize.ts `isCssValue` (:92-:98), its checks in its order: text of 1 to 200 units, allowed characters,
+ * balanced parentheses, allowed functions only. What `value` is that the gate drops, or null when it keeps it.
+ */
+export function bootValueProblem(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0) return 'not text'
+  if (value.length > CSS_VALUE_MAX_LENGTH) return `over ${CSS_VALUE_MAX_LENGTH} characters`
+  const refused = Array.from(value).find((char) => !CSS_VALUE_CHARS.test(char))
+  if (refused !== undefined) return `text with "${echo(refused)}", a character the first paint refuses`
+  if (value.split('(').length !== value.split(')').length) return "text whose brackets don't pair"
+  return functionProblem(value)
+}
+
+/** True when the browser's first paint keeps `value` (boot-sanitize.ts `isCssValue`). */
+export function isBootValue(value: unknown): value is string {
+  return bootValueProblem(value) === null
 }
 
 /** `sanitizeVars` (:105-:112): the variables whose name and value the boot passes; never null. */
