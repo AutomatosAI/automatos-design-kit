@@ -2,6 +2,29 @@
 
 Play's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.4.0
+
+Proactive Auto, step two. Play needs SDK 1.4.0 (`engines.sdk` `^1.4.0`), whose chat hands a theme each message's parts
+(`knownParts`), and draws what they carry where PRD-268 puts it in Play, on a desktop and the phone alike:
+
+- **Reply chips.** When Auto asks you to choose, the answers he offered (a message's `reply_chips@1` part) stand under
+  his last message as 40 px pills in the look's secondary button (44 px targets on the phone), each named "Reply:
+  <chip>" and marked as Auto's words (`data-ai-generated`). A tap sends the chip's words as your message, through the
+  message box's own send, and on a desktop the box takes the focus. They go once a newer message exists; while a turn
+  is still ending nothing is sent and they stay.
+- **Suggestions in the conversation.** A suggestion Auto posted into the thread (a `suggestion@1` part) is the host's
+  suggestion card under his message, with the same Start and Hide as the line pinned above the message box, its state
+  the live one: once it is decided its card goes and the message's words stay; one just started there says so for a
+  few seconds. The pinned line skips a suggestion the conversation shows, as it skips one the brief lists, so each
+  Start is on screen once.
+- **The brief by its part.** A brief is found by its message's `brief@1` part, never by its words, so an earlier day's
+  brief in the Auto thread is a card too, with that day's rows (named as an earlier brief, and without Listen, which
+  reads the day's brief the host holds). A message whose words merely match the day's brief stays Auto's words.
+
+Left as they were: the brief's thumbs are the host's brief card's own (thumbs up and down, posted with the brief's
+`state_hash`), so Play draws none beside them; and a brief row's press passes no Hide reason, as the card's row action
+carries none and the brief's rows offer Start, Open, Answer and Set up.
+
 ## 1.3.0
 
 Proactive Auto. Play needs SDK 1.3.0 (`engines.sdk` `^1.3.0`, `proactive` in `uses`) and places the host's proactive

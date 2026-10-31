@@ -3,8 +3,10 @@
 import { type ReactNode, type RefObject, useEffect, useRef } from 'react'
 import type { Brief, HostChatMessage } from '@automatos/theme-sdk'
 
-import { isBriefMessage } from '../../../lib/play/proactive'
+import { briefOf, isHeldBrief, replyChipsShown, suggestionIdsOf } from '../../../lib/play/proactive'
 import { BriefReply } from '../proactive/play-brief'
+import { PlayReplyChips } from '../proactive/reply-chips'
+import { ThreadSuggestions } from '../proactive/thread-suggestions'
 import { AutoReply } from './auto-reply'
 import styles from './chat.module.css'
 
@@ -21,7 +23,12 @@ import styles from './chat.module.css'
  * whether Stop ended it.
  *
  * Play 1.3.0 (PRD-268 §6.12.4): the day's brief's own message draws as the brief's card (BriefReply), in its place in
- * the conversation, so it scrolls with it; lib/play/proactive.ts isBriefMessage says which message that is.
+ * the conversation, so it scrolls with it.
+ *
+ * Play 1.4.0 (SDK 1.4.0, each message's knownParts): a message is the brief's by its `brief@1` part (any day's, its
+ * own brief drawn), never by its words. Under an Auto message come the cards of the suggestions it posted
+ * (`suggestion@1`, thread-suggestions.tsx), then, under his last message only, the answers he offered
+ * (`reply_chips@1`, reply-chips.tsx), which send through the message box's own send (`onReply`).
  */
 
 /** How close to the bottom counts as "reading the newest line". */
@@ -73,8 +80,10 @@ export interface MessageListProps {
   readonly trialBlocked?: boolean
   /** Shown under the conversation, inside the scroll. */
   readonly after?: ReactNode
-  /** The day's brief, once the host holds one: its message draws as the card. */
+  /** The day's brief the host holds, once it does: its card in the conversation offers Listen. */
   readonly brief?: Brief | null
+  /** Sends a reply chip's words as the person's message; false when nothing went out. Without it, no chips. */
+  readonly onReply?: (text: string) => boolean
 }
 
 interface MessageItemProps {
@@ -87,10 +96,11 @@ interface MessageItemProps {
   readonly brief: Brief | null
 }
 
-/** Your words in a bubble, the day's brief as its card, or Auto's reply. */
+/** Your words in a bubble, a brief's message as its card, or Auto's reply. */
 function MessageItem({ message, newest, streaming, onRetry, trialBlocked, brief }: MessageItemProps) {
   if (message.role === 'user') return <p className={styles.bubble}>{message.text}</p>
-  if (brief !== null && isBriefMessage(message, brief)) return <BriefReply message={message} brief={brief} />
+  const own = briefOf(message)
+  if (own !== null) return <BriefReply message={message} brief={own} today={isHeldBrief(own, brief)} />
   return (
     <AutoReply
       message={message}
@@ -101,7 +111,23 @@ function MessageItem({ message, newest, streaming, onRetry, trialBlocked, brief 
   )
 }
 
-export function MessageList({ messages, streaming, onRetry, trialBlocked = false, after, brief = null }: MessageListProps) {
+/** Under one of Auto's messages: the suggestions it posted, then the answers he offered while it is the last one. */
+function UnderReply({ message, messages, onReply }: {
+  readonly message: HostChatMessage
+  readonly messages: readonly HostChatMessage[]
+  readonly onReply?: (text: string) => boolean
+}) {
+  const ids = suggestionIdsOf(message)
+  const chips = onReply ? replyChipsShown(message, messages) : []
+  return (
+    <>
+      {ids.length > 0 ? <ThreadSuggestions ids={ids} /> : null}
+      {onReply && chips.length > 0 ? <PlayReplyChips chips={chips} onReply={onReply} /> : null}
+    </>
+  )
+}
+
+export function MessageList({ messages, streaming, onRetry, trialBlocked = false, after, brief = null, onReply }: MessageListProps) {
   const { scrollerRef, endRef } = useFollow(messages)
   const newest = messages[messages.length - 1]?.id
   return (
@@ -117,6 +143,7 @@ export function MessageList({ messages, streaming, onRetry, trialBlocked = false
               trialBlocked={trialBlocked}
               brief={brief}
             />
+            <UnderReply message={message} messages={messages} onReply={onReply} />
           </li>
         ))}
       </ol>

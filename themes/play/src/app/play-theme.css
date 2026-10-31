@@ -192,6 +192,7 @@ html.play {
   --pl-document-max: 760px; /* a Deliverable's page (mock 05) */
   --pl-detail-panel-width: 300px; /* its side panel: Ask Auto, About, Sources */
   --pl-tap-min: 44px; /* the smallest tap target */
+  --pl-chip-height: 40px; /* Auto's reply chips on a desktop (PRD-268 §6.12.4); the tap target on a phone */
   --pl-look-editor-width: 360px; /* the Looks page's editor panel (Ember looks-01) */
   --pl-look-card-width: 136px; /* a look's mini swatch card in the Looks row */
   --pl-look-card-top: 84px; /* its swatch: the look's ground, type, light and accent */
