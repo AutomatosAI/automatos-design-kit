@@ -73,8 +73,9 @@ speech API and places the host's approval cards where it always has, never redra
   number of the one he reads, announced as current; the rows he has read stay. Once he stops, every row is plain again.
 - **The brief's thumbs (1.3.0).** In BRIEFING's footer: USEFUL and NOT USEFUL, through `useRateBrief` (the brief's
   `state_hash`, up or down; the host posts 1 or -1). One rating per brief per viewer: rated, the thumb given stays
-  pressed and neither takes a press again, kept for that brief in this workspace in this browser (the SDK's storage
-  area, key `hud-brief-rated`); refused, the reason in one line, and it can be tried again; a new brief is rated afresh.
+  pressed and neither takes a press again; the rating shown is the one the server keeps for this person
+  (`useRateBrief(state_hash).rating`, shared with the host's own brief card), so it is the same in every browser;
+  refused, the reason in one line, and it can be tried again; a new brief is rated afresh.
 - **Motion.** BRIEFING and the NEXT line enter once, a fade and a 4 px rise over 180 ms, and a BRIEFING row read aloud
   fades and rises 4 px into place as Auto reaches it; under the reduced-motion setting, or with the look's motion off,
   nothing moves: every row is drawn at once and only the reading marker moves. Nothing loops, and the rail is still.

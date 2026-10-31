@@ -31,9 +31,10 @@ SDK's `knownParts`), the row Auto is reading (BriefVoice's `onSpeakingRow`) and 
   `data-voice-row`, announced as current); the rows he has read stay. Under the reduced-motion setting, or with the
   look's motion off, every row is drawn at once and only the marker moves. Once he stops, every row is plain again.
 - The brief's thumbs in BRIEFING's footer: USEFUL and NOT USEFUL, through the SDK's `useRateBrief` (the brief's
-  `state_hash`, up or down). One rating per brief per viewer: rated, the thumb given stays pressed, neither takes a press
-  again, and the rating is kept for that brief in this workspace in this browser (theme state `hud-brief-rated`); a
-  refusal says why and can be tried again; a new brief is rated afresh.
+  `state_hash`, up or down). One rating per brief per viewer: rated, the thumb given stays pressed and neither takes a
+  press again; the rating shown is the one the server keeps for this person (`useRateBrief(state_hash).rating`, the one
+  the host's own brief card shows too), so it is the same in every browser; a refusal says why and can be tried again;
+  a new brief is rated afresh.
 
 ## 1.2.1
 

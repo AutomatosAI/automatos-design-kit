@@ -14,8 +14,6 @@ import {
   BRIEF_SECTIONS, briefDay, briefRowHref, briefSections, briefSuggestionIds, emptyLine, EMPTY_BRIEF, rowNumber, rowTime,
   SECTION_LABELS, SETTINGS_HREF, startsSuggestion,
 } from '../../src/chat/briefing/brief-rows.ts'
-import { keptRating, ratedValue } from '../../src/chat/briefing/use-brief-rating.ts'
-import { briefKey } from '../../src/chat/briefing/use-briefing.ts'
 import { foldsOn } from '../../src/chat/briefing/use-fold.ts'
 import { NOT_READ, readingAt, rowReading } from '../../src/chat/briefing/use-reading.ts'
 import { nextOf, openSuggestion } from '../../src/chat/next/use-next.ts'
@@ -246,17 +244,6 @@ describe("a row's place in Auto's reading (HUD 1.3.0)", () => {
     expect([0, 1, 2].map((index) => rowReading(reached, index, true))).toEqual(['now', 'read', 'ahead'])
     expect([0, 1, 2].map((index) => rowReading(reached, index, false))).toEqual(['now', undefined, undefined])
     expect([0, 1].map((index) => rowReading(NOT_READ, index, true))).toEqual(['ahead', 'ahead'])
-  })
-})
-
-describe('the kept thumb (HUD 1.3.0)', () => {
-  it("reads back only this brief's thumb, and nothing it can't trust", () => {
-    const key = briefKey(BRIEF)
-    expect(ratedValue(BRIEF, 'up')).toEqual({ brief: key, rating: 'up' })
-    expect(keptRating(ratedValue(BRIEF, 'down'), key)).toBe('down')
-    expect(keptRating({ brief: 'another|brief', rating: 'up' }, key)).toBeNull()
-    expect(keptRating({ brief: key, rating: 'sideways' }, key)).toBeNull()
-    for (const kept of [null, 'up', 1, [key, 'up'], {}]) expect(keptRating(kept, key)).toBeNull()
   })
 })
 

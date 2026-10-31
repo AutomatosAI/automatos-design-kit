@@ -4,19 +4,16 @@
 // ones he has are, and `▸` marks the one he reads, the same row the host's Listen marks with data-voice-row; once he
 // stops, every row is drawn plainly. Under reduced motion every row is drawn at once and only the marker moves. The
 // thumbs, in BRIEFING's footer, rate the brief once per viewer: up is 1 and down -1 with its state_hash; rated, the
-// thumb given stays pressed and neither takes a press again, kept for this workspace; refused, they say why and can be
-// tried again, the route failing or answering that it didn't take it; a new brief is rated afresh. The thumbs stay
+// thumb given stays pressed and neither takes a press again, the rating the server keeps for this person (useRateBrief's
+// rating, the host's card's too); refused, they say why and can be tried again; a new brief is rated afresh. The thumbs stay
 // focusable once rated (aria-disabled), so the focus never drops to the page. Roles, names and attributes only; every
 // value is made up.
-import { readThemeState } from '@automatos/theme-sdk'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { host } from '@automatos/theme-harness/host'
 import { BRIEFING_TITLE } from '../../src/chat/briefing/briefing-panel.tsx'
 import { READING_MARK } from '../../src/chat/briefing/briefing-row.tsx'
 import { RATED_LINE, THUMB_WORDS, THUMBS_LABEL } from '../../src/chat/briefing/brief-thumbs.tsx'
-import { RATE_REFUSED, RATED_KEY, RATED_STATE } from '../../src/chat/briefing/use-brief-rating.ts'
-import { briefKey } from '../../src/chat/briefing/use-briefing.ts'
 import { renderChat, stubClips } from '../chat/support.tsx'
 import { BRIEF } from './support.ts'
 
@@ -149,13 +146,13 @@ describe("the brief's thumbs", () => {
 })
 
 describe('a rating kept, and one refused', () => {
-  it("keeps the rating for this viewer when they come back to the chat, and rates a new brief afresh", async () => {
+  it("keeps the rating the server has for this viewer when they come back to the chat, and rates a new brief afresh", async () => {
     const { unmount } = await renderChat()
     showBrief()
     await act(async () => {
       fireEvent.click(thumb(THUMB_WORDS.down))
     })
-    expect(readThemeState(RATED_KEY, RATED_STATE).value).toEqual({ brief: briefKey(BRIEF), rating: 'down' })
+    expect(rateRuns()).toEqual([{ hook: 'useRateBrief', variables: { state_hash: BRIEF.state_hash, rating: -1 } }])
     unmount()
     await renderChat()
     showBrief({ ...BRIEF })
@@ -187,16 +184,16 @@ describe('a rating kept, and one refused', () => {
     expect(within(briefing()).queryByRole('alert')).toBeNull()
   })
 
-  it("takes an answer that the route didn't keep the rating as a refusal, and leaves the brief to rate", async () => {
+  it("shows a rating the server already has, from another browser or the host's own card, as done", async () => {
+    act(() => host.setBriefRating(BRIEF.state_hash, 'up'))
     await renderChat()
     showBrief()
-    host.setPageAction('useRateBrief', () => ({ ok: false }))
+    expect(thumb(THUMB_WORDS.up)).toHaveAttribute('aria-pressed', 'true')
+    expect(thumb(THUMB_WORDS.down)).toHaveAttribute('aria-disabled', 'true')
+    expect(within(briefing()).getByText(RATED_LINE)).toHaveAttribute('role', 'status')
     await act(async () => {
       fireEvent.click(thumb(THUMB_WORDS.down))
     })
-    expect(within(briefing()).getByRole('alert')).toHaveTextContent(RATE_REFUSED)
-    expect(thumb(THUMB_WORDS.down)).toHaveAttribute('aria-pressed', 'false')
-    expect(thumb(THUMB_WORDS.down)).toHaveAttribute('aria-disabled', 'false')
-    expect(readThemeState(RATED_KEY, RATED_STATE).value).toBeNull()
+    expect(rateRuns()).toEqual([])
   })
 })
