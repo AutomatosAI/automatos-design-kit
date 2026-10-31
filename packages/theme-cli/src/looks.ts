@@ -40,6 +40,17 @@ function presetErrors(schema: LookSchema, path: string, raw: Uint8Array): ThemeE
   return [themeError('PRESET_ID_MISMATCH', path, `${path}: its "id" must be "${echo(stem)}", the file's name.`)]
 }
 
+/**
+ * The package's look schema as the reader checked it (look_schema.py `look_file_errors`' first value): null when
+ * looks/schema.json is missing, isn't JSON or doesn't pass core's look-schema validator. Its presets aren't asked.
+ */
+export function checkedLookSchema(files: ReadonlyMap<string, Uint8Array>): LookSchema | null {
+  const raw = files.get(SCHEMA_PATH)
+  if (raw === undefined) return null
+  const { data, error } = parseJson(raw, SCHEMA_PATH)
+  return error === null ? validateLookSchema(data).schema : null
+}
+
 /** Every refusal of the package's look schema and presets. */
 export function lookFileErrors(files: ReadonlyMap<string, Uint8Array>): ThemeError[] {
   const raw = files.get(SCHEMA_PATH)

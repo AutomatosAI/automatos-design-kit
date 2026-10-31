@@ -9,7 +9,7 @@
  * A new host release that changes one of them is a re-vendor (README.md says how).
  */
 export const THEME_HOST_VERSION: string = '1.1.0'
-export const SDK_VERSION: string = '1.3.0'
+export const SDK_VERSION: string = '1.4.0'
 
 /** A theme's own class on <html>: 3 to 32 characters, lower-case letters, digits and hyphens. */
 export const HTML_CLASS_PATTERN = /^[a-z][a-z0-9-]{2,31}$/

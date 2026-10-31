@@ -3,13 +3,17 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `1a8956c874dc42cff05b96f431c50b7d722a71aa`, core `main` on 30 Oct 2026, after
-the merges of pull requests #1375 (SDK 1.3.0: the `proactive` area, the proactive default cards, `BriefVoice` and
-`DISPLAY_STATE_LABELS`; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.3.0, the host contract still
-1.1.0; the core corpus gains the proactive area's `manifests`, `cssScope` and review cases) and #1376 (the chat, no
-file here). Since `40a2e00715f069b7f1bbade0d00b287409a16b74`, the kit's previous pin (the head of pull request
-#1373, phone screenshots), only `mobile-manifest.ts` (one doc comment: the status tokens are not phone tokens) and
-`host.ts` (`SDK_VERSION`) changed here.
+Source: `AutomatosAI/automatos-ai` at `27478124f146460fb9477d1ac372f0991f3410d0`, a temporary pin: the head of
+core pull request #1383 on 31 Oct 2026 (SDK 1.4.0: a chat message's known parts, the brief row Auto is reading and
+the brief's thumbs; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.4.0, the host contract still 1.1.0;
+the core corpus's engines cases move to 1.4.0), before it merges; re-pin to core `main` once it does. It sits on core
+`main` after the merge of pull request #1378, which makes the reader refuse what the browser's first paint would drop
+(`orchestrator/services/themes/first_paint.py`; the corpus gains its `prepaintDrops` and `firstPaint` cases, and its
+`packages` cases' prepaint tables paint every knob of hello's look schema). Since
+`1a8956c874dc42cff05b96f431c50b7d722a71aa`, the kit's previous pin (SDK 1.3.0), only `css-value.ts` (#1378: the
+browser's first-paint gate, `bootValueProblem`, `isBootValue`, `isKnobName`, `prepaintDropErrors` and
+`PREPAINT_VALUE_MAX`, its one TypeScript copy, which core's boot-sanitize.ts now imports) and `host.ts`
+(`SDK_VERSION`) changed here.
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -45,23 +49,23 @@ commit above:
 | File here | Core file | sha256 |
 |---|---|---|
 | `data/core-pages.json` | `orchestrator/services/themes/data/core-pages.json` | `7e75db4867bfea7450f68e31f5d1a7e073404b1107876d57a83d3b180b6539ba` |
-| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `8c45db9c296e0dbd8bca0de2af7adbb593ffb3a6b4a163d4ee87fa95621290a8` |
+| `data/sdk-surface.json` | `orchestrator/services/themes/data/sdk-surface.json` | `1387faca9a714c3b51b5f3ed5d6586ac4172cf0542e6e1c288918a5e31e0d2f1` |
 
 ## `data/contract.json` (the guides' lists)
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `7a61d04e3a02bfe26138ecf8fabc77d2334c06160294232c4071dcf39040ee6b`), written as JSON with
+(that file's sha256 there: `cc2ff3bb1815b4a6eccb19e3cda20e47738803ef252c0a23e709a3385db38843`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
 `HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
-contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.3.0), its package cap (32 MB) and
-comments.
+contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.4.0), its package cap (32 MB), its
+`PREPAINT_VALUE_MAX` (200, the first paint's longest value) and comments.
 `tests/guides.test.ts` holds the file to the sha256 below and to the copies of the same lists in
 `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `fba0bd9b434e53c1a921a3aa4d4ef535bcc6bc1c76a35e733930a4f9bcc58238` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `06ecb3feea471ac9d0b47ef3a056a20f0f565b598c8e726bec90623c1db715c7` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
@@ -110,28 +114,27 @@ hold both readings. The package is named in `src/check/contrast.ts` (its import 
 `contrast.ts` alone (it imports nothing); only `check design` loads `hsl.ts`: `check/index.ts` imports `design.ts`
 when that command runs.
 
-`check design` and `check` also refuse what core's browser would leave out of a theme's first paint and looks, which
-core's prepaint and look validators at the commit above accept (`src/first-paint.ts`): a knob or pair cell's value the
-first paint's gate drops (`BAD_CSS_VALUE`: boot-sanitize.ts `isCssValue`, ported as `src/mobile-paint.ts`
-`bootValueProblem`, which also says why), and a `looks/schema.json` knob the table, as `bootTable` keeps it, never
-paints (`KNOB_NOT_PAINTED`: `frontend/lib/theme-host/looks/spec.ts` `lookSpecOf` builds the look spec from the table
-alone). `check design` lists them on its prepaint line; `check` refuses the theme before its review, as core's reader
-refuses a package, and so does the Marketplace review's Package check (`scripts/review/review.ts` `readPackage`, which
-theme-review.yml and theme-publish.yml run). Core's reader refuses three more there: a knob the kept table paints that
-the schema lacks (`KNOB_NOT_IN_SCHEMA`), defaults that don't fit what the gate keeps (`PREPAINT_DEFAULTS_UNFIT`, the
-code `check design` already gives it) and a knob name the gate drops (`BAD_PREPAINT`); the kit takes those with the
-re-vendoring below (`check design` already catches the first two, as `PRESET_NOT_IN_PREPAINT` and
-`PREPAINT_DEFAULTS_UNFIT`). The codes, paths and sentences are core's reader's once core ships the same two checks
-(`orchestrator/services/themes/first_paint.py`, and `prepaint_drop_errors` in `css_value.py` with its TypeScript twin
-`prepaintDropErrors` in `css-value.ts`). `pack`'s reader port (`src/check-package.ts`) stays core's at the commit above,
-which the vendored corpus's `packages` cases hold it to. The browser harness paints only the values `isBootValue`
-keeps (theme-harness `src/host/prepaint.ts`).
+Core's reader refuses what its browser would leave out of a theme's first paint and looks, which its prepaint and
+look validators accept (`orchestrator/services/themes/first_paint.py`, core pull request #1378), and so does the kit's
+port of the reader, `src/check-package.ts`, through `src/first-paint.ts`, the port of `first_paint.py` (core's own
+TypeScript twin, `frontend/lib/theme-host/first-paint.ts`, asks the browser's `sanitizePrepaint` and
+`looks/spec.ts` `lookSpecOf`; the kit asks `src/mobile-paint.ts` `bootTable` instead). It refuses, with core's codes,
+paths and sentences: what the gate drops of the table (the vendored `css-value.ts` `prepaintDropErrors`: a knob name
+it refuses, `BAD_PREPAINT`, and a knob or pair cell's value it refuses, `BAD_CSS_VALUE`, with `bootValueProblem`
+saying why), defaults that don't fit what the gate keeps (`PREPAINT_DEFAULTS_UNFIT`: it then drops the whole table),
+a `looks/schema.json` knob the kept table never paints (`KNOB_NOT_PAINTED`) and a knob it paints that the schema
+doesn't declare (`KNOB_NOT_IN_SCHEMA`); the look spec has one choice knob for each table under `knobs` and one number
+knob for each `numeric` rule. So `pack` refuses them, and with it `check`, before its review, and the Marketplace
+review's Package check (`scripts/review/review.ts` `readPackage`, which theme-review.yml and theme-publish.yml run);
+`check design` lists them on its prepaint line. The corpus's `prepaintDrops` cases hold the vendored gate to the
+server's, its `firstPaint` cases `src/first-paint.ts`, sentence for sentence, and its `packages` cases the reader.
+The browser harness paints only the values `isBootValue` keeps (theme-harness `src/host/prepaint.ts`).
 
 `design/contrast.json` is kit-only. `pack` never packs `design/` (it is not one of the package's folders) and the
 server never reads it, so its pairs are measured by the kit alone: the server measures only the `mobile` block's ten
 Studio pairs (PRD-261 M-03), and declared pairs for every look stay kit-only for v1 (PRD-261 QB-40). The kit's own
-codes are `BAD_CONTRAST_PAIRS`, `CONTRAST_UNDER_MIN`, `CONTRAST_NOT_MEASURED`, `PRESET_NOT_IN_PREPAINT`,
-`PREPAINT_DEFAULTS_UNFIT` and `NOT_A_FOLDER` (a file where `looks/`, `looks/presets/`, `boot/` or `design/` goes);
+codes are `BAD_CONTRAST_PAIRS`, `CONTRAST_UNDER_MIN`, `CONTRAST_NOT_MEASURED`, `PRESET_NOT_IN_PREPAINT` and
+`NOT_A_FOLDER` (a file where `looks/`, `looks/presets/`, `boot/` or `design/` goes);
 every other code `check design` prints is core's.
 
 ## Re-vendoring
@@ -144,14 +147,12 @@ row moves too; when its lists change, the guides change with them). `test/core-c
 the core corpus, and `test/review-corpus.test.ts` holds `check` to the review corpus. Read `boot.ts`'s
 `THEME_BOOT_SCRIPT` and `boot-sanitize.ts`'s `sanitizePrepaint` and `lookFitsPrepaint` at the new commit too: port a
 change to the table or the fit into `src/mobile-paint.ts` (`bootTable`, `lookFits`) and a change to the paint into
-`src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite. Once the commit carries core's
-`first_paint.py`, the vendored `css-value.ts` brings `prepaintDropErrors` and the gate with it: then `src/first-paint.ts`
-takes them from there, its two checks move into `src/check-package.ts` as the reader's (so `pack` refuses them too,
-held by the corpus's new `packages` and `prepaintDrops` cases), and `check` drops its own step.
+`src/check/contrast.ts` (`firstPaint`), and move the line numbers both cite. Read `first_paint.py` too, and port a
+change into `src/first-paint.ts`: the corpus's `firstPaint` cases hold its sentences.
 
 Not vendored: the zip reader and the CSS scope check exist only in Python (`orchestrator/services/themes/package.py`
-and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules, the phone
-screenshots' included (`src/files.ts` the PNG and JPEG kinds of `assets/previews/phone/` and the 32 MB package cap,
+and `css_scope.py`). `src/members.ts`, `src/files.ts` and `src/check-package.ts` port the reader's rules (with
+`src/first-paint.ts`, its first-paint refusals, above), the phone screenshots' included (`src/files.ts` the PNG and JPEG kinds of `assets/previews/phone/` and the 32 MB package cap,
 `src/check-package.ts` the files `phonePreviews` names), and the
 `mobile` block's (PRD-261 M-02: `src/files.ts` the `.ttf` and `.otf` fonts in `assets/fonts/mobile/`,
 `src/check-package.ts` the files the block names and, through `src/mobile-paint.ts` (the boot's `sanitizePrepaint`

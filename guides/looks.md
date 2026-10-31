@@ -95,7 +95,8 @@ properties set one by one. No theme code runs at that moment, so the table is da
 - **Every knob of the schema is painted here.** The host's look runtime builds a theme's looks from this table alone:
   a choice knob for each table under `knobs`, a number knob for each numeric rule's knob. A schema knob the table
   never paints is left out, so every look that has it fails, the presets included, and the look editor changes
-  nothing. `check design` and `check` refuse it (`KNOB_NOT_PAINTED`).
+  nothing. A knob the table paints that the schema doesn't declare fails every look the same way. Core's reader
+  refuses both on upload, and so do `pack`, `check` and `check design` (`KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`).
 - `defaults`: the look painted when no valid look is stored. A look that does not fit the table (a choice the table
   lacks, a number out of range) is painted as the defaults, whole.
 - `tone`: optional. One choice knob and the tone of each of its choices, so the host sets light or dark from the look
@@ -108,7 +109,8 @@ properties set one by one. No theme code runs at that moment, so the table is da
   `var()` and the filters `hue-rotate()`, `saturate()`, `brightness()`, `grayscale()`, `contrast()`, `sepia()` and
   `invert()`. Any other value is dropped without a word, a gradient or `color-mix()` among them, and every value
   built on it with `var()` is invalid too: a card whose background was `var(--x-card-hi), …` comes out transparent.
-  `check design` and `check` refuse it (`BAD_CSS_VALUE`, naming the variable, the look it paints for and why). Paint
+  Core's reader refuses it on upload, and so do `pack`, `check` and `check design` (`BAD_CSS_VALUE`, naming the
+  variable, the look it paints for and why). Paint
   a gradient's colours, stops and positions here, and draw the gradient in the theme's CSS from them.
 
 ### Recolouring the host's pages

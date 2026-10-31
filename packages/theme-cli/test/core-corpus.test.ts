@@ -2,11 +2,12 @@
  * pack refuses what core refuses: core's shared corpus (orchestrator/tests/fixtures/themes/cases.json,
  * vendored in test/fixtures/core) run against the kit's checks.
  *
- * `manifests`, `lookSchemas`, `looks`, `cssValues` and `prepaint` run against the vendored TypeScript
- * validators (src/core), proving the copy intact. `packages` runs against checkPackage, the port of the
- * server's reader: each case changes the hello package (manifestSet/manifestUnset on theme.json,
- * replace sets a file's text or, with null, drops it), exactly as core's pytest builds it. A case's
- * code is null when core accepts the input; otherwise every error carries that code.
+ * `manifests`, `lookSchemas`, `looks`, `cssValues`, `prepaint` and `prepaintDrops` run against the vendored
+ * TypeScript validators (src/core), proving the copy intact; `firstPaint` runs against src/first-paint.ts, the
+ * port of core's first_paint.py, on the corpus's look schema, with core's sentences. `packages` runs against
+ * checkPackage, the port of the server's reader: each case changes the hello package (manifestSet/manifestUnset
+ * on theme.json, replace sets a file's text or, with null, drops it), exactly as core's pytest builds it. A
+ * case's code is null when core accepts the input; otherwise every error carries that code.
  *
  * Core A-20 (QB-11): htmlClass 'play' is no longer reserved. As core's validator-parity and theme-package
  * tests pin it, the corpus gives 'play' to any theme id, in theme.json and in a package, and still refuses
@@ -17,10 +18,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { checkPackage } from '../src/check-package.ts'
-import { cssValueProblem, prepaintErrors, type ThemeError } from '../src/core/css-value.ts'
+import { cssValueProblem, PREPAINT_ERROR_CODES, prepaintDropErrors, prepaintErrors, type ThemeError } from '../src/core/css-value.ts'
 import { validateLook, validateLookSchema, type LookSchema } from '../src/core/look-schema.ts'
 import * as packageManifest from '../src/core/package-manifest.ts'
 import { validateManifest } from '../src/core/package-manifest.ts'
+import { FIRST_PAINT_ERROR_CODES, firstPaintTableErrors } from '../src/first-paint.ts'
 import type { PackageEntry } from '../src/members.ts'
 import { folderFiles } from './hello-files.ts'
 
@@ -35,6 +37,8 @@ interface CorpusCase {
   readonly manifestSet?: JsonObject
   readonly manifestUnset?: readonly string[]
   readonly replace?: Readonly<Record<string, string | null>>
+  /** The refusals' sentences, in order, where the case pins them. */
+  readonly messages?: readonly string[]
 }
 
 interface CorpusSection {
@@ -48,6 +52,8 @@ interface Corpus {
   readonly lookSchemas: CorpusSection
   readonly looks: CorpusSection
   readonly prepaint: CorpusSection
+  readonly prepaintDrops: CorpusSection
+  readonly firstPaint: CorpusSection
   readonly cssValues: { readonly valid: readonly string[]; readonly invalid: readonly string[] }
   readonly packages: CorpusSection
 }
@@ -137,6 +143,30 @@ describe('the vendored validators give the corpus verdicts', () => {
 
   it.each([...CORPUS.prepaint.cases])('prepaint: $name', (testCase) => {
     expectVerdict(prepaintErrors(testCase.document), testCase.code)
+  })
+
+  it.each([...CORPUS.prepaintDrops.cases])('prepaint drops: $name', (testCase) => {
+    const errors = prepaintDropErrors(testCase.document)
+    expectVerdict(errors, testCase.code)
+    errors.forEach((error) => expect(PREPAINT_ERROR_CODES).toContain(error.code))
+    if (testCase.messages !== undefined) expect(errors.map((error) => error.message)).toEqual(testCase.messages)
+  })
+})
+
+describe("src/first-paint.ts gives core's first_paint.py verdicts and sentences", () => {
+  it.each([...CORPUS.firstPaint.cases])('first paint: $name', (testCase) => {
+    const errors = firstPaintTableErrors(helloLookSchema(), testCase.document)
+    expectVerdict(errors, testCase.code)
+    errors.forEach((error) => expect(FIRST_PAINT_ERROR_CODES).toContain(error.code))
+    if (testCase.messages !== undefined) expect(errors.map((error) => error.message)).toEqual(testCase.messages)
+  })
+
+  it('pins the sentence of every refused case, and has a case each check keeps', () => {
+    const refused = [...CORPUS.prepaintDrops.cases, ...CORPUS.firstPaint.cases].filter((testCase) => testCase.code !== null)
+    expect(refused.length).toBeGreaterThan(0)
+    refused.forEach((testCase) => expect(testCase.messages?.length, testCase.name).toBeGreaterThan(0))
+    expect(CORPUS.prepaintDrops.cases.some((testCase) => testCase.code === null && 'document' in testCase)).toBe(true)
+    expect(CORPUS.firstPaint.cases.some((testCase) => testCase.code === null)).toBe(true)
   })
 })
 

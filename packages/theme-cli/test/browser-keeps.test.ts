@@ -1,8 +1,10 @@
 /**
- * What core's browser would leave out of a theme's first paint and looks (src/first-paint.ts), refused by
- * `check design` and `check` before the theme ships: a knob or pair cell's value the first paint's gate drops
- * (boot-sanitize.ts, through mobile-paint.ts `bootValueProblem`), and a looks/schema.json knob the table never
- * paints (looks/spec.ts `lookSpecOf` builds a theme's looks from the table alone).
+ * What core's browser would leave out of a theme's first paint and looks (src/first-paint.ts, the port of core's
+ * first_paint.py), refused by core's reader on upload and by `pack`, `check design` and `check` before the theme
+ * ships: a knob or pair cell's value the first paint's gate drops (boot-sanitize.ts, through the vendored
+ * css-value.ts `bootValueProblem`), and a looks/schema.json knob the table never paints (looks/spec.ts
+ * `lookSpecOf` builds a theme's looks from the table alone). The corpus's `firstPaint` cases hold the rest
+ * (core-corpus.test.ts).
  *
  * The fixture is Candy 1.0.0's look data as it was released (fixtures/candy-1.0.0: boot/prepaint.json,
  * looks/schema.json and its presets, byte for byte): it passed every check, and on a hosted install its cards came
@@ -15,12 +17,12 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { contrastMeter, type ContrastMeter } from '../src/check/contrast.ts'
 import { WARNING_PREFIX } from '../src/cli-main.ts'
 import { checkDesign, checkDesignFiles, readDesignFiles } from '../src/check/design.ts'
-import { PREPAINT_PATH, prepaintErrors } from '../src/core/css-value.ts'
+import { PREPAINT_PATH, PREPAINT_VALUE_MAX, prepaintDropErrors, prepaintErrors } from '../src/core/css-value.ts'
 import { validateLookSchema, type LookSchema } from '../src/core/look-schema.ts'
-import { firstPaintErrors, KNOB_NOT_PAINTED, prepaintDropErrors, unpaintedKnobErrors } from '../src/first-paint.ts'
+import { firstPaintErrors, KNOB_NOT_PAINTED, unpaintedKnobErrors } from '../src/first-paint.ts'
 import { parseJson } from '../src/json.ts'
 import { SCHEMA_PATH } from '../src/looks.ts'
-import { bootValueProblem, CSS_VALUE_MAX_LENGTH, isBootValue } from '../src/mobile-paint.ts'
+import { bootValueProblem, isBootValue } from '../src/mobile-paint.ts'
 import { helloFolder, ranCheck, removeTempFolders } from './check-support.ts'
 import { entriesOf, GLOW, rowOf, TABLE } from './design-support.ts'
 
@@ -90,7 +92,7 @@ describe("Candy 1.0.0's look data, as it was released", () => {
     const pairs = (table as { readonly pairs: ReadonlyArray<{ readonly table: Record<string, Record<string, Record<string, string>>> }> }).pairs
     const auras = PALETTES.map((palette) => pairs[1]?.table[palette]?.vivid?.['--candy-aura'] ?? '')
     expect(auras.map((aura) => aura.length)).toEqual(PALETTES.map(() => 197))
-    expect(auras.map((aura) => aura.length <= CSS_VALUE_MAX_LENGTH && bootValueProblem(aura))).toEqual(PALETTES.map(() => RADIAL))
+    expect(auras.map((aura) => aura.length <= PREPAINT_VALUE_MAX && bootValueProblem(aura))).toEqual(PALETTES.map(() => RADIAL))
   })
 
   it('refuses roundness, the one knob of its schema the table never paints', () => {
@@ -129,8 +131,8 @@ describe('the rules, one at a time', () => {
     expect(kept.filter((value) => !isBootValue(value))).toEqual([])
     expect(bootValueProblem('color-mix(in srgb, #fff 50%, black)')).toBe('a call to color-mix(), a function the first paint never runs')
     expect(bootValueProblem('my_font, serif')).toBe('text with "_", a character the first paint refuses')
-    expect(bootValueProblem('1'.repeat(CSS_VALUE_MAX_LENGTH + 1))).toBe('over 200 characters')
-    expect(bootValueProblem('1'.repeat(CSS_VALUE_MAX_LENGTH))).toBeNull()
+    expect(bootValueProblem('1'.repeat(PREPAINT_VALUE_MAX + 1))).toBe('over 200 characters')
+    expect(bootValueProblem('1'.repeat(PREPAINT_VALUE_MAX))).toBeNull()
     expect(bootValueProblem('a(b')).toBe("text whose brackets don't pair")
   })
 
@@ -154,14 +156,14 @@ describe('the rules, one at a time', () => {
 describe('check', () => {
   const wash = 'linear-gradient(120deg,#1D4ED8 0%,#1E7F3C 100%)'
 
-  it("refuses a theme whose first paint drops a value and whose table never paints a knob, with every reason", async () => {
+  it("refuses a theme whose first paint drops a value and whose table never paints a knob, as core's reader does", async () => {
     const accent = { blue: { '--hello-accent': '#1D4ED8', '--hello-wash': wash }, green: { '--hello-accent': '#1E7F3C' } }
     const table = { ...TABLE, knobs: { ...TABLE.knobs, accent }, numeric: [] }
     const ran = await ranCheck(['check', helloFolder({ replace: { [PREPAINT_PATH]: JSON.stringify(table) } })])
     const said = ran.err.filter((line) => !line.startsWith(WARNING))
     expect(ran.code).toBe(1)
     expect(ran.out).toEqual([])
-    expect(said[0]).toMatch(/can't be checked: the browser would leave part of its first paint or its looks out\.$/)
+    expect(said[0]).toMatch(/can't be checked: the Automatos server would refuse it\.$/)
     expect(said.slice(1).map((line) => line.trim().split(' ').slice(0, 2).join(' '))).toEqual([
       `BAD_CSS_VALUE ${PREPAINT_PATH}#knobs.accent.blue.--hello-wash:`, `${KNOB_NOT_PAINTED} ${SCHEMA_PATH}#knobs.radius:`,
     ])
