@@ -1,8 +1,8 @@
 // The demo extras over the harness's sample data, in jsdom (src/host/demo.ts, src/host/demo-data.ts): the address's
 // `demo=` names them (src/host/router.ts readSettings, settingsQuery), and app/host.tsx prepareHost gives them to the
 // fake host before the first render, as main.tsx starts the page. `healthy-agents`: every agent of the roster active;
-// `older-chats`: five older conversations beside the transcript, or a new chat; `hello-played`: Play's hello played
-// this session, in theme state. With none the page draws the sample data, as the regression shots do. A sample theme
+// `older-chats`: five older conversations beside the transcript, or a new chat; `approval-turn`: the next send answered
+// with the recorded turn that raises an approval; `hello-played`: Play's hello played this session, in theme state. With none the page draws the sample data, as the regression shots do. A sample theme
 // (made-up data) draws what it reads on its /chat page.
 import {
   defineTheme, readThemeState, useAgents, useConversationList, type ThemeRegistrationHost,
@@ -13,9 +13,10 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { HarnessHost, prepareHost } from '../app/host.tsx'
 import showcaseFixture from '../fixtures/conversations/showcase.json'
+import turnsFixture from '../fixtures/streams/turns.json'
 import { host } from '../src/host.ts'
 import { DEMO_EXTRAS, demoOf, demoText, HELLO_KEY, HELLO_STATE, NO_DEMO, type DemoExtra } from '../src/host/demo.ts'
-import { HEALTHY_ROSTER, OLDER_CONVERSATIONS } from '../src/host/demo-data.ts'
+import { APPROVAL_TURN, HEALTHY_ROSTER, OLDER_CONVERSATIONS } from '../src/host/demo-data.ts'
 import type { HarnessTheme } from '../src/host/register.ts'
 import { DEFAULT_SETTINGS, readSettings, settingsQuery, type HarnessSettings } from '../src/host/router.ts'
 import { giveSampleData, SAMPLE_PAGE_DATA } from '../src/host/sample-data.ts'
@@ -72,7 +73,7 @@ beforeEach(() => {
 
 describe('the demo extras in the address', () => {
   it('are none by default, and `demo=` names them in their own order, each once, a name it does not know dropped', () => {
-    expect(DEMO_EXTRAS).toEqual(['healthy-agents', 'older-chats', 'hello-played'])
+    expect(DEMO_EXTRAS).toEqual(['healthy-agents', 'older-chats', 'approval-turn', 'hello-played'])
     expect(DEFAULT_SETTINGS.demo).toBe(NO_DEMO)
     expect(readSettings('').demo).toEqual([])
     expect(demoOf('hello-played,healthy-agents,hello-played,everything')).toEqual(['healthy-agents', 'hello-played'])
@@ -86,6 +87,7 @@ describe('the demo extras in the address', () => {
 describe('the page without them', () => {
   it('draws the sample roster, the transcript alone, and no hello played', async () => {
     await drawChat(NO_DEMO)
+    expect(host.turnsLeft()).toBe(0)
     expect(screen.getByTestId('agents')).toHaveTextContent('Ledger:inactive:')
     expect(screen.getByTestId('agents')).toHaveTextContent('Patch:error:No CLI host is online.')
     await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent(titlesOf(TRANSCRIPT_CONVERSATIONS).join(' | ')))
@@ -107,6 +109,13 @@ describe('the page with them', () => {
     expect(OLDER_CONVERSATIONS).toHaveLength(5)
     const expected = [...titlesOf(TRANSCRIPT_CONVERSATIONS), ...titlesOf(OLDER_CONVERSATIONS)]
     await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent(expected.join(' | ')))
+  })
+
+  it('`approval-turn`: the next send takes the recorded turn that raises an approval with its view', async () => {
+    await drawChat(['approval-turn'])
+    expect(host.turnsLeft()).toBe(1)
+    const recorded = host.recordedTurns(turnsFixture, 'fixtures/streams/turns.json')
+    expect(JSON.stringify(recorded.turns[APPROVAL_TURN])).toContain('approval_view')
   })
 
   it('`hello-played`: Play\'s hello played this session, kept after the reset main.tsx starts with', async () => {

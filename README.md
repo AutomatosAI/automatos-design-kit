@@ -25,7 +25,7 @@ draws a phone layout in a phone's browser from 360 px wide.
 <table>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/play.md">Play</a></b> 1.2.1 (<code>automatos/play</code>): warm and editorial, with Auto
+      <b><a href="docs/themes/play.md">Play</a></b> 1.3.0 (<code>automatos/play</code>): warm and editorial, with Auto
       the mascot. Its own frame, chat, shelf of Deliverables and Conversations page.
       <a href="themes/play">Source</a>
     </td>

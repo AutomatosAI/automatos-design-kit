@@ -2,8 +2,9 @@
  * PRD-261 B-02i: `automatos-theme dev themes/play` serves the harness and /chat renders (dev-smoke.config.ts starts the
  * command). The page opens on /chat with the toolbar, as a developer opens it: the theme starts (the host's status and
  * the report the app publishes), the stage shows Play's own /chat page, and on it Auto says hello over the message
- * box, the screen Play's render-all test reads in jsdom. Every request goes to the dev server's origin. The page's
- * shot goes to the test's output folder.
+ * box, the screen Play's render-all test reads in jsdom. It opens on a day without a brief (`brief=off`): from Play
+ * 1.3.0 the day's brief stands in the first open's place, and the showcase shoots that. Every request goes to the dev
+ * server's origin. The page's shot goes to the test's output folder.
  *
  * Then the phone view on PHONE_PATH (app/phone/page.tsx), which the dev server answers with the same page: for Play,
  * Automatos Go's built-in Play layout, which is part of the app, so the view says so in the phone and beside it, draws
@@ -27,7 +28,7 @@ const CONTRAST_HEADING = /^Contrast, as automatos-theme check measures it/
 test('automatos-theme dev serves the harness, and /chat renders', async ({ page }, testInfo) => {
   const requests: string[] = []
   page.on('request', (request) => requests.push(request.url()))
-  await page.goto(`/${settingsQuery({ ...DEFAULT_SETTINGS, path: CHAT_PATH })}`)
+  await page.goto(`/${settingsQuery({ ...DEFAULT_SETTINGS, path: CHAT_PATH, brief: false })}`)
   await page.waitForFunction(
     ({ attribute, settled }) => settled.includes(document.documentElement.getAttribute(attribute) ?? ''),
     { attribute: HTML_ATTRS.status, settled: [...SETTLED_STATUSES] },

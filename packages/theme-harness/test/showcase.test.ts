@@ -5,6 +5,9 @@
 // with reduced motion and no toolbar, on its theme's own server, under a clock fixed inside the fixtures' made-up day,
 // with the demo extras a workspace in use shows: every agent active; Play's hello played before each of its
 // conversations (its first open keeps it), under the key and state Play keeps it in; older conversations on its list.
+// SDK 1.3.0's proactive area: the sample day's brief on every shot but the first open (a day without one), and Play's
+// proactive shots (PRD-268 US-K01): the brief, the suggestion opened from its pinned line, and an approval its recorded
+// answer raises, at 1440 and at 390.
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -13,7 +16,7 @@ import { declaredIn, DEV_PORT, HARNESS_PORT, PHONE_VIEWPORT, PRESET_SUFFIX, read
 import { HELLO_KEY, HELLO_STATE } from '../src/host/demo.ts'
 import { DESKTOP_HEIGHT } from '../src/host/shot-groups.ts'
 import {
-  PLAY_HELLO, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
+  APPROVAL_ASK, PLAY_HELLO, PLAY_MESSAGE_BOX, SHOWCASE_EDITION, SHOWCASE_FOLDER, SHOWCASE_PORTS, SHOWCASE_SCALE, SHOWCASE_SHOTS, SHOWCASE_THEMES, SHOWCASE_TIME,
   showcaseFile, showcaseOrigin, showcaseUrl, type ShowcaseShot, type ShowcaseTheme,
 } from '../src/host/showcase.ts'
 
@@ -29,6 +32,8 @@ const OLDER_CHATS = join(HARNESS_DIR, 'fixtures/conversations/showcase.json')
 /** Where Play keeps its hello in theme state, and where its first open names it. */
 const PLAY_SESSION = join(THEMES_DIR, 'play/src/lib/mascot/session.ts')
 const PLAY_FIRST_OPEN = join(THEMES_DIR, 'play/src/components/play/chat/first-open.tsx')
+const PLAY_MESSAGE_BOX_SOURCE = join(THEMES_DIR, 'play/src/components/play/chat/message-box.tsx')
+const TURNS = join(HARNESS_DIR, 'fixtures/streams/turns.json')
 const SCHEDULE = join(HARNESS_DIR, 'fixtures/activity/schedule.json')
 
 /** The shot list, as the showcase is asked for: HUD's, Play's, Arcade's, then Candy's, the desktop's before the phone's. */
@@ -50,10 +55,17 @@ const EXPECTED_FILES = [
   'play-1440-voice-speaking-ember.png',
   'play-1440-chat-daylight.png',
   'play-1440-look-editor-ember.png',
+  'play-1440-brief-ember.png',
+  'play-1440-brief-daylight.png',
+  'play-1440-suggestion-ember.png',
+  'play-1440-approval-ember.png',
   'play-390-chat-ember.png',
   'play-390-menu-ember.png',
   'play-390-conversations-ember.png',
   'play-390-voice-listening-ember.png',
+  'play-390-brief-ember.png',
+  'play-390-suggestion-ember.png',
+  'play-390-approval-ember.png',
   'arcade-1440-chat-overworld.png',
   'arcade-1440-chat-dungeon.png',
   'arcade-1440-chat-neon.png',
@@ -124,7 +136,7 @@ describe('the showcase shots', () => {
     expect(url.pathname).toBe('/')
     expect(readSettings(url.search)).toEqual({
       path: shot.view.path, preset: shot.look, width: shot.viewport.width, tone: 'light', reducedMotion: true, forcedColors: false,
-      transcript: shot.transcript, voice: shot.voice, toolbar: false, edition: 'saas', demo: shot.demo, brief: true,
+      transcript: shot.transcript, voice: shot.voice, brief: shot.brief, toolbar: false, edition: 'saas', demo: shot.demo,
     })
   })
 
@@ -136,13 +148,30 @@ describe('the showcase shots', () => {
     expect(SHOWCASE_SHOTS.filter((shot) => shot.demo.includes('older-chats')).map(showcaseFile)).toEqual(['play-390-conversations-ember.png'])
   })
 
-  it('show the laptop-shortlist conversation on every chat but the first open, and the voice only on the chat', () => {
+  it('show the laptop-shortlist conversation on every chat but the first open and the brief, and the voice only on the chat', () => {
     const chats = SHOWCASE_SHOTS.filter((shot) => shot.view.key === '/chat')
-    expect(chats.filter((shot) => !shot.transcript).map(showcaseFile)).toEqual(['play-1440-first-open-ember.png'])
+    expect(chats.filter((shot) => !shot.transcript).map(showcaseFile)).toEqual([
+      'play-1440-first-open-ember.png', 'play-1440-brief-ember.png', 'play-1440-brief-daylight.png', 'play-390-brief-ember.png',
+    ])
     const voiced = SHOWCASE_SHOTS.filter((shot) => shot.voice !== 'idle')
     expect(voiced.length).toBeGreaterThan(0)
     expect(voiced.every((shot) => shot.view.key === '/chat' && shot.transcript)).toBe(true)
     expect(SHOWCASE_SHOTS.filter((shot) => shot.step === 'open-menu').map(showcaseFile)).toEqual(['play-390-menu-ember.png'])
+  })
+
+  it("draw the day's brief on every shot but the first open, which is the day without one", () => {
+    expect(SHOWCASE_SHOTS.filter((shot) => !shot.brief).map(showcaseFile)).toEqual(['play-1440-first-open-ember.png'])
+  })
+
+  it("open the pinned suggestion, and ask for an approval in Play's message box with its recorded answer, on a conversation", () => {
+    const opened = SHOWCASE_SHOTS.filter((shot) => shot.step === 'open-suggestion')
+    expect(opened.map(showcaseFile)).toEqual(['play-1440-suggestion-ember.png', 'play-390-suggestion-ember.png'])
+    const asked = SHOWCASE_SHOTS.filter((shot) => shot.step === 'ask-approval')
+    expect(asked.map(showcaseFile)).toEqual(['play-1440-approval-ember.png', 'play-390-approval-ember.png'])
+    expect([...opened, ...asked].every((shot) => shot.transcript)).toBe(true)
+    expect(asked.every((shot) => shot.composer === PLAY_MESSAGE_BOX && shot.demo.includes('approval-turn'))).toBe(true)
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.demo.includes('approval-turn'))).toEqual(asked)
+    expect(SHOWCASE_SHOTS.filter((shot) => shot.composer !== undefined)).toEqual(asked)
   })
 })
 
@@ -152,6 +181,13 @@ describe("the demo extras' data", () => {
     expect(session).toContain(`export const HELLO_KEY = '${HELLO_KEY}'`)
     expect(session).toContain(`Object.freeze({ lifetime: '${HELLO_STATE.lifetime}', within: '${HELLO_STATE.within}' })`)
     expect(readFileSync(PLAY_FIRST_OPEN, 'utf8')).toContain(`export const HELLO_TITLE = ${JSON.stringify(PLAY_HELLO)}`)
+  })
+
+  it("names Play's message box as Play does, and asks in words of its own the recorded approval turn answers", () => {
+    expect(readFileSync(PLAY_MESSAGE_BOX_SOURCE, 'utf8')).toContain(`export const PLACEHOLDER = '${PLAY_MESSAGE_BOX}'`)
+    expect(APPROVAL_ASK.trim()).not.toBe('')
+    const turns = (readJson(TURNS) as { readonly turns: Readonly<Record<string, unknown>> }).turns
+    expect(JSON.stringify(turns.approvalView)).toContain('approval_view')
   })
 
   it("holds the older conversations inside the fixtures' made-up days, before the shots' clock", () => {

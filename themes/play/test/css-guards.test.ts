@@ -45,8 +45,8 @@ const TEST_FILE = /(^|\/)__tests__\/|\.test\.tsx?$/
 const PLAY_COMPONENT_DIRS = ['components/play', 'components/looks', 'components/mascot']
 const PLAY_THEME_CSS = 'app/play-theme.css'
 const PLAY_FONTS_CSS = 'app/play-fonts.css'
-/** play-theme.css, play-fonts.css and the 26 CSS modules (README, "Styles and assets"). */
-const PLAY_STYLESHEETS_MIN = 28
+/** play-theme.css, play-fonts.css and the 27 CSS modules (README, "Styles and assets"). */
+const PLAY_STYLESHEETS_MIN = 29
 const CORE_VARS_PLAY_MAY_READ = new Set(['--font-geist-sans', '--font-geist-mono', '--font-newsreader', '--radius'])
 /** The host's look runtime's motion factor (PRD-261 K-19c): Play's --pl-motion-scale reads it, only the host sets it. */
 const HOST_VARS_PLAY_MAY_READ: ReadonlySet<string> = new Set(['--theme-motion'])

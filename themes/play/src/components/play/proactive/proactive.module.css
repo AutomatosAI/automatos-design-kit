@@ -1,0 +1,34 @@
+/*
+ * Play 1.3.0 (PRD-268 §6.12.4) — where Play places the host's proactive cards: the day's brief and Auto's calibration
+ * in the first open's place on an empty chat, the brief as its message in a conversation, and the newest suggestion
+ * pinned above the message box. The cards are the host's (cards.BriefCard, CalibrationCard, SuggestionCard): they
+ * draw their own words, states and status in Studio's tokens, which the look paints (status by the ground's tone,
+ * lib/looks/status-tokens.ts). Play only lays them out, so nothing here names a colour, and nothing names the accent:
+ * a status never goes through it. Every variable is --pl-* (K2).
+ */
+
+/* The empty chat's cards: in the conversation's column and width, top to bottom, scrolling with the column. */
+.opening {
+  width: 100%;
+  max-width: var(--pl-content-max);
+  margin: 0 auto;
+  padding: var(--pl-space-5) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pl-space-5);
+}
+
+/* A host card fills the column it is placed in. */
+.brief,
+.card {
+  width: 100%;
+  min-width: 0;
+}
+
+/* The suggestion pinned above the message box, at the box's width. Focus moves here when its line opens the card
+   or the card folds back (it is never a Tab stop), so the page's focus never drops to <body>. */
+.pinned {
+  width: 100%;
+  max-width: var(--pl-content-max);
+  margin: 0 auto;
+}
