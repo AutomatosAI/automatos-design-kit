@@ -69,11 +69,9 @@ phone screenshots it lists under `phonePreviews`, side by side at a phone's widt
 (`scripts/release/preview-notes.ts`). A local or open-source edition installs the release asset with Settings ›
 Appearance › Themes › Install theme.
 
-Arcade has no release tag yet, so its first release is the publish run's: the first run on `main` that sees
-`automatos/arcade` 1.0.0 picks it, lists it and releases `arcade-v1.0.0`. Push no `arcade-v*` tag by hand for it.
-Candy is released the same way, by the merge that raises its version: it has no release tag yet, so the first run on
-`main` that sees `automatos/candy` 1.0.0 picks it, lists it and releases `candy-v1.0.0`. Push no `candy-v*` tag by hand
-for it.
+A theme with no release tag yet is picked by the first run on `main` that sees it, and its first version is listed,
+signed and released there: Arcade's `arcade-v1.0.0` and Candy's `candy-v1.0.0` were released that way. Push no
+`<slug>-v*` tag by hand for a theme's first version or any later one.
 
 A tag pushed by hand still releases through `theme-release.yml`'s `release` job (permissions: `contents: write` and
 nothing else; no secrets), unlisted and unsigned. In order, it:

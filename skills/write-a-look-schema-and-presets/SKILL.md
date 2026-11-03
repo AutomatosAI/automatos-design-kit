@@ -42,7 +42,8 @@ look editor or any other code is written. The format, field by field, is [guides
    on its ground with `"min": 3`. Declare Studio's pairs too when the look paints Studio's tokens (Play's file,
    `themes/play/design/contrast.json`, is a full list).
 8. **Check.** Run `automatos-theme check design <theme folder>`. Fix the data, never the check: a pair under its
-   minimum is fixed by a better derived colour, a preset that doesn't fit the table by the table or the preset.
+   minimum is fixed by a better derived colour, a preset that doesn't fit the table by the table or the preset. Each
+   prepaint code, what it means and its fix, is in [First-paint refusals](../../docs/cli.md#first-paint-refusals).
 
 Done when `check design` prints no error on any preset, every preset has the values its knobs accept, and the defaults
 paint every variable the theme's CSS reads.

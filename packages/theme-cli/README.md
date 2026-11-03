@@ -24,8 +24,11 @@ package reader does, and writes:
 When the server would refuse the theme, `pack` writes nothing, prints every reason with the server's code
 (`MISSING_SLOT`, `CSS_UNSCOPED`, `NOT_ALLOWED`, ...) and exits 1. The checks are core's own validators for
 `theme.json`, the looks and the prepaint table (vendored in `src/core`, see its README), and ports of the server's
-zip reader (`src/members.ts`, `src/check-package.ts`) and CSS scope check (`@automatos/vite-preset/css-scope`).
-Core's shared test corpus holds all of them to the server's verdicts (`test/core-corpus.test.ts`).
+zip reader (`src/members.ts`, `src/check-package.ts`), of what it refuses of a theme's first paint (`src/first-paint.ts`:
+`BAD_PREPAINT`, `BAD_CSS_VALUE`, `PREPAINT_DEFAULTS_UNFIT`, `KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`; what each means
+and how to fix it is in `docs/cli.md`, "First-paint refusals") and of its CSS scope check
+(`@automatos/vite-preset/css-scope`). Core's shared test corpus holds all of them to the server's verdicts
+(`test/core-corpus.test.ts`).
 
 ## source/
 

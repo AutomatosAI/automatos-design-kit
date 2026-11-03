@@ -32,6 +32,7 @@ never restyled, recoloured, covered, hidden or imitated. In a mock, show each on
 | Approval cards | A tool approval and a Mission plan approval, with their own Approve and Deny buttons. |
 | Ticket, withdraw and Mission cards | A board ticket's live card, the offer to withdraw a request, the offer to make a Mission and the Mission made. |
 | The voice button | Hold or tap to talk to Auto. While it talks, the host shows "AI voice assistant" and Stop under it: leave room. |
+| Listen | The control that reads the day's brief in Auto's voice, with "AI voice assistant" and Stop while it reads. The brief, suggestion and reply-chip cards are the host's too, for a design that places them; a design may draw its own from the same data instead (below). |
 | The AI label | "Auto is an AI", a tiny caption the host draws at the bottom right of the window (bottom left when Auto's floating widget is there) beside every chat. Draw nothing there, and draw no copy of it. |
 | Banners | The used-up-credits banner and the local edition's first-run nudge. |
 | File previews, Markdown | A Deliverable's file and every reply's text, through the host's own renderers. |
@@ -48,7 +49,8 @@ doesn't give.
 
 | Area | What there is |
 |---|---|
-| Chat | The conversation: each message's words (Markdown), what Auto did (tool lines, receipts), the Deliverables a reply made (id, title, and kind: document, image or video), approvals, tickets, a Mission suggestion; whether Auto is writing; Send, Stop, Try again; the caller's conversations, newest first. |
+| Chat | The conversation: each message's words (Markdown), what Auto did (tool lines, receipts), the Deliverables a reply made (id, title, and kind: document, image or video), approvals, tickets, a Mission suggestion; whether Auto is writing; Send, Stop, Try again; the caller's conversations, newest first. One of Auto's messages may also carry the day's brief, a suggestion, or two or three short answers to tap (each at most 24 characters), which send as the person's own message. |
+| Proactive | When the workspace has it on: the day's brief (its date, a greeting, Auto's read of the day, and five sections of rows with their counts: each row a title, why it is there, a time and, where it has them, a state, drawn as a glyph and a word, and an action), while Auto reads it which row he is on, and the person's thumbs up or down on it; Auto's open suggestions, with Start and Hide; what Auto depends on, each ready, not checked or needing setup. A day with no brief is normal: design the page without it too. |
 | Voice | The session's phase (listening, thinking, speaking…), and the member's and Auto's levels for a waveform. |
 | Deliverables | Each one's title, type (`report`, `document`, `image`, `spreadsheet`, `slide`, `blog_post`…), where it came from (a chat, a Mission, a task, a playbook, an upload, a social post…), the agent that made it, dates, summary, file and content. |
 | Agents | Each agent's name, job title, type, status (`active`, `inactive`…), team and tags; the counts by type. |
@@ -64,8 +66,11 @@ gives its title and kind); a "social post" type of Deliverable (a post is one wh
 
 ## Looks and knobs
 
-- A knob is a **choice** (named options: palettes, accents, type pairs, on and off) or a **number** (a range: a glow,
-  a radius). There is no other kind. A colour a person picks is a choice of named colours, never a free value.
+- A knob is a **choice** (named options: palettes, accents, type pairs, on and off) or a **number** (a range painted
+  as a transparency: a glow). There is no other kind. A size, such as a corner radius, is a choice of sizes. A colour
+  a person picks is a choice of named colours, never a free value.
+- A look's values are plain: colours, sizes and names. The first paint keeps no gradient, colour mix, fade, blur or
+  shadow, so the theme draws those in its own CSS from the look's colours ([looks.md](looks.md)).
 - Choice keys and knob names are lower-case letters and digits (knob names may use camelCase); choices also take
   dashes. Up to 32 knobs, 64 choices each.
 - **Each knob has one default.** A default that depends on another knob ("scanlines: as the palette has them") is a
@@ -154,11 +159,12 @@ Follow these rules; the kit can build only what they allow.
    never draw the words yourself. The message box, the search button, menus and windows are the theme's: design them.
 3. Show only data the host gives: chat messages, tool lines, Deliverables (title, type, source, maker, date), agents
    (name, job title, type, status), Missions (goal, state, tasks, progress), today's counts (working now, completed
-   today, needs you, agents active, in queue), questions, schedules, the workspace and the caller. There is no budget
-   or health figure beyond a trial's credits, no stored points or levels, no agent progress. Mark anything else as
-   decoration.
-4. Looks are knobs a person turns: each a choice of named options or a number range, with one default; presets set
-   every knob together (up to 12, names and one-line descriptions of at most 40 characters, each light or dark).
+   today, needs you, agents active, in queue), questions, schedules, the day's brief and Auto's suggestions (when the
+   workspace has them; a day without a brief is normal), the workspace and the caller. There is no budget or health
+   figure beyond a trial's credits, no stored points or levels, no agent progress. Mark anything else as decoration.
+4. Looks are knobs a person turns: each a choice of named options or a number range (a number paints a transparency,
+   such as a glow; a size is a choice of sizes), with one default; presets set every knob together (up to 12, names
+   and one-line descriptions of at most 40 characters, each light or dark).
    Every text colour reads at 4.5:1 on its ground and every border or icon at 3:1, on every preset.
 5. Under reduced motion nothing moves. Anything that moves for more than five seconds has a pause control.
 6. The phone app draws a skin of colours, up to three fonts and the mascot's stills or clips on its own Studio layout:

@@ -88,6 +88,6 @@ a fresh agent in a sandboxed clone at a tagged base builds a theme from a brief 
 (`scripts/proof/launch.sh --design`), and every gap it finds is a fix to the kit. A proof branch never merges as it is;
 a branch from `main` that takes only `themes/<slug>/` and `proof/<id>/` from it, with the new workspace's lockfile
 entries, merges instead, and the merge releases the theme as it releases Play, HUD, Arcade and Candy:
-`theme-publish.yml` takes any theme whose version has no `<slug>-v*` tag yet and whose publisher
-`release/publishers.json` lists, so `<publisher>/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag pushed by hand
-([docs/releasing.md](../docs/releasing.md), "Merge to publish").
+`theme-publish.yml` takes any theme whose version is above its newest `<slug>-v*` tag (or that has none yet) and whose
+publisher `release/publishers.json` lists, so `<publisher>/<slug>` 1.0.0 is released as `<slug>-v1.0.0` with no tag
+pushed by hand ([docs/releasing.md](../docs/releasing.md), "Merge to publish").

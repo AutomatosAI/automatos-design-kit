@@ -88,10 +88,12 @@ The files are then checked as core's package reader checks them (`src/check-pack
    `CLIP_TOO_LARGE`), bytes that are not what the name says (`BAD_FILE_TYPE`), text that is not UTF-8 (`NOT_UTF8`);
 3. the content: `theme.json` against core's manifest validator, `dist/entry.js` present, JS and CSS together at most
    3 MB, the look schema and presets, the first-paint table and what the browser's first paint would drop of it
-   (`BAD_PREPAINT`, `BAD_CSS_VALUE`, `PREPAINT_DEFAULTS_UNFIT`, `KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`), every file `theme.json` names present
-   (`MISSING_FILE`), the default look a preset (`UNKNOWN_DEFAULT_LOOK`), `dist/theme.css` against the server's CSS
-   scope check, and the `mobile` block: `fromLooks` must paint `--background` and `--foreground` from the table's
-   defaults (`MOBILE_CANNOT_PAINT`), and `clips` or `stills` must have each state's files.
+   (`BAD_PREPAINT`, `BAD_CSS_VALUE`, `PREPAINT_DEFAULTS_UNFIT`, `KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`: what each
+   means and how to fix it is in [First-paint refusals](#first-paint-refusals)), every
+   file `theme.json` names present (`MISSING_FILE`), the default look a preset (`UNKNOWN_DEFAULT_LOOK`),
+   `dist/theme.css` against the server's CSS scope check, and the `mobile` block: `fromLooks` must paint
+   `--background` and `--foreground` from the table's defaults (`MOBILE_CANNOT_PAINT`), and `clips` or `stills` must
+   have each state's files.
 
 Before any of that, `source/` is refused when it can't be rebuilt by the review: a `source/` folder in the theme
 folder (`SOURCE_ON_DISK`; pack writes it), `src/` or a file under it that is a link (`SOURCE_LINK`), a file that is
@@ -147,8 +149,8 @@ example:  npx automatos-theme check themes/harbour --rebuild
 ```
 
 The server's review checks, run here (`src/check/`). The folder is packed exactly as `pack` packs it, into a
-temporary folder that is removed afterwards; a theme `pack` would refuse is refused here with every reason (exit 1),
-and nothing else runs. So build the theme first.
+temporary folder that is removed afterwards; a theme `pack` would refuse (a first-paint refusal included) is refused
+here with every reason (exit 1), and nothing else runs. So build the theme first.
 
 | Flag | Meaning |
 |---|---|
@@ -191,7 +193,8 @@ nothing and sends nothing. Three lines, then the verdict:
 - `prepaint`: `boot/prepaint.json` through core's checks, then its defaults and every preset must fit the table as
   the host keeps it (`PREPAINT_DEFAULTS_UNFIT`, `PRESET_NOT_IN_PREPAINT`), and nothing of it may be lost in the
   browser's first paint: a knob name or value its gate drops (`BAD_PREPAINT`, `BAD_CSS_VALUE`), or a knob the table and
-  the look schema don't both name (`KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`). `not_measured` without the table.
+  the look schema don't both name (`KNOB_NOT_PAINTED`, `KNOB_NOT_IN_SCHEMA`). `not_measured` without the table. Each
+  code and its fix: [First-paint refusals](#first-paint-refusals).
 - `contrast`: every pair `design/contrast.json` declares, on every preset as the first paint paints it. A pair under
   its `min` (default 4.5) is an error naming the preset, both variables and the ratio (`CONTRAST_UNDER_MIN`), and so
   is a pair a preset can't paint (`CONTRAST_NOT_MEASURED`). `not_measured` without the file.
@@ -208,6 +211,41 @@ A malformed file is `BAD_CONTRAST_PAIRS`; a link where one of these files or fol
 file where a folder goes `NOT_A_FOLDER`. A theme folder itself named `design` is checked as `check design ./design`.
 
 Exit codes: 0 when no line is an error; 1 when one is; 2 usage error, or the path is not a folder.
+
+## First-paint refusals
+
+Core's reader refuses a package whose first paint the browser would cut short, and the kit refuses it at each step
+before an upload, with core's codes, paths and sentences (`src/first-paint.ts`, the port of core's `first_paint.py`;
+the table's own checks are the vendored `src/core/css-value.ts`):
+
+- `pack` writes nothing. It prints `<folder> can't be packed: the Automatos server would refuse it.`, then one line
+  per reason: the code, where it is (`boot/prepaint.json#knobs.accent.blue.--harbour-wash`,
+  `looks/schema.json#knobs.radius`) and core's sentence. It exits 1. Its passes stop after the first that refused
+  anything, so a path or size refusal shows before these.
+- `check` packs first, so it stops the same way (`can't be checked`) before any of its checks run, and exits 1.
+- `check design` lists them under its `prepaint` line, at `error`, beside the kit's own `PRESET_NOT_IN_PREPAINT`.
+- The Marketplace review's Package check fails on them ("Core's reader would refuse it."), so neither a person-run
+  `theme-review.yml` nor a publish run passes the package.
+- `automatos-theme dev` and `shots` draw the theme as the browser would, with every dropped value left off.
+
+The browser's first paint keeps a value of at most 200 characters of letters, digits, spaces and `# % . , ( ) / + -`
+(no `_`) that calls only `rgb()`, `rgba()`, `hsl()`, `hsla()`, `var()`, `calc()`, `min()`, `max()`, `clamp()` and the
+filters `hue-rotate()`, `saturate()`, `brightness()`, `grayscale()`, `contrast()`, `sepia()` and `invert()`
+(`BOOT_VALUE_CHARS` and `BOOT_VALUE_FUNCTIONS` in `src/core/css-value.ts`). The table's own checks run first: the
+first-paint codes are given only for a table those checks take.
+
+| Code | What it means | How to fix it |
+|---|---|---|
+| `BAD_CSS_VALUE` | A variable's value the table's check refuses (a URL, a quote, markup, a function or unit it doesn't take, a `--` name that isn't a custom property's), or one the browser's first paint drops: a gradient (`linear-gradient()`, `radial-gradient()`), `color-mix()`, `opacity()`, `blur()`, `drop-shadow()`, a `_`, more than 200 characters. The line names the variable, the look it paints for and why. Every value built on a dropped one with `var()` is lost with it. | Paint plain values: `#` colours, `H S% L%` triplets, `rgb()` and `hsl()`, sizes, names and the functions above. Draw a gradient, a mix, a fade or a blur in the theme's CSS from the colours and stops the table paints. |
+| `BAD_PREPAINT` | The file isn't a JSON object; a key isn't a name the table may use; or a knob's name the browser refuses: a table under `knobs`, a pair table's `a` or `b`, or a numeric rule's `knob`, `color.knob` or `capTable` entry that isn't a letter, then up to 31 letters, digits or `_` (`scan-lines`, say). The browser drops that table, pair table or rule and everything it paints. | Name each knob in the table exactly as `looks/schema.json` names it: a schema knob's name always passes. |
+| `PREPAINT_DEFAULTS_UNFIT` | `defaults` don't fit what the browser keeps of the table: a default with no option in its knob's table, no cell in a pair table, a number out of its rule's range (or not whole for an `integer` rule), no colour in the rule's `rgb` for the default of its `color.knob`, or no cap cell. The browser then drops the whole table: nothing is painted from it and the theme has no looks. | Give `defaults` a value for every knob that every table, pair table and rule has. Write a numeric rule's `rgb` colours as three numbers with commas and no spaces (`"47,111,237"`): the browser drops `"47, 111, 237"`, and with it the defaults' fit. |
+| `KNOB_NOT_PAINTED` | A `looks/schema.json` knob the kept table never paints: no table under `knobs` and no numeric rule names it. The host's looks leave it out, so every look that carries it fails, the presets included, and the look editor changes nothing. | Paint it in the table, or take it out of the schema. A number knob is painted only by a numeric rule, as an alpha: make a size a choice knob whose choices paint the sizes. |
+| `KNOB_NOT_IN_SCHEMA` | A knob the kept table paints (a table under `knobs`, or a numeric rule's `knob`) that `looks/schema.json` doesn't declare. Every look then needs it and no look may carry it, so every look fails. | Declare it in the schema, or take it out of the table. |
+| `BAD_TONE_RULE` | The `tone` rule isn't `{knob, values}`, names a knob that isn't a choice knob of the table (a numeric rule's knob is not one), leaves a choice without a tone, names something that isn't a choice, or gives a tone other than `light` or `dark`. | Name the choice knob that sets light and dark (usually the ground) and give each of its choices `light` or `dark`. |
+| `PRESET_NOT_IN_PREPAINT` | `check design` only, the kit's own code: a preset names a choice or a value the kept table has no entry for, so its first paint is the table's defaults. `pack` doesn't refuse it. | Add the missing option, cell or range to the table, or change the preset. |
+| `MOBILE_CANNOT_PAINT` | Under `mobile.fromLooks`: the package has no `boot/prepaint.json`, or its `defaults` paint no `--background` or `--foreground` as an `H S% L%` triplet, so a phone can't draw the theme from its looks. | Paint both tokens as triplets from the defaults' choices, or give `mobile.tokens` ([guides/mobile-skins.md](../guides/mobile-skins.md)). |
+
+The look schema, the table and the tone rule themselves are in [guides/looks.md](../guides/looks.md).
 
 ## `check handoff`
 
