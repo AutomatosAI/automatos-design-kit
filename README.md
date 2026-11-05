@@ -25,7 +25,7 @@ draws a phone layout in a phone's browser from 360 px wide.
 <table>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/play.md">Play</a></b> 1.4.0 (<code>automatos/play</code>): warm and editorial, with Auto
+      <b><a href="docs/themes/play.md">Play</a></b> 1.5.0 (<code>automatos/play</code>): warm and editorial, with Auto
       the mascot. Its own frame, chat, shelf of Deliverables and Conversations page.
       <a href="themes/play">Source</a>
     </td>
@@ -36,7 +36,7 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/hud.md">HUD</a></b> 1.3.0 (<code>automatos/hud</code>): a mission-control console. A
+      <b><a href="docs/themes/hud.md">HUD</a></b> 1.4.0 (<code>automatos/hud</code>): a mission-control console. A
       top bar, a side rail, bracketed panels, Auto in a voice core, and the day's briefing. <a href="themes/hud">Source</a>
     </td>
   </tr>
@@ -46,14 +46,14 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.0.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
+      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.1.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
       role-playing game. Agents as a party, Auto as the guide in the dialogue box, Deliverables in an inventory,
       Missions as quests on a map. <a href="themes/arcade">Source</a>
     </td>
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/candy.md">Candy</a></b> 1.0.1 (<code>automatos/candy</code>): bright, soft and glossy.
+      <b><a href="docs/themes/candy.md">Candy</a></b> 1.1.0 (<code>automatos/candy</code>): bright, soft and glossy.
       Every card its own gradient, big round corners, today's numbers in a candy orb, and Auto in a glossy shell.
       <a href="themes/candy">Source</a>
     </td>
