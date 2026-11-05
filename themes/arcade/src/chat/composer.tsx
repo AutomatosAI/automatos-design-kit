@@ -14,9 +14,9 @@ import styles from './composer.module.css'
  * Send, Stop and Try again put the focus back in it. Words handed in as a fill (an empty chat's starter) take the
  * box's place and the focus, once per serial, for you to send or change.
  *
- * Arcade 1.1.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat
- * can choose one (agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent
- * picker and the modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
+ * Arcade 1.1.0: the box is named by its placeholder, "Message Auto", or "Message <the agent it talks to>"
+ * (agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent picker and the
+ * modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'

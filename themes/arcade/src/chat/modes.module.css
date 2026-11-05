@@ -1,8 +1,8 @@
 /*
  * Arcade 1.1.0: the row under the message box (mode-row.tsx, agent-picker.tsx), on the host-styled strip, so it reads
  * as the host's part the strip is drawn as: Studio's face and colour tokens, which the palette paints. Code, Plan and
- * Mission are round outlined pills in the card's text, filled with the primary colour on hover; 32 px high on a
- * desktop, 44 px targets on the handheld. The agent's pill is the same with a caret. Its list opens over the row on
+ * Mission are round outlined pills in the card's text, filled with the primary colour on hover and on Plan while it is
+ * on (aria-pressed); 32 px high on a desktop, 44 px targets on the handheld. The agent's pill is the same with a caret. Its list opens over the row on
  * the popover colour, each row a 44 px target, the chosen one marked by a primary bar at its start and a heavier
  * weight, never by colour alone (aria-pressed).
  */
@@ -41,7 +41,8 @@
 }
 
 .mode:hover,
-.chip:hover {
+.chip:hover,
+.mode[aria-pressed="true"] {
   border-color: hsl(var(--primary));
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));

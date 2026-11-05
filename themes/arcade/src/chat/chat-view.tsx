@@ -15,8 +15,7 @@ import {
 
 import { usePhoneLayout } from '../frame/phone-layout'
 import { useMotion } from '../motion/use-motion'
-import { agentChoiceOf } from './agent-choice'
-import { AgentSeat } from './agent-picker'
+import { useAgentSeat } from './agent-picker'
 import { Composer } from './composer'
 import { Dialogue } from './dialogue'
 import { ModeRow } from './mode-row'
@@ -35,8 +34,8 @@ import ui from '../ui/ui.module.css'
  * desktop and over them on the handheld. The chat is the host's (the SDK's useChatController, through use-turn.ts);
  * Auto's portrait follows it (use-auto.ts) and the host's voice session. Two components, so Auto hears the chat in
  * order: the chat in ChatView, Auto and the screen in its child, whose effects run before the turn's own. Arcade
- * 1.1.0: under the message box, Code, Plan and Mission, links to the host's chat with the code canvas, its chat in plan
- * mode and Missions, with the agent picker first where the host's chat can choose an agent (mode-row.tsx,
+ * 1.1.0 (SDK 1.5.0): under the message box, who it talks to (the agent picker), then Code (a link to the host's chat
+ * with the code canvas), Plan (the host's Plan switch) and Mission (a link to Missions) (mode-row.tsx,
  * agent-picker.tsx).
  */
 
@@ -117,28 +116,25 @@ interface StripProps {
 
 /**
  * The host strip: the banner for used-up credits, the message box and, on a desktop, the host's voice button; under
- * the box the modes, the agent picker first where the host's chat can choose an agent (choosing one focuses the box).
+ * the box the agent picker (choosing an agent focuses the box) and the modes.
  */
 function Strip({ chat, sending, boxRef, phone, onTyping }: StripProps) {
   const focusBox = useCallback(() => boxRef.current?.focus(), [boxRef])
+  const seat = useAgentSeat(chat, focusBox)
   return (
     <>
       <TrialBanner chat={chat} />
-      <AgentSeat choice={agentChoiceOf(chat)} onChosen={focusBox}>
-        {(seat) => (
-          <Composer
-            boxRef={boxRef}
-            streaming={chat.streaming}
-            onSend={sending.send}
-            onStop={sending.onStop}
-            autoFocus={chat.messages.length === 0 && !phone}
-            onTyping={onTyping}
-            voice={phone ? null : <VoiceButton />}
-            placeholder={seat.placeholder}
-            tools={<ModeRow agent={seat.picker} phone={phone} />}
-          />
-        )}
-      </AgentSeat>
+      <Composer
+        boxRef={boxRef}
+        streaming={chat.streaming}
+        onSend={sending.send}
+        onStop={sending.onStop}
+        autoFocus={chat.messages.length === 0 && !phone}
+        onTyping={onTyping}
+        voice={phone ? null : <VoiceButton />}
+        placeholder={seat.placeholder}
+        tools={<ModeRow plan={chat} agent={seat.picker} phone={phone} />}
+      />
     </>
   )
 }

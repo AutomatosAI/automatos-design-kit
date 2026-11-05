@@ -6,7 +6,7 @@
   "description": "Automatos as a 16-bit role-playing game: your agents are a party on a quest board, Auto is the guide in the dialogue box, and your Deliverables fill an inventory.",
   "engines": {
     "automatos": "^1.1.0",
-    "sdk": "^1.2.0"
+    "sdk": "^1.5.0"
   },
   "base": "studio",
   "htmlClass": "arcade",
@@ -25,7 +25,8 @@
       "keepCorePage": [
         "repo",
         "runtime",
-        "mode"
+        "mode",
+        "agent"
       ]
     },
     "/deliverables": {
