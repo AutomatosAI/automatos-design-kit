@@ -15,9 +15,9 @@ import ui from '../ui/ui.module.css'
  * nothing. The host's voice button sits to its right, outside the fence, with room under it for the host's caption
  * and Stop. The ref is the textarea: Send, Stop and Try again put the focus back in it.
  *
- * Candy 1.1.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
- * choose one (agent-choice.ts); and under the pill, in its width, the row of tools the page hands in: the agent picker
- * and the modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
+ * Candy 1.1.0: the box is named by its placeholder, "Message Auto", or "Message <the agent it talks to>"
+ * (agent-choice.ts); and under the pill, in its width, the row of tools the page hands in: the agent picker and the
+ * modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'
