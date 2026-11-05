@@ -2,6 +2,25 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.4.0
+
+The modes Studio's chat offers, in HUD's own chat, and the seam for talking to one agent.
+
+- CODE, PLAN and MISSION under the message box, between the box and its keys, as HUD's chips: square outlines, mono
+  capitals, 32 px high. Each is a link to the host's own page for it, so Tab reaches it after Send and Enter follows it:
+  CODE opens the host's chat with the code canvas (`/chat?repo=.`), PLAN its chat in plan mode (`/chat?mode=plan`), and
+  MISSION opens Missions (`/assignments?tab=missions`). The group is named Modes, and each link's title says where it
+  goes. `repo` and `mode` were already on `/chat`'s `keepCorePage`, so the host draws its own chat page for the first
+  two.
+- On the phone, the same row sits in the dock under TYPE · HOLD TO TALK · STOP at the 44 px tap size, whether TYPE has
+  the box open or not; the box holds no second row.
+- The agent picker, built ahead of Theme SDK 1.5.0 and drawn only on a host whose chat can choose an agent (its
+  controller's `agentId` and `chooseAgent`, read in `src/chat/modes/agent-choice.ts` alone): a chip first in the row
+  naming the agent the box talks to, opening a list of Auto and the active agents that can run; a choice names the box
+  "Message <agent>" and gives it the focus (on the phone it opens the box), one the host refuses changes nothing, and
+  Esc shuts the list. A session agent (its runtime the CLI) is a link to its session, never a choice. On SDK 1.4.0, the
+  version HUD runs on (`engines.sdk` stays `^1.4.0`), there is no picker and the box is "Message Auto", as before.
+
 ## 1.3.0
 
 More of Proactive Auto, on Theme SDK 1.4.0 (`engines.sdk` stays `^1.4.0`): a message's parts in HUD's own chat (the

@@ -1,8 +1,11 @@
-import type { ReactNode, RefObject } from 'react'
+import { type ReactNode, type RefObject, useCallback } from 'react'
 import { type HostChatController, type HostChatDraft, TrialExhaustedBanner, useTrial } from '@automatos/theme-sdk'
 
 import cards from './cards.module.css'
 import { Composer } from './composer'
+import { agentChoiceOf } from './modes/agent-choice'
+import { AgentSeat } from './modes/agent-picker'
+import { ModeRow } from './modes/mode-row'
 import { NextLine } from './next/next-line'
 
 /**
@@ -11,7 +14,8 @@ import { NextLine } from './next/next-line'
  * (src/voice/voice-deck.tsx: the waveform with the host's voice button), and the message box. The banner is the host's
  * own card; HUD only places it. The host's first-run nudge heads the column instead (screen.tsx), clear of the box.
  * HUD 1.2.0 (PRD-268): the `▸ NEXT` line, what Auto suggests, sits between the banner and the voice deck
- * (next/next-line.tsx).
+ * (next/next-line.tsx). HUD 1.4.0: the message box carries the row of CODE, PLAN and MISSION under it, with the agent
+ * picker first where the host's chat can choose an agent (modes/), which also names the box after that agent.
  */
 
 const EXHAUSTED = 'exhausted'
@@ -47,19 +51,26 @@ export function TrialBanner({ errorCode, trialExhausted }: { readonly errorCode:
 }
 
 export function ChatFooter({ chat, boxRef, sending, autoFocus, fill = null, voice = null, listed }: ChatFooterProps) {
+  const focusBox = useCallback(() => boxRef.current?.focus(), [boxRef])
   return (
     <>
       <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
       <NextLine place="footer" listed={listed} />
       {voice}
-      <Composer
-        boxRef={boxRef}
-        streaming={chat.streaming}
-        onSend={sending.send}
-        onStop={sending.onStop}
-        autoFocus={autoFocus}
-        fill={fill}
-      />
+      <AgentSeat choice={agentChoiceOf(chat)} onChosen={focusBox}>
+        {(seat) => (
+          <Composer
+            boxRef={boxRef}
+            streaming={chat.streaming}
+            onSend={sending.send}
+            onStop={sending.onStop}
+            autoFocus={autoFocus}
+            fill={fill}
+            placeholder={seat.placeholder}
+            tools={<ModeRow agent={seat.picker} />}
+          />
+        )}
+      </AgentSeat>
     </>
   )
 }

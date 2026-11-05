@@ -17,7 +17,8 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   core with the state in words under him and Pause Auto beside it, the transcript with his replies and the host's own
   cards (approvals, Deliverables, Missions, tickets; its top edge fades, so a row scrolled under it is never cut in
   half), the message box (Enter sends, Shift + Enter makes a new line,
-  Esc stops), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
+  Esc stops) with CODE, PLAN and MISSION under it (from 1.4.0: links to the host's chat with the code canvas, its chat
+  in plan mode, and Missions), and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says
   how to start, with three starters that fill the message box. Over the message box, the host's voice button in the
   design's waveform (below, Voice). From 1.2.0, Proactive Auto (below). It loads in its own chunk. A `/chat` link with `repo`, `runtime` or `mode` keeps the

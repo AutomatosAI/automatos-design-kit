@@ -11,6 +11,9 @@ import { TrialBanner } from '../chat-footer'
 import { OPENING } from '../chip'
 import { Composer } from '../composer'
 import { EmptyChat } from '../empty-chat'
+import { agentChoiceOf } from '../modes/agent-choice'
+import { AgentSeat } from '../modes/agent-picker'
+import { ModeRow } from '../modes/mode-row'
 import { suggestionsOnScreen } from '../thread/message-parts'
 import { TurnEnd } from '../turn-end'
 import { VoiceCore } from '../voice-core'
@@ -34,12 +37,16 @@ import { useFollowEnd } from './use-follow-end'
  * HUD 1.2.0 (PRD-268): while the day's brief shows, BRIEFING takes the last exchange's slot until it folds back, unless
  * a card in the conversation waits for you, which keeps the exchange in its slot. HUD 1.3.0: Auto's reply chips in the
  * last exchange send their words as the box's Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the last
- * exchange shows.
+ * exchange shows. HUD 1.4.0: under the control row, the row of CODE, PLAN and MISSION (modes/mode-row.tsx), open or shut,
+ * with the agent picker first where the host's chat can choose an agent; choosing one opens the box on it, named after
+ * that agent.
  */
 
 interface Typing {
   readonly open: boolean
   readonly toggle: () => void
+  /** Opens the box, or focuses it while it is open. */
+  readonly show: () => void
   readonly onStarter: (text: string) => void
   readonly typeRef: RefObject<HTMLButtonElement | null>
 }
@@ -62,11 +69,15 @@ function useTyping({ boxRef, fillBox }: TypingParts): Typing {
     if (open) boxRef.current?.focus()
   }, [open, boxRef])
   const toggle = useCallback(() => setOpen((was) => !was), [])
+  const show = useCallback(() => {
+    setOpen(true)
+    boxRef.current?.focus()
+  }, [boxRef])
   const onStarter = useCallback((text: string) => {
     setOpen(true)
     fillBox(text)
   }, [fillBox])
-  return { open, toggle, onStarter, typeRef }
+  return { open, toggle, show, onStarter, typeRef }
 }
 
 /**
@@ -105,11 +116,49 @@ function slotOf(briefing: Briefing, waiting: boolean, exchange: ReactNode): Reac
   )
 }
 
+interface DockProps extends Pick<ChatParts, 'chat' | 'sending' | 'boxRef' | 'fill'> {
+  readonly typing: Typing
+  readonly stopping: Stopping
+}
+
+/** The dock: the credits banner, the box while TYPE has it open, the waveform, the control row and the modes. */
+function PhoneDock({ chat, sending, boxRef, fill, typing, stopping }: DockProps) {
+  const composerId = useId()
+  return (
+    <AgentSeat choice={agentChoiceOf(chat)} onChosen={typing.show}>
+      {(seat) => (
+        <>
+          <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
+          <div id={composerId} hidden={!typing.open}>
+            <Composer
+              boxRef={boxRef}
+              streaming={chat.streaming}
+              onSend={sending.send}
+              onStop={sending.onStop}
+              fill={fill}
+              placeholder={seat.placeholder}
+            />
+          </div>
+          <Waveform bars={PHONE_BARS} entry="middle" size="small" />
+          <PhoneControls
+            typing={typing.open}
+            composerId={composerId}
+            onType={typing.toggle}
+            stoppable={stopping.stoppable}
+            onStop={stopping.stop}
+            typeRef={typing.typeRef}
+          />
+          <ModeRow agent={seat.picker} phone />
+        </>
+      )}
+    </AgentSeat>
+  )
+}
+
 export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, briefing }: ChatParts) {
   const typing = useTyping({ boxRef, fillBox })
   const stopping = useStop(chat.streaming, sending, typing)
   const scrollRef = useFollowEnd(chat.messages)
-  const composerId = useId()
   const exchange = (
     <PhoneTranscript
       messages={chat.messages}
@@ -123,23 +172,7 @@ export function PhoneChat({ chat, live, auto, chip, sending, boxRef, fill, fillB
     />
   )
   const transcript = slotOf(briefing, chat.approvalWaiting, exchange)
-  const dock = (
-    <>
-      <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
-      <div id={composerId} hidden={!typing.open}>
-        <Composer boxRef={boxRef} streaming={chat.streaming} onSend={sending.send} onStop={sending.onStop} fill={fill} />
-      </div>
-      <Waveform bars={PHONE_BARS} entry="middle" size="small" />
-      <PhoneControls
-        typing={typing.open}
-        composerId={composerId}
-        onType={typing.toggle}
-        stoppable={stopping.stoppable}
-        onStop={stopping.stop}
-        typeRef={typing.typeRef}
-      />
-    </>
-  )
+  const dock = <PhoneDock chat={chat} sending={sending} boxRef={boxRef} fill={fill} typing={typing} stopping={stopping} />
   const core = <VoiceCore state={auto.mascot} chip={chip} size="small" onClipEnded={auto.onClipEnded} />
   const line = <StatusLine state={auto.mascot} listed={listedOnPhone(briefing, chat.approvalWaiting, chat.messages)} />
   return <PhoneScreen title={chat.title} line={line} core={core} transcript={transcript} dock={dock} scrollRef={scrollRef} />

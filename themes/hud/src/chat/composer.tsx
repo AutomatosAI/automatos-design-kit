@@ -1,4 +1,4 @@
-import { type FormEvent, Fragment, type KeyboardEvent, type RefObject, useCallback, useEffect, useId, useState } from 'react'
+import { type FormEvent, Fragment, type KeyboardEvent, type ReactNode, type RefObject, useCallback, useEffect, useId, useState } from 'react'
 import { AiLabelFence, type HostChatDraft } from '@automatos/theme-sdk'
 
 import styles from './composer.module.css'
@@ -12,6 +12,10 @@ import styles from './composer.module.css'
  * fences the box only, never the conversation, so the approval cards stay clickable. The ref is the textarea:
  * Send, Stop and Try again put the focus back in it. Words handed in as a fill (an empty chat's starter) take the
  * box's place and the focus, once per serial, for you to send or change.
+ *
+ * HUD 1.4.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
+ * choose one (modes/agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent
+ * picker and the modes (modes/mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -33,6 +37,10 @@ export interface ComposerProps {
   readonly autoFocus?: boolean
   /** Words to put in the box: each new serial replaces what is there and focuses it. */
   readonly fill?: HostChatDraft | null
+  /** The box's placeholder and name: PLACEHOLDER, or the agent it talks to. */
+  readonly placeholder?: string
+  /** Between the box and its keys: the agent picker and the modes; the phone puts them in its dock instead. */
+  readonly tools?: ReactNode
 }
 
 export interface BoxFill {
@@ -89,7 +97,8 @@ function useDraft(streaming: boolean, onSend: (text: string) => boolean, onStop:
   return { draft, setDraft, ready, onSubmit, onKeyDown }
 }
 
-export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false, fill = null }: ComposerProps) {
+export function Composer(props: ComposerProps) {
+  const { boxRef, streaming, onSend, onStop, autoFocus = false, fill = null, placeholder = PLACEHOLDER, tools = null } = props
   const { draft, setDraft, ready, onSubmit, onKeyDown } = useDraft(streaming, onSend, onStop)
   const hintId = useId()
   useEffect(() => {
@@ -110,8 +119,8 @@ export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false,
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={PLACEHOLDER}
-            aria-label={PLACEHOLDER}
+            placeholder={placeholder}
+            aria-label={placeholder}
             aria-describedby={hintId}
             autoFocus={autoFocus}
             rows={1}
@@ -119,6 +128,7 @@ export function Composer({ boxRef, streaming, onSend, onStop, autoFocus = false,
           <SendOrStop streaming={streaming} ready={ready} onStop={onStop} />
         </form>
       </AiLabelFence>
+      {tools}
       <p id={hintId} className={styles.hint}>
         {HINT_PARTS.map((part, index) => (
           <Fragment key={part}>
