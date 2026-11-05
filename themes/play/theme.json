@@ -4,14 +4,14 @@
   "name": "Play",
   "version": "1.5.0",
   "description": "Automatos with Auto the mascot: a chat with Auto, a shelf of Deliverables, and looks you make your own.",
-  "engines": { "automatos": "^1.1.0", "sdk": "^1.4.0" },
+  "engines": { "automatos": "^1.1.0", "sdk": "^1.5.0" },
   "base": "studio",
   "htmlClass": "play",
   "minWidth": 360,
   "tone": "from-look",
   "slots": ["frame@1", "lookEditor@1", "styleSheet@1", "notFound@1", "asleep@1"],
   "pages": {
-    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] },
+    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode", "agent"] },
     "/deliverables": { "mode": "own", "keepCorePage": ["tab", "post", "artifact_type"] }
   },
   "routes": ["conversations"],

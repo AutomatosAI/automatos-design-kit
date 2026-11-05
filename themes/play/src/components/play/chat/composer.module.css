@@ -177,7 +177,8 @@
 /*
  * Play 1.5.0: the row under the message box (mode-row.tsx, agent-picker.tsx), in the box's width. Code, Plan and
  * Mission are outlined pills in the outlined buttons' line, their words in the secondary text, 32 px high, the text
- * colour on hover; the agent's pill is the same in the text colour. Its list opens over the row on the surface colour,
+ * colour on hover; Plan, while on, edged twice in the accent as text, its word in the text colour and heavier; the
+ * agent's pill is the same as a mode in the text colour. Its list opens over the row on the surface colour,
  * each row a 44 px target, the chosen one marked by a bar in the accent as text and a heavier weight, never by colour
  * alone (aria-pressed). On a phone every pill is a 44 px target (below).
  */
@@ -217,6 +218,13 @@
 .agentChip:hover {
   border-color: var(--pl-color-text);
   color: var(--pl-color-text);
+}
+
+.mode[aria-pressed="true"] {
+  border-color: var(--pl-color-accent-text);
+  box-shadow: inset 0 0 0 1px var(--pl-color-accent-text);
+  color: var(--pl-color-text);
+  font-weight: 600;
 }
 
 .agent {

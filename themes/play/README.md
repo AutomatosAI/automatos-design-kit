@@ -36,14 +36,16 @@ the focus to once the screen shows.
 
 ## Modes and agents (1.5.0)
 
-- **Code, Plan and Mission** under the message box (`components/play/chat/mode-row.tsx`, `play-composer.tsx`), the
-  three that Studio's chat offers: links to the host's chat with the code canvas (`/chat?repo=.`), its chat in plan
-  mode (`/chat?mode=plan`) and Missions (`/assignments?tab=missions`), drawn as Play's outlined pills, on a desktop and
-  a phone alike.
-- **The agent picker**, built ahead of SDK 1.5.0 (`agent-picker.tsx`): drawn only where the host's chat controller can
-  choose an agent (`agentId`, `chooseAgent`, read in `agent-choice.ts` alone), first in that row; it lists Auto and the
-  active agents that can run (the SDK's `useAgents`, so `uses` names `pages-agents`), names the box "Message <agent>",
-  and opens a session agent's session with a link. On SDK 1.4.0 there is none, and the box is "Message Auto".
+On SDK 1.5.0 (`engines.sdk` `^1.5.0`), under the message box (`components/play/chat/play-composer.tsx`,
+`mode-row.tsx`, `agent-picker.tsx`), on a desktop and a phone alike:
+
+- **The agent picker**: a pill naming the agent the box talks to, opening a list of Auto and the active agents that can
+  run (the SDK's `useAgents`, so `uses` names `pages-agents`). A choice goes through the chat controller's
+  `chooseAgent`, names the box "Message <agent>" and gives it the focus; a session agent opens its session with a link
+  to `/chat?agent=<id>`.
+- **Code, Plan and Mission**, the three that Studio's chat offers: Code a link to the host's chat with the code canvas
+  (`/chat?repo=.`), Plan a toggle on the host's Plan switch (`planMode`, `setPlanMode`), Mission a link to Missions
+  (`/assignments?tab=missions`), drawn as Play's outlined pills.
 
 ## Proactive Auto (1.3.0, 1.4.0)
 

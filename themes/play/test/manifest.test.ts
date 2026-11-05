@@ -130,7 +130,7 @@ describe('theme.json', () => {
 
   it('keeps the core page for the links core keeps it for', () => {
     expect(manifest.pages).toEqual({
-      '/chat': { mode: 'own', keepCorePage: ['repo', 'runtime', 'mode'] },
+      '/chat': { mode: 'own', keepCorePage: ['repo', 'runtime', 'mode', 'agent'] },
       '/deliverables': { mode: 'own', keepCorePage: ['tab', 'post', 'artifact_type'] },
     })
   })

@@ -4,20 +4,20 @@ Play's versions, newest first. A released version's files never change: a change
 
 ## 1.5.0
 
-The modes Studio's chat offers, in Play's own chat, and the seam for talking to one agent. Play still runs on SDK 1.4.0
-(`engines.sdk` stays `^1.4.0`).
+Talk to one agent, and Studio's modes, in Play's own chat. Play needs SDK 1.5.0 (`engines.sdk` `^1.5.0`): the chat
+controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode`, and a roster agent's `configuration`.
 
 - **Code, Plan and Mission** under the message box, in its width, as Play's outlined pills (32 px, 44 px targets on a
-  phone). Each is a link to the host's own page for it, so Tab reaches it after Send and Enter follows it: Code opens
-  the host's chat with the code canvas (`/chat?repo=.`), Plan its chat in plan mode (`/chat?mode=plan`), and Mission
-  opens Missions (`/assignments?tab=missions`). The group is named Modes, and each link's title says where it goes.
-  `repo` and `mode` were already on `/chat`'s `keepCorePage`, so the host draws its own chat page for the first two.
-- **The agent picker**, built ahead of Theme SDK 1.5.0 and drawn only on a host whose chat can choose an agent (its
-  controller's `agentId` and `chooseAgent`): a pill first in the row naming the agent the box talks to, opening a list
-  of Auto and the active agents that can run; a choice names the box "Message <agent>" and gives it the focus, one the
-  host refuses changes nothing, and Esc shuts the list. A session agent (its runtime the CLI) is a link to its session,
-  never a choice. It reads the roster with `useAgents`, so `uses` adds `pages-agents`. On SDK 1.4.0 there is no picker
-  and the box is "Message Auto", as before.
+  phone), in a group named Modes. Code is a link to the host's chat with the code canvas (`/chat?repo=.`) and Mission
+  one to Missions (`/assignments?tab=missions`), each with a title saying where it goes. Plan is a toggle
+  (`aria-pressed`) on the host's own Plan switch, the one Studio's Plan button and a `/chat?mode=plan` link set, edged
+  in the accent as text while on; the next message goes with Plan.
+- **The agent picker**, first in that row: a pill naming the agent the box talks to ("Talking to Auto" to a screen
+  reader), opening a list of Auto and the active agents that can run (the SDK's `useAgents`, so `uses` adds
+  `pages-agents`). A choice makes the next message go to that agent, names the box "Message <agent>" and gives it the
+  focus; one the host refuses changes nothing; Esc shuts the list. A session agent (its runtime the CLI) is a link to
+  its session (`/chat?agent=<id>`), never a choice.
+- `/chat`'s `keepCorePage` adds `agent`, as core keeps its own chat page for an agent link.
 
 ## 1.4.0
 

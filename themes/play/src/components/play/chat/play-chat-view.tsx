@@ -84,8 +84,8 @@ import styles from './composer.module.css'
  * (`useReply`), the box taking the focus after it on a desktop as after Try again (on a phone it would raise the
  * keyboard).
  *
- * Play 1.5.0: under the message box, Code, Plan and Mission, links to the host's chat with the code canvas, its chat in
- * plan mode and Missions, with the agent picker first where the host's chat can choose an agent (play-composer.tsx).
+ * Play 1.5.0 (SDK 1.5.0): under the message box, who it talks to (the agent picker), then Code (a link to the host's
+ * chat with the code canvas), Plan (the host's Plan switch) and Mission (a link to Missions) (play-composer.tsx).
  */
 
 export interface PlayChatViewProps {

@@ -26,8 +26,8 @@ import styles from './composer.module.css'
  * (it draws no box, so the row stays one row), never the voice button: core's voice says it is an AI itself (the
  * caption and the spoken notice), and a fieldset that is switched off switches off every control in it.
  *
- * Play 1.5.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
- * choose one (agent-choice.ts, play-composer.tsx).
+ * Play 1.5.0: the box is named by its placeholder, "Message Auto", or "Message <the agent it talks to>" (agent-choice.ts,
+ * play-composer.tsx).
  */
 
 export const PLACEHOLDER = 'Message Auto'

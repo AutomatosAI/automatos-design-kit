@@ -1,33 +1,47 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { HostLink } from '@automatos/theme-sdk'
+import { type HostChatController, HostLink } from '@automatos/theme-sdk'
 
-import { CHAT_MODES, MODES_LABEL } from './chat-modes'
+import { CODE, MISSION, type ModeLink, MODES_LABEL, PLAN_LABEL, PLAN_TITLE } from './chat-modes'
 import styles from './composer.module.css'
 
 /**
  * Play 1.5.0: the row under the message box, in the box's width (after themes/hud/src/chat/modes/mode-row.tsx, HUD
- * 1.4.0). First the agent the box talks to (agent-picker.tsx), where the host's chat can choose one; then Code, Plan
- * and Mission, each a link to the host's page for it (chat-modes.ts), drawn as Play's outlined pills. They are links,
- * so Tab reaches each after Send, and Enter follows it. On a phone they are 44 px targets (composer.module.css).
+ * 1.4.0). First the agent the box talks to (agent-picker.tsx); then Code, Plan and Mission as Play's outlined pills.
+ * Code and Mission are links to the host's page for each (chat-modes.ts); Plan is a toggle (aria-pressed) on the host's
+ * own Plan switch, the chat controller's planMode and setPlanMode (SDK 1.5.0), edged in the accent as text while on.
+ * Tab reaches each after Send. On a phone they are 44 px targets (composer.module.css).
  */
 
+/** The host's Plan switch, as the chat controller hands it out. */
+export type PlanSwitch = Pick<HostChatController, 'planMode' | 'setPlanMode'>
+
 export interface ModeRowProps {
-  /** The agent picker, first in the row; null where the host's chat can choose no agent. */
+  readonly plan: PlanSwitch
+  /** The agent picker, first in the row. */
   readonly agent?: ReactNode
 }
 
-export function ModeRow({ agent = null }: ModeRowProps) {
+function ModeChip({ mode }: { readonly mode: ModeLink }) {
+  return (
+    <HostLink href={mode.href} className={styles.mode} title={mode.opens}>
+      {mode.label}
+    </HostLink>
+  )
+}
+
+export function ModeRow({ plan, agent = null }: ModeRowProps) {
+  const { planMode, setPlanMode } = plan
   return (
     <div className={styles.tools}>
       {agent}
       <div className={styles.modes} role="group" aria-label={MODES_LABEL}>
-        {CHAT_MODES.map((mode) => (
-          <HostLink key={mode.id} href={mode.href} className={styles.mode} title={mode.opens}>
-            {mode.label}
-          </HostLink>
-        ))}
+        <ModeChip mode={CODE} />
+        <button type="button" className={styles.mode} aria-pressed={planMode} title={PLAN_TITLE} onClick={() => setPlanMode(!planMode)}>
+          {PLAN_LABEL}
+        </button>
+        <ModeChip mode={MISSION} />
       </div>
     </div>
   )

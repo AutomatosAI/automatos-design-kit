@@ -3,15 +3,14 @@
 import { type RefObject, useCallback } from 'react'
 import type { HostChatController, HostChatDraft } from '@automatos/theme-sdk'
 
-import { agentChoiceOf } from './agent-choice'
-import { AgentSeat } from './agent-picker'
+import { useAgentSeat } from './agent-picker'
 import { MessageBox } from './message-box'
 import { ModeRow } from './mode-row'
 
 /**
- * Play 1.5.0: the message box (message-box.tsx) with the row under it (mode-row.tsx): Code, Plan and Mission, and first
- * the agent picker where the host's chat can choose an agent (agent-picker.tsx), which also names the box after the
- * agent it talks to; choosing one gives the box the focus. On a desktop and a phone alike. The box is keyed by its
+ * Play 1.5.0: the message box (message-box.tsx) with the row under it (mode-row.tsx): the agent picker
+ * (agent-picker.tsx), which also names the box after the agent it talks to (choosing one gives the box the focus), then
+ * Code, Plan and Mission. On a desktop and a phone alike. The box is keyed by its
  * fill, as before: a new serial is a fresh box with the fill's words, focused.
  */
 
@@ -31,26 +30,23 @@ export interface PlayComposerProps {
 
 export function PlayComposer({ chat, box, fill, onStop, onFocus, onBlur, autoFocus, voiceHotkey }: PlayComposerProps) {
   const focusBox = useCallback(() => box.current?.focus(), [box])
+  const seat = useAgentSeat(chat, focusBox)
   return (
-    <AgentSeat choice={agentChoiceOf(chat)} onChosen={focusBox}>
-      {(seat) => (
-        <>
-          <MessageBox
-            ref={box}
-            key={fill ? `fill-${fill.serial}` : 'box'}
-            streaming={chat.streaming}
-            onSend={chat.send}
-            onStop={onStop}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            initialDraft={fill?.text}
-            autoFocus={autoFocus}
-            voiceHotkey={voiceHotkey}
-            placeholder={seat.placeholder}
-          />
-          <ModeRow agent={seat.picker} />
-        </>
-      )}
-    </AgentSeat>
+    <>
+      <MessageBox
+        ref={box}
+        key={fill ? `fill-${fill.serial}` : 'box'}
+        streaming={chat.streaming}
+        onSend={chat.send}
+        onStop={onStop}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        initialDraft={fill?.text}
+        autoFocus={autoFocus}
+        voiceHotkey={voiceHotkey}
+        placeholder={seat.placeholder}
+      />
+      <ModeRow plan={chat} agent={seat.picker} />
+    </>
   )
 }
