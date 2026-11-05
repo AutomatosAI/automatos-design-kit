@@ -8,10 +8,12 @@ Talk to one agent, and Studio's modes, in Arcade's own chat. Arcade now needs SD
 `^1.2.0` to `^1.5.0`): the chat controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode`, and a roster
 agent's `configuration`.
 
-- Code, Plan and Mission under the message box, on the host strip between the box and its keys, drawn in Studio's tokens as the strip is: round outlined pills, 32 px on a desktop and 44 px targets on the handheld, in a group named Modes. Code is a link to the host's
-  chat with the code canvas (`/chat?repo=.`) and Mission one to Missions (`/assignments?tab=missions`), each with a
-  title saying where it goes. Plan is a toggle (`aria-pressed`) on the host's own Plan switch, the one Studio's Plan
-  button and a `/chat?mode=plan` link set, filled with the primary colour while on; the next message goes with Plan.
+- Code, Plan and Mission under the message box, on the host strip between the box and its keys, drawn in Studio's
+  tokens as the strip is: round outlined pills, 32 px on a desktop and 44 px targets on the handheld, in a group named
+  Modes. Code is a link to the host's chat with the code canvas (`/chat?repo=.`) and Mission one to Missions
+  (`/assignments?tab=missions`), each with a title saying where it goes. Plan is a toggle (`aria-pressed`) on the
+  host's own Plan switch, the one Studio's Plan button and a `/chat?mode=plan` link set, filled with the primary
+  colour while on; the next message goes with Plan.
 - The agent picker, first in that row: a pill naming the agent the box talks to ("Talking to Auto" to a screen
   reader), opening a list of Auto and the active agents that can run. A choice makes the next message go to that
   agent, names the box "Message <agent>" and gives it the focus; one the host refuses changes nothing; Esc shuts the

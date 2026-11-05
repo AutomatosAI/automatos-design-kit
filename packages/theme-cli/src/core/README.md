@@ -11,8 +11,8 @@ previous pin (SDK 1.4.0, core `main` after the merge of pull request #1383 on 31
 #1378, which makes the reader refuse what the browser's first paint would drop), only `host.ts` (`SDK_VERSION`)
 changed here, with the corpus's `cases.json` (its engines cases) and the commit in `data/contract.json`, whose lists
 are the same: none of the copied validators, `review-cases.json`, `hello/` or the two `data/` files changed in core,
-nor `boot.ts`, `boot-sanitize.ts` or `first_paint.py`; of the review stage's sources only `listings.py` changed (where
-a Cloud row's screenshots load from), not the preview rule `src/check/previews.ts` ports.
+nor `boot.ts`, `boot-sanitize.ts` or `first_paint.py`; of the review stage's sources `listings.py` changed (where a
+Cloud row's screenshots load from), not the preview rule `src/check/previews.ts` ports, and `review.py` in a docstring.
 
 | File here | Core file | Edits |
 |---|---|---|
