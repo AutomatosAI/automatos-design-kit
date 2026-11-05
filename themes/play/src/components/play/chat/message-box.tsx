@@ -25,6 +25,9 @@ import styles from './composer.module.css'
  * and Send never lock while voice runs. The AI label fence takes the words and Send, each in a fence of its own
  * (it draws no box, so the row stays one row), never the voice button: core's voice says it is an AI itself (the
  * caption and the spoken notice), and a fieldset that is switched off switches off every control in it.
+ *
+ * Play 1.5.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
+ * choose one (agent-choice.ts, play-composer.tsx).
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -44,6 +47,8 @@ export interface MessageBoxProps {
   readonly autoFocus?: boolean
   /** The voice button's hotkey: VOICE_HOTKEY on a desktop, null on a phone (no keyboard to hold). */
   readonly voiceHotkey?: string | null
+  /** The box's placeholder and name: PLACEHOLDER, or the agent it talks to. */
+  readonly placeholder?: string
 }
 
 /**
@@ -67,7 +72,7 @@ function useBoxRef(forwarded: ForwardedRef<HTMLTextAreaElement>, autoFocus: bool
 }
 
 export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(function MessageBox(
-  { streaming, onSend, onStop, onFocus, onBlur, initialDraft = '', autoFocus = false, voiceHotkey = VOICE_HOTKEY },
+  { streaming, onSend, onStop, onFocus, onBlur, initialDraft = '', autoFocus = false, voiceHotkey = VOICE_HOTKEY, placeholder = PLACEHOLDER },
   ref,
 ) {
   const [draft, setDraft] = useState(initialDraft)
@@ -107,8 +112,8 @@ export const MessageBox = forwardRef<HTMLTextAreaElement, MessageBoxProps>(funct
           onKeyDown={onKeyDown}
           onFocus={onFocus}
           onBlur={onBlur}
-          placeholder={PLACEHOLDER}
-          aria-label={PLACEHOLDER}
+          placeholder={placeholder}
+          aria-label={placeholder}
           rows={1}
         />
       </AiLabelFence>
