@@ -40,7 +40,9 @@ gallery (`/looks/style`). `uses` names the SDK areas the code imports: `cards`, 
 The host's approval and Mission cards, the withdraw offer and ticket cards, the voice button, the header utilities,
 the first-run nudge and the credits banner are placed and never restyled: each sits in a strip in Studio's own type.
 The message box is Arcade's own (the SDK has no host message box), drawn in Studio's tokens inside the host's
-`AiLabelFence`; the voice button sits beside it, outside the fence. The "Auto is an AI" label is the host's, drawn
+`AiLabelFence`; the voice button sits beside it, outside the fence. From 1.1.0, Code, Plan and Mission sit under the
+box on the same strip, in Studio's tokens: links to the host's chat with the code canvas, its chat in plan mode and
+Missions, with the agent picker first where the host's chat can choose an agent (SDK 1.5.0). The "Auto is an AI" label is the host's, drawn
 at the foot of the window; Arcade keeps that corner clear and draws its scanlines inside its own windows only, never
 over the page.
 

@@ -1,6 +1,6 @@
 {
   "name": "@automatos/theme-arcade",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Arcade, Automatos as a 16-bit role-playing game, built as an installable theme package (automatos/arcade).",
   "private": true,
   "license": "Apache-2.0",
