@@ -154,6 +154,17 @@ is a write kept as the body core posts to its digest feedback route (`{state_has
 the fake server answered, shared with the `BriefCard` stand-in's thumbs, so a press in either shows in both;
 `BriefCard`'s `thumbs={false}` draws none. `test/message-parts.test.tsx` and `test/sdk-1.4.0.test.tsx` hold them.
 
+SDK 1.5.0 adds who answers a theme's chat, and Plan, as fields of the chat controller
+(`src/internal/scripted/chat-partner.ts`, after core's `internal/chat-partner.ts`). `agentId` is the conversation's
+agent, null (Auto) as its screen mounts; `chooseAgent(id)` picks an agent of the roster a test answers for `useAgents`
+(read as the host reads its own cache, so it is no theme's ask in `pageAsks()`) and returns true, or null for Auto. It
+returns false, changing nothing, for a session agent (`configuration.runtime` 'cli'), for an id the roster lacks and
+while the roster loads, and throws for anything but a whole number or null. `planMode` and `setPlanMode(on)` are the
+host's one Plan switch, shared by every chat on the page: a test sets it with `host.setChatPlanMode(on)` and reads it
+with `host.chatPlanMode()`, `host.reset()` turns it off, and `setPlanMode` throws for anything but true or false. A
+send carries both, as core's does: `chatSent()` adds `agentId` for an agent other than Auto and `planMode: true` while
+Plan is on, and leaves both out otherwise. `test/sdk-1.5.0.test.tsx` holds them.
+
 ## The fake host
 
 `host` (`@automatos/theme-harness/host`, `src/host.ts`) sets what the host would say and reads back what a theme
@@ -173,7 +184,7 @@ not set up), no calibration offered and the brief not being read (no row of it),
 | assets | `setFilesRoot` | `askedPaths()` |
 | storage | `setStorage({ ready, persisted, themeId, userKey, workspaceKey })`, `changeInAnotherTab` | the window's storage |
 | pages | `setPageQuery`, `setPageAction`, `setDatabaseKnowledge`, `setDatabaseCall` | `pageAsks()`, `pageRuns()`, `pageRefetches()`, `boardStreams()` |
-| chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
+| chat, Deliverables (B-02c) | `setChatScript`, `continueHeldTurn`, `setConversations`, `setAiLabelShown`, `setChatOpening`, `setTurnEnding`, `setPlanningMissionId`, `setChatPlanMode` (SDK 1.5.0: Plan), `setDeliverables`, `setDetail`, `setBlobUrls` | `chatSent()` (SDK 1.5.0: with the chosen agent's `agentId` and `planMode`), `chatPlanMode()`, `turnsLeft()`, `startedChats()`, `conversationsAsked()`, `deliverablesAsked()`, `detailsAsked()`, `downloadsAsked()` (each with the theme's words for a failure) |
 | cards (B-02c) | | `cardActions()`, `markdownViews()` (the props each MarkdownView drew with) |
 | voice (SDK 1.2.0) | `setVoice` (any of the session's fields, `chatId` among them), `setVoicePhase` (the phase, its engine, and the microphone as that engine has it), `setVoiceMic`, `setVoiceWords` (`heard`, `reply`), `setVoiceError`, `setVoiceAvailable` (`VOICE_DEFAULTS` with changes; `null` for no host voice on the page), `setVoiceLevels`, `voiceTurnSaved` (a conversation's saved rows landed: the session's words leave it) | `voiceStops()` (every `stop()`: useVoice's, the button's), `voicePresses()` (each press that reached the host: start, release or stop, with its engine and conversation) |
 | proactive (SDK 1.3.0) | the page areas' `setPageQuery` and `setPageAction` (a read may also answer `'idle'`: no brief today), `setCalibration` (a Calibration@1, or `null` for none, the default), `setBriefReading` (Auto reads the brief, or stops), `setBriefRow` (SDK 1.4.0: the brief row Auto reads, or `null`), `setBriefRating(stateHash, rating)` (SDK 1.4.0: the person's rating of that brief the server remembers, `up`, `down` or `null`, the default) | `pageAsks()`, `pageRuns()` (`useRateBrief`'s with the body core posts), `cardActions()` |

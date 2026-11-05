@@ -26,6 +26,10 @@
  * (internal/scripted/message-parts.ts), never its raw parts: a stored message's are its fixture's `parts` (else its
  * words), a message of the turn's are its words, so a live reply's chips reach a theme once its conversation opens again. Not modelled: the approvals store that keeps
  * cards across chat screens, and a cold start on the newest conversation (a new chat opens, as core's Play specs have).
+ * SDK 1.5.0 (core's internal/chat-partner.ts at 5e357cd7ffa5dc89725349784445fee5de985265): who answers and Plan
+ * (internal/scripted/chat-partner.ts): the conversation's `agentId` and `chooseAgent`, over the roster a test answers
+ * for useAgents, and `planMode` and `setPlanMode`, the host's one switch (setChatPlanMode, read back with
+ * chatPlanMode); a send carries both (chatSent's `agentId` and `planMode`, absent for Auto and with Plan off).
  */
 import type {
   HostChatApproval,
@@ -39,14 +43,14 @@ import type {
   HostChatOnScreenOptions,
   HostChatSummary,
   HostConversationListState,
-  HostReceipt,
   HostSearchParams,
 } from '@automatos/theme-sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveVoiceRecords } from '../internal/live-voice-turns.ts'
 import { type ApprovalStatus, type FiledApproval, isWaitingCard } from '../internal/scripted/approvals.ts'
-import { deliverablesFromReceipts, liveReceiptsIn, replyRecord, type ReplyRecord, withFrame } from '../internal/scripted/chat-reply.ts'
+import { deliverablesFromReceipts, replyRecord, type ReplyRecord, withFrame } from '../internal/scripted/chat-reply.ts'
 import { knownPartsOf, rawPartsOf, TEXT_PART } from '../internal/scripted/message-parts.ts'
+import { chatPlanMode, resetChatPartner, setChatPlanMode, useChatPartner } from '../internal/scripted/chat-partner.ts'
 import {
   aiLabelShown,
   chatSent,
@@ -94,15 +98,6 @@ const TITLE_CHARS = 60
 /** hooks/use-conversation-list.ts:21 and hooks/use-recent-chats.ts:20. */
 const CONVERSATION_LIMIT = 50
 const RECENT_CHATS_LIMIT = 8
-/** lib/chat/receipts.ts:16-25 and internal/href.ts:11-42. */
-const REFUSED_PREFIX = 'tried, refused'
-const SKIPPED_PREFIX = 'not run'
-const WAITING_SUFFIX = 'waiting for you'
-const NO_REASON = 'no reason given'
-const CARD_NUMBER = /^#\d/
-const INTERNAL_HREF = /^\/(?![/\\])/
-const UNSAFE_CHAR = /[\u0000-\u001f\u007f\s]/
-const BACKSLASH = '\\'
 const NEW_CHAT_KEY = 'new-chat'
 const CHAT_KEY = 'chat'
 const LOADING: HostConversationListState = Object.freeze({ status: 'loading' })
@@ -240,7 +235,9 @@ function looseOf(state: TurnState, chatId: string, outcome: CardOutcome): readon
 /** chat.ts:345: one conversation's turn as the SDK's frozen view model. */
 function useOpenConversation(conversation: HostChatConversation, opened: Opened, options: HostChatControllerOptions | undefined): HostChatController {
   const down = useHealth().connection === 'down'
-  const handlers = { chatId: conversation.chatId, adopt: opened.adopt, onData: options?.onData, onEvent: options?.onEvent, down }
+  const partner = useChatPartner()
+  const { agentId, planMode } = partner
+  const handlers = { chatId: conversation.chatId, adopt: opened.adopt, onData: options?.onData, onEvent: options?.onEvent, down, agentId, planMode }
   const { state, send: sendTurn, retry: retryTurn, stop, card } = useScriptedTurn(opened.history, handlers)
   const chatId = conversation.chatId ?? ''
   const shown = useLiveVoiceRecords(state.messages, conversation.chatId)
@@ -267,8 +264,9 @@ function useOpenConversation(conversation: HostChatConversation, opened: Opened,
         send,
         retry,
         stop,
+        ...partner,
       }),
-    [conversation, title, messages, state, planningMissionId, looseApprovals, send, retry, stop],
+    [conversation, title, messages, state, planningMissionId, looseApprovals, send, retry, stop, partner],
   )
 }
 
@@ -346,35 +344,9 @@ export const useStartChat: Sdk['useStartChat'] = () => {
   return useMemo(() => Object.freeze({ startChat, ready: true }), [startChat])
 }
 
-// ---- the receipts (chat.ts:420-460 over lib/chat/receipts.ts) ----
+// ---- the receipts (chat.ts:420-460 over lib/chat/receipts.ts): chat-receipts.ts ----
 
-/** receipts.ts:63: "#0422: moved to Done"; a call that did nothing names what it was for, never an effect. */
-export const receiptLine: Sdk['receiptLine'] = (receipt: HostReceipt) => {
-  if (receipt.status === 'done') return [receipt.subject, receipt.effect].filter(Boolean).join(': ')
-  if (receipt.status === 'waiting') return `${receipt.effect || receipt.subject} — ${WAITING_SUFFIX}`
-  const prefix = receipt.status === 'refused' ? REFUSED_PREFIX : SKIPPED_PREFIX
-  const what = receipt.subject || receipt.effect
-  return `${what ? `${what}: ` : ''}${prefix}: ${receipt.reason || NO_REASON}`
-}
-
-/** internal/href.ts: a path inside the app, with no control character, whitespace or backslash. */
-function isInternalHref(href: string): boolean {
-  return INTERNAL_HREF.test(href) && !UNSAFE_CHAR.test(href) && !href.includes(BACKSLASH)
-}
-
-/** chat.ts:426 over receipts.ts:77: a done receipt's page, only when it is a path in this app; else null. */
-export const receiptLink: Sdk['receiptLink'] = (receipt) => {
-  const link = receipt.status === 'done' ? receipt.link : null
-  const safe = link && link.startsWith('/') && !link.startsWith('//') ? link : null
-  return safe !== null && isInternalHref(safe) ? safe : null
-}
-
-/** chat.ts:432 over receipts.ts:72: whether a done write touched a card on the board (named by its number). */
-export const movedSomethingOnTheBoard: Sdk['movedSomethingOnTheBoard'] = (receipts) =>
-  receipts.some((receipt) => receipt.kind === 'write' && receipt.status === 'done' && CARD_NUMBER.test(receipt.subject))
-
-/** chat.ts:448: the turn's receipts on one of onData's parts, as the reply will carry them; null for any other part. */
-export const liveReceiptsOf: Sdk['liveReceiptsOf'] = (part) => liveReceiptsIn(part)
+export { liveReceiptsOf, movedSomethingOnTheBoard, receiptLine, receiptLink } from './chat-receipts.ts'
 
 // ---- the controls (gathered by src/host.ts) ----
 
@@ -387,6 +359,8 @@ export const chatControls = Object.freeze({
   setChatOpening,
   setTurnEnding,
   setPlanningMissionId,
+  setChatPlanMode,
+  chatPlanMode,
   startedChats,
   chatSent,
   turnsLeft,
@@ -398,10 +372,11 @@ export const chatControls = Object.freeze({
 
 /**
  * The chat as a test starts with it: no turns and none held open, no conversations, nothing sent, no list load kept,
- * the AI label on screen, the screen not opening, no turn ending and no Mission being planned.
+ * the AI label on screen, the screen not opening, no turn ending, no Mission being planned and Plan off.
  */
 export function resetChat(): void {
   resetChatScript()
+  resetChatPartner()
 }
 
 export type {

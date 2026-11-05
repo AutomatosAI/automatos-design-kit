@@ -3,16 +3,16 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, core `main` after the merge of
-pull request #1383 on 31 Oct 2026 (SDK 1.4.0: a chat message's known parts, the brief row Auto is reading and the
-brief's thumbs; `contract.py`'s and `shared-modules.json`'s `SDK_VERSION` 1.4.0, the host contract still 1.1.0; the
-core corpus's engines cases move to 1.4.0). It sits on core `main` after the merge of pull request #1378, which makes the reader refuse what the browser's first paint would drop
-(`orchestrator/services/themes/first_paint.py`; the corpus gains its `prepaintDrops` and `firstPaint` cases, and its
-`packages` cases' prepaint tables paint every knob of hello's look schema). Since
-`1a8956c874dc42cff05b96f431c50b7d722a71aa`, the kit's previous pin (SDK 1.3.0), only `css-value.ts` (#1378: the
-browser's first-paint gate, `bootValueProblem`, `isBootValue`, `isKnobName`, `prepaintDropErrors` and
-`PREPAINT_VALUE_MAX`, its one TypeScript copy, which core's boot-sanitize.ts now imports) and `host.ts`
-(`SDK_VERSION`) changed here.
+Source: `AutomatosAI/automatos-ai` at `5e357cd7ffa5dc89725349784445fee5de985265`, the commit of core's pull request
+for SDK 1.5.0 (a theme's chat picks the agent that answers and uses Plan: `contract.py`'s and `shared-modules.json`'s
+`SDK_VERSION` 1.5.0, the host contract still 1.1.0; the core corpus's engines cases move to 1.5.0), pending its merge:
+once it merges, the pin moves to the merge commit. Since `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, the kit's
+previous pin (SDK 1.4.0, core `main` after the merge of pull request #1383 on 31 Oct 2026, itself after pull request
+#1378, which makes the reader refuse what the browser's first paint would drop), only `host.ts` (`SDK_VERSION`)
+changed here, with the corpus's `cases.json` (its engines cases) and the commit in `data/contract.json`, whose lists
+are the same: none of the copied validators, `review-cases.json`, `hello/` or the two `data/` files changed in core,
+nor `boot.ts`, `boot-sanitize.ts` or `first_paint.py`; of the review stage's sources only `listings.py` changed (where
+a Cloud row's screenshots load from), not the preview rule `src/check/previews.ts` ports.
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -54,17 +54,17 @@ commit above:
 
 The guides (`guides/`) are held to core's slot ids, pages and host-owned routes through one more data file. Core has
 no such file: `data/contract.json` is four lists of `orchestrator/services/themes/contract.py` at the commit above
-(that file's sha256 there: `cc2ff3bb1815b4a6eccb19e3cda20e47738803ef252c0a23e709a3385db38843`), written as JSON with
+(that file's sha256 there: `dbfef8db634798ae10dfe49b6fdbdbe7a5b644a17c2a1e557526b89149ce020e`), written as JSON with
 no other edit: `KNOWN_SLOTS`, `REQUIRED_SLOTS`, `PAGE_SOURCES` (its keys are the routes a theme may replace) and
 `HOST_OWNED_ROUTES`. The four lists are the same as at `101a0bf33f64fb4f89af81b4293415be60b661ac`: since then
-contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.4.0), its package cap (32 MB), its
+contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.5.0), its package cap (32 MB), its
 `PREPAINT_VALUE_MAX` (200, the first paint's longest value) and comments.
 `tests/guides.test.ts` holds the file to the sha256 below and to the copies of the same lists in
 `package-manifest.ts`.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `6d2debf2b9274a8c98ec89845cc11c3529ad80e38df49756305d6023a3d17fa2` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `d4480f210e30803e844961a9992e8babe904a1b9f8fea45ce442ed0bbdb9ad20` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 
