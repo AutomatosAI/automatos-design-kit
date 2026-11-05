@@ -15,8 +15,10 @@ import {
 } from '@automatos/theme-sdk'
 
 import { useMotion } from '../motion/use-motion'
+import { useAgentSeat } from './agent-picker'
 import { Composer } from './composer'
 import { Conversations } from './conversations'
+import { ModeRow } from './mode-row'
 import { NewChatPill } from './new-chat'
 import { usePhoneLayout } from './phone-layout'
 import { liveMessages, replyProgress } from './reply'
@@ -36,7 +38,9 @@ import ui from '../ui/ui.module.css'
  * message box with the host's voice button on its right. The chat is the host's (the SDK's useChatController,
  * through use-turn.ts); Auto's state follows it (use-auto.ts) and the host's voice session (stage-state.ts). Two
  * components, so Auto hears the chat in order: the chat in ChatView, Auto and the screen in its child, whose effects
- * run before the turn's own.
+ * run before the turn's own. Candy 1.1.0 (SDK 1.5.0): under the message box, who it talks to (the agent picker), then
+ * Code (a link to the host's chat with the code canvas), Plan (the host's Plan switch) and Mission (a link to Missions)
+ * (mode-row.tsx, agent-picker.tsx).
  */
 
 export const RAIL_LABEL = 'Auto and your conversations'
@@ -109,13 +113,18 @@ interface FootProps {
   readonly onTyping: (typing: boolean) => void
 }
 
-/** The thread's foot: the banner for used-up credits, the message box and the host's voice button on its right. */
+/**
+ * The thread's foot: the banner for used-up credits, the message box with the host's voice button on its right, and
+ * under the box the agent picker (choosing an agent focuses the box) and the modes.
+ */
 function Foot({ chat, sending, boxRef, phone, onTyping }: FootProps) {
   const voice = (
     <div className={`${ui.host} ${composerStyles.voice}`}>
       <VoiceButton size="lg" />
     </div>
   )
+  const focusBox = useCallback(() => boxRef.current?.focus(), [boxRef])
+  const seat = useAgentSeat(chat, focusBox)
   return (
     <div className={styles.foot}>
       <TrialBanner chat={chat} />
@@ -128,6 +137,8 @@ function Foot({ chat, sending, boxRef, phone, onTyping }: FootProps) {
         onTyping={onTyping}
         voice={voice}
         phone={phone}
+        placeholder={seat.placeholder}
+        tools={<ModeRow plan={chat} agent={seat.picker} phone={phone} />}
       />
     </div>
   )

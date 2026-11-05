@@ -5,12 +5,12 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.3.0.
+`themes/hud/theme.json` at version 1.4.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.3.0` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.4.0, the vendored SDK (since 1.3.0 HUD uses its names: a message's `knownParts`, BriefVoice's `onSpeakingRow` and `useRateBrief`; the rest of the proactive area is SDK 1.3.0's, the voice area SDK 1.2.0's) |
+| `id`, `version` | `automatos/hud`, `1.4.0` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.5.0"}`: SDK 1.5.0, the vendored SDK (since 1.4.0 HUD uses its chat controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode` and a roster agent's `configuration`; since 1.3.0 SDK 1.4.0's `knownParts`, BriefVoice's `onSpeakingRow` and `useRateBrief`; the rest of the proactive area is SDK 1.3.0's, the voice area SDK 1.2.0's) |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px HUD draws its phone layout (below) |
@@ -26,7 +26,7 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 | `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box, and in the transcript the brief and the suggestions Auto posts and his SAY chips (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box with the agent picker, CODE, PLAN and MISSION under it (from 1.4.0, SDK 1.5.0: who the box talks to, a link to the host's chat with the code canvas, the host's Plan switch as a toggle, and a link to Missions; a session agent opens with a link to `/chat?agent=<id>`), and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box, and in the transcript the brief and the suggestions Auto posts and his SAY chips (below, Proactive Auto). A `/chat` link with `repo`, `runtime`, `mode` or `agent` keeps the host's chat page. From 1.4.0 the Agents panel's rows of agents that can run choose who the box talks to (a session agent's links to its session). Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
@@ -144,7 +144,7 @@ changes, and a window crossing the width keeps the page it shows.
   runs, sitting then at the foot of its room over the waveform rather than centred under the core, then what follows
   the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
   desktop's, with the AI label fence) once TYPE opens it, the waveform, and the control row: TYPE, the host's voice
-  button as HOLD TO TALK (`VoiceSlot`), and STOP. TYPE opens and shuts the box, putting the focus in it and keeping its
+  button as HOLD TO TALK (`VoiceSlot`), and STOP, with CODE, PLAN and MISSION under it (1.4.0). TYPE opens and shuts the box, putting the focus in it and keeping its
   words when shut; an empty chat's starter opens it with its words. STOP stops a reply as the box's Stop does, ends a
   voice session, is disabled while nothing runs, and hands the focus to TYPE. The conversation's title is the
   screen's h1 for a screen reader and the host's focus, not drawn, as the design's phone has none; New chat is in the

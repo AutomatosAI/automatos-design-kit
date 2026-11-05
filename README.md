@@ -25,7 +25,7 @@ draws a phone layout in a phone's browser from 360 px wide.
 <table>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/play.md">Play</a></b> 1.4.0 (<code>automatos/play</code>): warm and editorial, with Auto
+      <b><a href="docs/themes/play.md">Play</a></b> 1.5.0 (<code>automatos/play</code>): warm and editorial, with Auto
       the mascot. Its own frame, chat, shelf of Deliverables and Conversations page.
       <a href="themes/play">Source</a>
     </td>
@@ -36,7 +36,7 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/hud.md">HUD</a></b> 1.3.0 (<code>automatos/hud</code>): a mission-control console. A
+      <b><a href="docs/themes/hud.md">HUD</a></b> 1.4.0 (<code>automatos/hud</code>): a mission-control console. A
       top bar, a side rail, bracketed panels, Auto in a voice core, and the day's briefing. <a href="themes/hud">Source</a>
     </td>
   </tr>
@@ -46,14 +46,14 @@ draws a phone layout in a phone's browser from 360 px wide.
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.0.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
+      <b><a href="docs/themes/arcade.md">Arcade</a></b> 1.1.0 (<code>automatos/arcade</code>): Automatos as a 16-bit
       role-playing game. Agents as a party, Auto as the guide in the dialogue box, Deliverables in an inventory,
       Missions as quests on a map. <a href="themes/arcade">Source</a>
     </td>
   </tr>
   <tr>
     <td colspan="2">
-      <b><a href="docs/themes/candy.md">Candy</a></b> 1.0.1 (<code>automatos/candy</code>): bright, soft and glossy.
+      <b><a href="docs/themes/candy.md">Candy</a></b> 1.1.0 (<code>automatos/candy</code>): bright, soft and glossy.
       Every card its own gradient, big round corners, today's numbers in a candy orb, and Auto in a glossy shell.
       <a href="themes/candy">Source</a>
     </td>
@@ -183,7 +183,7 @@ this repository is needed to build, check and pack a theme. Installing it needs 
   `dev` serves it with a phone view and a skin designer; `shots` photographs every view on Chromium and WebKit with
   Playwright and scans each shot with axe. Kit CI runs it on every pull request
   ([docs/cli-harness.md](docs/cli-harness.md)).
-- **The Theme SDK 1.4.0** (`@automatos/theme-sdk`): the one module a theme imports from the host, in areas such as
+- **The Theme SDK 1.5.0** (`@automatos/theme-sdk`): the one module a theme imports from the host, in areas such as
   `chat`, `deliverables`, `looks`, `storage`, `voice`, `proactive` and the core pages' data ([guides/sdk.md](guides/sdk.md)). The
   kit vendors its type declarations; the same types are published at
   `https://widgets.automatos.app/theme-sdk/v1/theme-sdk.tgz`.
@@ -221,7 +221,7 @@ layout in full.
 | [`packages/theme-cli`](packages/theme-cli/README.md) | `automatos-theme`, the command line: `pack`, `check`, `check design`, `new`, `brief`, `clone`, `skin`, `dev`, `shots`, `previews`, `install`, `submit` ([docs/cli.md](docs/cli.md)) |
 | [`packages/vite-preset`](packages/vite-preset/README.md) | `@automatos/vite-preset`: the Vite build every theme uses, with the source guard that keeps a build to the theme's own `src/` |
 | [`packages/theme-harness`](packages/theme-harness/README.md) | `@automatos/theme-harness`: the vitest preset a theme's tests run on (a fake SDK and a fake host), and the browser harness `dev` and `shots` serve |
-| [`packages/theme-sdk`](packages/theme-sdk/README.md) | The type declarations of `@automatos/theme-sdk` 1.4.0, vendored from core; the host serves the real module |
+| [`packages/theme-sdk`](packages/theme-sdk/README.md) | The type declarations of `@automatos/theme-sdk` 1.5.0, vendored from core; the host serves the real module |
 | [`packages/look-kit`](packages/look-kit/README.md) | `@automatos/look-kit`: a look's custom properties, Studio's tokens, the WCAG contrast math and the look validator; a theme bundles it |
 | [`packages/mascot`](packages/mascot/README.md) | `@automatos/mascot`: Auto's state machine, clip player, media chooser, captions and the Pause Auto control; a theme bundles it |
 | [`packages/theme-rules`](packages/theme-rules/README.md) | `@automatos/theme-rules`: the JS rules the Marketplace review runs on a package's `source/` |

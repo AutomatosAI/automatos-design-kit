@@ -2,7 +2,7 @@
 
 `@automatos/theme-sdk` is the one module a theme imports from the host. The host serves it through its import map
 at run time, so a theme never bundles it; the kit vendors its type declarations in
-[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.4.0). Everything a theme reads of the app, and
+[`packages/theme-sdk`](../packages/theme-sdk/README.md) (version 1.5.0). Everything a theme reads of the app, and
 everything it asks the app to do, goes through these names: no `fetch`, no `@/…` import, no `next/*`, no browser
 storage of its own ([pitfalls.md](pitfalls.md)).
 
@@ -99,6 +99,18 @@ they are Auto's. Today a reply's chips reach `knownParts` once its conversation 
 carries its words alone. In the harness the transcript's reply carries a `suggestion@1` and a `reply_chips@1` part,
 and the Auto thread (`AUTO_THREAD`) a `brief@1` part too ([theme-harness](../packages/theme-harness/README.md);
 [below](#in-a-themes-tests)).
+
+**Who answers, and Plan (SDK 1.5.0).** The controller of one conversation (`engines.sdk` `^1.5.0`) carries who
+answers the next message and Plan, as Studio's chat has them, with no new name. `agentId` is the agent the next message
+goes to, null for Auto, as every conversation starts. `chooseAgent(id)` picks an agent of the roster (`useAgents`,
+`pages/agents`) for this conversation, or Auto with null, and returns true; it returns false, changing nothing, for a
+session agent (a roster agent whose `configuration.runtime` is `'cli'`), for an id the roster doesn't have and while
+the roster loads, and throws for anything but a whole number or null. A session agent is never a chat partner: link to
+it with `HostLink href="/chat?agent=<id>"`, which opens the host's own chat with that agent's session (`agent` keeps
+the host's chat page under a theme that owns `/chat`, as `repo`, `runtime` and `mode` do). `planMode` and
+`setPlanMode(on)` are the host's one Plan switch (research and a plan, nothing run), the same one Studio's Plan button
+and a `/chat?mode=plan` link set; turning it on turns Mission mode off, and anything but true or false throws. The next
+message goes with both, and the host's AI label names the agent while it answers.
 
 ## `deliverables`
 
@@ -260,7 +272,7 @@ sent.
 
 | Name | What it is |
 |---|---|
-| `useAgents` | The workspace's agents, as the core roster lists them. |
+| `useAgents` | The workspace's agents, as the core roster lists them. SDK 1.5.0: each agent's `configuration`, whose `runtime` `'cli'` marks a session agent (above, `chat`). |
 | `useAgentStats` | The agent counts (total, active, inactive, by type). |
 
 ### `pages/assignments` (`uses`: `pages-assignments`)

@@ -22,7 +22,9 @@ something the SDK doesn't give, Arcade leaves it out (below).
 - `/chat` (its own page): the story window (YOU and AUTO lines, ★ lines for what a turn did, ITEM RECEIVED windows
   for Deliverables, and the host's own approval cards under "! A CHOICE AWAITS"), the dialogue window (Auto's portrait
   and state word, his newest reply typing out at the look's text speed, and the host strip with the message box and
-  the host's voice button), and the party window (the roster, each agent with a state word).
+  the host's voice button, and from 1.1.0, on SDK 1.5.0, the agent picker, Code, Plan and Mission under the box: who
+  the box talks to, a link to the host's chat with the code canvas, the host's Plan switch and a link to Missions), and
+  the party window (the roster, each agent with a state word).
 - `/deliverables` (its own page): the Inventory, a grid of item slots with tabs (All, Reports, Documents, Images,
   Posts where Socials is offered), an info window, links to the host's other Deliverables sections; and, for
   `?deliverable=<id>`, that item's own window with its content.

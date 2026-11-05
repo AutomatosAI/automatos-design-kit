@@ -8,7 +8,7 @@ import { CHAT_HREF, type HostSearchParams } from '@automatos/theme-sdk'
  */
 
 /** theme.json's pages["/chat"].keepCorePage: the link parameters for which the host keeps its own chat page. */
-export const CHAT_KEEPS_CORE_PAGE: readonly string[] = ['repo', 'runtime', 'mode']
+export const CHAT_KEEPS_CORE_PAGE: readonly string[] = ['repo', 'runtime', 'mode', 'agent']
 
 /** True where the host draws HUD's core screen: `pathname` is /chat and no parameter keeps core's page. */
 export function showsCoreScreen(pathname: string, params: HostSearchParams): boolean {

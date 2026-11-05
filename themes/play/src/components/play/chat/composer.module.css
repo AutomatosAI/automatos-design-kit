@@ -174,6 +174,127 @@
   padding: var(--pl-space-1) var(--pl-space-1) 0;
 }
 
+/*
+ * Play 1.5.0: the row under the message box (mode-row.tsx, agent-picker.tsx), in the box's width. Code, Plan and
+ * Mission are outlined pills in the outlined buttons' line, their words in the secondary text, 32 px high, the text
+ * colour on hover; Plan, while on, edged twice in the accent as text, its word in the text colour and heavier; the
+ * agent's pill is the same as a mode in the text colour. Its list opens over the row on the surface colour,
+ * each row a 44 px target, the chosen one marked by a bar in the accent as text and a heavier weight, never by colour
+ * alone (aria-pressed). On a phone every pill is a 44 px target (below).
+ */
+.tools {
+  width: 100%;
+  max-width: var(--pl-content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pl-space-2);
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pl-space-2);
+}
+
+.mode,
+.agentChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pl-space-1);
+  min-height: 32px;
+  padding: 0 var(--pl-space-3);
+  border: 1px solid var(--pl-line-button);
+  border-radius: var(--pl-radius-pill);
+  background: transparent;
+  color: var(--pl-color-text-2);
+  font: var(--pl-text-meta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mode:hover,
+.agentChip:hover {
+  border-color: var(--pl-color-text);
+  color: var(--pl-color-text);
+}
+
+.mode[aria-pressed="true"] {
+  border-color: var(--pl-color-accent-text);
+  box-shadow: inset 0 0 0 1px var(--pl-color-accent-text);
+  color: var(--pl-color-text);
+  font-weight: 600;
+}
+
+.agent {
+  position: relative;
+}
+
+.agentChip {
+  color: var(--pl-color-text);
+}
+
+.caret {
+  font-size: 10px;
+}
+
+.agentList {
+  position: absolute;
+  bottom: calc(100% + var(--pl-space-1));
+  left: 0;
+  z-index: 3;
+  min-width: 220px;
+  max-height: 280px;
+  margin: 0;
+  padding: var(--pl-space-1);
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--pl-line);
+  border-radius: var(--pl-radius-card);
+  background: var(--pl-color-surface);
+}
+
+.agentOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pl-space-3);
+  width: 100%;
+  min-height: var(--pl-tap-min);
+  padding: 0 var(--pl-space-3);
+  border: 0;
+  border-radius: var(--pl-radius-button);
+  background: transparent;
+  color: var(--pl-color-text);
+  font: var(--pl-text-meta);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.agentOption[aria-pressed="true"] {
+  box-shadow: inset 3px 0 0 var(--pl-color-accent-text);
+  font-weight: 600;
+}
+
+.sessionTag {
+  flex: none;
+  color: var(--pl-color-text-3);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Play 1.2.0, on a phone (lib/play/phone-layout.ts): the box 12 px in and its own insets as the design's, Send and
    Stop narrower, so the words, the voice button and Send share a 360 px line. */
 @media (max-width: 1023px) {
@@ -189,5 +310,10 @@
   .send,
   .stop {
     padding: 0 var(--pl-space-4);
+  }
+
+  .mode,
+  .agentChip {
+    min-height: var(--pl-tap-min);
   }
 }

@@ -34,6 +34,19 @@ the focus to once the screen shows.
   chat draws Auto small over the box, and every stylesheet's phone rules sit under the one `(max-width: 1023px)`
   query.
 
+## Modes and agents (1.5.0)
+
+On SDK 1.5.0 (`engines.sdk` `^1.5.0`), under the message box (`components/play/chat/play-composer.tsx`,
+`mode-row.tsx`, `agent-picker.tsx`), on a desktop and a phone alike:
+
+- **The agent picker**: a pill naming the agent the box talks to, opening a list of Auto and the active agents that can
+  run (the SDK's `useAgents`, so `uses` names `pages-agents`). A choice goes through the chat controller's
+  `chooseAgent`, names the box "Message <agent>" and gives it the focus; a session agent opens its session with a link
+  to `/chat?agent=<id>`.
+- **Code, Plan and Mission**, the three that Studio's chat offers: Code a link to the host's chat with the code canvas
+  (`/chat?repo=.`), Plan a toggle on the host's Plan switch (`planMode`, `setPlanMode`), Mission a link to Missions
+  (`/assignments?tab=missions`), drawn as Play's outlined pills.
+
 ## Proactive Auto (1.3.0, 1.4.0)
 
 SDK 1.3.0's `proactive` area (`proactive` in `uses`) and SDK 1.4.0's message parts (`engines.sdk` `^1.4.0`: each

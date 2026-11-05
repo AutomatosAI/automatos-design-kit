@@ -5,12 +5,12 @@ Auto is the guide in the dialogue box, your Deliverables fill an inventory, and 
 It is the kit's third theme, built here with the kit from a Claude Design handoff (a README of rules, `looks.json`
 and an HTML mock), starting from the minimal template ([`guides/from-design-to-theme.md`](../../guides/from-design-to-theme.md)).
 [`themes/arcade/README.md`](../../themes/arcade/README.md) has how it is built. This page reads
-`themes/arcade/theme.json` at version 1.0.0.
+`themes/arcade/theme.json` at version 1.1.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/arcade`, `1.0.0` |
-| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.2.0"}`: SDK 1.2.0, the SDK with the voice area |
+| `id`, `version` | `automatos/arcade`, `1.1.0` |
+| `engines` | `{"automatos": "^1.1.0", "sdk": "^1.5.0"}`: SDK 1.5.0 (from 1.1.0), for the chat controller's agent choice and Plan; the voice area is SDK 1.2.0's |
 | `base` | `studio`: the host's Studio design wherever Arcade draws nothing of its own |
 | `htmlClass` | `arcade`: every rule of `dist/theme.css` sits under `html.arcade` |
 | `minWidth` | 360: below it the host draws its own pages and chrome; from 360 up to 1023 px Arcade draws its handheld console (below) |
@@ -40,7 +40,10 @@ gallery (`/looks/style`). `uses` names the SDK areas the code imports: `cards`, 
 The host's approval and Mission cards, the withdraw offer and ticket cards, the voice button, the header utilities,
 the first-run nudge and the credits banner are placed and never restyled: each sits in a strip in Studio's own type.
 The message box is Arcade's own (the SDK has no host message box), drawn in Studio's tokens inside the host's
-`AiLabelFence`; the voice button sits beside it, outside the fence. The "Auto is an AI" label is the host's, drawn
+`AiLabelFence`; the voice button sits beside it, outside the fence. From 1.1.0 (SDK 1.5.0), the agent picker, Code, Plan and
+Mission sit under the box on the same strip, in Studio's tokens: who the box talks to (a session agent opens with a
+link to `/chat?agent=<id>`), a link to the host's chat with the code canvas, the host's Plan switch as a toggle, and a
+link to Missions. The "Auto is an AI" label is the host's, drawn
 at the foot of the window; Arcade keeps that corner clear and draws its scanlines inside its own windows only, never
 over the page.
 
