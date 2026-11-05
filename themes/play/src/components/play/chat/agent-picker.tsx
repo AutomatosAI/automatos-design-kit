@@ -9,13 +9,13 @@ import {
 import styles from './composer.module.css'
 
 /**
- * Play 1.5.0, after themes/hud/src/chat/modes/agent-picker.tsx (HUD 1.4.0): who the message box talks to (agent-choice.ts,
- * SDK 1.5.0's chat controller). useAgentSeat hands the composer its seat: its placeholder ("Message Auto", or "Message
- * <the agent>") and the picker for the row under the box. The picker is a pill naming the agent, a disclosure
- * (aria-expanded) over the list it opens: Auto, then each active agent that can run now (the SDK's useAgents). An agent
- * is chosen with the controller's chooseAgent, and the box takes the focus; one the host refuses leaves the list open
- * as it was. A session agent is a link, never a choice: it opens the agent's session (`/chat?agent=<id>`). Esc shuts
- * the list and gives the pill the focus.
+ * Play 1.5.0, after themes/hud/src/chat/modes/agent-picker.tsx (HUD 1.4.0): who the message box talks to
+ * (agent-choice.ts, SDK 1.5.0's chat controller). useAgentSeat hands the composer its seat: its placeholder ("Message
+ * Auto", or "Message <the agent>") and the picker for the row under the box. The picker is a pill naming the agent, a
+ * disclosure (aria-expanded) over the list it opens: Auto, then each active agent that can run now (the SDK's
+ * useAgents). An agent is chosen with the controller's chooseAgent, and the box takes the focus; one the host refuses
+ * leaves the list open as it was. A session agent is a link, never a choice: it opens the agent's session
+ * (`/chat?agent=<id>`). Esc shuts the list and gives the pill the focus.
  */
 
 /** Said before the pill's name to a screen reader: "Talking to Auto". */

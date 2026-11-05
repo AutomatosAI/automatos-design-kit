@@ -2,12 +2,12 @@
  * SDK 1.5.0: who answers a theme's chat, and Plan, as core's frontend/lib/theme-sdk/internal/chat-partner.ts has them
  * (at 5e357cd7ffa5dc89725349784445fee5de985265). The agent is the conversation's own choice, Auto (null) as its screen
  * mounts. `chooseAgent(id)` picks one of the roster's agents, the roster the page areas answer (a test's
- * host.setPageQuery('useAgents'), read as the host reads its own cache, never kept as a theme's ask): false, and nothing
- * changes, for a session agent (`configuration.runtime` 'cli', components/chatbot/agent-selector.tsx isSessionAgent),
- * for an id the roster lacks and while the roster loads; a TypeError for anything but a positive whole number or null.
- * Plan is the host's own switch (core's Mission store `isPlanMode`, the one Studio's Plan button and a `/chat?mode=plan`
- * link set), shared by every chat on the page: a test sets it with setChatPlanMode and reads it with chatPlanMode, and
- * `setPlanMode(on)` sets it, a TypeError for anything but true or false. The turn sends both with the
+ * host.setPageQuery('useAgents'), read as the host reads its own cache, never kept as a theme's ask): false, and
+ * nothing changes, for a session agent (`configuration.runtime` 'cli', components/chatbot/agent-selector.tsx
+ * isSessionAgent), for an id the roster lacks and while the roster loads; a TypeError for anything but a positive whole
+ * number or null. Plan is the host's own switch (core's Mission store `isPlanMode`, the one Studio's Plan button and a
+ * `/chat?mode=plan` link set), shared by every chat on the page: a test sets it with setChatPlanMode and reads it with
+ * chatPlanMode, and `setPlanMode(on)` sets it, a TypeError for anything but true or false. The turn sends both with the
  * next message (chat-turn.ts), as core's controller does.
  */
 import type { HostChatController, RosterAgent } from '@automatos/theme-sdk'

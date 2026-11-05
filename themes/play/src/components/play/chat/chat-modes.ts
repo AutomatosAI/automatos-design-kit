@@ -1,12 +1,12 @@
 import { CHAT_HREF } from '@automatos/theme-sdk'
 
 /**
- * Play 1.5.0, after themes/hud/src/chat/modes/modes.ts (HUD 1.4.0): the chat's modes, the three that Studio's chat offers
- * under its message box. Code and Mission are links to the host's own page for each: the host's chat with the code
- * canvas (`/chat?repo=.`; `repo` is on theme.json's keepCorePage list, so the host draws its own chat page there) and
- * Missions (`/assignments?tab=missions`). Plan is the host's own switch, a toggle on the chat controller (SDK 1.5.0's
- * `planMode` and `setPlanMode`, the one Studio's Plan button and a `/chat?mode=plan` link set). A session agent opens
- * with a link to `/chat?agent=<id>`, the host's chat with that agent's session. Pure.
+ * Play 1.5.0, after themes/hud/src/chat/modes/modes.ts (HUD 1.4.0): the chat's modes, the three that Studio's chat
+ * offers under its message box. Code and Mission are links to the host's own page for each: the host's chat with the
+ * code canvas (`/chat?repo=.`; `repo` is on theme.json's keepCorePage list, so the host draws its own chat page there)
+ * and Missions (`/assignments?tab=missions`). Plan is the host's own switch, a toggle on the chat controller (SDK
+ * 1.5.0's `planMode` and `setPlanMode`, the one Studio's Plan button and a `/chat?mode=plan` link set). A session agent
+ * opens with a link to `/chat?agent=<id>`, the host's chat with that agent's session. Pure.
  */
 
 export interface ModeLink {
