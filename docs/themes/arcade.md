@@ -5,11 +5,11 @@ Auto is the guide in the dialogue box, your Deliverables fill an inventory, and 
 It is the kit's third theme, built here with the kit from a Claude Design handoff (a README of rules, `looks.json`
 and an HTML mock), starting from the minimal template ([`guides/from-design-to-theme.md`](../../guides/from-design-to-theme.md)).
 [`themes/arcade/README.md`](../../themes/arcade/README.md) has how it is built. This page reads
-`themes/arcade/theme.json` at version 1.0.0.
+`themes/arcade/theme.json` at version 1.1.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/arcade`, `1.0.0` |
+| `id`, `version` | `automatos/arcade`, `1.1.0` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.5.0"}`: SDK 1.5.0 (from 1.1.0), for the chat controller's agent choice and Plan; the voice area is SDK 1.2.0's |
 | `base` | `studio`: the host's Studio design wherever Arcade draws nothing of its own |
 | `htmlClass` | `arcade`: every rule of `dist/theme.css` sits under `html.arcade` |

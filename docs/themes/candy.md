@@ -5,11 +5,11 @@ violet, blue), big round corners, every icon a circle, today's numbers in a cand
 It is the kit's fourth theme, built here with the kit from a Claude Design handoff, starting from the minimal
 template, as Arcade was ([`guides/from-design-to-theme.md`](../../guides/from-design-to-theme.md)).
 [`themes/candy/README.md`](../../themes/candy/README.md) has how it is built. This page reads
-`themes/candy/theme.json` at version 1.0.1.
+`themes/candy/theme.json` at version 1.1.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/candy`, `1.0.1` |
+| `id`, `version` | `automatos/candy`, `1.1.0` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.5.0"}`: SDK 1.5.0 (from 1.1.0), for the chat controller's agent choice and Plan; the voice area is SDK 1.2.0's |
 | `base` | `studio`: the host's Studio design wherever Candy draws nothing of its own |
 | `htmlClass` | `candy`: every rule of `dist/theme.css` sits under `html.candy` |
