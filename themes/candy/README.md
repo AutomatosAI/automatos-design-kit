@@ -26,7 +26,9 @@ something the SDK doesn't give, Candy leaves it out (below).
   reads.
 - `/chat` (its own page): the thread in a white window (the accent-gradient bubbles for you, Auto's on the chip, tool
   lines as chips, a Deliverable made in the chat as a row with its gradient square, the host's approval and Mission
-  cards placed), the message box inside the host's `AiLabelFence` with the host's voice button beside it, and the
+  cards placed), the message box inside the host's `AiLabelFence` with the host's voice button beside it and, from
+  1.1.0, Code, Plan and Mission under it (links to the host's chat with the code canvas, its chat in plan mode and
+  Missions; the agent picker first in that row where the host's chat can choose an agent, SDK 1.5.0), and the
   rail: Auto's stage with his state word and Pause, and your conversations, newest first.
 - `/deliverables` (its own page): type filters as pills, search, and a grid of tiles whose gradient comes from the
   Deliverable's kind (report and slides pink, document and spreadsheet violet, image and blog post blue in Blush).

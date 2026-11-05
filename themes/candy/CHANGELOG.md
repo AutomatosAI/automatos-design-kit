@@ -2,6 +2,24 @@
 
 Candy's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.1.0
+
+The modes Studio's chat offers, in Candy's own chat, and the seam for talking to one agent. Candy's `engines.sdk` stays
+as it was.
+
+- Code, Plan and Mission under the message box, in the pill's width, as Candy's round pills on the chip colour (36 px
+  on a desktop, 44 px targets on the phone). Each is a link to the host's own page for it, so Tab reaches it after Send
+  and Enter follows it: Code opens the host's chat with the code canvas (`/chat?repo=.`), Plan its chat in plan mode
+  (`/chat?mode=plan`), and Mission opens Missions (`/assignments?tab=missions`). The group is named Modes, and each
+  link's title says where it goes. `repo` and `mode` were already on `/chat`'s `keepCorePage`, so the host draws its
+  own chat page for the first two.
+- The agent picker, built ahead of Theme SDK 1.5.0 and drawn only on a host whose chat can choose an agent (its
+  controller's `agentId` and `chooseAgent`, read in `src/chat/agent-choice.ts` alone): a pill first in the row naming
+  the agent the box talks to, opening a list of Auto and the active agents that can run; a choice names the box
+  "Message <agent>" and gives it the focus, one the host refuses changes nothing, and Esc shuts the list. A session
+  agent (its runtime the CLI) is a link to its session, never a choice. On SDK 1.4.0 there is no picker and the box is
+  "Message Auto", as before.
+
 ## 1.0.1
 
 The look works on the hosted app as it does in the kit's harness.

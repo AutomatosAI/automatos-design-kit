@@ -14,6 +14,10 @@ import ui from '../ui/ui.module.css'
  * fence (the SDK's AiLabelFence), as the contract places it; the fence draws its children alone and disables
  * nothing. The host's voice button sits to its right, outside the fence, with room under it for the host's caption
  * and Stop. The ref is the textarea: Send, Stop and Try again put the focus back in it.
+ *
+ * Candy 1.1.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
+ * choose one (agent-choice.ts); and under the pill, in its width, the row of tools the page hands in: the agent picker
+ * and the modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -36,6 +40,10 @@ export interface ComposerProps {
   readonly onTyping?: (typing: boolean) => void
   /** The phone's layout (P2): the pill floats on the page in the window colour. */
   readonly phone?: boolean
+  /** The box's placeholder and name: PLACEHOLDER, or the agent it talks to. */
+  readonly placeholder?: string
+  /** Under the pill: the agent picker and the modes. */
+  readonly tools?: ReactNode
 }
 
 function SendOrStop({ streaming, ready, onStop }: { readonly streaming: boolean; readonly ready: boolean; readonly onStop: () => void }) {
@@ -82,6 +90,7 @@ function useDraft(streaming: boolean, onSend: (text: string) => boolean, onStop:
 
 export function Composer(props: ComposerProps) {
   const { boxRef, streaming, onSend, onStop, autoFocus = false, voice = null, onTyping, phone = false } = props
+  const { placeholder = PLACEHOLDER, tools = null } = props
   const { draft, setDraft, ready, onSubmit, onKeyDown } = useDraft(streaming, onSend, onStop)
   const hintId = useId()
   return (
@@ -97,8 +106,8 @@ export function Composer(props: ComposerProps) {
               onKeyDown={onKeyDown}
               onFocus={() => onTyping?.(true)}
               onBlur={() => onTyping?.(false)}
-              placeholder={PLACEHOLDER}
-              aria-label={PLACEHOLDER}
+              placeholder={placeholder}
+              aria-label={placeholder}
               aria-describedby={hintId}
               autoFocus={autoFocus}
               rows={1}
@@ -109,6 +118,7 @@ export function Composer(props: ComposerProps) {
         <p id={hintId} className={ui.srOnly}>
           {KEYS_HINT}
         </p>
+        {tools}
       </div>
       {voice}
     </div>

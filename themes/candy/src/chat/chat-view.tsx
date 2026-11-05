@@ -15,8 +15,11 @@ import {
 } from '@automatos/theme-sdk'
 
 import { useMotion } from '../motion/use-motion'
+import { agentChoiceOf } from './agent-choice'
+import { AgentSeat } from './agent-picker'
 import { Composer } from './composer'
 import { Conversations } from './conversations'
+import { ModeRow } from './mode-row'
 import { NewChatPill } from './new-chat'
 import { usePhoneLayout } from './phone-layout'
 import { liveMessages, replyProgress } from './reply'
@@ -36,7 +39,9 @@ import ui from '../ui/ui.module.css'
  * message box with the host's voice button on its right. The chat is the host's (the SDK's useChatController,
  * through use-turn.ts); Auto's state follows it (use-auto.ts) and the host's voice session (stage-state.ts). Two
  * components, so Auto hears the chat in order: the chat in ChatView, Auto and the screen in its child, whose effects
- * run before the turn's own.
+ * run before the turn's own. Candy 1.1.0: under the message box, Code, Plan and Mission, links to the host's chat with
+ * the code canvas, its chat in plan mode and Missions, with the agent picker first where the host's chat can choose an
+ * agent (mode-row.tsx, agent-picker.tsx).
  */
 
 export const RAIL_LABEL = 'Auto and your conversations'
@@ -109,26 +114,36 @@ interface FootProps {
   readonly onTyping: (typing: boolean) => void
 }
 
-/** The thread's foot: the banner for used-up credits, the message box and the host's voice button on its right. */
+/**
+ * The thread's foot: the banner for used-up credits, the message box with the host's voice button on its right, and
+ * the modes under the box, the agent picker first where the host's chat can choose an agent (choosing one focuses it).
+ */
 function Foot({ chat, sending, boxRef, phone, onTyping }: FootProps) {
   const voice = (
     <div className={`${ui.host} ${composerStyles.voice}`}>
       <VoiceButton size="lg" />
     </div>
   )
+  const focusBox = useCallback(() => boxRef.current?.focus(), [boxRef])
   return (
     <div className={styles.foot}>
       <TrialBanner chat={chat} />
-      <Composer
-        boxRef={boxRef}
-        streaming={chat.streaming}
-        onSend={sending.send}
-        onStop={sending.onStop}
-        autoFocus={chat.messages.length === 0 && !phone}
-        onTyping={onTyping}
-        voice={voice}
-        phone={phone}
-      />
+      <AgentSeat choice={agentChoiceOf(chat)} onChosen={focusBox}>
+        {(seat) => (
+          <Composer
+            boxRef={boxRef}
+            streaming={chat.streaming}
+            onSend={sending.send}
+            onStop={sending.onStop}
+            autoFocus={chat.messages.length === 0 && !phone}
+            onTyping={onTyping}
+            voice={voice}
+            phone={phone}
+            placeholder={seat.placeholder}
+            tools={<ModeRow agent={seat.picker} phone={phone} />}
+          />
+        )}
+      </AgentSeat>
     </div>
   )
 }

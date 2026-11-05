@@ -1,0 +1,120 @@
+/*
+ * Candy 1.1.0: the row under the message box (mode-row.tsx, agent-picker.tsx), in the pill's width. Code, Plan and
+ * Mission are round pills on the chip colour, their words in the text colour in Candy's body face, the accent with its
+ * ink on hover; 36 px high on a desktop, 44 px targets on the phone. The agent's pill is the same with a caret. Its
+ * list opens over the row on the window colour with a tinted shadow, each row a 44 px target, the chosen one marked by
+ * an accent bar at its start and a heavier weight, never by colour alone (aria-pressed).
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mode,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 999px;
+  background: var(--candy-chip);
+  color: var(--candy-text);
+  font: 700 13px/1.2 var(--candy-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mode:hover,
+.chip:hover {
+  background: var(--candy-accent);
+  color: var(--candy-accent-ink);
+}
+
+.mode:focus-visible,
+.chip:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: 2px;
+}
+
+.row[data-layout="phone"] .mode,
+.row[data-layout="phone"] .chip {
+  min-height: var(--candy-target);
+}
+
+.agent {
+  position: relative;
+}
+
+.caret {
+  font-size: 10px;
+}
+
+.list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  min-width: 220px;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: 18px;
+  background: var(--candy-win);
+  box-shadow: 0 10px 26px var(--candy-tint);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--candy-target);
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--candy-text);
+  font: 600 14px/1.3 var(--candy-body);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: var(--candy-chip);
+}
+
+.option:focus-visible {
+  outline: var(--candy-focus);
+  outline-offset: -3px;
+}
+
+.option[aria-pressed="true"] {
+  box-shadow: inset 4px 0 0 var(--candy-accent);
+  font-weight: 800;
+}
+
+.tag {
+  flex: none;
+  color: var(--candy-quiet);
+  font: 700 11px/1 var(--candy-body);
+  text-transform: uppercase;
+}
