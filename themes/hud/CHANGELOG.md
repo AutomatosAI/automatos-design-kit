@@ -4,22 +4,25 @@ HUD's versions, newest first. A version once released never changes: a change sh
 
 ## 1.4.0
 
-The modes Studio's chat offers, in HUD's own chat, and the seam for talking to one agent.
+Talk to one agent, and Studio's modes, in HUD's own chat, on Theme SDK 1.5.0 (`engines.sdk` `^1.5.0`): the chat
+controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode`, and a roster agent's `configuration`.
 
 - CODE, PLAN and MISSION under the message box, between the box and its keys, as HUD's chips: square outlines, mono
-  capitals, 32 px high. Each is a link to the host's own page for it, so Tab reaches it after Send and Enter follows it:
-  CODE opens the host's chat with the code canvas (`/chat?repo=.`), PLAN its chat in plan mode (`/chat?mode=plan`), and
-  MISSION opens Missions (`/assignments?tab=missions`). The group is named Modes, and each link's title says where it
-  goes. `repo` and `mode` were already on `/chat`'s `keepCorePage`, so the host draws its own chat page for the first
-  two.
+  capitals, 32 px high, in a group named Modes. CODE is a link to the host's chat with the code canvas
+  (`/chat?repo=.`) and MISSION one to Missions (`/assignments?tab=missions`), each with a title saying where it goes.
+  PLAN is a toggle (`aria-pressed`) on the host's own Plan switch, the one Studio's Plan button and a `/chat?mode=plan`
+  link set, lit in the accent while on; the next message goes with Plan.
+- The agent picker, first in that row: a chip naming the agent the box talks to ("Talking to Auto" to a screen
+  reader), opening a list of Auto and the active agents that can run. A choice makes the next message go to that
+  agent, names the box "Message <agent>" and gives it the focus; one the host refuses changes nothing; Esc shuts the
+  list. A session agent (its runtime the CLI) is a link to its session (`/chat?agent=<id>`), tagged SESSION, never a
+  choice.
+- AGENTS' rows act on the core screen: a row of an agent that can run makes the box talk to it (pressed while it
+  does), and a session agent's row links to its session; the other rows only say.
 - On the phone, the same row sits in the dock under TYPE · HOLD TO TALK · STOP at the 44 px tap size, whether TYPE has
-  the box open or not; the box holds no second row.
-- The agent picker, built ahead of Theme SDK 1.5.0 and drawn only on a host whose chat can choose an agent (its
-  controller's `agentId` and `chooseAgent`, read in `src/chat/modes/agent-choice.ts` alone): a chip first in the row
-  naming the agent the box talks to, opening a list of Auto and the active agents that can run; a choice names the box
-  "Message <agent>" and gives it the focus (on the phone it opens the box), one the host refuses changes nothing, and
-  Esc shuts the list. A session agent (its runtime the CLI) is a link to its session, never a choice. On SDK 1.4.0, the
-  version HUD runs on (`engines.sdk` stays `^1.4.0`), there is no picker and the box is "Message Auto", as before.
+  the box open or not; choosing an agent opens the box on it.
+- `/chat`'s `keepCorePage` adds `agent`, as core keeps its own chat page for an agent link, so the frame shows Auto in
+  the rail's dock there, as on every page HUD's core screen isn't drawn.
 
 ## 1.3.0
 

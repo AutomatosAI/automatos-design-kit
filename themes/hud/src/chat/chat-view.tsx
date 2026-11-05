@@ -49,7 +49,8 @@ import { VoiceCore } from './voice-core'
  * HUD 1.2.0 (PRD-268): while the day's brief shows (the page's useBriefing), BRIEFING stands where the screen places
  * it (screen.tsx; on a phone, the last exchange's place), until it folds back. HUD 1.3.0: a tap on Auto's reply chips
  * sends their words as Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the conversation on screen
- * already shows with its own Start (thread/message-parts.ts suggestionsOnScreen).
+ * already shows with its own Start (thread/message-parts.ts suggestionsOnScreen). HUD 1.4.0: AGENTS' rows of agents that
+ * can run choose who the message box talks to, as its picker does (panels/agents-panel.tsx, modes/).
  *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,
  * whose effects (Auto reading the status and the reply) run before the turn's own (a failure, a card waiting or
@@ -156,6 +157,7 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, b
   const shownBrief = layout.columns === 'one' && chat.approvalWaiting ? null : briefing.brief
   const listed = suggestionsOnScreen(shownBrief, inSlot ? [] : chat.messages)
   const voice = <VoiceDeck />
+  const chooser = { choice: chat, onChosen: () => boxRef.current?.focus() }
   const footer = <ChatFooter chat={chat} boxRef={boxRef} sending={sending} autoFocus={autoFocus} fill={fill} voice={voice} listed={listed} />
   const missionId = chat.planningMissionId
   const brief = briefing.brief === null ? null : <BriefingPanel brief={briefing.brief} onFold={briefing.fold} />
@@ -169,6 +171,7 @@ function DesktopChat({ chat, live, auto, chip, sending, boxRef, fill, fillBox, b
       missionId={missionId}
       briefing={brief}
       keepTranscript={chat.approvalWaiting}
+      chooser={chooser}
     >
       <Transcript
         messages={chat.messages}

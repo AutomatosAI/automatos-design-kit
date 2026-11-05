@@ -13,9 +13,9 @@ import styles from './composer.module.css'
  * Send, Stop and Try again put the focus back in it. Words handed in as a fill (an empty chat's starter) take the
  * box's place and the focus, once per serial, for you to send or change.
  *
- * HUD 1.4.0: the box is named by its placeholder, "Message Auto", or the agent it talks to where the host's chat can
- * choose one (modes/agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent
- * picker and the modes (modes/mode-row.tsx), outside the AI label fence, since none of them sends anything.
+ * HUD 1.4.0: the box is named by its placeholder, "Message Auto", or "Message <the agent it talks to>"
+ * (modes/agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent picker and the
+ * modes (modes/mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'

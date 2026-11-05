@@ -4,7 +4,7 @@ import { FirstRunNudge } from '@automatos/theme-sdk'
 import { NewChatButton } from '../components/new-chat'
 import { THEME_HEADING } from '../theme'
 import type { ScreenLayout } from './layout'
-import { AgentsPanel } from './panels/agents-panel'
+import { type AgentChooser, AgentsPanel } from './panels/agents-panel'
 import { DeliverablesPanel } from './panels/deliverables-panel'
 import { MissionPanel } from './panels/mission-panel'
 import { MissionsPanel } from './panels/missions-panel'
@@ -48,22 +48,30 @@ export interface ChatScreenProps {
   readonly briefing?: ReactNode
   /** A card in the conversation waits for you: in one column the transcript keeps its slot. */
   readonly keepTranscript?: boolean
+  /** The chat's agent choice, which makes AGENTS' rows act (HUD 1.4.0); absent while the conversation opens. */
+  readonly chooser?: AgentChooser | null
 }
 
-function LeftPanels({ missionId }: { readonly missionId: string | null }) {
+function LeftPanels({ missionId, chooser }: { readonly missionId: string | null; readonly chooser: AgentChooser | null }) {
   return (
     <div className={styles.side}>
-      <AgentsPanel />
+      <AgentsPanel chooser={chooser} />
       <MissionPanel missionId={missionId} />
       <MissionsPanel />
     </div>
   )
 }
 
-function WorkPanels({ all, missionId }: { readonly all: boolean; readonly missionId: string | null }) {
+interface WorkPanelsProps {
+  readonly all: boolean
+  readonly missionId: string | null
+  readonly chooser: AgentChooser | null
+}
+
+function WorkPanels({ all, missionId, chooser }: WorkPanelsProps) {
   return (
     <>
-      {all && <AgentsPanel />}
+      {all && <AgentsPanel chooser={chooser} />}
       {all && <MissionPanel missionId={missionId} />}
       {all && <MissionsPanel />}
       <TodayPanel />
@@ -75,15 +83,13 @@ function WorkPanels({ all, missionId }: { readonly all: boolean; readonly missio
   )
 }
 
-interface RightPanelsProps {
-  readonly all: boolean
-  readonly missionId: string | null
+interface RightPanelsProps extends WorkPanelsProps {
   readonly briefing: ReactNode
 }
 
 /** The panels column TODAY is in: BRIEFING while the brief shows, the panels otherwise. */
-function RightPanels({ all, missionId, briefing }: RightPanelsProps) {
-  return <div className={styles.side}>{briefing ?? <WorkPanels all={all} missionId={missionId} />}</div>
+function RightPanels({ all, missionId, briefing, chooser }: RightPanelsProps) {
+  return <div className={styles.side}>{briefing ?? <WorkPanels all={all} missionId={missionId} chooser={chooser} />}</div>
 }
 
 /** BRIEFING stands in the transcript's slot: at one column, while it shows, unless a card waiting keeps the transcript. */
@@ -93,11 +99,12 @@ export function briefingInSlot(columns: ScreenLayout['columns'], briefing: boole
 
 export function ChatScreen(props: ChatScreenProps) {
   const { screenRef, layout, title, core, footer, children, missionId = null, briefing = null, keepTranscript = false } = props
+  const chooser = props.chooser ?? null
   const { columns } = layout
   const inSlot = briefingInSlot(columns, briefing !== null, keepTranscript)
   return (
     <div ref={screenRef} className={styles.screen} data-columns={columns}>
-      {columns === 'three' && <LeftPanels missionId={missionId} />}
+      {columns === 'three' && <LeftPanels missionId={missionId} chooser={chooser} />}
       <div className={styles.centre}>
         <div className={styles.titleRow}>
           <h1 className={styles.title} tabIndex={-1} {...THEME_HEADING}>
@@ -110,7 +117,7 @@ export function ChatScreen(props: ChatScreenProps) {
         {inSlot ? <div className={styles.briefingSlot}>{briefing}</div> : children}
         {footer !== undefined && <div className={styles.footer}>{footer}</div>}
       </div>
-      {columns !== 'one' && <RightPanels all={columns === 'two'} missionId={missionId} briefing={briefing} />}
+      {columns !== 'one' && <RightPanels all={columns === 'two'} missionId={missionId} briefing={briefing} chooser={chooser} />}
     </div>
   )
 }

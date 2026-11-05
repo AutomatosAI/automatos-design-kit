@@ -4,14 +4,14 @@
   "name": "HUD",
   "version": "1.4.0",
   "description": "Automatos as a command deck: bracketed panels, mono labels, one accent, a grid and scan-line backdrop, and Auto at the core.",
-  "engines": { "automatos": "^1.1.0", "sdk": "^1.4.0" },
+  "engines": { "automatos": "^1.1.0", "sdk": "^1.5.0" },
   "base": "studio",
   "htmlClass": "hud",
   "minWidth": 360,
   "tone": "from-look",
   "slots": ["frame@1", "lookEditor@1", "styleSheet@1"],
   "pages": {
-    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode"] }
+    "/chat": { "mode": "own", "keepCorePage": ["repo", "runtime", "mode", "agent"] }
   },
   "routes": ["conversations"],
   "nav": [

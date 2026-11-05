@@ -11,8 +11,7 @@ import { TrialBanner } from '../chat-footer'
 import { OPENING } from '../chip'
 import { Composer } from '../composer'
 import { EmptyChat } from '../empty-chat'
-import { agentChoiceOf } from '../modes/agent-choice'
-import { AgentSeat } from '../modes/agent-picker'
+import { useAgentSeat } from '../modes/agent-picker'
 import { ModeRow } from '../modes/mode-row'
 import { suggestionsOnScreen } from '../thread/message-parts'
 import { TurnEnd } from '../turn-end'
@@ -38,8 +37,7 @@ import { useFollowEnd } from './use-follow-end'
  * a card in the conversation waits for you, which keeps the exchange in its slot. HUD 1.3.0: Auto's reply chips in the
  * last exchange send their words as the box's Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the last
  * exchange shows. HUD 1.4.0: under the control row, the row of CODE, PLAN and MISSION (modes/mode-row.tsx), open or shut,
- * with the agent picker first where the host's chat can choose an agent; choosing one opens the box on it, named after
- * that agent.
+ * with the agent picker first; choosing an agent opens the box on it, named after that agent.
  */
 
 interface Typing {
@@ -124,34 +122,31 @@ interface DockProps extends Pick<ChatParts, 'chat' | 'sending' | 'boxRef' | 'fil
 /** The dock: the credits banner, the box while TYPE has it open, the waveform, the control row and the modes. */
 function PhoneDock({ chat, sending, boxRef, fill, typing, stopping }: DockProps) {
   const composerId = useId()
+  const seat = useAgentSeat(chat, typing.show)
   return (
-    <AgentSeat choice={agentChoiceOf(chat)} onChosen={typing.show}>
-      {(seat) => (
-        <>
-          <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
-          <div id={composerId} hidden={!typing.open}>
-            <Composer
-              boxRef={boxRef}
-              streaming={chat.streaming}
-              onSend={sending.send}
-              onStop={sending.onStop}
-              fill={fill}
-              placeholder={seat.placeholder}
-            />
-          </div>
-          <Waveform bars={PHONE_BARS} entry="middle" size="small" />
-          <PhoneControls
-            typing={typing.open}
-            composerId={composerId}
-            onType={typing.toggle}
-            stoppable={stopping.stoppable}
-            onStop={stopping.stop}
-            typeRef={typing.typeRef}
-          />
-          <ModeRow agent={seat.picker} phone />
-        </>
-      )}
-    </AgentSeat>
+    <>
+      <TrialBanner errorCode={chat.errorCode} trialExhausted={chat.trialExhausted} />
+      <div id={composerId} hidden={!typing.open}>
+        <Composer
+          boxRef={boxRef}
+          streaming={chat.streaming}
+          onSend={sending.send}
+          onStop={sending.onStop}
+          fill={fill}
+          placeholder={seat.placeholder}
+        />
+      </div>
+      <Waveform bars={PHONE_BARS} entry="middle" size="small" />
+      <PhoneControls
+        typing={typing.open}
+        composerId={composerId}
+        onType={typing.toggle}
+        stoppable={stopping.stoppable}
+        onStop={stopping.stop}
+        typeRef={typing.typeRef}
+      />
+      <ModeRow plan={chat} agent={seat.picker} phone />
+    </>
   )
 }
 
