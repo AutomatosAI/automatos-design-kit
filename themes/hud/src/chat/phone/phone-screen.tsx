@@ -6,8 +6,8 @@ import styles from './phone.module.css'
 
 /**
  * The core screen on a phone ("Automatos Command HUD.dc.html"'s phone, 390 by 844), under the frame's phone bar: the
- * line naming who is at work with its time (status-line.tsx), the 290 px core with Auto, the state chip and Pause Auto
- * beside it (voice-core.tsx, as on the desktop), the last exchange (phone-transcript.tsx), and at the foot the dock:
+ * line naming who is at work with its time (status-line.tsx), the 290 px core with Auto, the state chip and HIDE AUTO
+ * beside it, which folds the core into a bar (voice-core.tsx, as on the desktop), the last exchange (phone-transcript.tsx), and at the foot the dock:
  * the host's credits banner, the message box once TYPE opens it, the design's waveform (src/voice/waveform.tsx) and the
  * control row with the host's voice button (phone-controls.tsx). The screen scrolls as one when the window is too
  * short for it, the dock pinned to its foot, so the voice button stays where it is while the words above it grow. The conversation's title is

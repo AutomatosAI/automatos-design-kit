@@ -1,7 +1,7 @@
 // HUD's core screen on a phone: below the desktop width (src/lib/phone-layout.ts, through the stand-in matchMedia of
 // test/support/window-width.ts) /chat is the design's phone screen on the harness's fake chat: the line naming who is
 // at work (a running Mission's agent and its time, else Auto and his state), the core at the phone's size with the
-// state chip and Pause Auto beside it, the last exchange (your words in quotes, Auto's reply), and the control row:
+// state chip and HIDE AUTO beside it, the last exchange (your words in quotes, Auto's reply), and the control row:
 // TYPE opens the message box (focused, sending as on the desktop, keeping its words when shut), STOP stops a reply
 // and is disabled while nothing runs, and the host's voice button stands between them (test/voice/ holds it, the
 // waveform over the row and a voice session's words in the last exchange). From 1024 px up the screen is the
@@ -103,10 +103,14 @@ describe('the phone core screen', () => {
     expect(screen.queryByText('Two shops in town.')).toBeNull()
   })
 
-  it("keeps Pause Auto beside the state chip, in the core, as on the desktop", async () => {
+  it("keeps HIDE AUTO beside the state chip, in the core, as on the desktop, and it folds the core", async () => {
     await renderPhoneChat()
-    const pause = within(core()).getByRole('button', { name: 'Pause Auto' })
-    expect(pause.parentElement).toBe(chipOf()?.parentElement)
+    const hide = within(core()).getByRole('button', { name: /Hide Auto$/ })
+    expect(hide.parentElement).toBe(chipOf()?.parentElement)
+    expect(within(core()).queryByRole('button', { name: 'Pause Auto' })).toBeNull()
+    act(() => fireEvent.click(hide))
+    expect(core()).toHaveAttribute('data-folded', 'true')
+    expect(within(core()).getByRole('button', { name: /Show Auto$/ })).toHaveAttribute('aria-expanded', 'false')
   })
 
   it("puts the host's first-run nudge under the line, over the core, clear of the controls", async () => {

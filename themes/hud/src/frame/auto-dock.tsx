@@ -12,7 +12,8 @@ import styles from './auto-dock.module.css'
  * his state the backend's. Ready (idle) while it answers, loading while the host asks, asleep while it is
  * down. While the host draws HUD's core screen (src/pages/core-screen.ts) the dock steps aside, so the screen
  * shows Auto once, in the voice core, where he works; the dock shows him on every other page, unless the host draws
- * its own floating Auto there (the frame then leaves the dock out, src/frame/hud-frame.tsx).
+ * its own floating Auto there (the frame then leaves the dock out, src/frame/hud-frame.tsx). While the rail is hidden
+ * (HUD 1.4.0) he is his still, so nothing off screen keeps playing.
  */
 
 export const DOCK_TITLE = 'Auto'
@@ -23,7 +24,12 @@ export function dockState(connection: HostHealth['connection']): MascotName {
   return connection === 'checking' ? 'loading' : 'idle'
 }
 
-export function AutoDock() {
+export interface AutoDockProps {
+  /** False while the rail is hidden: Auto is his still. */
+  readonly playing?: boolean
+}
+
+export function AutoDock({ playing = true }: AutoDockProps) {
   const { auto } = useHudLook()
   const { connection } = useHealth()
   const onCoreScreen = showsCoreScreen(useHostPathname(), useHostSearchParams())
@@ -31,7 +37,7 @@ export function AutoDock() {
   return (
     <Panel title={DOCK_TITLE} className={styles.dock}>
       <div className={styles.stage}>
-        <HudAuto state={dockState(connection)} size={AUTO_DOCK_SIZE} />
+        <HudAuto state={dockState(connection)} size={AUTO_DOCK_SIZE} playing={playing} />
       </div>
     </Panel>
   )

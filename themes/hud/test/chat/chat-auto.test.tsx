@@ -3,8 +3,9 @@
 // (the chip names its query), back at rest once the tool ends, celebrating a done receipt at the turn's end, oops on
 // a failure, listening while an approval card waits, asleep while the backend is down and napping after a long
 // while without input. The chip says each state in words; with the look's auto knob off Auto is gone and the chip
-// stays. Pause Auto stands beside the chip, clear of the rings, while Auto can move. The core's data-state is the
-// state he shows; the chip is read by its text.
+// stays. HUD 1.4.0: HIDE AUTO stands beside the chip, clear of the rings, in Pause Auto's old place, and folds the
+// core into a bar that keeps the chip, Auto a still; SHOW AUTO brings him back, and the fold is remembered. The core's
+// data-state is the state he shows; the chip is read by its text.
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { captionFor } from '@automatos/mascot/media'
@@ -122,33 +123,60 @@ describe('the nap', () => {
   })
 })
 
-describe('Pause Auto on the core', () => {
-  const PAUSE = 'Pause Auto'
-  const pauseIn = (): HTMLElement | null => within(core()).queryByRole('button', { name: PAUSE })
+describe('HIDE AUTO on the core (HUD 1.4.0)', () => {
+  const toggle = (): HTMLElement => within(core()).getByRole('button', { name: /^(Hide|Show) Auto$/ })
+  const dial = (): HTMLElement | null => document.getElementById(toggle().getAttribute('aria-controls') ?? '')
 
-  it("stands beside the state chip, outside Auto's stage among the rings, and pausing makes him a still", async () => {
+  it('stands beside the state chip, outside the rings, and the core draws no Pause Auto', async () => {
     await renderChat()
-    const pause = pauseIn()
-    if (pause === null) throw new Error('The core has no Pause Auto control.')
-    expect(pause.parentElement).toBe(chip().parentElement)
-    const stage = within(core()).getByRole('img', { name: `Auto: ${captionFor('idle')}` })
-    expect(stage.parentElement).not.toContainElement(pause)
-    expect(within(core()).getAllByRole('button', { name: PAUSE })).toHaveLength(1)
-    expect(core().querySelector('video')).not.toBeNull()
-    act(() => fireEvent.click(pause))
-    expect(pauseIn()).toHaveAttribute('aria-pressed', 'true')
-    expect(core().querySelector('video')).toBeNull()
+    expect(toggle()).toHaveTextContent('Hide Auto')
+    expect(toggle().parentElement).toBe(chip().parentElement)
+    expect(toggle()).toHaveAttribute('aria-expanded', 'true')
+    expect(dial()).toContainElement(within(core()).getByRole('img', { name: `Auto: ${captionFor('idle')}` }))
+    expect(dial()).not.toContainElement(toggle())
+    expect(within(core()).queryByRole('button', { name: 'Pause Auto' })).toBeNull()
   })
 
-  it("is not drawn while Auto can't move: the look's auto off, or the reduced-motion setting", async () => {
-    host.setLooks({ look: GHOST })
-    const { unmount } = await renderChat()
-    expect(pauseIn()).toBeNull()
-    unmount()
-    host.setLooks(null)
-    host.setReducedMotion(true)
+  it('folds the core into a bar that keeps the chip, makes Auto a still, and brings him back', async () => {
     await renderChat()
-    expect(pauseIn()).toBeNull()
+    expect(core().querySelector('video')).not.toBeNull()
+    act(() => fireEvent.click(toggle()))
+    expect(core()).toHaveAttribute('data-folded', 'true')
+    expect(toggle()).toHaveTextContent('Show Auto')
+    expect(toggle()).toHaveAttribute('aria-expanded', 'false')
+    expect(dial()).toHaveAttribute('inert')
+    expect(core().querySelector('video')).toBeNull()
+    expect(chip()).toHaveTextContent(captionFor('idle'))
+    act(() => fireEvent.click(toggle()))
+    expect(core()).not.toHaveAttribute('data-folded')
+    expect(toggle()).toHaveTextContent('Hide Auto')
+    expect(dial()).not.toHaveAttribute('inert')
+    expect(core().querySelector('video')).not.toBeNull()
+  })
+
+  it('keeps saying his state in the chip while folded', async () => {
+    await renderChat([HELD])
+    act(() => fireEvent.click(toggle()))
+    ask()
+    await stateIs('thinking')
+    expect(chip()).toHaveTextContent(captionFor('thinking'))
+  })
+
+  it('is remembered: the core stays folded in the next chat, and after a reload', async () => {
+    const { unmount } = await renderChat()
+    act(() => fireEvent.click(toggle()))
+    unmount()
+    await renderChat()
+    expect(core()).toHaveAttribute('data-folded', 'true')
+    expect(toggle()).toHaveTextContent('Show Auto')
+  })
+
+  it("is there with the look's auto off too: it folds the rings", async () => {
+    host.setLooks({ look: GHOST })
+    await renderChat()
+    expect(within(core()).queryByRole('img')).toBeNull()
+    act(() => fireEvent.click(toggle()))
+    expect(core()).toHaveAttribute('data-folded', 'true')
   })
 })
 

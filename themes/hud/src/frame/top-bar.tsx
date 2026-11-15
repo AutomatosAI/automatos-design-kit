@@ -16,7 +16,9 @@ import { Clock } from './clock'
 import styles from './top-bar.module.css'
 
 /**
- * The top bar (the design's 56 px bar): the diamond mark and AUTOMATOS // HUD, which goes to the chat; the
+ * The top bar (the design's 56 px bar): MENU, which hides and shows the side rail (HUD 1.4.0: more room for the page,
+ * remembered for the account in this browser; it says whether the rail shows in aria-expanded and names the rail in
+ * aria-controls, as the phone's MENU does its menu); the diamond mark and AUTOMATOS // HUD, which goes to the chat; the
  * clock in the middle; then where Automatos runs and whether it answers, as a glyph and a word (never colour
  * alone); MIC LIVE while the host's voice has the microphone open (src/voice/mic-live.tsx); the host's search, named by its visible words with its shortcut in aria-keyshortcuts (a name that
  * differs from the words on screen fails WCAG's label in name); LOOK, the look editor, lit while it is open; and the
@@ -32,6 +34,8 @@ export const BRAND_LABEL = 'Automatos HUD'
 /** The host's search shortcut, said to assistive technology (the button's name is its visible words). */
 export const SEARCH_SHORTCUT = 'Meta+K'
 export const LOOK_LABEL = 'Look'
+/** The rail's toggle, named as the phone's MENU is (src/frame/phone-top-bar.tsx MENU_LABEL). */
+export const RAIL_TOGGLE_LABEL = 'Menu'
 
 const EDITION_WORDS: Readonly<Record<HostEdition, string>> = { local: 'Local', saas: 'Hosted' }
 const CONNECTION_STATUS: Readonly<Record<HostHealth['connection'], { readonly glyph: string; readonly word: string }>> = {
@@ -94,9 +98,33 @@ export function LookLink() {
   )
 }
 
-export function TopBar() {
+export interface RailToggleProps {
+  /** True while the side rail shows. */
+  readonly shown: boolean
+  readonly onToggle: () => void
+  /** The rail's id, for aria-controls. */
+  readonly railId: string
+}
+
+/** MENU on the desktop: hides the side rail, and shows it again. */
+export function RailToggle({ shown, onToggle, railId }: RailToggleProps) {
+  return (
+    <button type="button" className={styles.menu} aria-expanded={shown} aria-controls={railId} onClick={onToggle}>
+      <span className={styles.menuIcon} aria-hidden="true" />
+      {RAIL_TOGGLE_LABEL}
+    </button>
+  )
+}
+
+export interface TopBarProps {
+  /** The side rail's toggle; none draws no MENU. */
+  readonly rail?: RailToggleProps
+}
+
+export function TopBar({ rail }: TopBarProps) {
   return (
     <header className={styles.bar} aria-label={TOP_BAR_LABEL}>
+      {rail !== undefined && <RailToggle {...rail} />}
       <Brand />
       <Clock />
       <div className={styles.end}>

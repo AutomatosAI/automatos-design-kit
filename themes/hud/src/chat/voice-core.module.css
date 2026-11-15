@@ -3,6 +3,11 @@
  * into the core by the design's percentage, in the look's accent at the design's alphas. A thin ring is a gradient
  * shown through a radial mask band; the mask's colour is only its opacity, so it is the look's opaque text. Every
  * loop is marked data-hud-loop in the markup, so the look's motion knob pauses it (app/hud-theme.css).
+ *
+ * HUD 1.4.0, folded (data-folded): the core shrinks to a bar as tall as the chip row and its button, the dial (the
+ * rings and Auto) anchored to the core's foot so it slides up and out through the core's top edge as it fades, then is
+ * hidden, its loops stopped. The slide takes 240 ms, scaled by the host's motion factor, so it is instant under
+ * reduced motion.
  */
 
 .core {
@@ -16,16 +21,48 @@
   --hud-core-dash: color-mix(in srgb, var(--hud-accent) 40%, transparent);
   --hud-core-half: color-mix(in srgb, var(--hud-accent) 50%, transparent);
   --hud-core-tick: color-mix(in srgb, var(--hud-accent) 70%, transparent);
+  --hud-core-fold-time: calc(240ms * var(--hud-motion-scale));
   position: relative;
   flex: none;
   align-self: center;
   width: var(--hud-core-size);
   height: var(--hud-core-size);
+  overflow: hidden;
+  transition: height var(--hud-core-fold-time) ease;
 }
 
 .core[data-size="small"] {
   --hud-core-size: 290px;
   --hud-core-chip-bottom: 12px;
+}
+
+/* Folded: a bar as tall as the chip row's 44 px button, 4 px clear above and below it for the focus ring. */
+.core[data-folded="true"] {
+  --hud-core-chip-bottom: var(--hud-space-1);
+  height: calc(var(--hud-tap-min) + 2 * var(--hud-space-1));
+}
+
+/* The rings and Auto, as tall as the open core and held to its foot. */
+.dial {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--hud-core-size);
+  transition:
+    opacity var(--hud-core-fold-time) ease,
+    visibility 0s;
+}
+
+/* Folded: it fades as it slides, then is hidden; and its rings stand still where they are (the loops' play state is
+   the look's motion variable, app/hud-theme.css, paused here for the dial alone), so nothing hidden keeps turning. */
+.core[data-folded="true"] .dial {
+  --hud-motion: paused;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--hud-core-fold-time) ease,
+    visibility 0s linear var(--hud-core-fold-time);
 }
 
 .rings {
@@ -150,8 +187,8 @@
   transform: translateX(-50%);
 }
 
-/* The row over the ring's foot, across the core: the state chip, then Pause Auto while Auto can move, centred, both
-   on the opaque ground; the chip gives way (an ellipsis) where the two don't fit. */
+/* The row over the ring's foot, across the core: the state chip, then HIDE AUTO, centred, both on the opaque ground;
+   the chip gives way (an ellipsis) where the two don't fit. Folded, it stays, in the bar. */
 .chipRow {
   position: absolute;
   left: var(--hud-space-2);
@@ -161,6 +198,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--hud-space-2);
+  transition: bottom var(--hud-core-fold-time) ease;
 }
 
 /* The state chip ("SEARCHING THE WEB"): mono capitals on the ground, in an accent-line box. */
@@ -177,4 +215,33 @@
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* HIDE AUTO and SHOW AUTO: HUD's secondary button, an accent-line outline on the opaque ground, so no ring shows
+   through it; it never shrinks, the chip gives way first. */
+.fold {
+  flex: none;
+  min-height: var(--hud-tap-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-accent-line);
+  border-radius: 0;
+  background: var(--hud-bg);
+  color: var(--hud-text);
+  font: 500 12px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.fold:hover {
+  border-color: var(--hud-accent);
+  color: var(--hud-accent-text);
+}
+
+.foldGlyph {
+  color: var(--hud-accent-text);
 }
