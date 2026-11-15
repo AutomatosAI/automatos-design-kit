@@ -72,7 +72,9 @@ function AgentPicker({ choice, agents, current, onChosen }: AgentPickerProps) {
         aria-controls={listId}
         onClick={() => setOpen((was) => !was)}
       >
-        <span className={styles.srOnly}>{TALKING_TO} </span>
+        <span className={styles.srOnly}>{TALKING_TO}</span>
+        {/* the space stands outside the hidden words: inside, an accessible name trims it ("Talking toAuto") */}
+        {' '}
         {current}
         <span className={styles.caret} aria-hidden="true">▾</span>
       </button>
