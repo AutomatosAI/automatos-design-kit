@@ -1,6 +1,6 @@
 /**
  * SDK 1.5.0: who answers a theme's chat, and Plan, on the fake chat controller (src/internal/scripted/chat-partner.ts,
- * after core's internal/chat-partner.ts at 5e357cd7ffa5dc89725349784445fee5de985265), through the fake host as a
+ * after core's internal/chat-partner.ts at 678411e6f109e8af854db00a75db223f9f882b0d), through the fake host as a
  * theme's test drives it. A conversation starts with Auto; chooseAgent picks an agent of the roster the test answers
  * for useAgents, and refuses a session agent (configuration.runtime 'cli'), an id the roster lacks and anything while
  * the roster loads, throwing for a value that is no agent id; the roster read is the host's, never a theme's ask.

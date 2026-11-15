@@ -3,16 +3,18 @@
 `pack` refuses what the core reader refuses. The manifest, look and prepaint checks are the core's own
 TypeScript twins of the server's validators, copied here with only the edits listed below so the two cannot drift by accident.
 
-Source: `AutomatosAI/automatos-ai` at `5e357cd7ffa5dc89725349784445fee5de985265`, the commit of core's pull request
-for SDK 1.5.0 (a theme's chat picks the agent that answers and uses Plan: `contract.py`'s and `shared-modules.json`'s
-`SDK_VERSION` 1.5.0, the host contract still 1.1.0; the core corpus's engines cases move to 1.5.0), pending its merge:
-once it merges, the pin moves to the merge commit. Since `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, the kit's
-previous pin (SDK 1.4.0, core `main` after the merge of pull request #1383 on 31 Oct 2026, itself after pull request
-#1378, which makes the reader refuse what the browser's first paint would drop), only `host.ts` (`SDK_VERSION`)
-changed here, with the corpus's `cases.json` (its engines cases) and the commit in `data/contract.json`, whose lists
-are the same: none of the copied validators, `review-cases.json`, `hello/` or the two `data/` files changed in core,
-nor `boot.ts`, `boot-sanitize.ts` or `first_paint.py`; of the review stage's sources `listings.py` changed (where a
-Cloud row's screenshots load from), not the preview rule `src/check/previews.ts` ports, and `review.py` in a docstring.
+Source: `AutomatosAI/automatos-ai` at `678411e6f109e8af854db00a75db223f9f882b0d`, core `main` after the merge of pull
+request #1424 on 5 Nov 2026, SDK 1.5.0 (a theme's chat picks the agent that answers and uses Plan: `contract.py`'s and
+`shared-modules.json`'s `SDK_VERSION` 1.5.0, the host contract still 1.1.0; the core corpus's engines cases move to
+1.5.0). The pull request's own commit, `5e357cd7ffa5dc89725349784445fee5de985265`, was the pin until it merged; of what
+the kit takes, only `engines.ts` changed at the merge (`asksForSdk` added, which the CLI doesn't call). Since
+`d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, the kit's previous pin (SDK 1.4.0, core `main` after the merge of pull
+request #1383 on 31 Oct 2026, itself after pull request #1378, which makes the reader refuse what the browser's first
+paint would drop), only `host.ts` (`SDK_VERSION`) changed here, with the corpus's `cases.json` (its engines cases) and
+the commit in `data/contract.json`, whose lists are the same: none of the copied validators, `review-cases.json`,
+`hello/` or the two `data/` files changed in core, nor `boot.ts`, `boot-sanitize.ts` or `first_paint.py`; of the review
+stage's sources `listings.py` changed (where a Cloud row's screenshots load from), not the preview rule
+`src/check/previews.ts` ports, and `review.py` in a docstring.
 
 | File here | Core file | Edits |
 |---|---|---|
@@ -64,7 +66,7 @@ contract.py changed only its reserved `htmlClass` names, its `SDK_VERSION` (1.5.
 
 | File here | Core source | sha256 |
 |---|---|---|
-| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `d4480f210e30803e844961a9992e8babe904a1b9f8fea45ce442ed0bbdb9ad20` |
+| `data/contract.json` | `orchestrator/services/themes/contract.py`, four lists | `ab5fb569e2942eed9d2e6e1d566f12ec90da7a3b3219192d61b5bb00d7608cdb` |
 
 It is written with python3 alone (contract.py imports only the standard library), from a core checkout:
 

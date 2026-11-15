@@ -127,10 +127,10 @@ config of the package's. Its `dist/` must match the package's byte for byte. Tha
 ## What the kit takes from core
 
 The package format belongs to core (`AutomatosAI/automatos-ai`); where the kit and core disagree, core wins and the
-kit is fixed. The kit vendors core's contract at commit `5e357cd7ffa5dc89725349784445fee5de985265` (host contract
+kit is fixed. The kit vendors core's contract at commit `678411e6f109e8af854db00a75db223f9f882b0d` (host contract
 1.1.0 with the `mobile` block, SDK 1.5.0 with the `voice` and `proactive` areas), the commit
-`packages/theme-cli/src/core/README.md` names: the commit of core's pull request for SDK 1.5.0 (a theme's chat picks
-the agent that answers and uses Plan), pending its merge, after which the pin moves to the merge commit. Since the
+`packages/theme-cli/src/core/README.md` names: core `main` after the merge of pull request #1424, SDK 1.5.0 (a theme's
+chat picks the agent that answers and uses Plan). Since the
 previous pin, core `main` after the merge of pull request #1383 on 31 Oct 2026 (SDK 1.4.0), only the SDK's version,
 its chat and roster types and the corpus's engines cases changed of what the kit takes. The pins since core pull
 request #1378 hold a reader that refuses what the browser's first paint would drop (`src/first-paint.ts` ports it):

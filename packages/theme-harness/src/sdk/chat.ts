@@ -26,7 +26,7 @@
  * (internal/scripted/message-parts.ts), never its raw parts: a stored message's are its fixture's `parts` (else its
  * words), a message of the turn's are its words, so a live reply's chips reach a theme once its conversation opens again. Not modelled: the approvals store that keeps
  * cards across chat screens, and a cold start on the newest conversation (a new chat opens, as core's Play specs have).
- * SDK 1.5.0 (core's internal/chat-partner.ts at 5e357cd7ffa5dc89725349784445fee5de985265): who answers and Plan
+ * SDK 1.5.0 (core's internal/chat-partner.ts at 678411e6f109e8af854db00a75db223f9f882b0d): who answers and Plan
  * (internal/scripted/chat-partner.ts): the conversation's `agentId` and `chooseAgent`, over the roster a test answers
  * for useAgents, and `planMode` and `setPlanMode`, the host's one switch (setChatPlanMode, read back with
  * chatPlanMode); a send carries both (chatSent's `agentId` and `planMode`, absent for Auto and with Plan off).

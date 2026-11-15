@@ -7,8 +7,8 @@ vite-preset keeps `@automatos/theme-sdk` external.
 ## Where it comes from
 
 Vendored from core (`AutomatosAI/automatos-ai`), `frontend/packages/theme-sdk`, at commit
-`5e357cd7ffa5dc89725349784445fee5de985265` (SDK 1.5.0), the commit of core's pull request for SDK 1.5.0, pending its
-merge: once it merges, the pin moves to the merge commit (the files there are these). Since
+`678411e6f109e8af854db00a75db223f9f882b0d` (SDK 1.5.0), core `main` after the merge of pull request #1424, whose own
+commit (`5e357cd7ffa5dc89725349784445fee5de985265`) was the pin until it merged; the files are the same at both. Since
 `d92cabf202f4a04f48a429d5f79a05cbe6c1eefb`, the kit's previous pin (SDK 1.4.0), SDK 1.5.0 adds, with no new name
 (fields only): who answers a theme's chat and Plan, on the chat controller (`areas/chat.d.ts`: `HostChatController`'s
 `agentId`, `chooseAgent(id)`, which refuses a session agent, an id the roster lacks and anything while the roster loads,

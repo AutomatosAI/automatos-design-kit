@@ -1,6 +1,6 @@
 /**
  * SDK 1.5.0: who answers a theme's chat, and Plan, as core's frontend/lib/theme-sdk/internal/chat-partner.ts has them
- * (at 5e357cd7ffa5dc89725349784445fee5de985265). The agent is the conversation's own choice, Auto (null) as its screen
+ * (at 678411e6f109e8af854db00a75db223f9f882b0d). The agent is the conversation's own choice, Auto (null) as its screen
  * mounts. `chooseAgent(id)` picks one of the roster's agents, the roster the page areas answer (a test's
  * host.setPageQuery('useAgents'), read as the host reads its own cache, never kept as a theme's ask): false, and
  * nothing changes, for a session agent (`configuration.runtime` 'cli', components/chatbot/agent-selector.tsx
