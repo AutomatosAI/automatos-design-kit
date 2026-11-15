@@ -19,7 +19,9 @@
 import type { HostChatStatus, HostChatTurnEvent, HostMissionSuggestion } from '@automatos/theme-sdk'
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import { type ApprovalStatus, approvalsInPart, type FiledApproval, fileApprovals, isWaitingCard, withStatus } from './approvals.ts'
-import { holdTurn, type RecordedFrame, type RecordedTurn, recordSent, REFUSED_BODY, STREAM_STATUS, takeTurn } from './chat-script.ts'
+import {
+  holdTurn, type RecordedFrame, type RecordedTurn, recordSent, REFUSED_BODY, type SentWords, STREAM_STATUS, takeTurn,
+} from './chat-script.ts'
 import {
   deliverablesInPart,
   fieldsOf,
@@ -74,6 +76,9 @@ export interface TurnHandlers {
   readonly onEvent?: (event: HostChatTurnEvent) => void
   /** The backend is down (the host's health): a send fails as a fetch that can't connect. */
   readonly down: boolean
+  /** SDK 1.5.0: the agent the next message goes to (null for Auto), and Plan; core's body sends both. */
+  readonly agentId?: number | null
+  readonly planMode?: boolean
 }
 
 export interface ScriptedTurn {
@@ -270,6 +275,13 @@ function useTurnEvents(state: TurnState, latest: Box<TurnHandlers>): void {
   }, [failedId, failedCode, latest])
 }
 
+/** What a send carried: the words, and the agent and Plan with them when set (SDK 1.5.0). */
+function sentWith({ chatId, agentId, planMode }: TurnHandlers, text: string, retry: boolean): SentWords {
+  const agent = agentId === null || agentId === undefined ? {} : { agentId }
+  const plan = planMode === true ? { planMode: true as const } : {}
+  return { chatId, text, retry, ...agent, ...plan }
+}
+
 /** One conversation's turn: its state, and Send, Try again, Stop and a card's outcome. */
 export function useScriptedTurn(history: readonly ReplyRecord[], handlers: TurnHandlers): ScriptedTurn {
   const [state, dispatch] = useReducer(turnReducer, history, initialTurn)
@@ -288,7 +300,7 @@ export function useScriptedTurn(history: readonly ReplyRecord[], handlers: TurnH
       running.current = controller
       const reply = replyRecord(nextId(REPLY_ID), 'assistant')
       dispatch({ type: 'sent', kept, user: replyRecord(nextId(USER_ID), 'user', text), reply })
-      recordSent({ chatId: latest.current.chatId, text, retry })
+      recordSent(sentWith(latest.current, text, retry))
       void playTurn(reply.id, controller.signal, sink).finally(() => {
         if (running.current === controller) running.current = null
       })

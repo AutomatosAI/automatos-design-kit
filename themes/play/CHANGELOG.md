@@ -2,6 +2,23 @@
 
 Play's versions, newest first. A released version's files never change: a change to them is a new version.
 
+## 1.5.0
+
+Talk to one agent, and Studio's modes, in Play's own chat. Play needs SDK 1.5.0 (`engines.sdk` `^1.5.0`): the chat
+controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode`, and a roster agent's `configuration`.
+
+- **Code, Plan and Mission** under the message box, in its width, as Play's outlined pills (32 px, 44 px targets on a
+  phone), in a group named Modes. Code is a link to the host's chat with the code canvas (`/chat?repo=.`) and Mission
+  one to Missions (`/assignments?tab=missions`), each with a title saying where it goes. Plan is a toggle
+  (`aria-pressed`) on the host's own Plan switch, the one Studio's Plan button and a `/chat?mode=plan` link set, edged
+  in the accent as text while on; the next message goes with Plan.
+- **The agent picker**, first in that row: a pill naming the agent the box talks to ("Talking to Auto" to a screen
+  reader), opening a list of Auto and the active agents that can run (the SDK's `useAgents`, so `uses` adds
+  `pages-agents`). A choice makes the next message go to that agent, names the box "Message <agent>" and gives it the
+  focus; one the host refuses changes nothing; Esc shuts the list. A session agent (its runtime the CLI) is a link to
+  its session (`/chat?agent=<id>`), never a choice.
+- `/chat`'s `keepCorePage` adds `agent`, as core keeps its own chat page for an agent link.
+
 ## 1.4.0
 
 Proactive Auto, step two. Play needs SDK 1.4.0 (`engines.sdk` `^1.4.0`), whose chat hands a theme each message's parts

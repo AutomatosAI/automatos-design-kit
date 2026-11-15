@@ -1,0 +1,125 @@
+/*
+ * Arcade 1.1.0: the row under the message box (mode-row.tsx, agent-picker.tsx), on the host-styled strip, so it reads
+ * as the host's part the strip is drawn as: Studio's face and colour tokens, which the palette paints. Code, Plan and
+ * Mission are round outlined pills in the card's text, filled with the primary colour on hover and on Plan while it is
+ * on (aria-pressed); 32 px high on a desktop, 44 px targets on the handheld. The agent's pill is the same with a caret.
+ * Its list opens over the row on the popover colour, each row a 44 px target, the chosen one marked by a primary bar at
+ * its start and a heavier weight, never by colour alone (aria-pressed).
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mode,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  background: transparent;
+  color: hsl(var(--card-foreground));
+  font-family: var(--arcade-host-font);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mode:hover,
+.chip:hover,
+.mode[aria-pressed="true"] {
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.mode:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.row[data-layout="phone"] .mode,
+.row[data-layout="phone"] .chip {
+  min-height: 44px;
+}
+
+.agent {
+  position: relative;
+}
+
+.caret {
+  font-size: 10px;
+}
+
+.list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  min-width: 220px;
+  max-height: 280px;
+  margin: 0;
+  padding: 4px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid hsl(var(--border));
+  border-radius: 10px;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: hsl(var(--popover-foreground));
+  font-family: var(--arcade-host-font);
+  font-size: 14px;
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.option:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: -2px;
+}
+
+.option[aria-pressed="true"] {
+  box-shadow: inset 3px 0 0 hsl(var(--primary));
+  font-weight: 600;
+}
+
+.tag {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

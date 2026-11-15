@@ -44,8 +44,8 @@ beforeEach(() => {
 })
 
 describe('/chat', () => {
-  it('is a page HUD owns, keeping the core page for the links Play keeps it for', () => {
-    expect(manifest.pages).toEqual({ '/chat': { mode: 'own', keepCorePage: ['repo', 'runtime', 'mode'] } })
+  it('is a page HUD owns, keeping the core page for the links core keeps it for (agent from HUD 1.4.0, SDK 1.5.0)', () => {
+    expect(manifest.pages).toEqual({ '/chat': { mode: 'own', keepCorePage: ['repo', 'runtime', 'mode', 'agent'] } })
   })
 
   it("keeps the core page for exactly the links the frame reads as the host's own chat", () => {

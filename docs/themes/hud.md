@@ -144,7 +144,7 @@ changes, and a window crossing the width keeps the page it shows.
   runs, sitting then at the foot of its room over the waveform rather than centred under the core, then what follows
   the conversation; and a dock pinned to the foot: the host's credits banner, the message box (the
   desktop's, with the AI label fence) once TYPE opens it, the waveform, and the control row: TYPE, the host's voice
-  button as HOLD TO TALK (`VoiceSlot`), and STOP. TYPE opens and shuts the box, putting the focus in it and keeping its
+  button as HOLD TO TALK (`VoiceSlot`), and STOP, with CODE, PLAN and MISSION under it (1.4.0). TYPE opens and shuts the box, putting the focus in it and keeping its
   words when shut; an empty chat's starter opens it with its words. STOP stops a reply as the box's Stop does, ends a
   voice session, is disabled while nothing runs, and hands the focus to TYPE. The conversation's title is the
   screen's h1 for a screen reader and the host's focus, not drawn, as the design's phone has none; New chat is in the

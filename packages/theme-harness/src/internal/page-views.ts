@@ -135,6 +135,17 @@ function viewOf<T>(answer: PageQueryAnswer<unknown> | undefined, refetch: () => 
   return Object.freeze({ data, isLoading: loading, isFetching: loading, error, refetch })
 }
 
+const NO_REFETCH = (): void => undefined
+
+/**
+ * SDK 1.5.0: what the host itself reads of a page answer, as core's chat reads the roster from the host's own cache
+ * (internal/chat-partner.ts): the data a test set for `hook`, null while there is none, never kept as a theme's ask.
+ */
+export function useHostRead<T>(hook: PageQueryHook): T | null {
+  const now = useSyncExternalStore(subscribe, versionNow, versionNow)
+  return useMemo(() => viewOf<T>(answers.get(hook), NO_REFETCH).data, [now, hook])
+}
+
 /**
  * query-view.ts:93: a read of `hook` with `args`; `refusal` (a malformed id) asks for nothing and is the error,
  * and `asksNothing` (a null id) asks for nothing and is not loading.

@@ -23,8 +23,9 @@ import { MascotColumn, PageColumns, PageHeader } from '../shell/page-columns'
 
 import { LooseApprovalCards } from './approval-cards'
 import { ExampleChips, FirstOpenHero } from './first-open'
-import { MessageBox, VOICE_HOTKEY } from './message-box'
+import { VOICE_HOTKEY } from './message-box'
 import { MessageList } from './message-list'
+import { PlayComposer } from './play-composer'
 import { liveMessages, replyProgress } from './reply'
 import { PlayTrialBanner, TurnEnd } from './turn-end'
 import { type AutoOnScreen, useAutoOnScreen } from './use-auto-on-screen'
@@ -82,6 +83,9 @@ import styles from './composer.module.css'
  * reply chips stand under his last message, and a tap sends the chip's words through the message box's own send
  * (`useReply`), the box taking the focus after it on a desktop as after Try again (on a phone it would raise the
  * keyboard).
+ *
+ * Play 1.5.0 (SDK 1.5.0): under the message box, who it talks to (the agent picker), then Code (a link to the host's
+ * chat with the code canvas), Plan (the host's Plan switch) and Mission (a link to Missions) (play-composer.tsx).
  */
 
 export interface PlayChatViewProps {
@@ -275,15 +279,13 @@ function ChatWithAuto({ turn, idleMs, draft, onDraftTaken }: ChatWithAutoProps) 
           chat={chat} firstOpen={firstOpen} onPick={composer.pick} listed={listed}
           strip={phone && !firstOpen ? <div className={styles.strip}>{figure('small')}</div> : null}
         >
-          <MessageBox
-            ref={box}
-            key={composer.fill ? `fill-${composer.fill.serial}` : 'box'}
-            streaming={chat.streaming}
-            onSend={chat.send}
+          <PlayComposer
+            chat={chat}
+            box={box}
+            fill={composer.fill}
             onStop={onStop}
             onFocus={composer.onFocus}
             onBlur={composer.onBlur}
-            initialDraft={composer.fill?.text}
             autoFocus={empty || composer.fill !== null}
             voiceHotkey={phone ? null : VOICE_HOTKEY}
           />

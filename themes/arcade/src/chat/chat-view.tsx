@@ -15,8 +15,10 @@ import {
 
 import { usePhoneLayout } from '../frame/phone-layout'
 import { useMotion } from '../motion/use-motion'
+import { useAgentSeat } from './agent-picker'
 import { Composer } from './composer'
 import { Dialogue } from './dialogue'
+import { ModeRow } from './mode-row'
 import { PartyStrip, PartyWindow } from './party'
 import { liveMessages, replyProgress } from './reply'
 import { portraitState, sayingId, sayingOf } from './saying'
@@ -31,7 +33,10 @@ import ui from '../ui/ui.module.css'
  * One conversation on Arcade's /chat: the story window and the dialogue window, with the party beside them on a
  * desktop and over them on the handheld. The chat is the host's (the SDK's useChatController, through use-turn.ts);
  * Auto's portrait follows it (use-auto.ts) and the host's voice session. Two components, so Auto hears the chat in
- * order: the chat in ChatView, Auto and the screen in its child, whose effects run before the turn's own.
+ * order: the chat in ChatView, Auto and the screen in its child, whose effects run before the turn's own. Arcade
+ * 1.1.0 (SDK 1.5.0): under the message box, who it talks to (the agent picker), then Code (a link to the host's chat
+ * with the code canvas), Plan (the host's Plan switch) and Mission (a link to Missions) (mode-row.tsx,
+ * agent-picker.tsx).
  */
 
 const EXHAUSTED = 'exhausted'
@@ -109,8 +114,13 @@ interface StripProps {
   readonly onTyping: (typing: boolean) => void
 }
 
-/** The host strip: the banner for used-up credits, the message box and, on a desktop, the host's voice button. */
+/**
+ * The host strip: the banner for used-up credits, the message box and, on a desktop, the host's voice button; under
+ * the box the agent picker (choosing an agent focuses the box) and the modes.
+ */
 function Strip({ chat, sending, boxRef, phone, onTyping }: StripProps) {
+  const focusBox = useCallback(() => boxRef.current?.focus(), [boxRef])
+  const seat = useAgentSeat(chat, focusBox)
   return (
     <>
       <TrialBanner chat={chat} />
@@ -122,6 +132,8 @@ function Strip({ chat, sending, boxRef, phone, onTyping }: StripProps) {
         autoFocus={chat.messages.length === 0 && !phone}
         onTyping={onTyping}
         voice={phone ? null : <VoiceButton />}
+        placeholder={seat.placeholder}
+        tools={<ModeRow plan={chat} agent={seat.picker} phone={phone} />}
       />
     </>
   )

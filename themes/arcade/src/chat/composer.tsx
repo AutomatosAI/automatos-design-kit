@@ -13,6 +13,10 @@ import styles from './composer.module.css'
  * children alone and disables nothing, since the host draws a hidden AI label again itself. The ref is the textarea:
  * Send, Stop and Try again put the focus back in it. Words handed in as a fill (an empty chat's starter) take the
  * box's place and the focus, once per serial, for you to send or change.
+ *
+ * Arcade 1.1.0: the box is named by its placeholder, "Message Auto", or "Message <the agent it talks to>"
+ * (agent-choice.ts); and between the box and its keys the row of tools the page hands in: the agent picker and the
+ * modes (mode-row.tsx), outside the AI label fence, since none of them sends anything.
  */
 
 export const PLACEHOLDER = 'Message Auto'
@@ -38,6 +42,10 @@ export interface ComposerProps {
   readonly voice?: ReactNode
   /** The box took or lost the focus: Auto listens while you type. */
   readonly onTyping?: (typing: boolean) => void
+  /** The box's placeholder and name: PLACEHOLDER, or the agent it talks to. */
+  readonly placeholder?: string
+  /** Between the box and its keys: the agent picker and the modes. */
+  readonly tools?: ReactNode
 }
 
 export interface BoxFill {
@@ -95,6 +103,7 @@ function useDraft(streaming: boolean, onSend: (text: string) => boolean, onStop:
 
 export function Composer(props: ComposerProps) {
   const { boxRef, streaming, onSend, onStop, autoFocus = false, fill = null, voice = null, onTyping } = props
+  const { placeholder = PLACEHOLDER, tools = null } = props
   const { draft, setDraft, ready, onSubmit, onKeyDown } = useDraft(streaming, onSend, onStop)
   const hintId = useId()
   useEffect(() => {
@@ -116,8 +125,8 @@ export function Composer(props: ComposerProps) {
                 onKeyDown={onKeyDown}
                 onFocus={() => onTyping?.(true)}
                 onBlur={() => onTyping?.(false)}
-                placeholder={PLACEHOLDER}
-                aria-label={PLACEHOLDER}
+                placeholder={placeholder}
+                aria-label={placeholder}
                 aria-describedby={hintId}
                 autoFocus={autoFocus}
                 rows={1}
@@ -128,6 +137,7 @@ export function Composer(props: ComposerProps) {
         </div>
         {voice}
       </div>
+      {tools}
       <p id={hintId} className={styles.hint}>
         {HINT_PARTS.map((part, index) => (
           <Fragment key={part}>

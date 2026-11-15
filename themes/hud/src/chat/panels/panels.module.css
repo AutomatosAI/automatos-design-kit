@@ -21,6 +21,44 @@
   border-top: 1px solid var(--hud-line);
 }
 
+/*
+ * HUD 1.4.0: a row that acts (agents-panel.tsx) draws as the row it wraps, the whole row its target; its name takes
+ * the readable accent on hover, and while the message box talks to that agent an accent bar stands at its start and
+ * its name is in the readable accent (aria-pressed). A session agent's row ends in SESSION, in mono capitals.
+ */
+.rowAction {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rowAction:hover .name,
+.rowAction[aria-pressed="true"] .name {
+  color: var(--hud-accent-text);
+}
+
+.rowAction[aria-pressed="true"] {
+  padding-left: var(--hud-space-2);
+  box-shadow: inset 2px 0 0 var(--hud-accent);
+}
+
+.rowTag {
+  color: var(--hud-text-2);
+  font: 600 10px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
 .rowHead {
   display: flex;
   align-items: baseline;

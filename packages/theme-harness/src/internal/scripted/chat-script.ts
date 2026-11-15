@@ -80,6 +80,10 @@ export interface SentWords {
   readonly text: string
   /** Try again, not Send. */
   readonly retry: boolean
+  /** SDK 1.5.0: the agent it went to, chosen with chooseAgent; absent for Auto. */
+  readonly agentId?: number
+  /** SDK 1.5.0: it went with Plan on; absent with Plan off. */
+  readonly planMode?: true
 }
 
 /** One load of a conversation list (useConversationList, useRecentChats): how many it asked the backend for. */

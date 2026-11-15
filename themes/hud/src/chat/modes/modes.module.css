@@ -1,0 +1,138 @@
+/*
+ * HUD 1.4.0: the row under the message box (mode-row.tsx, agent-picker.tsx). The modes are HUD's chips: square, a
+ * 1 px outline in the line colour, mono capitals tracked .14em in the secondary text, the accent line and the readable
+ * accent on hover; PLAN, while on, in the accent's outline and the readable accent with the accent's fill behind it;
+ * 32 px high between the desktop's box and its keys, 44 px in the phone's dock. The agent chip is the
+ * same chip in the readable accent, its outline the accent line, and its list opens over the row on the page's ground,
+ * each row 44 px, the chosen one marked by an accent bar and the readable accent, never by colour alone (aria-pressed).
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--hud-space-2);
+}
+
+.row[data-layout="phone"] {
+  justify-content: center;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--hud-space-2);
+}
+
+.mode,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hud-space-2);
+  min-height: 32px;
+  padding: 0 var(--hud-space-3);
+  border: 1px solid var(--hud-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text-2);
+  font: 600 11px/1.2 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.mode:hover {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-accent-text);
+}
+
+.mode[aria-pressed="true"] {
+  border-color: var(--hud-accent);
+  background: var(--hud-accent-fill);
+  color: var(--hud-accent-text);
+}
+
+.row[data-layout="phone"] .mode,
+.row[data-layout="phone"] .chip {
+  min-height: var(--hud-tap-min);
+}
+
+.agent {
+  position: relative;
+}
+
+.chip {
+  border-color: var(--hud-accent-line);
+  color: var(--hud-accent-text);
+}
+
+.chip:hover {
+  border-color: var(--hud-accent);
+}
+
+.caret {
+  font-size: 10px;
+}
+
+.list {
+  position: absolute;
+  bottom: calc(100% + var(--hud-space-1));
+  left: 0;
+  z-index: 3;
+  min-width: 220px;
+  max-height: 280px;
+  margin: 0;
+  padding: var(--hud-space-1);
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--hud-accent-line);
+  background: var(--hud-bg);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--hud-space-3);
+  width: 100%;
+  min-height: var(--hud-tap-min);
+  padding: 0 var(--hud-space-3);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--hud-text);
+  font: 500 14px/1.3 var(--hud-font-text);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.option:hover {
+  color: var(--hud-accent-text);
+}
+
+.option[aria-pressed="true"] {
+  box-shadow: inset 2px 0 0 var(--hud-accent);
+  color: var(--hud-accent-text);
+}
+
+.tag {
+  flex: none;
+  color: var(--hud-text-2);
+  font: 600 10px/1 var(--hud-font-mono);
+  letter-spacing: var(--hud-tracking-chip);
+  text-transform: uppercase;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
