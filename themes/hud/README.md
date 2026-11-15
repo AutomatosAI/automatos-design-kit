@@ -14,7 +14,8 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   Chat, and RECENT, the latest conversations) and the backdrop. Every page HUD doesn't own is the host's, drawn
   inside the frame and recoloured by the look. In a phone's browser it is the phone's frame (below).
 - The core screen at `/chat`, a page HUD owns: the conversation's title with New chat beside it, Auto in the voice
-  core with the state in words under him and Pause Auto beside it, the transcript with his replies and the host's own
+  core with the state in words under him and HIDE AUTO beside it (it folds the core away for more room, and SHOW AUTO
+  brings it back), the transcript with his replies and the host's own
   cards (approvals, Deliverables, Missions, tickets; its top edge fades, so a row scrolled under it is never cut in
   half), the message box (Enter sends, Shift + Enter makes a new line,
   Esc stops) with the agent it talks to, CODE, PLAN and MISSION under it (from 1.4.0, SDK 1.5.0: a picker of the
@@ -119,8 +120,9 @@ Geist and Geist Mono are the host's.
 Auto, the Automatos mascot, through `@automatos/mascot`: his 12 states, his clips (`.webm`, and `.mp4` for Safari
 and iOS) and stills in `assets/mascot/`, on a ring the page draws in the look's colours. He shows while the look's
 Auto is on: at the foot of the rail, his state the backend's. He moves only where he can be paused (the Pause Auto
-control), and stands still under the reduced-motion setting and while the look's motion is off. On the core
-screen he is in the voice core, his state the chat's, with Pause Auto beside the state chip, and the rail's dock
+control) or hidden, and stands still under the reduced-motion setting and while the look's motion is off. On the core
+screen he is in the voice core, his state the chat's, with HIDE AUTO beside the state chip (folded, the core's rings
+stop and he is a hidden still), and the rail's dock
 steps aside, so he shows once; it steps aside too while the host draws its own floating Auto. In a phone's browser
 there is no rail, so he shows on the core screen alone. His files are
 (c) Automatos AI, not covered by the code licence (`NOTICE`).
@@ -138,7 +140,7 @@ Command design's phone (390 by 844) instead of its desktop layout. The width is 
   it, handing the focus back to MENU; everything behind it is inert while it is open, and following a link shuts it.
 - **The core screen.** A line naming who is at work (the running Mission's agent with the time since it started, or
   Auto and his state in a word, or the voice session's while it runs), the 290 px core with Auto, the state chip and
-  Pause Auto beside it, the last exchange (your words in quotes, then Auto's reply with all it carries on the desktop:
+  HIDE AUTO beside it, the last exchange (your words in quotes, then Auto's reply with all it carries on the desktop:
   his tool lines, the host's cards, the receipts, the snag box; while a voice session runs, the exchange being spoken),
   the waveform and the control row: TYPE, the host's voice button as HOLD TO TALK, and STOP. TYPE opens the message box, the desktop's,
   over the waveform, and puts the focus in it; shut again, it keeps its words. STOP stops a reply, ends a voice

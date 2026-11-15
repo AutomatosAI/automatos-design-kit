@@ -4,25 +4,20 @@ HUD's versions, newest first. A version once released never changes: a change sh
 
 ## 1.4.0
 
-Talk to one agent, and Studio's modes, in HUD's own chat, on Theme SDK 1.5.0 (`engines.sdk` `^1.5.0`): the chat
-controller's `agentId`, `chooseAgent`, `planMode` and `setPlanMode`, and a roster agent's `configuration`.
+More room to work, on the same Theme SDK (`engines.sdk` stays `^1.4.0`):
 
-- CODE, PLAN and MISSION under the message box, between the box and its keys, as HUD's chips: square outlines, mono
-  capitals, 32 px high, in a group named Modes. CODE is a link to the host's chat with the code canvas
-  (`/chat?repo=.`) and MISSION one to Missions (`/assignments?tab=missions`), each with a title saying where it goes.
-  PLAN is a toggle (`aria-pressed`) on the host's own Plan switch, the one Studio's Plan button and a `/chat?mode=plan`
-  link set, lit in the accent while on; the next message goes with Plan.
-- The agent picker, first in that row: a chip naming the agent the box talks to ("Talking to Auto" to a screen
-  reader), opening a list of Auto and the active agents that can run. A choice makes the next message go to that
-  agent, names the box "Message <agent>" and gives it the focus; one the host refuses changes nothing; Esc shuts the
-  list. A session agent (its runtime the CLI) is a link to its session (`/chat?agent=<id>`), tagged SESSION, never a
-  choice.
-- AGENTS' rows act on the core screen: a row of an agent that can run makes the box talk to it (pressed while it
-  does), and a session agent's row links to its session; the other rows only say.
-- On the phone, the same row sits in the dock under TYPE · HOLD TO TALK · STOP at the 44 px tap size, whether TYPE has
-  the box open or not; choosing an agent opens the box on it.
-- `/chat`'s `keepCorePage` adds `agent`, as core keeps its own chat page for an agent link, so the frame shows Auto in
-  the rail's dock there, as on every page HUD's core screen isn't drawn.
+- MENU hides the side rail: first in the desktop's top bar, HUD's MENU button (as the phone's), which slides the rail
+  out to the left and gives the page its width, and shows it again. It says whether the rail shows (`aria-expanded`)
+  and names it (`aria-controls`); hidden, the rail is inert and Auto in its dock is his still; the slide is instant
+  under reduced motion. Remembered for the account in this browser (the SDK's
+  storage area, `hud-rail-hidden`); where the host keeps no theme state, for the page.
+- HIDE AUTO folds the core away: beside the state chip, in Pause Auto's old place, on the desktop and the phone. The
+  rings and Auto slide up into a bar as wide as the core that keeps the state chip, and SHOW AUTO brings them back
+  down. Folded, the rings stop and Auto is a hidden still, so the fold is the core's WCAG 2.2.2 control (hide); the
+  slide takes 240 ms, instant under reduced motion. It says whether the core shows (`aria-expanded`). Remembered as the
+  rail is (`hud-core-folded`).
+- Pause Auto is gone from the core: HIDE AUTO stops his motion there. The rail's dock, on the other pages, keeps its
+  Pause Auto.
 
 ## 1.3.0
 

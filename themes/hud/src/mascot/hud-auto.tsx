@@ -22,9 +22,9 @@ import { useVideoFormat } from './use-video-format'
  *
  * He moves only where he can be stopped (WCAG 2.2.2): under the OS reduced-motion setting, with the look's
  * motion off, while paused, and until the host knows whether he is paused, he is his still; where his clip can
- * play, the Pause Auto control sits under him, or where the page places it (`pause={false}` and HudPauseControl:
- * the voice core puts it beside its state chip, clear of the rings). The control stands on the page's ground, so
- * nothing drawn behind it shows through. A browser that blocks autoplay, or a clip that won't play, gives stills
+ * play, the Pause Auto control sits under him, unless the page stops his motion its own way (`pause={false}`: the
+ * chat's voice core, whose HIDE AUTO folds him away and makes him a still, HUD 1.4.0). The control stands on the
+ * page's ground, so nothing drawn behind it shows through. A browser that blocks autoplay, or a clip that won't play, gives stills
  * from then on. The frame's dock places him (src/frame/auto-dock.tsx), and so does the chat's voice core, which
  * drives `state` from @automatos/mascot's reducer.
  */
@@ -47,7 +47,7 @@ export interface HudAutoProps {
   readonly playing?: boolean
   /** True where the page names the state itself: hidden from assistive technology, no live chip. */
   readonly decorative?: boolean
-  /** False leaves the Pause Auto control to the page, which places HudPauseControl itself. */
+  /** False draws no Pause Auto control: the page stops his motion its own way. */
   readonly pause?: boolean
 }
 
@@ -81,14 +81,6 @@ function AutoPauseButton({ motion }: { readonly motion: AutoMotion }) {
       iconClassName={styles.pauseIcon}
     />
   )
-}
-
-/** The Pause Auto control where a page places it: drawn only while Auto shows and his clip may play. */
-export function HudPauseControl() {
-  const auto = useHudLook().auto
-  const motion = useAutoMotion()
-  if (auto === 'off' || !pausable(motion, true, false)) return null
-  return <AutoPauseButton motion={motion} />
 }
 
 export function HudAuto(props: HudAutoProps) {

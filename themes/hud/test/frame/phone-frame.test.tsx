@@ -102,7 +102,10 @@ describe('the breakpoint', () => {
     expect(screen.getByRole('complementary', { name: SIDEBAR })).toBeInTheDocument()
     expect(within(bar()).getByRole('button', { name: SEARCH })).toBeInTheDocument()
     expect(within(bar()).getByRole('group', { name: UTILITIES })).toBeInTheDocument()
-    expect(within(bar()).queryByRole('button', { name: MENU_LABEL })).toBeNull()
+    // HUD 1.4.0: the desktop's MENU is the rail's toggle (it names the rail), never the phone's menu dialog
+    const menu = within(bar()).getByRole('button', { name: MENU_LABEL })
+    expect(menu).not.toHaveAttribute('aria-haspopup')
+    expect(menu).toHaveAttribute('aria-controls', screen.getByRole('complementary', { name: SIDEBAR }).id)
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 })
