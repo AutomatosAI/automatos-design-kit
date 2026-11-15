@@ -12,21 +12,23 @@
   flex-direction: column;
   gap: var(--hud-space-5);
   padding: var(--hud-space-5) var(--hud-space-4);
+  --hud-rail-slide: calc(220ms * var(--hud-motion-scale));
   border-right: 1px solid var(--hud-line);
   overflow-y: auto;
   transition:
-    margin-left 220ms ease,
+    margin-left var(--hud-rail-slide) ease,
     visibility 0s;
 }
 
 /* Hidden (the top bar's MENU): it slides out past the frame's left edge at its full width, so its words never wrap
-   on the way, and the page takes its place; once it is out it is hidden. */
+   on the way, and the page takes its place; once it is out it is hidden. The slide is scaled by the host's motion
+   factor, so it is instant under reduced motion. */
 .rail[data-hidden="true"] {
   margin-left: calc(-1 * var(--hud-rail-width));
   visibility: hidden;
   transition:
-    margin-left 220ms ease,
-    visibility 0s linear 220ms;
+    margin-left var(--hud-rail-slide) ease,
+    visibility 0s linear var(--hud-rail-slide);
 }
 
 .nav {

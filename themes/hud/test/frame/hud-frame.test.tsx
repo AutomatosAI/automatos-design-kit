@@ -159,8 +159,10 @@ describe('MENU, the side rail\'s toggle (HUD 1.4.0)', () => {
   })
 
   it('hides the rail, out of the tab order and the accessibility tree, and shows it again', () => {
+    lookUp(ARC)
     renderFrame()
     fireEvent.click(menu())
+    expect(rail()?.querySelector('[data-motion="still"]')).not.toBeNull()
     expect(menu()).toHaveAttribute('aria-expanded', 'false')
     expect(rail()).toHaveAttribute('data-hidden', 'true')
     expect(rail()).toHaveAttribute('inert')

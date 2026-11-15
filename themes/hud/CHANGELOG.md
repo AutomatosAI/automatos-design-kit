@@ -8,7 +8,8 @@ More room to work, on the same Theme SDK (`engines.sdk` stays `^1.4.0`):
 
 - MENU hides the side rail: first in the desktop's top bar, HUD's MENU button (as the phone's), which slides the rail
   out to the left and gives the page its width, and shows it again. It says whether the rail shows (`aria-expanded`)
-  and names it (`aria-controls`); hidden, the rail is inert. Remembered for the account in this browser (the SDK's
+  and names it (`aria-controls`); hidden, the rail is inert and Auto in its dock is his still; the slide is instant
+  under reduced motion. Remembered for the account in this browser (the SDK's
   storage area, `hud-rail-hidden`); where the host keeps no theme state, for the page.
 - HIDE AUTO folds the core away: beside the state chip, in Pause Auto's old place, on the desktop and the phone. The
   rings and Auto slide up into a bar as wide as the core that keeps the state chip, and SHOW AUTO brings them back

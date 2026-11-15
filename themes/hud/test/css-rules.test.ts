@@ -246,6 +246,11 @@ describe('the hidden rail (HUD 1.4.0)', () => {
     expect(hidden).toContain('margin-left: calc(-1 * var(--hud-rail-width));')
     expect(hidden).toContain('visibility: hidden;')
   })
+
+  it("slides in a time scaled by the host's motion factor, so reduced motion makes it instant", () => {
+    expect(ruleBody('frame/side-rail.module.css', '.rail')).toContain('--hud-rail-slide: calc(220ms * var(--hud-motion-scale));')
+    expect(ruleBody('frame/side-rail.module.css', '.rail[data-hidden="true"]')).toContain('visibility 0s linear var(--hud-rail-slide)')
+  })
 })
 
 describe('the empty chat', () => {

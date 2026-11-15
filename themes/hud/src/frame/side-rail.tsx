@@ -15,7 +15,8 @@ import styles from './side-rail.module.css'
  * Settings sit at its foot, above Auto's dock (none while the host draws its own floating Auto). Every link is the
  * SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab. On a phone the same lists
  * stand in the frame's menu instead (src/frame/nav-drawer.tsx), which takes them from here. Hidden (the top bar's
- * MENU, HUD 1.4.0), it slides out to the left and is inert, so nothing in it takes the focus or is read.
+ * MENU, HUD 1.4.0), it slides out to the left and is inert, so nothing in it takes the focus or is read, and Auto in
+ * its dock is his still.
  */
 
 export const RAIL_LABEL = 'Sidebar'
@@ -118,7 +119,7 @@ export function SideRail({ dock = true, id, hidden = false }: SideRailProps) {
       <RecentList />
       <div className={styles.foot}>
         {nav.footer.length > 0 && <RailList items={nav.footer} activeId={activeId} label={MORE_LABEL} />}
-        {dock && <AutoDock />}
+        {dock && <AutoDock playing={!hidden} />}
       </div>
     </aside>
   )
