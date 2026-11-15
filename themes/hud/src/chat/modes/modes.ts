@@ -1,7 +1,7 @@
 import { CHAT_HREF } from '@automatos/theme-sdk'
 
 /**
- * HUD 1.4.0: the chat's modes, the three that Studio's chat offers under its message box. Code and Mission are links
+ * HUD 1.5.0: the chat's modes, the three that Studio's chat offers under its message box. Code and Mission are links
  * to the host's own page for each: the host's chat with the code canvas (`/chat?repo=.`; `repo` is on theme.json's
  * keepCorePage list, so the host draws its own chat page there, never HUD's core screen) and Missions
  * (`/assignments?tab=missions`). Plan is the host's own switch, a toggle on the chat controller (SDK 1.5.0's

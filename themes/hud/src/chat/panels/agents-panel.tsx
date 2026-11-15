@@ -10,7 +10,7 @@ import styles from './panels.module.css'
  * AGENTS, the core screen's first panel (the design's left column): the workspace's agents from the SDK's roster
  * (useAgents), active ones first, each with its name, its status as a glyph and a word, and a detail line; the
  * header's value is how many are active. The design's progress bars are left out: the roster says no agent's
- * progress. HUD 1.4.0: on the core screen, a row of an agent that can run now acts (SDK 1.5.0): a press makes the
+ * progress. HUD 1.5.0: on the core screen, a row of an agent that can run now acts (SDK 1.5.0): a press makes the
  * message box talk to that agent (the chat's chooseAgent; pressed while it does, aria-pressed), and the box takes the
  * focus; a session agent's row is a link to its session (`/chat?agent=<id>`), tagged SESSION. The other rows only say.
  */

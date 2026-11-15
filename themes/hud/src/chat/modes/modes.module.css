@@ -1,5 +1,5 @@
 /*
- * HUD 1.4.0: the row under the message box (mode-row.tsx, agent-picker.tsx). The modes are HUD's chips: square, a
+ * HUD 1.5.0: the row under the message box (mode-row.tsx, agent-picker.tsx). The modes are HUD's chips: square, a
  * 1 px outline in the line colour, mono capitals tracked .14em in the secondary text, the accent line and the readable
  * accent on hover; PLAN, while on, in the accent's outline and the readable accent with the accent's fill behind it;
  * 32 px high between the desktop's box and its keys, 44 px in the phone's dock. The agent chip is the

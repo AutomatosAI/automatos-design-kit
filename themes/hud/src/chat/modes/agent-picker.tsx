@@ -7,7 +7,7 @@ import {
 import styles from './modes.module.css'
 
 /**
- * HUD 1.4.0: who the message box talks to (agent-choice.ts, SDK 1.5.0's chat controller). useAgentSeat hands the
+ * HUD 1.5.0: who the message box talks to (agent-choice.ts, SDK 1.5.0's chat controller). useAgentSeat hands the
  * composer its seat: its placeholder ("Message Auto", or "Message <the agent>") and the picker for the row under the
  * box. The picker is a chip naming the agent, a disclosure (aria-expanded) over the list it opens: Auto, then each
  * active agent that can run now (the SDK's useAgents). An agent is chosen with the controller's chooseAgent, and the
