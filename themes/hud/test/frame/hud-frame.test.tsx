@@ -4,6 +4,7 @@
 // backdrop, the page in its main and the widget beside it; Auto's dock shows exactly while the preset's auto is on,
 // and steps aside on HUD's core screen (/chat), whose voice core shows him, but not on the host's own chat there,
 // and on every page while the host draws its own floating Auto widget.
+// HUD 1.4.0: MENU, first in the top bar, hides the rail and shows it again, remembered through the host's theme state.
 // Roles, names and attributes only: the colours are the host's painted variables, which jsdom never paints.
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -141,6 +142,49 @@ describe('the top bar', () => {
   it('shows the time', () => {
     const { container } = renderFrame()
     expect(container.querySelector('time')?.getAttribute('dateTime')).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
+  })
+})
+
+describe('MENU, the side rail\'s toggle (HUD 1.4.0)', () => {
+  const menu = (): HTMLElement => within(screen.getByRole('banner', { name: TOP_BAR })).getByRole('button', { name: 'Menu' })
+  const rail = (): HTMLElement | null => document.querySelector('aside[aria-label="Sidebar"]')
+
+  it('stands first in the top bar, says the rail shows, and names it', () => {
+    renderFrame()
+    const bar = screen.getByRole('banner', { name: TOP_BAR })
+    expect(bar.firstElementChild).toBe(menu())
+    expect(menu()).toHaveAttribute('aria-expanded', 'true')
+    expect(menu()).toHaveAttribute('aria-controls', rail()?.id)
+    expect(rail()).not.toHaveAttribute('data-hidden')
+  })
+
+  it('hides the rail, out of the tab order and the accessibility tree, and shows it again', () => {
+    renderFrame()
+    fireEvent.click(menu())
+    expect(menu()).toHaveAttribute('aria-expanded', 'false')
+    expect(rail()).toHaveAttribute('data-hidden', 'true')
+    expect(rail()).toHaveAttribute('inert')
+    expect(within(screen.getByRole('main')).getByTestId('page')).toBeInTheDocument()
+    fireEvent.click(menu())
+    expect(menu()).toHaveAttribute('aria-expanded', 'true')
+    expect(rail()).not.toHaveAttribute('inert')
+    expect(rail()).not.toHaveAttribute('data-hidden')
+  })
+
+  it('is remembered: the rail stays hidden on the next page, and after a reload', () => {
+    const { unmount } = renderFrame()
+    fireEvent.click(menu())
+    unmount()
+    renderFrame()
+    expect(menu()).toHaveAttribute('aria-expanded', 'false')
+    expect(rail()).toHaveAttribute('data-hidden', 'true')
+  })
+
+  it('still hides the rail on this page where the host keeps no theme state', () => {
+    host.setStorage({ ready: false })
+    renderFrame()
+    fireEvent.click(menu())
+    expect(rail()).toHaveAttribute('data-hidden', 'true')
   })
 })
 

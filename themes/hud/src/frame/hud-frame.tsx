@@ -1,5 +1,6 @@
 import { type ReactNode, useId } from 'react'
 
+import { useKeptSwitch } from '../lib/kept-switch'
 import { useHudLook } from '../lib/looks/use-hud-look'
 import { usePhoneLayout } from '../lib/phone-layout'
 import { Backdrop } from './backdrop'
@@ -15,7 +16,9 @@ import { useNavDrawer } from './use-nav-drawer'
  * The host's pages render inside it as in the Studio shell, recoloured by the look's Studio tokens; a
  * full-bleed page (the chat) fills the column itself, any other scrolls inside it, capped as Studio caps it.
  * The host hands over the floating Auto widget, drawn beside the page as the Studio shell has it; while it does,
- * the rail's Auto dock steps aside, so Auto shows once. The frame carries the active look's id, which a test reads;
+ * the rail's Auto dock steps aside, so Auto shows once. The top bar's MENU hides the rail and shows it again (HUD 1.4.0),
+ * remembered for the account in this browser (RAIL_HIDDEN_KEY): hidden, it slides out to the left, out of the tab
+ * order and the accessibility tree, and the page takes its width. The frame carries the active look's id, which a test reads;
  * every colour and switch is the look's painted variables.
  *
  * In a window narrower than the desktop layout (src/lib/phone-layout.ts) it is the design's phone: the phone's top
@@ -33,6 +36,9 @@ export interface HudFrameProps {
   readonly autoWidget?: ReactNode
 }
 
+/** The rail hidden, kept through the SDK's storage area (src/lib/kept-switch.ts). */
+export const RAIL_HIDDEN_KEY = 'hud-rail-hidden'
+
 /** True when the host handed over a widget to draw (nothing, null and false draw nothing). */
 export function hasAutoWidget(autoWidget: ReactNode): boolean {
   return autoWidget !== undefined && autoWidget !== null && autoWidget !== false
@@ -43,13 +49,16 @@ export function HudFrame({ children, fullBleed = false, autoWidget }: HudFramePr
   const phone = usePhoneLayout()
   const drawer = useNavDrawer(phone)
   const drawerId = useId()
+  const railId = useId()
+  const railHidden = useKeptSwitch(RAIL_HIDDEN_KEY)
+  const rail = { shown: !railHidden.on, onToggle: railHidden.toggle, railId }
   // `safe-bottom` (the host's one safe-area helper) keeps the frame's bottom edge clear of a home bar.
   return (
     <div className={`${styles.frame} safe-bottom`} data-look={look.id} data-layout={phone ? 'phone' : 'desktop'}>
       <Backdrop />
-      {phone ? <PhoneTopBar drawer={drawer} drawerId={drawerId} /> : <TopBar />}
+      {phone ? <PhoneTopBar drawer={drawer} drawerId={drawerId} /> : <TopBar rail={rail} />}
       <div className={styles.body} inert={phone && drawer.open}>
-        {!phone && <SideRail dock={!hasAutoWidget(autoWidget)} />}
+        {!phone && <SideRail id={railId} hidden={railHidden.on} dock={!hasAutoWidget(autoWidget)} />}
         {fullBleed ? (
           <main className={styles.fullBleed} tabIndex={-1}>
             {children}

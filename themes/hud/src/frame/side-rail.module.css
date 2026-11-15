@@ -14,6 +14,19 @@
   padding: var(--hud-space-5) var(--hud-space-4);
   border-right: 1px solid var(--hud-line);
   overflow-y: auto;
+  transition:
+    margin-left 220ms ease,
+    visibility 0s;
+}
+
+/* Hidden (the top bar's MENU): it slides out past the frame's left edge at its full width, so its words never wrap
+   on the way, and the page takes its place; once it is out it is hidden. */
+.rail[data-hidden="true"] {
+  margin-left: calc(-1 * var(--hud-rail-width));
+  visibility: hidden;
+  transition:
+    margin-left 220ms ease,
+    visibility 0s linear 220ms;
 }
 
 .nav {

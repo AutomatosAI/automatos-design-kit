@@ -14,7 +14,8 @@ import styles from './side-rail.module.css'
  * SDK's useRecentChats), each opening in the chat, the one on screen marked; nothing until there is one. Docs and
  * Settings sit at its foot, above Auto's dock (none while the host draws its own floating Auto). Every link is the
  * SDK's HostLink: a path inside the app moves the host's router, Docs opens in a new tab. On a phone the same lists
- * stand in the frame's menu instead (src/frame/nav-drawer.tsx), which takes them from here.
+ * stand in the frame's menu instead (src/frame/nav-drawer.tsx), which takes them from here. Hidden (the top bar's
+ * MENU, HUD 1.4.0), it slides out to the left and is inert, so nothing in it takes the focus or is read.
  */
 
 export const RAIL_LABEL = 'Sidebar'
@@ -92,6 +93,10 @@ export function RecentList() {
 export interface SideRailProps {
   /** False while the host draws its floating Auto widget: the dock steps aside, so Auto shows once. */
   readonly dock?: boolean
+  /** The rail's id, which the top bar's MENU names. */
+  readonly id?: string
+  /** True while the viewer has hidden the rail. */
+  readonly hidden?: boolean
 }
 
 /** The rail's nav for this caller, and the item the current page belongs to. */
@@ -101,10 +106,10 @@ export function useRailNav(): { readonly nav: RailNav; readonly activeId: string
   return { nav, activeId: resolveRailActiveId(useHostPathname()) }
 }
 
-export function SideRail({ dock = true }: SideRailProps) {
+export function SideRail({ dock = true, id, hidden = false }: SideRailProps) {
   const { nav, activeId } = useRailNav()
   return (
-    <aside className={styles.rail} aria-label={RAIL_LABEL}>
+    <aside id={id} className={styles.rail} aria-label={RAIL_LABEL} data-hidden={hidden ? 'true' : undefined} inert={hidden}>
       <nav aria-label={NAV_LABEL} className={styles.nav}>
         {nav.groups.map((group) => (
           <RailGroupList key={group.id} group={group} activeId={activeId} />

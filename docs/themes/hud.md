@@ -5,11 +5,11 @@ mark, the clock and the host's utilities; a side rail with every core page; squa
 labels; one accent; and a grid, a glow and scan lines behind everything. It is the kit's second theme, built here
 from the Command design among the kit's design references ([`references/`](../../references/README.md)), around the
 host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how it is built. This page reads
-`themes/hud/theme.json` at version 1.3.0.
+`themes/hud/theme.json` at version 1.4.0.
 
 | Field | Value |
 |---|---|
-| `id`, `version` | `automatos/hud`, `1.3.0` |
+| `id`, `version` | `automatos/hud`, `1.4.0` |
 | `engines` | `{"automatos": "^1.1.0", "sdk": "^1.4.0"}`: SDK 1.4.0, the vendored SDK (since 1.3.0 HUD uses its names: a message's `knownParts`, BriefVoice's `onSpeakingRow` and `useRateBrief`; the rest of the proactive area is SDK 1.3.0's, the voice area SDK 1.2.0's) |
 | `base` | `studio`: the host's Studio design wherever HUD draws nothing of its own |
 | `htmlClass` | `hud`: every rule of `dist/theme.css` sits under `html.hud` |
@@ -23,10 +23,10 @@ host's own pages. [`themes/hud/README.md`](../../themes/hud/README.md) has how i
 
 | Where | What it is |
 |---|---|
-| `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
+| `frame@1` | The top bar (with MIC LIVE while the microphone is open), the side rail and the backdrop around every page. From 1.4.0 the top bar's MENU hides the rail and shows it again, remembered for the account in this browser. Every page HUD doesn't own is the host's, drawn inside the frame and recoloured by the look. Below 1024 px, the phone's frame: its top bar with MENU, no rail, and the menu (below). |
 | `lookEditor@1` | The LOOK drawer, at `/looks`: the five presets and your saved looks, the eight knobs, Save as new look, Reset and Delete, a live preview, and Share to export or import a look. |
 | `styleSheet@1` | The style sheet, at `/looks/style`: the active look's knobs with the variable each drives, HUD's colours and Studio's tokens with their values, the live contrast, the type and the components. |
-| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and Pause Auto beside it, the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box, and in the transcript the brief and the suggestions Auto posts and his SAY chips (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
+| `/chat` | The core screen (`mode: own`): Auto in the voice core with his state in words and HIDE AUTO beside it (from 1.4.0: it folds the core into a bar that keeps the state chip, SHOW AUTO brings it back, remembered for the account in this browser; it took Pause Auto's place), the transcript with his replies and the host's cards, its top edge fading so a row scrolled under it is never cut in half (or, before anything is said, a short line and three starters that fill the message box), NEW CHAT beside the title, the host's voice button in the design's waveform over the message box (below, Voice), the message box, and the Agents, Mission (this conversation's first), Missions, Deliverables, Today, Needs you, Next up and Systems panels as the window allows; with the day's brief, BRIEFING, and the `▸ NEXT` line over the message box, and in the transcript the brief and the suggestions Auto posts and his SAY chips (below, Proactive Auto). A `/chat` link with `repo`, `runtime` or `mode` keeps the host's chat page. Below 1024 px, the phone's core screen (below). |
 | `/x/conversations` | The Conversations route: every conversation as HUD panels, searchable by title, with NEW CHAT. The rail lists it after Chat, with a RECENT list of the latest five below the nav. |
 
 HUD fills no `notFound@1` or `asleep@1`. Its menu entries (`nav`) are Conversations (`/x/conversations`), Look
@@ -138,7 +138,7 @@ changes, and a window crossing the width keeps the page it shows.
   `WORKING`, and the time since it started (the SDK's activity feed, the same ask as the desktop's MISSION panel; the
   feed says nothing finer of what the agent does), or with none `AUTO` and his state in a word, with no time (while
   a voice session listens, thinks or speaks, `AUTO` and its phase, whatever runs); the
-  290 px core with Auto, the state chip and Pause Auto beside it, as on the desktop; the last exchange, your newest
+  290 px core with Auto, the state chip and HIDE AUTO beside it, as on the desktop; the last exchange, your newest
   words in quotes and every reply after them, Auto's with all it carries on the desktop (tool lines, Deliverables, the
   host's cards, receipts, the snag box, the AI-generated mark), which is the exchange being spoken while a voice session
   runs, sitting then at the foot of its room over the waveform rather than centred under the core, then what follows
@@ -206,6 +206,8 @@ is never packed).
   `assets/mascot/`: the same 36 files as Play's, (c) Automatos AI and not covered by the code licence
   (`themes/hud/NOTICE`). He shows while the look's `auto` is on, at the foot of the rail, on a ring in the look's
   colours, with the Pause Auto control; on the core screen he is in the voice core and the rail's dock steps aside.
+  There HIDE AUTO is his WCAG 2.2.2 control instead (pause, stop or hide): folded, the core's rings stop and he is a
+  hidden still.
   In a phone's browser there is no rail, so he shows on the core screen alone.
 - **Fonts.** Rajdhani 700 and Chakra Petch 600 in `assets/fonts/`, listed in `theme.json` `fonts`, under the SIL Open
   Font License 1.1 with their licences. Geist and Geist Mono are the host's.

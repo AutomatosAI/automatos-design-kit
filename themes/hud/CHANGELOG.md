@@ -2,6 +2,22 @@
 
 HUD's versions, newest first. A version once released never changes: a change ships as a new version.
 
+## 1.4.0
+
+More room to work, on the same Theme SDK (`engines.sdk` stays `^1.4.0`):
+
+- MENU hides the side rail: first in the desktop's top bar, HUD's MENU button (as the phone's), which slides the rail
+  out to the left and gives the page its width, and shows it again. It says whether the rail shows (`aria-expanded`)
+  and names it (`aria-controls`); hidden, the rail is inert. Remembered for the account in this browser (the SDK's
+  storage area, `hud-rail-hidden`); where the host keeps no theme state, for the page.
+- HIDE AUTO folds the core away: beside the state chip, in Pause Auto's old place, on the desktop and the phone. The
+  rings and Auto slide up into a bar as wide as the core that keeps the state chip, and SHOW AUTO brings them back
+  down. Folded, the rings stop and Auto is a hidden still, so the fold is the core's WCAG 2.2.2 control (hide); the
+  slide takes 240 ms, instant under reduced motion. It says whether the core shows (`aria-expanded`). Remembered as the
+  rail is (`hud-core-folded`).
+- Pause Auto is gone from the core: HIDE AUTO stops his motion there. The rail's dock, on the other pages, keeps its
+  Pause Auto.
+
 ## 1.3.0
 
 More of Proactive Auto, on Theme SDK 1.4.0 (`engines.sdk` stays `^1.4.0`): a message's parts in HUD's own chat (the

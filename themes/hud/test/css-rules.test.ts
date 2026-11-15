@@ -3,7 +3,7 @@
 // with its border and padding whatever the host's reset, the phone frame's page width, menu and tap targets, 40 px
 // under the message box's keys at the core screen's foot, the phone core screen's controls, dock and sizes, the voice
 // button's place, size and colours on the phone and the desktop (the press never moving while the host's control opens
-// under it), the waveform's bars, Pause Auto on the opaque ground beside the core's state chip, and the empty chat's
+// under it), the waveform's bars, HIDE AUTO on the opaque ground beside the core's state chip (and the dock's Pause Auto), and the empty chat's
 // line and starters in the message box's hint and HUD's secondary button. A rule is found by its selector, comments
 // out and whitespace collapsed.
 import { describe, expect, it } from 'vitest'
@@ -190,13 +190,22 @@ describe('the Conversations page', () => {
   })
 })
 
-describe('Pause Auto', () => {
+describe("Pause Auto (the rail's dock)", () => {
   it('stands on the opaque ground, pressed or not, so no ring shows through it', () => {
     expect(ruleBody('mascot/hud-auto.module.css', '.pause')).toContain('background: var(--hud-bg);')
     expect(ruleBody('mascot/hud-auto.module.css', '.pause[aria-pressed="true"]')).toMatch(/background: [^;]*, var\(--hud-bg\);/)
   })
+})
 
-  it('sits in a row with the state chip over the ring\'s foot, not under Auto', () => {
+describe('HIDE AUTO and the folded core (HUD 1.4.0)', () => {
+  it('stands on the opaque ground and never shrinks, so no ring shows through it and the chip gives way first', () => {
+    const fold = ruleBody('chat/voice-core.module.css', '.fold')
+    expect(fold).toContain('background: var(--hud-bg);')
+    expect(fold).toContain('flex: none;')
+    expect(fold).toContain('min-height: var(--hud-tap-min);')
+  })
+
+  it("sits in a row with the state chip over the ring's foot, not under Auto", () => {
     const row = ruleBody('chat/voice-core.module.css', '.chipRow')
     expect(row).toContain('bottom: var(--hud-core-chip-bottom);')
     expect(ruleBody('chat/voice-core.module.css', '.chip')).not.toContain('position: absolute')
@@ -208,7 +217,34 @@ describe('Pause Auto', () => {
     expect(row).toContain('left: var(--hud-space-2);')
     expect(row).toContain('right: var(--hud-space-2);')
     expect(row).toContain('justify-content: center;')
-    expect(ruleBody('mascot/hud-auto.module.css', '.pause')).toContain('flex: none;')
+  })
+
+  it('folds the core to a bar as tall as the button and its focus ring, clipping the dial as it slides up', () => {
+    expect(ruleBody('chat/voice-core.module.css', '.core')).toContain('overflow: hidden;')
+    expect(ruleBody('chat/voice-core.module.css', '.core[data-folded="true"]')).toContain(
+      'height: calc(var(--hud-tap-min) + 2 * var(--hud-space-1));',
+    )
+    const dial = ruleBody('chat/voice-core.module.css', '.dial')
+    expect(dial).toContain('bottom: 0;')
+    expect(dial).toContain('height: var(--hud-core-size);')
+  })
+
+  it('hides the folded dial once it has slid away, and stops its loops', () => {
+    const folded = ruleBody('chat/voice-core.module.css', '.core[data-folded="true"] .dial')
+    expect(folded).toContain('visibility: hidden;')
+    expect(folded).toContain('--hud-motion: paused;')
+  })
+
+  it("slides in a time scaled by the host's motion factor, so reduced motion makes it instant", () => {
+    expect(ruleBody('chat/voice-core.module.css', '.core')).toContain('--hud-core-fold-time: calc(240ms * var(--hud-motion-scale));')
+  })
+})
+
+describe('the hidden rail (HUD 1.4.0)', () => {
+  it('slides out past the left edge at its full width, then is hidden', () => {
+    const hidden = ruleBody('frame/side-rail.module.css', '.rail[data-hidden="true"]')
+    expect(hidden).toContain('margin-left: calc(-1 * var(--hud-rail-width));')
+    expect(hidden).toContain('visibility: hidden;')
   })
 })
 
