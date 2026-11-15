@@ -49,7 +49,7 @@ import { VoiceCore } from './voice-core'
  * HUD 1.2.0 (PRD-268): while the day's brief shows (the page's useBriefing), BRIEFING stands where the screen places
  * it (screen.tsx; on a phone, the last exchange's place), until it folds back. HUD 1.3.0: a tap on Auto's reply chips
  * sends their words as Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the conversation on screen
- * already shows with its own Start (thread/message-parts.ts suggestionsOnScreen). HUD 1.4.0: AGENTS' rows of agents that
+ * already shows with its own Start (thread/message-parts.ts suggestionsOnScreen). HUD 1.5.0: AGENTS' rows of agents that
  * can run choose who the message box talks to, as its picker does (panels/agents-panel.tsx, modes/).
  *
  * Two components, so Auto hears the chat in order: the chat in HudChatView, Auto and the screen in its child,

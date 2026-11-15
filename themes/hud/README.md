@@ -18,7 +18,7 @@ Like every theme built in this kit, HUD installs and runs the same way on the lo
   brings it back), the transcript with his replies and the host's own
   cards (approvals, Deliverables, Missions, tickets; its top edge fades, so a row scrolled under it is never cut in
   half), the message box (Enter sends, Shift + Enter makes a new line,
-  Esc stops) with the agent it talks to, CODE, PLAN and MISSION under it (from 1.4.0, SDK 1.5.0: a picker of the
+  Esc stops) with the agent it talks to, CODE, PLAN and MISSION under it (from 1.5.0, SDK 1.5.0: a picker of the
   agents that can run, a link to the host's chat with the code canvas, the host's Plan switch and a link to Missions),
   and the panels beside it as the window allows: Agents and Mission (this conversation's Mission first,
   else the newest running one) on the left; Today, Needs you, Next up and Deliverables on the right. A new chat says

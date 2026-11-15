@@ -36,7 +36,7 @@ import { useFollowEnd } from './use-follow-end'
  * HUD 1.2.0 (PRD-268): while the day's brief shows, BRIEFING takes the last exchange's slot until it folds back, unless
  * a card in the conversation waits for you, which keeps the exchange in its slot. HUD 1.3.0: Auto's reply chips in the
  * last exchange send their words as the box's Send does, and the `▸ NEXT` line skips any suggestion BRIEFING or the last
- * exchange shows. HUD 1.4.0: under the control row, the row of CODE, PLAN and MISSION (modes/mode-row.tsx), open or shut,
+ * exchange shows. HUD 1.5.0: under the control row, the row of CODE, PLAN and MISSION (modes/mode-row.tsx), open or shut,
  * with the agent picker first; choosing an agent opens the box on it, named after that agent.
  */
 

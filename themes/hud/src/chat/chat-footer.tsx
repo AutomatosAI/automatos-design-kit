@@ -13,7 +13,7 @@ import { NextLine } from './next/next-line'
  * (src/voice/voice-deck.tsx: the waveform with the host's voice button), and the message box. The banner is the host's
  * own card; HUD only places it. The host's first-run nudge heads the column instead (screen.tsx), clear of the box.
  * HUD 1.2.0 (PRD-268): the `▸ NEXT` line, what Auto suggests, sits between the banner and the voice deck
- * (next/next-line.tsx). HUD 1.4.0: the message box carries the row of CODE, PLAN and MISSION under it, with the agent
+ * (next/next-line.tsx). HUD 1.5.0: the message box carries the row of CODE, PLAN and MISSION under it, with the agent
  * picker first (modes/), which also names the box after the agent it talks to.
  */
 

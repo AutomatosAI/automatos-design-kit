@@ -48,7 +48,7 @@ export interface ChatScreenProps {
   readonly briefing?: ReactNode
   /** A card in the conversation waits for you: in one column the transcript keeps its slot. */
   readonly keepTranscript?: boolean
-  /** The chat's agent choice, which makes AGENTS' rows act (HUD 1.4.0); absent while the conversation opens. */
+  /** The chat's agent choice, which makes AGENTS' rows act (HUD 1.5.0); absent while the conversation opens. */
   readonly chooser?: AgentChooser | null
 }
 

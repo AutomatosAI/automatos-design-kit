@@ -3,7 +3,7 @@ import type { HostChatController, RosterAgent } from '@automatos/theme-sdk'
 import { agentHref } from './modes'
 
 /**
- * HUD 1.4.0: who the message box talks to, on SDK 1.5.0's chat controller (`agentId`, null for Auto, and
+ * HUD 1.5.0: who the message box talks to, on SDK 1.5.0's chat controller (`agentId`, null for Auto, and
  * `chooseAgent`, false for an agent the host refuses) and its roster (`configuration.runtime`). A session agent (its
  * runtime the CLI) runs in a session of its own: its link opens it (`/chat?agent=<id>`), and the box never talks to it.
  * Pure.

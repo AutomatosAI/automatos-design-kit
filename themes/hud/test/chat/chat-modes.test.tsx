@@ -1,4 +1,4 @@
-// HUD 1.4.0 on SDK 1.5.0, the row under the message box, on the harness. CODE and MISSION are links in a group named
+// HUD 1.5.0 on SDK 1.5.0, the row under the message box, on the harness. CODE and MISSION are links in a group named
 // Modes, with PLAN between them, a toggle on the host's own Plan switch; the row stands after Send and before the keys
 // on the desktop, and in the phone's dock under the control row, the box open or shut. The agent picker comes first:
 // its chip names the agent, its list holds Auto and the active agents that can run, a session agent as a link to its

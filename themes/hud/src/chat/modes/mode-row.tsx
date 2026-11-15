@@ -5,7 +5,7 @@ import { CODE, MISSION, type ModeLink, MODES_LABEL, PLAN_LABEL, PLAN_TITLE } fro
 import styles from './modes.module.css'
 
 /**
- * HUD 1.4.0: the row under the message box. First the agent the box talks to (agent-picker.tsx); then the modes, CODE,
+ * HUD 1.5.0: the row under the message box. First the agent the box talks to (agent-picker.tsx); then the modes, CODE,
  * PLAN and MISSION, drawn as HUD's chips: mono capitals in a square outline. CODE and MISSION are links to the host's
  * page for each (modes.ts); PLAN is a toggle (aria-pressed) on the host's own Plan switch, the chat controller's
  * planMode and setPlanMode (SDK 1.5.0), lit in the accent while on. Tab reaches each after Send. On the desktop the row
